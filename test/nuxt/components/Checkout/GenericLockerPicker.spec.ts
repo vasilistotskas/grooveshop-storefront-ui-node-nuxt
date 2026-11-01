@@ -17,11 +17,17 @@ import { trees } from '~~/test/helpers/trees'
  */
 
 /**
- * The Leaflet map is its own client-only component, rendered as
+ * The map is its own client-only component, rendered as
  * `<LazyCheckoutSmartpointMap>` — a direct async import no stub key
- * matches — so its module is mocked to keep Leaflet out of the run.
+ * matches — so its module is mocked to keep MapLibre out of the run. The
+ * stub's one button stands for the map's own "show the list".
  */
-vi.mock('~/components/Checkout/SmartpointMap.client.vue', () => ({ default: { template: '<div data-test="map" />' } }))
+vi.mock('~/components/Checkout/SmartpointMap.client.vue', () => ({
+  default: {
+    emits: ['showList'],
+    template: `<div data-test="map"><button type="button" data-test="map-show-list" @click="$emit('showList')" /></div>`,
+  },
+}))
 
 const t = (key: string, params: Record<string, unknown> = {}) => useNuxtApp().$i18n.t(key, params)
 const tp = (key: string, params: Record<string, unknown> = {}) => t(`shipping.locker_picker.${key}`, params)
@@ -192,6 +198,19 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(inBody(tp('tab_map'))).toBe(true)
     expect(fetchAll).toHaveBeenCalledTimes(1)
     expect(fetchAll).toHaveBeenCalledWith('CY', expect.any(AbortSignal))
+  })
+
+  it('switches to the list when the map asks for it', async () => {
+    const fetchAll = vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(ROWS))
+    await openPicker(fakeCarrier({ fetchAll }))
+    const listTab = () => body().findAll('[role="tab"]').find(tab => tab.text().includes(tp('tab_list')))!
+    expect(listTab().attributes('aria-selected')).toBe('false')
+
+    await vi.waitFor(() => expect(body().find('[data-test="map-show-list"]').exists()).toBe(true))
+    await body().find('[data-test="map-show-list"]').trigger('click')
+    await flushPromises()
+
+    expect(listTab().attributes('aria-selected')).toBe('true')
   })
 
   // The picker is mounted, closed, with the selected-locker card on

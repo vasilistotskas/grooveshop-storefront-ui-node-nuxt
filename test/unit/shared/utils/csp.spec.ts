@@ -102,3 +102,26 @@ describe('img-src', () => {
     expect(pick(buildCspDirectives({ dev: false }), 'img-src')).toContain(YOUTUBE_THUMBNAIL_ORIGIN)
   })
 })
+
+describe('the maps', () => {
+  const TILEJSON = 'https://maps.grooveshop.space/basemap.json'
+
+  it('lets the map worker reach the platform maps host, and nothing else for tiles', () => {
+    // MapLibre's worker fetches the TileJSON and every vector tile; the
+    // glyphs are same-origin. No tile provider's origin is left anywhere.
+    const directives = buildCspDirectives({ dev: false, mapsTileJsonUrl: TILEJSON })
+    expect(pick(directives, 'connect-src')).toContain('https://maps.grooveshop.space')
+    expect(directives.join(';')).not.toMatch(/cartocdn|openstreetmap/)
+  })
+
+  it('allows the map worker as a same-origin script, with or without a nonce', () => {
+    expect(pick(buildCspDirectives({ dev: false, nonce: 'abc' }), 'worker-src')).toEqual([`'self'`])
+  })
+
+  it('adds no maps origin for an unset or unparseable TileJSON URL', () => {
+    for (const mapsTileJsonUrl of ['', 'not a url']) {
+      const connect = pick(buildCspDirectives({ dev: false, mapsTileJsonUrl }), 'connect-src')
+      expect(connect.some(source => source.includes('maps'))).toBe(false)
+    }
+  })
+})

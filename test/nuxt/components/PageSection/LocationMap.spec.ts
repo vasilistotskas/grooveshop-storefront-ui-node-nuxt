@@ -13,15 +13,15 @@ import { setTenant } from '~~/test/helpers/tenant'
  *
  * Coordinates are also the path an operator can actually take: the
  * embed needs the provider's origin added to the tenant's
- * `allowed_csp_sources`, while the tile origins are already in every
- * tenant's `img-src`.
+ * `allowed_csp_sources`, while the platform maps host is already in
+ * every tenant's `connect-src`.
  *
  * The canvas itself is replaced — it is `.client`-only and pulls in
- * Leaflet. It renders as `LazyPageSectionLocationCanvas` inside
+ * MapLibre. It renders as `LazyPageSectionLocationCanvas` inside
  * `<ClientOnly>`, and a `global.stubs` entry keyed by that `Lazy*` name
  * never matches. So the MODULE the lazy wrapper imports is mocked: the
  * wrapper still resolves asynchronously (hence the `vi.waitFor`), but
- * to this stub, with no cold Leaflet transform to wait for under a
+ * to this stub, with no cold MapLibre transform to wait for under a
  * loaded parallel run. What is under test is which of the three shapes
  * the section chooses.
  */
@@ -58,18 +58,17 @@ const mountOpenMap = async (props: Record<string, unknown> = {}) => {
 const COPY = { title: 'Τοποθεσία καταστήματος', show_map: 'Εμφάνιση χάρτη' }
 
 describe('the location map band', () => {
-  // The canvas additionally requires the platform's CARTO basemaps key
-  // (`shared/utils/carto-basemaps.ts`), empty in the test env. The
-  // runtime config is the shared Nuxt app's, so it is put back after
-  // every test.
-  let originalKey: unknown
+  // The canvas additionally requires the platform maps host
+  // (`mapsTileJsonUrl`), empty in the test env. The runtime config is
+  // the shared Nuxt app's, so it is put back after every test.
+  let originalUrl: unknown
   beforeEach(() => {
     storeAt('', '')
-    originalKey = useRuntimeConfig().public.cartoBasemapsKey
-    useRuntimeConfig().public.cartoBasemapsKey = 'test-carto-key'
+    originalUrl = useRuntimeConfig().public.mapsTileJsonUrl
+    useRuntimeConfig().public.mapsTileJsonUrl = 'https://maps.platform.test/basemap.json'
   })
   afterEach(() => {
-    useRuntimeConfig().public.cartoBasemapsKey = originalKey as string
+    useRuntimeConfig().public.mapsTileJsonUrl = originalUrl as string
   })
 
   it('offers the map instead of loading it, until the visitor asks', async () => {
@@ -128,10 +127,10 @@ describe('the location map band', () => {
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it('hides the canvas when no CARTO basemaps key is configured, and keeps the app links', async () => {
-    // CARTO watermarks a keyless tile request rather than refusing it,
-    // so an empty key must hide the canvas, not render a broken one.
-    useRuntimeConfig().public.cartoBasemapsKey = ''
+  it('hides the canvas when no maps host is configured, and keeps the app links', async () => {
+    // There is no other tile source: an unconfigured host must hide the
+    // canvas, not render a blank one.
+    useRuntimeConfig().public.mapsTileJsonUrl = ''
     storeAt('40.6403', '22.9439')
 
     const wrapper = await mountMap()
@@ -144,8 +143,8 @@ describe('the location map band', () => {
     ])
   })
 
-  it('still shows the address line with no key and no embed', async () => {
-    useRuntimeConfig().public.cartoBasemapsKey = ''
+  it('still shows the address line with no maps host and no embed', async () => {
+    useRuntimeConfig().public.mapsTileJsonUrl = ''
     storeAt('40.6403', '22.9439')
 
     const wrapper = await mountMap({ address: '12 Main St' })

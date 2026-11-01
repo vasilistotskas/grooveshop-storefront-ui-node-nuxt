@@ -1,100 +1,70 @@
 <script lang="ts" setup>
-import 'leaflet/dist/leaflet.css'
-
 /**
- * The store's own pin on an OpenStreetMap canvas.
+ * The store's own pin on the platform basemap (`useMapLibre`).
  *
  * The `location_map` band draws it from the store's own location
  * (`STORE_GEO_LAT`/`STORE_GEO_LNG`, `useStoreLocation`), the one its
- * structured data reports too. Coordinates are the cheaper thing for an
- * operator to supply *and* the safer one: the embed path needs the
- * provider's origin in the tenant's `allowed_csp_sources`, while these
- * tiles are already in every tenant's `img-src` (`shared/utils/csp.ts`).
+ * structured data reports too, so there is nothing to configure per
+ * store: the tiles come from the platform maps host and the glyphs from
+ * the store's own host.
  *
- * Client-only because Leaflet touches `window` on import; the caller
- * hydrates it on visibility so the contact page does not pay for the
- * library above the fold.
- *
- * The stylesheet is imported here, not globally: `nuxt.config.ts` strips
- * the module's site-wide copy so no other page pays for it. Without it the
- * panes are unpositioned blocks, and the map shows one stray tile and no
- * pin.
- *
- * Same CARTO basemaps the locker picker uses (``shared/utils
- * /carto-basemaps.ts``). The parent (``LocationMap.vue``) only mounts
- * this component when ``cartoBasemapsKey`` is set, so ``tile`` here is
- * never null in practice — but the component still checks, since
- * ``buildCartoBasemap`` never returns a keyless URL and this is the
- * one place that would try to render one.
+ * Client-only (`.client.vue`): MapLibre needs a browser, and the band
+ * mounts this only once the visitor asks for the map, so a page with the
+ * band pays for the library only then. Cooperative gestures: a map in a
+ * scrolling page must not swallow the wheel or a one-finger swipe — the
+ * visitor is scrolling past it, not exploring it.
  */
 const props = defineProps<{
   lat: number
   lng: number
-  /** Shown in a permanent tooltip on the pin, when the section has one. */
+  /** Shown beside the pin, when the section has one. */
   address?: string
 }>()
 
-const colorMode = useColorMode()
-const runtimeConfig = useRuntimeConfig()
+const { t } = useI18n()
+const container = useTemplateRef<HTMLElement>('container')
 
-const tile = computed<TileLayerSpec | null>(() =>
-  buildCartoBasemap(colorMode.value === 'dark' ? 'dark' : 'light', runtimeConfig.public.cartoBasemapsKey),
-)
-
-const center = computed<[number, number]>(() => [props.lat, props.lng])
+const { state } = useMapLibre(container, {
+  mapOptions: () => ({
+    center: [props.lng, props.lat],
+    zoom: 15,
+    cooperativeGestures: true,
+    dragRotate: false,
+    pitchWithRotate: false,
+    touchPitch: false,
+  }),
+  onLoad: (instance, maplibre) => {
+    instance.touchZoomRotate.disableRotation()
+    instance.addControl(new maplibre.NavigationControl({ showCompass: false }))
+    const pin = document.createElement('div')
+    pin.className = 'flex flex-col items-center gap-1'
+    if (props.address) {
+      const label = document.createElement('span')
+      label.className = 'max-w-56 rounded-md bg-default px-2 py-1 text-center text-xs font-medium text-highlighted shadow-md'
+      label.textContent = props.address
+      pin.append(label)
+    }
+    const dot = document.createElement('span')
+    dot.className = 'size-5 rounded-full bg-secondary ring-3 ring-(--ui-bg) shadow-md'
+    dot.setAttribute('aria-hidden', 'true')
+    pin.append(dot)
+    new maplibre.Marker({ element: pin, anchor: 'bottom' })
+      .setLngLat([props.lng, props.lat])
+      .addTo(instance)
+  },
+})
 </script>
 
 <template>
-  <div v-if="tile" class="size-full overflow-hidden rounded-xl ring ring-default">
-    <LMap
-      :zoom="15"
-      :center="center"
-      :use-global-leaflet="false"
-      class="size-full"
-      :options="{
-        // A section map inside a scrolling page must not swallow the
-        // wheel — the visitor is scrolling past it, not exploring it.
-        // Dragging and the zoom buttons stay, so it is still a map.
-        scrollWheelZoom: false,
-        zoomControl: true,
-        attributionControl: true,
-      }"
+  <div class="size-full overflow-hidden rounded-xl ring ring-default">
+    <div
+      v-if="state === 'unavailable'"
+      role="status"
+      class="flex size-full items-center justify-center gap-2 p-4 text-center text-sm text-muted"
     >
-      <LTileLayer
-        :url="tile.url"
-        :attribution="tile.attribution"
-        :options="{ maxZoom: tile.maxZoom ?? 19, subdomains: tile.subdomains ?? 'abcd' }"
-        layer-type="base"
-      />
-      <LCircleMarker
-        :lat-lng="center"
-        :radius="10"
-        :options="{
-          weight: 3,
-          fillOpacity: 1,
-          // The accent comes from CSS, not from an option: Leaflet
-          // writes its colours into SVG PRESENTATION ATTRIBUTES, which
-          // do not run var() substitution, so a token passed here would
-          // paint nothing.
-          className: 'location-pin',
-        }"
-      >
-        <LTooltip
-          v-if="address"
-          :options="{ permanent: true, direction: 'top', offset: [0, -12] }"
-        >
-          {{ address }}
-        </LTooltip>
-      </LCircleMarker>
-    </LMap>
+      <UIcon name="i-heroicons-map-pin" class="size-5 shrink-0" />
+      <span>{{ t('maps.unavailable') }}</span>
+    </div>
+    <div v-else ref="container" class="size-full" />
   </div>
 </template>
-
-<style scoped>
-/* Leaflet builds the SVG itself, so the scope attribute never lands on
-   the circle — :deep() is what reaches it. */
-:deep(.location-pin) {
-  fill: var(--ui-secondary);
-  stroke: #fff;
-}
-</style>

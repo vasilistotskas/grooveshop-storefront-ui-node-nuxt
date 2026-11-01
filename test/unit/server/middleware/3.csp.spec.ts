@@ -70,6 +70,12 @@ describe('server/middleware/3.csp', () => {
     expect(connectSrc).toContain('\'self\'')
   })
 
+  it('puts the configured platform maps host in connect-src on every tenant\'s pages', () => {
+    const csp = runWith('/checkout', { tenant: { apiDomain: 'api.tenant.example' } })['Content-Security-Policy']
+    expect(directive(csp, 'connect-src').split(/\s+/)).toContain('https://maps.platform.test')
+    expect(directive(csp, 'worker-src')).toBe(`worker-src 'self'`)
+  })
+
   it('allows the asset origins for images but not the API host', () => {
     const csp = runWith('/products/3/some-product')['Content-Security-Policy']
     const imgSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('img-src')) ?? ''

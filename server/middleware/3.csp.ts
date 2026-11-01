@@ -5,9 +5,7 @@ import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/serve
  *
  * Sets a restrictive CSP header on HTML responses to mitigate XSS. The
  * directives themselves live in ``shared/utils/csp.ts`` (single source of
- * truth, also used by ``nuxt.config.ts`` for the prerendered pages'
- * static ``routeRules`` headers — those responses are served by Nitro's
- * static handler and never reach this middleware).
+ * truth).
  *
  * In production SSR the policy carries a per-request nonce +
  * 'strict-dynamic'; ``server/plugins/csp-nonce.ts`` stamps the matching
@@ -35,6 +33,7 @@ export default defineEventHandler((event) => {
   const publicConfig = config.public as {
     mediaStreamOrigin?: string
     static?: { origin?: string }
+    mapsTileJsonUrl?: string
     djangoHostName?: string
     googleGsiEnable?: boolean
   }
@@ -76,6 +75,7 @@ export default defineEventHandler((event) => {
     dev: import.meta.dev,
     mediaStreamOrigin: publicConfig.mediaStreamOrigin,
     staticOrigin: publicConfig.static?.origin,
+    mapsTileJsonUrl: publicConfig.mapsTileJsonUrl,
     djangoHostName: publicConfig.djangoHostName || requestHost || 'localhost',
     metaPixelId: tenant?.metaPixelId,
     tiktokPixelId: tenant?.tiktokPixelId,

@@ -109,6 +109,7 @@ function onClose(): void {
                   :lockers="mapLockers"
                   :loading="mapLoading"
                   @selected="(locker) => selectLocker(locker)"
+                  @show-list="() => { activeTab = 'list' }"
                 />
                 <template #fallback>
                   <div class="flex size-full items-center justify-center">

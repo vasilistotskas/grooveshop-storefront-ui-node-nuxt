@@ -5,10 +5,10 @@
  * Two ways to draw it, in order of preference for the operator:
  *
  * - the store's own location (`STORE_GEO_LAT`/`STORE_GEO_LNG`,
- *   `useStoreLocation`), on our own OpenStreetMap canvas. Nothing to
- *   configure: the tile origins are in every tenant's `img-src`. The
- *   band used to carry its own coordinates, which drifted from the
- *   location the store's structured data reports.
+ *   `useStoreLocation`), on the platform basemap (`LocationCanvas`).
+ *   Nothing to configure per store: the maps host is in every tenant's
+ *   `connect-src`. The band used to carry its own coordinates, which
+ *   drifted from the location the store's structured data reports.
  * - `embed_url`, for a store that wants a specific provider's map.
  *   Only https embeds survive the props schema, and the tenant must
  *   also carry the embed origin (e.g. `https://www.google.com`) in
@@ -17,15 +17,14 @@
  *
  * With neither, the band is one line of address, so it does not render
  * at all unless the operator asked for the address on its own. The
- * canvas also needs the platform's `cartoBasemapsKey`
- * (`shared/utils/carto-basemaps.ts`) — without one, CARTO's tiles come
- * back watermarked, so the canvas is treated the same as a store with no
- * location: falls through to the address line, or renders nothing.
+ * canvas also needs the platform maps host
+ * (`runtimeConfig.public.mapsTileJsonUrl`); without one the canvas is
+ * treated the same as a store with no location: falls through to the
+ * address line, or renders nothing.
  *
- * The canvas loads when the visitor asks for it, not on arrival. It is
- * third-party tiles and Leaflet's own controls, and the tiles overhang
- * the frame (clipped, but still boxes in the page's stacking order), so
- * a checker cannot tell what the text above the map is painted on.
+ * The canvas loads when the visitor asks for it, not on arrival: the map
+ * library is the heaviest thing the band could download, and a canvas
+ * gives a contrast checker nothing to read the text above it against.
  *
  * Beside the address, the place opens in Google Maps or Apple Maps
  * (`mapLinks`): the visitor's own app is where the directions are.
@@ -57,7 +56,7 @@ const showEmbed = computed(() => Boolean(props.embedUrl))
 const showCanvas = computed(
   () => !showEmbed.value
     && location.value !== undefined
-    && Boolean(runtimeConfig.public.cartoBasemapsKey),
+    && Boolean(runtimeConfig.public.mapsTileJsonUrl),
 )
 </script>
 
@@ -81,8 +80,8 @@ const showCanvas = computed(
         allowfullscreen
       />
     </div>
-    <!-- Leaflet touches `window` on import, so the canvas is client-only
-         and lazy — the same shape the locker picker uses — and it mounts
+    <!-- MapLibre needs a browser, so the canvas is client-only and
+         lazy — the same shape the locker picker uses — and it mounts
          only once the visitor has asked for the map. One frame holds the
          placeholder, the skeleton and the map, so the band keeps its
          height when the map opens. -->

@@ -18,11 +18,10 @@ Active modules in `nuxt.config.ts` (the `modules` array, in order):
 7. `@nuxt/fonts` — Font optimization
 8. `@nuxt/icon` — Icon system (server bundle: icon JSON inlined for the installed collections; client bundle: scanned, with a hard size limit — see `icon` in `nuxt.config.ts`)
 9. `@nuxtjs/i18n` — Internationalization (typed pages; `detectBrowserLanguage: false`, so no browser or cookie detection: `/` serves the tenant's default locale and a visitor changes language with the switcher, see `test/unit/source-rules/no-browser-detection.spec.ts`)
-10. `@nuxtjs/leaflet` — Leaflet maps (locker/pickup-point selection)
-11. `@nuxtjs/seo` — SEO suite: robots, sitemap, OG image (disabled), Schema.org, link checker, SEO utils, site config, and **AI Ready**, which it installs (`nuxt-ai-ready` is no longer a module or dependency of ours). AI Ready serves `/llms.txt`, `/llms-full.txt` and on-demand `/<route>.md` under the `aiReady` key: `database: false` (no page store, so no `drizzle-orm`), `contentNegotiation: false` (`server/middleware/0.markdown-negotiation.ts` does the `Accept: text/markdown` negotiation, which the module's cannot do on our cached routes), `autoI18n: false`, `agentSkills: false`, and `runtimeSync`/`cron` off. `skewProtection: false` turns off the other module it installs. `robots` is configured explicitly in `nuxt.config.ts`.
-12. `@pinia/nuxt` — Pinia state management
-13. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
-14. `nuxt-auth-utils` — Session management
+10. `@nuxtjs/seo` — SEO suite: robots, sitemap, OG image (disabled), Schema.org, link checker, SEO utils, site config, and **AI Ready**, which it installs (`nuxt-ai-ready` is no longer a module or dependency of ours). AI Ready serves `/llms.txt`, `/llms-full.txt` and on-demand `/<route>.md` under the `aiReady` key: `database: false` (no page store, so no `drizzle-orm`), `contentNegotiation: false` (`server/middleware/0.markdown-negotiation.ts` does the `Accept: text/markdown` negotiation, which the module's cannot do on our cached routes), `autoI18n: false`, `agentSkills: false`, and `runtimeSync`/`cron` off. `skewProtection: false` turns off the other module it installs. `robots` is configured explicitly in `nuxt.config.ts`.
+11. `@pinia/nuxt` — Pinia state management
+12. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
+13. `nuxt-auth-utils` — Session management
 
 Conditionally pushed (NOT active in production):
 - `@nuxt/test-utils/module` — only when `NODE_ENV === 'test'`
