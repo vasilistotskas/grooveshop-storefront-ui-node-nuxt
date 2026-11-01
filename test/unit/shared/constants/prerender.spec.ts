@@ -146,3 +146,13 @@ describe('hasExtractedPayload', () => {
     }
   })
 })
+
+describe('the page builder shell', () => {
+  // `/_builder` is the staff editor. A cached page is an anonymous render
+  // replayed to every visitor under a nonce-free CSP, so the shell must be
+  // outside every cache rule: per-request nonce CSP, `private, no-store`.
+  it.each(['/_builder', '/en/_builder', '/el/_builder'])('is not cached, so it gets the per-request nonce policy: %s', (path) => {
+    expect(isCachedSsrRoute(path)).toBe(false)
+    expect(hasExtractedPayload(path)).toBe(false)
+  })
+})
