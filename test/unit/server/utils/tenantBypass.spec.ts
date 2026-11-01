@@ -18,6 +18,7 @@ describe('isTenantFreePath', () => {
     '/api/admin/cache/purge',
     '/api/texts/catalogue',
     '/api/texts/validate',
+    '/api/builder/catalogue',
   ])('says %s needs no store', (path) => {
     expect(isTenantFreePath(path)).toBe(true)
   })
