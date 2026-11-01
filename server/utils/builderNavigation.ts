@@ -45,7 +45,9 @@ interface ColumnProps {
 function visibleLink(link: LinkProps, targets: NavigationTargets): NavLink | undefined {
   const icon = link.icon ? { icon: link.icon } : {}
   if (link.page !== undefined) {
-    return targets.pages.has(link.page) ? { label: link.label, to: `/${link.page}`, ...icon } : undefined
+    // A page type a static route renders is served at that route (`home` at `/`, not `/home`, which only redirects).
+    const to = isStaticLayoutPageType(link.page) ? STATIC_LAYOUT_ROUTES[link.page].path : `/${link.page}`
+    return targets.pages.has(link.page) ? { label: link.label, to, ...icon } : undefined
   }
   if (link.contentPage !== undefined) {
     return targets.contentPages.has(link.contentPage)

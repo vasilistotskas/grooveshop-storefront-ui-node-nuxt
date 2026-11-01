@@ -46,6 +46,18 @@ describe('navigationItems', () => {
     expect(navigationItems(parsed({ document }), everything, registry).header?.map(link => link.to)).toEqual(['/terms-of-use', '/info/faq'])
   })
 
+  it('sends a page type a static route renders to that route', () => {
+    const menu: LegacyMenu = { slot: 'header', links: [
+      { labels: { el: 'Αρχική' }, target: { type: 'page_layout', pageType: 'home' } },
+      { labels: { el: 'Επικοινωνία' }, target: { type: 'page_layout', pageType: 'contact' } },
+      { labels: { el: 'Προσφορά' }, target: { type: 'page_layout', pageType: 'summer-sale' } },
+    ] }
+    const { document } = convertLegacyMenu(menu, { defaultLocale: 'el', registry })
+    const targets = { pages: new Set(['home', 'contact', 'summer-sale']), contentPages: new Set<string>() }
+
+    expect(navigationItems(parsed({ document }), targets, registry).header?.map(link => link.to)).toEqual(['/', '/contact', '/summer-sale'])
+  })
+
   it('hides a link to a page or content page that is not published, and keeps the rest', () => {
     expect(navigationItems(parsed(header.response), nothing, registry).header).toEqual([
       { label: 'Προϊόντα', to: '/products' },
