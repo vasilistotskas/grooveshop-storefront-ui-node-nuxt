@@ -22,8 +22,14 @@
           "align": "left",
           "theme": "dark",
           "stats": [
-            { "value": "500+", "label": "Orders" },
-            { "value": "24h", "label": "Delivery" }
+            {
+              "value": "500+",
+              "label": "Orders"
+            },
+            {
+              "value": "24h",
+              "label": "Delivery"
+            }
           ]
         }
       },
@@ -47,17 +53,38 @@
           "theme": "dark"
         },
         "blocks": {
-          "b1": { "type": "stat@1", "settings": { "value": "500+", "label": "Orders" } },
-          "b2": { "type": "stat@1", "settings": { "value": "24h", "label": "Delivery" } }
+          "b1": {
+            "type": "stat@1",
+            "settings": {
+              "value": "500+",
+              "label": "Orders"
+            }
+          },
+          "b2": {
+            "type": "stat@1",
+            "settings": {
+              "value": "24h",
+              "label": "Delivery"
+            }
+          }
         },
-        "blockOrder": ["b1", "b2"]
+        "blockOrder": [
+          "b1",
+          "b2"
+        ]
       }
     },
     {
       "name": "hero banner with nothing set",
       "type": "hero_banner",
-      "legacy": { "title": "", "props": {} },
-      "node": { "type": "hero_banner@1", "settings": {} }
+      "legacy": {
+        "title": "",
+        "props": {}
+      },
+      "node": {
+        "type": "hero_banner@1",
+        "settings": {}
+      }
     },
     {
       "name": "stats strip",
@@ -67,52 +94,135 @@
         "props": {
           "surface": "muted",
           "items": [
-            { "value": "2.500+", "label": "Orders" },
-            { "value": "4.8/5", "label": "Rating" },
-            { "value": "15", "label": "Years" }
+            {
+              "value": "2.500+",
+              "label": "Orders"
+            },
+            {
+              "value": "4.8/5",
+              "label": "Rating"
+            },
+            {
+              "value": "15",
+              "label": "Years"
+            }
           ]
         }
       },
       "node": {
         "type": "stats_strip@1",
-        "settings": { "surface": "muted" },
-        "blocks": {
-          "b1": { "type": "stat@1", "settings": { "value": "2.500+", "label": "Orders" } },
-          "b2": { "type": "stat@1", "settings": { "value": "4.8/5", "label": "Rating" } },
-          "b3": { "type": "stat@1", "settings": { "value": "15", "label": "Years" } }
+        "settings": {
+          "surface": "muted"
         },
-        "blockOrder": ["b1", "b2", "b3"]
+        "blocks": {
+          "b1": {
+            "type": "stat@1",
+            "settings": {
+              "value": "2.500+",
+              "label": "Orders"
+            }
+          },
+          "b2": {
+            "type": "stat@1",
+            "settings": {
+              "value": "4.8/5",
+              "label": "Rating"
+            }
+          },
+          "b3": {
+            "type": "stat@1",
+            "settings": {
+              "value": "15",
+              "label": "Years"
+            }
+          }
+        },
+        "blockOrder": [
+          "b1",
+          "b2",
+          "b3"
+        ]
       }
     },
     {
       "name": "spacer",
       "type": "spacer",
-      "legacy": { "title": "", "props": { "height": "lg" } },
-      "node": { "type": "spacer@1", "settings": { "height": "lg" } }
+      "legacy": {
+        "title": "",
+        "props": {
+          "height": "lg"
+        }
+      },
+      "node": {
+        "type": "spacer@1",
+        "settings": {
+          "height": "lg"
+        }
+      }
     },
     {
       "name": "divider",
       "type": "divider",
-      "legacy": { "title": "", "props": { "variant": "thread" } },
-      "node": { "type": "divider@1", "settings": { "variant": "thread" } }
+      "legacy": {
+        "title": "",
+        "props": {
+          "variant": "thread"
+        }
+      },
+      "node": {
+        "type": "divider@1",
+        "settings": {
+          "variant": "thread"
+        }
+      }
     },
     {
       "name": "rich text",
       "type": "rich_text",
-      "legacy": { "title": "Our story", "props": { "content": "<p>Hello <strong>world</strong></p>" } },
-      "node": { "type": "rich_text@1", "settings": { "title": "Our story", "content": "<p>Hello <strong>world</strong></p>" } }
+      "legacy": {
+        "title": "Our story",
+        "props": {
+          "content": "<p>Hello <strong>world</strong></p>"
+        }
+      },
+      "node": {
+        "type": "rich_text@1",
+        "settings": {
+          "title": "Our story",
+          "content": "<p>Hello <strong>world</strong></p>"
+        }
+      }
     },
     {
       "name": "search bar",
       "type": "search_bar",
-      "legacy": { "title": "Find a product", "props": {} },
-      "node": { "type": "search_bar@1", "settings": { "title": "Find a product" } }
+      "legacy": {
+        "title": "Find a product",
+        "props": {}
+      },
+      "node": {
+        "type": "search_bar@1",
+        "settings": {
+          "title": "Find a product"
+        }
+      }
     },
     {
       "name": "recently viewed",
       "type": "recently_viewed",
-      "legacy": { "title": "Seen lately", "props": { "heading": "Pick up where you left off" } },
-      "node": { "type": "recently_viewed@1", "settings": { "title": "Seen lately", "heading": "Pick up where you left off" } }
+      "legacy": {
+        "title": "Seen lately",
+        "props": {
+          "heading": "Pick up where you left off"
+        }
+      },
+      "node": {
+        "type": "recently_viewed@1",
+        "settings": {
+          "title": "Seen lately",
+          "heading": "Pick up where you left off"
+        }
+      }
     },
     {
       "name": "call to action banner",
@@ -168,8 +278,19 @@
     {
       "name": "business hours",
       "type": "business_hours",
-      "legacy": { "title": "When we are open", "props": { "surface": "muted" } },
-      "node": { "type": "business_hours@1", "settings": { "title": "When we are open", "surface": "muted" } }
+      "legacy": {
+        "title": "When we are open",
+        "props": {
+          "surface": "muted"
+        }
+      },
+      "node": {
+        "type": "business_hours@1",
+        "settings": {
+          "title": "When we are open",
+          "surface": "muted"
+        }
+      }
     },
     {
       "name": "location map",
@@ -250,26 +371,329 @@
     {
       "name": "about content (webside)",
       "type": "about_content",
-      "legacy": { "title": "", "props": {} },
-      "node": { "type": "about_content@1", "settings": {} }
+      "legacy": {
+        "title": "",
+        "props": {}
+      },
+      "node": {
+        "type": "about_content@1",
+        "settings": {}
+      }
     },
     {
       "name": "vision content (webside)",
       "type": "vision_content",
-      "legacy": { "title": "", "props": {} },
-      "node": { "type": "vision_content@1", "settings": {} }
+      "legacy": {
+        "title": "",
+        "props": {}
+      },
+      "node": {
+        "type": "vision_content@1",
+        "settings": {}
+      }
     },
     {
       "name": "what is microlearning (webside)",
       "type": "what_is_microlearning",
-      "legacy": { "title": "", "props": {} },
-      "node": { "type": "what_is_microlearning@1", "settings": {} }
+      "legacy": {
+        "title": "",
+        "props": {}
+      },
+      "node": {
+        "type": "what_is_microlearning@1",
+        "settings": {}
+      }
     },
     {
       "name": "why microlearning (webside)",
       "type": "why_microlearning",
-      "legacy": { "title": "", "props": {} },
-      "node": { "type": "why_microlearning@1", "settings": {} }
+      "legacy": {
+        "title": "",
+        "props": {}
+      },
+      "node": {
+        "type": "why_microlearning@1",
+        "settings": {}
+      }
+    },
+    {
+      "name": "hero carousel of slides",
+      "type": "hero_carousel",
+      "legacy": {
+        "title": "",
+        "props": {
+          "autoplay_ms": 6000,
+          "aspect": "wide",
+          "link": "/offers",
+          "slides": [
+            {
+              "image_url": "media/demo/uploads/s1.jpg",
+              "mobile_image_url": "media/demo/uploads/s1-m.jpg",
+              "alt": "Summer sale",
+              "eyebrow": "Summer",
+              "heading": "Up to 30% off",
+              "subheading": "This week only",
+              "cta_text": "Shop",
+              "cta_link": "/offers",
+              "secondary_cta_text": "Details",
+              "secondary_cta_link": "https://example.com/d",
+              "product_id": 12
+            },
+            {
+              "image_url": "media/demo/uploads/s2.jpg"
+            }
+          ]
+        }
+      },
+      "node": {
+        "type": "hero_carousel@1",
+        "settings": {
+          "autoplayMs": 6000,
+          "aspect": "wide",
+          "link": "/offers"
+        },
+        "blocks": {
+          "b1": {
+            "type": "hero_slide@1",
+            "settings": {
+              "imageUrl": "media/demo/uploads/s1.jpg",
+              "mobileImageUrl": "media/demo/uploads/s1-m.jpg",
+              "alt": "Summer sale",
+              "eyebrow": "Summer",
+              "heading": "Up to 30% off",
+              "subheading": "This week only",
+              "ctaText": "Shop",
+              "ctaLink": "/offers",
+              "secondaryCtaText": "Details",
+              "secondaryCtaLink": "https://example.com/d",
+              "productId": 12
+            }
+          },
+          "b2": {
+            "type": "hero_slide@1",
+            "settings": {
+              "imageUrl": "media/demo/uploads/s2.jpg"
+            }
+          }
+        },
+        "blockOrder": [
+          "b1",
+          "b2"
+        ]
+      }
+    },
+    {
+      "name": "hero carousel of flat images",
+      "type": "hero_carousel",
+      "legacy": {
+        "title": "",
+        "props": {
+          "autoplay_ms": 0,
+          "aspect": "banner",
+          "images": [
+            "media/a.jpg",
+            "media/b.jpg"
+          ],
+          "mobile_images": [
+            "media/a-m.jpg"
+          ]
+        }
+      },
+      "node": {
+        "type": "hero_carousel@1",
+        "settings": {
+          "autoplayMs": 0,
+          "aspect": "banner",
+          "images": [
+            "media/a.jpg",
+            "media/b.jpg"
+          ],
+          "mobileImages": [
+            "media/a-m.jpg"
+          ]
+        }
+      }
+    },
+    {
+      "name": "products slider",
+      "type": "products_slider",
+      "legacy": {
+        "title": "Best sellers",
+        "props": {
+          "surface": "muted",
+          "heading": "Popular now",
+          "subheading": "What shoppers pick",
+          "cta_text": "See all",
+          "cta_link": "/products",
+          "ordering": "popular",
+          "category_id": 4,
+          "show_add_to_cart": true,
+          "page_size": 12
+        }
+      },
+      "node": {
+        "type": "products_slider@1",
+        "settings": {
+          "title": "Best sellers",
+          "surface": "muted",
+          "heading": "Popular now",
+          "subheading": "What shoppers pick",
+          "ctaText": "See all",
+          "ctaLink": "/products",
+          "ordering": "popular",
+          "categoryId": 4,
+          "showAddToCart": true,
+          "pageSize": 12
+        }
+      }
+    },
+    {
+      "name": "products grid",
+      "type": "products_grid",
+      "legacy": {
+        "title": "",
+        "props": {
+          "ordering": "newest",
+          "page_size": 48,
+          "show_add_to_cart": false
+        }
+      },
+      "node": {
+        "type": "products_grid@1",
+        "settings": {
+          "ordering": "newest",
+          "pageSize": 48,
+          "showAddToCart": false
+        }
+      }
+    },
+    {
+      "name": "featured products",
+      "type": "featured_products",
+      "legacy": {
+        "title": "Featured",
+        "props": {
+          "surface": "default",
+          "heading": "Our picks",
+          "ordering": "featured",
+          "columns": 4,
+          "page_size": 8
+        }
+      },
+      "node": {
+        "type": "featured_products@1",
+        "settings": {
+          "title": "Featured",
+          "surface": "default",
+          "heading": "Our picks",
+          "ordering": "featured",
+          "columns": 4,
+          "pageSize": 8
+        }
+      }
+    },
+    {
+      "name": "product categories",
+      "type": "product_categories",
+      "legacy": {
+        "title": "",
+        "props": {
+          "surface": "muted",
+          "heading": "Shop by category",
+          "layout": "tiles",
+          "parent_id": 7,
+          "limit": 6
+        }
+      },
+      "node": {
+        "type": "product_categories@1",
+        "settings": {
+          "surface": "muted",
+          "heading": "Shop by category",
+          "layout": "tiles",
+          "parentId": 7,
+          "limit": 6
+        }
+      }
+    },
+    {
+      "name": "blog categories",
+      "type": "blog_categories",
+      "legacy": {
+        "title": "Topics",
+        "props": {}
+      },
+      "node": {
+        "type": "blog_categories@1",
+        "settings": {
+          "title": "Topics"
+        }
+      }
+    },
+    {
+      "name": "blog posts carousel",
+      "type": "blog_posts_carousel",
+      "legacy": {
+        "title": "",
+        "props": {
+          "surface": "default",
+          "heading": "From the blog",
+          "subheading": "Guides and news",
+          "cta_text": "Read more",
+          "cta_link": "/blog",
+          "category_id": 3,
+          "count": 6
+        }
+      },
+      "node": {
+        "type": "blog_posts_carousel@1",
+        "settings": {
+          "surface": "default",
+          "heading": "From the blog",
+          "subheading": "Guides and news",
+          "ctaText": "Read more",
+          "ctaLink": "/blog",
+          "categoryId": 3,
+          "count": 6
+        }
+      }
+    },
+    {
+      "name": "blog posts grid",
+      "type": "blog_posts_grid",
+      "legacy": {
+        "title": "",
+        "props": {
+          "heading": "Latest posts",
+          "count": 9
+        }
+      },
+      "node": {
+        "type": "blog_posts_grid@1",
+        "settings": {
+          "heading": "Latest posts",
+          "count": 9
+        }
+      }
+    },
+    {
+      "name": "blog posts list",
+      "type": "blog_posts_list",
+      "legacy": {
+        "title": "Posts",
+        "props": {
+          "category_id": 2,
+          "page_size": 12
+        }
+      },
+      "node": {
+        "type": "blog_posts_list@1",
+        "settings": {
+          "title": "Posts",
+          "categoryId": 2,
+          "pageSize": 12
+        }
+      }
     }
   ]
 }

@@ -13,7 +13,36 @@ const text = (max: number) => z.string().max(max)
 
 const LINK_PATTERN = /^(\/|https:\/\/)/
 
+/** The settings a rail of products shares, the three bands of `products_*` over: `ordering` is what makes two rails on one page different. */
+function productRail(maxPageSize: number) {
+  return {
+    surface: z.enum(['default', 'muted']).optional(),
+    heading: text(200).optional(),
+    subheading: text(500).optional(),
+    ctaText: text(100).optional(),
+    ctaLink: z.string().max(1000).regex(LINK_PATTERN).optional(),
+    ordering: z.enum(['featured', 'newest', 'popular', 'discounted', 'rating']).optional(),
+    categoryId: z.number().int().min(1).max(2_147_483_647).optional(),
+    showAddToCart: z.boolean().optional(),
+    pageSize: z.number().int().min(1).max(maxPageSize).optional(),
+  }
+}
+
+/** The settings of a band of blog posts, whatever its count is called. */
+function blogRail() {
+  return {
+    surface: z.enum(['default', 'muted']).optional(),
+    heading: text(200).optional(),
+    subheading: text(500).optional(),
+    ctaText: text(100).optional(),
+    ctaLink: z.string().max(1000).regex(LINK_PATTERN).optional(),
+    categoryId: z.number().int().min(1).max(2_147_483_647).optional(),
+  }
+}
+
 export const builderField = {
+  productRail,
+  blogRail,
   text,
   /** Present and non-empty. */
   requiredText: (max: number) => z.string().min(1).max(max),

@@ -41,10 +41,17 @@ interface Case {
 }
 const cases = golden.cases as Case[]
 
-/** The props the section component gets from page_config today (`Renderer.vue`): the title, then the parsed props. */
+/**
+ * The props the section component gets from page_config today (`Renderer.vue`):
+ * the title, then the parsed props. The title is only carried over for a block
+ * with a `title` setting, which is exactly the blocks whose component reads it:
+ * on the others it was passed and never used, so a legacy title there is dropped
+ * by the port and no render changes.
+ */
 function legacyProps({ type, legacy }: Case): Record<string, unknown> {
   const { props } = parseSectionProps(type as ComponentTypeEnum, camelizeKeys(legacy.props))
-  return JSON.parse(JSON.stringify({ title: legacy.title || undefined, ...props }))
+  const title = registry.get(type)!.schema.shape.title ? legacy.title || undefined : undefined
+  return JSON.parse(JSON.stringify({ title, ...props }))
 }
 
 function builderProps({ node }: Case): Record<string, unknown> {
