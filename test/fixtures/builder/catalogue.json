@@ -1,5 +1,5 @@
 {
-  "hash": "5639ee6f48ad623d",
+  "hash": "6f25c029bae7ec43",
   "blocks": [
     {
       "type": "about_content",
@@ -1688,7 +1688,9 @@
         ],
         "additionalProperties": false
       },
-      "translatable": [],
+      "translatable": [
+        "/name"
+      ],
       "refs": {},
       "limits": {},
       "children": {
@@ -2373,6 +2375,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/name",
         "/text",
         "/role"
       ],

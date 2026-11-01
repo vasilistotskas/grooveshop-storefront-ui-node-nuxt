@@ -26,7 +26,7 @@
               "props": {
                 "heading": "Ready?",
                 "button_text": "Go",
-                "background_color": "#ffffff",
+                "background_color": "#1f2937",
                 "unknown_key": "x"
               }
             }
@@ -65,13 +65,8 @@
     "warnings": [
       {
         "code": "dropped_override",
-        "path": "/sections/00000000-0000-4000-8000-000000000910/backgroundColor",
-        "message": "the en translation of \"backgroundColor\" is not translatable; it was dropped"
-      },
-      {
-        "code": "dropped_override",
         "path": "/sections/00000000-0000-4000-8000-000000000910/unknownKey",
-        "message": "the en translation of \"unknownKey\" is not translatable; it was dropped"
+        "message": "the en translation sets \"unknownKey\", which cta_banner has no setting for; it was dropped"
       }
     ]
   }
