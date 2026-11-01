@@ -17,7 +17,9 @@ import golden from '~~/test/fixtures/builder/legacy-sections.json'
  * Equal props to one component is an equal render. The same file is
  * Django's test of its data migration (`legacy` in, `node` out).
  *
- * Reads the REAL blocks of `app/blocks`, not the unit project's fixture set.
+ * Reads the REAL blocks of `app/blocks` (every file there), not the unit project's fixture set.
+ * Vitest caches this file's transform, glob included: after ADDING a block file locally,
+ * edit this comment once or the new block is not seen (CI starts clean).
  */
 const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
 const definitions = Object.values(modules).map(({ default: block }) => block)

@@ -1237,6 +1237,29 @@
           "attribution": "The founders"
         }
       }
+    },
+    {
+      "name": "contact panel",
+      "type": "contact_panel",
+      "legacy": {
+        "title": "Contact",
+        "props": {
+          "eyebrow": "Get in touch",
+          "heading": "We answer within a day",
+          "body": "Write to us about an order or a product.",
+          "hint": "Have your order number ready."
+        }
+      },
+      "node": {
+        "type": "contact_panel@1",
+        "settings": {
+          "title": "Contact",
+          "eyebrow": "Get in touch",
+          "heading": "We answer within a day",
+          "body": "Write to us about an order or a product.",
+          "hint": "Have your order number ready."
+        }
+      }
     }
   ]
 }
