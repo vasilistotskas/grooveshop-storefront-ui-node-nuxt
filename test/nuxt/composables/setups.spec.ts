@@ -42,6 +42,8 @@ const { scriptGoogleAnalytics, loadIdle, nextPaint, consentUpdate } = vi.hoisted
   }
 })
 mockNuxtImport('useScriptGoogleAnalytics', () => scriptGoogleAnalytics)
+const { metaFbq } = vi.hoisted(() => ({ metaFbq: vi.fn() }))
+mockNuxtImport('useScriptMetaPixel', () => () => ({ proxy: { fbq: metaFbq } }))
 mockNuxtImport('afterLoadWhenIdle', () => () => loadIdle.promise)
 mockNuxtImport('afterNextPaint', () => () => nextPaint.promise)
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -302,5 +304,38 @@ describe('setupPageHeader connection hints', () => {
       { rel: 'dns-prefetch', href: 'https://assets.shop.test', crossorigin: null },
       { rel: 'preconnect', href: 'https://assets.shop.test', crossorigin: null },
     ])
+  })
+})
+
+/**
+ * Meta's automatic setup listens to every click on the page and reads the
+ * tapped element: 120-196 ms of each tap on a 6x-slowed phone profile
+ * (webside product page, 2026-11-01). The store's own events do not need
+ * it.
+ */
+describe('setupMetaPixelConsent', () => {
+  const MetaHarness = defineComponent({
+    setup() {
+      setupMetaPixelConsent()
+      return () => h('div')
+    },
+  })
+
+  beforeEach(() => {
+    metaFbq.mockClear()
+  })
+
+  it('opts the store pixel out of the automatic setup', async () => {
+    setTenant({ metaPixelId: '2069195953640891' })
+    await mountSuspended(MetaHarness, { route: false })
+
+    expect(metaFbq).toHaveBeenCalledWith('set', 'autoConfig', false, '2069195953640891')
+  })
+
+  it('registers nothing for a store with no pixel', async () => {
+    setTenant({ metaPixelId: '' })
+    await mountSuspended(MetaHarness, { route: false })
+
+    expect(metaFbq).not.toHaveBeenCalled()
   })
 })

@@ -361,7 +361,7 @@ export function setupMetaPixelConsent() {
   // ``scripts.registry`` entries in nuxt.config, never composable
   // call sites (verified against @nuxt/scripts 1.3.0 source,
   // 2026-07-12). The proxy is disabled globally in nuxt.config.
-  useScriptMetaPixel({
+  const { proxy } = useScriptMetaPixel({
     id: pixelId,
     // bundle:false — bundling downloads the vendor script into the
     // shared image at BUILD time; for gtag the asset even embeds the
@@ -370,6 +370,17 @@ export function setupMetaPixelConsent() {
     // allows the origins).
     scriptOptions: { trigger, bundle: false },
   })
+
+  // Opt the pixel out of Meta's automatic setup. Its document click
+  // listener reads the tapped element's text and features on EVERY tap,
+  // 120-196 ms of each tap on a 6x-slowed phone profile (webside product
+  // page, 2026-11-01), and the longest script in 9 of 140 slow-tap
+  // reports in the 30 days before. Events this store sends itself
+  // (PageView, ViewContent, AddToCart and the rest, with their CAPI
+  // event ids) are unaffected; only the clicks Meta infers on its own
+  // (`SubscribedButtonClick`) stop. The proxy replays the call once the
+  // consent trigger has loaded fbevents.js.
+  proxy.fbq('set', 'autoConfig', false, pixelId)
 }
 
 /**
