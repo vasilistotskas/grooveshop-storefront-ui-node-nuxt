@@ -24,6 +24,8 @@ useHead({ title: () => t('title') })
     </div>
 
     <WebsideAccountSubscriptionsSubscriptionTopicsList />
+
+    <WebsideAccountSubscriptionsStoreEmailsList />
   </WebsideAccountAreaPageWrapper>
 </template>
 

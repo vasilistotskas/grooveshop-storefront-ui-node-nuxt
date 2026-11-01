@@ -53,6 +53,14 @@
       "error_description": "You could not be unsubscribed. Please try again."
     }
   },
+  "email_preferences_notifications": {
+    "enabled_title": "Emails turned on",
+    "enabled_description": "You will receive these store emails again.",
+    "disabled_title": "Emails turned off",
+    "disabled_description": "You will no longer receive these store emails.",
+    "error_title": "Your choice was not saved",
+    "error_description": "We could not make the change. Please try again."
+  },
   "settings": "Settings",
   "addresses": "Addresses",
   "orders": "Orders",

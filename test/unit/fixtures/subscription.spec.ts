@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zSubscriptionTopic, zUserSubscription } from '~~/shared/openapi/zod.gen'
-import { makeSubscriptionTopic, makeUserSubscription } from '~~/test/fixtures/subscription'
+import { zEmailPreferences, zSubscriptionTopic, zUserSubscription } from '~~/shared/openapi/zod.gen'
+import { makeEmailPreferences, makeSubscriptionTopic, makeUserSubscription } from '~~/test/fixtures/subscription'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -16,6 +16,7 @@ describe('subscription fixtures', () => {
     ['makeSubscriptionTopic', zSubscriptionTopic, makeSubscriptionTopic()],
     ['makeSubscriptionTopic without a category', zSubscriptionTopic, makeSubscriptionTopic({ id: 2, category: undefined })],
     ['makeUserSubscription', zUserSubscription, makeUserSubscription()],
+    ['makeEmailPreferences', zEmailPreferences, makeEmailPreferences()],
     ['makeUserSubscription, unsubscribed', zUserSubscription, makeUserSubscription({ id: 2, status: 'UNSUBSCRIBED', unsubscribedAt: '2026-01-02T00:00:00Z' })],
   ] as const)('%s parses strictly', (_name, schema, value) => {
     expect(problems(schema, value)).toEqual([])
