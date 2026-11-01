@@ -1,3 +1,10 @@
+## [3.280.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.0...v3.280.1) (2026-11-01)
+
+
+### Performance Improvements
+
+* **analytics:** opt the Meta pixel out of its automatic click tracking ([#312](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/312)) ([4951516](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/49515163edcda208abcccd6121e79bb8fd9f0689))
+
 # [3.280.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.279.1...v3.280.0) (2026-11-01)
 
 
