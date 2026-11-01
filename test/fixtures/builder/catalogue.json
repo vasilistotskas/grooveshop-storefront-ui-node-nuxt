@@ -1,0 +1,2732 @@
+{
+  "hash": "5639ee6f48ad623d",
+  "blocks": [
+    {
+      "type": "about_content",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "blog_categories",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "blog_posts_carousel",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {
+        "/categoryId": "blogCategory"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "blog_posts_grid",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {
+        "/categoryId": "blogCategory"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "blog_posts_list",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {
+        "/categoryId": "blogCategory"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "bullet",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/text"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "business_hours",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "contact_panel",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 600
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 400
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/eyebrow",
+        "/heading",
+        "/body",
+        "/hint"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "cta_banner",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "buttonText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "buttonLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "backgroundColor": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/description",
+        "/buttonText"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "divider",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "variant": {
+            "type": "string",
+            "enum": [
+              "line",
+              "thread"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "faq",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "multiple": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading",
+        "/subheading"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 30
+      },
+      "children": {
+        "allowed": [
+          "faq_item"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "faq_item",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "answer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "question",
+          "answer"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/question",
+        "/answer"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "feature_item",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 100,
+            "pattern": "^i-[a-z0-9:-]+$"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/text"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "featured_products",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "ordering": {
+            "type": "string",
+            "enum": [
+              "featured",
+              "newest",
+              "popular",
+              "discounted",
+              "rating"
+            ]
+          },
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "showAddToCart": {
+            "type": "boolean"
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "columns": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {
+        "/categoryId": "category"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "features_grid",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 600
+          },
+          "columns": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "decor": {
+            "type": "string",
+            "enum": [
+              "none",
+              "gradient_tiles",
+              "framed"
+            ]
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "prompt": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "ctaText": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "ctaLink": {
+                "type": "string",
+                "maxLength": 1000,
+                "pattern": "^(\\/|https:\\/\\/)"
+              }
+            },
+            "required": [
+              "title"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading",
+        "/body",
+        "/ctaText",
+        "/prompt"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 12
+      },
+      "children": {
+        "allowed": [
+          "feature_item"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "footer_column",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^i-[a-z0-9:-]+$"
+          },
+          "showsMerchantIdentity": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/label"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": [
+          "nav_link"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "footer_menu",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": [
+          "footer_column"
+        ]
+      },
+      "kinds": [
+        "section"
+      ],
+      "groups": [
+        "footer"
+      ]
+    },
+    {
+      "type": "gallery_image",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "src": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "alt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "caption": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "src",
+          "alt"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/alt",
+        "/caption"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "header_menu",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": [
+          "nav_link"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ],
+      "groups": [
+        "header"
+      ]
+    },
+    {
+      "type": "hero_banner",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "mobileImageUrl": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "imageAlt": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "secondaryCtaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "secondaryCtaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "overlayOpacity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "decor": {
+            "type": "string",
+            "enum": [
+              "none",
+              "orbs",
+              "gradient"
+            ]
+          },
+          "align": {
+            "type": "string",
+            "enum": [
+              "left",
+              "center"
+            ]
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/subheading",
+        "/eyebrow",
+        "/imageAlt",
+        "/ctaText",
+        "/secondaryCtaText"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 4
+      },
+      "children": {
+        "allowed": [
+          "stat"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "hero_carousel",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "autoplayMs": {
+            "anyOf": [
+              {
+                "type": "number",
+                "const": 0
+              },
+              {
+                "type": "integer",
+                "minimum": 3000,
+                "maximum": 15000
+              }
+            ]
+          },
+          "aspect": {
+            "type": "string",
+            "enum": [
+              "wide",
+              "banner",
+              "square"
+            ]
+          },
+          "images": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "mobileImages": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "link": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 8
+      },
+      "children": {
+        "allowed": [
+          "hero_slide"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "hero_slide",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "mobileImageUrl": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "alt": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "secondaryCtaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "secondaryCtaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "productId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "imageUrl"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/alt",
+        "/eyebrow",
+        "/heading",
+        "/subheading",
+        "/ctaText",
+        "/secondaryCtaText"
+      ],
+      "refs": {
+        "/productId": "product"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "image_gallery",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "columns": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 4
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 24
+      },
+      "children": {
+        "allowed": [
+          "gallery_image"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "location_map",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "embedUrl": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^https:\\/\\/"
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/address"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "loyalty_hero",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "secondaryCtaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "secondaryCtaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/eyebrow",
+        "/ctaText",
+        "/secondaryCtaText"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "media_text",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 5000
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "emphasis": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "imagePosition": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ]
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "decor": {
+            "type": "string",
+            "enum": [
+              "none",
+              "orbs",
+              "gradient"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/body",
+        "/eyebrow",
+        "/note",
+        "/emphasis",
+        "/ctaText"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 10
+      },
+      "children": {
+        "allowed": [
+          "bullet",
+          "spec_card"
+        ],
+        "maxDepth": 2
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "mobile_menu",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": [
+          "nav_link"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ],
+      "groups": [
+        "mobile"
+      ]
+    },
+    {
+      "type": "nav_link",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^i-[a-z0-9:-]+$"
+          },
+          "page": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "contentPage": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "route": {
+            "type": "string",
+            "enum": [
+              "/",
+              "/products",
+              "/blog",
+              "/contact",
+              "/offers",
+              "/gift-cards",
+              "/loyalty-program",
+              "/feedback"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^https:\\/\\/"
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "page"
+            ]
+          },
+          {
+            "required": [
+              "contentPage"
+            ]
+          },
+          {
+            "required": [
+              "route"
+            ]
+          },
+          {
+            "required": [
+              "href"
+            ]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/label"
+      ],
+      "refs": {
+        "/page": "page",
+        "/contentPage": "contentPage"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "newsletter_signup",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "placeholder": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "buttonText": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/description",
+        "/placeholder",
+        "/buttonText"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "offers_preview",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted",
+              "ink"
+            ]
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/eyebrow",
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "partner",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "href": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "partner_strip",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/label"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 12
+      },
+      "children": {
+        "allowed": [
+          "partner"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "product_categories",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "slider",
+              "grid",
+              "tiles"
+            ]
+          },
+          "parentId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading"
+      ],
+      "refs": {
+        "/parentId": "category"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "products_grid",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "ordering": {
+            "type": "string",
+            "enum": [
+              "featured",
+              "newest",
+              "popular",
+              "discounted",
+              "rating"
+            ]
+          },
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "showAddToCart": {
+            "type": "boolean"
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 48
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {
+        "/categoryId": "category"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "products_slider",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          },
+          "ordering": {
+            "type": "string",
+            "enum": [
+              "featured",
+              "newest",
+              "popular",
+              "discounted",
+              "rating"
+            ]
+          },
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "showAddToCart": {
+            "type": "boolean"
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {
+        "/categoryId": "category"
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "pull_quote",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "quote": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "attribution": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/quote",
+        "/text",
+        "/attribution"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "recently_viewed",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "rich_text",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 20000,
+            "contentMediaType": "text/html"
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/content"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "search_bar",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "spacer",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "string",
+            "enum": [
+              "sm",
+              "md",
+              "lg",
+              "xl"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "spec_card",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "subtitle": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/label",
+        "/name",
+        "/subtitle"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 8
+      },
+      "children": {
+        "allowed": [
+          "spec_row"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "spec_row",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/label",
+        "/value"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "stat",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 12
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "value",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/value",
+        "/label"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "stats_strip",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 4
+      },
+      "children": {
+        "allowed": [
+          "stat"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "story_timeline",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading",
+        "/subheading"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 20
+      },
+      "children": {
+        "allowed": [
+          "timeline_entry"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "testimonial",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "avatar": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "role": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/text",
+        "/role"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "testimonials",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 20
+      },
+      "children": {
+        "allowed": [
+          "testimonial"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "timeline_entry",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "date": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 100,
+            "pattern": "^i-[a-z0-9:-]+$"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/date",
+        "/text"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "trust_badge",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "payment",
+              "shipping",
+              "ai",
+              "custom"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "icon": {
+            "type": "string",
+            "pattern": "^i-[a-z0-9:-]+$"
+          },
+          "href": {
+            "type": "string",
+            "maxLength": 1000,
+            "pattern": "^(\\/|https:\\/\\/)"
+          }
+        },
+        "required": [
+          "kind",
+          "label"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "imageUrl"
+            ]
+          },
+          {
+            "required": [
+              "icon"
+            ]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/label"
+      ],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "block"
+      ]
+    },
+    {
+      "type": "trust_badges",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "marquee": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/title",
+        "/heading"
+      ],
+      "refs": {},
+      "limits": {
+        "maxBlocks": 12
+      },
+      "children": {
+        "allowed": [
+          "trust_badge"
+        ],
+        "maxDepth": 1
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "vision_content",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "what_is_microlearning",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    },
+    {
+      "type": "why_microlearning",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "refs": {},
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ]
+    }
+  ],
+  "documentKinds": {
+    "page": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "seoTitle": {
+            "type": "string",
+            "maxLength": 70
+          },
+          "seoDescription": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "seoKeywords": {
+            "type": "string",
+            "maxLength": 255
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/seoTitle",
+        "/seoDescription",
+        "/seoKeywords"
+      ]
+    },
+    "template": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "seoTitle": {
+            "type": "string",
+            "maxLength": 70
+          },
+          "seoDescription": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "seoKeywords": {
+            "type": "string",
+            "maxLength": 255
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/seoTitle",
+        "/seoDescription",
+        "/seoKeywords"
+      ]
+    }
+  },
+  "templates": [
+    "about",
+    "blog",
+    "blog-post",
+    "contact",
+    "feedback",
+    "home",
+    "products",
+    "vision",
+    "what-is-microlearning",
+    "why-microlearning"
+  ]
+}
