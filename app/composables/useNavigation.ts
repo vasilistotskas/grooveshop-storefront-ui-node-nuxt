@@ -1,11 +1,22 @@
 /**
- * Per-tenant chrome navigation from Django's ``NavigationMenu`` rows.
+ * Per-tenant chrome navigation from the store's published menus (the
+ * header, mobile and footer group documents of the current release,
+ * `/api/builder/navigation`).
  *
  * The payload only carries slots an operator has CONFIGURED — missing
  * slots resolve to ``null`` here, and each chrome consumer falls back
  * to its code-level menu (``useFooterLinks``, BurgerMenu's
  * ``primaryItems``), so an unconfigured tenant keeps the platform
  * chrome exactly as it is today.
+ *
+ * A read that FAILED is not an unconfigured slot. Showing the generic
+ * code menus in place of a store's own on a transient error is wrong
+ * content, so every slot is then an empty menu (the chrome without
+ * navigation links) and never ``null``. The route's cache serves the last
+ * good menus while a revalidation fails (``staleMaxAge``), so this is a
+ * cold failure only, and the failed request is logged as an error by the
+ * request log (``server/api/builder/navigation.get.ts`` throws, and evlog
+ * logs an errored request at ``error`` level).
  */
 export function useNavigation() {
   // Menu labels are operator content, so a multilingual store supplies
@@ -13,7 +24,7 @@ export function useNavigation() {
   // in the key as well as the query — otherwise /en renders the Greek
   // header from the payload cached on the default-locale route.
   //
-  // `useI18n()`, for the same reason as `usePageConfig` — see the note
+  // `useI18n()`, for the same reason as `useBuilderPage` — see the note
   // there on why `useNuxtApp().$i18n` is not the context-free
   // alternative it appears to be.
   const { locale } = useI18n({ useScope: 'global' })
@@ -28,10 +39,10 @@ export function useNavigation() {
   const serving = (link: NavLink) =>
     !link.to || !isFeaturePathBlocked(link.to, blocked.value)
 
-  const { data } = useApi<Record<string, unknown[]>>(
-    '/api/page-config/navigation',
+  const { data, error } = useApi<NavigationItems>(
+    '/api/builder/navigation',
     {
-      key: () => `page-config-navigation-${locale.value}`,
+      key: () => `builder-navigation-${locale.value}`,
       // Read by the header, the burger menu and the footer in the same
       // render: with the default 'cancel' each reader re-issued the
       // request (3x per page in the crawl logs). See useStoreSettings.
@@ -41,9 +52,8 @@ export function useNavigation() {
 
   const flatSlot = (slot: 'header' | 'mobile') =>
     computed<NavLink[] | null>(() => {
-      const items = data.value?.[slot]
-      if (!Array.isArray(items) || items.length === 0) return null
-      const kept = (items as NavLink[]).filter(serving)
+      if (error.value) return []
+      const kept = (data.value?.[slot] ?? []).filter(serving)
       return kept.length > 0 ? kept : null
     })
 
@@ -58,11 +68,10 @@ export function useNavigation() {
   )
 
   const footerColumns = computed<NavColumn[] | null>(() => {
-    const items = data.value?.footer
-    if (!Array.isArray(items) || items.length === 0) return null
+    if (error.value) return []
     // A column emptied by the gate goes with its links: a bare heading
     // is noise, and the storefront's own contract requires children.
-    const kept = (items as NavColumn[])
+    const kept = (data.value?.footer ?? [])
       .map(column => ({
         ...column,
         children: column.children.filter(serving),

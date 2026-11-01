@@ -79,7 +79,7 @@ export default defineSitemapEventHandler(async (event) => {
     allProducts,
     allProductCategories,
     allContentPages,
-    publishedLayouts,
+    publishedPages,
   ] = await Promise.all([
     blogEnabled
       ? cachedBlogPosts(host, locale, `${apiBaseUrl}/blog/post?languageCode=${locale}`)
@@ -104,7 +104,7 @@ export default defineSitemapEventHandler(async (event) => {
     ),
     // A store's own layouts: there are none without one. Fails closed
     // (`null`), so a failed read lists no custom page.
-    tenant ? publishedLayoutsForHost(host, apiBaseUrl) : Promise.resolve(null),
+    tenant ? publishedPagesForHost(host, apiBaseUrl) : Promise.resolve(null),
   ])
 
   return [
@@ -148,19 +148,19 @@ export default defineSitemapEventHandler(async (event) => {
         priority: 0.4,
         lastmod: new Date(page.updatedAt),
       })),
-    // Custom pages: every published layout no static route renders, at
-    // `/<pageType>` where the catch-all serves it. They were in no
+    // Custom pages: every published page no static route renders, at
+    // `/<key>` where the catch-all serves it. They were in no
     // store's sitemap. The path, not `baseUrl`: `_i18nTransform`
     // expands it into the locale variants and their hreflang set, as
     // for the static routes, and the tenant gate then keeps only the
     // locales the store serves.
-    ...(publishedLayouts ?? [])
-      .filter(layout => isCustomPageSlug(layout.pageType))
-      .map(layout => asSitemapUrl({
-        loc: `/${layout.pageType}`,
+    ...(publishedPages ?? [])
+      .filter(page => isCustomPageSlug(page.key))
+      .map(page => asSitemapUrl({
+        loc: `/${page.key}`,
         changefreq: 'weekly',
         priority: 0.7,
-        lastmod: new Date(layout.lastModified),
+        lastmod: new Date(page.updatedAt),
         _i18nTransform: true,
       })),
     // Products (highest priority for e-commerce)

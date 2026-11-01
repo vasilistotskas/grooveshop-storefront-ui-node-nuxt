@@ -60,9 +60,9 @@ function renderedPageTypes(): RenderedPageType[] {
   const out: RenderedPageType[] = []
   // Only the components that mention the call are parsed: a script AST of
   // every component took the whole five-second budget under coverage.
-  const callers = vueFiles(COMPONENTS).filter(file => readSource(file).includes('usePageConfig'))
+  const callers = vueFiles(COMPONENTS).filter(file => readSource(file).includes('useBuilderPage'))
   for (const file of callers) {
-    for (const { call } of callsIn(file, /^usePageConfig$/)) {
+    for (const { call } of callsIn(file, /^useBuilderPage$/)) {
       const pageType = staticText(call.arguments[0])
       if (pageType !== undefined) out.push({ pageType, file, brandPage: false })
     }

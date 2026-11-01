@@ -70,7 +70,7 @@ body and pass the constant that told them apart as a prop (`Legal.vue` takes
 in the layouts (`account_shell` is the signed-in account pages' frame: banner +
 sidebar). Never put `definePageMeta`/`defineRouteRules` in a body (they are
 inert outside `pages/`), and never put visitor-facing markup in a shell.
-ESLint enforces both across bodies and pages (`eslint.config.mjs`: page macros are banned under `app/components/**`, and an un-awaited `usePageConfig` anywhere in `app/**`).
+ESLint enforces both across bodies and pages (`eslint.config.mjs`: page macros are banned under `app/components/**`, and an un-awaited `useBuilderPage` anywhere in `app/**`).
 
 **An entity page's `[slug]` is decorative, and a stale one is redirected.** The
 id names the record, so `/products/2/any-slug` would render. A page that

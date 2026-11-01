@@ -159,17 +159,17 @@ export default defineNitroPlugin((nitroApp) => {
       ? await publishedContentLocalesForHost(host, apiBaseUrl)
       : null
 
-    // The store's published layouts, read once, and only when a route
-    // whose earlier gates passed needs a layout. `null` (the read
+    // The store's published pages, read once, and only when a route
+    // whose earlier gates passed needs a page. `null` (the read
     // failed) publishes none of them, like the other gates.
     const needsLayouts = GATED_ROUTES.some(
       route => featureAllows(route) && route.pageType,
     )
-    const publishedLayouts = needsLayouts
-      ? await publishedLayoutsForHost(host, apiBaseUrl)
+    const publishedPages = needsLayouts
+      ? await publishedPagesForHost(host, apiBaseUrl)
       : null
     const publishedPageTypes = new Set(
-      publishedLayouts?.map(layout => layout.pageType),
+      publishedPages?.map(page => page.key),
     )
 
     const allowed = GATED_ROUTES.map((route) => {

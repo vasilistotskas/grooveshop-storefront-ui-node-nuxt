@@ -13,7 +13,7 @@ import { BROWSER_ACCEPT, requestWithHost, sendJson, waitUntilServing } from '../
  * projects mock `useFetch` and assert composables in isolation; the
  * only e2e spec drives one internal API route. Both were green for
  * storefront v3.170.1, which returned **500 on every page route for
- * every tenant** in production: `usePageConfig` and `useNavigation`
+ * every tenant** in production: `usePageConfig` (now `useBuilderPage`) and `useNavigation`
  * read the locale through `useNuxtApp().$i18n`, which is `undefined`
  * outside @nuxtjs/i18n's own setup plugin, so destructuring it threw
  * during SSR. Server routes and `/robots.txt` kept working, which is
@@ -57,7 +57,7 @@ const GREEK_ONLY_HOST = 'el-only-smoke.localhost'
 // that serves nuxt-ai-ready's `/llms.txt` and `.md` mirrors.
 const PLATFORM_STORE_HOST = 'platform-smoke.localhost'
 
-// A merchant's custom page: the one layout the stub publishes, served by
+// A merchant's custom page: the one page the stub publishes, served by
 // the catch-all `[slug]` page.
 const CUSTOM_PAGE_SLUG = 'our-story'
 
@@ -92,10 +92,10 @@ const searchRequests: URLSearchParams[] = []
 /**
  * The fake Django for these pages. Permissive by design: the point is
  * to exercise the RENDER, so it answers whatever shape each route needs
- * and nothing here depends on the data. `page-config` 404s deliberately
- * — that is the documented "no published layout" state, so the pages
- * fall back to their code-level sections and the test does not need a
- * layout fixture to stay in step with the seeders.
+ * and nothing here depends on the data. The builder's published read 404s
+ * deliberately (`page_not_published`): that is the normal state of a page
+ * the store has not built, so the pages render their own content and the
+ * test does not need a document fixture to stay in step with the seeders.
  */
 export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, reqUrl: URL): void {
   if (reqUrl.pathname.endsWith('/tenant/resolve')) {
@@ -120,22 +120,34 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
     configRequestHosts.push(String(req.headers['x-forwarded-host']))
   }
 
-  if (reqUrl.pathname.endsWith(`/page-config/${OUTAGE_LAYOUT_SLUG}`)) {
+  // The release's own read: its groups and the list of its pages.
+  if (reqUrl.pathname.endsWith('/builder/published')) {
+    sendJson(res, {
+      release: 1,
+      groups: {},
+      pages: [{ key: CUSTOM_PAGE_SLUG, kind: 'page', updatedAt: '2026-11-01T10:00:00+00:00' }],
+    })
+    return
+  }
+
+  if (reqUrl.pathname.endsWith(`/builder/published/${OUTAGE_LAYOUT_SLUG}`)) {
     sendJson(res, { detail: 'Internal server error.' }, 500)
     return
   }
 
-  if (reqUrl.pathname.endsWith(`/page-config/${CUSTOM_PAGE_SLUG}`)) {
+  if (reqUrl.pathname.endsWith(`/builder/published/${CUSTOM_PAGE_SLUG}`)) {
     sendJson(res, {
-      id: 1,
-      uuid: '00000000-0000-4000-8000-000000000001',
-      pageType: CUSTOM_PAGE_SLUG,
-      title: 'Η ιστορία μας',
-      seoTitle: 'Η ιστορία μας',
-      seoDescription: '',
-      seoKeywords: '',
-      isPublished: true,
-      sections: [],
+      release: 1,
+      locale: 'el',
+      theme: null,
+      groups: {},
+      page: {
+        key: `page:${CUSTOM_PAGE_SLUG}`,
+        version: 1,
+        settings: { seoTitle: 'Η ιστορία μας' },
+        sections: {},
+        order: [],
+      },
     })
     return
   }
@@ -187,8 +199,8 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
     return
   }
 
-  if (reqUrl.pathname.includes('/page-config/')) {
-    sendJson(res, { detail: 'Not found.' }, 404)
+  if (reqUrl.pathname.includes('/builder/published/')) {
+    sendJson(res, { detail: 'Not found.', code: 'page_not_published' }, 404)
     return
   }
 

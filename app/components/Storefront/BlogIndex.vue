@@ -19,7 +19,7 @@ useHead({
 // Optional per-tenant branded band above the page content — sections
 // from the published 'blog' PageLayout. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
-const { sections: brandSections } = await usePageConfig('blog')
+const { sections: brandSections } = await useBuilderPage('blog')
 
 // The search lives in the URL like the filters do, so a result page can
 // be shared and the back button undoes it.
@@ -52,7 +52,7 @@ const onSearch = async () => {
     >
       <PageSectionRenderer
         v-for="section in brandSections"
-        :key="section.uuid"
+        :key="section.id"
         :section="section"
       />
     </div>

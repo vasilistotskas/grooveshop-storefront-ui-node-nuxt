@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  publishedLayoutsForHost,
+  publishedPagesForHost,
   publishedContentLocalesForHost,
 } from '~~/server/utils/tenantSetting'
 import { backend, jsonResponse } from '~~/test/helpers/nitro'
@@ -13,23 +13,29 @@ import { backend, jsonResponse } from '~~/test/helpers/nitro'
  */
 const API = 'http://backend.test/api/v1'
 
-describe('publishedLayoutsForHost', () => {
-  it('reads every published layout once, as the store', async () => {
-    const layouts = [
-      { pageType: 'about', lastModified: '2026-10-01T08:00:00Z' },
-      { pageType: 'kelari', lastModified: '2026-10-14T18:30:00Z' },
+describe('publishedPagesForHost', () => {
+  it('reads every page of the current release once, as the store', async () => {
+    const pages = [
+      { key: 'about', kind: 'template', updatedAt: '2026-10-01T08:00:00Z' },
+      { key: 'kelari', kind: 'page', updatedAt: '2026-10-14T18:30:00Z' },
     ]
-    backend.reply(layouts)
+    backend.reply({ release: 3, groups: {}, pages })
 
-    await expect(publishedLayoutsForHost('webside.gr', API)).resolves.toEqual(layouts)
-    expect(backend.requests.map(request => request.path)).toEqual([`${API}/page-config`])
+    await expect(publishedPagesForHost('webside.gr', API)).resolves.toEqual(pages)
+    expect(backend.requests.map(request => request.path)).toEqual([`${API}/builder/published`])
     expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('webside.gr')
   })
 
   it('fails closed when the read fails', async () => {
     backend.reply(jsonResponse({ detail: 'x' }, 500))
 
-    await expect(publishedLayoutsForHost('webside.gr', API)).resolves.toBeNull()
+    await expect(publishedPagesForHost('webside.gr', API)).resolves.toBeNull()
+  })
+
+  it('fails closed when the answer is not the contract', async () => {
+    backend.reply({ release: 3, groups: {}, pages: [{ pageType: 'about' }] })
+
+    await expect(publishedPagesForHost('webside.gr', API)).resolves.toBeNull()
   })
 })
 

@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 /**
- * A brand page: a route whose whole body is its published PageLayout
+ * A brand page: a route whose whole body is its published builder page
  * (`about`, `vision`, `what-is-microlearning`, `why-microlearning`).
  *
  * One component for the four routes, because they differed only in the
- * pageType they asked for. There is no FALLBACK_LAYOUTS entry for any of
- * them: a tenant without a published layout gets a 404, not an empty
- * page.
+ * page type they asked for. A store that has not built one gets a 404,
+ * not an empty page.
  */
 const props = defineProps<{
   pageType: string
@@ -14,14 +13,14 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const { layout, sections, error } = await usePageConfig(props.pageType)
+const { page, sections, error } = await useBuilderPage(props.pageType)
 
-// A page whose layout is not published must fail LOUDLY. Rendering an
+// A page that is not published must fail LOUDLY. Rendering an
 // empty <main> with HTTP 200 is a soft-404: Google keeps it indexed, and
 // the footer of any tenant that links here would advertise a blank page.
 // Same normalization as the custom [slug] page — a backend outage is
-// 503, a genuinely absent layout is 404.
-if (error.value || !layout.value?.isPublished) {
+// 503, a genuinely absent page is 404.
+if (error.value || !page.value) {
   const upstreamStatus = error.value?.statusCode ?? 404
   throw createError(
     upstreamStatus >= 500
@@ -44,7 +43,7 @@ if (error.value || !layout.value?.isPublished) {
     >
       <PageSectionRenderer
         v-for="section in sections"
-        :key="section.uuid"
+        :key="section.id"
         :section="section"
       />
     </div>

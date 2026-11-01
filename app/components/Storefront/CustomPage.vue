@@ -16,10 +16,10 @@ if (!slug) {
 // WITHOUT it data/error are still null here on every server render and
 // the 404 branch fires unconditionally. Awaiting suspends setup, same
 // as every other data-driven page in app/pages/**.
-const { layout, sections, error } = await usePageConfig(slug)
+const { page, sections, error } = await useBuilderPage(slug)
 
-if (error.value || !layout.value?.isPublished) {
-  // Distinguish "row really absent" (404) from "backend unavailable"
+if (error.value || !page.value) {
+  // Distinguish "page really absent" (404) from "backend unavailable"
   // (5xx / timeout) — same normalization as products/[id]/[slug].vue
   // and blog/post/[id]/[slug].vue.
   const upstreamStatus = error.value?.statusCode ?? 404
@@ -30,15 +30,11 @@ if (error.value || !layout.value?.isPublished) {
   )
 }
 
-// The heading of the section that owns the page's h1, which is both
-// what a reader sees at the top of it and the only title source here
-// that is LOCALISED — `PageLayout.title` is the admin's label for the
-// layout and is not translatable, so it served "Μητρώο έργων" on
-// `/en/empeiria` and "Eidikefsi" (the slug, title-cased) on the pages
-// whose layout predates its own naming. It stays as the fallback.
-const pageTitle = computed(
-  () => sectionsHeadingText(sections.value) ?? layout.value?.title,
-)
+// The heading of the section that owns the page's h1, which is both what a
+// reader sees at the top of it and a title that is LOCALISED. The page's own
+// `seoTitle`, when the operator set one, beats it (`useBuilderPage` emits it
+// at high priority); a page with neither keeps the store's default title.
+const pageTitle = computed(() => sectionsHeadingText(sections.value))
 
 useSeoMeta({
   title: () => pageTitle.value,

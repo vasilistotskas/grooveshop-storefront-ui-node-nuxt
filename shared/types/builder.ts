@@ -156,3 +156,40 @@ export interface DocumentRoot {
   schema: ZodObject
   translatable: readonly SettingsPointer[]
 }
+
+// ── The rendered page ──────────────────────────────────────────────
+
+/** One section of a page as the renderer takes it: its block type and the props its component gets (`sectionProps`). */
+export interface BuilderSection {
+  id: string
+  /** The block type, without its version: the section component's key in the registry. */
+  componentType: string
+  props: Record<string, unknown>
+}
+
+/** A published page, parsed and resolved for one language. */
+export interface BuilderPage {
+  /** The page's own settings: its SEO copy, in the page's language. */
+  settings?: Record<string, unknown>
+  sections: BuilderSection[]
+}
+
+/**
+ * What `GET /api/builder/pages/<key>` answers. `page` is `null` when the
+ * release has no page or template of that key: the normal state of a page
+ * type a store has not built, travelling inside an object so the absent
+ * state is data a cache can hold (a bare `null` is a 204, and a thrown 404
+ * is never cached).
+ */
+export interface BuilderPageResponse {
+  page: BuilderPage | null
+}
+
+/** A page of the current release, as the sitemap lists it. */
+export interface PublishedPage {
+  /** The page key: a static route's page type, or a custom page's slug. */
+  key: string
+  kind: 'template' | 'page'
+  /** When the page's published version was made: the sitemap's lastmod. */
+  updatedAt: string
+}
