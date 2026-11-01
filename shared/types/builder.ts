@@ -136,6 +136,12 @@ export interface CatalogueDocumentKind {
   schema: Record<string, unknown>
   /** Pointers into the root settings that may be written per language. */
   translatable: string[]
+  /**
+   * Only on `template`: the page types a static route of the storefront renders.
+   * A layout of one of them is the document `template:<pageType>`, any other the
+   * custom page `page:<pageType>`. A block's `templates` names these.
+   */
+  keys?: string[]
 }
 
 export interface BlockCatalogue {
@@ -143,12 +149,6 @@ export interface BlockCatalogue {
   blocks: CatalogueBlock[]
   /** Only the kinds that have root settings; any other accepts none. */
   documentKinds: Partial<Record<BuilderDocumentKind, CatalogueDocumentKind>>
-  /**
-   * The page types a static route of the storefront renders: a layout of one of
-   * them is the document `template:<pageType>`, any other is the custom page
-   * `page:<pageType>`. A block's `templates` names these.
-   */
-  templates: string[]
 }
 
 /** What a kind of document may carry at its root: a Zod object and which of its settings are translatable. */

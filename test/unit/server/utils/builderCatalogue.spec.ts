@@ -99,7 +99,7 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('is that of an empty catalogue when no block is defined', () => {
-      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
+      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object) })
     })
 
     it('changes when what a document carries at its root does', () => {
@@ -127,7 +127,7 @@ describe('buildBlockCatalogue', () => {
         },
         translatable: ['/seoTitle', '/seoDescription', '/seoKeywords'],
       })
-      expect(documentKinds.template).toEqual(documentKinds.page)
+      expect(documentKinds.template).toEqual({ ...documentKinds.page, keys: expect.any(Array) })
     })
 
     it('lists no kind that has no root settings: the theme and a group', () => {
@@ -136,12 +136,13 @@ describe('buildBlockCatalogue', () => {
     })
   })
 
-  describe('templates', () => {
+  describe('documentKinds.template.keys', () => {
     it('lists the page types of the static routes, sorted: a layout of one is a template, any other a custom page', () => {
-      expect(buildBlockCatalogue([]).templates).toEqual(['about', 'blog', 'blog-post', 'contact', 'feedback', 'home', 'products', 'vision', 'what-is-microlearning', 'why-microlearning'])
+      expect(buildBlockCatalogue([]).documentKinds.template!.keys).toEqual(['about', 'blog', 'blog-post', 'contact', 'feedback', 'home', 'products', 'vision', 'what-is-microlearning', 'why-microlearning'])
     })
 
-    it('is part of the hash', () => {
+    it('is on the template only, and part of the hash', () => {
+      expect(buildBlockCatalogue([]).documentKinds.page).not.toHaveProperty('keys')
       expect(buildBlockCatalogue([], undefined, ['home']).hash).not.toBe(buildBlockCatalogue([]).hash)
     })
   })
@@ -171,8 +172,8 @@ describe('this build\'s catalogue', () => {
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    const { blocks, documentKinds, templates } = buildBlockCatalogue([promoBanner, promoItem])
+    const { blocks, documentKinds } = buildBlockCatalogue([promoBanner, promoItem])
 
-    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds, templates })
+    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds })
   })
 })
