@@ -27,18 +27,23 @@ const { providerToken, navigateToMock, toastAdd, gsi } = vi.hoisted(() => {
   }
   return { providerToken: vi.fn(), navigateToMock: vi.fn(), toastAdd: vi.fn(), gsi }
 })
-const { scriptGoogleAnalytics, loadIdle } = vi.hoisted(() => {
+const { scriptGoogleAnalytics, loadIdle, nextPaint, consentUpdate } = vi.hoisted(() => {
   const loadIdle = { resolve: () => {}, promise: Promise.resolve() }
+  const nextPaint = { resolve: () => {}, promise: Promise.resolve() }
+  const consentUpdate = vi.fn()
   return {
     loadIdle,
+    nextPaint,
+    consentUpdate,
     scriptGoogleAnalytics: vi.fn((_options: { scriptOptions: { trigger: unknown } }) => ({
       proxy: { gtag: () => {} },
-      consent: { update: () => {} },
+      consent: { update: consentUpdate },
     })),
   }
 })
 mockNuxtImport('useScriptGoogleAnalytics', () => scriptGoogleAnalytics)
 mockNuxtImport('afterLoadWhenIdle', () => () => loadIdle.promise)
+mockNuxtImport('afterNextPaint', () => () => nextPaint.promise)
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('useScript', () => () => gsi)
@@ -201,6 +206,51 @@ describe('setupGoogleAnalyticsConsent', () => {
     loadIdle.resolve()
     await flushPromises()
     expect(fired).toBe(true)
+  })
+
+  it('queues the decision the visitor arrived with at once', async () => {
+    const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+    isConsentGiven.value = true
+    cookiesEnabledIds.value = ['analytics_storage']
+    consentUpdate.mockClear()
+    setTenant({ gaTrackingId: 'G-GGKMZ8YLNN', googleAdsConversionId: '' })
+
+    await mountSuspended(GaHarness, { route: false })
+
+    expect(consentUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      analytics_storage: 'granted',
+      ad_storage: 'denied',
+    }))
+  })
+
+  /**
+   * gtag's consent update runs its listeners and the hits it held back
+   * synchronously: ~260 ms of the cookie banner's Accept on a 6x-slowed
+   * CPU (webside product page, 2026-11-01).
+   */
+  it('updates the tag after the frame a decision on the page is painted in', async () => {
+    const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+    isConsentGiven.value = undefined
+    cookiesEnabledIds.value = []
+    nextPaint.promise = new Promise((resolve) => {
+      nextPaint.resolve = resolve
+    })
+    setTenant({ gaTrackingId: 'G-GGKMZ8YLNN', googleAdsConversionId: '' })
+    await mountSuspended(GaHarness, { route: false })
+    consentUpdate.mockClear()
+
+    isConsentGiven.value = true
+    cookiesEnabledIds.value = ['ad_storage', 'analytics_storage']
+    await flushPromises()
+    expect(consentUpdate).not.toHaveBeenCalled()
+
+    nextPaint.resolve()
+    await flushPromises()
+    expect(consentUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      ad_storage: 'granted',
+      analytics_storage: 'granted',
+      personalization_storage: 'denied',
+    }))
   })
 })
 

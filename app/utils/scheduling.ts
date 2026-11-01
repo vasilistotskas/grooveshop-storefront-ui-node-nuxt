@@ -5,6 +5,22 @@
 export const LOAD_IDLE_TIMEOUT_MS = 5000
 
 /**
+ * Resolves once the browser has painted the next frame: a task queued from
+ * a `requestAnimationFrame` callback runs after that frame, the pattern
+ * web.dev gives for deferring the non-urgent part of an event handler
+ * (https://web.dev/articles/optimize-inp). For work a tap sets off that the
+ * visitor does not see, so the tap's own response is painted first and the
+ * work does not count against its INP. Browser only.
+ */
+export function afterNextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      setTimeout(resolve, 0)
+    })
+  })
+}
+
+/**
  * Resolves once the page has fully loaded (`load`: every image, the LCP
  * one included) and the main thread is next idle, or `LOAD_IDLE_TIMEOUT_MS`
  * after the load at the latest. For work that is not the visitor's — a

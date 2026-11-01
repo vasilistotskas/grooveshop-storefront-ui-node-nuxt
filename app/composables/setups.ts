@@ -253,22 +253,35 @@ export function setupGoogleAnalyticsConsent() {
     isConsentGiven,
   } = useCookieControl()
 
+  const updateConsent = (current: string[] | undefined) => {
+    if (!consent || !isConsentGiven.value) return
+    const status = (field: string) => current?.includes(field) ? 'granted' as const : 'denied' as const
+    consent.update({
+      ad_storage: status('ad_storage'),
+      ad_user_data: status('ad_user_data'),
+      ad_personalization: status('ad_personalization'),
+      analytics_storage: status('analytics_storage'),
+      functionality_storage: status('functionality_storage'),
+      personalization_storage: status('personalization_storage'),
+      security_storage: status('security_storage'),
+    })
+  }
+
+  // The decision the visitor arrived with is queued at once, ahead of the
+  // tag's first hits.
+  updateConsent(cookiesEnabledIds.value)
+  // A decision made on the page is a tap on the cookie banner or dialog.
+  // Once gtag has loaded, `consent update` runs its listeners and sends
+  // the hits it held back synchronously: ~260 ms of the banner's Accept
+  // at a 6x-slowed CPU, inside the click (webside product page,
+  // 2026-11-01), the commonest slow interaction in webside's INP reports.
+  // Waiting for the next paint lets the banner close first.
   watch(
     () => cookiesEnabledIds.value,
-    (current) => {
-      if (!consent || !isConsentGiven.value) return
-      const status = (field: string) => current?.includes(field) ? 'granted' as const : 'denied' as const
-      consent.update({
-        ad_storage: status('ad_storage'),
-        ad_user_data: status('ad_user_data'),
-        ad_personalization: status('ad_personalization'),
-        analytics_storage: status('analytics_storage'),
-        functionality_storage: status('functionality_storage'),
-        personalization_storage: status('personalization_storage'),
-        security_storage: status('security_storage'),
-      })
+    async (current) => {
+      await afterNextPaint()
+      updateConsent(current)
     },
-    { immediate: true },
   )
 }
 
