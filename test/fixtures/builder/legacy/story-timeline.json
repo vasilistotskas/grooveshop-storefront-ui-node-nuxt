@@ -1,0 +1,78 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000033",
+          "type": "story_timeline",
+          "title": "Our story",
+          "isVisible": true,
+          "props": {
+            "heading": "How we began",
+            "subheading": "A short history",
+            "surface": "muted",
+            "items": [
+              {
+                "title": "Founded",
+                "date": "2010",
+                "text": "A small shop opens.",
+                "icon": "i-lucide-flag"
+              },
+              {
+                "title": "Online"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000033": {
+          "type": "story_timeline@1",
+          "settings": {
+            "title": "Our story",
+            "heading": "How we began",
+            "subheading": "A short history",
+            "surface": "muted"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000033-1": {
+              "type": "timeline_entry@1",
+              "settings": {
+                "title": "Founded",
+                "date": "2010",
+                "text": "A small shop opens.",
+                "icon": "i-lucide-flag"
+              }
+            },
+            "00000000-0000-4000-8000-000000000033-2": {
+              "type": "timeline_entry@1",
+              "settings": {
+                "title": "Online"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000033-1",
+            "00000000-0000-4000-8000-000000000033-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000033"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

@@ -1,3 +1,10 @@
+# [3.280.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.279.1...v3.280.0) (2026-11-01)
+
+
+### Features
+
+* **builder:** port the page sections and menus to builder blocks, with the legacy converter ([#314](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/314)) ([4c5f30e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4c5f30eb1f3e5ea0d880df4a358089922677c852))
+
 ## [3.279.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.279.0...v3.279.1) (2026-11-01)
 
 

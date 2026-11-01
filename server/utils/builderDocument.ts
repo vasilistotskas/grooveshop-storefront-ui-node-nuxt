@@ -1,6 +1,7 @@
 import * as z from 'zod'
 
 const zDocumentShell = z.object({
+  settings: z.unknown().optional(),
   sections: z.record(z.string(), z.unknown()),
   order: z.array(z.string()),
 })
@@ -109,10 +110,16 @@ function parseNode(
  * children with it: an unknown or newer type, a type that may not sit
  * there, settings that fail their schema, an upgrade that cannot run.
  * One bad node never takes the page down. A document that is not a
- * document at all renders as an empty one. Only what `order` and each
+ * document at all renders as an empty one. `kind` says what the document
+ * may carry at its root (`BUILDER_DOCUMENT_ROOTS`). Only what `order` and each
  * node's `blockOrder` name is kept, in that order.
  */
-export function parseDocument(raw: unknown, registry: ReadonlyMap<string, BlockDefinition> = builderBlocks): BuilderDocument {
+export function parseDocument(
+  raw: unknown,
+  kind: BuilderDocumentKind,
+  registry: ReadonlyMap<string, BlockDefinition> = builderBlocks,
+  roots: Partial<Record<BuilderDocumentKind, DocumentRoot>> = BUILDER_DOCUMENT_ROOTS,
+): BuilderDocument {
   const shell = zDocumentShell.safeParse(raw)
   if (!shell.success) {
     skip('', 'invalid_node', z.prettifyError(shell.error))
@@ -131,5 +138,18 @@ export function parseDocument(raw: unknown, registry: ReadonlyMap<string, BlockD
       order.push(id)
     }
   }
-  return { sections, order }
+  const settings = parseRootSettings(shell.data.settings, roots[kind])
+  return { ...(settings && { settings }), sections, order }
+}
+
+/**
+ * A document's own settings (a page's SEO) against what its kind carries.
+ * A kind with none drops them, and settings that fail the schema are left
+ * out, each with a warning: the page still renders.
+ */
+function parseRootSettings(raw: unknown, root: DocumentRoot | undefined): Record<string, unknown> | undefined {
+  if (raw === undefined) return undefined
+  if (!root) return skip(BUILDER_DOCUMENT_NODE_ID, 'invalid_settings', 'the document kind has no settings')
+  const parsed = root.schema.safeParse(raw)
+  return parsed.success ? parsed.data : skip(BUILDER_DOCUMENT_NODE_ID, 'invalid_settings', z.prettifyError(parsed.error))
 }

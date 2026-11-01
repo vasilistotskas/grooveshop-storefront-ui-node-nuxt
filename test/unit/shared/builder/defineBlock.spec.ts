@@ -24,7 +24,7 @@ describe('defineBlock', () => {
       refs: {},
       limits: {},
       children: { allowed: [] },
-      hydrate: 'visible',
+      childList: {},
     })
     expect(block.schema).toBe(schema)
   })
@@ -36,11 +36,11 @@ describe('defineBlock', () => {
       refs: { '/items': 'product' },
       limits: { maxBlocks: 6, maxPerTemplate: 2 },
       children: { allowed: ['slide'], maxDepth: 1 },
+      childList: { slide: 'slides' },
       groups: ['marketing'],
       templates: ['home'],
       feature: 'loyalty',
       deprecated: true,
-      hydrate: 'eager',
     })
 
     expect(block).toMatchObject({
@@ -53,7 +53,7 @@ describe('defineBlock', () => {
       templates: ['home'],
       feature: 'loyalty',
       deprecated: true,
-      hydrate: 'eager',
+      childList: { slide: 'slides' },
     })
   })
 
@@ -100,6 +100,27 @@ describe('defineBlock', () => {
 
   it.each([0, 3, 1.5])('refuses children.maxDepth %s: the document nests three levels', (maxDepth) => {
     expect(() => define({ children: { allowed: [], maxDepth } })).toThrow(/maxDepth/)
+  })
+
+  describe('childList', () => {
+    const blocks = { children: { allowed: ['slide', 'badge'] } }
+
+    it('names the list prop each allowed child feeds', () => {
+      expect(define({ ...blocks, childList: { slide: 'slides', badge: 'badges' } }).childList).toEqual({ slide: 'slides', badge: 'badges' })
+    })
+
+    it('refuses a child that is not allowed', () => {
+      expect(() => define({ ...blocks, childList: { other: 'others' } })).toThrow(/"other", which is not an allowed child/)
+    })
+
+    it('refuses a prop that is not a camelCase name', () => {
+      expect(() => define({ ...blocks, childList: { slide: 'Slides' } })).toThrow(/camelCase/)
+    })
+
+    it('refuses a prop that two children share or a setting already uses', () => {
+      expect(() => define({ ...blocks, childList: { slide: 'items', badge: 'items' } })).toThrow(/distinct/)
+      expect(() => define({ ...blocks, childList: { slide: 'items' }, schema: z.object({ items: z.string() }) })).toThrow(/not a setting/)
+    })
   })
 
   it('refuses a repeated preset id', () => {

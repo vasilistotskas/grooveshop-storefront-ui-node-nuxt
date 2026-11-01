@@ -61,6 +61,10 @@ const TENANT_FREE_EXACT: readonly string[] = [
   // against it, calling server to server with no tenant Host; like the
   // text catalogue it is a constant of the server bundle.
   '/api/builder/catalogue',
+  // Django's import of `page_config` into builder documents: a pure
+  // conversion of what the request carries, called server to server with no
+  // tenant Host and guarded by the internal token.
+  '/api/builder/convert-legacy',
 ] as const
 
 const SELF_RESOLVING_PREFIXES: readonly string[] = [

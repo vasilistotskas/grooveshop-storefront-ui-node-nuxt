@@ -1,0 +1,77 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000030",
+          "type": "faq",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "default",
+            "heading": "Questions",
+            "subheading": "Quick answers",
+            "multiple": true,
+            "items": [
+              {
+                "question": "How long is delivery?",
+                "answer": "Two to three working days."
+              },
+              {
+                "question": "Can I return it?",
+                "answer": "Within 14 days."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000030": {
+          "type": "faq@1",
+          "settings": {
+            "surface": "default",
+            "heading": "Questions",
+            "subheading": "Quick answers",
+            "multiple": true
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000030-1": {
+              "type": "faq_item@1",
+              "settings": {
+                "question": "How long is delivery?",
+                "answer": "Two to three working days."
+              }
+            },
+            "00000000-0000-4000-8000-000000000030-2": {
+              "type": "faq_item@1",
+              "settings": {
+                "question": "Can I return it?",
+                "answer": "Within 14 days."
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000030-1",
+            "00000000-0000-4000-8000-000000000030-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000030"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

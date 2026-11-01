@@ -1,0 +1,88 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000029",
+          "type": "testimonials",
+          "title": "Reviews",
+          "isVisible": true,
+          "props": {
+            "surface": "muted",
+            "heading": "What shoppers say",
+            "items": [
+              {
+                "name": "Maria",
+                "text": "Fast delivery and a great fit.",
+                "avatar": "media/demo/uploads/maria.jpg",
+                "role": "Verified buyer",
+                "rating": 5
+              },
+              {
+                "name": "Nikos",
+                "text": "Good value.",
+                "rating": 4
+              },
+              {}
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000029": {
+          "type": "testimonials@1",
+          "settings": {
+            "title": "Reviews",
+            "surface": "muted",
+            "heading": "What shoppers say"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000029-1": {
+              "type": "testimonial@1",
+              "settings": {
+                "name": "Maria",
+                "text": "Fast delivery and a great fit.",
+                "avatar": "media/demo/uploads/maria.jpg",
+                "role": "Verified buyer",
+                "rating": 5
+              }
+            },
+            "00000000-0000-4000-8000-000000000029-2": {
+              "type": "testimonial@1",
+              "settings": {
+                "name": "Nikos",
+                "text": "Good value.",
+                "rating": 4
+              }
+            },
+            "00000000-0000-4000-8000-000000000029-3": {
+              "type": "testimonial@1",
+              "settings": {}
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000029-1",
+            "00000000-0000-4000-8000-000000000029-2",
+            "00000000-0000-4000-8000-000000000029-3"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000029"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

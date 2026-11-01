@@ -1,0 +1,58 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000021",
+          "type": "products_slider",
+          "title": "Best sellers",
+          "isVisible": true,
+          "props": {
+            "surface": "muted",
+            "heading": "Popular now",
+            "subheading": "What shoppers pick",
+            "cta_text": "See all",
+            "cta_link": "/products",
+            "ordering": "popular",
+            "category_id": 4,
+            "show_add_to_cart": true,
+            "page_size": 12
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000021": {
+          "type": "products_slider@1",
+          "settings": {
+            "title": "Best sellers",
+            "surface": "muted",
+            "heading": "Popular now",
+            "subheading": "What shoppers pick",
+            "ctaText": "See all",
+            "ctaLink": "/products",
+            "ordering": "popular",
+            "categoryId": 4,
+            "showAddToCart": true,
+            "pageSize": 12
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000021"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

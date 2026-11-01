@@ -1,0 +1,72 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000901",
+          "type": "spacer",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "height": "md"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000902",
+          "type": "divider",
+          "title": "",
+          "isVisible": false,
+          "props": {
+            "variant": "line"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000903",
+          "type": "search_bar",
+          "title": "Find",
+          "isVisible": true,
+          "props": {}
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000901": {
+          "type": "spacer@1",
+          "settings": {
+            "height": "md"
+          }
+        },
+        "00000000-0000-4000-8000-000000000902": {
+          "type": "divider@1",
+          "disabled": true,
+          "settings": {
+            "variant": "line"
+          }
+        },
+        "00000000-0000-4000-8000-000000000903": {
+          "type": "search_bar@1",
+          "settings": {
+            "title": "Find"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000901",
+        "00000000-0000-4000-8000-000000000902",
+        "00000000-0000-4000-8000-000000000903"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

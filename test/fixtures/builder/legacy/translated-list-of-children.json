@@ -1,0 +1,100 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000911",
+          "type": "hero_banner",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "heading": "Headphones",
+            "stats": [
+              {
+                "value": "500+",
+                "label": "Orders"
+              },
+              {
+                "value": "24h",
+                "label": "Delivery"
+              }
+            ]
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "heading": "Headphones EN",
+                "stats": [
+                  {
+                    "value": "500+",
+                    "label": "Orders EN"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000911": {
+          "type": "hero_banner@1",
+          "settings": {
+            "heading": "Headphones"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000911-1": {
+              "type": "stat@1",
+              "settings": {
+                "value": "500+",
+                "label": "Orders"
+              }
+            },
+            "00000000-0000-4000-8000-000000000911-2": {
+              "type": "stat@1",
+              "settings": {
+                "value": "24h",
+                "label": "Delivery"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000911-1",
+            "00000000-0000-4000-8000-000000000911-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000911"
+      ]
+    },
+    "i18n": {
+      "en": {
+        "00000000-0000-4000-8000-000000000911": {
+          "/heading": "Headphones EN"
+        },
+        "00000000-0000-4000-8000-000000000911-1": {
+          "/value": "500+",
+          "/label": "Orders EN"
+        }
+      }
+    },
+    "warnings": [
+      {
+        "code": "list_length_mismatch",
+        "path": "/sections/00000000-0000-4000-8000-000000000911/stats",
+        "message": "the en translation of \"stats\" has 1 entries, the default 2; matched by position"
+      }
+    ]
+  }
+}

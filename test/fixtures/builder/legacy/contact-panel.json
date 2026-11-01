@@ -1,0 +1,48 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000038",
+          "type": "contact_panel",
+          "title": "Contact",
+          "isVisible": true,
+          "props": {
+            "eyebrow": "Get in touch",
+            "heading": "We answer within a day",
+            "body": "Write to us about an order or a product.",
+            "hint": "Have your order number ready."
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000038": {
+          "type": "contact_panel@1",
+          "settings": {
+            "title": "Contact",
+            "eyebrow": "Get in touch",
+            "heading": "We answer within a day",
+            "body": "Write to us about an order or a product.",
+            "hint": "Have your order number ready."
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000038"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

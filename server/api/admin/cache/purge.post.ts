@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { useStorage } from 'nitropack/runtime'
-import { createError, defineEventHandler, getRequestHeader, getRequestIP, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+import { defineEventHandler, readValidatedBody } from 'nuxt/server'
 
 /**
  * Admin cache purge endpoint, called by the Django admin's
@@ -66,15 +66,6 @@ const bodySchema = z.object({
   tenantConfig: z.boolean().optional().default(false),
 })
 
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false
-  let mismatch = 0
-  for (let i = 0; i < a.length; i++) {
-    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i)
-  }
-  return mismatch === 0
-}
-
 function isProtected(key: string): boolean {
   return PROTECTED_FRAGMENTS.some(f => key.includes(f))
 }
@@ -99,18 +90,7 @@ function patternToMatcher(pattern: string): { prefix: string, regex: RegExp | nu
 }
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const expected = (config.cachePurgeToken as string | undefined) || ''
-  const supplied = getRequestHeader(event, 'x-cache-purge-token') || ''
-
-  if (!expected || !supplied || !timingSafeEqual(expected, supplied)) {
-    log.warn({
-      tag: 'cache-purge',
-      message: 'Rejected: invalid token',
-      ip: getRequestIP(event, { xForwardedFor: true }),
-    })
-    throw createError({ status: 401, statusText: 'Unauthorized' })
-  }
+  requireInternalToken(event, 'cache-purge')
 
   const body = await readValidatedBody(event, bodySchema)
   const storage = useStorage('cache')

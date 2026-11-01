@@ -1,0 +1,48 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000912",
+          "type": "contact_panel",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "heading": "Hello",
+            "response_time": "Within a day"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000912": {
+          "type": "contact_panel@1",
+          "settings": {
+            "heading": "Hello"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000912"
+      ]
+    },
+    "i18n": {},
+    "warnings": [
+      {
+        "code": "dropped_setting",
+        "path": "/sections/00000000-0000-4000-8000-000000000912/responseTime",
+        "message": "contact_panel has no setting \"responseTime\"; it was dropped"
+      }
+    ]
+  }
+}
