@@ -24,6 +24,32 @@ index e8c137a47f14956b999395dcd1302b9cce5144cb..8a0d2ed42926b0522df5483520e01f76
  		});
  		function getFieldAriaAttrs() {
  			const mergeIds = (consumerValue, fieldValue) => [consumerValue, fieldValue].filter(Boolean).join(" ") || void 0;
+diff --git a/dist/Dialog/DialogContentModal.cjs b/dist/Dialog/DialogContentModal.cjs
+index c841f3ba7b370d93012bfc183e44e6e7f729b0b2..78e4da3bc6257f4a10a4e8c9f9657f8a2a725530 100644
+--- a/dist/Dialog/DialogContentModal.cjs
++++ b/dist/Dialog/DialogContentModal.cjs
+@@ -21,7 +21,7 @@ var DialogContentModal_vue_vue_type_script_setup_true_lang_default = /* @__PURE_
+ 		disableOutsidePointerEvents: {
+ 			type: Boolean,
+ 			required: false,
+-			default: true
++			default: false
+ 		},
+ 		asChild: {
+ 			type: Boolean,
+diff --git a/dist/Dialog/DialogContentModal.js b/dist/Dialog/DialogContentModal.js
+index aed8b144f9f6ce549fbdb94b522224c5ad63db46..28f87f3652b2343cd699feb086ba6583a80c7b21 100644
+--- a/dist/Dialog/DialogContentModal.js
++++ b/dist/Dialog/DialogContentModal.js
+@@ -20,7 +20,7 @@ var DialogContentModal_vue_vue_type_script_setup_true_lang_default = /* @__PURE_
+ 		disableOutsidePointerEvents: {
+ 			type: Boolean,
+ 			required: false,
+-			default: true
++			default: false
+ 		},
+ 		asChild: {
+ 			type: Boolean,
 diff --git a/dist/RadioGroup/Radio.cjs b/dist/RadioGroup/Radio.cjs
 index 945da66d7b5b33209ebe9f34329bd012f67e7c8e..f4c798bc56998b7b9c9f7f77dd5e8928f54c4160 100644
 --- a/dist/RadioGroup/Radio.cjs
