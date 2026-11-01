@@ -45673,10 +45673,6 @@ components:
           type: string
           format: uri
           title: Εικόνα
-        imageSizeKb:
-          type: number
-          format: double
-          readOnly: true
         altText:
           type: string
           readOnly: true
@@ -45715,7 +45711,6 @@ components:
         - createdAt
         - id
         - image
-        - imageSizeKb
         - mainImagePath
         - product
         - sortOrder
@@ -45740,10 +45735,6 @@ components:
           type: string
           format: uri
           title: Εικόνα
-        imageSizeKb:
-          type: number
-          format: double
-          readOnly: true
         altText:
           type: string
           readOnly: true
@@ -45813,7 +45804,6 @@ components:
         - image
         - imageDimensions
         - imageFormat
-        - imageSizeKb
         - mainImagePath
         - product
         - sortOrder
