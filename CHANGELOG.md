@@ -1,3 +1,11 @@
+## [3.279.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.279.0...v3.279.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* **builder:** send the staff token as StaffBearer ([#311](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/311)) ([05a1676](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/05a16760735b2652482c993dbf783d408d643390))
+* **maps:** read the maps host under the env name Nuxt overrides it from ([#313](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/313)) ([d612ea8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d612ea8c8f70b411bed11f372390183e9db85762)), closes [#126](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/126)
+
 # [3.279.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.278.1...v3.279.0) (2026-11-01)
 
 
