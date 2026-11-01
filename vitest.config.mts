@@ -104,7 +104,9 @@ const notDeclarations = ['**/*.d.ts', '**/node_modules/**']
 const sharedDirs = [sourceGlob('shared')]
 
 const nitroAutoImports = autoImports('nitro', {
-  include: [sourceGlob('server'), sourceGlob('shared')],
+  // `app/blocks`: the builder's block definitions are read by the server, so they
+  // resolve `defineBlock` and `builderField` as the Nitro build does.
+  include: [sourceGlob('server'), sourceGlob('shared'), sourceGlob('app/blocks')],
   exclude: notDeclarations,
   presets: [
     // nitropack: `h3Exports.filter((n) => !/^[A-Z]/.test(n) && n !== "use")`

@@ -2,17 +2,7 @@
 export const BLOCK_KINDS = ['section', 'block'] as const
 
 /** What a setting that names another record refers to; Django checks the record exists. */
-export const BLOCK_REF_KINDS = ['product', 'category', 'page', 'media', 'menu'] as const
-
-/**
- * When a block's component hydrates, as `componentRegistry.ts` already
- * splits it: `eager` for what leads the page, `visible` when it scrolls
- * into view, `idle` once the browser is idle.
- */
-export const BLOCK_HYDRATION_MODES = ['eager', 'visible', 'idle'] as const
-
-/** Hydration of a block that names none. */
-export const DEFAULT_BLOCK_HYDRATION = 'visible'
+export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'page', 'media', 'menu'] as const
 
 /**
  * How deep a document nests: a section is level 1, a block inside it 2,
@@ -28,3 +18,9 @@ export const BLOCK_TYPE_PATTERN = /^[a-z][a-z0-9_]*$/
 
 /** A node's `type`: `<block type>@<version>`. */
 export const VERSIONED_BLOCK_TYPE_PATTERN = /^([a-z][a-z0-9_]*)@([1-9]\d*)$/
+
+/** The kinds of document: a page or a template of pages, the theme, a section group (header, footer). */
+export const BUILDER_DOCUMENT_KINDS = ['page', 'template', 'theme', 'group'] as const
+
+/** The node id the translation overlay uses for a document's own (root) settings. */
+export const BUILDER_DOCUMENT_NODE_ID = '@document'

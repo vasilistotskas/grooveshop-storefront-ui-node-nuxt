@@ -23,8 +23,8 @@ export interface BuilderCatalogueDocument {
  * storefront on read and by the editor on load (`upgradeNode`), and
  * always saved at the current version.
  */
-function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
-  const schema = z.toJSONSchema(definition.schema, {
+function settingsJsonSchema(schema: z.ZodObject): Record<string, unknown> {
+  return z.toJSONSchema(schema, {
     target: 'draft-2020-12',
     io: 'input',
     override: ({ jsonSchema }) => {
@@ -33,6 +33,10 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
       }
     },
   })
+}
+
+function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
+  const schema = settingsJsonSchema(definition.schema)
   const { maxDepth } = definition.children
   return {
     type: definition.type,
@@ -56,10 +60,16 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
  * content that changes exactly when a block does. Deterministic: the same
  * definitions give the same bytes.
  *
+ * `documentKinds` states what each kind of document carries at its root
+ * (`BUILDER_DOCUMENT_ROOTS`), and is part of the hash.
+ *
  * Refuses a set that contradicts itself: two blocks of one type, or a
  * block that names as a child a type that is missing or cannot be one.
  */
-export function buildBlockCatalogue(definitions: readonly BlockDefinition[]): BlockCatalogue {
+export function buildBlockCatalogue(
+  definitions: readonly BlockDefinition[],
+  roots: Partial<Record<BuilderDocumentKind, DocumentRoot>> = BUILDER_DOCUMENT_ROOTS,
+): BlockCatalogue {
   const byType = new Map<string, BlockDefinition>()
   for (const definition of definitions) {
     if (byType.has(definition.type)) {
@@ -77,8 +87,14 @@ export function buildBlockCatalogue(definitions: readonly BlockDefinition[]): Bl
   const blocks = [...byType.values()]
     .sort((a, b) => (a.type < b.type ? -1 : 1))
     .map(catalogueBlock)
-  const hash = createHash('sha256').update(JSON.stringify(blocks)).digest('hex').slice(0, 16)
-  return { hash, blocks }
+  const documentKinds = Object.fromEntries(
+    BUILDER_DOCUMENT_KINDS.flatMap((kind) => {
+      const root = roots[kind]
+      return root ? [[kind, { schema: settingsJsonSchema(root.schema), translatable: [...root.translatable] }]] : []
+    }),
+  )
+  const hash = createHash('sha256').update(JSON.stringify({ blocks, documentKinds })).digest('hex').slice(0, 16)
+  return { hash, blocks, documentKinds }
 }
 
 /**
@@ -95,6 +111,6 @@ export const builderBlocks: ReadonlyMap<string, BlockDefinition> = new Map(block
  * definitions stops the boot instead of the first request.
  */
 export const builderCatalogueDocument: BuilderCatalogueDocument = (() => {
-  const { hash, blocks } = buildBlockCatalogue(blockList)
-  return { hash, json: JSON.stringify({ hash, blocks }) }
+  const { hash, blocks, documentKinds } = buildBlockCatalogue(blockList)
+  return { hash, json: JSON.stringify({ hash, blocks, documentKinds }) }
 })()

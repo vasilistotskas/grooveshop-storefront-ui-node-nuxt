@@ -1,0 +1,102 @@
+import { describe, expect, it } from 'vitest'
+import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
+import { parseDocument } from '~~/server/utils/builderDocument'
+import { sectionProps } from '~~/server/utils/builderProps'
+import { parseSectionProps } from '~~/server/utils/pageSectionProps'
+import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
+import type { ComponentTypeEnum } from '~~/shared/openapi/types.gen'
+import golden from '~~/test/fixtures/builder/legacy-sections.json'
+
+/**
+ * The port of page_config's sections to builder blocks changes no render.
+ *
+ * Every golden case is a legacy section and the node it becomes. The legacy
+ * section's props, parsed as today's page-config route parses them, are what
+ * its component receives now; the node, parsed as the builder route will
+ * and turned back into props, must give the component exactly the same.
+ * Equal props to one component is an equal render. The same file is
+ * Django's test of its data migration (`legacy` in, `node` out).
+ *
+ * Reads the REAL blocks of `app/blocks`, not the unit project's fixture set.
+ */
+const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
+const definitions = Object.values(modules).map(({ default: block }) => block)
+const registry = new Map(definitions.map(block => [block.type, block]))
+
+/** What DRF's camel-case renderer does to a stored body: every key, at every depth. */
+function camelizeKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(camelizeKeys)
+  if (typeof value !== 'object' || value === null) return value
+  return Object.fromEntries(Object.entries(value).map(([key, inner]) => [
+    key.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase()),
+    camelizeKeys(inner),
+  ]))
+}
+
+interface Case {
+  name: string
+  type: string
+  legacy: { title: string, props: Record<string, unknown> }
+  node: BuilderNode
+}
+const cases = golden.cases as Case[]
+
+/** The props the section component gets from page_config today (`Renderer.vue`): the title, then the parsed props. */
+function legacyProps({ type, legacy }: Case): Record<string, unknown> {
+  const { props } = parseSectionProps(type as ComponentTypeEnum, camelizeKeys(legacy.props))
+  return JSON.parse(JSON.stringify({ title: legacy.title || undefined, ...props }))
+}
+
+function builderProps({ node }: Case): Record<string, unknown> {
+  const document = parseDocument({ sections: { s1: node }, order: ['s1'] }, 'page', registry)
+  expect(document.order, 'the node parses').toEqual(['s1'])
+  return JSON.parse(JSON.stringify(sectionProps(document.sections.s1!, registry)))
+}
+
+describe('the real blocks', () => {
+  it('make a consistent catalogue', () => {
+    const { blocks } = buildBlockCatalogue(definitions)
+
+    expect(blocks.map(block => block.type)).toEqual(definitions.map(block => block.type).sort())
+  })
+
+  it('mark rich text so Django sanitises it on save', () => {
+    const richText = buildBlockCatalogue(definitions).blocks.find(block => block.type === 'rich_text')!
+
+    expect(richText.schema).toMatchObject({ properties: { content: { contentMediaType: 'text/html' } } })
+  })
+
+  it('are all version 1, closed, with every translatable pointer a setting', () => {
+    for (const block of buildBlockCatalogue(definitions).blocks) {
+      expect(block.version, block.type).toBe(1)
+      expect(block.schema.additionalProperties, block.type).toBe(false)
+    }
+  })
+})
+
+describe('porting a legacy section to a block', () => {
+  it.each(cases.map(testCase => [testCase.name, testCase] as const))('%s: the component gets the same props', (_, testCase) => {
+    expect(builderProps(testCase)).toEqual(legacyProps(testCase))
+  })
+
+  it('has a block definition for every ported type, and a case for every block that is a section', () => {
+    const covered = new Set(cases.map(({ type }) => type))
+    const sections = definitions.filter(block => block.kinds.includes('section')).map(block => block.type)
+
+    expect(sections.filter(type => !covered.has(type))).toEqual([])
+    expect(cases.filter(({ type }) => !registry.has(type)).map(({ type }) => type)).toEqual([])
+  })
+
+  it('writes every child block id as b<position>, for Django to compare by position', () => {
+    for (const { node } of cases) {
+      expect(Object.keys(node.blocks ?? {})).toEqual((node.blockOrder ?? []).map((_, i) => `b${i + 1}`))
+    }
+  })
+
+  it('writes a node Django could store: every setting is in the block\'s schema', () => {
+    for (const { node, name } of cases) {
+      const { type } = { type: node.type.split('@')[0]! }
+      expect(registry.get(type)!.schema.safeParse(node.settings).success, name).toBe(true)
+    }
+  })
+})

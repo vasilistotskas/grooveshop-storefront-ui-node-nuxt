@@ -99,7 +99,40 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('is that of an empty catalogue when no block is defined', () => {
-      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [] })
+      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object) })
+    })
+
+    it('changes when what a document carries at its root does', () => {
+      const roots = { page: { schema: z.object({ seoTitle: z.string().max(71).optional() }), translatable: ['/seoTitle'] as const } }
+
+      expect(buildBlockCatalogue([], roots).hash).not.toBe(buildBlockCatalogue([]).hash)
+    })
+  })
+
+  describe('documentKinds', () => {
+    const { documentKinds } = buildBlockCatalogue([])
+
+    it('states the root settings of a page and a template: their SEO copy, all translatable, limits as the model sets them', () => {
+      expect(Object.keys(documentKinds)).toEqual(['page', 'template'])
+      expect(documentKinds.page).toEqual({
+        schema: {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          type: 'object',
+          properties: {
+            seoTitle: { type: 'string', maxLength: 70 },
+            seoDescription: { type: 'string', maxLength: 300 },
+            seoKeywords: { type: 'string', maxLength: 255 },
+          },
+          additionalProperties: false,
+        },
+        translatable: ['/seoTitle', '/seoDescription', '/seoKeywords'],
+      })
+      expect(documentKinds.template).toEqual(documentKinds.page)
+    })
+
+    it('lists no kind that has no root settings: the theme and a group', () => {
+      expect(documentKinds).not.toHaveProperty('theme')
+      expect(documentKinds).not.toHaveProperty('group')
     })
   })
 
@@ -128,6 +161,8 @@ describe('this build\'s catalogue', () => {
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    expect(JSON.parse(json)).toEqual({ hash, blocks: buildBlockCatalogue([promoBanner, promoItem]).blocks })
+    const { blocks, documentKinds } = buildBlockCatalogue([promoBanner, promoItem])
+
+    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds })
   })
 })
