@@ -135,6 +135,15 @@ describe('converting a menu', () => {
       .toThrow(expect.objectContaining({ errors: [expect.objectContaining({ code: 'invalid_settings' })] }))
   })
 
+  it('keeps the label legacy sends for a language as it is, even when it repeats the default title, and leaves an empty one out', () => {
+    const menu: LegacyMenu = { slot: 'header', links: [
+      { id: 'a', labels: { el: 'Όροι χρήσης', en: 'Όροι χρήσης' }, target: { type: 'content_page', slug: 'terms' } },
+      { id: 'b', labels: { el: 'Blog', en: '' }, target: { type: 'route', route: '/blog' } },
+    ] }
+
+    expect(convert(menu)().i18n).toEqual({ en: { a: { '/label': 'Όροι χρήσης' } } })
+  })
+
   it('is deterministic', () => {
     const menu: LegacyMenu = { slot: 'footer', columns: [{ labels: { el: 'Α', en: 'A' }, links: [{ labels: { el: 'Β' }, target: { type: 'route', route: '/' } }] }] }
 
