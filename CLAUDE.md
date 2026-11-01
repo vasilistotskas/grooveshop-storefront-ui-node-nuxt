@@ -102,7 +102,7 @@ Utility modules in `app/utils/`. Key: `auth.ts` (client-side auth helpers), `tra
 
 ### Nuxt Modules
 
-The `modules` array of `nuxt.config.ts` and the custom modules in `modules/` (`cookies`, `purge-comments`, `font-stacks`, `text-catalogue`) are described in `.claude/rules/nuxt-modules.md`, which loads when you touch `nuxt.config.ts` or `modules/**`.
+The `modules` array of `nuxt.config.ts` and the custom modules in `modules/` (`cookies`, `purge-comments`, `font-stacks`, `text-catalogue`, `builder-blocks`) are described in `.claude/rules/nuxt-modules.md`, which loads when you touch `nuxt.config.ts` or `modules/**`.
 
 ### CI/CD
 

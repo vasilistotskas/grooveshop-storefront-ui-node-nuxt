@@ -56,6 +56,11 @@ const TENANT_FREE_EXACT: readonly string[] = [
   // only the request body and that catalogue.
   '/api/texts/catalogue',
   '/api/texts/validate',
+  // The page builder's block catalogue: the settings schema of every block
+  // of this build. Django validates every save of a builder document
+  // against it, calling server to server with no tenant Host; like the
+  // text catalogue it is a constant of the server bundle.
+  '/api/builder/catalogue',
 ] as const
 
 const SELF_RESOLVING_PREFIXES: readonly string[] = [

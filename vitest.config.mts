@@ -55,6 +55,9 @@ const serverAlias = [
   // The text catalogue is a Nitro virtual module a build provides
   // (`modules/text-catalogue`); the unit project reads a fixture tree.
   { find: /^#text-catalogue$/, replacement: path('./test/helpers/nitro/textCatalogue.ts') },
+  // The page builder's blocks are one too (`modules/builder-blocks`); the
+  // unit project reads a fixture set.
+  { find: /^#builder-blocks$/, replacement: path('./test/helpers/nitro/builderBlocks.ts') },
 ]
 
 /**
