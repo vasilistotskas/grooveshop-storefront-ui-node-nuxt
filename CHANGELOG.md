@@ -1,3 +1,10 @@
+# [3.281.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.2...v3.281.0) (2026-11-01)
+
+
+### Features
+
+* **builder:** render pages and menus from the builder ([#319](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/319)) ([8eefc0f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8eefc0f3bad4db9f9e8b99c342943c348753b0cd))
+
 ## [3.280.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.1...v3.280.2) (2026-11-01)
 
 
