@@ -1,3 +1,25 @@
+## [3.279.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.279.0...v3.279.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* **builder:** send the staff token as StaffBearer ([#311](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/311)) ([05a1676](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/05a16760735b2652482c993dbf783d408d643390))
+* **maps:** read the maps host under the env name Nuxt overrides it from ([#313](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/313)) ([d612ea8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d612ea8c8f70b411bed11f372390183e9db85762)), closes [#126](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/126)
+
+# [3.279.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.278.1...v3.279.0) (2026-11-01)
+
+
+### Features
+
+* **builder:** add the page builder's block catalogue ([#307](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/307)) ([4bc69bb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4bc69bbd46cb9e25c8404120d561e3cb438ea62c))
+* **builder:** sign staff in to the page builder on the store host ([#308](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/308)) ([7983e15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7983e15d954c754a9b051246642010275768ea7b))
+* **maps:** MapLibre on the self-hosted Protomaps basemap ([#309](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/309)) ([bed5457](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bed54578191bd39f4968dbdc5bb5e8831541b143))
+
+
+### Performance Improvements
+
+* **consent:** update Google consent after the banner's tap is painted ([#306](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/306)) ([7ba6dcb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7ba6dcbf26ea42d82bd7f9c9e48deb8f2f6db743))
+
 ## [3.278.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.278.0...v3.278.1) (2026-11-01)
 
 

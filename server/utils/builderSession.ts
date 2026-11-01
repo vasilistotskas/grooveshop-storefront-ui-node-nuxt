@@ -60,7 +60,7 @@ export async function clearBuilderSession(event: RequestEvent): Promise<void> {
 /**
  * The staff member a `/api/builder/**` route acts for; 401 for a request
  * without a live staff session. `headers` carries their token to Django as
- * `Authorization: Bearer`: pass it on the call, so the token never leaves
+ * `Authorization: StaffBearer`: pass it on the call, so the token never leaves
  * this module as a bare value.
  */
 export async function requireBuilderStaff(event: RequestEvent) {
@@ -71,6 +71,6 @@ export async function requireBuilderStaff(event: RequestEvent) {
   return {
     staff: session.staff,
     expiresAt: session.expiresAt,
-    headers: { Authorization: `Bearer ${session.token}` },
+    headers: { Authorization: `${BUILDER_STAFF_AUTH_SCHEME} ${session.token}` },
   }
 }

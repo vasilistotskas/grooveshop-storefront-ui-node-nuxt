@@ -33,7 +33,7 @@ export interface CspOptions {
   staticOrigin?: string
   /**
    * The basemap's TileJSON on the platform maps host
-   * (``NUXT_PUBLIC_MAPS_TILEJSON_URL``); its origin goes in connect-src,
+   * (``NUXT_PUBLIC_MAPS_TILE_JSON_URL``); its origin goes in connect-src,
    * where MapLibre's worker fetches the TileJSON and the vector tiles.
    */
   mapsTileJsonUrl?: string

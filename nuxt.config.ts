@@ -219,7 +219,7 @@ export default defineNuxtConfig({
       // none — every map reads it (`app/utils/basemap.ts`), and the CSP
       // puts its origin in connect-src. Empty means no map renders and an
       // error is logged: there is no other tile source to fall back to.
-      mapsTileJsonUrl: process.env.NUXT_PUBLIC_MAPS_TILEJSON_URL || '',
+      mapsTileJsonUrl: process.env.NUXT_PUBLIC_MAPS_TILE_JSON_URL || '',
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
       mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
       // NOTE: no manually-set ``public.scripts.googleAnalytics`` entry —
