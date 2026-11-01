@@ -1,7 +1,7 @@
 /**
  * useNavigation gates operator links exactly as the pages gate
  * themselves (shared/utils/gatedRoutes.ts). The rule itself is unit
- * tested; this proves the WIRING — that a NavigationMenu row pointing at
+ * tested; this proves the WIRING — that a menu link pointing at
  * a switched-off feature never reaches a header, mobile bar or footer.
  *
  * Driven through a mounted component because useFetch needs a Nuxt
@@ -15,7 +15,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /** Whether the store configured a Mobile menu; a store with none gets no `mobile` key. */
 let withMobileSlot = true
-registerEndpoint('/api/page-config/navigation', () => ({
+registerEndpoint('/api/builder/navigation', () => ({
   header: [
     { label: 'Προϊόντα', to: '/products' },
     { label: 'Προσφορές', to: '/offers' },
@@ -71,7 +71,7 @@ const Probe = defineComponent({
 
 let mounted: Awaited<ReturnType<typeof mountSuspended>> | null = null
 
-const NAVIGATION_KEY = 'page-config-navigation-el'
+const NAVIGATION_KEY = 'builder-navigation-el'
 
 async function render() {
   // The composable's useFetch calls are keyed and shared, so a second

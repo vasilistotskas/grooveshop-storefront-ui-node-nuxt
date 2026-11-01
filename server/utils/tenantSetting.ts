@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 /*
  * Readers for Nitro routes that have no tenant context of their own.
  *
@@ -18,36 +16,38 @@ import { z } from 'zod'
  */
 
 /**
- * Every page-config layout this tenant has PUBLISHED, with when its page
- * last changed (Django `GET page-config`).
+ * Every page this tenant's current release has PUBLISHED (a template of a
+ * static route or a custom page), with when it last changed (Django
+ * `GET builder/published`).
  *
  * Two sitemap callers read it: the source lists the store's custom pages
- * (every published layout no static route renders, at `/<pageType>`),
- * and the tenant gate drops the layout-backed static routes whose layout
- * the store has not published, which answer 404. One read for both,
- * where the gate used to ask Django once per page type.
+ * (every published page no static route renders, at `/<key>`), and the
+ * tenant gate drops the page-backed static routes whose page the store has
+ * not published, which answer 404. One read for both, where the gate used
+ * to ask Django once per page type.
  *
  * Fails CLOSED (see the top of this file): `null` when the read fails
  * or the answer is not the contract, so neither caller lists a
  * page it could not confirm. Unlike a route, nothing downstream reports
  * the failure, so it is logged here: a drifted contract is our defect.
  */
-export async function publishedLayoutsForHost(
+export async function publishedPagesForHost(
   host: string,
   apiBaseUrl: string,
-): Promise<readonly PublishedPageLayout[] | null> {
+): Promise<readonly PublishedPage[] | null> {
   try {
-    return await parseDataAs(
-      backendFetchFor({ tenantHost: host })(`${apiBaseUrl}/page-config`, {
+    const { pages } = await parseDataAs(
+      backendFetchFor({ tenantHost: host })(`${apiBaseUrl}/builder/published`, {
         method: 'GET',
       }),
-      z.array(zPublishedPageLayout),
+      ZodBuilderPublishedSummary,
     )
+    return pages
   }
   catch (error) {
     log.warn({
       tag: 'sitemap',
-      message: 'Published layouts unreadable; no custom page or brand page is listed',
+      message: 'Published pages unreadable; no custom page or brand page is listed',
       host,
       error: error instanceof Error ? error.message : String(error),
     })

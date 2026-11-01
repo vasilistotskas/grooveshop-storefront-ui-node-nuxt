@@ -1,5 +1,7 @@
 /**
- * Per-tenant chrome navigation from Django's ``NavigationMenu`` rows.
+ * Per-tenant chrome navigation from the store's published menus (the
+ * header, mobile and footer group documents of the current release,
+ * `/api/builder/navigation`).
  *
  * The payload only carries slots an operator has CONFIGURED — missing
  * slots resolve to ``null`` here, and each chrome consumer falls back
@@ -13,7 +15,7 @@ export function useNavigation() {
   // in the key as well as the query — otherwise /en renders the Greek
   // header from the payload cached on the default-locale route.
   //
-  // `useI18n()`, for the same reason as `usePageConfig` — see the note
+  // `useI18n()`, for the same reason as `useBuilderPage` — see the note
   // there on why `useNuxtApp().$i18n` is not the context-free
   // alternative it appears to be.
   const { locale } = useI18n({ useScope: 'global' })
@@ -28,10 +30,10 @@ export function useNavigation() {
   const serving = (link: NavLink) =>
     !link.to || !isFeaturePathBlocked(link.to, blocked.value)
 
-  const { data } = useApi<Record<string, unknown[]>>(
-    '/api/page-config/navigation',
+  const { data } = useApi<NavigationItems>(
+    '/api/builder/navigation',
     {
-      key: () => `page-config-navigation-${locale.value}`,
+      key: () => `builder-navigation-${locale.value}`,
       // Read by the header, the burger menu and the footer in the same
       // render: with the default 'cancel' each reader re-issued the
       // request (3x per page in the crawl logs). See useStoreSettings.
@@ -41,9 +43,7 @@ export function useNavigation() {
 
   const flatSlot = (slot: 'header' | 'mobile') =>
     computed<NavLink[] | null>(() => {
-      const items = data.value?.[slot]
-      if (!Array.isArray(items) || items.length === 0) return null
-      const kept = (items as NavLink[]).filter(serving)
+      const kept = (data.value?.[slot] ?? []).filter(serving)
       return kept.length > 0 ? kept : null
     })
 
@@ -58,11 +58,9 @@ export function useNavigation() {
   )
 
   const footerColumns = computed<NavColumn[] | null>(() => {
-    const items = data.value?.footer
-    if (!Array.isArray(items) || items.length === 0) return null
     // A column emptied by the gate goes with its links: a bare heading
     // is noise, and the storefront's own contract requires children.
-    const kept = (items as NavColumn[])
+    const kept = (data.value?.footer ?? [])
       .map(column => ({
         ...column,
         children: column.children.filter(serving),

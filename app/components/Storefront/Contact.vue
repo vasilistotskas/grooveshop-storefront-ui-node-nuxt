@@ -11,7 +11,7 @@ useHead({
 // Optional per-tenant branded band above the page content — sections
 // from the published 'contact' PageLayout. Fallback is EMPTY, so a
 // tenant without a layout gets the form alone.
-const { sections: brandSections } = await usePageConfig('contact')
+const { sections: brandSections } = await useBuilderPage('contact')
 
 /**
  * The page's own content is a BAND like every section above it, so it

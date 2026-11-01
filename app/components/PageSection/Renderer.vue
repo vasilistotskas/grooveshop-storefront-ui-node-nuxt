@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const props = withDefaults(defineProps<{
-  section: PageSection
-  /** Where the layout is drawn; a hero hints its image as the LCP only when it leads the page. */
+  section: BuilderSection
+  /** Where the page is drawn; a hero hints its image as the LCP only when it leads the page. */
   placement?: PageSectionPlacement
 }>(), { placement: 'top' })
 
@@ -14,15 +14,10 @@ const component = computed(() =>
 )
 
 // section.props is already validated and unknown keys STRIPPED by the
-// page-config server route (server/utils/pageSectionProps.ts) — the
-// single producer of PageSection data. Any new producer of sections
-// MUST route its admin-authored props through parseSectionProps before
-// they reach this v-bind; validating here would put zod back into the
-// client's eager graph. The cast mirrors parseSectionProps's output
-// type (the generated PageSection.props is `unknown`).
-const parsedProps = computed(
-  () => (props.section.props ?? {}) as Record<string, unknown>,
-)
+// builder page route (`server/api/builder/pages/[pageKey].get.ts`, through
+// `parseDocument` and `sectionProps`), the single producer of section data,
+// so it is bound as it is. Validating here would put zod back into the
+// client's eager graph.
 </script>
 
 <template>
@@ -37,7 +32,6 @@ const parsedProps = computed(
   <component
     :is="component"
     v-if="component"
-    :title="section.title"
-    v-bind="parsedProps"
+    v-bind="section.props"
   />
 </template>

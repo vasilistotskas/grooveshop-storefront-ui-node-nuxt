@@ -6,12 +6,6 @@ export interface NavigationTargets {
   contentPages: ReadonlySet<string>
 }
 
-export interface NavigationItems {
-  header?: NavLink[]
-  mobile?: NavLink[]
-  footer?: NavColumn[]
-}
-
 const MENU_SLOTS: Record<string, keyof NavigationItems> = {
   header_menu: 'header',
   mobile_menu: 'mobile',

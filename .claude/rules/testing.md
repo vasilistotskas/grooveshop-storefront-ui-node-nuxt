@@ -213,7 +213,7 @@ change.
 (a class pairing, a banned wrapper, component wiring), built on
 `test/helpers/sourceText.ts`. Prefer an ESLint rule when the invariant is a
 syntax pattern (`eslint.config.mjs` already bans `LazyUDropdownMenu`, an
-un-awaited `usePageConfig`, and page macros in components). A rule that
+un-awaited `useBuilderPage`, and page macros in components). A rule that
 inspects a finite set of sites needs a canary asserting it still matches at
 least N of them, so it cannot go blind silently.
 

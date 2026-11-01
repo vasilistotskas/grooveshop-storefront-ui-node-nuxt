@@ -8,15 +8,15 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
  * The blog index: breadcrumb, heading and lead, a search that lives in
- * the URL, an optional branded band from the store's page layout, and
+ * the URL, an optional branded band from the store's blog page, and
  * the post list. The list has its own spec and is a stand-in here.
  */
-const state = vi.hoisted(() => ({ query: {} as Record<string, string>, sections: [] as Array<{ uuid: string, componentType: string, props: unknown }> }))
+const state = vi.hoisted(() => ({ query: {} as Record<string, string>, sections: [] as BuilderSection[] }))
 mockNuxtImport('useRoute', () => () => ({ name: 'blog___el', params: {}, query: state.query, path: '/blog', fullPath: '/blog', hash: '', meta: {}, matched: [] }))
-mockNuxtImport('usePageConfig', () => () => Promise.resolve({ sections: ref(state.sections) }))
+mockNuxtImport('useBuilderPage', () => () => Promise.resolve({ sections: ref(state.sections) }))
 
 mockComponent('BlogPostsList', { template: '<div data-stub="list" />' })
-mockComponent('PageSectionRenderer', { props: ['section'], template: '<div data-stub="section" :data-id="section.uuid" />' })
+mockComponent('PageSectionRenderer', { props: ['section'], template: '<div data-stub="section" :data-id="section.id" />' })
 
 const messages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Storefront/BlogIndex.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
@@ -44,7 +44,7 @@ describe('Storefront/BlogIndex', () => {
   })
 
   it('shows the store\'s branded band above the heading, and drops its own h1 when the band owns one', async () => {
-    state.sections = [{ uuid: 'band-1', componentType: 'page_hero', props: {} }]
+    state.sections = [{ id: 'band-1', componentType: 'hero_banner', props: {} }]
 
     const wrapper = await mountPage()
 
@@ -53,7 +53,7 @@ describe('Storefront/BlogIndex', () => {
   })
 
   it('keeps its own h1 under a band that has none', async () => {
-    state.sections = [{ uuid: 'band-2', componentType: 'rich_text', props: {} }]
+    state.sections = [{ id: 'band-2', componentType: 'rich_text', props: {} }]
 
     const wrapper = await mountPage()
 

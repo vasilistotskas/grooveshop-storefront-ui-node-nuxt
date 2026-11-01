@@ -37,7 +37,7 @@ export async function useLegalPage(routeName: LegalRouteName) {
   // un-awaited useFetch has not resolved by then, so every legal page
   // 404s on its own data before the request comes back — caught by the
   // e2e render smoke, which is the only test that boots a real server.
-  // Same shape as `await usePageConfig('about')` in app/pages/about.vue.
+  // Same shape as `await useBuilderPage('about')` in the brand page.
   const { data, error } = await useApi<ContentPageResponse>(
     `/api/content-pages/${slug}`,
     {

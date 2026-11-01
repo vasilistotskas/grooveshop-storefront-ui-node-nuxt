@@ -6,7 +6,7 @@
  * `pages/index.vue` and `pages/[slug].vue` carried a byte-identical copy
  * of it.
  */
-defineProps<{ sections: PageSection[] }>()
+defineProps<{ sections: BuilderSection[] }>()
 
 defineSlots<{
   /** The page's h1, which is a page concern, not a section's. */
@@ -33,7 +33,7 @@ defineSlots<{
       >
         <PageSectionRenderer
           v-for="section in sections"
-          :key="section.uuid"
+          :key="section.id"
           :section="section"
         />
       </div>

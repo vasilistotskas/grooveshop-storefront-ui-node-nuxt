@@ -25,15 +25,15 @@ const APP_FETCHER_SELECTORS = [
 ]
 
 /**
- * `usePageConfig()` must be awaited. Nuxt registers useFetch's promise
+ * `useBuilderPage()` must be awaited. Nuxt registers useFetch's promise
  * with `onServerPrefetch` and lets setup continue, so an un-awaited call
  * leaves `data`/`error` null for the rest of setup on the server — which
- * made every layout-driven page (/about, /vision, custom [slug] pages)
+ * made every builder-driven page (/about, /vision, custom [slug] pages)
  * throw its own 404 on every cold server render.
  */
-const PAGE_CONFIG_AWAITED = {
-  selector: ':not(AwaitExpression) > CallExpression[callee.name="usePageConfig"]',
-  message: 'Await usePageConfig() — un-awaited, its data is still null for the rest of setup on the server, and the page 404s.',
+const BUILDER_PAGE_AWAITED = {
+  selector: ':not(AwaitExpression) > CallExpression[callee.name="useBuilderPage"]',
+  message: 'Await useBuilderPage() — un-awaited, its data is still null for the rest of setup on the server, and the page 404s.',
 }
 
 /**
@@ -236,14 +236,14 @@ export default withNuxt(
     files: ['app/**/*.{ts,vue}'],
     ignores: ['app/plugins/api.ts', 'app/composables/useApi.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, BUILDER_PAGE_AWAITED, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
     },
   },
   {
     // Repeats the app-wide selectors — see APP_FETCHER_SELECTORS for why.
     files: ['app/components/**/*.vue'],
     rules: {
-      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, BUILDER_PAGE_AWAITED, NO_PAGE_MACROS, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
     },
   },
   {
@@ -255,7 +255,7 @@ export default withNuxt(
     // a reactive query added to one must gate with `enabled` by hand.
     files: ['app/components/variants/webside/**/*.vue'],
     rules: {
-      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, BUILDER_PAGE_AWAITED, NO_PAGE_MACROS],
     },
   },
   {

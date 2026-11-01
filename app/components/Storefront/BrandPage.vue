@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 /**
- * A brand page: a route whose whole body is its published PageLayout
+ * A brand page: a route whose whole body is its published builder page
  * (`about`, `vision`, `what-is-microlearning`, `why-microlearning`).
  *
  * One component for the four routes, because they differed only in the
- * pageType they asked for. There is no FALLBACK_LAYOUTS entry for any of
- * them: a tenant without a published layout gets a 404, not an empty
- * page.
+ * page type they asked for. A store that has not built one gets a 404,
+ * not an empty page.
  */
 const props = defineProps<{
   pageType: string
@@ -14,16 +13,14 @@ const props = defineProps<{
 
 const { t, te } = useStoreI18n('components/Storefront/BrandPage')
 
-const { layout, sections, error } = await usePageConfig(props.pageType)
+const { page, sections, seoTitle, seoDescription, error } = await useBuilderPage(props.pageType)
 
 /**
  * The page's own heading and document title.
  *
  * This body rendered its published sections and NOTHING else: no `<h1>`
  * and no `useSeoMeta`, so `/about` shipped zero headings and a `<title>`
- * that was the store name twice. `PageLayout.title` is not the answer —
- * it is the ADMIN display name ("About"), which would print English on
- * a Greek page.
+ * that was the store name twice.
  *
  * So: the operator's `seoTitle` when they set one, else a translated
  * title for the page type. The `<h1>` is stood down when a section
@@ -32,7 +29,7 @@ const { layout, sections, error } = await usePageConfig(props.pageType)
  */
 const fallbackKey = computed(() => `page.${props.pageType}`)
 const pageTitle = computed(
-  () => layout.value?.seoTitle
+  () => seoTitle.value
     || (te(fallbackKey.value) ? t(fallbackKey.value) : ''),
 )
 const showTitle = computed(
@@ -41,15 +38,15 @@ const showTitle = computed(
 
 useSeoMeta({
   title: () => pageTitle.value || undefined,
-  description: () => layout.value?.seoDescription || undefined,
+  description: () => seoDescription.value || undefined,
 })
 
-// A page whose layout is not published must fail LOUDLY. Rendering an
+// A page that is not published must fail LOUDLY. Rendering an
 // empty <main> with HTTP 200 is a soft-404: Google keeps it indexed, and
 // the footer of any tenant that links here would advertise a blank page.
 // Same normalization as the custom [slug] page — a backend outage is
-// 503, a genuinely absent layout is 404.
-if (error.value || !layout.value?.isPublished) {
+// 503, a genuinely absent page is 404.
+if (error.value || !page.value) {
   const upstreamStatus = error.value?.statusCode ?? 404
   throw createError(
     upstreamStatus >= 500
@@ -77,7 +74,7 @@ if (error.value || !layout.value?.isPublished) {
     >
       <PageSectionRenderer
         v-for="section in sections"
-        :key="section.uuid"
+        :key="section.id"
         :section="section"
       />
     </div>

@@ -7,7 +7,7 @@ import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.v
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBlogPost } from '~~/test/fixtures/blog'
-import { makePageLayout, makePageSection } from '~~/test/fixtures/pageLayout'
+import { makeBuilderPage, makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { ARTICLE_COLUMN_MAX_WIDTH, WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH } from '~~/shared/utils/html'
 
 /**
@@ -83,12 +83,12 @@ describe.each([
     })
   })
 
-  it('draws the own bands of the store under the post from its blog-post layout', async () => {
+  it('draws the own bands of the store under the post from its blog-post page', async () => {
     api.routes({
       '/api/blog/posts/7': POST,
       '/api/blog/categories/2': POST.category,
-      '/api/page-config/blog-post': {
-        layout: makePageLayout({ pageType: 'blog-post', title: 'Blog post', sections: [makePageSection()] }),
+      '/api/builder/pages/blog-post': {
+        page: makeBuilderPage({ sections: [makeBuilderSection()] }),
       },
       '/api/*': { count: 0, next: null, previous: null, results: [] },
     })

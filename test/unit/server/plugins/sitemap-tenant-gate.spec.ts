@@ -42,11 +42,11 @@ function answer(request: BackendRequest) {
       ? down
       : { results: store.content.map(page => ({ slug: page.slug, translatedLocales: translatedLocales(page.translations, 'body') })) }
   }
-  // One read of every published layout; a per-type read is unexpected.
-  if (request.path.endsWith('/page-config')) {
+  // One read of every published page; a per-type read is unexpected.
+  if (request.path.endsWith('/builder/published')) {
     return store.layouts === 'down'
       ? down
-      : store.layouts.map(pageType => ({ pageType, lastModified: '2026-10-01T08:00:00Z' }))
+      : { release: 1, groups: {}, pages: store.layouts.map(key => ({ key, kind: 'template', updatedAt: '2026-10-01T08:00:00Z' })) }
   }
   if (request.path.endsWith('/tenant/resolve')) return resolvedTenant ?? jsonResponse({ detail: 'Not found.' }, 404)
   throw new Error(`unexpected backend request: ${request.path}`)
@@ -646,7 +646,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     it('reads the published layouts once, for every route', async () => {
       await runLayout(OPEN)
 
-      expect(requestsTo('/page-config').map(r => r.path)).toEqual([expect.stringMatching(/\/page-config$/)])
+      expect(requestsTo('/builder/published').map(r => r.path)).toEqual([expect.stringMatching(/\/builder\/published$/)])
     })
   })
 })

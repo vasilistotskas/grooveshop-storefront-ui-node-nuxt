@@ -1,10 +1,10 @@
 /**
  * Client-safe page-builder helpers.
  *
- * The per-section props contracts live in
- * ``server/utils/pageSectionProps.ts`` — admin-authored ``props`` JSON is
- * validated and stripped by the page-config server route (the single
- * producer of ``PageSection`` data), so nothing here may import zod:
+ * The per-section props contracts are the blocks' own Zod schemas
+ * (``app/blocks``): a page's sections are validated and stripped by the
+ * builder page route (``server/api/builder/pages/[pageKey].get.ts``, the
+ * single producer of section data), so nothing here may import zod:
  * this file sits in the client's eager graph via the section Renderer,
  * and a zod import here shipped 67KB of minified zod to every visitor
  * (2026-08-29 eager-graph audit).
@@ -20,18 +20,11 @@
  * supplies one — otherwise the two compete, which is the duplicate-h1
  * defect the navbar logo used to cause site-wide.
  *
- * Keep this in sync with ``pageSectionPropsSchemas``
- * (``server/utils/pageSectionProps.ts``): together with
- * `heroCarouselHeading` it is the one place that records which
+ * Together with `heroCarouselHeading` it is the one place that records which
  * components own the document heading.
  */
 export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'hero_banner',
-  // The top of an INNER page, which is the same claim one layer down:
-  // its `heading` is that page's subject. Missing here, `/contact`
-  // served two h1s — the hero's and the page's own `PageTitle` — for
-  // every tenant whose layout opens with one.
-  'page_hero',
   // Owns the whole contact page, heading included.
   'contact_panel',
 ])

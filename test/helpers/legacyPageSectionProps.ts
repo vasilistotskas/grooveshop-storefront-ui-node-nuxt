@@ -1,25 +1,62 @@
 import * as z from 'zod'
+import type { ComponentTypeEnum } from '~~/shared/openapi/types.gen'
+import {
+  zPageSectionAboutContentProps,
+  zPageSectionBlogCategoriesProps,
+  zPageSectionBlogPostsCarouselProps,
+  zPageSectionBlogPostsGridProps,
+  zPageSectionBlogPostsListProps,
+  zPageSectionBusinessHoursProps,
+  zPageSectionComparisonTableProps,
+  zPageSectionContactPanelProps,
+  zPageSectionCtaBannerProps,
+  zPageSectionDividerProps,
+  zPageSectionFaqProps,
+  zPageSectionFeatureListsProps,
+  zPageSectionFeaturedProductsProps,
+  zPageSectionFeaturesGridProps,
+  zPageSectionFlowStepsProps,
+  zPageSectionHeroBannerProps,
+  zPageSectionHeroCarouselProps,
+  zPageSectionImageGalleryProps,
+  zPageSectionLocationMapProps,
+  zPageSectionLoyaltyHeroProps,
+  zPageSectionMediaTextProps,
+  zPageSectionNewsletterSignupProps,
+  zPageSectionOffersPreviewProps,
+  zPageSectionOptionSelectorProps,
+  zPageSectionPageHeroProps,
+  zPageSectionPartnerStripProps,
+  zPageSectionProductCategoriesProps,
+  zPageSectionProductsGridProps,
+  zPageSectionProductsSliderProps,
+  zPageSectionProjectRegisterProps,
+  zPageSectionPullQuoteProps,
+  zPageSectionRecentlyViewedProps,
+  zPageSectionReferenceCardsProps,
+  zPageSectionRichTextProps,
+  zPageSectionSearchBarProps,
+  zPageSectionSpacerProps,
+  zPageSectionStatsStripProps,
+  zPageSectionStoryTimelineProps,
+  zPageSectionTestimonialsProps,
+  zPageSectionTrustBadgesProps,
+  zPageSectionVendorCardsProps,
+  zPageSectionVisionContentProps,
+  zPageSectionWhatIsMicrolearningProps,
+  zPageSectionWhyMicrolearningProps,
+} from '~~/shared/openapi/zod.gen'
 
 /**
- * Per-section props contracts for the page builder.
+ * What a section's props were, before the builder: the per-type contracts
+ * `page_config` held, parsed the way the page-config route parsed them.
  *
- * ``PageSection.props`` is admin-authored JSON; the page-config server
- * route (``server/api/page-config/[pageType].get.ts``) ``safeParse``s it
- * against the matching schema and ships ONLY the parsed output — unknown
- * keys are stripped, so layout data can never inject arbitrary
- * props/class/style into a section component. That route is the single
- * producer of ``PageSection`` data (SSR payload and client-side nav both
- * go through it), which is why this lives in ``server/utils`` rather
- * than ``shared/``: validating at the proxy keeps zod out of the client
- * bundle entirely (67KB minified, measured in the 2026-08-29 eager-graph
- * audit) and runs the parse once per SWR cache window instead of on
- * every render.
- *
- * The schemas themselves are Django's: ``page_config/schemas.py`` is the
- * one definition, published per section type in the OpenAPI schema as
- * ``PageSection<Type>Props`` and generated into ``shared/openapi``. The
- * map is keyed by the generated ``ComponentTypeEnum``, so a section type
- * Django adds fails the type check here until it has an entry.
+ * Kept ONLY as the oracle of the port proof
+ * (`test/unit/server/utils/builderPortFixtures.spec.ts`): the props a legacy
+ * section gave its component must equal what the converted block gives it
+ * through `sectionProps`. Nothing renders through it any more. It goes with
+ * the converter and its fixtures once every store is imported, and cannot
+ * outlive the generated `PageSection*Props` it is built from.
  */
 
 /**

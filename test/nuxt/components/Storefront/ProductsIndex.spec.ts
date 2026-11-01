@@ -53,7 +53,7 @@ describe.each(trees(ProductsIndex, WebsideProductsIndex))('$tree Storefront/Prod
     setTenant()
     api.routes({
       '/api/products/search': makeProductSearchResponse({ results: HITS }),
-      '/api/page-config/products': { layout: null },
+      '/api/builder/pages/products': { page: null },
     })
   })
 
