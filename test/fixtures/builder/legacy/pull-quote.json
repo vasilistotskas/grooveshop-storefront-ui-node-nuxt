@@ -1,0 +1,45 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000037",
+          "type": "pull_quote",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "quote": "Sound should not tire you.",
+            "text": "We tune every model for long listening.",
+            "attribution": "The founders"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000037": {
+          "type": "pull_quote@1",
+          "settings": {
+            "quote": "Sound should not tire you.",
+            "text": "We tune every model for long listening.",
+            "attribution": "The founders"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000037"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

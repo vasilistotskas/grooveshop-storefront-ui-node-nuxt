@@ -1,0 +1,37 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000016",
+          "type": "vision_content",
+          "title": "",
+          "isVisible": true,
+          "props": {}
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000016": {
+          "type": "vision_content@1",
+          "settings": {}
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000016"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

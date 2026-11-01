@@ -1,0 +1,95 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000031",
+          "type": "features_grid",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "muted",
+            "heading": "Why us",
+            "body": "Three reasons.",
+            "columns": 3,
+            "decor": "gradient_tiles",
+            "cta_text": "Learn more",
+            "cta_link": "/about",
+            "prompt": {
+              "title": "Did not find yours?",
+              "text": "Write to us.",
+              "cta_text": "Contact",
+              "cta_link": "/contact"
+            },
+            "items": [
+              {
+                "title": "Free delivery",
+                "text": "Over 40 EUR",
+                "icon": "i-lucide-truck"
+              },
+              {
+                "title": "Returns"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000031": {
+          "type": "features_grid@1",
+          "settings": {
+            "surface": "muted",
+            "heading": "Why us",
+            "body": "Three reasons.",
+            "columns": 3,
+            "decor": "gradient_tiles",
+            "ctaText": "Learn more",
+            "ctaLink": "/about",
+            "prompt": {
+              "title": "Did not find yours?",
+              "text": "Write to us.",
+              "ctaText": "Contact",
+              "ctaLink": "/contact"
+            }
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000031-1": {
+              "type": "feature_item@1",
+              "settings": {
+                "title": "Free delivery",
+                "text": "Over 40 EUR",
+                "icon": "i-lucide-truck"
+              }
+            },
+            "00000000-0000-4000-8000-000000000031-2": {
+              "type": "feature_item@1",
+              "settings": {
+                "title": "Returns"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000031-1",
+            "00000000-0000-4000-8000-000000000031-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000031"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

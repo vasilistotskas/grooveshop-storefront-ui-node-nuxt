@@ -1,0 +1,53 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000014",
+          "type": "offers_preview",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "ink",
+            "eyebrow": "Now on",
+            "heading": "Live offers",
+            "subheading": "While they last",
+            "limit": 3,
+            "cta_text": "All offers",
+            "cta_link": "/offers"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000014": {
+          "type": "offers_preview@1",
+          "settings": {
+            "surface": "ink",
+            "eyebrow": "Now on",
+            "heading": "Live offers",
+            "subheading": "While they last",
+            "limit": 3,
+            "ctaText": "All offers",
+            "ctaLink": "/offers"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000014"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

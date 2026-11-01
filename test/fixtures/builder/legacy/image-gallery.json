@@ -1,0 +1,76 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000032",
+          "type": "image_gallery",
+          "title": "Gallery",
+          "isVisible": true,
+          "props": {
+            "surface": "default",
+            "columns": 3,
+            "items": [
+              {
+                "src": "media/demo/uploads/g1.jpg",
+                "alt": "The shop front",
+                "caption": "Our shop"
+              },
+              {
+                "src": "media/demo/uploads/g2.jpg",
+                "alt": "Inside"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000032": {
+          "type": "image_gallery@1",
+          "settings": {
+            "title": "Gallery",
+            "surface": "default",
+            "columns": 3
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000032-1": {
+              "type": "gallery_image@1",
+              "settings": {
+                "src": "media/demo/uploads/g1.jpg",
+                "alt": "The shop front",
+                "caption": "Our shop"
+              }
+            },
+            "00000000-0000-4000-8000-000000000032-2": {
+              "type": "gallery_image@1",
+              "settings": {
+                "src": "media/demo/uploads/g2.jpg",
+                "alt": "Inside"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000032-1",
+            "00000000-0000-4000-8000-000000000032-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000032"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

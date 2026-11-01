@@ -1,0 +1,78 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000910",
+          "type": "cta_banner",
+          "title": "Join us",
+          "isVisible": true,
+          "props": {
+            "heading": "Ready when you are",
+            "button_text": "Start",
+            "button_link": "/signup",
+            "background_color": "#1f2937"
+          },
+          "i18n": {
+            "en": {
+              "title": "Join us",
+              "props": {
+                "heading": "Ready?",
+                "button_text": "Go",
+                "background_color": "#ffffff",
+                "unknown_key": "x"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000910": {
+          "type": "cta_banner@1",
+          "settings": {
+            "title": "Join us",
+            "heading": "Ready when you are",
+            "buttonText": "Start",
+            "buttonLink": "/signup",
+            "backgroundColor": "#1f2937"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000910"
+      ]
+    },
+    "i18n": {
+      "en": {
+        "00000000-0000-4000-8000-000000000910": {
+          "/title": "Join us",
+          "/heading": "Ready?",
+          "/buttonText": "Go"
+        }
+      }
+    },
+    "warnings": [
+      {
+        "code": "dropped_override",
+        "path": "/sections/00000000-0000-4000-8000-000000000910/backgroundColor",
+        "message": "the en translation of \"backgroundColor\" is not translatable; it was dropped"
+      },
+      {
+        "code": "dropped_override",
+        "path": "/sections/00000000-0000-4000-8000-000000000910/unknownKey",
+        "message": "the en translation of \"unknownKey\" is not translatable; it was dropped"
+      }
+    ]
+  }
+}

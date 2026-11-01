@@ -1,0 +1,98 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "type": "hero_banner",
+          "title": "Home hero",
+          "isVisible": true,
+          "props": {
+            "heading": "Headphones that fit",
+            "subheading": "Free delivery over 40 EUR",
+            "eyebrow": "New season",
+            "image_url": "media/demo/uploads/hero.jpg",
+            "mobile_image_url": "media/demo/uploads/hero-mobile.jpg",
+            "image_alt": "A pair of headphones",
+            "cta_text": "Shop now",
+            "cta_link": "/products",
+            "secondary_cta_text": "Offers",
+            "secondary_cta_link": "https://example.com/offers",
+            "overlay_opacity": 0.4,
+            "decor": "orbs",
+            "align": "left",
+            "theme": "dark",
+            "stats": [
+              {
+                "value": "500+",
+                "label": "Orders"
+              },
+              {
+                "value": "24h",
+                "label": "Delivery"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000001": {
+          "type": "hero_banner@1",
+          "settings": {
+            "title": "Home hero",
+            "heading": "Headphones that fit",
+            "subheading": "Free delivery over 40 EUR",
+            "eyebrow": "New season",
+            "imageUrl": "media/demo/uploads/hero.jpg",
+            "mobileImageUrl": "media/demo/uploads/hero-mobile.jpg",
+            "imageAlt": "A pair of headphones",
+            "ctaText": "Shop now",
+            "ctaLink": "/products",
+            "secondaryCtaText": "Offers",
+            "secondaryCtaLink": "https://example.com/offers",
+            "overlayOpacity": 0.4,
+            "decor": "orbs",
+            "align": "left",
+            "theme": "dark"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000001-1": {
+              "type": "stat@1",
+              "settings": {
+                "value": "500+",
+                "label": "Orders"
+              }
+            },
+            "00000000-0000-4000-8000-000000000001-2": {
+              "type": "stat@1",
+              "settings": {
+                "value": "24h",
+                "label": "Delivery"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000001-1",
+            "00000000-0000-4000-8000-000000000001-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000001"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

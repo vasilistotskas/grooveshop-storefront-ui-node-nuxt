@@ -1,0 +1,44 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "page",
+    "key": "page:about",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {
+        "el": {
+          "seoTitle": "Το κατάστημα",
+          "seoDescription": "Περιγραφή",
+          "seoKeywords": ""
+        },
+        "en": {
+          "seoTitle": "The shop",
+          "seoDescription": "",
+          "seoKeywords": "shop, store"
+        }
+      },
+      "sections": []
+    }
+  },
+  "response": {
+    "document": {
+      "settings": {
+        "seoTitle": "Το κατάστημα",
+        "seoDescription": "Περιγραφή"
+      },
+      "sections": {},
+      "order": []
+    },
+    "i18n": {
+      "en": {
+        "@document": {
+          "/seoTitle": "The shop",
+          "/seoKeywords": "shop, store"
+        }
+      }
+    },
+    "warnings": []
+  }
+}
