@@ -11792,10 +11792,59 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
   /api/v1/emails/unsubscribe/{token}:
+    get:
+      operationId: confirmUnsubscribeFromEmail
+      description: 'Δεν αλλάζει τίποτα: ανακατευθύνει στη σελίδα του καταστήματος όπου ο παραλήπτης επιβεβαιώνει την απεγγραφή με ένα κουμπί.'
+      summary: Άνοιγμα της σελίδας επιβεβαίωσης απεγγραφής
+      parameters:
+        - in: path
+          name: token
+          schema:
+            type: string
+          required: true
+      tags:
+        - Emails
+      security:
+        - {}
+      responses:
+        '302':
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: Η σελίδα επιβεβαίωσης απεγγραφής του καταστήματος.
+          description: No response body
     post:
       operationId: unsubscribeFromEmailOneClick
       description: Καλείται από πελάτες αλληλογραφίας που υποστηρίζουν το List-Unsubscribe-Post=One-Click. Το διακριτικό ορίζει τον τύπο email, ή όλους τους τύπους προωθητικών μηνυμάτων, και ισχύει μόνο για το κατάστημα που το έστειλε. Η επανάληψη της κλήσης δεν αλλάζει τίποτα.
       summary: Απεγγραφή με ένα κλικ από προωθητικά email κατά RFC 8058
+      parameters:
+        - in: path
+          name: token
+          schema:
+            type: string
+          required: true
+      tags:
+        - Emails
+      security:
+        - {}
+      responses:
+        '200':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+  /api/v1/emails/unsubscribe/{token}/all:
+    post:
+      operationId: unsubscribeFromAllMarketingEmail
+      description: 'Καλείται από τη σελίδα επιβεβαίωσης του καταστήματος. Το token αναφέρει οποιονδήποτε τύπο email του καταστήματος· όλοι οι τύποι μάρκετινγκ απενεργοποιούνται και, για λογαριασμό, λήγουν οι ενεργές συνδρομές του. Idempotent: η επανάληψη δεν αλλάζει τίποτα.'
+      summary: Απεγγραφή από όλα τα email μάρκετινγκ του καταστήματος
       parameters:
         - in: path
           name: token
@@ -33172,109 +33221,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
-  /api/v1/user/unsubscribe/{token}:
-    get:
-      operationId: unsubscribeFromAllViaLink
-      description: |-
-        Non-topic unsubscribe: `/unsubscribe/<token>`.
-
-        Unsubscribes from ALL active subscriptions — used by emails without a
-        topic binding such as re-engagement and abandoned-cart.
-      summary: Απεγγραφή από όλα τα θέματα μέσω συνδέσμου email (GET)
-      parameters:
-        - in: path
-          name: token
-          schema:
-            type: string
-          required: true
-      tags:
-        - User Subscriptions
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnsubscribeResponse'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: '#/components/schemas/ApiValidationError'
-                  - $ref: '#/components/schemas/ApiError'
-          description: ''
-    post:
-      operationId: unsubscribeFromAllOneClick
-      description: Καλείται από προγράμματα email που τηρούν το List-Unsubscribe-Post=One-Click. Επιστρέφει 200 OK ανεξάρτητα από την εγκυρότητα του token (σιωπηλά, κατά RFC 8058).
-      summary: Απεγγραφή με ένα κλικ από όλα τα θέματα κατά RFC 8058
-      parameters:
-        - in: path
-          name: token
-          schema:
-            type: string
-          required: true
-      tags:
-        - User Subscriptions
-      responses:
-        '200':
-          description: No response body
-  /api/v1/user/unsubscribe/{token}/{topic_slug}:
-    get:
-      operationId: unsubscribeFromTopicViaLink
-      description: |-
-        Topic-scoped unsubscribe: `/unsubscribe/<token>/<topic_slug>`.
-
-        Used by marketing emails with a specific List-ID (newsletter etc.).
-      summary: Απεγγραφή από θέμα μέσω συνδέσμου email (GET)
-      parameters:
-        - in: path
-          name: token
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: topicSlug
-          schema:
-            type: string
-          required: true
-      tags:
-        - User Subscriptions
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnsubscribeResponse'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: '#/components/schemas/ApiValidationError'
-                  - $ref: '#/components/schemas/ApiError'
-          description: ''
-    post:
-      operationId: unsubscribeFromTopicOneClick
-      description: Καλείται από προγράμματα email που τηρούν το List-Unsubscribe-Post=One-Click. Επιστρέφει 200 OK ανεξάρτητα από την εγκυρότητα του token (σιωπηλά, κατά RFC 8058).
-      summary: Απεγγραφή με ένα κλικ από θέμα κατά RFC 8058
-      parameters:
-        - in: path
-          name: token
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: topicSlug
-          schema:
-            type: string
-          required: true
-      tags:
-        - User Subscriptions
-      responses:
-        '200':
-          description: No response body
   /api/v1/websocket/ticket:
     post:
       operationId: createWebSocketTicket
@@ -49132,24 +49078,6 @@ components:
         * `any_apm` - Οποιοδήποτε APM
         * `warehouse` - Αποθήκη (warehouse)
         * `depot` - Κέντρο διανομής (depot)
-    UnsubscribeResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        topic:
-          type: string
-        userEmail:
-          type: string
-          format: email
-        topicSlug:
-          type: string
-        count:
-          type: integer
-        error:
-          type: string
-      required:
-        - message
     UpdateStatusRequest:
       type: object
       properties:

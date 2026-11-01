@@ -71,6 +71,7 @@ export type PageKey
     | '2fa-authenticate-recovery-codes'
     | 'newsletter-confirm'
     | 'product-alert-confirm'
+    | 'email-unsubscribe'
     | 'account'
     | 'account-2fa'
     | 'account-2fa-recovery-codes-generate'
@@ -165,6 +166,7 @@ const pageDefaults: Record<PageKey, Component> = {
   '2fa-authenticate-recovery-codes': lazy(() => import('~/components/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
   'newsletter-confirm': lazy(() => import('~/components/Storefront/NewsletterConfirm.vue')),
   'product-alert-confirm': lazy(() => import('~/components/Storefront/ProductAlertConfirm.vue')),
+  'email-unsubscribe': lazy(() => import('~/components/Storefront/EmailUnsubscribe.vue')),
   'account': lazy(() => import('~/components/Storefront/Account/Overview.vue')),
   'account-2fa': securityPage,
   'account-2fa-recovery-codes-generate': lazy(() => import('~/components/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),
@@ -276,6 +278,7 @@ const variants: Record<string, Component> = {
   // `variants/webside/AccountArea/`.
   'page:newsletter-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/NewsletterConfirm.vue')),
   'page:product-alert-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductAlertConfirm.vue')),
+  'page:email-unsubscribe@webside': lazy(() => import('~/components/variants/webside/Storefront/EmailUnsubscribe.vue')),
   'page:account@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Overview.vue')),
   'page:account-2fa@webside': websideSecurityPage,
   'page:account-2fa-recovery-codes-generate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),

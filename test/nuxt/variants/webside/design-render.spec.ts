@@ -56,6 +56,7 @@ import AccountSettings from '~/components/variants/webside/Storefront/Account/Se
 import AccountReauthenticate from '~/components/variants/webside/Storefront/Auth/Reauthenticate.vue'
 import NewsletterConfirm from '~/components/variants/webside/Storefront/NewsletterConfirm.vue'
 import ProductAlertConfirm from '~/components/variants/webside/Storefront/ProductAlertConfirm.vue'
+import EmailUnsubscribe from '~/components/variants/webside/Storefront/EmailUnsubscribe.vue'
 
 /**
  * Every request — `$api`, and the `$fetch` that `useApi` / `useLazyApi`
@@ -572,5 +573,9 @@ describe('webside design render', () => {
 
   it('product alert confirmation', async () => {
     await expectSnapshot(ProductAlertConfirm, { route: '/alerts/confirm/abc' })
+  })
+
+  it('email unsubscribe', async () => {
+    await expectSnapshot(EmailUnsubscribe, { route: '/email/unsubscribe/abc' })
   })
 })
