@@ -88,6 +88,31 @@ describe('POST /api/builder/convert-legacy', () => {
     })
   })
 
+  describe('a navigation menu (kind group)', () => {
+    const menu = (slot: string, extra: Record<string, unknown> = {}) => ({
+      schema: 'demo',
+      kind: 'group',
+      key: `group:${slot}`,
+      defaultLocale: 'el',
+      legacy: { slot, links: [{ labels: { el: 'Blog' }, target: { type: 'route', route: '/blog' } }], ...extra },
+    })
+
+    it('is converted by the menu rules: this build has no menu block, so it says which one is missing', async () => {
+      const response = await post(menu('header'))
+
+      expect(response.status).toBe(422)
+      expect(response.body.errors).toEqual([expect.objectContaining({ path: '/sections/header_menu', code: 'unknown_block_type' })])
+    })
+
+    it.each([
+      ['a slot that does not exist', menu('sidebar')],
+      ['a target of an unknown type', menu('header', { links: [{ labels: { el: 'x' }, target: { type: 'cart' } }] })],
+      ['labels that are not text', menu('header', { links: [{ labels: { el: 5 }, target: { type: 'route', route: '/' } }] })],
+    ])('answers 400 for %s', async (_, body) => {
+      expect((await post(body)).status).toBe(400)
+    })
+  })
+
   it.each([
     ['a kind it does not convert', { ...request(), kind: 'theme' }],
     ['no default language', { ...request(), defaultLocale: undefined }],

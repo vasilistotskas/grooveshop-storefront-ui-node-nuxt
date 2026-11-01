@@ -2,7 +2,7 @@
 export const BLOCK_KINDS = ['section', 'block'] as const
 
 /** What a setting that names another record refers to; Django checks the record exists. */
-export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'page', 'media', 'menu'] as const
+export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'page', 'contentPage', 'media', 'menu'] as const
 
 /**
  * How deep a document nests: a section is level 1, a block inside it 2,
@@ -24,3 +24,9 @@ export const BUILDER_DOCUMENT_KINDS = ['page', 'template', 'theme', 'group'] as 
 
 /** The node id the translation overlay uses for a document's own (root) settings. */
 export const BUILDER_DOCUMENT_NODE_ID = '@document'
+
+/**
+ * The storefront routes a navigation link may name: the same eight paths
+ * Django's `BuiltInRoute` lists, which carry no session and no `robots: false`.
+ */
+export const NAVIGATION_ROUTES = ['/', '/products', '/blog', '/contact', '/offers', '/gift-cards', '/loyalty-program', '/feedback'] as const

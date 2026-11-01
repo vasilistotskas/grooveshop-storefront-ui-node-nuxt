@@ -63,7 +63,7 @@ export class LegacyConvertError extends Error {
   }
 }
 
-type Registry = ReadonlyMap<string, BlockDefinition>
+export type Registry = ReadonlyMap<string, BlockDefinition>
 type Overrides = Record<string, Record<string, unknown>>
 
 interface Context {
@@ -87,7 +87,7 @@ function camelizeDeep(value: unknown): unknown {
 const camelProps = (props: unknown): Record<string, unknown> =>
   isRecord(props) ? Object.fromEntries(Object.entries(props).map(([key, value]) => [camelKey(key), value])) : {}
 
-function put(overlay: BuilderOverlay, locale: string, id: string, pointer: string, value: unknown) {
+export function put(overlay: BuilderOverlay, locale: string, id: string, pointer: string, value: unknown) {
   ((overlay[locale] ??= {})[id] ??= {})[pointer] = value
 }
 
@@ -208,7 +208,7 @@ function convertSection(context: Context, section: LegacySection): BuilderNode {
   return node
 }
 
-function checkSettings(registry: Registry, node: BuilderNode, path: string, errors: LegacyError[]) {
+export function checkSettings(registry: Registry, node: BuilderNode, path: string, errors: LegacyError[]) {
   const definition = registry.get(node.type.split('@')[0]!)!
   const parsed = definition.schema.safeParse(node.settings)
   if (!parsed.success) {

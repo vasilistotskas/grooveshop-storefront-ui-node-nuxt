@@ -6,6 +6,8 @@ import { parseSectionProps } from '~~/server/utils/pageSectionProps'
 import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
 import { convertLegacyLayout } from '~~/shared/builder/fromLegacy'
 import type { BuilderOverlay, LegacyLayout, LegacyWarning } from '~~/shared/builder/fromLegacy'
+import { convertLegacyMenu } from '~~/shared/builder/fromLegacyMenu'
+import type { LegacyMenu } from '~~/shared/builder/fromLegacyMenu'
 import type { BlockDefinition, BuilderDocument, BuilderDocumentKind, BuilderNode } from '~~/shared/types/builder'
 import type { ComponentTypeEnum } from '~~/shared/openapi/types.gen'
 
@@ -32,14 +34,13 @@ const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/
 const definitions = Object.values(modules).map(({ default: block }) => block)
 const registry = new Map(definitions.map(block => [block.type, block]))
 
+type Request = { schema: string, key: string, defaultLocale: string } & (
+  | { kind: Exclude<BuilderDocumentKind, 'group' | 'theme'>, legacy: LegacyLayout }
+  | { kind: 'group', legacy: LegacyMenu }
+)
+
 interface Fixture {
-  request: {
-    schema: string
-    kind: BuilderDocumentKind
-    key: string
-    defaultLocale: string
-    legacy: LegacyLayout
-  }
+  request: Request
   response: { document: BuilderDocument, i18n: BuilderOverlay, warnings: LegacyWarning[] }
 }
 const files = import.meta.glob<{ default: Fixture }>('../../../fixtures/builder/legacy/*.json', { eager: true })
@@ -55,12 +56,12 @@ function camelizeKeys(value: unknown): unknown {
   ]))
 }
 
-const convert = ({ request }: Fixture) => convertLegacyLayout(request.legacy, {
-  kind: request.kind,
-  defaultLocale: request.defaultLocale,
-  registry,
-  roots: BUILDER_DOCUMENT_ROOTS,
-})
+const convert = ({ request }: Fixture) => request.kind === 'group'
+  ? convertLegacyMenu(request.legacy, { defaultLocale: request.defaultLocale, registry })
+  : convertLegacyLayout(request.legacy, { kind: request.kind, defaultLocale: request.defaultLocale, registry, roots: BUILDER_DOCUMENT_ROOTS })
+
+/** Every layout fixture's sections: the ones whose component props can be compared with the legacy section's. */
+const layouts = fixtures.flatMap(fixture => fixture.request.kind === 'group' ? [] : [{ ...fixture, request: fixture.request }])
 
 /**
  * The props the section component gets from page_config today (`Renderer.vue`):
@@ -120,7 +121,9 @@ describe('converting a legacy layout', () => {
   })
 
   it('has a fixture for every block that is a section', () => {
-    const covered = new Set(fixtures.flatMap(({ request }) => request.legacy.sections.map(({ type }) => type)))
+    const covered = new Set(fixtures.flatMap(({ request }) => request.kind === 'group'
+      ? [`${request.legacy.slot}_menu`]
+      : request.legacy.sections.map(({ type }) => type)))
     const sections = definitions.filter(block => block.kinds.includes('section')).map(block => block.type)
 
     expect(sections.filter(type => !covered.has(type))).toEqual([])
@@ -148,7 +151,7 @@ describe('converting a legacy layout', () => {
 })
 
 describe('porting a legacy section to a block', () => {
-  const sections = fixtures.flatMap(fixture => fixture.request.legacy.sections.map(section => ({ fixture, section })))
+  const sections = layouts.flatMap(fixture => (fixture.request.legacy as LegacyLayout).sections.map(section => ({ fixture, section })))
 
   it.each(sections.map(({ fixture, section }) => [`${fixture.name}: ${section.type}`, fixture, section] as const))('%s: the component gets the same props', (_, fixture, section) => {
     const document = parseDocument(fixture.response.document, 'page', registry)
@@ -173,7 +176,8 @@ describe('porting a legacy section to a block', () => {
       expect(Object.keys(node.blocks ?? {})).toEqual(node.blockOrder ?? [])
       for (const [childId, child] of Object.entries(node.blocks ?? {})) check(childId, child)
     }
-    for (const { response } of fixtures) Object.entries(response.document.sections).forEach(([id, node]) => check(id, node))
+    // A menu's nodes keep the uuids of the rows they come from, so only layouts are numbered.
+    for (const { response } of layouts) Object.entries(response.document.sections).forEach(([id, node]) => check(id, node))
   })
 
   it('names an overlay node only by an id the document has, and a pointer the block calls translatable', () => {
