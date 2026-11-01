@@ -73,6 +73,14 @@ describe('the real blocks', () => {
     expect(richText.schema).toMatchObject({ properties: { content: { contentMediaType: 'text/html' } } })
   })
 
+  it('state the rule that a trust badge needs a logo or an icon, for Django and for the parse alike', () => {
+    const badge = buildBlockCatalogue(definitions).blocks.find(block => block.type === 'trust_badge')!
+    const bare = { type: 'trust_badges@1', settings: {}, blocks: { a: { type: 'trust_badge@1', settings: { kind: 'custom', label: 'Bare' } } }, blockOrder: ['a'] }
+
+    expect(badge.schema.anyOf).toEqual([{ required: ['imageUrl'] }, { required: ['icon'] }])
+    expect(parseDocument({ sections: { s1: bare }, order: ['s1'] }, 'page', registry).sections.s1).not.toHaveProperty('blocks')
+  })
+
   it('are all version 1, closed, with every translatable pointer a setting', () => {
     for (const block of buildBlockCatalogue(definitions).blocks) {
       expect(block.version, block.type).toBe(1)
