@@ -1,3 +1,10 @@
+## [3.278.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.278.0...v3.278.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* **api:** stop requiring imageSizeKb on product images ([#305](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/305)) ([0ea9bc6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0ea9bc66883616c8358249af981c8d710d365497))
+
 # [3.278.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.277.0...v3.278.0) (2026-11-01)
 
 
