@@ -1,3 +1,10 @@
+# [3.277.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.276.2...v3.277.0) (2026-11-01)
+
+
+### Features
+
+* **email:** add the marketing-email unsubscribe confirm page ([#303](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/303)) ([5ca0572](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ca0572a89120eb401bf57e08fcd015d3e0f5bb4))
+
 ## [3.276.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.276.1...v3.276.2) (2026-10-31)
 
 
