@@ -1,503 +1,293 @@
 <script lang="ts" setup>
-/**
- * Carrier-agnostic Leaflet map view for the locker picker.
- *
- * Why ``.client.vue`` (no SSR): Leaflet imports ``window`` at module
- * load — rendering it server-side throws. The ``.client`` suffix
- * tells Nuxt to ship a Vue stub on the server and the real
- * component only on the client. Wrapping callers should still use
- * ``<ClientOnly>`` for clean hydration boundaries.
- *
- * Tiles are CARTO Positron / Dark Matter, built by
- * ``shared/utils/carto-basemaps.ts`` from the platform's
- * ``cartoBasemapsKey`` runtime config. With no key configured the map
- * itself does not render — CARTO now serves a watermarked tile for a
- * keyless request, so there is no fallback; the picker's list/search
- * tab keeps working regardless.
- */
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-// ``leaflet.markercluster`` CSS is intentionally imported here
-// (the JS side-effect is handled by ``useLMarkerCluster`` via a
-// dynamic import — manually importing the JS at the top of the
-// script section races the global ``L`` setup and breaks the
-// ``L.FeatureGroup.extend`` call inside the plugin).
-import 'leaflet.markercluster/dist/MarkerCluster.css'
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import type { GeoJSONSource, Map as MapLibreMap, Marker, Popup } from 'maplibre-gl'
 
+/**
+ * The locker picker's map: every locker of the carrier's catalogue on
+ * the platform basemap (`useMapLibre`), clustered.
+ *
+ * Clusters and lockers are HTML `<button>` markers over a clustered
+ * GeoJSON source (MapLibre's HTML-cluster pattern), so each one is in
+ * the tab order with an accessible name. Enter on a cluster zooms into
+ * it; Enter on a locker opens its popup with focus on "Choose", which
+ * emits the locker by `key` (the lockers of one ACS area share an `id`).
+ *
+ * Client-only (`.client.vue`) and lazy: MapLibre needs a browser, and
+ * the picker mounts this only on its map tab, so checkout pays for the
+ * library only when a shopper opens the map.
+ */
 const props = defineProps<{
   /** Bulk locker catalogue from ``carrier.fetchAll(country)``. */
   lockers: Locker[]
-  /** The pre-selected locker's ``key`` (from form state). */
-  selectedKey?: string | null
   /** ``true`` while the parent is fetching the catalogue. */
   loading?: boolean
 }>()
 
 const emit = defineEmits<{
   selected: [locker: Locker]
+  /** The shopper asked for the list instead of the map. */
+  showList: []
 }>()
 
+const LOCKER_SOURCE = 'lockers'
+// A source draws nothing and loads no data without a layer reading it;
+// this one is invisible: the markers are HTML.
+const LOCKER_ANCHOR_LAYER = 'lockers-anchor'
+const CLUSTER_MAX_ZOOM = 14
+const CLUSTER_RADIUS = 60
+
 const { t } = useI18n()
-const colorMode = useColorMode()
-const reducedMotion = usePreferredReducedMotion()
-const runtimeConfig = useRuntimeConfig()
 
-// Stable fallback — only used when the carrier has no lockers to
-// derive a centre from (e.g. a brand-new courier with an empty
-// catalogue).
-const FALLBACK_CENTER: [number, number] = [37.9838, 23.7275] // Athens
-const FALLBACK_ZOOM = 11
-
-// `null` when `cartoBasemapsKey` is empty — see the component
-// docstring and `buildCartoBasemap`'s own doc for why there is no
-// keyless fallback.
-const activeTile = computed<TileLayerSpec | null>(() =>
-  buildCartoBasemap(colorMode.value === 'dark' ? 'dark' : 'light', runtimeConfig.public.cartoBasemapsKey),
-)
+type PlacedLocker = Locker & { lat: number, lng: number }
 
 const lockersWithCoords = computed(() =>
   props.lockers.filter(
-    (l): l is Locker & { lat: number, lng: number } =>
-      typeof l.lat === 'number' && typeof l.lng === 'number',
+    (l): l is PlacedLocker => typeof l.lat === 'number' && typeof l.lng === 'number',
   ),
 )
+const lockersByKey = computed(() => new Map(lockersWithCoords.value.map(l => [l.key, l])))
+const bounds = computed(() => boundsOf(lockersWithCoords.value))
 
-const center = computed<[number, number]>(() => {
-  // Derive the centre from the first loaded locker — the map will
-  // look sensible without any carrier-supplied hint.
-  const first = lockersWithCoords.value[0]
-  if (first) return [first.lat, first.lng]
-  return FALLBACK_CENTER
+const container = useTemplateRef<HTMLElement>('container')
+
+const { map, state } = useMapLibre(container, {
+  mapOptions: () => ({
+    bounds: bounds.value ?? undefined,
+    fitBoundsOptions: { padding: 40, maxZoom: CLUSTER_MAX_ZOOM },
+    dragRotate: false,
+    pitchWithRotate: false,
+    touchPitch: false,
+  }),
+  carry: [LOCKER_SOURCE],
+  onLoad: (instance, maplibre) => {
+    instance.touchZoomRotate.disableRotation()
+    instance.addControl(new maplibre.NavigationControl({ showCompass: false }))
+    instance.addControl(new maplibre.GeolocateControl({
+      positionOptions: { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+      fitBoundsOptions: { maxZoom: CLUSTER_MAX_ZOOM },
+    }))
+    instance.addSource(LOCKER_SOURCE, {
+      type: 'geojson',
+      data: lockerFeatures(),
+      cluster: true,
+      clusterRadius: CLUSTER_RADIUS,
+      clusterMaxZoom: CLUSTER_MAX_ZOOM,
+    })
+    instance.addLayer({
+      id: LOCKER_ANCHOR_LAYER,
+      type: 'circle',
+      source: LOCKER_SOURCE,
+      paint: { 'circle-radius': 0, 'circle-opacity': 0 },
+    })
+    popup = new maplibre.Popup({ className: 'locker-popup', offset: 20, maxWidth: '18rem', focusAfterOpen: true })
+    makeMarker = element => new maplibre.Marker({ element })
+    instance.on('render', () => {
+      if (instance.isSourceLoaded(LOCKER_SOURCE)) syncMarkers(instance)
+    })
+  },
 })
 
-const zoom = ref(FALLBACK_ZOOM)
+function lockerFeatures() {
+  return {
+    type: 'FeatureCollection' as const,
+    features: lockersWithCoords.value.map(locker => ({
+      type: 'Feature' as const,
+      geometry: { type: 'Point' as const, coordinates: [locker.lng, locker.lat] },
+      properties: { key: locker.key },
+    })),
+  }
+}
 
-// LMap component ref — needed to access ``leafletObject`` (the
-// underlying ``L.Map`` instance) when wiring marker clusters and
-// calling ``invalidateSize()``. Typed as ``any`` because the
-// ``@nuxtjs/leaflet`` LMap component's exposed ``leafletObject``
-// is a loose subtype of the ``L.Map`` we get from
-// ``@types/leaflet``; the official docs use ``ref(null) as any``
-// for this exact reason. Casts isolated to this single ref.
-const mapRef = ref<any>(null)
-const clusterReady = ref(false)
-const geolocating = ref(false)
-// Surfaced to the user when the browser denies geolocation or the
-// request times out — the silent ``log.info`` path left users
-// staring at a button that span and stopped with no explanation.
-const geolocateError = ref<string | null>(null)
+// Markers on screen, by `c<cluster id>` or `l<locker key>`.
+const markers = new Map<string, Marker>()
+let popup: Popup | null = null
+let makeMarker: ((element: HTMLElement) => Marker) | null = null
 
-// SVG body is identical for every marker — render once and reuse.
-const PIN_HTML = `
-  <div class="acs-pin-icon" aria-hidden="true">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-      <path d="m7.5 4.27 9 5.15"/>
-      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-      <path d="m3.3 7 8.7 5 8.7-5"/>
-      <path d="M12 22V12"/>
-    </svg>
-  </div>`
+const PIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>'
 
-function buildIcon(selected: boolean) {
-  return L.divIcon({
-    html: PIN_HTML,
-    className: 'acs-pin' + (selected ? ' acs-pin--selected' : ''),
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
+const MARKER_CLASS = 'flex items-center justify-center rounded-full bg-primary text-inverted ring-2 ring-(--ui-bg) shadow-md cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+
+function clusterButton(instance: MapLibreMap, clusterId: number, count: number, lngLat: [number, number]): HTMLButtonElement {
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.className = `${MARKER_CLASS} size-10 text-sm font-semibold`
+  button.textContent = String(count)
+  button.setAttribute('aria-label', t('shipping.locker_picker.cluster_aria_label', { count }))
+  button.addEventListener('click', (event) => {
+    // The map would read this click as a click on the map itself.
+    event.stopPropagation()
+    const source = instance.getSource<GeoJSONSource>(LOCKER_SOURCE)
+    source?.getClusterExpansionZoom(clusterId).then((zoom) => {
+      instance.easeTo({ center: lngLat, zoom })
+      // The cluster's button is gone once the map zooms in; the canvas
+      // keeps keyboard focus, where arrows pan and Tab reaches the
+      // lockers it split into.
+      instance.once('moveend', () => instance.getCanvas().focus())
+    }).catch((error: unknown) => {
+      log.warn({ tag: 'maps', message: 'cluster expansion failed', error })
+    })
   })
+  return button
 }
 
-// Pre-build the two icons; we reuse them across renders so a
-// selection change only rewires which marker holds which.
-const ICON_NORMAL = buildIcon(false)
-const ICON_SELECTED = buildIcon(true)
-
-// Marker props are independent of ``selectedKey`` — selection state is
-// applied via ``setIcon`` on the affected markers without rebuilding
-// the cluster. The previous implementation re-evaluated the whole
-// computed (and re-instantiated 167 ``L.divIcon`` objects) on every
-// selection change.
-const markerProps = computed(() =>
-  lockersWithCoords.value.map(locker => ({
-    key: locker.key,
-    name: locker.name,
-    lat: locker.lat,
-    lng: locker.lng,
-    options: {
-      title: locker.name,
-      alt: `${locker.name} — ${locker.addressLine1}`,
-      keyboard: true,
-      riseOnHover: true,
-    },
-    popup: `
-      <div class="acs-popup">
-        <strong class="block">${escapeHtml(locker.name)}</strong>
-        <span class="block text-sm">${escapeHtml(locker.addressLine1)}</span>
-        <span class="block text-xs">${escapeHtml(locker.postalCode)} ${escapeHtml(locker.city)}</span>
-        ${locker.workingHours ? `<span class="block mt-1 text-xs italic">${escapeHtml(locker.workingHours)}</span>` : ''}
-        <button type="button" class="acs-popup-select mt-2" data-locker-key="${escapeAttr(locker.key)}">
-          ${escapeHtml(t('shipping.locker_picker.choose', { carrier: '' }).trim())}
-        </button>
-      </div>`,
-  })),
-)
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, ch => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    '\'': '&#39;',
-  }[ch] ?? ch))
+function lockerButton(instance: MapLibreMap, locker: PlacedLocker): HTMLButtonElement {
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.className = `${MARKER_CLASS} size-8`
+  button.innerHTML = PIN_SVG
+  button.setAttribute('aria-label', `${locker.name}, ${locker.addressLine1}, ${locker.postalCode} ${locker.city}`)
+  button.addEventListener('click', (event) => {
+    event.stopPropagation()
+    openPopup(instance, locker)
+  })
+  return button
 }
 
-function escapeAttr(value: string): string {
-  return value.replace(/"/g, '&quot;')
-}
-
-async function onMapReady(): Promise<void> {
-  const map = mapRef.value?.leafletObject
-  if (!map) return
-  // Disable animations for users who request reduced motion.
-  if (reducedMotion.value === 'reduce') {
-    map.options.zoomAnimation = false
-    map.options.fadeAnimation = false
-    map.options.markerZoomAnimation = false
+function openPopup(instance: MapLibreMap, locker: PlacedLocker): void {
+  if (!popup) return
+  const content = document.createElement('div')
+  content.className = 'flex flex-col gap-0.5 text-sm'
+  const line = (text: string, className: string) => {
+    const element = document.createElement('span')
+    element.className = className
+    element.textContent = text
+    content.append(element)
   }
-  await ensureClusters()
-  // The container may have started sized 0 (modal animation, tab
-  // collapsed). Force a recompute on the next frame so tiles
-  // resolve cleanly.
-  await nextTick()
-  map.invalidateSize()
-}
-
-// When the map is mounted inside a hidden tab panel, Leaflet
-// computes its tile grid against a 0×0 container and only renders
-// a single tile. The ``@ready`` callback above fires once at mount;
-// after that, the only signal we get when the panel becomes
-// visible is the container resizing from 0×N to its real
-// dimensions. Watch that via ``useResizeObserver`` and re-call
-// ``invalidateSize`` whenever the width/height transitions through
-// 0 — covers the tab-activate path, the modal-fullscreen-snap
-// path, and any future drawer/sheet animation that changes the
-// visible viewport.
-const mapContainerRef = computed<HTMLElement | null>(
-  () => mapRef.value?.leafletObject?.getContainer?.() ?? null,
-)
-let lastDim = { w: 0, h: 0 }
-useResizeObserver(mapContainerRef, (entries) => {
-  const entry = entries[0]
-  if (!entry) return
-  const { width, height } = entry.contentRect
-  // Only act on a 0 → non-0 transition (or the inverse). Resizing
-  // a visible map repeatedly would trigger redundant work.
-  const wasHidden = lastDim.w === 0 || lastDim.h === 0
-  const isVisible = width > 0 && height > 0
-  lastDim = { w: width, h: height }
-  if (wasHidden && isVisible) {
-    const map = mapRef.value?.leafletObject
-    if (!map) return
-    map.invalidateSize()
-    // Re-cluster too in case the markers were skipped on first
-    // mount because the container was 0-sized. ``ensureClusters``
-    // is idempotent — re-entry is safe.
-    void ensureClusters()
-  }
-})
-
-// Tracks the current cluster layer so we can swap it out cleanly
-// when the locker set changes (country switch, refresh, etc.) —
-// otherwise we'd stack pins on every reload.
-let activeCluster: any = null
-// Cache the built marker per locker key so a selection change can
-// flip its icon in place instead of rebuilding the whole cluster.
-const markersByKey = new Map<string, any>()
-// In-flight guard: ``onMapReady``, ``useResizeObserver``, and the
-// ``props.lockers`` watcher can all call ``ensureClusters`` in the
-// same tick. Without this, two cluster groups would be added to
-// the map and only the latest tracked for removal — orphaned pins.
-let clusterBuilding = false
-
-async function ensureClusters(): Promise<void> {
-  if (clusterBuilding) return
-  const map = mapRef.value?.leafletObject
-  if (!map || markerProps.value.length === 0) return
-  clusterBuilding = true
-  try {
-    if (activeCluster) {
-      map.removeLayer(activeCluster)
-      activeCluster = null
-    }
-    markersByKey.clear()
-    // ``@nuxtjs/leaflet@1.3.2``'s ``useLMarkerCluster`` is broken: it
-    // does ``const { MarkerClusterGroup } = await import('leaflet.
-    // markercluster')`` but the plugin is a side-effect module that
-    // patches the global ``L``, not a named export — so the
-    // destructured value is ``undefined`` and the next line throws
-    // "MarkerClusterGroup is not a constructor". Bypass the
-    // composable: side-effect import here so ``L.MarkerClusterGroup``
-    // exists, then build the cluster directly. Drop this workaround
-    // when the upstream composable starts reading ``L.MarkerClusterGroup``
-    // off the global instead of destructuring.
-    await import('leaflet.markercluster')
-    const markerCluster = new L.MarkerClusterGroup({
-      maxClusterRadius: 60,
-      chunkedLoading: true,
-      disableClusteringAtZoom: 15,
-      showCoverageOnHover: false,
-      spiderfyOnMaxZoom: true,
-    })
-    for (const m of markerProps.value) {
-      const icon = m.key === props.selectedKey ? ICON_SELECTED : ICON_NORMAL
-      const marker = L.marker([m.lat, m.lng], { ...m.options, icon })
-      if (m.popup) {
-        const popup = L.DomUtil.create('div', 'popup')
-        popup.innerHTML = m.popup
-        marker.bindPopup(popup)
-      }
-      markersByKey.set(m.key, marker)
-      markerCluster.addLayer(marker)
-    }
-    map.addLayer(markerCluster)
-    activeCluster = markerCluster
-    clusterReady.value = true
-  }
-  finally {
-    clusterBuilding = false
-  }
-}
-
-// Re-cluster when the locker set changes. Watch the array reference
-// (not just length) so a same-length-different-contents update — e.g.
-// a country switch that returns a fresh page — also triggers rebuild.
-watch(
-  () => props.lockers,
-  () => {
-    void ensureClusters()
-  },
-)
-
-// Selection change: flip the icon on just the two affected markers
-// instead of rebuilding 167 of them.
-watch(
-  () => props.selectedKey,
-  (newKey, oldKey) => {
-    if (oldKey) {
-      markersByKey.get(oldKey)?.setIcon(ICON_NORMAL)
-    }
-    if (newKey) {
-      markersByKey.get(newKey)?.setIcon(ICON_SELECTED)
-    }
-  },
-)
-
-// Delegate popup-button clicks back to the parent — Leaflet doesn't
-// give us a Vue handle inside popup HTML, so we walk the DOM event.
-useEventListener(
-  import.meta.client ? document : null,
-  'click',
-  (event: MouseEvent) => {
-    const target = event.target as HTMLElement | null
-    const button = target?.closest('.acs-popup-select') as
-      | HTMLElement
-      | null
-    if (!button) return
-    // By key: the lockers of one ACS area share their ``id``.
-    const key = button.dataset.lockerKey
-    if (!key) return
-    const picked = props.lockers.find(l => l.key === key)
+  line(locker.name, 'font-semibold text-highlighted')
+  line(locker.addressLine1, 'text-toned')
+  line(`${locker.postalCode} ${locker.city}`, 'text-xs text-toned')
+  if (locker.workingHours) line(locker.workingHours, 'mt-1 text-xs text-muted')
+  const choose = document.createElement('button')
+  choose.type = 'button'
+  choose.className = 'mt-2 w-full cursor-pointer rounded-md bg-primary px-3 py-2 text-sm font-semibold text-inverted hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+  choose.textContent = t('shipping.locker_picker.choose', { carrier: '' }).trim()
+  // By key: the lockers of one ACS area share their `id`.
+  choose.addEventListener('click', () => {
+    const picked = lockersByKey.value.get(locker.key)
     if (picked) emit('selected', picked)
-  },
-)
+  })
+  content.append(choose)
+  popup.setLngLat([locker.lng, locker.lat]).setDOMContent(content).addTo(instance)
+}
 
-async function geolocate(): Promise<void> {
-  const map = mapRef.value?.leafletObject
-  if (!import.meta.client || !navigator.geolocation || !map) return
-  geolocating.value = true
-  geolocateError.value = null
-  try {
-    await new Promise<void>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          map.setView(
-            [pos.coords.latitude, pos.coords.longitude],
-            14,
-            { animate: reducedMotion.value !== 'reduce' },
-          )
-          resolve()
-        },
-        () => reject(new Error('geolocation_denied')),
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
-      )
-    })
+function syncMarkers(instance: MapLibreMap): void {
+  if (!makeMarker) return
+  const seen = new Set<string>()
+  for (const feature of instance.querySourceFeatures(LOCKER_SOURCE)) {
+    if (feature.geometry.type !== 'Point') continue
+    const [lng, lat] = feature.geometry.coordinates
+    if (typeof lng !== 'number' || typeof lat !== 'number') continue
+    const properties = feature.properties
+    let id: string
+    let build: () => HTMLElement
+    if (properties.cluster) {
+      const clusterId = Number(properties.cluster_id)
+      const count = Number(properties.point_count)
+      id = `c${clusterId}`
+      build = () => clusterButton(instance, clusterId, count, [lng, lat])
+    }
+    else {
+      const locker = lockersByKey.value.get(String(properties.key))
+      if (!locker) continue
+      id = `l${locker.key}`
+      build = () => lockerButton(instance, locker)
+    }
+    // A feature can sit in two tiles at once; one marker each.
+    if (seen.has(id)) continue
+    seen.add(id)
+    if (markers.has(id)) continue
+    markers.set(id, makeMarker(build()).setLngLat([lng, lat]).addTo(instance))
   }
-  catch {
-    log.info('shipping/map', 'geolocation denied or timed out')
-    geolocateError.value = t('shipping.locker_picker.geolocate_denied')
-  }
-  finally {
-    geolocating.value = false
+  for (const [id, marker] of markers) {
+    if (seen.has(id)) continue
+    marker.remove()
+    markers.delete(id)
   }
 }
+
+function clearMarkers(): void {
+  for (const marker of markers.values()) marker.remove()
+  markers.clear()
+}
+
+// A new catalogue (another country, a refresh) replaces the data and
+// the camera; the markers rebuild from the new clusters.
+watch(lockersWithCoords, () => {
+  const instance = map.value
+  if (!instance || state.value !== 'ready') return
+  popup?.remove()
+  clearMarkers()
+  instance.getSource<GeoJSONSource>(LOCKER_SOURCE)?.setData(lockerFeatures())
+  if (bounds.value) instance.fitBounds(bounds.value, { padding: 40, maxZoom: CLUSTER_MAX_ZOOM })
+})
 </script>
 
 <template>
-  <div
-    role="application"
-    :aria-label="t('shipping.locker_picker.modal_title', { carrier: '' })"
-    class="relative size-full"
-  >
-    <template v-if="activeTile">
-      <!-- Skip-to-list link for keyboard users; the parent picker
-           renders the same lockers as a list (WCAG 1.3.1 fallback). -->
-      <a
-        href="#locker-list"
-        class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-1 focus:text-sm focus:font-semibold focus:shadow"
-      >
-        {{ t('shipping.locker_picker.skip_to_list') }}
-      </a>
-
-      <LMap
-        ref="mapRef"
-        :zoom="zoom"
-        :center="center"
-        :use-global-leaflet="true"
-        class="size-full"
-        :options="{
-          scrollWheelZoom: true,
-          zoomControl: true,
-          attributionControl: true,
-        }"
-        @ready="onMapReady"
-      >
-        <LTileLayer
-          :url="activeTile.url"
-          :attribution="activeTile.attribution"
-          :options="{
-            maxZoom: activeTile.maxZoom ?? 19,
-            subdomains: activeTile.subdomains ?? 'abcd',
-          }"
-          layer-type="base"
-        />
-      </LMap>
-
-      <!-- Geolocate-me button. Sits over the map; respects
-           keyboard focus. -->
-      <UButton
-        class="absolute right-3 top-3 z-[400] shadow-lg"
-        color="neutral"
-        variant="solid"
-        size="md"
-        icon="i-lucide-locate-fixed"
-        :loading="geolocating"
-        :aria-label="t('shipping.locker_picker.geolocate')"
-        @click="geolocate"
-      >
-        {{ t('shipping.locker_picker.geolocate') }}
-      </UButton>
-
-      <!-- Geolocate error toast — surfaces denial / timeout instead
-           of leaving the user with a button that "did nothing". -->
-      <p
-        v-if="geolocateError"
-        role="alert"
-        class="absolute right-3 top-16 z-[400] max-w-xs rounded bg-white/95 px-3 py-2 text-xs shadow-lg dark:bg-neutral-900/95"
-      >
-        {{ geolocateError }}
-      </p>
-
-      <!-- Empty state — overlay rather than swap so attribution stays. -->
-      <div
-        v-if="!loading && lockersWithCoords.length === 0"
-        class="absolute inset-x-0 top-1/2 z-[300] mx-auto w-fit -translate-y-1/2 rounded-lg bg-white/90 px-4 py-3 text-center shadow-lg backdrop-blur dark:bg-neutral-900/90"
-      >
-        <UIcon name="i-lucide-map-pin-off" class="mx-auto size-8 text-neutral-400" />
-        <p class="mt-1 text-sm font-medium">
-          {{ t('shipping.locker_picker.no_results_in_area') }}
-        </p>
-      </div>
-    </template>
-
-    <!-- No CARTO key configured — CARTO now watermarks keyless tiles,
-         so we render nothing rather than a broken map. The list tab
-         in the parent picker still works. -->
+  <div class="relative size-full">
     <div
-      v-else
+      v-if="state === 'unavailable'"
+      role="status"
+      class="flex size-full flex-col items-center justify-center gap-3 p-4 text-center"
+    >
+      <UIcon name="i-lucide-map-pin-off" class="size-10 text-muted" />
+      <p class="text-sm font-medium text-toned">
+        {{ t('shipping.locker_picker.map_unavailable') }}
+      </p>
+      <UButton
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-list"
+        :label="t('shipping.locker_picker.show_list')"
+        @click="() => emit('showList')"
+      />
+    </div>
+
+    <USkeleton v-else-if="loading" class="size-full" />
+
+    <div
+      v-else-if="lockersWithCoords.length === 0"
       role="status"
       class="flex size-full flex-col items-center justify-center gap-2 p-4 text-center"
     >
-      <UIcon name="i-lucide-map-pin-off" class="size-10 text-neutral-400" />
-      <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-        {{ t('shipping.locker_picker.map_unavailable') }}
+      <UIcon name="i-lucide-map-pin-off" class="size-10 text-muted" />
+      <p class="text-sm font-medium text-toned">
+        {{ t('shipping.locker_picker.no_results_in_area') }}
       </p>
     </div>
+
+    <template v-else>
+      <!-- First in the tab order: the same lockers as a list, for a
+           shopper who would rather not use the map. -->
+      <UButton
+        class="
+          sr-only
+          focus-visible:not-sr-only focus-visible:absolute focus-visible:top-2
+          focus-visible:left-2 focus-visible:z-10
+        "
+        color="neutral"
+        variant="solid"
+        size="sm"
+        icon="i-lucide-list"
+        :label="t('shipping.locker_picker.show_list')"
+        @click="() => emit('showList')"
+      />
+      <div ref="container" class="size-full" />
+    </template>
   </div>
 </template>
 
 <style>
-.acs-pin {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
+.locker-popup .maplibregl-popup-content {
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  border-radius: var(--ui-radius);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
 }
 
-.acs-pin .acs-pin-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  background: var(--ui-color-primary-600, #2563eb);
-  border: 2px solid white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  transition: transform 120ms ease;
+.locker-popup .maplibregl-popup-tip {
+  display: none;
 }
 
-.acs-pin:hover .acs-pin-icon {
-  transform: scale(1.08);
-}
-
-.acs-pin--selected .acs-pin-icon {
-  background: var(--ui-color-success-600, #16a34a);
-  outline: 3px solid var(--ui-color-success-300, #86efac);
-}
-
-.acs-popup {
-  font-family: inherit;
-  min-width: 220px;
-}
-
-.acs-popup .acs-popup-select {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  background: var(--ui-color-primary-600, #2563eb);
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  border: 0;
-}
-
-.acs-popup .acs-popup-select:hover {
-  background: var(--ui-color-primary-700, #1d4ed8);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .acs-pin:hover .acs-pin-icon {
-    transform: none;
-  }
-}
-
-/* Keyboard focus ring on markers — Leaflet adds tabindex but no
-   visible outline by default. */
-.leaflet-marker-icon:focus-visible {
-  outline: 2px solid var(--ui-color-primary-500, #3b82f6);
-  outline-offset: 2px;
+.locker-popup .maplibregl-popup-close-button {
+  color: var(--ui-text-muted);
 }
 </style>

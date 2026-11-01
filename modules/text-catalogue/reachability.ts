@@ -50,11 +50,11 @@ const COMPONENT_REGISTRY = 'utils/componentRegistry.ts'
 
 /**
  * Components that are not in `app/components/`: Nuxt's and Vue's built-ins,
- * Nuxt UI (`U…`), `@nuxtjs/i18n` (`I18nT`), `@comark/nuxt` (`Markdown`) and `@nuxtjs/leaflet`
- * (`L…`). They hold no store text, so the walk stops there; a name that is
+ * Nuxt UI (`U…`), `@nuxtjs/i18n` (`I18nT`) and `@comark/nuxt` (`Markdown`).
+ * They hold no store text, so the walk stops there; a name that is
  * neither one of these nor under `app/components/` is an error.
  */
-const THIRD_PARTY_COMPONENT = /^(?:U[A-Z]\w*|Nuxt[A-Z]\w*|ClientOnly|I18nT|Markdown|LCircleMarker|LMap|LTileLayer|LTooltip|Suspense|Transition|TransitionGroup|Component)$/
+const THIRD_PARTY_COMPONENT = /^(?:U[A-Z]\w*|Nuxt[A-Z]\w*|ClientOnly|I18nT|Markdown|Suspense|Transition|TransitionGroup|Component)$/
 
 type RootNode = NonNullable<NonNullable<SFCDescriptor['template']>['ast']>
 type TemplateChildNode = RootNode['children'][number]

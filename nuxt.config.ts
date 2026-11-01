@@ -9,9 +9,9 @@ import { STATIC_LAYOUT_ROUTES } from './shared/utils/staticLayoutRoutes.ts'
 
 // Style-ish module ids must never be captured by a codeSplitting group:
 // folding them into a named JS chunk makes Nuxt emit that chunk's CSS as
-// a render-blocking <link> on every page (this exact mistake shipped the
-// leaflet stylesheet site-wide before the old manualChunks grew its
-// ``.css`` guard) and disturbs vite's CSS emit ordering. Covers plain
+// a render-blocking <link> on every page (this exact mistake once shipped
+// the map library's stylesheet site-wide, before the old manualChunks grew
+// its ``.css`` guard) and disturbs vite's CSS emit ordering. Covers plain
 // stylesheets, preprocessor sources, and Vue SFC <style> virtuals.
 function isStyleModuleId(id: string): boolean {
   return /\.(?:css|scss|sass|less|styl|pcss)(?:\?|$)/.test(id)
@@ -53,24 +53,10 @@ const modules: (string | NuxtModule)[] = [
   '@nuxt/fonts',
   '@nuxt/icon',
   '@nuxtjs/i18n',
-  '@nuxtjs/leaflet',
   '@nuxtjs/seo',
   '@pinia/nuxt',
   '@vueuse/nuxt',
   'nuxt-auth-utils',
-  // @nuxtjs/leaflet unconditionally pushes leaflet/dist/leaflet.css into
-  // the GLOBAL css array (dist/module.mjs:38, no opt-out) — a
-  // render-blocking stylesheet on every page for a map that exists only
-  // in checkout and the contact map — SmartpointMap.client.vue and
-  // PageSection/LocationCanvas.client.vue import that css themselves, so
-  // the global copy is a pure duplicate (Lighthouse flagged it on the
-  // homepage, 2026-08-29). Inline module placed after @nuxtjs/leaflet so
-  // it strips the entry the module just added.
-  (_options, nuxt) => {
-    nuxt.options.css = nuxt.options.css.filter(
-      entry => entry !== 'leaflet/dist/leaflet.css',
-    )
-  },
 ]
 
 if (process.env.NODE_ENV === 'test') {
@@ -222,19 +208,18 @@ export default defineNuxtConfig({
     public: {
       appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-      // One PLATFORM key for CARTO's basemap tiles (checkout locker map +
-      // store-location section) — never per-tenant, there is no per-tenant
-      // CARTO account. Public by design: it travels in every tile URL and
-      // CARTO restricts it server-side by Referer. Empty means "no map",
-      // never a fallback to CARTO's now-watermarked keyless tiles — see
-      // ``shared/utils/carto-basemaps.ts``.
-      cartoBasemapsKey: process.env.NUXT_PUBLIC_CARTO_BASEMAPS_KEY || '',
       djangoHostName: process.env.NUXT_PUBLIC_DJANGO_HOST_NAME,
       djangoUrl: process.env.NUXT_PUBLIC_DJANGO_URL,
       // Driven by NUXT_PUBLIC_GOOGLE_GSI_ENABLE (the infra ConfigMap
       // already sets it) — was hardcoded false, which silently ignored
       // the env var and made flipping it in ops a no-op.
       googleGsiEnable: process.env.NUXT_PUBLIC_GOOGLE_GSI_ENABLE === 'true',
+      // TileJSON of the basemap archive on the PLATFORM maps host
+      // (`maps.grooveshop.space`), shared by every store and belonging to
+      // none — every map reads it (`app/utils/basemap.ts`), and the CSP
+      // puts its origin in connect-src. Empty means no map renders and an
+      // error is logged: there is no other tile source to fall back to.
+      mapsTileJsonUrl: process.env.NUXT_PUBLIC_MAPS_TILEJSON_URL || '',
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
       mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
       // NOTE: no manually-set ``public.scripts.googleAnalytics`` entry —
@@ -303,6 +288,13 @@ export default defineNuxtConfig({
       },
     },
     '/**/*.{css,js}': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
+    // The basemap's glyphs (`public/maps/fonts`, Protomaps' Noto Sans
+    // ranges): content that never changes at its URL, read by every map.
+    '/maps/fonts/**': {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
@@ -518,12 +510,21 @@ export default defineNuxtConfig({
         },
       },
     },
+    // Worker bundles (MapLibre's, `?worker&url` in useMapLibre) are named
+    // like every other client JS file: see CLIENT_BUILD_TAG.
+    worker: {
+      rolldownOptions: {
+        output: {
+          entryFileNames: clientJsFileNames,
+          chunkFileNames: clientJsFileNames,
+        },
+      },
+    },
     // Client-only chunk-graph consolidation. Lives under ``$client``
     // (deep-merged into the client vite config) so the SSR build keeps
     // its default chunking. NOTE: rolldown IGNORES ``manualChunks``
-    // entirely once ``codeSplitting`` is present, so the leaflet
-    // grouping that used to live in the shared block above is migrated
-    // into a group here — do not re-add a manualChunks alongside this.
+    // entirely once ``codeSplitting`` is present — do not re-add a
+    // manualChunks alongside this.
     $client: {
       build: {
         rollupOptions: {
@@ -533,28 +534,6 @@ export default defineNuxtConfig({
             entryFileNames: clientJsFileNames,
             codeSplitting: {
               groups: [
-                // Leaflet + the marker cluster plugin MUST share a
-                // chunk. ``leaflet.markercluster`` is a UMD plugin whose
-                // top-level code does ``L.MarkerClusterGroup =
-                // L.FeatureGroup.extend(...)`` — bare ``L`` resolved via
-                // global scope (== ``window.L``); the leaflet CJS file
-                // seeds ``window.L = exports`` as a top-level side
-                // effect, so co-location guarantees that initialiser
-                // runs first. Splitting them crashed every page that
-                // preloaded the chunk (prod outage v3.123.0/1 — full
-                // history in git blame of the old manualChunks block).
-                // The chunk still only loads when CheckoutSmartpointMap
-                // mounts (Lazy* + ClientOnly).
-                {
-                  name: 'leaflet',
-                  test: (id: string) =>
-                    !isStyleModuleId(id)
-                    && (
-                      id.includes('node_modules/leaflet/')
-                      || id.includes('node_modules/leaflet.markercluster/')
-                    ),
-                  priority: 30,
-                },
                 // Merge the ENTRY's static-import closure into two
                 // chunks. Lighthouse's lantern simulation charges every
                 // pre-LCP request against a 1.6Mbps link, and the
@@ -567,9 +546,9 @@ export default defineNuxtConfig({
                 // (route chunks, page sections, the zod chunk shared by
                 // 27 account/checkout chunks) never carry the tag, so
                 // automatic chunking still applies to them. Styles are
-                // excluded for the same reason as the leaflet group:
-                // folding CSS module ids into a named JS group breaks
-                // vite's CSS extraction ordering.
+                // excluded (``isStyleModuleId``): folding CSS module ids
+                // into a named JS group breaks vite's CSS extraction
+                // ordering.
                 {
                   name: 'eager-vendor',
                   tags: ['$initial'],
@@ -1206,22 +1185,6 @@ export default defineNuxtConfig({
       xl: 1280,
       xxl: 1536,
     },
-  },
-  // ``@nuxtjs/leaflet`` config. markerCluster stays OFF: its only live
-  // effect was pushing both MarkerCluster CSS files into the GLOBAL css
-  // array — a render-blocking stylesheet on every page for a map that
-  // exists only in checkout (flagged by Lighthouse on the homepage,
-  // 2026-08-28). SmartpointMap.client.vue does not use the module's
-  // ``useLMarkerCluster`` (broken in 1.3.2, bypassed via a direct
-  // side-effect import) and imports both CSS files locally, so the
-  // checkout map keeps its styles via its own chunk.
-  // Tile providers are CARTO basemaps built by
-  // ``shared/utils/carto-basemaps.ts`` from ``runtimeConfig.public
-  // .cartoBasemapsKey`` — carrier metadata no longer carries a
-  // ``tile_provider`` (removed 2026-09-28 when CARTO started requiring
-  // a key; see that module's docstring).
-  leaflet: {
-    markerCluster: false,
   },
   linkChecker: {
     report: {

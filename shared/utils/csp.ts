@@ -1,20 +1,14 @@
 /**
  * Content-Security-Policy directive builder — the single source of truth
- * for the site's CSP, consumed from two places:
+ * for the site's CSP, consumed by ``server/middleware/3.csp.ts`` for every
+ * HTML response: with a per-request nonce + 'strict-dynamic' in
+ * production, and nonce-free (``nonce`` omitted) for responses replayed
+ * from Nitro's cache or rendered at prerender time, whose inline scripts
+ * depend on 'unsafe-inline' staying effective (a policy that mentions
+ * nonces would disable it).
  *
- *   - ``server/middleware/3.csp.ts`` (runtime): SSR responses, with a
- *     per-request nonce + 'strict-dynamic' in production.
- *   - ``nuxt.config.ts`` (build time): static ``routeRules`` headers for
- *     the prerendered pages, which are served by Nitro's static handler
- *     and never pass through server middleware — nonce-free by design,
- *     since their inline scripts are baked at build time and depend on
- *     'unsafe-inline' staying effective (a policy that mentions nonces
- *     would disable it).
- *
- * Pure function — no Nuxt/Nitro imports — so both consumers and the unit
- * tests share the exact same output. The one import below is a sibling
- * constants module that is itself import-free, which keeps that
- * property intact for the build-time consumer.
+ * Pure function — no Nuxt/Nitro imports — so the middleware and the unit
+ * tests share the exact same output.
  */
 
 import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from './embeds'
@@ -37,6 +31,12 @@ export interface CspOptions {
   mediaStreamOrigin?: string
   /** Public static-files origin (``NUXT_PUBLIC_STATIC_ORIGIN``). */
   staticOrigin?: string
+  /**
+   * The basemap's TileJSON on the platform maps host
+   * (``NUXT_PUBLIC_MAPS_TILEJSON_URL``); its origin goes in connect-src,
+   * where MapLibre's worker fetches the TileJSON and the vector tiles.
+   */
+  mapsTileJsonUrl?: string
   /**
    * PUBLIC platform Django host (``NUXT_PUBLIC_DJANGO_HOST_NAME``) —
    * never the internal SSR upstream. Used for connect-src ONLY when no
@@ -100,6 +100,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     dev,
     mediaStreamOrigin = '',
     staticOrigin = '',
+    mapsTileJsonUrl = '',
     djangoHostName = 'localhost',
     metaPixelId,
     tiktokPixelId,
@@ -171,14 +172,12 @@ export function buildCspDirectives(options: CspOptions): string[] {
     ? `script-src-attr 'unsafe-hashes' '${NUXT_IMAGE_ONERROR_HASH}'`
     : ''
 
-  // OpenStreetMap-based tile origins used by the checkout locker map
-  // (``SmartpointMap.client.vue``) and the store-location section
-  // (``LocationCanvas.client.vue``), both built from
-  // ``shared/utils/carto-basemaps.ts``. ``tile.openstreetmap.org`` is
-  // kept alongside ``cartocdn.com`` even though nothing currently
-  // requests it, as a low-cost allowance for a future non-CARTO tile
-  // source — it carries no key and needs no CSP change to adopt.
-  const tileOrigins = 'https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org'
+  // The platform maps host, the only off-site origin a map reads
+  // (``app/utils/basemap.ts``): MapLibre's worker fetches the TileJSON
+  // and the vector tiles from it. The glyphs and the worker itself are
+  // same-origin. A URL that does not parse adds nothing, and the map
+  // then reports itself unavailable.
+  const mapsOrigin = URL.canParse(mapsTileJsonUrl) ? ` ${new URL(mapsTileJsonUrl).origin}` : ''
 
   // Video-embed origins for admin-authored rich text (blog bodies,
   // product descriptions, CMS rich-text sections). Unconditional,
@@ -305,9 +304,14 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
     ...(nonceScriptSrcAttr ? [nonceScriptSrcAttr] : []),
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins} ${tileOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
+    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
+    // MapLibre draws in a dedicated worker that Vite emits as a
+    // same-origin ``/_nuxt/`` file; ``worker-src 'self'`` is the directive
+    // MapLibre documents for it. Explicit, so the worker does not hinge on
+    // each browser's script-src fallback under 'strict-dynamic'.
+    `worker-src 'self'`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc}${mapsOrigin} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins — one per verified live market
     // (GR, CY) plus the CDN's known redirect hops. CSP validates every
     // hop of a frame's redirect chain against frame-src, so the

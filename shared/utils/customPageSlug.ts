@@ -48,6 +48,7 @@ const RESERVED_SEGMENTS: ReadonlySet<string> = new Set([
   'api',
   // public/
   'img',
+  'maps',
   'platform-favicon',
   'screenshots',
   // the agent gateway

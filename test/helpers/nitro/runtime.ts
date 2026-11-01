@@ -68,10 +68,10 @@ export function defaultRuntimeConfig() {
     public: {
       appTitle: 'GrooveShop',
       baseUrl: 'https://platform.test',
-      cartoBasemapsKey: '',
       djangoHostName: 'platform.test',
       djangoUrl: 'https://platform.test',
       googleGsiEnable: false,
+      mapsTileJsonUrl: 'https://maps.platform.test/basemap.json',
       mediaStreamOrigin: 'https://assets.platform.test',
       mediaStreamPath: '/media_stream-image',
       titleSeparator: '|',

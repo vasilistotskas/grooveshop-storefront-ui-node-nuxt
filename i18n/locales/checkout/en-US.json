@@ -132,10 +132,8 @@
       "unsupported": "This carrier does not support collection point search.",
       "tab_list": "List",
       "tab_map": "Map",
-      "geolocate": "Find me",
-      "geolocate_denied": "Allow location access in your browser settings.",
+      "show_list": "Show the list",
       "cluster_aria_label": "{count} collection points in this area",
-      "skip_to_list": "Skip the map — go to the list",
       "map_unavailable": "The map is currently unavailable. Use the list to find a collection point.",
       "no_results_in_area": "No collection points found in this area"
     }

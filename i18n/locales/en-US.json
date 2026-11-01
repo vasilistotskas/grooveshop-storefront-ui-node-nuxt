@@ -491,5 +491,20 @@
     "codes": {
       "must_have_purchased": "You can only review products you have bought."
     }
+  },
+  "maps": {
+    "title": "Map",
+    "marker": "Map marker",
+    "unavailable": "The map is currently unavailable.",
+    "attribution_toggle": "Show or hide the map sources",
+    "find_my_location": "Find my location",
+    "location_not_available": "Location not available",
+    "zoom_in": "Zoom in",
+    "zoom_out": "Zoom out",
+    "reset_bearing": "Reset the bearing to north",
+    "popup_close": "Close",
+    "gestures_windows": "Use Ctrl + scroll to zoom the map",
+    "gestures_mac": "Use ⌘ + scroll to zoom the map",
+    "gestures_mobile": "Use two fingers to move the map"
   }
 }
