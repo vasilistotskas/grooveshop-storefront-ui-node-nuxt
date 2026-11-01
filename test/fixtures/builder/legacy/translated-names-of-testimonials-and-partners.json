@@ -1,0 +1,157 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000913",
+          "type": "testimonials",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "items": [
+              {
+                "name": "Μαρία",
+                "text": "Πολύ καλό."
+              },
+              {
+                "name": "Νίκος",
+                "text": "Γρήγορη αποστολή."
+              }
+            ]
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "items": [
+                  {
+                    "name": "Maria",
+                    "text": "Very good."
+                  },
+                  {
+                    "name": "Nick",
+                    "text": "Fast delivery."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000914",
+          "type": "partner_strip",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "items": [
+              {
+                "name": "Ακμή"
+              },
+              {
+                "name": "Γκλόμπεξ",
+                "href": "https://globex.example"
+              }
+            ]
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "items": [
+                  {
+                    "name": "Acme"
+                  },
+                  {
+                    "name": "Globex",
+                    "href": "https://globex.example"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000913": {
+          "type": "testimonials@1",
+          "settings": {},
+          "blocks": {
+            "00000000-0000-4000-8000-000000000913-1": {
+              "type": "testimonial@1",
+              "settings": {
+                "name": "Μαρία",
+                "text": "Πολύ καλό."
+              }
+            },
+            "00000000-0000-4000-8000-000000000913-2": {
+              "type": "testimonial@1",
+              "settings": {
+                "name": "Νίκος",
+                "text": "Γρήγορη αποστολή."
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000913-1",
+            "00000000-0000-4000-8000-000000000913-2"
+          ]
+        },
+        "00000000-0000-4000-8000-000000000914": {
+          "type": "partner_strip@1",
+          "settings": {},
+          "blocks": {
+            "00000000-0000-4000-8000-000000000914-1": {
+              "type": "partner@1",
+              "settings": {
+                "name": "Ακμή"
+              }
+            },
+            "00000000-0000-4000-8000-000000000914-2": {
+              "type": "partner@1",
+              "settings": {
+                "name": "Γκλόμπεξ",
+                "href": "https://globex.example"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000914-1",
+            "00000000-0000-4000-8000-000000000914-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000913",
+        "00000000-0000-4000-8000-000000000914"
+      ]
+    },
+    "i18n": {
+      "en": {
+        "00000000-0000-4000-8000-000000000913-1": {
+          "/name": "Maria",
+          "/text": "Very good."
+        },
+        "00000000-0000-4000-8000-000000000913-2": {
+          "/name": "Nick",
+          "/text": "Fast delivery."
+        },
+        "00000000-0000-4000-8000-000000000914-1": {
+          "/name": "Acme"
+        },
+        "00000000-0000-4000-8000-000000000914-2": {
+          "/name": "Globex"
+        }
+      }
+    },
+    "warnings": []
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000915",
+          "type": "cta_banner",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "heading": "Ready",
+            "background_color": "#1f2937"
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "heading": "Ready?",
+                "background_color": "#ffffff"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "code": "unconvertible",
+    "errors": [
+      {
+        "path": "/sections/00000000-0000-4000-8000-000000000915/backgroundColor",
+        "code": "untranslatable_override",
+        "message": "the en translation of \"backgroundColor\" differs from the default, but cta_banner does not let \"backgroundColor\" vary by language"
+      }
+    ]
+  }
+}
