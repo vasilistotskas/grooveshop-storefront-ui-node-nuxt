@@ -186,20 +186,48 @@ describe('GET /api/builder/session', () => {
 })
 
 describe('DELETE /api/builder/session', () => {
-  it('expires the cookie and answers 204', async () => {
-    const cookie = await signIn()
+  const del = (cookie?: string) => callRoute(deleteHandler, { route, method: 'DELETE', headers: cookie ? { cookie } : {} })
+  const expired = (response: { headers: Headers }) =>
+    response.headers.getSetCookie().find(header => header.startsWith(`${BUILDER_SESSION_COOKIE}=`))
 
-    const response = await callRoute(deleteHandler, { route, method: 'DELETE', headers: { cookie } })
+  it('revokes the token at Django with the staff token as Bearer, expires the cookie and answers 204', async () => {
+    const cookie = await signIn()
+    backend.reply(new Response(null, { status: 204 }))
+
+    const response = await del(cookie)
 
     expect(response.status).toBe(204)
-    expect(response.headers.getSetCookie().find(header => header.startsWith(`${BUILDER_SESSION_COOKIE}=`))).toMatch(/Max-Age=0/)
+    expect(backend.lastRequest).toMatchObject({ path: 'http://backend.test/api/v1/builder/staff-session', method: 'DELETE' })
+    expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer knox-secret-token')
+    expect(expired(response)).toMatch(/Max-Age=0/)
     expect(response.headers.get('cache-control')).toBe('private, no-store')
   })
 
-  it('is the same for a request that was never signed in', async () => {
-    const response = await callRoute(deleteHandler, { route, method: 'DELETE' })
+  it.each([401, 404])('treats a %s from Django as already revoked', async (status) => {
+    const cookie = await signIn()
+    backend.reply(jsonResponse({}, status))
+
+    const response = await del(cookie)
 
     expect(response.status).toBe(204)
+    expect(expired(response)).toMatch(/Max-Age=0/)
+  })
+
+  it('still expires the cookie when Django cannot be asked, and then fails the request', async () => {
+    const cookie = await signIn()
+    backend.reply(jsonResponse({}, 502))
+
+    const response = await del(cookie)
+
+    expect(response.status).toBe(502)
+    expect(expired(response)).toMatch(/Max-Age=0/)
+  })
+
+  it('has nothing to revoke for a request that was never signed in: no call to Django, 204', async () => {
+    const response = await del()
+
+    expect(response.status).toBe(204)
+    expect(backend.requests).toHaveLength(0)
   })
 })
 
