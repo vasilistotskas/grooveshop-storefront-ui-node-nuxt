@@ -53,6 +53,14 @@
       "error_description": "Δεν ήταν δυνατή η διαγραφή σας. Παρακαλώ δοκιμάστε ξανά."
     }
   },
+  "email_preferences_notifications": {
+    "enabled_title": "Τα email ενεργοποιήθηκαν",
+    "enabled_description": "Θα λαμβάνεις ξανά αυτά τα email του καταστήματος.",
+    "disabled_title": "Τα email απενεργοποιήθηκαν",
+    "disabled_description": "Δεν θα λαμβάνεις πια αυτά τα email του καταστήματος.",
+    "error_title": "Η επιλογή δεν αποθηκεύτηκε",
+    "error_description": "Δεν ήταν δυνατή η αλλαγή. Δοκίμασε ξανά."
+  },
   "settings": "Ρυθμίσεις",
   "addresses": "Διευθύνσεις",
   "orders": "Παραγγελίες",

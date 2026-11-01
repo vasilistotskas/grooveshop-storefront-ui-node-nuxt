@@ -18,6 +18,8 @@ useHead({ title: () => t('title') })
     />
 
     <AccountSubscriptionsSubscriptionTopicsList />
+
+    <AccountSubscriptionsStoreEmailsList />
   </div>
 </template>
 

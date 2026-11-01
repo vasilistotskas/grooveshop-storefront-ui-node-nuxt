@@ -1,4 +1,4 @@
-import type { SubscriptionTopic, UserSubscription } from '~~/shared/openapi/types.gen'
+import type { EmailPreference, EmailPreferences, SubscriptionTopic, UserSubscription } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -49,4 +49,17 @@ export function makeUserSubscription(overrides: Partial<UserSubscription> = {}):
     updatedAt: FIXTURE_TIMESTAMP,
     ...overrides,
   }
+}
+
+/**
+ * The "Store emails" list (`/api/user/email-preferences`), valid against
+ * the generated `zEmailPreferences`. Defaults: the basket reminder still
+ * received and the "We miss you" email declined, as Django titles them in
+ * Greek. Pass `types` to replace the list.
+ */
+export function makeEmailPreferences(types: EmailPreference[] = [
+  { key: 'cart.checkout_abandoned', title: 'Υπενθύμιση ολοκλήρωσης αγοράς', enabled: true },
+  { key: 'user.reengagement', title: 'Μας λείπετε', enabled: false },
+]): EmailPreferences {
+  return { types }
 }
