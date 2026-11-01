@@ -1,0 +1,42 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000011",
+          "type": "business_hours",
+          "title": "When we are open",
+          "isVisible": true,
+          "props": {
+            "surface": "muted"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000011": {
+          "type": "business_hours@1",
+          "settings": {
+            "title": "When we are open",
+            "surface": "muted"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000011"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

@@ -1,17 +1,3 @@
-export interface NavLink {
-  label: string
-  to?: string
-  href?: string
-  icon?: string
-}
-
-export interface NavColumn {
-  label: string
-  icon?: string
-  showsMerchantIdentity?: boolean
-  children: NavLink[]
-}
-
 /**
  * Per-tenant chrome navigation from Django's ``NavigationMenu`` rows.
  *

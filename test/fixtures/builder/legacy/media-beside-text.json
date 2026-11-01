@@ -1,0 +1,144 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000036",
+          "type": "media_text",
+          "title": "About",
+          "isVisible": true,
+          "props": {
+            "surface": "muted",
+            "heading": "Made in Greece",
+            "body": "Every pair is tested by us in Athens.",
+            "eyebrow": "Craft",
+            "note": "Since 2010",
+            "emphasis": "tested by us",
+            "image_url": "media/demo/uploads/about.jpg",
+            "image_position": "left",
+            "cta_text": "Our story",
+            "cta_link": "/about",
+            "decor": "orbs",
+            "bullets": [
+              {
+                "text": "Two-year warranty"
+              },
+              {
+                "text": "Free returns"
+              }
+            ],
+            "specs": [
+              {
+                "label": "Pro",
+                "name": "Studio",
+                "subtitle": "Model S1",
+                "rows": [
+                  {
+                    "label": "Driver",
+                    "value": "40 mm"
+                  },
+                  {
+                    "label": "Battery",
+                    "value": "30 h"
+                  }
+                ]
+              },
+              {
+                "name": "Lite"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000036": {
+          "type": "media_text@1",
+          "settings": {
+            "title": "About",
+            "surface": "muted",
+            "heading": "Made in Greece",
+            "body": "Every pair is tested by us in Athens.",
+            "eyebrow": "Craft",
+            "note": "Since 2010",
+            "emphasis": "tested by us",
+            "imageUrl": "media/demo/uploads/about.jpg",
+            "imagePosition": "left",
+            "ctaText": "Our story",
+            "ctaLink": "/about",
+            "decor": "orbs"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000036-1": {
+              "type": "bullet@1",
+              "settings": {
+                "text": "Two-year warranty"
+              }
+            },
+            "00000000-0000-4000-8000-000000000036-2": {
+              "type": "bullet@1",
+              "settings": {
+                "text": "Free returns"
+              }
+            },
+            "00000000-0000-4000-8000-000000000036-3": {
+              "type": "spec_card@1",
+              "settings": {
+                "label": "Pro",
+                "name": "Studio",
+                "subtitle": "Model S1"
+              },
+              "blocks": {
+                "00000000-0000-4000-8000-000000000036-3-1": {
+                  "type": "spec_row@1",
+                  "settings": {
+                    "label": "Driver",
+                    "value": "40 mm"
+                  }
+                },
+                "00000000-0000-4000-8000-000000000036-3-2": {
+                  "type": "spec_row@1",
+                  "settings": {
+                    "label": "Battery",
+                    "value": "30 h"
+                  }
+                }
+              },
+              "blockOrder": [
+                "00000000-0000-4000-8000-000000000036-3-1",
+                "00000000-0000-4000-8000-000000000036-3-2"
+              ]
+            },
+            "00000000-0000-4000-8000-000000000036-4": {
+              "type": "spec_card@1",
+              "settings": {
+                "name": "Lite"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000036-1",
+            "00000000-0000-4000-8000-000000000036-2",
+            "00000000-0000-4000-8000-000000000036-3",
+            "00000000-0000-4000-8000-000000000036-4"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000036"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

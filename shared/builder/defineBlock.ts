@@ -1,12 +1,10 @@
 import type { ZodObject } from 'zod'
 
 import {
-  BLOCK_HYDRATION_MODES,
   BLOCK_KINDS,
   BLOCK_REF_KINDS,
   BLOCK_TYPE_PATTERN,
   BUILDER_MAX_NODE_DEPTH,
-  DEFAULT_BLOCK_HYDRATION,
 } from '../constants/builder'
 import type { BlockConfig, BlockDefinition } from '../types/builder'
 
@@ -70,8 +68,18 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
   if (new Set(config.presets?.map(({ id }) => id)).size !== (config.presets?.length ?? 0)) {
     fail('preset ids must be distinct')
   }
-  if (config.hydrate !== undefined && !isOneOf(BLOCK_HYDRATION_MODES, config.hydrate)) {
-    fail(`hydrate must be one of ${BLOCK_HYDRATION_MODES.join(', ')}`)
+
+  const lists = Object.entries(config.childList ?? {})
+  for (const [child, list] of lists) {
+    if (!config.children?.allowed.includes(child)) {
+      fail(`childList names "${child}", which is not an allowed child`)
+    }
+    if (!/^[a-z][A-Za-z0-9]*$/.test(list)) {
+      fail(`childList "${list}" must be a camelCase prop name`)
+    }
+  }
+  if (new Set(lists.map(([, list]) => list)).size !== lists.length || lists.some(([, list]) => settings.has(list))) {
+    fail('childList props must be distinct and not a setting of the schema')
   }
 
   return {
@@ -80,6 +88,6 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     refs: config.refs ?? {},
     limits: config.limits ?? {},
     children: config.children ?? { allowed: [] },
-    hydrate: config.hydrate ?? DEFAULT_BLOCK_HYDRATION,
+    childList: config.childList ?? {},
   }
 }

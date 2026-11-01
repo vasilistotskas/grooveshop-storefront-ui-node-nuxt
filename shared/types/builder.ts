@@ -1,11 +1,11 @@
 import type { ZodObject } from 'zod'
 
-import type { BLOCK_HYDRATION_MODES, BLOCK_KINDS, BLOCK_REF_KINDS } from '../constants/builder'
+import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS } from '../constants/builder'
 import type { StoreFeatureName } from '../utils/storeFeature'
 
 export type BlockKind = (typeof BLOCK_KINDS)[number]
 export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
-export type BlockHydration = (typeof BLOCK_HYDRATION_MODES)[number]
+export type BuilderDocumentKind = (typeof BUILDER_DOCUMENT_KINDS)[number]
 
 /** A JSON pointer into a block's `settings`, e.g. `/title`. */
 export type SettingsPointer = `/${string}`
@@ -31,6 +31,8 @@ export type BuilderNodeBody = Omit<BuilderNode, 'type'>
 
 /** One page, template, section group or the theme: the sections by id, and their order. */
 export interface BuilderDocument {
+  /** The document's own settings (a page's SEO), when its kind has any. */
+  settings?: Record<string, unknown>
   sections: Record<string, BuilderNode>
   order: string[]
 }
@@ -90,8 +92,12 @@ export interface BlockConfig<Schema extends ZodObject = ZodObject> {
   /** `upgrade[n]` turns a version `n` node into one for version `n + 1`. */
   upgrade?: Readonly<Record<number, BlockUpgrade>>
   presets?: readonly BlockPreset[]
-  /** Default `visible`. */
-  hydrate?: BlockHydration
+  /**
+   * How a section component gets its children: `childList[childType]` is the
+   * list prop that receives that type's settings, in order (`parseDocument`
+   * output to `sectionProps`). Every key is an allowed child.
+   */
+  childList?: Readonly<Record<string, string>>
 }
 
 /** What `defineBlock` returns: `BlockConfig` with every default filled in. */
@@ -100,7 +106,7 @@ export interface BlockDefinition<Schema extends ZodObject = ZodObject> extends B
   refs: Readonly<Partial<Record<SettingsPointer, BlockRefKind>>>
   limits: BlockLimits
   children: BlockChildren
-  hydrate: BlockHydration
+  childList: Readonly<Record<string, string>>
 }
 
 // ── The catalogue ──────────────────────────────────────────────────
@@ -124,7 +130,29 @@ export interface CatalogueBlock {
   deprecated?: boolean
 }
 
+/** The settings a kind of document carries at its root (a page's SEO), as the catalogue serves them. */
+export interface CatalogueDocumentKind {
+  /** JSON Schema (draft 2020-12) of the root settings object; closed. */
+  schema: Record<string, unknown>
+  /** Pointers into the root settings that may be written per language. */
+  translatable: string[]
+}
+
 export interface BlockCatalogue {
   hash: string
   blocks: CatalogueBlock[]
+  /** Only the kinds that have root settings; any other accepts none. */
+  documentKinds: Partial<Record<BuilderDocumentKind, CatalogueDocumentKind>>
+  /**
+   * The page types a static route of the storefront renders: a layout of one of
+   * them is the document `template:<pageType>`, any other is the custom page
+   * `page:<pageType>`. A block's `templates` names these.
+   */
+  templates: string[]
+}
+
+/** What a kind of document may carry at its root: a Zod object and which of its settings are translatable. */
+export interface DocumentRoot {
+  schema: ZodObject
+  translatable: readonly SettingsPointer[]
 }

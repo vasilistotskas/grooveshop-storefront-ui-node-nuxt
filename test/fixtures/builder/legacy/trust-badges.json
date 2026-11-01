@@ -1,0 +1,96 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000034",
+          "type": "trust_badges",
+          "title": "Trust",
+          "isVisible": true,
+          "props": {
+            "surface": "default",
+            "heading": "Shop with confidence",
+            "marquee": true,
+            "items": [
+              {
+                "kind": "payment",
+                "label": "Visa",
+                "image_url": "media/demo/uploads/visa.svg"
+              },
+              {
+                "kind": "shipping",
+                "label": "ACS Courier",
+                "icon": "i-lucide-truck",
+                "href": "https://example.com/acs"
+              },
+              {
+                "kind": "ai",
+                "label": "Agent ready",
+                "icon": "i-lucide-bot"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000034": {
+          "type": "trust_badges@1",
+          "settings": {
+            "title": "Trust",
+            "surface": "default",
+            "heading": "Shop with confidence",
+            "marquee": true
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000034-1": {
+              "type": "trust_badge@1",
+              "settings": {
+                "kind": "payment",
+                "label": "Visa",
+                "imageUrl": "media/demo/uploads/visa.svg"
+              }
+            },
+            "00000000-0000-4000-8000-000000000034-2": {
+              "type": "trust_badge@1",
+              "settings": {
+                "kind": "shipping",
+                "label": "ACS Courier",
+                "icon": "i-lucide-truck",
+                "href": "https://example.com/acs"
+              }
+            },
+            "00000000-0000-4000-8000-000000000034-3": {
+              "type": "trust_badge@1",
+              "settings": {
+                "kind": "ai",
+                "label": "Agent ready",
+                "icon": "i-lucide-bot"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000034-1",
+            "00000000-0000-4000-8000-000000000034-2",
+            "00000000-0000-4000-8000-000000000034-3"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000034"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

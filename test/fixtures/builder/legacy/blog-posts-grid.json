@@ -1,0 +1,43 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000027",
+          "type": "blog_posts_grid",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "heading": "Latest posts",
+            "count": 9
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000027": {
+          "type": "blog_posts_grid@1",
+          "settings": {
+            "heading": "Latest posts",
+            "count": 9
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000027"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

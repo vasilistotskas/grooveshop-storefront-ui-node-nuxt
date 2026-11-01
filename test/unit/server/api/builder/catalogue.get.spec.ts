@@ -32,6 +32,13 @@ describe('GET /api/builder/catalogue', () => {
     })
   })
 
+  it('states what a page and a template carry at their root, beside the blocks', async () => {
+    const response = await get()
+
+    expect(Object.keys(response.body.documentKinds)).toEqual(['page', 'template'])
+    expect(response.body.documentKinds.page.translatable).toEqual(['/seoTitle', '/seoDescription', '/seoKeywords'])
+  })
+
   it('is the same for every store and needs no tenant: it asks nothing of the request', async () => {
     const one = await get({ host: 'store-a.test' })
     const other = await get({ 'host': 'store-b.test', 'x-forwarded-host': 'evil.example' })
@@ -83,7 +90,7 @@ describe('GET /api/builder/catalogue', () => {
     const response = await get({}, undefined, emptyHandler)
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [] })
+    expect(response.body).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
     expect(response.headers.get('etag')).toBe(`"${response.body.hash}"`)
   })
 })

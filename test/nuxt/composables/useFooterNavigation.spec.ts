@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, effectScope, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import type { NavColumn } from '~/composables/useNavigation'
+import type { NavColumn } from '~~/shared/types/navigation'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**

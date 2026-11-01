@@ -1,0 +1,77 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "group",
+    "key": "group:mobile",
+    "defaultLocale": "el",
+    "legacy": {
+      "slot": "mobile",
+      "links": [
+        {
+          "labels": {
+            "el": "Αρχική",
+            "en": "Home"
+          },
+          "target": {
+            "type": "route",
+            "route": "/"
+          }
+        },
+        {
+          "labels": {
+            "el": "Επικοινωνία",
+            "en": "Contact"
+          },
+          "target": {
+            "type": "route",
+            "route": "/contact"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "mobile_menu": {
+          "type": "mobile_menu@1",
+          "settings": {},
+          "blocks": {
+            "mobile_menu-1": {
+              "type": "nav_link@1",
+              "settings": {
+                "label": "Αρχική",
+                "route": "/"
+              }
+            },
+            "mobile_menu-2": {
+              "type": "nav_link@1",
+              "settings": {
+                "label": "Επικοινωνία",
+                "route": "/contact"
+              }
+            }
+          },
+          "blockOrder": [
+            "mobile_menu-1",
+            "mobile_menu-2"
+          ]
+        }
+      },
+      "order": [
+        "mobile_menu"
+      ]
+    },
+    "i18n": {
+      "en": {
+        "mobile_menu-1": {
+          "/label": "Home"
+        },
+        "mobile_menu-2": {
+          "/label": "Contact"
+        }
+      }
+    },
+    "warnings": []
+  }
+}

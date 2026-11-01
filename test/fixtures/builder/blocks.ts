@@ -34,7 +34,7 @@ export const promoBanner = defineBlock({
   children: { allowed: ['promo_item'], maxDepth: 1 },
   groups: ['marketing'],
   templates: ['home'],
-  hydrate: 'idle',
+  childList: { promo_item: 'items' },
   upgrade: {
     1: ({ settings: { heading, ...rest }, ...body }) => ({ ...body, settings: { ...rest, title: heading } }),
   },

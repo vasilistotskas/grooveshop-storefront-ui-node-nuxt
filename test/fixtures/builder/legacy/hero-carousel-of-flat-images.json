@@ -1,0 +1,57 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000020",
+          "type": "hero_carousel",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "autoplay_ms": 0,
+            "aspect": "banner",
+            "images": [
+              "media/a.jpg",
+              "media/b.jpg"
+            ],
+            "mobile_images": [
+              "media/a-m.jpg"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000020": {
+          "type": "hero_carousel@1",
+          "settings": {
+            "autoplayMs": 0,
+            "aspect": "banner",
+            "images": [
+              "media/a.jpg",
+              "media/b.jpg"
+            ],
+            "mobileImages": [
+              "media/a-m.jpg"
+            ]
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000020"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000023",
+          "type": "featured_products",
+          "title": "Featured",
+          "isVisible": true,
+          "props": {
+            "surface": "default",
+            "heading": "Our picks",
+            "ordering": "featured",
+            "columns": 4,
+            "page_size": 8
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000023": {
+          "type": "featured_products@1",
+          "settings": {
+            "title": "Featured",
+            "surface": "default",
+            "heading": "Our picks",
+            "ordering": "featured",
+            "columns": 4,
+            "pageSize": 8
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000023"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

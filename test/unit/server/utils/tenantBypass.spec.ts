@@ -19,6 +19,7 @@ describe('isTenantFreePath', () => {
     '/api/texts/catalogue',
     '/api/texts/validate',
     '/api/builder/catalogue',
+    '/api/builder/convert-legacy',
   ])('says %s needs no store', (path) => {
     expect(isTenantFreePath(path)).toBe(true)
   })

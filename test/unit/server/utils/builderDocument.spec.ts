@@ -11,7 +11,7 @@ const registry = new Map([promoBanner, promoItem].map(block => [block.type, bloc
 const item = (label: string, extra: Partial<BuilderNode> = {}): BuilderNode => ({ type: 'promo_item@1', settings: { label }, ...extra })
 const banner = (extra: Partial<BuilderNode> = {}): BuilderNode => ({ type: 'promo_banner@2', settings: { title: 'Sale' }, ...extra })
 
-const parse = (sections: Record<string, unknown>, order = Object.keys(sections)) => parseDocument({ sections, order }, registry)
+const parse = (sections: Record<string, unknown>, order = Object.keys(sections)) => parseDocument({ sections, order }, 'page', registry)
 const skipped = () => log.warn.mock.calls.flatMap(([event]) =>
   typeof event === 'object' && event !== null && 'message' in event && event.message === 'node skipped' ? [event] : [])
 
@@ -134,7 +134,7 @@ describe('parseDocument', () => {
       const document = parseDocument({
         sections: { a: { type: 'fragile@1', settings: {} }, b: { type: 'fragile@2', settings: {} } },
         order: ['a', 'b'],
-      }, new Map([[throwing.type, throwing]]))
+      }, 'page', new Map([[throwing.type, throwing]]))
 
       expect(document.order).toEqual(['b'])
       expect(skipped()).toEqual([expect.objectContaining({ node: 'a', reason: 'upgrade_failed', detail: 'bad data' })])
@@ -168,7 +168,7 @@ describe('parseDocument', () => {
       const document = parseDocument({
         sections: { a: banner({ blocks: { x: { type: 'lone@1', settings: {} } }, blockOrder: ['x'] }) },
         order: ['a'],
-      }, new Map([promoBanner, promoItem, lone].map(block => [block.type, block])))
+      }, 'page', new Map([promoBanner, promoItem, lone].map(block => [block.type, block])))
 
       expect(document.sections.a).not.toHaveProperty('blocks')
       expect(skipped()).toEqual([expect.objectContaining({ node: 'a/x', reason: 'not_allowed' })])
@@ -181,7 +181,7 @@ describe('parseDocument', () => {
         settings: {},
         ...(depth > 1 && { blocks: { c: levels(depth - 1) }, blockOrder: ['c'] }),
       })
-      const document = parseDocument({ sections: { a: levels(5) }, order: ['a'] }, new Map([[group.type, group]]))
+      const document = parseDocument({ sections: { a: levels(5) }, order: ['a'] }, 'page', new Map([[group.type, group]]))
       const depth = (node: BuilderNode | undefined): number => node ? 1 + depth(node.blocks?.c) : 0
 
       expect(depth(document.sections.a)).toBe(3)
@@ -191,7 +191,7 @@ describe('parseDocument', () => {
     it('honours children.maxDepth of the section', () => {
       // promo_banner allows one level of children, so a block inside its block is cut.
       const nesting = defineBlock({ type: 'nesting', version: 1, kinds: ['block'], schema: z.object({}), children: { allowed: ['nesting'] } })
-      const flat = defineBlock({ ...promoBanner, children: { allowed: ['nesting'], maxDepth: 1 } })
+      const flat = defineBlock({ ...promoBanner, children: { allowed: ['nesting'], maxDepth: 1 }, childList: { nesting: 'items' } })
       const document = parseDocument({
         sections: {
           a: {
@@ -202,7 +202,7 @@ describe('parseDocument', () => {
           },
         },
         order: ['a'],
-      }, new Map([[flat.type, flat], [nesting.type, nesting]]))
+      }, 'page', new Map([[flat.type, flat], [nesting.type, nesting]]))
 
       expect(document.sections.a!.blocks!.n).not.toHaveProperty('blocks')
       expect(skipped()).toEqual([expect.objectContaining({ node: 'a/n/m', reason: 'not_allowed' })])
@@ -224,14 +224,42 @@ describe('parseDocument', () => {
 
   describe('a document that is not one', () => {
     it.each([null, undefined, 'x', 42, [], {}, { sections: {} }, { order: [] }, { sections: [], order: [] }])('is an empty document for %j', (raw) => {
-      expect(parseDocument(raw, registry)).toEqual({ sections: {}, order: [] })
+      expect(parseDocument(raw, 'page', registry)).toEqual({ sections: {}, order: [] })
       expect(skipped()).toHaveLength(1)
     })
   })
 
   it('reads the blocks of this build when given no registry', () => {
-    const document = parseDocument({ sections: { a: banner() }, order: ['a'] })
+    const document = parseDocument({ sections: { a: banner() }, order: ['a'] }, 'page')
 
     expect(document.order).toEqual(['a'])
+  })
+})
+
+describe('a document\'s own settings', () => {
+  const doc = (settings: unknown) => ({ settings, sections: {}, order: [] })
+
+  it('keeps a page\'s SEO, and only the keys its kind carries', () => {
+    expect(parseDocument(doc({ seoTitle: 'Shop', seoKeywords: 'a, b', onclick: 'x' }), 'page', registry)).toEqual({
+      settings: { seoTitle: 'Shop', seoKeywords: 'a, b' },
+      sections: {},
+      order: [],
+    })
+  })
+
+  it('leaves them out, with a warning, when they fail the schema', () => {
+    const document = parseDocument(doc({ seoTitle: 'x'.repeat(71) }), 'template', registry)
+
+    expect(document).toEqual({ sections: {}, order: [] })
+    expect(skipped()).toEqual([expect.objectContaining({ node: '@document', reason: 'invalid_settings' })])
+  })
+
+  it('drops them from a kind that carries none, with a warning', () => {
+    expect(parseDocument(doc({ seoTitle: 'x' }), 'group', registry)).toEqual({ sections: {}, order: [] })
+    expect(skipped()).toEqual([expect.objectContaining({ node: '@document', reason: 'invalid_settings' })])
+  })
+
+  it('has none when the document names none', () => {
+    expect(parseDocument({ sections: {}, order: [] }, 'page', registry)).not.toHaveProperty('settings')
   })
 })

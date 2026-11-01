@@ -1,0 +1,70 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000035",
+          "type": "partner_strip",
+          "title": "Partners",
+          "isVisible": true,
+          "props": {
+            "label": "Our partners",
+            "items": [
+              {
+                "name": "Acme",
+                "href": "https://acme.example"
+              },
+              {
+                "name": "Globex"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000035": {
+          "type": "partner_strip@1",
+          "settings": {
+            "title": "Partners",
+            "label": "Our partners"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000035-1": {
+              "type": "partner@1",
+              "settings": {
+                "name": "Acme",
+                "href": "https://acme.example"
+              }
+            },
+            "00000000-0000-4000-8000-000000000035-2": {
+              "type": "partner@1",
+              "settings": {
+                "name": "Globex"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000035-1",
+            "00000000-0000-4000-8000-000000000035-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000035"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}
