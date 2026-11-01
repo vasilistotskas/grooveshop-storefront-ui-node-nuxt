@@ -7492,7 +7492,6 @@ export type ProductImage = {
      * Εικόνα
      */
   image: string
-  readonly imageSizeKb: number
   readonly altText: string
   /**
      * Κύριο
@@ -7528,7 +7527,6 @@ export type ProductImageDetail = {
      * Εικόνα
      */
   image: string
-  readonly imageSizeKb: number
   readonly altText: string
   /**
      * Κύριο

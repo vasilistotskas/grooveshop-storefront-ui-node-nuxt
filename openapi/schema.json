@@ -72691,11 +72691,6 @@
                         "format": "uri",
                         "title": "Εικόνα"
                     },
-                    "imageSizeKb": {
-                        "type": "number",
-                        "format": "double",
-                        "readOnly": true
-                    },
                     "altText": {
                         "type": "string",
                         "readOnly": true
@@ -72748,7 +72743,6 @@
                     "createdAt",
                     "id",
                     "image",
-                    "imageSizeKb",
                     "mainImagePath",
                     "product",
                     "sortOrder",
@@ -72781,11 +72775,6 @@
                         "type": "string",
                         "format": "uri",
                         "title": "Εικόνα"
-                    },
-                    "imageSizeKb": {
-                        "type": "number",
-                        "format": "double",
-                        "readOnly": true
                     },
                     "altText": {
                         "type": "string",
@@ -72883,7 +72872,6 @@
                     "image",
                     "imageDimensions",
                     "imageFormat",
-                    "imageSizeKb",
                     "mainImagePath",
                     "product",
                     "sortOrder",
