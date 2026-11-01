@@ -16,7 +16,7 @@ useSeoMeta({
   title: () => t('title'),
 })
 
-const { phase, unsubscribing, unsubscribe } = useEmailUnsubscribe({ token: () => route.params.token })
+const { phase, scope, pending, unsubscribe } = useEmailUnsubscribe({ token: () => route.params.token })
 </script>
 
 <template>
@@ -35,10 +35,10 @@ const { phase, unsubscribing, unsubscribe } = useEmailUnsubscribe({ token: () =>
             class="mx-auto size-12 text-success"
           />
           <h2 class="text-xl font-semibold">
-            {{ t('unsubscribed.title') }}
+            {{ t(`unsubscribed.${scope}.title`) }}
           </h2>
           <p class="text-muted">
-            {{ t('unsubscribed.description') }}
+            {{ t(`unsubscribed.${scope}.description`) }}
           </p>
           <UButton
             :to="localePath('index')"
@@ -89,14 +89,26 @@ const { phase, unsubscribing, unsubscribe } = useEmailUnsubscribe({ token: () =>
           >
             {{ t('failed') }}
           </p>
-          <UButton
-            color="secondary"
-            size="lg"
-            :loading="unsubscribing"
-            @click="unsubscribe"
-          >
-            {{ t('confirm') }}
-          </UButton>
+          <div class="flex flex-col items-center gap-3">
+            <UButton
+              color="secondary"
+              size="lg"
+              :loading="pending === 'type'"
+              :disabled="pending === 'all'"
+              @click="() => unsubscribe('type')"
+            >
+              {{ t('unsubscribeType') }}
+            </UButton>
+            <UButton
+              color="secondary"
+              variant="link"
+              :loading="pending === 'all'"
+              :disabled="pending === 'type'"
+              @click="() => unsubscribe('all')"
+            >
+              {{ t('unsubscribeAll') }}
+            </UButton>
+          </div>
         </div>
       </UCard>
     </div>
@@ -106,25 +118,35 @@ const { phase, unsubscribing, unsubscribe } = useEmailUnsubscribe({ token: () =>
 <i18n lang="yaml">
 el:
   title: Διαγραφή από τα email
-  prompt: Πάτησε το κουμπί για να μη λαμβάνεις πλέον διαφημιστικά email από αυτό το κατάστημα.
-  confirm: Διαγραφή από τα email
+  prompt: Θέλεις να σταματήσεις να λαμβάνεις αυτά τα email από το κατάστημα;
+  unsubscribeType: Διαγραφή από αυτά τα email
+  unsubscribeAll: Διαγραφή από όλα τα διαφημιστικά email
   failed: Η διαγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά σε λίγο.
   home: Στην αρχική
   unsubscribed:
-    title: Δεν θα λαμβάνεις πλέον αυτά τα email
-    description: Η διεύθυνσή σου αφαιρέθηκε από τα διαφημιστικά μας email. Θα συνεχίσεις να λαμβάνεις ενημερώσεις για τις παραγγελίες σου.
+    type:
+      title: Δεν θα λαμβάνεις πλέον αυτά τα email
+      description: Δεν θα σου ξαναστείλουμε αυτό το είδος email. Θα συνεχίσεις να λαμβάνεις ενημερώσεις για τις παραγγελίες σου.
+    all:
+      title: Δεν θα λαμβάνεις πλέον διαφημιστικά email
+      description: Σταματήσαμε όλα τα διαφημιστικά email του καταστήματος. Θα συνεχίσεις να λαμβάνεις ενημερώσεις για τις παραγγελίες σου.
   invalid:
     title: Μη έγκυρος σύνδεσμος
     description: Ο σύνδεσμος δεν είναι έγκυρος ή έχει λήξει.
 en:
   title: Unsubscribe from emails
-  prompt: Press the button to stop receiving marketing emails from this store.
-  confirm: Unsubscribe
+  prompt: Do you want to stop receiving these emails from the store?
+  unsubscribeType: Stop these emails
+  unsubscribeAll: Stop all marketing emails
   failed: The unsubscribe did not go through. Please try again shortly.
   home: Back to the homepage
   unsubscribed:
-    title: You won't receive these emails any more
-    description: Your address was removed from our marketing emails. You will still receive updates about your orders.
+    type:
+      title: You won't receive these emails any more
+      description: We won't send you this kind of email again. You will still receive updates about your orders.
+    all:
+      title: You won't receive marketing emails any more
+      description: We stopped all of the store's marketing emails. You will still receive updates about your orders.
   invalid:
     title: Invalid link
     description: This link is not valid or has expired.

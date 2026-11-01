@@ -5578,15 +5578,6 @@ export const zPaginatedBoxNowLockerList = z.object({
   results: z.array(zBoxNowLocker),
 })
 
-export const zUnsubscribeResponse = z.object({
-  message: z.string(),
-  topic: z.string().optional(),
-  userEmail: z.email().optional(),
-  topicSlug: z.string().optional(),
-  count: z.int().optional(),
-  error: z.string().optional(),
-})
-
 export const zUpdateStatusRequest = z.object({
   status: zOrderStatus,
 })
@@ -11931,7 +11922,15 @@ export const zUpdateCountryQuery = z.object({
 
 export const zUpdateCountryResponse = zCountryDetail
 
+export const zConfirmUnsubscribeFromEmailPath = z.object({
+  token: z.string(),
+})
+
 export const zUnsubscribeFromEmailOneClickPath = z.object({
+  token: z.string(),
+})
+
+export const zUnsubscribeFromAllMarketingEmailPath = z.object({
   token: z.string(),
 })
 
@@ -17201,28 +17200,6 @@ export const zGetMySubscriptionTopicsQuery = z.object({
 export const zGetMySubscriptionTopicsResponse = z.object({
   subscribed: z.array(zSubscriptionTopic).optional(),
   available: z.array(zSubscriptionTopic).optional(),
-})
-
-export const zUnsubscribeFromAllViaLinkPath = z.object({
-  token: z.string(),
-})
-
-export const zUnsubscribeFromAllViaLinkResponse = zUnsubscribeResponse
-
-export const zUnsubscribeFromAllOneClickPath = z.object({
-  token: z.string(),
-})
-
-export const zUnsubscribeFromTopicViaLinkPath = z.object({
-  token: z.string(),
-  topicSlug: z.string(),
-})
-
-export const zUnsubscribeFromTopicViaLinkResponse = zUnsubscribeResponse
-
-export const zUnsubscribeFromTopicOneClickPath = z.object({
-  token: z.string(),
-  topicSlug: z.string(),
 })
 
 export const zCreateWebSocketTicketResponse = zWebSocketTicketResponse

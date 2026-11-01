@@ -1,7 +1,9 @@
 import { defineEventHandler, setResponseStatus, useRuntimeConfig } from 'nuxt/server'
 
 /**
- * Opt out of a store's marketing email with the token from its link.
+ * Opt out of the kind of marketing email a link came from (the token's
+ * type), with the token from that link. `[token]/all.post.ts` stops every
+ * marketing email of the store.
  *
  * POST only, like the Django endpoint behind it: the emailed link opens
  * `/email/unsubscribe/<token>`, a page whose button calls this — a mail

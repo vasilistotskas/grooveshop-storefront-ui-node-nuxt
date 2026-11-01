@@ -16,10 +16,10 @@ useSeoMeta({
   title: () => t('title'),
 })
 
-const { phase, unsubscribing, unsubscribe: unsubscribeFromEmails } = useEmailUnsubscribe({ token: () => route.params.token })
+const { phase, scope, pending, unsubscribe: unsubscribeFromEmails } = useEmailUnsubscribe({ token: () => route.params.token })
 
-async function unsubscribe() {
-  await unsubscribeFromEmails()
+async function unsubscribe(requested: EmailUnsubscribeScope) {
+  await unsubscribeFromEmails(requested)
   await settleFocus()
 }
 
@@ -66,10 +66,10 @@ async function settleFocus() {
           class="flex flex-col gap-3"
         >
           <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
-            {{ t('unsubscribed.title') }}
+            {{ t(`unsubscribed.${scope}.title`) }}
           </h1>
           <p class="text-toned">
-            {{ t('unsubscribed.description') }}
+            {{ t(`unsubscribed.${scope}.description`) }}
           </p>
         </div>
         <UButton
@@ -122,15 +122,29 @@ async function settleFocus() {
             {{ t('failed') }}
           </p>
         </div>
-        <UButton
-          color="neutral"
-          size="lg"
-          class="rounded-full"
-          :loading="unsubscribing"
-          @click="unsubscribe"
-        >
-          {{ t('confirm') }}
-        </UButton>
+        <div class="flex flex-wrap gap-3">
+          <UButton
+            color="neutral"
+            size="lg"
+            class="rounded-full"
+            :loading="pending === 'type'"
+            :disabled="pending === 'all'"
+            @click="() => unsubscribe('type')"
+          >
+            {{ t('unsubscribeType') }}
+          </UButton>
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="rounded-full"
+            :loading="pending === 'all'"
+            :disabled="pending === 'type'"
+            @click="() => unsubscribe('all')"
+          >
+            {{ t('unsubscribeAll') }}
+          </UButton>
+        </div>
       </template>
     </section>
   </UContainer>
@@ -139,25 +153,35 @@ async function settleFocus() {
 <i18n lang="yaml">
 el:
   title: Διαγραφή από τα email
-  prompt: Πάτησε το κουμπί για να μη λαμβάνεις πλέον διαφημιστικά email από αυτό το κατάστημα.
-  confirm: Διαγραφή από τα email
+  prompt: Θέλεις να σταματήσεις να λαμβάνεις αυτά τα email από το κατάστημα;
+  unsubscribeType: Διαγραφή από αυτά τα email
+  unsubscribeAll: Διαγραφή από όλα τα διαφημιστικά email
   failed: Η διαγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά σε λίγο.
   home: Στην αρχική
   unsubscribed:
-    title: Δεν θα λαμβάνεις πλέον αυτά τα email
-    description: Η διεύθυνσή σου αφαιρέθηκε από τα διαφημιστικά μας email. Θα συνεχίσεις να λαμβάνεις ενημερώσεις για τις παραγγελίες σου.
+    type:
+      title: Δεν θα λαμβάνεις πλέον αυτά τα email
+      description: Δεν θα σου ξαναστείλουμε αυτό το είδος email. Θα συνεχίσεις να λαμβάνεις ενημερώσεις για τις παραγγελίες σου.
+    all:
+      title: Δεν θα λαμβάνεις πλέον διαφημιστικά email
+      description: Σταματήσαμε όλα τα διαφημιστικά email του καταστήματος. Θα συνεχίσεις να λαμβάνεις ενημερώσεις για τις παραγγελίες σου.
   invalid:
     title: Μη έγκυρος σύνδεσμος
     description: Ο σύνδεσμος δεν είναι έγκυρος ή έχει λήξει.
 en:
   title: Unsubscribe from emails
-  prompt: Press the button to stop receiving marketing emails from this store.
-  confirm: Unsubscribe
+  prompt: Do you want to stop receiving these emails from the store?
+  unsubscribeType: Stop these emails
+  unsubscribeAll: Stop all marketing emails
   failed: The unsubscribe did not go through. Please try again shortly.
   home: Back to the homepage
   unsubscribed:
-    title: You won't receive these emails any more
-    description: Your address was removed from our marketing emails. You will still receive updates about your orders.
+    type:
+      title: You won't receive these emails any more
+      description: We won't send you this kind of email again. You will still receive updates about your orders.
+    all:
+      title: You won't receive marketing emails any more
+      description: We stopped all of the store's marketing emails. You will still receive updates about your orders.
   invalid:
     title: Invalid link
     description: This link is not valid or has expired.

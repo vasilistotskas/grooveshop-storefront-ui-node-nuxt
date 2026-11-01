@@ -9485,15 +9485,6 @@ export type TriggerEnum = 'AUTOMATIC' | 'CODE'
  */
 export type TypeEnum = 'apm' | 'any_apm' | 'warehouse' | 'depot'
 
-export type UnsubscribeResponse = {
-  message: string
-  topic?: string
-  userEmail?: string
-  topicSlug?: string
-  count?: number
-  error?: string
-}
-
 export type UpdateStatusRequest = {
   status: OrderStatus
 }
@@ -18548,6 +18539,15 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses]
 
+export type ConfirmUnsubscribeFromEmailData = {
+  body?: never
+  path: {
+    token: string
+  }
+  query?: never
+  url: '/api/v1/emails/unsubscribe/{token}'
+}
+
 export type UnsubscribeFromEmailOneClickData = {
   body?: never
   path: {
@@ -18564,6 +18564,28 @@ export type UnsubscribeFromEmailOneClickErrors = {
 export type UnsubscribeFromEmailOneClickError = UnsubscribeFromEmailOneClickErrors[keyof UnsubscribeFromEmailOneClickErrors]
 
 export type UnsubscribeFromEmailOneClickResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
+export type UnsubscribeFromAllMarketingEmailData = {
+  body?: never
+  path: {
+    token: string
+  }
+  query?: never
+  url: '/api/v1/emails/unsubscribe/{token}/all'
+}
+
+export type UnsubscribeFromAllMarketingEmailErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type UnsubscribeFromAllMarketingEmailError = UnsubscribeFromAllMarketingEmailErrors[keyof UnsubscribeFromAllMarketingEmailErrors]
+
+export type UnsubscribeFromAllMarketingEmailResponses = {
   /**
      * No response body
      */
@@ -28715,82 +28737,6 @@ export type GetMySubscriptionTopicsResponses = {
 }
 
 export type GetMySubscriptionTopicsResponse = GetMySubscriptionTopicsResponses[keyof GetMySubscriptionTopicsResponses]
-
-export type UnsubscribeFromAllViaLinkData = {
-  body?: never
-  path: {
-    token: string
-  }
-  query?: never
-  url: '/api/v1/user/unsubscribe/{token}'
-}
-
-export type UnsubscribeFromAllViaLinkErrors = {
-  400: ApiValidationError | ApiError
-}
-
-export type UnsubscribeFromAllViaLinkError = UnsubscribeFromAllViaLinkErrors[keyof UnsubscribeFromAllViaLinkErrors]
-
-export type UnsubscribeFromAllViaLinkResponses = {
-  200: UnsubscribeResponse
-}
-
-export type UnsubscribeFromAllViaLinkResponse = UnsubscribeFromAllViaLinkResponses[keyof UnsubscribeFromAllViaLinkResponses]
-
-export type UnsubscribeFromAllOneClickData = {
-  body?: never
-  path: {
-    token: string
-  }
-  query?: never
-  url: '/api/v1/user/unsubscribe/{token}'
-}
-
-export type UnsubscribeFromAllOneClickResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
-}
-
-export type UnsubscribeFromTopicViaLinkData = {
-  body?: never
-  path: {
-    token: string
-    topicSlug: string
-  }
-  query?: never
-  url: '/api/v1/user/unsubscribe/{token}/{topic_slug}'
-}
-
-export type UnsubscribeFromTopicViaLinkErrors = {
-  400: ApiValidationError | ApiError
-}
-
-export type UnsubscribeFromTopicViaLinkError = UnsubscribeFromTopicViaLinkErrors[keyof UnsubscribeFromTopicViaLinkErrors]
-
-export type UnsubscribeFromTopicViaLinkResponses = {
-  200: UnsubscribeResponse
-}
-
-export type UnsubscribeFromTopicViaLinkResponse = UnsubscribeFromTopicViaLinkResponses[keyof UnsubscribeFromTopicViaLinkResponses]
-
-export type UnsubscribeFromTopicOneClickData = {
-  body?: never
-  path: {
-    token: string
-    topicSlug: string
-  }
-  query?: never
-  url: '/api/v1/user/unsubscribe/{token}/{topic_slug}'
-}
-
-export type UnsubscribeFromTopicOneClickResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
-}
 
 export type CreateWebSocketTicketData = {
   body?: never

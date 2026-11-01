@@ -187,11 +187,15 @@ exports[`webside design render > email unsubscribe 1`] = `
       <!--v-if-->
       <div data-slot="body" class="p-4 sm:p-6">
         <div class="space-y-4 py-6 text-center"><span class="iconify i-heroicons:envelope-open mx-auto size-12 text-muted" aria-hidden="true"></span>
-          <p class="text-muted">Πάτησε το κουμπί για να μη λαμβάνεις πλέον διαφημιστικά email από αυτό το κατάστημα.</p>
-          <!--v-if--><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)">
-            <!--v-if-->Διαγραφή από τα email
-            <!--v-if-->
-          </button>
+          <p class="text-muted">Θέλεις να σταματήσεις να λαμβάνεις αυτά τα email από το κατάστημα;</p>
+          <!--v-if-->
+          <div class="flex flex-col items-center gap-3"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)">
+              <!--v-if-->Διαγραφή από αυτά τα email
+              <!--v-if-->
+            </button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-2.5 py-1.5 text-sm gap-1.5 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text)">
+              <!--v-if-->Διαγραφή από όλα τα διαφημιστικά email
+              <!--v-if-->
+            </button></div>
         </div>
       </div>
       <!--v-if-->

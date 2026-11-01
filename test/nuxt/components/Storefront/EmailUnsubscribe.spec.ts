@@ -11,12 +11,14 @@ import { trees } from '~~/test/helpers/trees'
 /**
  * The page a marketing email's unsubscribe link opens. Opening it must
  * unsubscribe NOBODY (mail scanners prefetch links); the button POSTs the
- * token, and each of Django's answers — 200, 400 — is its own state. One
+ * token (to stop this kind of email, or all of the store's marketing email),
+ * and each of Django's answers — 200, 400 — is its own state. One
  * `useEmailUnsubscribe` serves both trees; the webside page words and lays
  * out its states its own way and moves no focus.
  */
 const TOKEN = 'a'.repeat(64)
-const UNSUBSCRIBE_URL = `/api/emails/unsubscribe/${TOKEN}`
+const TYPE_URL = `/api/emails/unsubscribe/${TOKEN}`
+const ALL_URL = `/api/emails/unsubscribe/${TOKEN}/all`
 
 mockNuxtImport('useRoute', () => () => ({
   params: { token: TOKEN },
@@ -33,17 +35,23 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 
 let page: Component = EmailUnsubscribe
-/** The words of the tree under test: its own button and failure line. */
-let words = { confirm: '', failed: '' }
+/** The words of the tree under test: its own buttons and failure line. */
+let words = { unsubscribeType: '', unsubscribeAll: '', failed: '' }
 const mountPage = () => mountSuspended(page, { route: false })
 
-const unsubscribeButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
-  wrapper.findAll('button').find(b => b.text() === words.confirm)
+type Scope = 'type' | 'all'
+type Wrapper = Awaited<ReturnType<typeof mountPage>>
 
-async function pressUnsubscribe(wrapper: Awaited<ReturnType<typeof mountPage>>) {
-  await unsubscribeButton(wrapper)!.trigger('click')
+const buttonFor = (wrapper: Wrapper, scope: Scope) =>
+  wrapper.findAll('button').find(b => b.text() === (scope === 'all' ? words.unsubscribeAll : words.unsubscribeType))
+
+async function press(wrapper: Wrapper, scope: Scope = 'type') {
+  await buttonFor(wrapper, scope)!.trigger('click')
   await flushPromises()
 }
+
+const URLS: Record<Scope, string> = { type: TYPE_URL, all: ALL_URL }
+const SCOPES: Scope[] = ['type', 'all']
 
 describe.each(trees(EmailUnsubscribe, WebsideEmailUnsubscribe))('$tree EmailUnsubscribe', ({ tree, C }) => {
   const defaultOnly = tree === 'default'
@@ -51,100 +59,110 @@ describe.each(trees(EmailUnsubscribe, WebsideEmailUnsubscribe))('$tree EmailUnsu
 
   beforeEach(() => {
     page = C
-    words = { confirm: own.confirm, failed: own.failed }
-    api.routes({ [UNSUBSCRIBE_URL]: () => undefined })
+    words = { unsubscribeType: own.unsubscribeType, unsubscribeAll: own.unsubscribeAll, failed: own.failed }
+    api.routes({ [TYPE_URL]: () => undefined, [ALL_URL]: () => undefined })
   })
 
-  it('unsubscribes nobody on its own: it waits for the button', async () => {
+  it('unsubscribes nobody on its own: it waits for a button, and offers both', async () => {
     const wrapper = await mountPage()
     await flushPromises()
 
-    expect(api.callsTo(UNSUBSCRIBE_URL)).toEqual([])
-    expect(unsubscribeButton(wrapper)).toBeTruthy()
+    expect(api.callsTo(TYPE_URL)).toEqual([])
+    expect(api.callsTo(ALL_URL)).toEqual([])
+    expect(buttonFor(wrapper, 'type')).toBeTruthy()
+    expect(buttonFor(wrapper, 'all')).toBeTruthy()
     expect(wrapper.text()).toContain(own.prompt)
   })
 
-  it('POSTs the token and says the visitor will not receive the emails any more', async () => {
+  it.each(SCOPES)('POSTs the token for the %s scope only, and says which one happened', async (scope) => {
     const wrapper = await mountPage()
 
-    await pressUnsubscribe(wrapper)
+    await press(wrapper, scope)
 
-    expect(api.callsTo(UNSUBSCRIBE_URL)).toEqual([{ url: UNSUBSCRIBE_URL, options: { method: 'POST' } }])
+    const other = scope === 'type' ? 'all' : 'type'
+    expect(api.callsTo(URLS[scope])).toEqual([{ url: URLS[scope], options: { method: 'POST' } }])
+    expect(api.callsTo(URLS[other])).toEqual([])
     const status = wrapper.find('[role="status"]')
-    expect(status.text()).toContain(own.unsubscribed.title)
-    expect(status.text()).toContain(own.unsubscribed.description)
-    expect(unsubscribeButton(wrapper)).toBeUndefined()
+    expect(status.text()).toContain(own.unsubscribed[scope].title)
+    expect(status.text()).toContain(own.unsubscribed[scope].description)
+    expect(status.text()).not.toContain(own.unsubscribed[other].title)
+    expect(buttonFor(wrapper, 'type')).toBeUndefined()
+    expect(buttonFor(wrapper, 'all')).toBeUndefined()
   })
 
-  it('shows the invalid-link state on 400, without a retry button', async () => {
-    api.routes({ [UNSUBSCRIBE_URL]: failWith(400, { detail: 'x', code: 'unsubscribe_token_invalid' }) })
+  it.each(SCOPES)('shows the invalid-link state on a 400 from the %s scope, without a retry button', async (scope) => {
+    api.routes({ [URLS[scope]]: failWith(400, { detail: 'x', code: 'unsubscribe_token_invalid' }) })
     const wrapper = await mountPage()
 
-    await pressUnsubscribe(wrapper)
+    await press(wrapper, scope)
 
     expect(wrapper.find('[role="alert"]').text()).toContain(own.invalid.title)
     expect(wrapper.find('[role="status"]').exists()).toBe(false)
-    expect(unsubscribeButton(wrapper)).toBeUndefined()
+    expect(buttonFor(wrapper, 'type')).toBeUndefined()
+    expect(buttonFor(wrapper, 'all')).toBeUndefined()
   })
 
-  it('keeps the button on any other failure, so the visitor can retry', async () => {
-    api.routes({ [UNSUBSCRIBE_URL]: failWith(503, { detail: 'x' }) })
+  it.each(SCOPES)('keeps both buttons on any other failure of the %s scope, so the visitor can retry', async (scope) => {
+    api.routes({ [URLS[scope]]: failWith(503, { detail: 'x' }) })
     const wrapper = await mountPage()
 
-    await pressUnsubscribe(wrapper)
+    await press(wrapper, scope)
 
     expect(wrapper.find('[role="alert"]').text()).toBe(words.failed)
-    await pressUnsubscribe(wrapper)
-    expect(api.callsTo(UNSUBSCRIBE_URL)).toHaveLength(2)
+    await press(wrapper, scope)
+    expect(api.callsTo(URLS[scope])).toHaveLength(2)
+    expect(buttonFor(wrapper, scope === 'type' ? 'all' : 'type')).toBeTruthy()
   })
 
-  it('sends one request however often the button is pressed while it is pending', async () => {
+  it('sends one request across both buttons while one is pending', async () => {
     let settle!: (value: unknown) => void
     api.routes({
-      [UNSUBSCRIBE_URL]: () => new Promise((resolve) => {
+      [TYPE_URL]: () => new Promise((resolve) => {
         settle = resolve
       }),
     })
     const wrapper = await mountPage()
 
-    await unsubscribeButton(wrapper)!.trigger('click')
-    await unsubscribeButton(wrapper)!.trigger('click')
+    await buttonFor(wrapper, 'type')!.trigger('click')
+    await buttonFor(wrapper, 'type')!.trigger('click')
+    await buttonFor(wrapper, 'all')!.trigger('click')
     settle(undefined)
     await flushPromises()
 
-    expect(api.callsTo(UNSUBSCRIBE_URL)).toHaveLength(1)
+    expect(api.callsTo(TYPE_URL)).toHaveLength(1)
+    expect(api.callsTo(ALL_URL)).toEqual([])
   })
 
-  describe.runIf(defaultOnly)('focus after the button is pressed', () => {
+  describe.runIf(defaultOnly)('focus after a button is pressed', () => {
     const mountAttached = async () => {
       const wrapper = await mountSuspended(EmailUnsubscribe, { route: false, attachTo: document.body })
       await flushPromises()
       return wrapper
     }
 
-    it('moves to the heading of the unsubscribed state, so it is read out', async () => {
+    it.each(SCOPES)('moves to the heading of the %s success state, so it is read out', async (scope) => {
       const wrapper = await mountAttached()
 
-      await pressUnsubscribe(wrapper)
+      await press(wrapper, scope)
 
       expect(document.activeElement).toBe(wrapper.get('h1').element)
       expect(wrapper.get('h1').attributes('tabindex')).toBe('-1')
     })
 
     it('moves to the heading of the invalid-link state', async () => {
-      api.routes({ [UNSUBSCRIBE_URL]: failWith(400, { detail: 'x' }) })
+      api.routes({ [TYPE_URL]: failWith(400, { detail: 'x' }) })
       const wrapper = await mountAttached()
 
-      await pressUnsubscribe(wrapper)
+      await press(wrapper)
 
       expect(document.activeElement).toBe(wrapper.get('h1').element)
     })
 
     it('moves to the failure message when the unsubscribe did not go through', async () => {
-      api.routes({ [UNSUBSCRIBE_URL]: failWith(503, { detail: 'x' }) })
+      api.routes({ [TYPE_URL]: failWith(503, { detail: 'x' }) })
       const wrapper = await mountAttached()
 
-      await pressUnsubscribe(wrapper)
+      await press(wrapper)
 
       expect(document.activeElement).toBe(wrapper.get('[role="alert"]').element)
     })
