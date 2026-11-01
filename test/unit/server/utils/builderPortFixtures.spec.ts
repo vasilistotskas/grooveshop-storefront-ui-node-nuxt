@@ -100,10 +100,13 @@ describe('porting a legacy section to a block', () => {
     }
   })
 
-  it('writes a node Django could store: every setting is in the block\'s schema', () => {
-    for (const { node, name } of cases) {
-      const { type } = { type: node.type.split('@')[0]! }
-      expect(registry.get(type)!.schema.safeParse(node.settings).success, name).toBe(true)
+  it('writes a node Django could store: its settings are valid and the schema strips none of them', () => {
+    const check = (node: BuilderNode, name: string) => {
+      const parsed = registry.get(node.type.split('@')[0]!)!.schema.safeParse(node.settings)
+      expect(parsed.success, name).toBe(true)
+      expect(parsed.data, name).toEqual(node.settings)
+      Object.values(node.blocks ?? {}).forEach(child => check(child, name))
     }
+    for (const { node, name } of cases) check(node, name)
   })
 })
