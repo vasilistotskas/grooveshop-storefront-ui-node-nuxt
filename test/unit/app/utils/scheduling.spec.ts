@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { afterLoadWhenIdle, LOAD_IDLE_TIMEOUT_MS } from '~/utils/scheduling'
+import { afterLoadWhenIdle, afterNextPaint, LOAD_IDLE_TIMEOUT_MS } from '~/utils/scheduling'
 
 /** The page the stubbed `window` and `document` describe. */
 const page = {
@@ -69,5 +69,36 @@ describe('afterLoadWhenIdle', () => {
 
     expect(page.loadListeners).toHaveLength(0)
     expect(isDone()).toBe(true)
+  })
+})
+
+/**
+ * `afterNextPaint` holds the part of a tap's work the visitor does not see
+ * until the tap's frame is painted: gtag's consent update inside the cookie
+ * banner's Accept was webside's commonest slow interaction (2026-11-01).
+ */
+describe('afterNextPaint', () => {
+  it('resolves in a task queued after the next animation frame', async () => {
+    const frames: (() => void)[] = []
+    const tasks: (() => void)[] = []
+    vi.stubGlobal('requestAnimationFrame', (callback: () => void) => frames.push(callback))
+    vi.stubGlobal('setTimeout', (callback: () => void) => tasks.push(callback))
+    let done = false
+    afterNextPaint().then(() => {
+      done = true
+    })
+
+    await Promise.resolve()
+    expect(frames).toHaveLength(1)
+    expect(tasks).toHaveLength(0)
+
+    frames[0]!()
+    await Promise.resolve()
+    expect(tasks).toHaveLength(1)
+    expect(done).toBe(false)
+
+    tasks[0]!()
+    await Promise.resolve()
+    expect(done).toBe(true)
   })
 })
