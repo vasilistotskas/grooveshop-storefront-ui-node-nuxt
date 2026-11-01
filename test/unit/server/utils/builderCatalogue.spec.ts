@@ -99,7 +99,7 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('is that of an empty catalogue when no block is defined', () => {
-      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object) })
+      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
     })
 
     it('changes when what a document carries at its root does', () => {
@@ -136,6 +136,16 @@ describe('buildBlockCatalogue', () => {
     })
   })
 
+  describe('templates', () => {
+    it('lists the page types of the static routes, sorted: a layout of one is a template, any other a custom page', () => {
+      expect(buildBlockCatalogue([]).templates).toEqual(['about', 'blog', 'blog-post', 'contact', 'feedback', 'home', 'products', 'vision', 'what-is-microlearning', 'why-microlearning'])
+    })
+
+    it('is part of the hash', () => {
+      expect(buildBlockCatalogue([], undefined, ['home']).hash).not.toBe(buildBlockCatalogue([]).hash)
+    })
+  })
+
   describe('a contradictory set', () => {
     it('is refused when a type is defined twice', () => {
       expect(() => buildBlockCatalogue([promoItem, promoItem])).toThrow(/"promo_item" is defined twice/)
@@ -161,8 +171,8 @@ describe('this build\'s catalogue', () => {
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    const { blocks, documentKinds } = buildBlockCatalogue([promoBanner, promoItem])
+    const { blocks, documentKinds, templates } = buildBlockCatalogue([promoBanner, promoItem])
 
-    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds })
+    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds, templates })
   })
 })
