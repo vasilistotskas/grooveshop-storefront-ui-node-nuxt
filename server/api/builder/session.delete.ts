@@ -9,7 +9,7 @@ function answeredWith(error: unknown, ...statuses: number[]): boolean {
 /**
  * Signs the staff member out of the page builder: revokes their token at
  * Django (`DELETE {apiBaseUrl}/builder/staff-session`, with the token as
- * Bearer) and expires the cookie. The customer session is untouched.
+ * StaffBearer) and expires the cookie. The customer session is untouched.
  *
  * Django answering 401 or 404 means the token is already gone, which is
  * what was asked for. Any other failure still expires the cookie (the

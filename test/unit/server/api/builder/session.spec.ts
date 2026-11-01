@@ -190,7 +190,7 @@ describe('DELETE /api/builder/session', () => {
   const expired = (response: { headers: Headers }) =>
     response.headers.getSetCookie().find(header => header.startsWith(`${BUILDER_SESSION_COOKIE}=`))
 
-  it('revokes the token at Django with the staff token as Bearer, expires the cookie and answers 204', async () => {
+  it('revokes the token at Django with the staff token as StaffBearer, expires the cookie and answers 204', async () => {
     const cookie = await signIn()
     backend.reply(new Response(null, { status: 204 }))
 
@@ -198,7 +198,7 @@ describe('DELETE /api/builder/session', () => {
 
     expect(response.status).toBe(204)
     expect(backend.lastRequest).toMatchObject({ path: 'http://backend.test/api/v1/builder/staff-session', method: 'DELETE' })
-    expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer knox-secret-token')
+    expect(backend.lastRequest.headers.get('authorization')).toBe('StaffBearer knox-secret-token')
     expect(expired(response)).toMatch(/Max-Age=0/)
     expect(response.headers.get('cache-control')).toBe('private, no-store')
   })
@@ -241,7 +241,7 @@ describe('requireBuilderStaff', () => {
     expect(result).toEqual({
       staff,
       expiresAt: session.expiresAt,
-      headers: { Authorization: 'Bearer knox-secret-token' },
+      headers: { Authorization: 'StaffBearer knox-secret-token' },
     })
   })
 
