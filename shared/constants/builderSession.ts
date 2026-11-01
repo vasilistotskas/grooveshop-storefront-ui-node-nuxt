@@ -6,3 +6,10 @@
  * `Path=/`, so a sibling subdomain cannot plant or shadow it.
  */
 export const BUILDER_SESSION_COOKIE = '__Host-builder-session'
+
+/**
+ * The `Authorization` scheme of a builder staff token. Not `Bearer`: that
+ * keyword belongs to Knox's customer tokens in Django, so a staff token
+ * must never be read as one (`docs/api-staff-identity.md` in the Django repo).
+ */
+export const BUILDER_STAFF_AUTH_SCHEME = 'StaffBearer'

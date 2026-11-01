@@ -21,7 +21,7 @@ export type MapLibreState = 'loading' | 'ready' | 'unavailable'
  * locale's route, which mounts the map afresh.
  *
  * `unavailable` covers every way the map cannot draw: no maps host
- * configured (`NUXT_PUBLIC_MAPS_TILEJSON_URL`, logged), no WebGL2
+ * configured (`NUXT_PUBLIC_MAPS_TILE_JSON_URL`, logged), no WebGL2
  * (`GPUInitializationError` from the constructor), or the style, tiles
  * or glyphs failing before the first frame. A tile that fails after that
  * is logged and the map stays up.
@@ -46,7 +46,7 @@ export function useMapLibre(
   let disposed = false
 
   if (!tileJsonUrl) {
-    log.error({ tag: 'maps', message: 'NUXT_PUBLIC_MAPS_TILEJSON_URL is empty: no map can render' })
+    log.error({ tag: 'maps', message: 'NUXT_PUBLIC_MAPS_TILE_JSON_URL is empty: no map can render' })
   }
 
   const mode = computed<BasemapMode>(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
