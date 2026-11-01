@@ -1,0 +1,49 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000028",
+          "type": "blog_posts_list",
+          "title": "Posts",
+          "isVisible": true,
+          "props": {
+            "category_id": 2,
+            "page_size": 12
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000028": {
+          "type": "blog_posts_list@1",
+          "settings": {
+            "categoryId": 2,
+            "pageSize": 12
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000028"
+      ]
+    },
+    "i18n": {},
+    "warnings": [
+      {
+        "code": "dropped_title",
+        "path": "/sections/00000000-0000-4000-8000-000000000028/title",
+        "message": "blog_posts_list does not read a title; it was dropped"
+      }
+    ]
+  }
+}

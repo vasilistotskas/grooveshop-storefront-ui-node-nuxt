@@ -1,0 +1,42 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000008",
+          "type": "recently_viewed",
+          "title": "Seen lately",
+          "isVisible": true,
+          "props": {
+            "heading": "Pick up where you left off"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000008": {
+          "type": "recently_viewed@1",
+          "settings": {
+            "title": "Seen lately",
+            "heading": "Pick up where you left off"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000008"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

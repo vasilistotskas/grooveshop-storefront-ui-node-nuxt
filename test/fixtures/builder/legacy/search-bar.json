@@ -1,0 +1,39 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000007",
+          "type": "search_bar",
+          "title": "Find a product",
+          "isVisible": true,
+          "props": {}
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000007": {
+          "type": "search_bar@1",
+          "settings": {
+            "title": "Find a product"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000007"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

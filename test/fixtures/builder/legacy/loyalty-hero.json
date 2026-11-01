@@ -1,0 +1,52 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000013",
+          "type": "loyalty_hero",
+          "title": "Rewards",
+          "isVisible": true,
+          "props": {
+            "surface": "muted",
+            "eyebrow": "Loyalty",
+            "cta_text": "Join",
+            "cta_link": "/account/signup",
+            "secondary_cta_text": "How it works",
+            "secondary_cta_link": "/loyalty-program"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000013": {
+          "type": "loyalty_hero@1",
+          "settings": {
+            "title": "Rewards",
+            "surface": "muted",
+            "eyebrow": "Loyalty",
+            "ctaText": "Join",
+            "ctaLink": "/account/signup",
+            "secondaryCtaText": "How it works",
+            "secondaryCtaLink": "/loyalty-program"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000013"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

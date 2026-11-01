@@ -1,0 +1,52 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000009",
+          "type": "cta_banner",
+          "title": "Join us",
+          "isVisible": true,
+          "props": {
+            "heading": "Ready when you are",
+            "description": "Two minutes to your first order.",
+            "button_text": "Start",
+            "button_link": "/account/signup",
+            "background_color": "#1f2937",
+            "surface": "muted"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000009": {
+          "type": "cta_banner@1",
+          "settings": {
+            "title": "Join us",
+            "heading": "Ready when you are",
+            "description": "Two minutes to your first order.",
+            "buttonText": "Start",
+            "buttonLink": "/account/signup",
+            "backgroundColor": "#1f2937",
+            "surface": "muted"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000009"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

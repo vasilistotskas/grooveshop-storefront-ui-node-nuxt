@@ -1,0 +1,91 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000019",
+          "type": "hero_carousel",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "autoplay_ms": 6000,
+            "aspect": "wide",
+            "link": "/offers",
+            "slides": [
+              {
+                "image_url": "media/demo/uploads/s1.jpg",
+                "mobile_image_url": "media/demo/uploads/s1-m.jpg",
+                "alt": "Summer sale",
+                "eyebrow": "Summer",
+                "heading": "Up to 30% off",
+                "subheading": "This week only",
+                "cta_text": "Shop",
+                "cta_link": "/offers",
+                "secondary_cta_text": "Details",
+                "secondary_cta_link": "https://example.com/d",
+                "product_id": 12
+              },
+              {
+                "image_url": "media/demo/uploads/s2.jpg"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000019": {
+          "type": "hero_carousel@1",
+          "settings": {
+            "autoplayMs": 6000,
+            "aspect": "wide",
+            "link": "/offers"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000019-1": {
+              "type": "hero_slide@1",
+              "settings": {
+                "imageUrl": "media/demo/uploads/s1.jpg",
+                "mobileImageUrl": "media/demo/uploads/s1-m.jpg",
+                "alt": "Summer sale",
+                "eyebrow": "Summer",
+                "heading": "Up to 30% off",
+                "subheading": "This week only",
+                "ctaText": "Shop",
+                "ctaLink": "/offers",
+                "secondaryCtaText": "Details",
+                "secondaryCtaLink": "https://example.com/d",
+                "productId": 12
+              }
+            },
+            "00000000-0000-4000-8000-000000000019-2": {
+              "type": "hero_slide@1",
+              "settings": {
+                "imageUrl": "media/demo/uploads/s2.jpg"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000019-1",
+            "00000000-0000-4000-8000-000000000019-2"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000019"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

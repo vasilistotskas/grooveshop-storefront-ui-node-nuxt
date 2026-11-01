@@ -1,0 +1,37 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000017",
+          "type": "what_is_microlearning",
+          "title": "",
+          "isVisible": true,
+          "props": {}
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000017": {
+          "type": "what_is_microlearning@1",
+          "settings": {}
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000017"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

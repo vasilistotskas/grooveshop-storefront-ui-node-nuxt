@@ -1,0 +1,42 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000006",
+          "type": "rich_text",
+          "title": "Our story",
+          "isVisible": true,
+          "props": {
+            "content": "<p>Hello <strong>world</strong></p>"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000006": {
+          "type": "rich_text@1",
+          "settings": {
+            "title": "Our story",
+            "content": "<p>Hello <strong>world</strong></p>"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000006"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

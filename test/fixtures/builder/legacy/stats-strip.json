@@ -1,0 +1,83 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000003",
+          "type": "stats_strip",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "muted",
+            "items": [
+              {
+                "value": "2.500+",
+                "label": "Orders"
+              },
+              {
+                "value": "4.8/5",
+                "label": "Rating"
+              },
+              {
+                "value": "15",
+                "label": "Years"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000003": {
+          "type": "stats_strip@1",
+          "settings": {
+            "surface": "muted"
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000003-1": {
+              "type": "stat@1",
+              "settings": {
+                "value": "2.500+",
+                "label": "Orders"
+              }
+            },
+            "00000000-0000-4000-8000-000000000003-2": {
+              "type": "stat@1",
+              "settings": {
+                "value": "4.8/5",
+                "label": "Rating"
+              }
+            },
+            "00000000-0000-4000-8000-000000000003-3": {
+              "type": "stat@1",
+              "settings": {
+                "value": "15",
+                "label": "Years"
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000003-1",
+            "00000000-0000-4000-8000-000000000003-2",
+            "00000000-0000-4000-8000-000000000003-3"
+          ]
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000003"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}
