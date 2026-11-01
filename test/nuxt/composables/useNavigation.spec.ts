@@ -15,49 +15,53 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /** Whether the store configured a Mobile menu; a store with none gets no `mobile` key. */
 let withMobileSlot = true
-registerEndpoint('/api/builder/navigation', () => ({
-  header: [
-    { label: 'Προϊόντα', to: '/products' },
-    { label: 'Προσφορές', to: '/offers' },
-    { label: 'Επικοινωνία', to: '/contact' },
-  ],
-  ...(withMobileSlot
-    ? {
-        mobile: [
-          { label: 'Αρχική', to: '/' },
-          { label: 'Loyalty', to: '/en/loyalty-program' },
-        ],
-      }
-    : {}),
-  footer: [
-    {
-      label: 'Κατάστημα',
-      children: [
+/** Whether the menus cannot be read: the route fails, as when Django or the content pages are down. */
+let failing = false
+registerEndpoint('/api/builder/navigation', () => failing
+  ? Promise.reject(Object.assign(new Error('Service Unavailable'), { statusCode: 503 }))
+  : ({
+      header: [
         { label: 'Προϊόντα', to: '/products' },
-        { label: 'Δώρα', to: '/gift-cards' },
+        { label: 'Προσφορές', to: '/offers' },
+        { label: 'Επικοινωνία', to: '/contact' },
       ],
-    },
-    {
-      label: 'Μόνο προσφορές',
-      children: [{ label: 'Προσφορές', to: '/offers' }],
-    },
-    {
-      label: 'Εξωτερικά',
-      children: [{ label: 'Instagram', href: 'https://instagram.com/x' }],
-    },
-  ],
-}))
+      ...(withMobileSlot
+        ? {
+            mobile: [
+              { label: 'Αρχική', to: '/' },
+              { label: 'Loyalty', to: '/en/loyalty-program' },
+            ],
+          }
+        : {}),
+      footer: [
+        {
+          label: 'Κατάστημα',
+          children: [
+            { label: 'Προϊόντα', to: '/products' },
+            { label: 'Δώρα', to: '/gift-cards' },
+          ],
+        },
+        {
+          label: 'Μόνο προσφορές',
+          children: [{ label: 'Προσφορές', to: '/offers' }],
+        },
+        {
+          label: 'Εξωτερικά',
+          children: [{ label: 'Instagram', href: 'https://instagram.com/x' }],
+        },
+      ],
+    }))
 
 const Probe = defineComponent({
   setup() {
     const { headerItems, mobileLinks, footerColumns } = useNavigation()
     return () =>
       h('div', [
-        h('ul', { id: 'header' }, (headerItems.value ?? []).map(i => h('li', i.to))),
-        h('ul', { id: 'phone' }, (mobileLinks.value ?? []).map(i => h('li', i.to))),
+        h('ul', { 'id': 'header', 'data-configured': headerItems.value !== null }, (headerItems.value ?? []).map(i => h('li', i.to))),
+        h('ul', { 'id': 'phone', 'data-configured': mobileLinks.value !== null }, (mobileLinks.value ?? []).map(i => h('li', i.to))),
         h(
           'ul',
-          { id: 'footer' },
+          { 'id': 'footer', 'data-configured': footerColumns.value !== null },
           (footerColumns.value ?? []).map(col =>
             h('li', [
               col.label,
@@ -102,6 +106,7 @@ describe('useNavigation — feature gate on operator links', () => {
   beforeEach(() => {
     setTenant()
     withMobileSlot = true
+    failing = false
   })
 
   afterEach(() => {
@@ -166,5 +171,45 @@ describe('useNavigation — feature gate on operator links', () => {
     const { wrapper } = await render()
 
     expect(wrapper.text()).toContain('https://instagram.com/x')
+  })
+})
+
+describe('useNavigation — a menu read that fails', () => {
+  beforeEach(() => {
+    setTenant()
+    withMobileSlot = true
+    failing = false
+  })
+
+  afterEach(() => {
+    mounted?.unmount()
+    mounted = null
+    failing = false
+  })
+
+  it('leaves the chrome with no navigation links, not with the built-in menus of someone else', async () => {
+    // The built-in menus are for a slot the store never configured, which the
+    // route answers by leaving the key out. A read that FAILED is different:
+    // generic menus in place of the store's own would be wrong content.
+    failing = true
+    mounted?.unmount()
+    clearNuxtData([NAVIGATION_KEY])
+    const wrapper = await mountSuspended(Probe, { route: false })
+    mounted = wrapper
+    await vi.waitFor(() => expect(wrapper.find('#header').attributes('data-configured')).toBe('true'), { interval: 1 })
+
+    for (const slot of ['#header', '#phone', '#footer']) {
+      expect(wrapper.find(slot).attributes('data-configured'), slot).toBe('true')
+      expect(wrapper.findAll(`${slot} > li`), slot).toHaveLength(0)
+    }
+  })
+
+  it('leaves a slot the store never configured to the built-in menu', async () => {
+    withMobileSlot = false
+
+    const { wrapper } = await render()
+
+    // No mobile key and the header is the phone's menu; nothing is "not configured" here.
+    expect(wrapper.find('#header').attributes('data-configured')).toBe('true')
   })
 })

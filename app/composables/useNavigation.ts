@@ -8,6 +8,15 @@
  * to its code-level menu (``useFooterLinks``, BurgerMenu's
  * ``primaryItems``), so an unconfigured tenant keeps the platform
  * chrome exactly as it is today.
+ *
+ * A read that FAILED is not an unconfigured slot. Showing the generic
+ * code menus in place of a store's own on a transient error is wrong
+ * content, so every slot is then an empty menu (the chrome without
+ * navigation links) and never ``null``. The route's cache serves the last
+ * good menus while a revalidation fails (``staleMaxAge``), so this is a
+ * cold failure only, and the failed request is logged as an error by the
+ * request log (``server/api/builder/navigation.get.ts`` throws, and evlog
+ * logs an errored request at ``error`` level).
  */
 export function useNavigation() {
   // Menu labels are operator content, so a multilingual store supplies
@@ -30,7 +39,7 @@ export function useNavigation() {
   const serving = (link: NavLink) =>
     !link.to || !isFeaturePathBlocked(link.to, blocked.value)
 
-  const { data } = useApi<NavigationItems>(
+  const { data, error } = useApi<NavigationItems>(
     '/api/builder/navigation',
     {
       key: () => `builder-navigation-${locale.value}`,
@@ -43,6 +52,7 @@ export function useNavigation() {
 
   const flatSlot = (slot: 'header' | 'mobile') =>
     computed<NavLink[] | null>(() => {
+      if (error.value) return []
       const kept = (data.value?.[slot] ?? []).filter(serving)
       return kept.length > 0 ? kept : null
     })
@@ -58,6 +68,7 @@ export function useNavigation() {
   )
 
   const footerColumns = computed<NavColumn[] | null>(() => {
+    if (error.value) return []
     // A column emptied by the gate goes with its links: a bare heading
     // is noise, and the storefront's own contract requires children.
     const kept = (data.value?.footer ?? [])
