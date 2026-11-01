@@ -1,3 +1,10 @@
+# [3.278.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.277.0...v3.278.0) (2026-11-01)
+
+
+### Features
+
+* **account:** let customers turn store marketing emails back on ([#304](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/304)) ([7db3ead](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7db3eadd914163c679f28655717ca7a19ddcd2f5))
+
 # [3.277.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.276.2...v3.277.0) (2026-11-01)
 
 
