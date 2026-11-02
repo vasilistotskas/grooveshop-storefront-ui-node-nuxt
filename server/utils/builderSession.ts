@@ -52,6 +52,23 @@ export async function readBuilderSession(event: RequestEvent): Promise<BuilderSe
   return undefined
 }
 
+/**
+ * Who may frame the response to this request: `'self'` (the store's own
+ * pages, the editor) for a request that asks for a page as the editor's
+ * preview (`hasBuilderCanvasMarker`) AND carries a live staff session,
+ * `'none'` for every other request. The session is read only for a marked
+ * request, so no other page pays for it.
+ *
+ * Read by `server/middleware/3.csp.ts`, which runs on the request itself,
+ * outside Nitro's page cache: a cached render sees no cookie at all (it is
+ * handed only the `varies` headers), and the framing headers are written
+ * per request, never into a cache entry.
+ */
+export async function builderCanvasFraming(event: RequestEvent): Promise<CspFrameAncestors> {
+  if (!hasBuilderCanvasMarker(`${event.url.pathname}${event.url.search}`)) return 'none'
+  return await readBuilderSession(event) ? 'self' : 'none'
+}
+
 /** Ends the staff session: expires the cookie. */
 export async function clearBuilderSession(event: RequestEvent): Promise<void> {
   await clearSession(event, sessionConfig())

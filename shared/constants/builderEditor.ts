@@ -45,3 +45,11 @@ export const BUILDER_EDITOR_QUERY = {
 
 /** The editor's route, without a locale prefix (`app/pages/_builder.vue`; Django's admin sends staff here). */
 export const BUILDER_EDITOR_ROUTE = '/_builder'
+
+/**
+ * The query parameter that marks a request for a store page as the editor's
+ * preview (its canvas): only such a request, from a live staff session, may
+ * be framed, and only by the store's own pages (`builderCanvasFraming`).
+ * Every response to it is private (`server/utils/edgeCache.ts`).
+ */
+export const BUILDER_CANVAS_QUERY = 'builder-canvas'

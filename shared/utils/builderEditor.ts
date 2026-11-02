@@ -1,5 +1,5 @@
 import { splitLocale } from '~~/shared/i18n/localeFromPath'
-import { BUILDER_EDITOR_ROUTE } from '../constants/builderEditor'
+import { BUILDER_CANVAS_QUERY, BUILDER_EDITOR_ROUTE } from '../constants/builderEditor'
 
 /**
  * Whether a path is the page editor's own page, in any language
@@ -11,4 +11,10 @@ import { BUILDER_EDITOR_ROUTE } from '../constants/builderEditor'
  */
 export function isBuilderEditorPath(path: string): boolean {
   return splitLocale(path.split('?')[0] ?? '').route === BUILDER_EDITOR_ROUTE
+}
+
+/** Whether a request path (with its query) asks for a store page as the editor's preview (`BUILDER_CANVAS_QUERY`). */
+export function hasBuilderCanvasMarker(path: string): boolean {
+  const query = path.split('#', 1)[0]!.split('?').slice(1).join('?')
+  return new URLSearchParams(query).has(BUILDER_CANVAS_QUERY)
 }

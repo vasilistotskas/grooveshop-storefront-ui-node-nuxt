@@ -21,13 +21,13 @@ const hashOf = (handler: string) => `'sha256-${createHash('sha256').update(handl
 
 describe('@nuxt/image\'s inline onerror under a nonce policy', () => {
   it.each(['NuxtImg.vue', 'NuxtPicture.vue'])('allows the handler %s renders, by hash', (component) => {
-    const attr = pick(buildCspDirectives({ dev: false, nonce: 'abc' }), 'script-src-attr')
+    const attr = pick(buildCspDirectives({ dev: false, frameAncestors: 'none', nonce: 'abc' }), 'script-src-attr')
 
     expect(attr).toEqual(['\'unsafe-hashes\'', hashOf(handlerOf(component))])
   })
 
   it('leaves the nonce-free policy alone: a hash there would disable \'unsafe-inline\'', () => {
-    const directives = buildCspDirectives({ dev: false })
+    const directives = buildCspDirectives({ dev: false, frameAncestors: 'none' })
 
     expect(pick(directives, 'script-src-attr')).toEqual([])
     expect(pick(directives, 'script-src')).toContain('\'unsafe-inline\'')
