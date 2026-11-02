@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto'
-import * as z from 'zod'
 import blockList from '#builder-blocks'
 
 /** What `GET /api/builder/catalogue` serves: the catalogue and its hash, as the body and the ETag. */
@@ -9,34 +8,17 @@ export interface BuilderCatalogueDocument {
 }
 
 /**
- * One definition as the catalogue states it: the settings as JSON Schema,
- * with `accepts` and every optional field only when it is set.
- *
- * The schema is the INPUT type (`io: 'input'`): what the editor saves and
- * Django validates is the raw settings, in which a field with a default
- * may be absent (the output type would require it). The input conversion
- * leaves objects open, and a closed contract is the point (an unknown
- * key is refused on save), so every object schema is closed here.
+ * One definition as the catalogue states it: the settings as JSON Schema
+ * (`blockSettingsJsonSchema`), with `accepts` and every optional field only
+ * when it is set.
  *
  * `accepts` is the current version alone. Django holds this one schema,
  * so it can validate nothing older; an older document is upgraded by the
  * storefront on read and by the editor on load (`upgradeNode`), and
  * always saved at the current version.
  */
-function settingsJsonSchema(schema: z.ZodObject): Record<string, unknown> {
-  return z.toJSONSchema(schema, {
-    target: 'draft-2020-12',
-    io: 'input',
-    override: ({ jsonSchema }) => {
-      if (jsonSchema.type === 'object' && jsonSchema.additionalProperties === undefined) {
-        jsonSchema.additionalProperties = false
-      }
-    },
-  })
-}
-
 function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
-  const schema = settingsJsonSchema(definition.schema)
+  const schema = blockSettingsJsonSchema(definition.schema)
   const { maxDepth } = definition.children
   return {
     type: definition.type,
@@ -97,7 +79,7 @@ export function buildBlockCatalogue(
     BUILDER_DOCUMENT_KINDS.flatMap((kind) => {
       const root = roots[kind]
       return root
-        ? [[kind, { schema: settingsJsonSchema(root.schema), translatable: [...root.translatable], linkRefs: linkPointers(root.schema) }]]
+        ? [[kind, { schema: blockSettingsJsonSchema(root.schema), translatable: [...root.translatable], linkRefs: linkPointers(root.schema) }]]
         : []
     }),
   )

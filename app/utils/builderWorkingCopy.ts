@@ -197,3 +197,33 @@ function subtreeIds(draft: BuilderDocument, sectionId: string): string[] {
   const section = draft.sections[sectionId]
   return section ? subtree(section, sectionId).map(({ id }) => id) : []
 }
+
+/** A setting's value by its path (`prompt.title`), or `undefined` when the node does not hold one. */
+export function settingAt(settings: Readonly<Record<string, unknown>>, path: string): unknown {
+  return path.split('.').reduce<unknown>((value, key) =>
+    typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>)[key] : undefined, settings)
+}
+
+/**
+ * The copy with one setting of a node changed, by its path (`prompt.title`).
+ * `undefined`, an empty text and an empty list take the setting out, so the
+ * section component falls back to its own default; an object left with no
+ * settings goes with it.
+ */
+export function setNodeSetting(copy: BuilderWorkingCopy, nodeId: string, path: string, value: unknown): BuilderWorkingCopy {
+  const next = structuredClone(copy)
+  const place = placeOf(next.draft, nodeId)
+  if (!place) return copy
+  const keys = path.split('.')
+  const empty = value === undefined || value === '' || (Array.isArray(value) && value.length === 0)
+  const write = (settings: Record<string, unknown>, depth: number): Record<string, unknown> => {
+    const key = keys[depth]!
+    const rest = Object.fromEntries(Object.entries(settings).filter(([name]) => name !== key))
+    if (depth === keys.length - 1) return empty ? rest : { ...settings, [key]: structuredClone(value) }
+    const child = settings[key]
+    const inner = write(typeof child === 'object' && child !== null && !Array.isArray(child) ? child as Record<string, unknown> : {}, depth + 1)
+    return Object.keys(inner).length === 0 ? rest : { ...settings, [key]: inner }
+  }
+  place.node.settings = write(place.node.settings, 0)
+  return next
+}

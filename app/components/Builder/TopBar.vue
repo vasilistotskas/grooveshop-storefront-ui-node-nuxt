@@ -8,6 +8,7 @@ defineProps<{
 const emit = defineEmits<{
   signOut: []
   openOutline: []
+  openSettings: []
 }>()
 
 const { t } = useStoreI18n('components/Builder/TopBar')
@@ -65,28 +66,38 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       </template>
     </UPopover>
 
-    <BuilderHistory class="ms-auto" />
+    <div class="ms-auto flex items-center gap-1">
+      <BuilderHistory />
 
-    <UDropdownMenu
-      :items="accountItems"
-      :content="{ align: 'end' }"
-    >
       <UButton
+        icon="i-lucide-sliders-horizontal"
         color="neutral"
         variant="ghost"
-        :class="store.canEdit ? '' : 'ms-auto'"
-        :aria-label="t('account', { name: session.staff.name })"
+        class="lg:hidden"
+        :aria-label="t('settings')"
+        @click="() => emit('openSettings')"
+      />
+
+      <UDropdownMenu
+        :items="accountItems"
+        :content="{ align: 'end' }"
       >
-        <UAvatar
-          :alt="session.staff.name"
-          size="sm"
-        />
-        <span class="hidden min-w-0 text-start lg:block">
-          <span class="block truncate text-sm font-medium">{{ session.staff.name }}</span>
-          <span class="block truncate text-xs text-muted">{{ t(`role.${session.staff.role}`) }}</span>
-        </span>
-      </UButton>
-    </UDropdownMenu>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          :aria-label="t('account', { name: session.staff.name })"
+        >
+          <UAvatar
+            :alt="session.staff.name"
+            size="sm"
+          />
+          <span class="hidden min-w-0 text-start lg:block">
+            <span class="block truncate text-sm font-medium">{{ session.staff.name }}</span>
+            <span class="block truncate text-xs text-muted">{{ t(`role.${session.staff.role}`) }}</span>
+          </span>
+        </UButton>
+      </UDropdownMenu>
+    </div>
   </header>
 </template>
 
@@ -94,6 +105,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
 el:
   exit: Έξοδος στο κατάστημα
   outline: Δομή σελίδας
+  settings: Ρυθμίσεις
   account: "Λογαριασμός: {name}"
   signOut: Αποσύνδεση
   viewOnly:
@@ -107,6 +119,7 @@ el:
 en:
   exit: Exit to the store
   outline: Page outline
+  settings: Settings
   account: "Account: {name}"
   signOut: Sign out
   viewOnly:
