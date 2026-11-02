@@ -1,3 +1,30 @@
+Local fixes to reka-ui 2.11.0's built files. Drop each once upstream ships it.
+
+1. CheckboxRoot, Radio, SwitchRoot: skip the `[for=id]` label lookup when the
+   control already has `labels`, so rendering a control does not force a
+   layout (storefront #206).
+
+2. Dialogs no longer write `pointer-events: none` on <body> (storefront #156).
+   Every element inherits it, so opening any modal dialog restyled the whole
+   page inside the tap: 300-440 ms of a 750-880 ms phone-menu tap on a
+   6x-slowed CPU, in both storefront designs. A dialog's overlay already
+   catches a tap outside it. Upstream sources (v2.11.0) that write it:
+   - packages/core/src/Dialog/DialogContentModal.vue:9
+     `disableOutsidePointerEvents: true`, reaching
+     packages/core/src/DismissableLayer/DismissableLayer.vue:178
+     `acquireBodyPointerEvents(doc, element)`.
+     Patched: the default is false.
+   - packages/core/src/Dialog/DialogOverlayImpl.vue:19
+     `useBodyScrollLock(props.present)`, reaching
+     packages/core/src/shared/useBodyScrollLock.ts:89
+     `acquireBodyPointerEvents(document, pointerEventsOwner)`.
+     Patched: useBodyScrollLock takes `{ bodyPointerEvents: false }`, which
+     DialogOverlayImpl passes. Menus, popovers, selects and comboboxes, which
+     have no overlay, keep the write.
+   Upstream: fixed on the reka-ui v3 branch by unovue/reka-ui#3070 (merged
+   2026-10-27, unreleased on 2026-11-01): nothing there writes body
+   pointer-events. Drop this part with the move to reka-ui v3.
+
 diff --git a/dist/Checkbox/CheckboxRoot.cjs b/dist/Checkbox/CheckboxRoot.cjs
 index a30adc5167cbb1247066eee81bfe9fd089a15ada..689e6a0a56514e12d439d51f1d8141aa52b2bb35 100644
 --- a/dist/Checkbox/CheckboxRoot.cjs
@@ -24,6 +51,58 @@ index e8c137a47f14956b999395dcd1302b9cce5144cb..8a0d2ed42926b0522df5483520e01f76
  		});
  		function getFieldAriaAttrs() {
  			const mergeIds = (consumerValue, fieldValue) => [consumerValue, fieldValue].filter(Boolean).join(" ") || void 0;
+diff --git a/dist/Dialog/DialogContentModal.cjs b/dist/Dialog/DialogContentModal.cjs
+index c841f3ba7b370d93012bfc183e44e6e7f729b0b2..78e4da3bc6257f4a10a4e8c9f9657f8a2a725530 100644
+--- a/dist/Dialog/DialogContentModal.cjs
++++ b/dist/Dialog/DialogContentModal.cjs
+@@ -21,7 +21,7 @@ var DialogContentModal_vue_vue_type_script_setup_true_lang_default = /* @__PURE_
+ 		disableOutsidePointerEvents: {
+ 			type: Boolean,
+ 			required: false,
+-			default: true
++			default: false
+ 		},
+ 		asChild: {
+ 			type: Boolean,
+diff --git a/dist/Dialog/DialogContentModal.js b/dist/Dialog/DialogContentModal.js
+index aed8b144f9f6ce549fbdb94b522224c5ad63db46..28f87f3652b2343cd699feb086ba6583a80c7b21 100644
+--- a/dist/Dialog/DialogContentModal.js
++++ b/dist/Dialog/DialogContentModal.js
+@@ -20,7 +20,7 @@ var DialogContentModal_vue_vue_type_script_setup_true_lang_default = /* @__PURE_
+ 		disableOutsidePointerEvents: {
+ 			type: Boolean,
+ 			required: false,
+-			default: true
++			default: false
+ 		},
+ 		asChild: {
+ 			type: Boolean,
+diff --git a/dist/Dialog/DialogOverlayImpl.cjs b/dist/Dialog/DialogOverlayImpl.cjs
+index 90e7888dbf7aa00e07bdf9854477f5dcae036b57..3b5c3fec4482a12780944c8ee3e0e53762552b2c 100644
+--- a/dist/Dialog/DialogOverlayImpl.cjs
++++ b/dist/Dialog/DialogOverlayImpl.cjs
+@@ -26,7 +26,7 @@ var DialogOverlayImpl_vue_vue_type_script_setup_true_lang_default = /* @__PURE__
+ 	setup(__props) {
+ 		const props = __props;
+ 		const rootContext = require_Dialog_DialogRoot.injectDialogRootContext();
+-		const scrollLocked = require_shared_useBodyScrollLock.useBodyScrollLock(props.present);
++		const scrollLocked = require_shared_useBodyScrollLock.useBodyScrollLock(props.present, { bodyPointerEvents: false });
+ 		(0, vue.watch)(() => props.present, (val) => scrollLocked.value = val);
+ 		require_shared_useForwardExpose.useForwardExpose();
+ 		return (_ctx, _cache) => {
+diff --git a/dist/Dialog/DialogOverlayImpl.js b/dist/Dialog/DialogOverlayImpl.js
+index b1b56a2491b91966e2ca4a045407e9e1d912b3d3..4e1bca737e3ae8a0f9c69d7de636ef7f2d63ec25 100644
+--- a/dist/Dialog/DialogOverlayImpl.js
++++ b/dist/Dialog/DialogOverlayImpl.js
+@@ -25,7 +25,7 @@ var DialogOverlayImpl_vue_vue_type_script_setup_true_lang_default = /* @__PURE__
+ 	setup(__props) {
+ 		const props = __props;
+ 		const rootContext = injectDialogRootContext();
+-		const scrollLocked = useBodyScrollLock(props.present);
++		const scrollLocked = useBodyScrollLock(props.present, { bodyPointerEvents: false });
+ 		watch(() => props.present, (val) => scrollLocked.value = val);
+ 		useForwardExpose();
+ 		return (_ctx, _cache) => {
 diff --git a/dist/RadioGroup/Radio.cjs b/dist/RadioGroup/Radio.cjs
 index 945da66d7b5b33209ebe9f34329bd012f67e7c8e..f4c798bc56998b7b9c9f7f77dd5e8928f54c4160 100644
 --- a/dist/RadioGroup/Radio.cjs
@@ -76,3 +155,125 @@ index 5f6debe40b7c68fd7084b5f8f9718d31340c50ec..c1e93641b26259feaf547061e8587a72
  		provideSwitchRootContext({
  			checked,
  			toggleCheck,
+diff --git a/dist/shared/useBodyScrollLock.cjs b/dist/shared/useBodyScrollLock.cjs
+index e332a86d7cdf64057fdc955bb34aba73423a1a8b..7c4dc4c454db3b1002a4456a2c8274f149ba095c 100644
+--- a/dist/shared/useBodyScrollLock.cjs
++++ b/dist/shared/useBodyScrollLock.cjs
+@@ -15,12 +15,28 @@ const useBodyLockStackCount = (0, __vueuse_core.createSharedComposable)(() => {
+ 		for (const value of map.value.values()) if (value) return true;
+ 		return false;
+ 	});
++	const pointerEventsLocked = (0, vue.computed)(() => {
++		for (const value of map.value.values()) if (value === true) return true;
++		return false;
++	});
++	(0, vue.watch)(pointerEventsLocked, (val) => {
++		if (!__vueuse_shared.isClient) return;
++		if (!val) {
++			require_shared_bodyPointerEvents.releaseBodyPointerEvents(document, pointerEventsOwner);
++			return;
++		}
++		(0, vue.nextTick)(() => {
++			if (pointerEventsLocked.value) require_shared_bodyPointerEvents.acquireBodyPointerEvents(document, pointerEventsOwner);
++		});
++	}, {
++		immediate: true,
++		flush: "sync"
++	});
+ 	const context = require_ConfigProvider_ConfigProvider.injectConfigProviderContext({ scrollBody: (0, vue.ref)(true) });
+ 	let stopTouchMoveListener = null;
+ 	const resetBodyStyle = () => {
+ 		document.body.style.paddingRight = "";
+ 		document.body.style.marginRight = "";
+-		require_shared_bodyPointerEvents.releaseBodyPointerEvents(document, pointerEventsOwner);
+ 		document.documentElement.style.removeProperty("--scrollbar-width");
+ 		document.body.style.overflow = initialOverflow.value ?? "";
+ 		__vueuse_shared.isIOS && stopTouchMoveListener?.();
+@@ -54,7 +70,6 @@ const useBodyLockStackCount = (0, __vueuse_core.createSharedComposable)(() => {
+ 		if (__vueuse_shared.isIOS) stopTouchMoveListener = (0, __vueuse_core.useEventListener)(document, "touchmove", (e) => preventDefault(e), { passive: false });
+ 		(0, vue.nextTick)(() => {
+ 			if (!locked.value) return;
+-			require_shared_bodyPointerEvents.acquireBodyPointerEvents(document, pointerEventsOwner);
+ 			document.body.style.overflow = "hidden";
+ 		});
+ 	}, {
+@@ -63,13 +78,14 @@ const useBodyLockStackCount = (0, __vueuse_core.createSharedComposable)(() => {
+ 	});
+ 	return map;
+ });
+-function useBodyScrollLock(initialState) {
++function useBodyScrollLock(initialState, options) {
++	const lockValue = (value) => value ? options?.bodyPointerEvents === false ? "scroll" : true : false;
+ 	const id = Math.random().toString(36).substring(2, 7);
+ 	const map = useBodyLockStackCount();
+-	map.value.set(id, initialState ?? false);
++	map.value.set(id, lockValue(initialState ?? false));
+ 	const locked = (0, vue.computed)({
+-		get: () => map.value.get(id) ?? false,
+-		set: (value) => map.value.set(id, value)
++		get: () => Boolean(map.value.get(id)),
++		set: (value) => map.value.set(id, lockValue(value))
+ 	});
+ 	(0, __vueuse_shared.tryOnBeforeUnmount)(() => {
+ 		map.value.delete(id);
+diff --git a/dist/shared/useBodyScrollLock.js b/dist/shared/useBodyScrollLock.js
+index 2378df702af4d6bc8bddf3dae7dc5653b67aa45b..06b860c99432212374ca862bf6d15c5fe9aa1b25 100644
+--- a/dist/shared/useBodyScrollLock.js
++++ b/dist/shared/useBodyScrollLock.js
+@@ -14,12 +14,28 @@ const useBodyLockStackCount = createSharedComposable(() => {
+ 		for (const value of map.value.values()) if (value) return true;
+ 		return false;
+ 	});
++	const pointerEventsLocked = computed(() => {
++		for (const value of map.value.values()) if (value === true) return true;
++		return false;
++	});
++	watch(pointerEventsLocked, (val) => {
++		if (!isClient) return;
++		if (!val) {
++			releaseBodyPointerEvents(document, pointerEventsOwner);
++			return;
++		}
++		nextTick(() => {
++			if (pointerEventsLocked.value) acquireBodyPointerEvents(document, pointerEventsOwner);
++		});
++	}, {
++		immediate: true,
++		flush: "sync"
++	});
+ 	const context = injectConfigProviderContext({ scrollBody: ref(true) });
+ 	let stopTouchMoveListener = null;
+ 	const resetBodyStyle = () => {
+ 		document.body.style.paddingRight = "";
+ 		document.body.style.marginRight = "";
+-		releaseBodyPointerEvents(document, pointerEventsOwner);
+ 		document.documentElement.style.removeProperty("--scrollbar-width");
+ 		document.body.style.overflow = initialOverflow.value ?? "";
+ 		isIOS && stopTouchMoveListener?.();
+@@ -53,7 +69,6 @@ const useBodyLockStackCount = createSharedComposable(() => {
+ 		if (isIOS) stopTouchMoveListener = useEventListener(document, "touchmove", (e) => preventDefault(e), { passive: false });
+ 		nextTick(() => {
+ 			if (!locked.value) return;
+-			acquireBodyPointerEvents(document, pointerEventsOwner);
+ 			document.body.style.overflow = "hidden";
+ 		});
+ 	}, {
+@@ -62,13 +77,14 @@ const useBodyLockStackCount = createSharedComposable(() => {
+ 	});
+ 	return map;
+ });
+-function useBodyScrollLock(initialState) {
++function useBodyScrollLock(initialState, options) {
++	const lockValue = (value) => value ? options?.bodyPointerEvents === false ? "scroll" : true : false;
+ 	const id = Math.random().toString(36).substring(2, 7);
+ 	const map = useBodyLockStackCount();
+-	map.value.set(id, initialState ?? false);
++	map.value.set(id, lockValue(initialState ?? false));
+ 	const locked = computed({
+-		get: () => map.value.get(id) ?? false,
+-		set: (value) => map.value.set(id, value)
++		get: () => Boolean(map.value.get(id)),
++		set: (value) => map.value.set(id, lockValue(value))
+ 	});
+ 	tryOnBeforeUnmount(() => {
+ 		map.value.delete(id);
