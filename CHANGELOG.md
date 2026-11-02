@@ -1,3 +1,10 @@
+# [3.290.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.289.1...v3.290.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** add sections and blocks from a library of presets ([#335](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/335)) ([8ea722c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8ea722cc64779053dff778b09d7eb4b061262829))
+
 ## [3.289.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.289.0...v3.289.1) (2026-11-02)
 
 
