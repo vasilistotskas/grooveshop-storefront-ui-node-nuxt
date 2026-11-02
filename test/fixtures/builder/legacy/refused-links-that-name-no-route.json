@@ -1,0 +1,55 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000952",
+          "type": "cta_banner",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "heading": "Ready",
+            "button_link": "/products?ordering=newest"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000953",
+          "type": "hero_banner",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "cta_link": "/some/deep/path",
+            "secondary_cta_link": "http://example.com"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "code": "unconvertible",
+    "errors": [
+      {
+        "path": "/sections/00000000-0000-4000-8000-000000000952/buttonLink",
+        "code": "unresolvable_link",
+        "message": "\"/products?ordering=newest\" has a query string or an anchor, which a link by record cannot keep"
+      },
+      {
+        "path": "/sections/00000000-0000-4000-8000-000000000953/ctaLink",
+        "code": "unresolvable_link",
+        "message": "\"/some/deep/path\" is not a route of the store that a link can name"
+      },
+      {
+        "path": "/sections/00000000-0000-4000-8000-000000000953/secondaryCtaLink",
+        "code": "unresolvable_link",
+        "message": "\"http://example.com\" is neither an https:// URL nor a path of the store"
+      }
+    ]
+  }
+}

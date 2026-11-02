@@ -75,7 +75,12 @@
             "imageUrl": "media/demo/uploads/about.jpg",
             "imagePosition": "left",
             "ctaText": "Our story",
-            "ctaLink": "/about",
+            "ctaLink": {
+              "ref": {
+                "kind": "page",
+                "id": "about"
+              }
+            },
             "decor": "orbs"
           },
           "blocks": {

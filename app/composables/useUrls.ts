@@ -1,10 +1,10 @@
 export const useUrls = () => {
   const blogPostUrl = (id: number, slug: string): string => {
-    return `/blog/post/${id}/${slug}`
+    return blogPostPath(id, slug)
   }
 
   const blogCategoryUrl = (category: BlogCategory): string => {
-    return `/blog/category/${category.id}/${category.slug}`
+    return blogCategoryPath(category.id, category.slug)
   }
 
   const blogCategoryUrlFromParts = (
@@ -34,7 +34,7 @@ export const useUrls = () => {
   }
 
   const productUrl = (id: number, slug: string): string => {
-    return `/products/${id}/${slug}`
+    return productPath(id, slug)
   }
 
   return {

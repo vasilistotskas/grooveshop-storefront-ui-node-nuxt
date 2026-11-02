@@ -44,7 +44,9 @@
               "type": "partner@1",
               "settings": {
                 "name": "Acme",
-                "href": "https://acme.example"
+                "href": {
+                  "href": "https://acme.example"
+                }
               }
             },
             "00000000-0000-4000-8000-000000000035-2": {

@@ -36,7 +36,9 @@
             "heading": "Ready when you are",
             "description": "Two minutes to your first order.",
             "buttonText": "Start",
-            "buttonLink": "/account/signup",
+            "buttonLink": {
+              "route": "/account/signup"
+            },
             "backgroundColor": "#1f2937",
             "surface": "muted"
           }

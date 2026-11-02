@@ -1,5 +1,5 @@
-/** What the store has published: the pages and content pages a menu link may point at. */
-export interface NavigationTargets {
+/** What the store has published: the pages and content pages a menu or a link may point at. */
+export interface PublishedTargets {
   /** Page types of the pages in the current release. */
   pages: ReadonlySet<string>
   /** Slugs of the published content pages. */
@@ -33,19 +33,16 @@ interface ColumnProps {
  * A link as the chrome renders it, or `undefined` when it must be hidden: a
  * link to a page or a content page that is not published is an advertised 404,
  * so it is left out exactly as Django's read-time omission left it out.
- * A content page resolves through the legal routes (`LEGAL_ROUTE_BY_SLUG`)
- * rather than always to `/info/<slug>`, which would 301 to them.
+ * A page and a content page resolve through `pagePath` and `contentPagePath`.
  */
-function visibleLink(link: LinkProps, targets: NavigationTargets): NavLink | undefined {
+function visibleLink(link: LinkProps, targets: PublishedTargets): NavLink | undefined {
   const icon = link.icon ? { icon: link.icon } : {}
   if (link.page !== undefined) {
-    // A page type a static route renders is served at that route (`home` at `/`, not `/home`, which only redirects).
-    const to = isStaticLayoutPageType(link.page) ? STATIC_LAYOUT_ROUTES[link.page].path : `/${link.page}`
-    return targets.pages.has(link.page) ? { label: link.label, to, ...icon } : undefined
+    return targets.pages.has(link.page) ? { label: link.label, to: pagePath(link.page), ...icon } : undefined
   }
   if (link.contentPage !== undefined) {
     return targets.contentPages.has(link.contentPage)
-      ? { label: link.label, to: LEGAL_ROUTE_BY_SLUG.get(link.contentPage) ?? `/info/${link.contentPage}`, ...icon }
+      ? { label: link.label, to: contentPagePath(link.contentPage), ...icon }
       : undefined
   }
   if (link.route !== undefined) return { label: link.label, to: link.route, ...icon }
@@ -62,7 +59,7 @@ function visibleLink(link: LinkProps, targets: NavigationTargets): NavLink | und
  */
 export function navigationItems(
   document: BuilderDocument,
-  targets: NavigationTargets,
+  targets: PublishedTargets,
   registry: ReadonlyMap<string, BlockDefinition> = builderBlocks,
 ): NavigationItems {
   const items: NavigationItems = {}

@@ -1,5 +1,3 @@
-import { createError, useRuntimeConfig } from 'nuxt/server'
-
 /**
  * The store's menus, ready for the chrome: the header, mobile and footer
  * documents of the current release (`parseDocument`) as the links and
@@ -18,23 +16,9 @@ import { createError, useRuntimeConfig } from 'nuxt/server'
  * carries the store, the language and the epoch a release moves.
  */
 export default defineCachedRoute(async (event): Promise<NavigationItems> => {
-  const { apiBaseUrl } = useRuntimeConfig()
   try {
-    const published = await parseDataAs(
-      await useBackendFetch(event)(`${apiBaseUrl}/builder/published`, {
-        method: 'GET',
-        query: { locale: requestLocale(event) },
-      }),
-      ZodBuilderPublishedSummary,
-    )
-    const contentPages = await publishedContentLocalesForHost(requestTenantHost(event), apiBaseUrl)
-    if (!contentPages) {
-      throw createError({ status: 502, statusText: 'The published content pages could not be read' })
-    }
-    const targets: NavigationTargets = {
-      pages: new Set(published.pages.map(({ key }) => key)),
-      contentPages: new Set(contentPages.keys()),
-    }
+    const published = await readPublishedSummary(event)
+    const targets = await publishedTargets(event, published)
     return Object.assign({}, ...Object.values(published.groups).map(group =>
       navigationItems(parseDocument(group, 'group'), targets)))
   }

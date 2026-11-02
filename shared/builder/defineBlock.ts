@@ -7,6 +7,7 @@ import {
   BUILDER_MAX_NODE_DEPTH,
 } from '../constants/builder'
 import type { BlockConfig, BlockDefinition } from '../types/builder'
+import { linkPointers } from './linkPointers'
 
 /**
  * Declares a section or block of the page builder: its settings schema and
@@ -86,6 +87,7 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     ...config,
     translatable: config.translatable ?? [],
     refs: config.refs ?? {},
+    linkRefs: linkPointers(config.schema),
     limits: config.limits ?? {},
     children: config.children ?? { allowed: [] },
     childList: config.childList ?? {},

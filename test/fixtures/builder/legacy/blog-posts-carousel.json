@@ -37,7 +37,9 @@
             "heading": "From the blog",
             "subheading": "Guides and news",
             "ctaText": "Read more",
-            "ctaLink": "/blog",
+            "ctaLink": {
+              "route": "/blog"
+            },
             "categoryId": 3,
             "count": 6
           }

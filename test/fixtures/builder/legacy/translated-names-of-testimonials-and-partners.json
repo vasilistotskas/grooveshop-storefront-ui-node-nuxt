@@ -119,7 +119,9 @@
               "type": "partner@1",
               "settings": {
                 "name": "Γκλόμπεξ",
-                "href": "https://globex.example"
+                "href": {
+                  "href": "https://globex.example"
+                }
               }
             }
           },

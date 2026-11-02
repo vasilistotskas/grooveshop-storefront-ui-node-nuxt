@@ -1,5 +1,6 @@
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
+import { builderField } from '~~/shared/builder/fields'
 
 /**
  * Two blocks the builder's specs run on: a section at version 2 (it was
@@ -12,7 +13,7 @@ export const promoItem = defineBlock({
   kinds: ['block'],
   schema: z.object({
     label: z.string().max(40),
-    href: z.string().regex(/^(\/|https:\/\/)/).optional(),
+    href: builderField.link().optional(),
   }),
   translatable: ['/label'],
   limits: { maxBlocks: 4 },

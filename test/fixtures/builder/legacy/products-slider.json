@@ -40,7 +40,9 @@
             "heading": "Popular now",
             "subheading": "What shoppers pick",
             "ctaText": "See all",
-            "ctaLink": "/products",
+            "ctaLink": {
+              "route": "/products"
+            },
             "ordering": "popular",
             "categoryId": 4,
             "showAddToCart": true,

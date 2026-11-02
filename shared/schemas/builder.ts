@@ -99,3 +99,16 @@ export const ZodBuilderPublishedSummary = z.object({
     updatedAt: z.iso.datetime({ offset: true }),
   })),
 })
+
+/**
+ * `GET builder/link-targets`: the current slug of each record a link names, by
+ * kind and id. A slug does not vary by language. A record that is missing,
+ * inactive or deleted is absent: the same rule `BuilderReference` checks on
+ * publish, so a link to it is left out of the page instead of broken.
+ */
+export const ZodBuilderLinkTargets = z.object({
+  product: z.record(z.string(), z.string()).optional(),
+  category: z.record(z.string(), z.string()).optional(),
+  blogPost: z.record(z.string(), z.string()).optional(),
+  blogCategory: z.record(z.string(), z.string()).optional(),
+})
