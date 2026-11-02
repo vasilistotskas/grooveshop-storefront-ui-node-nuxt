@@ -7,7 +7,7 @@ const { selection } = useBuilderSelection()
 const context = computed(() => {
   const key = selection.value?.documentKey
   if (!key) return ''
-  const group = BUILDER_EDITOR_GROUPS.find(name => key === `group:${name}`)
+  const group = BUILDER_EDITOR_GROUPS.find(name => key === builderDocumentKey('group', name))
   return group ? groupLabel(group) : t('page')
 })
 </script>

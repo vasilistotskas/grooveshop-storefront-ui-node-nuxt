@@ -2,16 +2,14 @@
 import type { SelectMenuItem } from '@nuxt/ui'
 
 const { t } = useStoreI18n('components/Builder/DocumentSwitcher')
-const { templateLabel } = useBuilderLabels()
+const { documentLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const { documentKey, openDocument } = useBuilderEditorView()
 
 /** What the switcher shows for a document: a page type by its name, a page the store made by its address. */
 function documentItem(key: string): SelectMenuItem & { value: string } {
-  const name = key.slice(key.indexOf(':') + 1)
-  return key.startsWith('template:') && isStaticLayoutPageType(name)
-    ? { value: key, label: templateLabel(name), icon: 'i-lucide-layout-template' }
-    : { value: key, label: pagePath(name), icon: 'i-lucide-file-text' }
+  const template = parseBuilderDocumentKey(key).kind === 'template'
+  return { value: key, label: documentLabel(key), icon: template ? 'i-lucide-layout-template' : 'i-lucide-file-text' }
 }
 
 const items = computed<SelectMenuItem[][]>(() => {

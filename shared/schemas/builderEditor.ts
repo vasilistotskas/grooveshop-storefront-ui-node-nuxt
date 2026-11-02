@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import type { BuilderNode } from '../types/builder'
 import { BUILDER_DOCUMENT_NODE_ID, BUILDER_NODE_ID_PATTERN } from '../constants/builder'
-import { BUILDER_DOCUMENT_KEY_PATTERN } from '../constants/builderEditor'
+import { BUILDER_DOCUMENT_KEY_PATTERN, BUILDER_PREVIEW_MAX_DOCUMENTS } from '../constants/builderEditor'
+import { builderPageKind } from '../utils/builderEditor'
 
 /** `/api/builder/documents/<key>`: a document key as Django names them. */
 export const ZodBuilderDocumentParams = z.object({
@@ -57,6 +58,21 @@ export const ZodBuilderOverlay = z.record(
 export const ZodBuilderDraftWrite = z.object({
   draft: ZodBuilderDraft,
   i18n: ZodBuilderOverlay,
+})
+
+/**
+ * `POST /api/builder/preview`: the working copies the editor's preview
+ * draws, by document key: the one page or template shown, and the section
+ * groups around it.
+ */
+export const ZodBuilderPreviewRequest = z.object({
+  documents: z.record(z.string().regex(BUILDER_DOCUMENT_KEY_PATTERN), ZodBuilderDraftWrite)
+    .refine(documents => Object.keys(documents).length <= BUILDER_PREVIEW_MAX_DOCUMENTS, {
+      message: `At most ${BUILDER_PREVIEW_MAX_DOCUMENTS} documents`,
+    })
+    .refine(documents => Object.keys(documents).filter(key => builderPageKind(key)).length === 1, {
+      message: 'Exactly one page or template',
+    }),
 })
 
 /** `If-Match` of a draft save: the revision the change is made against, `0` for a document that does not exist yet. */

@@ -46,7 +46,7 @@ function answer(request: BackendRequest) {
   if (request.path.endsWith('/builder/published')) {
     return store.layouts === 'down'
       ? down
-      : { release: 1, groups: {}, pages: store.layouts.map(key => ({ key, kind: 'template', updatedAt: '2026-10-01T08:00:00Z' })) }
+      : { release: 1, locale: 'el', theme: null, groups: {}, pages: store.layouts.map(key => ({ key, kind: 'template', updatedAt: '2026-10-01T08:00:00Z' })) }
   }
   if (request.path.endsWith('/tenant/resolve')) return resolvedTenant ?? jsonResponse({ detail: 'Not found.' }, 404)
   throw new Error(`unexpected backend request: ${request.path}`)

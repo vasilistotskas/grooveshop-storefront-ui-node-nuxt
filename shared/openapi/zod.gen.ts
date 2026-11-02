@@ -702,6 +702,12 @@ export const zBuilderDocumentKindEnum = z.enum([
 ])
 
 /**
+ * * `page` - Σελίδα
+ * * `template` - Πρότυπο
+ */
+export const zBuilderPageKindEnum = z.enum(['page', 'template'])
+
+/**
  * * `checkpoint` - Ονομασμένη αποθήκευση
  * * `publish` - Δημοσίευση
  */
@@ -1330,6 +1336,67 @@ export const zInvoiceDownloadResponse = z.object({
   total: z.string().readonly().nullable(),
   currency: z.string().readonly(),
   vatBreakdown: z.unknown(),
+})
+
+/**
+ * * `product` - Προϊόν
+ * * `category` - Κατηγορία
+ * * `blogPost` - Άρθρο ιστολογίου
+ * * `blogCategory` - Κατηγορία ιστολογίου
+ * * `page` - Σελίδα
+ * * `contentPage` - Σελίδα περιεχομένου
+ */
+export const zLinkKindEnum = z.enum([
+  'product',
+  'category',
+  'blogPost',
+  'blogCategory',
+  'page',
+  'contentPage',
+])
+
+export const zLinkLabel = z.object({
+  label: z.string().nullable(),
+  active: z.boolean(),
+  source: zBuilderPageKindEnum.optional(),
+})
+
+/**
+ * ``{kind: {id: {label, active}}}`` for the kinds asked about.
+ */
+export const zLinkLabelsResponse = z.object({
+  product: z.record(z.string(), zLinkLabel).optional(),
+  category: z.record(z.string(), zLinkLabel).optional(),
+  blogPost: z.record(z.string(), zLinkLabel).optional(),
+  blogCategory: z.record(z.string(), zLinkLabel).optional(),
+  page: z.record(z.string(), zLinkLabel).optional(),
+  contentPage: z.record(z.string(), zLinkLabel).optional(),
+})
+
+export const zLinkSearchResult = z.object({
+  kind: zLinkKindEnum,
+  id: z.union([
+    z.int(),
+    z.string(),
+  ]),
+  label: z.string().nullable(),
+  slug: z.string(),
+  active: z.boolean(),
+  source: zBuilderPageKindEnum.optional(),
+})
+
+export const zLinkSearchResponse = z.object({
+  results: z.array(zLinkSearchResult),
+})
+
+/**
+ * ``{kind: {id: slug}}`` for the kinds asked about.
+ */
+export const zLinkTargetsResponse = z.object({
+  product: z.record(z.string(), z.string()).optional(),
+  category: z.record(z.string(), z.string()).optional(),
+  blogPost: z.record(z.string(), z.string()).optional(),
+  blogCategory: z.record(z.string(), z.string()).optional(),
 })
 
 /**
@@ -2547,6 +2614,17 @@ export const zPaginatedCountryList = z.object({
   results: z.array(zCountry),
 })
 
+export const zPreviewCopyRequest = z.object({
+  draft: z.unknown(),
+  i18n: z.unknown().optional(),
+})
+
+export const zPreviewResolveRequest = z.object({
+  pageKey: z.string().min(1).max(64).regex(/^[-a-zA-Z0-9_]+$/),
+  locale: z.string().optional(),
+  documents: z.record(z.string(), zPreviewCopyRequest).optional(),
+})
+
 /**
  * * `LOW` - Χαμηλή προτεραιότητα
  * * `NORMAL` - Κανονική προτεραιότητα
@@ -3607,9 +3685,19 @@ export const zPublicSettings = z.object({
   settings: z.record(z.string(), z.string()),
 })
 
+export const zPublishVersionWriteRequest = z.object({
+  note: z.string().max(255).optional().default(''),
+})
+
 export const zPublishWriteRequest = z.object({
   documents: z.array(z.string().min(1).max(80)),
   note: z.string().max(255).optional().default(''),
+})
+
+export const zPublishedPageEntry = z.object({
+  key: z.string(),
+  kind: zBuilderPageKindEnum,
+  updatedAt: z.iso.datetime({ offset: true }),
 })
 
 /**
@@ -3913,6 +4001,41 @@ export const zResolvedAsset = z.object({
   alt: z.string().readonly(),
 })
 
+/**
+ * A document of the current release as the public read answers it.
+ * The envelope is ours; the section trees in ``sections`` are shaped by
+ * the storefront's block catalogue, so they stay open.
+ */
+export const zResolvedDocument = z.object({
+  key: z.string(),
+  version: z.int(),
+  sections: z.record(z.string(), z.unknown()),
+  order: z.array(z.string()),
+  settings: z.record(z.string(), z.unknown()).optional(),
+})
+
+/**
+ * ``GET published``: the chrome and the list of pages.
+ */
+export const zPublishedIndex = z.object({
+  release: z.int(),
+  locale: z.string(),
+  theme: zResolvedDocument.nullable(),
+  groups: z.record(z.string(), zResolvedDocument),
+  pages: z.array(zPublishedPageEntry),
+})
+
+/**
+ * ``GET published/<pageKey>`` and ``POST preview/resolve``.
+ */
+export const zPublishedPage = z.object({
+  release: z.int(),
+  locale: z.string(),
+  theme: zResolvedDocument.nullable(),
+  groups: z.record(z.string(), zResolvedDocument),
+  page: zResolvedDocument,
+})
+
 export const zResolvedMedia = z.object({
   results: z.array(zResolvedAsset),
 })
@@ -4006,22 +4129,6 @@ export const zSearchVolume = z.object({
   total: z.int(),
   byContentType: z.record(z.string(), z.int()),
   byLanguage: z.record(z.string(), z.int()),
-})
-
-export const zSessionRequestRequest = z.object({
-  ticket: z.string().min(1).max(128),
-})
-
-export const zSessionStaff = z.object({
-  id: z.int(),
-  name: z.string(),
-  role: z.string(),
-})
-
-export const zSessionResponse = z.object({
-  token: z.string(),
-  expiresAt: z.iso.datetime({ offset: true }),
-  staff: zSessionStaff,
 })
 
 export const zSetting = z.object({
@@ -4649,6 +4756,22 @@ export const zPaginatedScheduleList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zSchedule),
+})
+
+export const zStaffSessionStaff = z.object({
+  id: z.int(),
+  name: z.string(),
+  role: z.string(),
+})
+
+export const zStaffSessionResponse = z.object({
+  token: z.string(),
+  expiresAt: z.iso.datetime({ offset: true }),
+  staff: zStaffSessionStaff,
+})
+
+export const zStaffSessionTicketRequest = z.object({
+  ticket: z.string().min(1).max(128),
 })
 
 /**
@@ -10656,6 +10779,12 @@ export const zUpdateBlogTagQuery = z.object({
 export const zUpdateBlogTagResponse = zBlogTagDetail
 
 export const zApiV1BuilderDocumentsListQuery = z.object({
+  kind: z.enum([
+    'group',
+    'page',
+    'template',
+    'theme',
+  ]).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10746,6 +10875,18 @@ export const zApiV1BuilderDocumentsVersionsRetrievePath = z.object({
 
 export const zApiV1BuilderDocumentsVersionsRetrieveResponse = zVersionDetail
 
+export const zApiV1BuilderDocumentsVersionsPublishCreateBody = zPublishVersionWriteRequest
+
+export const zApiV1BuilderDocumentsVersionsPublishCreatePath = z.object({
+  key: z.string(),
+  number: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderDocumentsVersionsPublishCreateResponse = zRelease
+
 export const zApiV1BuilderDocumentsVersionsRestoreCreateHeaders = z.object({
   'If-Match': z.string(),
 })
@@ -10760,6 +10901,26 @@ export const zApiV1BuilderDocumentsVersionsRestoreCreatePath = z.object({
 
 export const zApiV1BuilderDocumentsVersionsRestoreCreateResponse = zDocumentDetail
 
+export const zApiV1BuilderLinkLabelsRetrieveQuery = z.object({
+  blogCategory: z.string().optional(),
+  blogPost: z.string().optional(),
+  category: z.string().optional(),
+  contentPage: z.string().optional(),
+  locale: z.string().optional(),
+  page: z.string().optional(),
+  product: z.string().optional(),
+})
+
+export const zApiV1BuilderLinkLabelsRetrieveResponse = zLinkLabelsResponse
+
+export const zApiV1BuilderLinkSearchRetrieveQuery = z.object({
+  kinds: z.string().optional(),
+  locale: z.string().optional(),
+  q: z.string().optional(),
+})
+
+export const zApiV1BuilderLinkSearchRetrieveResponse = zLinkSearchResponse
+
 export const zApiV1BuilderLinkTargetsRetrieveQuery = z.object({
   blogCategory: z.string().optional(),
   blogPost: z.string().optional(),
@@ -10767,7 +10928,7 @@ export const zApiV1BuilderLinkTargetsRetrieveQuery = z.object({
   product: z.string().optional(),
 })
 
-export const zApiV1BuilderLinkTargetsRetrieveResponse = z.record(z.string(), z.unknown())
+export const zApiV1BuilderLinkTargetsRetrieveResponse = zLinkTargetsResponse
 
 export const zApiV1BuilderMediaListQuery = z.object({
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|sizeBytes|\-sizeBytes)(?:,(?:createdAt|\-createdAt|sizeBytes|\-sizeBytes))*$/).optional(),
@@ -10827,6 +10988,10 @@ export const zApiV1BuilderMediaResolveRetrieveQuery = z.object({
 
 export const zApiV1BuilderMediaResolveRetrieveResponse = zResolvedMedia
 
+export const zApiV1BuilderPreviewResolveCreateBody = zPreviewResolveRequest
+
+export const zApiV1BuilderPreviewResolveCreateResponse = zPublishedPage
+
 export const zApiV1BuilderPublishCreateBody = zPublishWriteRequest
 
 export const zApiV1BuilderPublishCreateResponse = zRelease
@@ -10835,7 +11000,7 @@ export const zBuilderPublishedIndexQuery = z.object({
   locale: z.string().optional(),
 })
 
-export const zBuilderPublishedIndexResponse = z.record(z.string(), z.unknown())
+export const zBuilderPublishedIndexResponse = zPublishedIndex
 
 export const zApiV1BuilderPublishedRetrievePath = z.object({
   pageKey: z.string(),
@@ -10845,7 +11010,7 @@ export const zApiV1BuilderPublishedRetrieveQuery = z.object({
   locale: z.string().optional(),
 })
 
-export const zApiV1BuilderPublishedRetrieveResponse = z.record(z.string(), z.unknown())
+export const zApiV1BuilderPublishedRetrieveResponse = zPublishedPage
 
 export const zApiV1BuilderReleasesListQuery = z.object({
   page: z.union([
@@ -10926,9 +11091,9 @@ export const zApiV1BuilderSchedulesAcknowledgeCreateResponse = zSchedule
  */
 export const zApiV1BuilderStaffSessionDestroyResponse = z.void()
 
-export const zApiV1BuilderStaffSessionCreateBody = zSessionRequestRequest
+export const zApiV1BuilderStaffSessionCreateBody = zStaffSessionTicketRequest
 
-export const zApiV1BuilderStaffSessionCreateResponse = zSessionResponse
+export const zApiV1BuilderStaffSessionCreateResponse = zStaffSessionResponse
 
 export const zDestroyCartHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),

@@ -13,6 +13,8 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
+const { surface } = vi.hoisted(() => ({ surface: vi.fn<() => BuilderSurface | null>(() => null) }))
+mockNuxtImport('useBuilderSurface', () => surface)
 
 const run = () => (attributionPlugin as unknown as () => void)()
 const stored = () => window.sessionStorage.getItem('order-attribution')
@@ -38,6 +40,15 @@ describe('attribution plugin', () => {
 
   it('stores nothing on a store with the cart off', () => {
     storeWithCart(false)
+
+    run()
+
+    expect(stored()).toBeNull()
+  })
+
+  it.each(['editor', 'canvas'] as const)('records no landing on the page builder\x27s %s, which is no shopper\x27s visit', (builderSurface) => {
+    storeWithCart(true)
+    surface.mockReturnValueOnce(builderSurface)
 
     run()
 

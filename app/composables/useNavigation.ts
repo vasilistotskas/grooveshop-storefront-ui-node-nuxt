@@ -50,10 +50,16 @@ export function useNavigation() {
     },
   )
 
+  // On the editor's preview the menus are the ones being edited
+  // (`useBuilderCanvasPreview`), once the preview has drawn them.
+  const preview = useBuilderCanvasPreview()
+  const items = computed(() => preview.value?.navigation ?? data.value)
+  const failed = computed(() => !preview.value && Boolean(error.value))
+
   const flatSlot = (slot: 'header' | 'mobile') =>
     computed<NavLink[] | null>(() => {
-      if (error.value) return []
-      const kept = (data.value?.[slot] ?? []).filter(serving)
+      if (failed.value) return []
+      const kept = (items.value?.[slot] ?? []).filter(serving)
       return kept.length > 0 ? kept : null
     })
 
@@ -68,10 +74,10 @@ export function useNavigation() {
   )
 
   const footerColumns = computed<NavColumn[] | null>(() => {
-    if (error.value) return []
+    if (failed.value) return []
     // A column emptied by the gate goes with its links: a bare heading
     // is noise, and the storefront's own contract requires children.
-    const kept = (data.value?.footer ?? [])
+    const kept = (items.value?.footer ?? [])
       .map(column => ({
         ...column,
         children: column.children.filter(serving),

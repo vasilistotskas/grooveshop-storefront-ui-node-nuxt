@@ -1,15 +1,14 @@
 import { createError, useRuntimeConfig } from 'nuxt/server'
 import type { RequestEvent } from 'nuxt/server'
-import type * as z from 'zod'
 
 /** The current release in outline: its section groups and the pages it holds (`GET builder/published`). */
-export async function readPublishedSummary(event: RequestEvent): Promise<z.output<typeof ZodBuilderPublishedSummary>> {
+export async function readPublishedSummary(event: RequestEvent): Promise<PublishedIndex> {
   return parseDataAs(
     await useBackendFetch(event)(`${useRuntimeConfig().apiBaseUrl}/builder/published`, {
       method: 'GET',
       query: { locale: requestLocale(event) },
     }),
-    ZodBuilderPublishedSummary,
+    zBuilderPublishedIndexResponse,
   )
 }
 
@@ -21,7 +20,7 @@ export async function readPublishedSummary(event: RequestEvent): Promise<z.outpu
  */
 export async function publishedTargets(
   event: RequestEvent,
-  summary: z.output<typeof ZodBuilderPublishedSummary>,
+  summary: PublishedIndex,
 ): Promise<PublishedTargets> {
   const contentPages = await publishedContentLocalesForHost(requestTenantHost(event), useRuntimeConfig().apiBaseUrl)
   if (!contentPages) {

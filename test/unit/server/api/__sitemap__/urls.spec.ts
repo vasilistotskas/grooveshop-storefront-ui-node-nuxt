@@ -56,7 +56,7 @@ function serve(catalogue: Catalogue = {}) {
       case '/builder/published':
         return layouts === 'down'
           ? jsonResponse({ detail: 'upstream down' }, 500)
-          : { release: 1, groups: {}, pages: layouts.map(key => ({ key, kind: 'page', updatedAt: UPDATED })) }
+          : { release: 1, locale: 'el', theme: null, groups: {}, pages: layouts.map(key => ({ key, kind: 'page', updatedAt: UPDATED })) }
       default: return jsonResponse({ detail: 'Not found.' }, 404)
     }
   })

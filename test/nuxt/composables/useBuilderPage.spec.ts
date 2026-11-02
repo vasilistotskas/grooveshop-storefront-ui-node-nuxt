@@ -1,13 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { injectHead } from '#imports'
 
-const { mockUseFetchFn } = vi.hoisted(() => ({
+const { mockUseFetchFn, surface } = vi.hoisted(() => ({
   mockUseFetchFn: vi.fn(),
+  surface: vi.fn<() => BuilderSurface | null>(() => null),
 }))
 
 mockNuxtImport('useApi', () => mockUseFetchFn)
+mockNuxtImport('useBuilderSurface', () => surface)
 
 /**
  * Call the composable from inside a component's `setup()`.
@@ -41,6 +43,68 @@ const answer = (page: BuilderPage | null) => ({
 describe('useBuilderPage', () => {
   beforeEach(() => {
     mockUseFetchFn.mockReset()
+  })
+
+  describe('on the editor\'s preview', () => {
+    const section = (id: string): BuilderSection => ({ id, componentType: 'spacer', props: {} })
+    const published = answer({ sections: [section('published')] })
+
+    beforeEach(() => {
+      surface.mockReturnValue('canvas')
+    })
+    afterEach(() => {
+      surface.mockReturnValue(null)
+      useBuilderCanvasPreview().value = null
+    })
+
+    it('draws the page the preview holds, the store\'s own page before the template of the same key', async () => {
+      mockUseFetchFn.mockReturnValue(published)
+      useBuilderCanvasPreview().value = {
+        pages: { 'template:about': { sections: [section('template')] }, 'page:about': { sections: [section('page')] } },
+        navigation: {},
+      }
+
+      const { sections } = await callUseBuilderPage('about')
+
+      expect(sections.value.map(({ id }) => id)).toEqual(['page'])
+    })
+
+    it('draws the published page of a key the preview does not hold', async () => {
+      mockUseFetchFn.mockReturnValue(published)
+      useBuilderCanvasPreview().value = { pages: { 'template:home': { sections: [section('home')] } }, navigation: {} }
+
+      const { sections } = await callUseBuilderPage('about')
+
+      expect(sections.value.map(({ id }) => id)).toEqual(['published'])
+    })
+
+    it('draws a page the store has not published as an empty page, never as none, so it is not a 404', async () => {
+      mockUseFetchFn.mockReturnValue(answer(null))
+
+      const { page, sections } = await callUseBuilderPage('summer-sale')
+
+      expect(page.value).toEqual({ sections: [] })
+      expect(sections.value).toEqual([])
+    })
+
+    it('follows the preview as it changes', async () => {
+      mockUseFetchFn.mockReturnValue(published)
+      const { sections } = await callUseBuilderPage('home')
+
+      useBuilderCanvasPreview().value = { pages: { 'template:home': { sections: [section('drawn')] } }, navigation: {} }
+
+      expect(sections.value.map(({ id }) => id)).toEqual(['drawn'])
+    })
+  })
+
+  it('answers no page for an unpublished key outside the preview', async () => {
+    mockUseFetchFn.mockReturnValue(answer(null))
+    useBuilderCanvasPreview().value = { pages: { 'template:home': { sections: [] } }, navigation: {} }
+
+    const { page } = await callUseBuilderPage('home')
+
+    expect(page.value).toBeNull()
+    useBuilderCanvasPreview().value = null
   })
 
   it('gives the sections of the published page as the route answered them, in that order', async () => {

@@ -24,6 +24,9 @@
  * gone by the time web-vitals reads it.
  */
 export default defineNuxtPlugin(() => {
+  // A staff member's work in the page builder is not a shopper's
+  // interaction to measure (`useBuilderSurface`).
+  if (useBuilderSurface()) return
   const router = useRouter()
   const spans: RouteSpan[] = [{ since: 0, name: String(router.currentRoute.value.name ?? '') }]
   router.afterEach((to) => {

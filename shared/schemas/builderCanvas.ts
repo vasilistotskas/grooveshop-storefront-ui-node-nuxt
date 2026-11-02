@@ -1,0 +1,34 @@
+import { z } from 'zod'
+import { BUILDER_CANVAS_CHANNEL } from '../constants/builderEditor'
+import { ZodBuilderPreviewRequest } from './builderEditor'
+
+/**
+ * The messages between the editor and its preview (the canvas), one window
+ * framing the other on the same origin. Each side takes a message only from
+ * the window it expects (the frame's own, or its parent), from its own
+ * origin, on this channel, and only if it parses: a message that does not is
+ * ignored, never acted on in part.
+ */
+
+const message = <Shape extends z.ZodRawShape>(shape: Shape) => z.object({ channel: z.literal(BUILDER_CANVAS_CHANNEL), ...shape })
+
+/** What the editor tells the canvas: the working copies to draw, by document key. */
+export const ZodBuilderCanvasCommand = z.discriminatedUnion('type', [
+  message({ type: z.literal('documents'), documents: ZodBuilderPreviewRequest.shape.documents }),
+])
+
+/** What the canvas tells the editor. */
+export const ZodBuilderCanvasEvent = z.discriminatedUnion('type', [
+  /** It listens: the editor sends the copies to draw. */
+  message({ type: z.literal('ready') }),
+  /** It drew the copies it was last sent. */
+  message({ type: z.literal('drawn') }),
+  /** It could not draw them: it shows the last ones it could. */
+  message({ type: z.literal('failed') }),
+  /** A link was followed: the canvas stays where it is, and asks the editor to open where it leads. */
+  message({ type: z.literal('navigate'), path: z.string().startsWith('/').max(2048) }),
+])
+
+export type BuilderCanvasCommand = z.infer<typeof ZodBuilderCanvasCommand>
+export type BuilderCanvasEvent = z.infer<typeof ZodBuilderCanvasEvent>
+export type BuilderCanvasDocuments = z.infer<typeof ZodBuilderPreviewRequest>['documents']

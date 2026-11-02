@@ -4,7 +4,7 @@ import { getRouterParam, useRuntimeConfig } from 'nuxt/server'
 /**
  * A published page of the store, ready to render: the page document of the
  * current release, resolved for the page's language by Django (the overlay
- * merged, disabled nodes dropped) and then made safe here (`parseDocument`:
+ * merged, disabled nodes dropped) and then made safe here (`builderPageOf`:
  * every node brought to its block's current version, validated, rebuilt from
  * the parse, an unusable one left out with a warning). Each section is
  * answered as its block type and the props its component gets
@@ -37,18 +37,8 @@ export default defineCachedRoute(async (event): Promise<BuilderPageResponse> => 
       `${config.apiBaseUrl}/builder/published/${pageKey}`,
       { method: 'GET', query: { locale: requestLocale(event) } },
     )
-    const published = await parseDataAs(response, ZodBuilderPublished)
-    const parsed = parseDocument(published.page, 'page', builderBlocks, { onSkip: logSkippedNode })
-    const document = resolveLinks(parsed, await readLinkTargets(event, collectLinkRefs(parsed, builderBlocks)), builderBlocks)
-    return {
-      page: {
-        ...(document.settings && { settings: document.settings }),
-        sections: document.order.map((id) => {
-          const node = document.sections[id]!
-          return { id, componentType: parseVersionedType(node.type)!.type, props: sectionProps(node, builderBlocks) }
-        }),
-      },
-    }
+    const published = await parseDataAs(response, zApiV1BuilderPublishedRetrieveResponse)
+    return { page: await builderPageOf(event, published.page) }
   }
   catch (error) {
     if (error instanceof FetchError && error.statusCode === 404 && isNotPublished(error.data)) {

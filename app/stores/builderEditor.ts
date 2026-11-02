@@ -64,7 +64,7 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
 
   /** The section groups the store has, in the order the storefront draws them. */
   const groups = computed(() => BUILDER_EDITOR_GROUPS.flatMap((group) => {
-    const key = `group:${group}`
+    const key = builderDocumentKey('group', group)
     return documents.value.some(document => document.key === key) ? [{ group, key }] : []
   }))
 

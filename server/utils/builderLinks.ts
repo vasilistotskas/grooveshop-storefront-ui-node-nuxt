@@ -42,7 +42,7 @@ async function readLinkSlugs(
     }))
     return parseDataAs(
       await useBackendFetch(event)(`${useRuntimeConfig().apiBaseUrl}/builder/link-targets`, { method: 'GET', query }),
-      ZodBuilderLinkTargets,
+      zApiV1BuilderLinkTargetsRetrieveResponse,
     )
   }))
   const slugsOf = (kind: LinkSlugKind): ReadonlyMap<number, string> =>

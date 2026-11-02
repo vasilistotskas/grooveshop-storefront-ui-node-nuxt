@@ -34,13 +34,13 @@
 export async function publishedPagesForHost(
   host: string,
   apiBaseUrl: string,
-): Promise<readonly PublishedPage[] | null> {
+): Promise<readonly PublishedPageEntry[] | null> {
   try {
     const { pages } = await parseDataAs(
       backendFetchFor({ tenantHost: host })(`${apiBaseUrl}/builder/published`, {
         method: 'GET',
       }),
-      ZodBuilderPublishedSummary,
+      zBuilderPublishedIndexResponse,
     )
     return pages
   }

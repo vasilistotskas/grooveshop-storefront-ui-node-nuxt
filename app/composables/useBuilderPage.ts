@@ -46,7 +46,15 @@ export async function useBuilderPage(
     { key: () => `builder-page-${pageKey}-${locale.value}` },
   )
 
-  const page = computed(() => data.value?.page ?? null)
+  // On the editor's preview the page is the one being edited, once the
+  // preview has drawn it (`useBuilderCanvasPreview`). Until then it is the
+  // published page, or an empty one: a page the store has not published
+  // yet is still drawn there, never answered as a 404.
+  const preview = useBuilderCanvasPreview()
+  const canvas = useBuilderSurface() === 'canvas'
+  const page = computed<BuilderPage | null>(() => canvas
+    ? builderCanvasPage(preview.value, pageKey) ?? data.value?.page ?? { sections: [] }
+    : data.value?.page ?? null)
   const sections = computed(() => page.value?.sections ?? [])
 
   // The operator's own <title> and meta description. Django resolves them for

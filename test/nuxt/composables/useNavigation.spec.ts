@@ -213,3 +213,49 @@ describe('useNavigation — a menu read that fails', () => {
     expect(wrapper.find('#header').attributes('data-configured')).toBe('true')
   })
 })
+
+describe('useNavigation — on the editor\'s preview', () => {
+  beforeEach(() => {
+    setTenant()
+    withMobileSlot = true
+    failing = false
+  })
+
+  afterEach(() => {
+    mounted?.unmount()
+    mounted = null
+    failing = false
+    useBuilderCanvasPreview().value = null
+  })
+
+  it('draws the menus being edited in place of the published ones, gated the same way', async () => {
+    setTenantFeatures({ promotions: false })
+    const { wrapper, texts } = await render()
+
+    useBuilderCanvasPreview().value = {
+      pages: {},
+      navigation: {
+        header: [{ label: 'Πρόχειρο', to: '/contact' }, { label: 'Προσφορές', to: '/offers' }],
+        footer: [{ label: 'Νέα στήλη', children: [{ label: 'Προϊόντα', to: '/products' }] }],
+      },
+    }
+    await wrapper.vm.$nextTick()
+
+    expect(texts('#header')).toEqual(['/contact'])
+    // The preview has no Mobile menu: the phone follows its Header menu.
+    expect(texts('#phone')).toEqual(['/contact'])
+    expect(wrapper.find('#footer').text()).toContain('Νέα στήλη')
+  })
+
+  it('draws the preview\'s menus even when the published ones could not be read', async () => {
+    failing = true
+    mounted?.unmount()
+    clearNuxtData([NAVIGATION_KEY])
+    useBuilderCanvasPreview().value = { pages: {}, navigation: { header: [{ label: 'Πρόχειρο', to: '/contact' }] } }
+    const wrapper = await mountSuspended(Probe, { route: false })
+    mounted = wrapper
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findAll('#header > li').map(li => li.text())).toEqual(['/contact'])
+  })
+})
