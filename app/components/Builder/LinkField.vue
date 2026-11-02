@@ -7,7 +7,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  /** The new link (`{ href }`, `{ route }`), or `undefined` for none. */
+  /** The new link (`{ href }`, `{ route }`, `{ ref }`), or `undefined` for none. */
   update: [value: BuilderLink | undefined]
 }>()
 
@@ -27,28 +27,30 @@ const storedMode = computed<Mode>(() => {
   return 'ref' in link ? 'ref' : 'none'
 })
 
-/** A record a link names keeps its place: it is chosen with the record picker, which comes next. */
+/** The record a link names, chosen with the record picker. */
 const recordLink = computed(() => {
-  const link = props.value
-  return isRecord(link) && isRecord(link.ref) ? link.ref as { kind: string, id: string | number } : undefined
+  const ref = isRecord(props.value) && isRecord(props.value.ref) ? props.value.ref : undefined
+  const kind = LINK_REF_KINDS.find(known => known === ref?.kind)
+  return kind && (typeof ref?.id === 'number' || typeof ref?.id === 'string') ? builderLinkRefOf(kind, ref.id) : undefined
 })
 
 const modeItems = computed(() => [
   { label: t('mode.none'), value: 'none' },
   { label: t('mode.route'), value: 'route' },
   { label: t('mode.href'), value: 'href' },
-  ...(recordLink.value ? [{ label: t('mode.ref'), value: 'ref' }] : []),
+  { label: t('mode.ref'), value: 'ref' },
 ])
 
 const routeItems = computed(() => LINK_ROUTES.map(route => ({ label: routeLabel(route), value: route })))
 
 /**
  * The kind of link being written. An external address is chosen before one
- * is typed, and an empty one is no link: only a whole address is saved.
+ * is typed, and a record before one is picked: until then it is no link, so
+ * only a whole address or a record is saved.
  */
 const mode = ref<Mode>(storedMode.value)
 watch(storedMode, (next) => {
-  if (next !== 'none' || mode.value !== 'href') mode.value = next
+  if (next !== 'none' || (mode.value !== 'href' && mode.value !== 'ref')) mode.value = next
 })
 
 const route = computed(() => LINK_ROUTES.find(known => isRecord(props.value) && props.value.route === known))
@@ -60,8 +62,8 @@ function setMode(next: unknown): void {
     mode.value = 'route'
     emit('update', { route: LINK_ROUTES[0] })
   }
-  else if (next === 'href') {
-    mode.value = 'href'
+  else if (next === 'href' || next === 'ref') {
+    mode.value = next
     emit('update', undefined)
   }
   else if (next === 'none') {
@@ -73,6 +75,10 @@ function setMode(next: unknown): void {
 function setHref(next: string): void {
   const value = next.trim()
   emit('update', value ? { href: value } : undefined)
+}
+
+function setRecord(next: BuilderLinkRef | undefined): void {
+  emit('update', next ? { ref: next } : undefined)
 }
 
 function setRoute(next: unknown): void {
@@ -110,12 +116,15 @@ function setRoute(next: unknown): void {
       class="w-full"
       @update:model-value="setHref"
     />
-    <p
-      v-else-if="mode === 'ref' && recordLink"
-      class="text-sm text-toned"
-    >
-      {{ t(`record.${recordLink.kind}`, { id: recordLink.id }) }}
-    </p>
+    <BuilderRecordPicker
+      v-else-if="mode === 'ref'"
+      :kinds="LINK_REF_KINDS"
+      :value="recordLink"
+      :label="t('refLabel', { name: label })"
+      :clearable="false"
+      :disabled="disabled"
+      @update="setRecord"
+    />
   </div>
 </template>
 
@@ -124,32 +133,20 @@ el:
   modeLabel: "Πού οδηγεί: {name}"
   routeLabel: "Σελίδα του καταστήματος: {name}"
   hrefLabel: "Εξωτερική διεύθυνση: {name}"
+  refLabel: "Εγγραφή: {name}"
   mode:
     none: Χωρίς σύνδεσμο
     route: Σελίδα του καταστήματος
     href: Εξωτερική διεύθυνση
-    ref: Συγκεκριμένη εγγραφή
-  record:
-    product: "Προϊόν #{id}"
-    category: "Κατηγορία #{id}"
-    blogPost: "Άρθρο #{id}"
-    blogCategory: "Κατηγορία ιστολογίου #{id}"
-    page: "Σελίδα «{id}»"
-    contentPage: "Σελίδα περιεχομένου «{id}»"
+    ref: Προϊόν, κατηγορία, άρθρο ή σελίδα
 en:
   modeLabel: "Where it leads: {name}"
   routeLabel: "Store page: {name}"
   hrefLabel: "External address: {name}"
+  refLabel: "Record: {name}"
   mode:
     none: No link
     route: A store page
     href: An external address
-    ref: A particular record
-  record:
-    product: "Product #{id}"
-    category: "Category #{id}"
-    blogPost: "Blog post #{id}"
-    blogCategory: "Blog category #{id}"
-    page: "Page “{id}”"
-    contentPage: "Content page “{id}”"
+    ref: A product, category, post or page
 </i18n>

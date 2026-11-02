@@ -22,6 +22,8 @@ import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
+// The record pickers read through `useLazyApi`, which fetches with Nuxt's `$fetch`.
+mockNuxtImport('$fetch', () => api)
 
 const session: BuilderSessionInfo = { staff: { id: 7, name: 'Maria Papadopoulou', role: 'admin' }, expiresAt: '2026-11-02T18:00:00+02:00' }
 
@@ -443,6 +445,8 @@ describe('editing the structure of a page', () => {
       [documentUrl('group:header')]: HEADER,
       [documentUrl('group:footer')]: FOOTER,
       [DRAFT_URL]: (_url: string, options: { body: { draft: unknown, i18n: unknown } }) => ({ ...HOME, draftRevision: 3, draft: options.body.draft, i18n: options.body.i18n }),
+      '/api/builder/link-search': { results: [{ kind: 'category', id: 7, label: 'Καλώδια', slug: 'kalodia', active: true }] },
+      '/api/builder/link-labels': { category: { 7: { label: 'Καλώδια', active: true } } },
     })
   })
 
@@ -722,6 +726,48 @@ describe('editing the structure of a page', () => {
 
       expect(pageRows(wrapper)[0]).toBe('Καλημέρα, Κεντρικό banner')
       expect(api.callsTo(DRAFT_URL)[0]!.options.body.draft.sections.hero.settings.heading).toBe('Καλημέρα')
+    })
+
+    it('picks the category a rail of products shows by its name, and saves its id', async () => {
+      const wrapper = await open('/_builder?node=template:home/grid')
+
+      const picker = wrapper.get('[aria-label="Κατηγορία"]')
+      await picker.trigger('click')
+      await flushPromises()
+      const input = document.querySelector<HTMLInputElement>('input[placeholder="Αναζήτηση με όνομα ή διεύθυνση"]')!
+      input.value = 'καλ'
+      input.dispatchEvent(new Event('input'))
+      await vi.waitFor(() => expect(api.callsTo('/api/builder/link-search')).toHaveLength(1))
+      await flushPromises()
+      expect(api.callsTo('/api/builder/link-search')[0]!.options.query).toEqual({ q: 'καλ', kinds: 'category' })
+      ;[...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.textContent?.includes('Καλώδια'))!.click()
+      await flushPromises()
+      await saveNow()
+
+      expect(api.callsTo(DRAFT_URL)[0]!.options.body.draft.sections.grid.settings.categoryId).toBe(7)
+      await vi.waitFor(() => expect(wrapper.get('[aria-label="Κατηγορία"]').text()).toContain('Καλώδια'))
+    })
+
+    it('points a link at a record picked by its name, and saves it as the record', async () => {
+      const wrapper = await open('/_builder?node=template:home/grid')
+
+      await wrapper.get('[aria-label="Πού οδηγεί: Σύνδεσμος κουμπιού"]').trigger('keydown', { key: 'Enter' })
+      await flushPromises()
+      ;[...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.textContent?.includes('Προϊόν, κατηγορία'))!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+      await flushPromises()
+      await wrapper.get('[aria-label="Εγγραφή: Σύνδεσμος κουμπιού"]').trigger('click')
+      await flushPromises()
+      const input = document.querySelector<HTMLInputElement>('input[placeholder="Αναζήτηση με όνομα ή διεύθυνση"]')!
+      input.value = 'καλ'
+      input.dispatchEvent(new Event('input'))
+      await vi.waitFor(() => expect(api.callsTo('/api/builder/link-search')).toHaveLength(1))
+      await flushPromises()
+      expect(api.callsTo('/api/builder/link-search')[0]!.options.query).toEqual({ q: 'καλ', kinds: 'product,category,blogCategory,blogPost,page,contentPage' })
+      ;[...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.textContent?.includes('Καλώδια'))!.click()
+      await flushPromises()
+      await saveNow()
+
+      expect(api.callsTo(DRAFT_URL)[0]!.options.body.draft.sections.grid.settings.ctaLink).toEqual({ ref: { kind: 'category', id: 7 } })
     })
 
     it('sets a choice, and leaves it to the section again', async () => {
