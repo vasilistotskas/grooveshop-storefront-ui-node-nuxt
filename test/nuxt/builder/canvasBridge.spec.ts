@@ -187,6 +187,57 @@ describe('the canvas bridge', () => {
       await vi.waitFor(() => expect(boxesTold().at(-1)).toMatchObject({ hover: { node: 'hero' }, selected: { node: 'grid' } }))
     })
 
+    describe('bringing the selection into view', () => {
+      /** The store's header, pinned to the top of the viewport and `height` tall, wherever the canvas looks for it. */
+      function pinHeader(height: number) {
+        const header = document.createElement('header')
+        header.style.position = 'sticky'
+        document.body.prepend(header)
+        vi.spyOn(header, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, window.innerWidth, height))
+        vi.spyOn(document, 'elementFromPoint').mockReturnValue(header)
+      }
+
+      it('scrolls the canvas so a section out of view starts just under the store\'s pinned header', async () => {
+        drawSections({ faq: new DOMRect(0, 2400, 800, 300) })
+        pinHeader(96)
+        const scrolled = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+        send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'faq' })
+
+        expect(scrolled).toHaveBeenCalledWith({ top: window.scrollY + 2400 - 96, behavior: 'smooth' })
+      })
+
+      it('counts a section hidden under the pinned header as out of view', () => {
+        drawSections({ faq: new DOMRect(0, 10, 800, 60) })
+        pinHeader(96)
+        const scrolled = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+        send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'faq' })
+
+        expect(scrolled).toHaveBeenCalledWith({ top: window.scrollY + 10 - 96, behavior: 'smooth' })
+      })
+
+      it('leaves the canvas where it is when some of the section shows below the header', () => {
+        drawSections({ faq: new DOMRect(0, 40, 800, 600) })
+        pinHeader(96)
+        const scrolled = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+        send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'faq' })
+
+        expect(scrolled).not.toHaveBeenCalled()
+      })
+
+      it('takes nothing that reaches past half the viewport for a header', () => {
+        drawSections({ faq: new DOMRect(0, 2400, 800, 300) })
+        pinHeader(window.innerHeight)
+        const scrolled = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+        send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'faq' })
+
+        expect(scrolled).toHaveBeenCalledWith({ top: window.scrollY + 2400, behavior: 'smooth' })
+      })
+    })
+
     it('says a section in no view, or drawn empty, is nowhere', async () => {
       drawSections({ hero: new DOMRect(0, 0, 0, 0) })
 
