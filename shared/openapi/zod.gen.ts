@@ -1147,6 +1147,14 @@ export const zFacetStats = z.object({
 })
 
 /**
+ * One store feature as the editor needs it.
+ */
+export const zFeatureState = z.object({
+  on: z.boolean(),
+  turnOnUrl: z.url().nullable(),
+})
+
+/**
  * * `general` - Γενικά
  * * `website` - Ιστότοπος & UX
  * * `products` - Προϊόντα
@@ -2614,9 +2622,32 @@ export const zPaginatedCountryList = z.object({
   results: z.array(zCountry),
 })
 
+export const zPresenceEntry = z.object({
+  id: z.int(),
+  name: z.string(),
+  since: z.iso.datetime({ offset: true }),
+})
+
+/**
+ * ``{documents: {key: [{id, name, since}]}}``: who else has each of the
+ * documents named in the heartbeat open.
+ */
+export const zPresence = z.object({
+  documents: z.record(z.string(), z.array(zPresenceEntry)),
+})
+
+export const zPresenceWriteRequest = z.object({
+  documents: z.array(z.string().min(1).max(80)),
+})
+
 export const zPreviewCopyRequest = z.object({
   draft: z.unknown(),
   i18n: z.unknown().optional(),
+})
+
+export const zPreviewLinkWriteRequest = z.object({
+  documents: z.array(z.string().min(1).max(80)),
+  note: z.string().max(255).optional().default(''),
 })
 
 export const zPreviewResolveRequest = z.object({
@@ -4709,6 +4740,32 @@ export const zPaginatedDocumentListList = z.object({
   results: z.array(zDocumentList),
 })
 
+/**
+ * A link as the staff list shows it. The token is not here: it exists
+ * only in the answer that made the link.
+ */
+export const zPreviewLink = z.object({
+  id: z.int().readonly(),
+  documents: z.array(z.string()).readonly(),
+  note: z.string().max(255).optional(),
+  createdBy: zStaff.nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  expiresAt: z.iso.datetime({ offset: true }),
+})
+
+/**
+ * The answer that makes a link: the token, once.
+ */
+export const zPreviewLinkCreated = z.object({
+  token: z.string(),
+  id: z.int().readonly(),
+  documents: z.array(z.string()).readonly(),
+  note: z.string().max(255).optional(),
+  createdBy: zStaff.nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  expiresAt: z.iso.datetime({ offset: true }),
+})
+
 export const zRelease = z.object({
   id: z.int().readonly(),
   number: z.int().readonly(),
@@ -4772,6 +4829,35 @@ export const zStaffSessionResponse = z.object({
 
 export const zStaffSessionTicketRequest = z.object({
   ticket: z.string().min(1).max(128),
+})
+
+/**
+ * Every ``TenantConfig.features`` name, with its state.
+ */
+export const zStoreFeatureStates = z.object({
+  blog: zFeatureState,
+  blogComments: zFeatureState,
+  productReviews: zFeatureState,
+  accountReviews: zFeatureState,
+  favourites: zFeatureState,
+  newsletter: zFeatureState,
+  feedback: zFeatureState,
+  loyalty: zFeatureState,
+  promotions: zFeatureState,
+  giftCards: zFeatureState,
+  wholesale: zFeatureState,
+  b2bInvoicing: zFeatureState,
+  productSuggestions: zFeatureState,
+  productAlerts: zFeatureState,
+  priceHistory: zFeatureState,
+  contactAttachments: zFeatureState,
+  chatWidget: zFeatureState,
+  catalogue: zFeatureState,
+  cart: zFeatureState,
+})
+
+export const zBuilderFeatures = z.object({
+  features: zStoreFeatureStates,
 })
 
 /**
@@ -7284,6 +7370,24 @@ export const zPaginatedPayWayListWritable = z.object({
 })
 
 /**
+ * A link as the staff list shows it. The token is not here: it exists
+ * only in the answer that made the link.
+ */
+export const zPreviewLinkWritable = z.object({
+  note: z.string().max(255).optional(),
+  expiresAt: z.iso.datetime({ offset: true }),
+})
+
+/**
+ * The answer that makes a link: the token, once.
+ */
+export const zPreviewLinkCreatedWritable = z.object({
+  token: z.string(),
+  note: z.string().max(255).optional(),
+  expiresAt: z.iso.datetime({ offset: true }),
+})
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductWritable = z.object({
@@ -7851,6 +7955,15 @@ export const zPaginatedScheduleListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zScheduleWritable),
+})
+
+/**
+ * Every ``TenantConfig.features`` name, with its state.
+ */
+export const zStoreFeatureStatesWritable = z.record(z.string(), z.unknown())
+
+export const zBuilderFeaturesWritable = z.object({
+  features: zStoreFeatureStatesWritable,
 })
 
 /**
@@ -10901,6 +11014,8 @@ export const zApiV1BuilderDocumentsVersionsRestoreCreatePath = z.object({
 
 export const zApiV1BuilderDocumentsVersionsRestoreCreateResponse = zDocumentDetail
 
+export const zApiV1BuilderFeaturesRetrieveResponse = zBuilderFeatures
+
 export const zApiV1BuilderLinkLabelsRetrieveQuery = z.object({
   blogCategory: z.string().optional(),
   blogPost: z.string().optional(),
@@ -10987,6 +11102,44 @@ export const zApiV1BuilderMediaResolveRetrieveQuery = z.object({
 })
 
 export const zApiV1BuilderMediaResolveRetrieveResponse = zResolvedMedia
+
+/**
+ * No response body
+ */
+export const zApiV1BuilderPresenceDestroyResponse = z.void()
+
+export const zApiV1BuilderPresenceCreateBody = zPresenceWriteRequest
+
+export const zApiV1BuilderPresenceCreateResponse = zPresence
+
+export const zApiV1BuilderPreviewLinksListResponse = z.array(zPreviewLink)
+
+export const zApiV1BuilderPreviewLinksCreateBody = zPreviewLinkWriteRequest
+
+export const zApiV1BuilderPreviewLinksCreateResponse = zPreviewLinkCreated
+
+export const zApiV1BuilderPreviewLinksDestroyPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+/**
+ * No response body
+ */
+export const zApiV1BuilderPreviewLinksDestroyResponse = z.void()
+
+export const zApiV1BuilderPreviewRetrievePath = z.object({
+  pageKey: z.string(),
+  token: z.string(),
+})
+
+export const zApiV1BuilderPreviewRetrieveQuery = z.object({
+  locale: z.string().optional(),
+})
+
+export const zApiV1BuilderPreviewRetrieveResponse = zPublishedPage
 
 export const zApiV1BuilderPreviewResolveCreateBody = zPreviewResolveRequest
 

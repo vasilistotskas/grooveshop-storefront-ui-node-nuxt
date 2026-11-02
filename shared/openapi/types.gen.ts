@@ -1993,6 +1993,10 @@ export type Brand = {
  */
 export type BuilderDocumentKindEnum = 'theme' | 'group' | 'template' | 'page'
 
+export type BuilderFeatures = {
+  features: StoreFeatureStates
+}
+
 /**
  * * `page` - Σελίδα
  * * `template` - Πρότυπο
@@ -3251,6 +3255,20 @@ export type FacetStats = {
 export type FacetStatsItem = {
   min: number
   max: number
+}
+
+/**
+ * One store feature as the editor needs it.
+ */
+export type FeatureState = {
+  /**
+     * Plan flag and every setting it needs are on.
+     */
+  on: boolean
+  /**
+     * The store admin page where this person switches it on; null when it is on, when only the platform can (the plan), or when their role cannot change settings.
+     */
+  turnOnUrl: string | null
 }
 
 export type FeedbackWrite = {
@@ -6696,9 +6714,78 @@ export type PointsTransaction = {
   readonly createdAt: string
 }
 
+/**
+ * ``{documents: {key: [{id, name, since}]}}``: who else has each of the
+ * documents named in the heartbeat open.
+ */
+export type Presence = {
+  documents: {
+    [key: string]: Array<PresenceEntry>
+  }
+}
+
+export type PresenceEntry = {
+  id: number
+  name: string
+  since: string
+}
+
+export type PresenceWriteRequest = {
+  documents: Array<string>
+}
+
 export type PreviewCopyRequest = {
   draft: unknown
   i18n?: unknown
+}
+
+/**
+ * A link as the staff list shows it. The token is not here: it exists
+ * only in the answer that made the link.
+ */
+export type PreviewLink = {
+  readonly id: number
+  readonly documents: Array<string>
+  /**
+     * Σημείωση
+     */
+  note?: string
+  createdBy: Staff | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Λήγει στις
+     */
+  expiresAt: string
+}
+
+/**
+ * The answer that makes a link: the token, once.
+ */
+export type PreviewLinkCreated = {
+  token: string
+  readonly id: number
+  readonly documents: Array<string>
+  /**
+     * Σημείωση
+     */
+  note?: string
+  createdBy: Staff | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Λήγει στις
+     */
+  expiresAt: string
+}
+
+export type PreviewLinkWriteRequest = {
+  documents: Array<string>
+  note?: string
 }
 
 export type PreviewResolveRequest = {
@@ -9039,6 +9126,31 @@ export type StaffSessionTicketRequest = {
 }
 
 /**
+ * Every ``TenantConfig.features`` name, with its state.
+ */
+export type StoreFeatureStates = {
+  blog: FeatureState
+  blogComments: FeatureState
+  productReviews: FeatureState
+  accountReviews: FeatureState
+  favourites: FeatureState
+  newsletter: FeatureState
+  feedback: FeatureState
+  loyalty: FeatureState
+  promotions: FeatureState
+  giftCards: FeatureState
+  wholesale: FeatureState
+  b2bInvoicing: FeatureState
+  productSuggestions: FeatureState
+  productAlerts: FeatureState
+  priceHistory: FeatureState
+  contactAttachments: FeatureState
+  chatWidget: FeatureState
+  catalogue: FeatureState
+  cart: FeatureState
+}
+
+/**
  * Each optional feature's effective state for the store: its plan
  * flag AND its store settings (``tenant/features.py``), so a client reads
  * one answer instead of combining the two tiers and copying defaults.
@@ -10643,6 +10755,10 @@ export type BlogTagDetailWritable = {
   active?: boolean
 }
 
+export type BuilderFeaturesWritable = {
+  features: StoreFeatureStatesWritable
+}
+
 export type CartWritable = {
   /**
      * Χρήστης
@@ -11989,6 +12105,36 @@ export type PayWayWritable = {
 }
 
 /**
+ * A link as the staff list shows it. The token is not here: it exists
+ * only in the answer that made the link.
+ */
+export type PreviewLinkWritable = {
+  /**
+     * Σημείωση
+     */
+  note?: string
+  /**
+     * Λήγει στις
+     */
+  expiresAt: string
+}
+
+/**
+ * The answer that makes a link: the token, once.
+ */
+export type PreviewLinkCreatedWritable = {
+  token: string
+  /**
+     * Σημείωση
+     */
+  note?: string
+  /**
+     * Λήγει στις
+     */
+  expiresAt: string
+}
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductWritable = {
@@ -12489,6 +12635,13 @@ export type ResolvedMediaWritable = {
 }
 
 export type ScheduleWritable = {
+  [key: string]: unknown
+}
+
+/**
+ * Every ``TenantConfig.features`` name, with its state.
+ */
+export type StoreFeatureStatesWritable = {
   [key: string]: unknown
 }
 
@@ -17025,6 +17178,19 @@ export type ApiV1BuilderDocumentsVersionsRestoreCreateResponses = {
 
 export type ApiV1BuilderDocumentsVersionsRestoreCreateResponse = ApiV1BuilderDocumentsVersionsRestoreCreateResponses[keyof ApiV1BuilderDocumentsVersionsRestoreCreateResponses]
 
+export type ApiV1BuilderFeaturesRetrieveData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/builder/features'
+}
+
+export type ApiV1BuilderFeaturesRetrieveResponses = {
+  200: BuilderFeatures
+}
+
+export type ApiV1BuilderFeaturesRetrieveResponse = ApiV1BuilderFeaturesRetrieveResponses[keyof ApiV1BuilderFeaturesRetrieveResponses]
+
 export type ApiV1BuilderLinkLabelsRetrieveData = {
   body?: never
   path?: never
@@ -17280,6 +17446,125 @@ export type ApiV1BuilderMediaResolveRetrieveResponses = {
 }
 
 export type ApiV1BuilderMediaResolveRetrieveResponse = ApiV1BuilderMediaResolveRetrieveResponses[keyof ApiV1BuilderMediaResolveRetrieveResponses]
+
+export type ApiV1BuilderPresenceDestroyData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/builder/presence'
+}
+
+export type ApiV1BuilderPresenceDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type ApiV1BuilderPresenceDestroyResponse = ApiV1BuilderPresenceDestroyResponses[keyof ApiV1BuilderPresenceDestroyResponses]
+
+export type ApiV1BuilderPresenceCreateData = {
+  body: PresenceWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/presence'
+}
+
+export type ApiV1BuilderPresenceCreateErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderPresenceCreateError = ApiV1BuilderPresenceCreateErrors[keyof ApiV1BuilderPresenceCreateErrors]
+
+export type ApiV1BuilderPresenceCreateResponses = {
+  200: Presence
+}
+
+export type ApiV1BuilderPresenceCreateResponse = ApiV1BuilderPresenceCreateResponses[keyof ApiV1BuilderPresenceCreateResponses]
+
+export type ApiV1BuilderPreviewLinksListData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/builder/preview-links'
+}
+
+export type ApiV1BuilderPreviewLinksListResponses = {
+  200: Array<PreviewLink>
+}
+
+export type ApiV1BuilderPreviewLinksListResponse = ApiV1BuilderPreviewLinksListResponses[keyof ApiV1BuilderPreviewLinksListResponses]
+
+export type ApiV1BuilderPreviewLinksCreateData = {
+  body: PreviewLinkWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/preview-links'
+}
+
+export type ApiV1BuilderPreviewLinksCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderPreviewLinksCreateError = ApiV1BuilderPreviewLinksCreateErrors[keyof ApiV1BuilderPreviewLinksCreateErrors]
+
+export type ApiV1BuilderPreviewLinksCreateResponses = {
+  201: PreviewLinkCreated
+}
+
+export type ApiV1BuilderPreviewLinksCreateResponse = ApiV1BuilderPreviewLinksCreateResponses[keyof ApiV1BuilderPreviewLinksCreateResponses]
+
+export type ApiV1BuilderPreviewLinksDestroyData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/preview-links/{id}'
+}
+
+export type ApiV1BuilderPreviewLinksDestroyErrors = {
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderPreviewLinksDestroyError = ApiV1BuilderPreviewLinksDestroyErrors[keyof ApiV1BuilderPreviewLinksDestroyErrors]
+
+export type ApiV1BuilderPreviewLinksDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type ApiV1BuilderPreviewLinksDestroyResponse = ApiV1BuilderPreviewLinksDestroyResponses[keyof ApiV1BuilderPreviewLinksDestroyResponses]
+
+export type ApiV1BuilderPreviewRetrieveData = {
+  body?: never
+  path: {
+    pageKey: string
+    token: string
+  }
+  query?: {
+    /**
+         * Language to resolve the content in; unknown or omitted means the store's default language.
+         */
+    locale?: string
+  }
+  url: '/api/v1/builder/preview/{token}/{page_key}'
+}
+
+export type ApiV1BuilderPreviewRetrieveErrors = {
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderPreviewRetrieveError = ApiV1BuilderPreviewRetrieveErrors[keyof ApiV1BuilderPreviewRetrieveErrors]
+
+export type ApiV1BuilderPreviewRetrieveResponses = {
+  200: PublishedPage
+}
+
+export type ApiV1BuilderPreviewRetrieveResponse = ApiV1BuilderPreviewRetrieveResponses[keyof ApiV1BuilderPreviewRetrieveResponses]
 
 export type ApiV1BuilderPreviewResolveCreateData = {
   body: PreviewResolveRequest
