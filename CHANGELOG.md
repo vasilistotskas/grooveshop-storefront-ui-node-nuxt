@@ -1,3 +1,10 @@
+# [3.295.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.294.0...v3.295.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** edit rich text settings in the page editor ([#339](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/339)) ([24a78ea](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/24a78ea05644b48a81d21a44b1dbe936caae3bd6))
+
 # [3.294.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.293.0...v3.294.0) (2026-11-02)
 
 
