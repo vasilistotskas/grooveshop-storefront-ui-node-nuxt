@@ -1,3 +1,10 @@
+# [3.288.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.287.0...v3.288.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** draw every change in a live preview of the store's real page ([#332](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/332)) ([c44e09c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c44e09cfb7a53ccb4ca4f27064c529761ceedc35))
+
 # [3.287.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.286.0...v3.287.0) (2026-11-02)
 
 
