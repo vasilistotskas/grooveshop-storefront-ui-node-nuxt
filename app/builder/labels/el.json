@@ -1,0 +1,180 @@
+{
+  "blocks": {
+    "about_content": {
+      "label": "Σχετικά με εμάς"
+    },
+    "blog_categories": {
+      "label": "Κατηγορίες ιστολογίου"
+    },
+    "blog_posts_carousel": {
+      "label": "Άρθρα σε καρουζέλ"
+    },
+    "blog_posts_grid": {
+      "label": "Άρθρα σε πλέγμα"
+    },
+    "blog_posts_list": {
+      "label": "Λίστα άρθρων"
+    },
+    "bullet": {
+      "label": "Κουκκίδα"
+    },
+    "business_hours": {
+      "label": "Ωράριο λειτουργίας"
+    },
+    "contact_panel": {
+      "label": "Επικοινωνία"
+    },
+    "cta_banner": {
+      "label": "Πρόσκληση σε δράση"
+    },
+    "divider": {
+      "label": "Διαχωριστικό"
+    },
+    "faq": {
+      "label": "Ερωτήσεις και απαντήσεις"
+    },
+    "faq_item": {
+      "label": "Ερώτηση"
+    },
+    "feature_item": {
+      "label": "Πλεονέκτημα"
+    },
+    "featured_products": {
+      "label": "Προτεινόμενα προϊόντα"
+    },
+    "features_grid": {
+      "label": "Πλέγμα πλεονεκτημάτων"
+    },
+    "footer_column": {
+      "label": "Στήλη υποσέλιδου"
+    },
+    "footer_menu": {
+      "label": "Μενού υποσέλιδου"
+    },
+    "gallery_image": {
+      "label": "Εικόνα"
+    },
+    "header_menu": {
+      "label": "Μενού κεφαλίδας"
+    },
+    "hero_banner": {
+      "label": "Κεντρικό banner"
+    },
+    "hero_carousel": {
+      "label": "Κεντρικό καρουζέλ"
+    },
+    "hero_slide": {
+      "label": "Διαφάνεια"
+    },
+    "image_gallery": {
+      "label": "Συλλογή εικόνων"
+    },
+    "location_map": {
+      "label": "Χάρτης τοποθεσίας"
+    },
+    "loyalty_hero": {
+      "label": "Πρόγραμμα επιβράβευσης"
+    },
+    "media_text": {
+      "label": "Εικόνα με κείμενο"
+    },
+    "mobile_menu": {
+      "label": "Μενού κινητού"
+    },
+    "nav_link": {
+      "label": "Σύνδεσμος"
+    },
+    "newsletter_signup": {
+      "label": "Εγγραφή στο newsletter"
+    },
+    "offers_preview": {
+      "label": "Προσφορές"
+    },
+    "partner": {
+      "label": "Συνεργάτης"
+    },
+    "partner_strip": {
+      "label": "Συνεργάτες"
+    },
+    "product_categories": {
+      "label": "Κατηγορίες προϊόντων"
+    },
+    "products_grid": {
+      "label": "Πλέγμα προϊόντων"
+    },
+    "products_slider": {
+      "label": "Καρουζέλ προϊόντων"
+    },
+    "pull_quote": {
+      "label": "Απόσπασμα"
+    },
+    "recently_viewed": {
+      "label": "Είδατε πρόσφατα"
+    },
+    "rich_text": {
+      "label": "Κείμενο"
+    },
+    "search_bar": {
+      "label": "Αναζήτηση"
+    },
+    "spacer": {
+      "label": "Κενό διάστημα"
+    },
+    "spec_card": {
+      "label": "Κάρτα χαρακτηριστικών"
+    },
+    "spec_row": {
+      "label": "Χαρακτηριστικό"
+    },
+    "stat": {
+      "label": "Αριθμός"
+    },
+    "stats_strip": {
+      "label": "Αριθμοί"
+    },
+    "story_timeline": {
+      "label": "Η ιστορία μας"
+    },
+    "testimonial": {
+      "label": "Κριτική"
+    },
+    "testimonials": {
+      "label": "Κριτικές πελατών"
+    },
+    "timeline_entry": {
+      "label": "Σταθμός"
+    },
+    "trust_badge": {
+      "label": "Σήμα εμπιστοσύνης"
+    },
+    "trust_badges": {
+      "label": "Σήματα εμπιστοσύνης"
+    },
+    "vision_content": {
+      "label": "Το όραμά μας"
+    },
+    "what_is_microlearning": {
+      "label": "Τι είναι η μικρομάθηση"
+    },
+    "why_microlearning": {
+      "label": "Γιατί μικρομάθηση"
+    }
+  },
+  "groups": {
+    "header": "Κεφαλίδα, σε κάθε σελίδα",
+    "mobile": "Μενού κινητού, σε κάθε σελίδα",
+    "footer": "Υποσέλιδο, σε κάθε σελίδα"
+  },
+  "templates": {
+    "home": "Αρχική σελίδα",
+    "products": "Προϊόντα",
+    "blog": "Ιστολόγιο",
+    "blog-post": "Άρθρο ιστολογίου",
+    "contact": "Επικοινωνία",
+    "feedback": "Σχόλια",
+    "about": "Σχετικά με εμάς",
+    "vision": "Όραμα",
+    "what-is-microlearning": "Τι είναι η μικρομάθηση",
+    "why-microlearning": "Γιατί μικρομάθηση"
+  }
+}

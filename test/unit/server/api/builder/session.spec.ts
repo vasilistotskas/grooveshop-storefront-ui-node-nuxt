@@ -8,7 +8,7 @@ import { backend, callRoute, createRequestEvent, jsonResponse } from '~~/test/he
 
 const route = '/api/builder/session'
 
-const staff = { id: 7, name: 'Maria Papadopoulou', role: 'ADMIN' }
+const staff = { id: 7, name: 'Maria Papadopoulou', role: 'admin' }
 const expiresIn = (seconds: number) => new Date(Date.now() + seconds * 1000).toISOString()
 const staffSession = (overrides: Record<string, unknown> = {}) => ({
   token: 'knox-secret-token',

@@ -17,6 +17,7 @@ export const promoItem = defineBlock({
   }),
   translatable: ['/label'],
   limits: { maxBlocks: 4 },
+  editor: { title: ['label'] },
 })
 
 export const promoBanner = defineBlock({

@@ -9,4 +9,5 @@ export default defineBlock({
     title: builderField.text(200).optional(),
   }),
   translatable: ['/title'],
+  editor: { title: ['title'] },
 })

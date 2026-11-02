@@ -1,0 +1,42 @@
+/**
+ * What the page editor shows, kept in the address (`BUILDER_EDITOR_QUERY`)
+ * so a reload, a shared link or Back restores it: the document being
+ * edited and the selected section or block.
+ *
+ * Opening another document is a step in the history (Back returns to the
+ * previous page); selecting a node replaces the current entry, so Back does
+ * not walk through every click. A value that is not a document key or a node
+ * reference is read as absent: the address is typed by people.
+ */
+export function useBuilderEditorView() {
+  const route = useRoute()
+  const router = useRouter()
+
+  const queryValue = (name: string): string | undefined => {
+    const value = route.query[name]
+    return typeof value === 'string' ? value : undefined
+  }
+
+  const documentKey = computed(() => {
+    const key = queryValue(BUILDER_EDITOR_QUERY.document)
+    return key !== undefined && BUILDER_DOCUMENT_KEY_PATTERN.test(key) ? key : BUILDER_EDITOR_HOME_DOCUMENT
+  })
+
+  /** The selected node's reference (`builderNodeRef`), when one is selected. */
+  const selected = computed(() => {
+    const ref = queryValue(BUILDER_EDITOR_QUERY.node)
+    return ref !== undefined && parseBuilderNodeRef(ref) ? ref : undefined
+  })
+
+  async function openDocument(key: string): Promise<void> {
+    const { [BUILDER_EDITOR_QUERY.node]: _, ...query } = route.query
+    await router.push({ query: { ...query, [BUILDER_EDITOR_QUERY.document]: key } })
+  }
+
+  async function select(ref: string | undefined): Promise<void> {
+    const { [BUILDER_EDITOR_QUERY.node]: _, ...query } = route.query
+    await router.replace({ query: ref === undefined ? query : { ...query, [BUILDER_EDITOR_QUERY.node]: ref } })
+  }
+
+  return { documentKey, selected, openDocument, select }
+}

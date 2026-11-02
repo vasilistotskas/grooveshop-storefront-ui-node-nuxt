@@ -14,4 +14,5 @@ export default defineBlock({
   limits: { maxBlocks: 20 },
   children: { allowed: ['testimonial'], maxDepth: 1 },
   childList: { testimonial: 'items' },
+  editor: { title: ['heading', 'title'] },
 })

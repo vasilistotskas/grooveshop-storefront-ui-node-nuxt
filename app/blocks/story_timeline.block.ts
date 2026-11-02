@@ -15,4 +15,5 @@ export default defineBlock({
   limits: { maxBlocks: 20 },
   children: { allowed: ['timeline_entry'], maxDepth: 1 },
   childList: { timeline_entry: 'items' },
+  editor: { title: ['heading', 'title'] },
 })

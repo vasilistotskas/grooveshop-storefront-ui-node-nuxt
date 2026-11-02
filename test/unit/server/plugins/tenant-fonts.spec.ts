@@ -24,10 +24,10 @@ const FONTS_STYLE = `<style>${[
   face('"Source Serif 4"'),
 ].join('')}</style>`
 
-async function render(context: Record<string, unknown>) {
+async function render(context: Record<string, unknown>, url = '/') {
   const nitroApp = await runNitroPlugin(plugin)
   const html = { head: ['<meta charset="utf-8">', FONTS_STYLE] }
-  await nitroApp.hooks.callHook('render:html', html, { event: createTestEvent({ context }) })
+  await nitroApp.hooks.callHook('render:html', html, { event: createTestEvent({ context, url }) })
   return html.head.join('')
 }
 
@@ -42,6 +42,10 @@ describe('server/plugins/tenant-fonts', () => {
       'Geologica',
       'JetBrains Mono',
     ])
+  })
+
+  it.each(['/_builder', '/en/_builder?ticket=x'])('keeps none of the store\'s faces on the page editor (%s), which is not the store', async (url) => {
+    expect(families(await render({ tenant: { schemaName: 'demo' } }, url))).toEqual([])
   })
 
   it('keeps the store\'s own faces where it chose them', async () => {

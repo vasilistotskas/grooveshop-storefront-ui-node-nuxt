@@ -13,4 +13,5 @@ export default defineBlock({
   limits: { maxBlocks: 12 },
   children: { allowed: ['partner'], maxDepth: 1 },
   childList: { partner: 'items' },
+  editor: { title: ['title', 'label'] },
 })

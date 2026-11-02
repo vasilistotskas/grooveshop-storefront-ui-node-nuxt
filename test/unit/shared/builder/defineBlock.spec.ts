@@ -25,6 +25,7 @@ describe('defineBlock', () => {
       limits: {},
       children: { allowed: [] },
       childList: {},
+      editor: {},
     })
     expect(block.schema).toBe(schema)
   })
@@ -41,6 +42,7 @@ describe('defineBlock', () => {
       templates: ['home'],
       feature: 'loyalty',
       deprecated: true,
+      editor: { title: ['title'] },
     })
 
     expect(block).toMatchObject({
@@ -54,6 +56,7 @@ describe('defineBlock', () => {
       feature: 'loyalty',
       deprecated: true,
       childList: { slide: 'slides' },
+      editor: { title: ['title'] },
     })
   })
 
@@ -121,6 +124,10 @@ describe('defineBlock', () => {
       expect(() => define({ ...blocks, childList: { slide: 'items', badge: 'items' } })).toThrow(/distinct/)
       expect(() => define({ ...blocks, childList: { slide: 'items' }, schema: z.object({ items: z.string() }) })).toThrow(/not a setting/)
     })
+  })
+
+  it('refuses an editor title that names no setting', () => {
+    expect(() => define({ editor: { title: ['title', 'heading'] } })).toThrow(/editor.title names "heading"/)
   })
 
   it('refuses a repeated preset id', () => {

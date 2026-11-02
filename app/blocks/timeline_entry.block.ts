@@ -12,4 +12,5 @@ export default defineBlock({
     icon: builderField.icon(100).optional(),
   }),
   translatable: ['/title', '/date', '/text'],
+  editor: { title: ['title'] },
 })

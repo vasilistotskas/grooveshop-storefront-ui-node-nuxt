@@ -10,4 +10,5 @@ export default defineBlock({
     answer: builderField.requiredText(2000),
   }),
   translatable: ['/question', '/answer'],
+  editor: { title: ['question'] },
 })

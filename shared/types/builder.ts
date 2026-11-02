@@ -111,6 +111,19 @@ export interface BlockConfig<Schema extends ZodObject = ZodObject> {
    * output to `sectionProps`). Every key is an allowed child.
    */
   childList?: Readonly<Record<string, string>>
+  /** What only the editor reads: never part of the catalogue, so it changes nothing Django checks. */
+  editor?: BlockEditorConfig
+}
+
+/** How the editor presents a block (`BlockConfig.editor`). */
+export interface BlockEditorConfig {
+  /**
+   * The text settings that name a node in the editor's outline, in order:
+   * the first one with text wins ("New arrivals" rather than "Product
+   * grid"). A node with none of them shows the block's name. Each must be
+   * a setting of the schema (`defineBlock` checks).
+   */
+  title?: readonly string[]
 }
 
 /** What `defineBlock` returns: `BlockConfig` with every default filled in. */
@@ -122,6 +135,7 @@ export interface BlockDefinition<Schema extends ZodObject = ZodObject> extends B
   limits: BlockLimits
   children: BlockChildren
   childList: Readonly<Record<string, string>>
+  editor: BlockEditorConfig
 }
 
 // ── The catalogue ──────────────────────────────────────────────────

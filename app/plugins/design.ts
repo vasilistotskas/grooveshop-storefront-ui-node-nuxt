@@ -17,7 +17,9 @@
  *
  * Nothing is applied without a resolved tenant — the "store not found"
  * page, and test harnesses that mount components with no tenant at
- * boot (`design-render.spec.ts` sets webside's after it).
+ * boot (`design-render.spec.ts` sets webside's after it) — nor on the page
+ * editor (`isBuilderEditorPath`), which is drawn in the platform's look;
+ * the store's design is what its preview frame shows.
  */
 const DESIGN_UI: Record<StorefrontDesign, UiTheme> = {
   volt: VOLT_UI,
@@ -29,7 +31,7 @@ export default defineNuxtPlugin({
   dependsOn: ['tenant'],
   setup() {
     const design = resolveDesign(useTenant().value?.schemaName)
-    if (!design) return
+    if (!design || isBuilderEditorPath(useRequestURL().pathname)) return
 
     useHead({ htmlAttrs: { 'data-design': design } })
     applyUiTheme(useAppConfig().ui, DESIGN_UI[design])

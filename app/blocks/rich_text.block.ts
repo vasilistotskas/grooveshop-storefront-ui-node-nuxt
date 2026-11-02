@@ -10,4 +10,5 @@ export default defineBlock({
     content: builderField.richText(20000).optional(),
   }),
   translatable: ['/title', '/content'],
+  editor: { title: ['title'] },
 })

@@ -13,4 +13,5 @@ export default defineBlock({
     rating: builderField.integer(1, 5).optional(),
   }),
   translatable: ['/name', '/text', '/role'],
+  editor: { title: ['name'] },
 })

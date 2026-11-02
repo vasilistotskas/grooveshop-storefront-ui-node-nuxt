@@ -20,4 +20,5 @@ export default defineBlock({
   }),
   translatable: ['/alt', '/eyebrow', '/heading', '/subheading', '/ctaText', '/secondaryCtaText'],
   refs: { '/productId': 'product' },
+  editor: { title: ['heading'] },
 })

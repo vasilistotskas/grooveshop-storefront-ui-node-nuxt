@@ -24,4 +24,5 @@ export default defineBlock({
   limits: { maxBlocks: 12 },
   children: { allowed: ['feature_item'], maxDepth: 1 },
   childList: { feature_item: 'items' },
+  editor: { title: ['heading'] },
 })

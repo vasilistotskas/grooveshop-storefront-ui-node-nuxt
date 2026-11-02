@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { UButton, UChip, UModal, UPinInput, URadioGroup } from '#components'
 import designPlugin from '~/plugins/design'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
@@ -12,6 +12,9 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 const run = () => (designPlugin as unknown as () => void)()
 
 const theme = () => useAppConfig().ui as unknown as Record<string, unknown>
+
+const { requestUrl } = vi.hoisted(() => ({ requestUrl: { href: 'https://demo.example/' } }))
+mockNuxtImport('useRequestURL', () => () => new URL(requestUrl.href))
 
 describe('design plugin', () => {
   let snapshot: Record<string, unknown>
@@ -31,6 +34,7 @@ describe('design plugin', () => {
     for (const key of added) Reflect.deleteProperty(ui, key)
     Object.assign(ui, snapshot)
     useState('tenant').value = null
+    requestUrl.href = 'https://demo.example/'
   })
 
   it('lays the Volt component theme over the app config for a store', () => {
@@ -42,6 +46,15 @@ describe('design plugin', () => {
     expect(button.slots.base).toContain(VOLT_UI.button.slots.base)
     // The base config's own classes survive underneath the overlay.
     expect(button.slots.base).toContain('tap-press')
+  })
+
+  it.each(['/_builder', '/en/_builder'])('leaves the page editor (%s) in the platform\'s look', (path) => {
+    requestUrl.href = `https://demo.example${path}`
+    useState('tenant').value = validTenantConfig('demo.example', { schemaName: 'demo' })
+
+    run()
+
+    expect(theme()).toEqual(snapshot)
   })
 
   it('reaches a rendered component through a variant both configs size', async () => {

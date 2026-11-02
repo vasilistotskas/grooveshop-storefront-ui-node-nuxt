@@ -1,0 +1,118 @@
+<script lang="ts" setup>
+import type { DropdownMenuItem } from '@nuxt/ui'
+
+defineProps<{
+  session: BuilderSessionInfo
+}>()
+
+const emit = defineEmits<{
+  signOut: []
+  openOutline: []
+}>()
+
+const { t } = useStoreI18n('components/Builder/TopBar')
+const localePath = useLocalePath()
+const tenantStore = useTenantStore()
+const store = useBuilderEditorStore()
+
+const accountItems = computed<DropdownMenuItem[][]>(() => [
+  [{ label: t('signOut'), icon: 'i-lucide-log-out', onSelect: () => emit('signOut') }],
+])
+</script>
+
+<template>
+  <header class="flex h-14 shrink-0 items-center gap-2 border-b border-default px-3">
+    <UTooltip :text="t('exit')">
+      <!-- A full page load: the storefront gets its own palette back. -->
+      <UButton
+        :to="localePath('/')"
+        external
+        icon="i-lucide-arrow-left"
+        color="neutral"
+        variant="ghost"
+        :aria-label="t('exit')"
+      />
+    </UTooltip>
+    <span class="hidden truncate font-semibold sm:inline">
+      {{ tenantStore.storeName }}
+    </span>
+    <USeparator
+      orientation="vertical"
+      class="hidden h-6 sm:flex"
+    />
+    <UButton
+      icon="i-lucide-list-tree"
+      color="neutral"
+      variant="ghost"
+      class="lg:hidden"
+      :aria-label="t('outline')"
+      @click="() => emit('openOutline')"
+    />
+    <BuilderDocumentSwitcher class="w-44 min-w-0 sm:w-64" />
+
+    <UPopover v-if="!store.canEdit">
+      <UButton
+        icon="i-lucide-eye"
+        color="neutral"
+        variant="soft"
+        size="sm"
+        :label="t('viewOnly.label')"
+      />
+      <template #content>
+        <p class="max-w-xs p-3 text-sm">
+          {{ t('viewOnly.reason', { role: t(`role.${session.staff.role}`) }) }}
+        </p>
+      </template>
+    </UPopover>
+
+    <UDropdownMenu
+      :items="accountItems"
+      :content="{ align: 'end' }"
+    >
+      <UButton
+        color="neutral"
+        variant="ghost"
+        class="ms-auto"
+        :aria-label="t('account', { name: session.staff.name })"
+      >
+        <UAvatar
+          :alt="session.staff.name"
+          size="sm"
+        />
+        <span class="hidden min-w-0 text-start lg:block">
+          <span class="block truncate text-sm font-medium">{{ session.staff.name }}</span>
+          <span class="block truncate text-xs text-muted">{{ t(`role.${session.staff.role}`) }}</span>
+        </span>
+      </UButton>
+    </UDropdownMenu>
+  </header>
+</template>
+
+<i18n lang="yaml">
+el:
+  exit: Έξοδος στο κατάστημα
+  outline: Δομή σελίδας
+  account: "Λογαριασμός: {name}"
+  signOut: Αποσύνδεση
+  viewOnly:
+    label: Μόνο προβολή
+    reason: "Ο ρόλος σας ({role}) επιτρέπει να βλέπετε τις σελίδες του καταστήματος, όχι να τις αλλάζετε. Για αλλαγές, απευθυνθείτε σε έναν ιδιοκτήτη ή διαχειριστή."
+  role:
+    staff: Προσωπικό
+    admin: Διαχειριστής
+    owner: Ιδιοκτήτης
+    superuser: Διαχειριστής πλατφόρμας
+en:
+  exit: Exit to the store
+  outline: Page outline
+  account: "Account: {name}"
+  signOut: Sign out
+  viewOnly:
+    label: View only
+    reason: "Your role ({role}) can look at the store's pages but not change them. Ask an owner or an admin to make changes."
+  role:
+    staff: Staff
+    admin: Admin
+    owner: Owner
+    superuser: Platform admin
+</i18n>

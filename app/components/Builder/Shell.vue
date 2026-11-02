@@ -7,80 +7,31 @@ onMounted(open)
 </script>
 
 <template>
-  <UDashboardSidebar
-    collapsible
-    resizable
+  <BuilderEditor
+    v-if="status === 'signedIn' && info"
+    :session="info"
+    @sign-out="signOut"
+  />
+  <main
+    v-else
+    class="flex flex-1 items-center justify-center p-4"
   >
-    <template #header>
-      <span class="truncate font-semibold">
-        {{ t('title') }}
-      </span>
-    </template>
-
-    <template #footer="{ collapsed }">
-      <div
-        v-if="info"
-        class="flex w-full items-center gap-2"
-      >
-        <UAvatar
-          :alt="info.staff.name"
-          size="sm"
-        />
-        <div
-          v-if="!collapsed"
-          class="min-w-0 flex-1"
-        >
-          <p class="truncate text-sm font-medium">
-            {{ info.staff.name }}
-          </p>
-          <p class="text-muted truncate text-xs">
-            {{ info.staff.role }}
-          </p>
-        </div>
-        <UButton
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-log-out"
-          :aria-label="t('signOut')"
-          @click="signOut"
-        />
-      </div>
-    </template>
-  </UDashboardSidebar>
-
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar :title="t('title')" />
-    </template>
-
-    <template #body>
-      <UEmpty
-        v-if="status === 'signedIn' && info"
-        icon="i-lucide-layout-dashboard"
-        :title="t('signedInAs', { name: info.staff.name })"
-        :description="t('editorSoon')"
-      />
-      <UEmpty
-        v-else-if="status === 'loading'"
-        icon="i-lucide-loader-circle"
-        :title="t('loading')"
-      />
-      <UEmpty
-        v-else
-        icon="i-lucide-lock"
-        :title="t(`${status}.title`)"
-        :description="t(`${status}.description`)"
-      />
-    </template>
-  </UDashboardPanel>
+    <UEmpty
+      v-if="status === 'loading'"
+      loading
+      :title="t('loading')"
+    />
+    <UEmpty
+      v-else
+      icon="i-lucide-lock"
+      :title="t(`${status}.title`)"
+      :description="t(`${status}.description`)"
+    />
+  </main>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Επεξεργαστής σελίδων
-  signOut: Αποσύνδεση
-  signedInAs: Συνδεδεμένος ως {name}
-  editorSoon: Ο επεξεργαστής έρχεται σύντομα.
   loading: Σύνδεση…
   signedOut:
     title: Δεν είστε συνδεδεμένοι
@@ -92,10 +43,6 @@ el:
     title: Η σύνδεση απέτυχε
     description: Δοκιμάστε ξανά σε λίγο.
 en:
-  title: Page editor
-  signOut: Sign out
-  signedInAs: Signed in as {name}
-  editorSoon: The editor is coming soon.
   loading: Signing in…
   signedOut:
     title: You are not signed in

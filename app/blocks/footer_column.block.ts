@@ -13,4 +13,5 @@ export default defineBlock({
   translatable: ['/label'],
   children: { allowed: ['nav_link'], maxDepth: 1 },
   childList: { nav_link: 'children' },
+  editor: { title: ['label'] },
 })

@@ -1,5 +1,6 @@
 import { buildTenantThemeCss } from '../utils/themeTokens'
 import { defineNitroPlugin } from 'nitropack/runtime'
+import { getRequestURL } from 'h3'
 
 /**
  * Injects the per-tenant design-token stylesheet into every SSR
@@ -15,11 +16,14 @@ import { defineNitroPlugin } from 'nitropack/runtime'
  * Carries the request's CSP nonce when the nonce pipeline stamped one
  * (``server/plugins/csp-nonce.ts``) so the block keeps working if
  * style-src ever drops 'unsafe-inline'.
+ *
+ * Not on the page editor (`isBuilderEditorPath`): the editor is drawn in
+ * the platform's look, and the store is what its preview frame shows.
  */
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('render:html', (html, { event }) => {
     const tenant = event.context.tenant
-    if (!tenant) return
+    if (!tenant || isBuilderEditorPath(getRequestURL(event).pathname)) return
 
     const { css, metadataError } = buildTenantThemeCss(tenant)
     if (metadataError) {

@@ -11,4 +11,5 @@ export default defineBlock({
   }),
   translatable: ['/title', '/heading', '/subheading', '/ctaText'],
   refs: { '/categoryId': 'category' },
+  editor: { title: ['title'] },
 })
