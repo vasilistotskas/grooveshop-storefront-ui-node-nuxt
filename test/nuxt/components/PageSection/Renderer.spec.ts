@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import Renderer from '~/components/PageSection/Renderer.vue'
 import CtaBanner from '~/components/PageSection/CtaBanner.vue'
 import FyteiaCtaBanner from '~/components/PageSection/variants/ekfyseosfyteias/CtaBanner.vue'
 import { makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { setTenant } from '~~/test/helpers/tenant'
+
+const { surface } = vi.hoisted(() => ({ surface: vi.fn<() => BuilderSurface | null>(() => null) }))
+mockNuxtImport('useBuilderSurface', () => surface)
 
 /**
  * The page-builder dispatcher: a section's `componentType` picks the
@@ -33,6 +36,26 @@ describe('PageSection/Renderer', () => {
       description: 'Για αγορές άνω των 30 €',
     })
     expect(wrapper.find('h2').text()).toBe('Δωρεάν αποστολή')
+  })
+
+  it('marks the section with its node id on the editor\'s preview, in a wrapper that is no box', async () => {
+    surface.mockReturnValue('canvas')
+
+    const wrapper = await mountSection(section('cta_banner'))
+
+    await vi.waitFor(() => expect(wrapper.findComponent(CtaBanner).exists()).toBe(true))
+    const mark = wrapper.get(`[${BUILDER_CANVAS_NODE_ATTRIBUTE}]`)
+    expect(mark.attributes(BUILDER_CANVAS_NODE_ATTRIBUTE)).toBe(wrapper.props('section').id)
+    expect(mark.classes()).toEqual(['contents'])
+    expect(mark.find('h2').text()).toBe('Δωρεάν αποστολή')
+    surface.mockReturnValue(null)
+  })
+
+  it('adds nothing to a shopper\'s page', async () => {
+    const wrapper = await mountSection(section('cta_banner'))
+
+    await vi.waitFor(() => expect(wrapper.findComponent(CtaBanner).exists()).toBe(true))
+    expect(wrapper.find(`[${BUILDER_CANVAS_NODE_ATTRIBUTE}]`).exists()).toBe(false)
   })
 
   it('gives «Εκ φύσεως Φυτειάς» its own variant, and the others none of it', async () => {

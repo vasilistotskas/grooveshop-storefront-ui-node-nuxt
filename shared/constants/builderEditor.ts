@@ -90,6 +90,12 @@ export const BUILDER_CANVAS_CHANNEL = 'grooveshop-builder-canvas'
 /** How long the canvas waits after the last change it was sent before it asks for a new preview, in milliseconds. */
 export const BUILDER_CANVAS_PREVIEW_DELAY_MS = 300
 
+/** The selected section's toolbar over the preview, in CSS pixels: its size, and its distance from the section and the pane's edges. */
+export const BUILDER_CANVAS_TOOLBAR = { width: 248, height: 76, gap: 8 } as const
+
+/** The attribute the canvas marks each drawn section's root element with: its node id. */
+export const BUILDER_CANVAS_NODE_ATTRIBUTE = 'data-builder-node'
+
 /** The key of the state that holds what the canvas draws in place of the published store (`useBuilderCanvasPreview`). */
 export const BUILDER_CANVAS_PREVIEW_STATE = 'builder-canvas-preview'
 

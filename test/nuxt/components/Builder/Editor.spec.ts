@@ -214,8 +214,8 @@ describe('the preview', () => {
   let canvas: MessagePort
   let sent: ReturnType<typeof vi.fn<MessagePort['postMessage']>>
 
-  async function openWithCanvas(route = '/_builder') {
-    const wrapper = await open(route)
+  async function openWithCanvas(route = '/_builder', as = session) {
+    const wrapper = await open(route, as)
     canvas = new MessageChannel().port1
     sent = vi.fn<MessagePort['postMessage']>()
     vi.spyOn(canvas, 'postMessage').mockImplementation(sent)
@@ -227,7 +227,9 @@ describe('the preview', () => {
     window.dispatchEvent(new MessageEvent('message', { data: { channel: BUILDER_CANVAS_CHANNEL, ...data }, source, origin: window.location.origin }))
   }
 
-  const sentKeys = () => sent.mock.calls.map(([command]) => Object.keys(command.documents))
+  const sentKeys = () => sent.mock.calls.map(([command]) => command).filter(command => command.type === 'documents').map(command => Object.keys(command.documents))
+  const selections = () => sent.mock.calls.map(([command]) => command).filter(command => command.type === 'select').map(command => command.node)
+  const box = (node: string) => ({ node, x: 0, y: 120, width: 800, height: 300 })
 
   it('draws the page at its own address, asked for as the preview', async () => {
     const wrapper = await openWithCanvas()
@@ -249,8 +251,9 @@ describe('the preview', () => {
     await wrapper.get('button[aria-label="Μετακίνηση κάτω"]').trigger('click')
     await flushPromises()
 
-    expect(sent).toHaveBeenCalledTimes(2)
-    expect(sent.mock.calls[1]![0].documents['template:home'].draft.order).toEqual(['grid', 'hero', 'news'])
+    const documentsSent = sent.mock.calls.map(([command]) => command).filter(command => command.type === 'documents')
+    expect(documentsSent).toHaveLength(2)
+    expect(documentsSent[1].documents['template:home'].draft.order).toEqual(['grid', 'hero', 'news'])
   })
 
   it('shows the preview once drawn, and says when it could not be updated, offering to try again', async () => {
@@ -293,6 +296,58 @@ describe('the preview', () => {
 
     await vi.waitFor(() => expect(document.body.textContent).toContain('Αυτή η σελίδα δεν φτιάχνεται εδώ'))
     expect(useRoute().query.doc).toBeUndefined()
+  })
+
+  it('selects a section clicked in the preview', async () => {
+    await openWithCanvas()
+
+    tell({ type: 'pick', node: 'grid' })
+    await flushPromises()
+
+    await vi.waitFor(() => expect(useRoute().query.node).toBe('template:home/grid'))
+  })
+
+  it('tells the preview what is selected once it listens, and every time it changes', async () => {
+    const wrapper = await openWithCanvas('/_builder?node=template:home/hero')
+
+    tell({ type: 'ready' })
+    await wrapper.findAll('[role="treeitem"]').find(item => item.text().startsWith('Πλέγμα προϊόντων'))!.trigger('click')
+    await flushPromises()
+
+    await vi.waitFor(() => expect(selections()).toEqual(['hero', 'grid']))
+  })
+
+  it('tells the preview nothing is selected there when the selection is a section group\'s', async () => {
+    await openWithCanvas('/_builder?node=group:header/menu')
+
+    tell({ type: 'ready' })
+
+    expect(selections()).toEqual([null])
+  })
+
+  it('outlines the section under the pointer and the selected one, with the selection\'s toolbar', async () => {
+    const wrapper = await openWithCanvas('/_builder?node=template:home/hero')
+
+    tell({ type: 'boxes', hover: box('grid'), selected: box('hero') })
+    await flushPromises()
+
+    expect(wrapper.find('[data-builder-outline="hover"]').exists()).toBe(true)
+    expect(wrapper.find('[data-builder-outline="selected"]').exists()).toBe(true)
+    expect(wrapper.findAll('[role="toolbar"]')).toHaveLength(2)
+
+    tell({ type: 'boxes', hover: null, selected: null })
+    await flushPromises()
+    expect(wrapper.find('[data-builder-outline]').exists()).toBe(false)
+  })
+
+  it('outlines the selection for STAFF, with no toolbar to change it', async () => {
+    const wrapper = await openWithCanvas('/_builder?node=template:home/hero', { ...session, staff: { ...session.staff, role: 'staff' } })
+
+    tell({ type: 'boxes', hover: null, selected: box('hero') })
+    await flushPromises()
+
+    expect(wrapper.find('[data-builder-outline="selected"]').exists()).toBe(true)
+    expect(wrapper.find('[role="toolbar"]').exists()).toBe(false)
   })
 
   it('draws the page at a device\'s width, kept in the address', async () => {

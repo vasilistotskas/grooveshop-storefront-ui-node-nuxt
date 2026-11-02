@@ -7,7 +7,7 @@ const props = defineProps<{
 const { t } = useStoreI18n('components/Builder/Canvas')
 const { documentLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
-const { device, openDocument, setDevice } = useBuilderEditorView()
+const { device, selected, openDocument, select, setDevice } = useBuilderEditorView()
 const toast = useToast()
 
 const frame = useTemplateRef<HTMLIFrameElement>('frame')
@@ -34,6 +34,21 @@ const documents = computed<BuilderCanvasDocuments>(() => Object.fromEntries(
   }),
 ))
 
+/** The selected node, when it is a section of this page: the canvas draws the page's sections only. */
+const selectedNode = computed(() => {
+  const ref = selected.value ? parseBuilderNodeRef(selected.value) : undefined
+  return ref?.documentKey === props.documentKey ? ref.nodeId : null
+})
+
+/** Where the section under the pointer and the selected one are drawn in the canvas (its CSS pixels). */
+const boxes = ref<{ hover: BuilderCanvasBox | null, selected: BuilderCanvasBox | null }>({ hover: null, selected: null })
+
+function tellSelection(): void {
+  const command: BuilderCanvasCommand = { channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: selectedNode.value }
+  frame.value?.contentWindow?.postMessage(command, window.location.origin)
+}
+watch(selectedNode, tellSelection)
+
 function send(): void {
   const target = frame.value?.contentWindow
   if (!target) return
@@ -50,6 +65,13 @@ useEventListener(window, 'message', (event: MessageEvent) => {
   switch (message.data.type) {
     case 'ready':
       send()
+      tellSelection()
+      break
+    case 'pick':
+      void select(builderNodeRef(props.documentKey, message.data.node))
+      break
+    case 'boxes':
+      boxes.value = { hover: message.data.hover, selected: message.data.selected }
       break
     case 'drawn':
       state.value = 'drawn'
@@ -92,6 +114,40 @@ const frameStyle = computed(() => ({
   height: `${paneHeight.value / scale.value}px`,
   transform: scale.value < 1 ? `scale(${scale.value})` : undefined,
 }))
+
+/**
+ * A box of the canvas in the pane's pixels: through the frame's offset in the
+ * pane and its scale. Read when the boxes change, which the canvas reports on
+ * every scroll and resize.
+ */
+function inPane(box: BuilderCanvasBox | null) {
+  const frameElement = frame.value
+  const paneElement = pane.value
+  if (!box || !frameElement || !paneElement) return undefined
+  const origin = frameElement.getBoundingClientRect()
+  const within = paneElement.getBoundingClientRect()
+  return {
+    left: origin.left - within.left + box.x * scale.value,
+    top: origin.top - within.top + box.y * scale.value,
+    width: box.width * scale.value,
+    height: box.height * scale.value,
+  }
+}
+const hoverOutline = computed(() => inPane(boxes.value.hover))
+const selectedOutline = computed(() => inPane(boxes.value.selected))
+const pixels = (value: number) => `${value}px`
+
+/** The toolbar sits above the selected section, inside it when there is no room above, and never past the pane's edges. */
+const toolbarStyle = computed(() => {
+  const outline = selectedOutline.value
+  if (!outline) return undefined
+  const above = outline.top - BUILDER_CANVAS_TOOLBAR.height - BUILDER_CANVAS_TOOLBAR.gap
+  return {
+    top: pixels(above >= 0 ? above : Math.max(outline.top, 0) + BUILDER_CANVAS_TOOLBAR.gap),
+    left: pixels(Math.min(Math.max(outline.left, BUILDER_CANVAS_TOOLBAR.gap), paneWidth.value - BUILDER_CANVAS_TOOLBAR.width - BUILDER_CANVAS_TOOLBAR.gap)),
+    width: pixels(BUILDER_CANVAS_TOOLBAR.width),
+  }
+})
 
 const pageName = computed(() => documentLabel(props.documentKey))
 </script>
@@ -153,6 +209,25 @@ const pageName = computed(() => documentLabel(props.documentKey))
             class="shrink-0 origin-top border-0 bg-default"
             :style="frameStyle"
           />
+        </div>
+        <div
+          v-if="hoverOutline"
+          class="pointer-events-none absolute rounded-sm border-2 border-dashed border-primary/60"
+          :style="{ left: pixels(hoverOutline.left), top: pixels(hoverOutline.top), width: pixels(hoverOutline.width), height: pixels(hoverOutline.height) }"
+          data-builder-outline="hover"
+        />
+        <div
+          v-if="selectedOutline"
+          class="pointer-events-none absolute rounded-sm border-2 border-primary"
+          :style="{ left: pixels(selectedOutline.left), top: pixels(selectedOutline.top), width: pixels(selectedOutline.width), height: pixels(selectedOutline.height) }"
+          data-builder-outline="selected"
+        />
+        <div
+          v-if="toolbarStyle && store.canEdit"
+          class="absolute rounded-md bg-default p-2 shadow-lg ring ring-default"
+          :style="toolbarStyle"
+        >
+          <BuilderNodeActions />
         </div>
         <div
           v-if="state === 'loading'"
