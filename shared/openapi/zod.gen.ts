@@ -107,6 +107,13 @@ export const zAgentProtocolEnum = z.enum([
   'mcp',
 ])
 
+export const zAssetUploadRequest = z.object({
+  file: z.string(),
+  focalX: z.number().nullish(),
+  focalY: z.number().nullish(),
+  alt: z.unknown().optional(),
+})
+
 /**
  * Serializer for Attribute with translations.
  */
@@ -681,6 +688,25 @@ export const zBrand = z.object({
   name: z.string().readonly(),
 })
 
+/**
+ * * `theme` - Θέμα
+ * * `group` - Ομάδα ενοτήτων
+ * * `template` - Πρότυπο
+ * * `page` - Σελίδα
+ */
+export const zBuilderDocumentKindEnum = z.enum([
+  'theme',
+  'group',
+  'template',
+  'page',
+])
+
+/**
+ * * `checkpoint` - Ονομασμένη αποθήκευση
+ * * `publish` - Δημοσίευση
+ */
+export const zBuilderVersionKindEnum = z.enum(['checkpoint', 'publish'])
+
 export const zBulkSubscriptionFailure = z.object({
   topic: z.string().readonly(),
   error: z.string().readonly(),
@@ -789,6 +815,10 @@ export const zCartPaymentIntentResponse = z.object({
   currency: z.string().max(3),
 })
 
+export const zCheckpointWriteRequest = z.object({
+  note: z.string().max(255).optional().default(''),
+})
+
 /**
  * * `gclid` - gclid
  * * `gbraid` - gbraid
@@ -821,99 +851,6 @@ export const zCompartmentSizeEnum = z.union([
   z.literal(1),
   z.literal(2),
   z.literal(3),
-])
-
-/**
- * * `hero_banner` - Κεντρικό banner
- * * `hero_carousel` - Κεντρικό καρουζέλ
- * * `products_slider` - Slider προϊόντων
- * * `products_grid` - Πλέγμα προϊόντων
- * * `featured_products` - Προτεινόμενα Προϊόντα
- * * `product_categories` - Κατηγορίες προϊόντος
- * * `blog_categories` - Λωρίδα κατηγοριών Blog
- * * `blog_posts_carousel` - Καρουζέλ άρθρων Blog
- * * `blog_posts_grid` - Πλέγμα άρθρων Blog
- * * `blog_posts_list` - Λίστα άρθρων Blog
- * * `recently_viewed` - Λωρίδα πρόσφατα προβληθέντων
- * * `rich_text` - Μπλοκ εμπλουτισμένου κειμένου
- * * `cta_banner` - Banner παρότρυνσης για δράση
- * * `newsletter_signup` - Εγγραφή στο newsletter
- * * `testimonials` - Μαρτυρίες πελατών
- * * `about_content` - Περιεχόμενο «Σχετικά με εμάς»
- * * `vision_content` - Περιεχόμενο «Όραμα»
- * * `what_is_microlearning` - Τι είναι η μικρομάθηση
- * * `why_microlearning` - Γιατί μικρομάθηση
- * * `spacer` - Κενό διάστημα
- * * `divider` - Διαχωριστικό
- * * `loyalty_hero` - Κεντρική ενότητα προγράμματος πιστότητας
- * * `search_bar` - Γραμμή αναζήτησης
- * * `business_hours` - Ωράριο λειτουργίας
- * * `location_map` - Χάρτης τοποθεσίας
- * * `features_grid` - Πλέγμα χαρακτηριστικών
- * * `media_text` - Πολυμέσα + κείμενο
- * * `image_gallery` - Συλλογή εικόνων
- * * `story_timeline` - Χρονολόγιο ιστορίας
- * * `faq` - Συχνές ερωτήσεις (accordion)
- * * `trust_badges` - Σήματα εμπιστοσύνης
- * * `offers_preview` - Προεπισκόπηση προσφορών
- * * `stats_strip` - Λωρίδα στατιστικών
- * * `partner_strip` - Λωρίδα συνεργατών
- * * `pull_quote` - Επισημασμένο απόσπασμα
- * * `reference_cards` - Κάρτες αναφοράς
- * * `page_hero` - Κεντρική ενότητα σελίδας
- * * `feature_lists` - Λίστες χαρακτηριστικών
- * * `option_selector` - Επιλογέας επιλογών
- * * `comparison_table` - Πίνακας σύγκρισης
- * * `flow_steps` - Βήματα ροής
- * * `project_register` - Μητρώο έργων
- * * `vendor_cards` - Κάρτες προμηθευτών
- * * `contact_panel` - Πλαίσιο επικοινωνίας
- */
-export const zComponentTypeEnum = z.enum([
-  'hero_banner',
-  'hero_carousel',
-  'products_slider',
-  'products_grid',
-  'featured_products',
-  'product_categories',
-  'blog_categories',
-  'blog_posts_carousel',
-  'blog_posts_grid',
-  'blog_posts_list',
-  'recently_viewed',
-  'rich_text',
-  'cta_banner',
-  'newsletter_signup',
-  'testimonials',
-  'about_content',
-  'vision_content',
-  'what_is_microlearning',
-  'why_microlearning',
-  'spacer',
-  'divider',
-  'loyalty_hero',
-  'search_bar',
-  'business_hours',
-  'location_map',
-  'features_grid',
-  'media_text',
-  'image_gallery',
-  'story_timeline',
-  'faq',
-  'trust_badges',
-  'offers_preview',
-  'stats_strip',
-  'partner_strip',
-  'pull_quote',
-  'reference_cards',
-  'page_hero',
-  'feature_lists',
-  'option_selector',
-  'comparison_table',
-  'flow_steps',
-  'project_register',
-  'vendor_cards',
-  'contact_panel',
 ])
 
 export const zConfirmAgentPaymentRequestRequest = z.object({
@@ -1156,6 +1093,11 @@ export const zDeleteAccountResponse = z.object({
 export const zDetail = z.object({
   detail: z.string(),
   code: z.string().optional(),
+})
+
+export const zDraftWriteRequest = z.object({
+  draft: z.unknown(),
+  i18n: z.unknown().optional(),
 })
 
 export const zEmailPreference = z.object({
@@ -1851,90 +1793,6 @@ export const zOrderWriteRequest = z.object({
   customerNotes: z.string().optional(),
 })
 
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export const zPageLayoutAdminDetailRequest = z.object({
-  pageType: z.string().min(1).max(50),
-  title: z.string().min(1).max(200),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-  }),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-})
-
-export const zPageSection = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  componentType: zComponentTypeEnum,
-  title: z.string().max(200).optional(),
-  isVisible: z.boolean().optional(),
-  props: z.unknown().optional(),
-  sortOrder: z.int().readonly().nullable(),
-})
-
-/**
- * The public, per-locale layout (``public_page_config``).
- *
- * Page config answers ONE locale per request (see
- * ``page_config.localization``), so the SEO fields travel as flat
- * strings resolved for it rather than as a ``translations`` object.
- */
-export const zPageLayout = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  pageType: z.string().max(50),
-  title: z.string().max(200),
-  seoTitle: z.string().readonly(),
-  seoDescription: z.string().readonly(),
-  seoKeywords: z.string().readonly(),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-  sections: z.array(zPageSection).readonly(),
-})
-
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export const zPageLayoutAdminDetail = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  pageType: z.string().max(50),
-  title: z.string().max(200),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-  }),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-  sections: z.array(zPageSection).readonly(),
-})
-
-export const zPageSectionRequest = z.object({
-  componentType: zComponentTypeEnum,
-  title: z.string().max(200).optional(),
-  isVisible: z.boolean().optional(),
-  props: z.unknown().optional(),
-})
-
 export const zPaginatedAttributeList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -2078,17 +1936,10 @@ export const zPaginatedOrderItemList = z.object({
   results: z.array(zOrderItem),
 })
 
-export const zPaginatedPageLayoutAdminDetailList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zPageLayoutAdminDetail),
+export const zPatchedAssetUpdateRequest = z.object({
+  focalX: z.number().nullish(),
+  focalY: z.number().nullish(),
+  alt: z.unknown().optional(),
 })
 
 /**
@@ -2288,28 +2139,6 @@ export const zPatchedOrderWriteRequest = z.object({
   customerNotes: z.string().optional(),
 })
 
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export const zPatchedPageLayoutAdminDetailRequest = z.object({
-  pageType: z.string().min(1).max(50).optional(),
-  title: z.string().min(1).max(200).optional(),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-  }).optional(),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-})
-
 export const zPatchedProductCategoryImageBulkUpdateRequest = z.object({
   imageIds: z.array(z.int()).optional(),
   active: z.boolean().optional(),
@@ -2430,6 +2259,10 @@ export const zPatchedRegionWriteRequest = z.object({
   }).optional(),
   alpha: z.string().min(1).max(10).optional(),
   country: z.string().min(1).optional(),
+})
+
+export const zPatchedRescheduleRequest = z.object({
+  scheduledFor: z.iso.datetime({ offset: true }).optional(),
 })
 
 /**
@@ -3774,18 +3607,9 @@ export const zPublicSettings = z.object({
   settings: z.record(z.string(), z.string()),
 })
 
-/**
- * One published layout of the store, as the storefront's sitemap
- * lists it (``public_published_layouts``).
- *
- * ``last_modified`` is the later of the layout's own ``updated_at`` and
- * its newest section's: editing a section changes the page without
- * touching the layout row, and a sitemap ``<lastmod>`` that missed it
- * would tell crawlers the page had not changed.
- */
-export const zPublishedPageLayout = z.object({
-  pageType: z.string().max(50),
-  lastModified: z.iso.datetime({ offset: true }).readonly(),
+export const zPublishWriteRequest = z.object({
+  documents: z.array(z.string().min(1).max(80)),
+  note: z.string().max(255).optional().default(''),
 })
 
 /**
@@ -4078,6 +3902,21 @@ export const zReserveStockResponse = z.object({
   message: z.string(),
 })
 
+export const zResolvedAsset = z.object({
+  id: z.int().readonly(),
+  path: z.string().readonly(),
+  width: z.int().readonly(),
+  height: z.int().readonly(),
+  mime: z.string().readonly(),
+  focalX: z.number().readonly(),
+  focalY: z.number().readonly(),
+  alt: z.string().readonly(),
+})
+
+export const zResolvedMedia = z.object({
+  results: z.array(zResolvedAsset),
+})
+
 /**
  * * `product` - product
  * * `blog_post` - blog_post
@@ -4094,6 +3933,11 @@ export const zReviewStatus = z.enum([
   'TRUE',
   'FALSE',
 ])
+
+export const zRollbackWriteRequest = z.object({
+  release: z.int().gte(1),
+  note: z.string().max(255).optional().default(''),
+})
 
 /**
  * * `PENDING` - Εκκρεμεί σάρωση
@@ -4123,6 +3967,25 @@ export const zContactAttachment = z.object({
 })
 
 /**
+ * * `pending` - Εκκρεμεί
+ * * `published` - Δημοσιευμένο
+ * * `cancelled` - Ακυρώθηκε
+ * * `failed` - Απέτυχε
+ */
+export const zScheduleStatusEnum = z.enum([
+  'pending',
+  'published',
+  'cancelled',
+  'failed',
+])
+
+export const zScheduleWriteRequest = z.object({
+  documents: z.array(z.string().min(1).max(80)),
+  scheduledFor: z.iso.datetime({ offset: true }),
+  note: z.string().max(255).optional().default(''),
+})
+
+/**
  * Payload for attributing a result click to a search query.
  */
 export const zSearchClickRequestRequest = z.object({
@@ -4143,6 +4006,22 @@ export const zSearchVolume = z.object({
   total: z.int(),
   byContentType: z.record(z.string(), z.int()),
   byLanguage: z.record(z.string(), z.int()),
+})
+
+export const zSessionRequestRequest = z.object({
+  ticket: z.string().min(1).max(128),
+})
+
+export const zSessionStaff = z.object({
+  id: z.int(),
+  name: z.string(),
+  role: z.string(),
+})
+
+export const zSessionResponse = z.object({
+  token: z.string(),
+  expiresAt: z.iso.datetime({ offset: true }),
+  staff: zSessionStaff,
 })
 
 export const zSetting = z.object({
@@ -4653,40 +4532,51 @@ export const zPaginatedAcsStationList = z.object({
   results: z.array(zAcsStation),
 })
 
-/**
- * * `header` - Κεφαλίδα
- * * `footer` - Υποσέλιδο
- * * `mobile` - Κινητό
- */
-export const zSlotEnum = z.enum([
-  'header',
-  'footer',
-  'mobile',
-])
-
-/**
- * The slot row alone.
- *
- * Columns and links are relational and edited in the admin; this
- * surface used to carry the JSON menu and validate it, and that blob
- * no longer exists on the model.
- */
-export const zNavigationMenu = z.object({
-  slot: zSlotEnum,
+export const zStaff = z.object({
+  id: z.int(),
+  name: z.string(),
 })
 
-/**
- * The slot row alone.
- *
- * Columns and links are relational and edited in the admin; this
- * surface used to carry the JSON menu and validate it, and that blob
- * no longer exists on the model.
- */
-export const zNavigationMenuRequest = z.object({
-  slot: zSlotEnum,
+export const zAsset = z.object({
+  id: z.int().readonly(),
+  path: z.string().readonly(),
+  width: z.int().readonly(),
+  height: z.int().readonly(),
+  mime: z.string().readonly(),
+  sizeBytes: z.int().readonly(),
+  focalX: z.number().readonly(),
+  focalY: z.number().readonly(),
+  alt: z.record(z.string(), z.string()).readonly(),
+  uploadedBy: zStaff.nullable(),
+  usedBy: z.array(z.string()).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
 })
 
-export const zPaginatedNavigationMenuList = z.object({
+export const zDocumentDetail = z.object({
+  key: z.string().readonly(),
+  kind: zBuilderDocumentKindEnum,
+  draftRevision: z.int().readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedBy: zStaff.nullable(),
+  publishedVersion: z.int().readonly().nullable(),
+  hasUnpublishedChanges: z.boolean().readonly(),
+  draft: z.unknown(),
+  i18n: z.unknown(),
+  draftCatalogueHash: z.string().readonly(),
+})
+
+export const zDocumentList = z.object({
+  key: z.string().readonly(),
+  kind: zBuilderDocumentKindEnum,
+  draftRevision: z.int().readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedBy: zStaff.nullable(),
+  publishedVersion: z.int().readonly().nullable(),
+  hasUnpublishedChanges: z.boolean().readonly(),
+})
+
+export const zPaginatedAssetList = z.object({
   links: z.object({
     next: z.url().nullish(),
     previous: z.url().nullish(),
@@ -4696,18 +4586,69 @@ export const zPaginatedNavigationMenuList = z.object({
   pageSize: z.int().optional(),
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
-  results: z.array(zNavigationMenu),
+  results: z.array(zAsset),
 })
 
-/**
- * The slot row alone.
- *
- * Columns and links are relational and edited in the admin; this
- * surface used to carry the JSON menu and validate it, and that blob
- * no longer exists on the model.
- */
-export const zPatchedNavigationMenuRequest = z.object({
-  slot: zSlotEnum.optional(),
+export const zPaginatedDocumentListList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zDocumentList),
+})
+
+export const zRelease = z.object({
+  id: z.int().readonly(),
+  number: z.int().readonly(),
+  publishedAt: z.iso.datetime({ offset: true }).readonly(),
+  publishedBy: zStaff.nullable(),
+  note: z.string().readonly(),
+  rolledBackFrom: z.int().gte(0).lte(2147483647).readonly(),
+  versions: z.unknown(),
+})
+
+export const zPaginatedReleaseList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zRelease),
+})
+
+export const zSchedule = z.object({
+  id: z.int().readonly(),
+  scheduledFor: z.iso.datetime({ offset: true }).readonly(),
+  status: zScheduleStatusEnum,
+  documents: z.array(z.string()).readonly(),
+  note: z.string().readonly(),
+  scheduledBy: zStaff.nullable(),
+  executedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  release: z.int().gte(0).lte(2147483647).readonly(),
+  failure: z.unknown(),
+  acknowledgedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+})
+
+export const zPaginatedScheduleList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zSchedule),
 })
 
 /**
@@ -6128,6 +6069,46 @@ export const zProductVariantsResponse = z.object({
   variants: z.array(zProductVariant),
 })
 
+export const zVersionDetail = z.object({
+  id: z.int().readonly(),
+  number: z.int().readonly(),
+  kind: zBuilderVersionKindEnum,
+  note: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  createdBy: zStaff.nullable(),
+  sizeBytes: z.int().readonly(),
+  blockTypes: z.array(z.string().max(80)).readonly(),
+  catalogueHash: z.string().readonly(),
+  data: z.unknown(),
+  i18n: z.unknown(),
+  refs: z.unknown(),
+})
+
+export const zVersionList = z.object({
+  id: z.int().readonly(),
+  number: z.int().readonly(),
+  kind: zBuilderVersionKindEnum,
+  note: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  createdBy: zStaff.nullable(),
+  sizeBytes: z.int().readonly(),
+  blockTypes: z.array(z.string().max(80)).readonly(),
+  catalogueHash: z.string().readonly(),
+})
+
+export const zPaginatedVersionListList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zVersionList),
+})
+
 /**
  * * `UNCHECKED` - Δεν έχει ελεγχθεί
  * * `VALID` - Έγκυρο
@@ -6243,527 +6224,6 @@ export const zApiValidationError = z.object({
   fields: z.record(z.string(), zApiFieldErrors),
 })
 
-export const zPageSectionHeroBannerProps = z.object({
-  heading: z.string().max(200).optional(),
-  stats: z.array(z.object({
-    value: z.string().min(1).max(12),
-    label: z.string().min(1).max(80),
-  })).max(4).optional(),
-  subheading: z.string().max(500).optional(),
-  eyebrow: z.string().max(100).optional(),
-  imageUrl: z.string().max(1000).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  secondaryCtaText: z.string().max(100).optional(),
-  secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  overlayOpacity: z.number().gte(0).lte(1).optional(),
-  decor: z.enum([
-    'none',
-    'orbs',
-    'gradient',
-  ]).optional(),
-  mobileImageUrl: z.string().max(1000).optional(),
-  imageAlt: z.string().max(200).optional(),
-  align: z.enum(['left', 'center']).optional(),
-  theme: z.enum([
-    'light',
-    'dark',
-    'auto',
-  ]).optional(),
-})
-
-export const zPageSectionHeroCarouselProps = z.object({
-  slides: z.array(z.object({
-    imageUrl: z.string().min(1).max(1000),
-    mobileImageUrl: z.string().max(1000).optional(),
-    alt: z.string().max(200).optional(),
-    eyebrow: z.string().max(100).optional(),
-    heading: z.string().max(200).optional(),
-    subheading: z.string().max(500).optional(),
-    ctaText: z.string().max(100).optional(),
-    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-    secondaryCtaText: z.string().max(100).optional(),
-    secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-    productId: z.int().gte(1).lte(2147483647).optional(),
-  })).max(8).optional(),
-  autoplayMs: z.union([
-    z.literal(0),
-    z.int().gte(3000).lte(15000),
-  ]).optional(),
-  aspect: z.enum([
-    'wide',
-    'banner',
-    'square',
-  ]).optional(),
-  images: z.array(z.string().max(1000)).max(10).optional(),
-  mobileImages: z.array(z.string().max(1000)).max(10).optional(),
-  link: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-})
-
-export const zPageSectionProductsSliderProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  ordering: z.enum([
-    'featured',
-    'newest',
-    'popular',
-    'discounted',
-    'rating',
-  ]).optional(),
-  categoryId: z.int().gte(1).lte(2147483647).optional(),
-  showAddToCart: z.boolean().optional(),
-  pageSize: z.int().gte(1).lte(24).optional(),
-})
-
-export const zPageSectionProductsGridProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  ordering: z.enum([
-    'featured',
-    'newest',
-    'popular',
-    'discounted',
-    'rating',
-  ]).optional(),
-  categoryId: z.int().gte(1).lte(2147483647).optional(),
-  showAddToCart: z.boolean().optional(),
-  pageSize: z.int().gte(1).lte(48).optional(),
-})
-
-export const zPageSectionFeaturedProductsProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  ordering: z.enum([
-    'featured',
-    'newest',
-    'popular',
-    'discounted',
-    'rating',
-  ]).optional(),
-  categoryId: z.int().gte(1).lte(2147483647).optional(),
-  showAddToCart: z.boolean().optional(),
-  pageSize: z.int().gte(1).lte(24).optional(),
-  columns: z.int().gte(1).lte(6).optional(),
-})
-
-export const zPageSectionProductCategoriesProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  layout: z.enum([
-    'slider',
-    'grid',
-    'tiles',
-  ]).optional(),
-  parentId: z.int().gte(1).lte(2147483647).optional(),
-  limit: z.int().gte(1).lte(24).optional(),
-})
-
-export const zPageSectionBlogCategoriesProps = z.record(z.string(), z.never())
-
-export const zPageSectionBlogPostsCarouselProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  categoryId: z.int().gte(1).lte(2147483647).optional(),
-  count: z.int().gte(1).lte(12).optional(),
-})
-
-export const zPageSectionBlogPostsGridProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  categoryId: z.int().gte(1).lte(2147483647).optional(),
-  count: z.int().gte(1).lte(24).optional(),
-})
-
-export const zPageSectionBlogPostsListProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  categoryId: z.int().gte(1).lte(2147483647).optional(),
-  pageSize: z.int().gte(1).lte(24).optional(),
-})
-
-export const zPageSectionRecentlyViewedProps = z.object({
-  heading: z.string().max(200).optional(),
-})
-
-export const zPageSectionRichTextProps = z.object({
-  content: z.string().max(20000).optional(),
-})
-
-export const zPageSectionCtaBannerProps = z.object({
-  heading: z.string().max(200).optional(),
-  description: z.string().max(1000).optional(),
-  buttonText: z.string().max(100).optional(),
-  buttonLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
-  surface: z.enum(['default', 'muted']).optional(),
-})
-
-export const zPageSectionNewsletterSignupProps = z.object({
-  heading: z.string().max(200).optional(),
-  description: z.string().max(1000).optional(),
-  placeholder: z.string().max(100).optional(),
-  buttonText: z.string().max(60).optional(),
-  surface: z.enum(['default', 'muted']).optional(),
-})
-
-export const zPageSectionTestimonialsProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  items: z.array(z.object({
-    name: z.string().max(100).optional(),
-    text: z.string().max(1000).optional(),
-    avatar: z.string().max(1000).optional(),
-    role: z.string().max(100).optional(),
-    rating: z.int().gte(1).lte(5).optional(),
-  })).max(20).optional(),
-})
-
-export const zPageSectionSpacerProps = z.object({
-  height: z.enum([
-    'sm',
-    'md',
-    'lg',
-    'xl',
-  ]).optional(),
-})
-
-export const zPageSectionDividerProps = z.object({
-  variant: z.enum(['line', 'thread']).optional(),
-})
-
-export const zPageSectionLoyaltyHeroProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  eyebrow: z.string().max(100).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  secondaryCtaText: z.string().max(100).optional(),
-  secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-})
-
-export const zPageSectionSearchBarProps = z.record(z.string(), z.never())
-
-export const zPageSectionAboutContentProps = z.record(z.string(), z.never())
-
-export const zPageSectionVisionContentProps = z.record(z.string(), z.never())
-
-export const zPageSectionWhatIsMicrolearningProps = z.record(z.string(), z.never())
-
-export const zPageSectionWhyMicrolearningProps = z.record(z.string(), z.never())
-
-export const zPageSectionBusinessHoursProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-})
-
-export const zPageSectionLocationMapProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  embedUrl: z.string().max(1000).regex(/^https:\/\//).optional(),
-  address: z.string().max(300).optional(),
-})
-
-export const zPageSectionPartnerStripProps = z.object({
-  label: z.string().max(80).optional(),
-  items: z.array(z.object({
-    name: z.string().min(1).max(60),
-    href: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  })).max(12).optional(),
-})
-
-export const zPageSectionPageHeroProps = z.object({
-  eyebrow: z.string().max(100).optional(),
-  heading: z.string().max(200).optional(),
-  standfirst: z.string().max(300).optional(),
-  body: z.string().max(1000).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  secondaryCtaText: z.string().max(100).optional(),
-  secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  stats: z.array(z.object({
-    value: z.string().min(1).max(12),
-    label: z.string().min(1).max(80),
-  })).max(4).optional(),
-  callout: z.object({
-    tone: z.enum([
-      'info',
-      'warning',
-      'success',
-    ]).optional(),
-    title: z.string().min(1).max(100),
-    text: z.string().max(400).optional(),
-    note: z.string().max(160).optional(),
-  }).optional(),
-  facts: z.array(z.object({
-    label: z.string().min(1).max(40),
-    value: z.string().min(1).max(60),
-  })).max(6).optional(),
-})
-
-export const zPageSectionFeatureListsProps = z.object({
-  heading: z.string().max(200).optional(),
-  note: z.string().max(1000).optional(),
-  emphasis: z.string().max(120).optional(),
-  items: z.array(z.object({
-    title: z.string().min(1).max(100),
-    icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
-    bullets: z.array(z.string().min(1).max(300)).max(8).optional(),
-  })).max(4).optional(),
-})
-
-export const zPageSectionOptionSelectorProps = z.object({
-  heading: z.string().max(200).optional(),
-  standfirst: z.string().max(400).optional(),
-  rowsLabel: z.string().max(60).optional(),
-  rationaleLabel: z.string().max(60).optional(),
-  bulletsLabel: z.string().max(60).optional(),
-  layout: z.enum([
-    'cards',
-    'strip',
-    'rail',
-  ]).optional(),
-  prompt: z.object({
-    title: z.string().min(1).max(100),
-    text: z.string().max(300).optional(),
-    ctaText: z.string().max(100).optional(),
-    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  }).optional(),
-  options: z.array(z.object({
-    name: z.string().min(1).max(60),
-    label: z.string().max(40).optional(),
-    model: z.string().max(120).optional(),
-    title: z.string().max(120).optional(),
-    rationale: z.string().max(600).optional(),
-    note: z.string().max(400).optional(),
-    ctaText: z.string().max(100).optional(),
-    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-    bullets: z.array(z.string().min(1).max(200)).max(10).optional(),
-    rows: z.array(z.object({
-      label: z.string().min(1).max(60),
-      value: z.string().min(1).max(120),
-    })).max(12).optional(),
-  })).max(8).optional(),
-})
-
-export const zPageSectionComparisonTableProps = z.object({
-  heading: z.string().max(200).optional(),
-  rowLabel: z.string().max(60).optional(),
-  note: z.string().max(600).optional(),
-  columns: z.array(z.string().min(1).max(60)).min(1).max(4).optional(),
-  rows: z.array(z.object({
-    label: z.string().min(1).max(60),
-    values: z.array(z.string().max(120)).min(1).max(4),
-  })).max(24).optional(),
-})
-
-export const zPageSectionFlowStepsProps = z.object({
-  heading: z.string().max(200).optional(),
-  body: z.string().max(600).optional(),
-  items: z.array(z.object({
-    title: z.string().min(1).max(100),
-    label: z.string().max(60).optional(),
-    lines: z.array(z.string().min(1).max(120)).max(8).optional(),
-  })).max(4).optional(),
-})
-
-export const zPageSectionReferenceCardsProps = z.object({
-  heading: z.string().max(200).optional(),
-  metaLabel: z.string().max(40).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  items: z.array(z.object({
-    title: z.string().min(1).max(160),
-    label: z.string().max(60).optional(),
-    text: z.string().max(300).optional(),
-    meta: z.string().max(80).optional(),
-  })).max(6).optional(),
-})
-
-export const zPageSectionProjectRegisterProps = z.object({
-  metaLabel: z.string().max(60).optional(),
-  note: z.string().max(400).optional(),
-  sectors: z.array(z.object({
-    key: z.string().min(1).max(40),
-    label: z.string().min(1).max(40),
-  })).max(12).optional(),
-  items: z.array(z.object({
-    title: z.string().min(1).max(200),
-    sector: z.string().max(40).optional(),
-    note: z.string().max(200).optional(),
-    meta: z.string().max(120).optional(),
-  })).max(200).optional(),
-})
-
-export const zPageSectionVendorCardsProps = z.object({
-  note: z.string().max(400).optional(),
-  items: z.array(z.object({
-    title: z.string().min(1).max(60),
-    label: z.string().max(60).optional(),
-    text: z.string().max(600).optional(),
-    tags: z.array(z.string().min(1).max(40)).max(8).optional(),
-  })).max(8).optional(),
-})
-
-export const zPageSectionContactPanelProps = z.object({
-  eyebrow: z.string().max(100).optional(),
-  heading: z.string().max(200).optional(),
-  body: z.string().max(600).optional(),
-  hint: z.string().max(400).optional(),
-  responseTime: z.string().max(120).optional(),
-  subjects: z.array(z.object({
-    label: z.string().min(1).max(40),
-  })).max(6).optional(),
-})
-
-export const zPageSectionPullQuoteProps = z.object({
-  quote: z.string().max(300).optional(),
-  text: z.string().max(1000).optional(),
-  attribution: z.string().max(120).optional(),
-})
-
-export const zPageSectionFeaturesGridProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  items: z.array(z.object({
-    title: z.string().min(1).max(100),
-    text: z.string().max(500).optional(),
-    icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
-  })).max(12).optional(),
-  body: z.string().max(600).optional(),
-  columns: z.int().gte(1).lte(4).optional(),
-  decor: z.enum([
-    'none',
-    'gradient_tiles',
-    'framed',
-  ]).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  prompt: z.object({
-    title: z.string().min(1).max(100),
-    text: z.string().max(300).optional(),
-    ctaText: z.string().max(100).optional(),
-    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  }).optional(),
-})
-
-export const zPageSectionMediaTextProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  body: z.string().max(5000).optional(),
-  eyebrow: z.string().max(100).optional(),
-  note: z.string().max(200).optional(),
-  emphasis: z.string().max(120).optional(),
-  bullets: z.array(z.object({
-    text: z.string().min(1).max(300),
-  })).max(6).optional(),
-  specs: z.array(z.object({
-    label: z.string().max(40).optional(),
-    name: z.string().min(1).max(60),
-    subtitle: z.string().max(120).optional(),
-    rows: z.array(z.object({
-      label: z.string().min(1).max(40),
-      value: z.string().min(1).max(80),
-    })).max(8).optional(),
-  })).max(4).optional(),
-  imageUrl: z.string().max(1000).optional(),
-  imagePosition: z.enum(['left', 'right']).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  decor: z.enum([
-    'none',
-    'orbs',
-    'gradient',
-  ]).optional(),
-})
-
-export const zPageSectionImageGalleryProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  items: z.array(z.object({
-    src: z.string().min(1).max(1000),
-    alt: z.string().min(1).max(200),
-    caption: z.string().max(200).optional(),
-  })).max(24).optional(),
-  columns: z.int().gte(2).lte(4).optional(),
-})
-
-export const zPageSectionStoryTimelineProps = z.object({
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  items: z.array(z.object({
-    title: z.string().min(1).max(100),
-    date: z.string().max(50).optional(),
-    text: z.string().max(500).optional(),
-    icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
-  })).max(20).optional(),
-  surface: z.enum(['default', 'muted']).optional(),
-})
-
-export const zPageSectionFaqProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  items: z.array(z.object({
-    question: z.string().min(1).max(200),
-    answer: z.string().min(1).max(2000),
-  })).max(30).optional(),
-  multiple: z.boolean().optional(),
-})
-
-export const zPageSectionTrustBadgesProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
-  heading: z.string().max(200).optional(),
-  items: z.array(z.intersection(z.unknown(), z.object({
-    kind: z.enum([
-      'payment',
-      'shipping',
-      'ai',
-      'custom',
-    ]),
-    label: z.string().min(1).max(60),
-    imageUrl: z.string().max(1000).optional(),
-    icon: z.string().regex(/^i-[a-z0-9:-]+$/).optional(),
-    href: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-  }))).max(12).optional(),
-  marquee: z.boolean().optional(),
-})
-
-export const zPageSectionOffersPreviewProps = z.object({
-  surface: z.enum([
-    'default',
-    'muted',
-    'ink',
-  ]).optional(),
-  eyebrow: z.string().max(100).optional(),
-  heading: z.string().max(200).optional(),
-  subheading: z.string().max(500).optional(),
-  limit: z.int().gte(1).lte(6).optional(),
-  ctaText: z.string().max(100).optional(),
-  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
-})
-
-export const zPageSectionStatsStripProps = z.object({
-  items: z.array(z.object({
-    value: z.string().min(1).max(12),
-    label: z.string().min(1).max(80),
-  })).max(4).optional(),
-  surface: z.enum(['default', 'muted']).optional(),
-})
-
 /**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
@@ -6777,6 +6237,8 @@ export const zAgentFavouriteWritable = z.object({
   inStock: z.boolean(),
   addedAt: z.iso.datetime({ offset: true }),
 })
+
+export const zAssetWritable = z.record(z.string(), z.unknown())
 
 /**
  * Serializer for Attribute with translations.
@@ -7127,6 +6589,16 @@ export const zCountryDetailWritable = z.object({
   postalCodeExample: z.string().max(50).optional(),
 })
 
+export const zDocumentDetailWritable = z.object({
+  kind: zBuilderDocumentKindEnum,
+  draft: z.unknown(),
+  i18n: z.unknown(),
+})
+
+export const zDocumentListWritable = z.object({
+  kind: zBuilderDocumentKindEnum,
+})
+
 export const zFeedbackWriteWritable = z.object({
   name: z.string().max(100).optional(),
   email: z.union([
@@ -7348,49 +6820,6 @@ export const zOrderItemRestockResponseWritable = z.object({
   item: zOrderItemWritable,
 })
 
-/**
- * The public, per-locale layout (``public_page_config``).
- *
- * Page config answers ONE locale per request (see
- * ``page_config.localization``), so the SEO fields travel as flat
- * strings resolved for it rather than as a ``translations`` object.
- */
-export const zPageLayoutWritable = z.object({
-  pageType: z.string().max(50),
-  title: z.string().max(200),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-})
-
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export const zPageLayoutAdminDetailWritable = z.object({
-  pageType: z.string().max(50),
-  title: z.string().max(200),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-  }),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-})
-
-export const zPageSectionWritable = z.object({
-  componentType: zComponentTypeEnum,
-  title: z.string().max(200).optional(),
-  isVisible: z.boolean().optional(),
-  props: z.unknown().optional(),
-})
-
 export const zPaginatedAcsStationListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -7402,6 +6831,19 @@ export const zPaginatedAcsStationListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(z.unknown()),
+})
+
+export const zPaginatedAssetListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zAssetWritable),
 })
 
 export const zPaginatedAttributeListWritable = z.object({
@@ -7573,6 +7015,19 @@ export const zPaginatedCountryListWritable = z.object({
   results: z.array(zCountryWritable),
 })
 
+export const zPaginatedDocumentListListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zDocumentListWritable),
+})
+
 export const zPaginatedGiftCardListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -7636,19 +7091,6 @@ export const zPaginatedOrderListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zOrderWritable),
-})
-
-export const zPaginatedPageLayoutAdminDetailListWritable = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zPageLayoutAdminDetailWritable),
 })
 
 export const zPaginatedPointsTransactionListWritable = z.object({
@@ -8200,19 +7642,6 @@ export const zProductVariantsResponseWritable = z.object({
   variants: z.array(zProductVariantWritable),
 })
 
-/**
- * One published layout of the store, as the storefront's sitemap
- * lists it (``public_published_layouts``).
- *
- * ``last_modified`` is the later of the layout's own ``updated_at`` and
- * its newest section's: editing a section changes the page without
- * touching the layout row, and a sitemap ``<lastmod>`` that missed it
- * would tell crawlers the page had not changed.
- */
-export const zPublishedPageLayoutWritable = z.object({
-  pageType: z.string().max(50),
-})
-
 export const zRecommendationItemWritable = z.record(z.string(), z.unknown())
 
 export const zRecommendationResponseWritable = z.object({
@@ -8263,6 +7692,42 @@ export const zRegionDetailWritable = z.object({
   }),
   alpha: z.string().max(10),
   country: z.string(),
+})
+
+export const zReleaseWritable = z.object({
+  versions: z.unknown(),
+})
+
+export const zPaginatedReleaseListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zReleaseWritable),
+})
+
+export const zResolvedMediaWritable = z.object({
+  results: z.array(z.unknown()),
+})
+
+export const zScheduleWritable = z.record(z.string(), z.unknown())
+
+export const zPaginatedScheduleListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zScheduleWritable),
 })
 
 /**
@@ -8530,17 +7995,28 @@ export const zUserSubscriptionDetailWritable = z.object({
   metadata: z.unknown().optional(),
 })
 
-export const zPageSectionBlogCategoriesPropsWritable = z.record(z.string(), z.never())
+export const zVersionDetailWritable = z.object({
+  kind: zBuilderVersionKindEnum,
+  data: z.unknown(),
+  i18n: z.unknown(),
+})
 
-export const zPageSectionSearchBarPropsWritable = z.record(z.string(), z.never())
+export const zVersionListWritable = z.object({
+  kind: zBuilderVersionKindEnum,
+})
 
-export const zPageSectionAboutContentPropsWritable = z.record(z.string(), z.never())
-
-export const zPageSectionVisionContentPropsWritable = z.record(z.string(), z.never())
-
-export const zPageSectionWhatIsMicrolearningPropsWritable = z.record(z.string(), z.never())
-
-export const zPageSectionWhyMicrolearningPropsWritable = z.record(z.string(), z.never())
+export const zPaginatedVersionListListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zVersionListWritable),
+})
 
 export const zGetAgentProfileResponse = zAgentProfile
 
@@ -11179,6 +10655,281 @@ export const zUpdateBlogTagQuery = z.object({
 
 export const zUpdateBlogTagResponse = zBlogTagDetail
 
+export const zApiV1BuilderDocumentsListQuery = z.object({
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().optional(),
+})
+
+export const zApiV1BuilderDocumentsListResponse = zPaginatedDocumentListList
+
+export const zApiV1BuilderDocumentsDestroyHeaders = z.object({
+  'If-Match': z.string(),
+})
+
+export const zApiV1BuilderDocumentsDestroyPath = z.object({
+  key: z.string(),
+})
+
+/**
+ * No response body
+ */
+export const zApiV1BuilderDocumentsDestroyResponse = z.void()
+
+export const zApiV1BuilderDocumentsRetrievePath = z.object({
+  key: z.string(),
+})
+
+export const zApiV1BuilderDocumentsRetrieveResponse = zDocumentDetail
+
+export const zApiV1BuilderDocumentsCheckpointCreateBody = zCheckpointWriteRequest
+
+export const zApiV1BuilderDocumentsCheckpointCreatePath = z.object({
+  key: z.string(),
+})
+
+export const zApiV1BuilderDocumentsCheckpointCreateResponse = zVersionList
+
+export const zApiV1BuilderDocumentsDiscardCreateHeaders = z.object({
+  'If-Match': z.string(),
+})
+
+export const zApiV1BuilderDocumentsDiscardCreatePath = z.object({
+  key: z.string(),
+})
+
+export const zApiV1BuilderDocumentsDiscardCreateResponse = zDocumentDetail
+
+export const zApiV1BuilderDocumentsDraftUpdateBody = zDraftWriteRequest
+
+export const zApiV1BuilderDocumentsDraftUpdateHeaders = z.object({
+  'If-Match': z.string(),
+})
+
+export const zApiV1BuilderDocumentsDraftUpdatePath = z.object({
+  key: z.string(),
+})
+
+export const zApiV1BuilderDocumentsDraftUpdateResponse = zDocumentDetail
+
+export const zApiV1BuilderDocumentsVersionsListPath = z.object({
+  key: z.string(),
+})
+
+export const zApiV1BuilderDocumentsVersionsListQuery = z.object({
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().optional(),
+})
+
+export const zApiV1BuilderDocumentsVersionsListResponse = zPaginatedVersionListList
+
+export const zApiV1BuilderDocumentsVersionsRetrievePath = z.object({
+  key: z.string(),
+  number: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderDocumentsVersionsRetrieveResponse = zVersionDetail
+
+export const zApiV1BuilderDocumentsVersionsRestoreCreateHeaders = z.object({
+  'If-Match': z.string(),
+})
+
+export const zApiV1BuilderDocumentsVersionsRestoreCreatePath = z.object({
+  key: z.string(),
+  number: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderDocumentsVersionsRestoreCreateResponse = zDocumentDetail
+
+export const zApiV1BuilderLinkTargetsRetrieveQuery = z.object({
+  blogCategory: z.string().optional(),
+  blogPost: z.string().optional(),
+  category: z.string().optional(),
+  product: z.string().optional(),
+})
+
+export const zApiV1BuilderLinkTargetsRetrieveResponse = z.record(z.string(), z.unknown())
+
+export const zApiV1BuilderMediaListQuery = z.object({
+  ordering: z.string().regex(/^(?:createdAt|\-createdAt|sizeBytes|\-sizeBytes)(?:,(?:createdAt|\-createdAt|sizeBytes|\-sizeBytes))*$/).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().optional(),
+})
+
+export const zApiV1BuilderMediaListResponse = zPaginatedAssetList
+
+export const zApiV1BuilderMediaCreateBody = zAssetUploadRequest
+
+export const zApiV1BuilderMediaCreateResponse = zAsset
+
+export const zApiV1BuilderMediaDestroyPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+/**
+ * No response body
+ */
+export const zApiV1BuilderMediaDestroyResponse = z.void()
+
+export const zApiV1BuilderMediaRetrievePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderMediaRetrieveResponse = zAsset
+
+export const zApiV1BuilderMediaPartialUpdateBody = zPatchedAssetUpdateRequest
+
+export const zApiV1BuilderMediaPartialUpdatePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderMediaPartialUpdateResponse = zAsset
+
+export const zApiV1BuilderMediaResolveRetrieveQuery = z.object({
+  ids: z.string(),
+  locale: z.string().optional(),
+})
+
+export const zApiV1BuilderMediaResolveRetrieveResponse = zResolvedMedia
+
+export const zApiV1BuilderPublishCreateBody = zPublishWriteRequest
+
+export const zApiV1BuilderPublishCreateResponse = zRelease
+
+export const zBuilderPublishedIndexQuery = z.object({
+  locale: z.string().optional(),
+})
+
+export const zBuilderPublishedIndexResponse = z.record(z.string(), z.unknown())
+
+export const zApiV1BuilderPublishedRetrievePath = z.object({
+  pageKey: z.string(),
+})
+
+export const zApiV1BuilderPublishedRetrieveQuery = z.object({
+  locale: z.string().optional(),
+})
+
+export const zApiV1BuilderPublishedRetrieveResponse = z.record(z.string(), z.unknown())
+
+export const zApiV1BuilderReleasesListQuery = z.object({
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().optional(),
+})
+
+export const zApiV1BuilderReleasesListResponse = zPaginatedReleaseList
+
+export const zApiV1BuilderRollbackCreateBody = zRollbackWriteRequest
+
+export const zApiV1BuilderRollbackCreateResponse = zRelease
+
+export const zApiV1BuilderSchedulesListQuery = z.object({
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().optional(),
+})
+
+export const zApiV1BuilderSchedulesListResponse = zPaginatedScheduleList
+
+export const zApiV1BuilderSchedulesCreateBody = zScheduleWriteRequest
+
+export const zApiV1BuilderSchedulesCreateResponse = zSchedule
+
+export const zApiV1BuilderSchedulesDestroyPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderSchedulesDestroyResponse = zSchedule
+
+export const zApiV1BuilderSchedulesRetrievePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderSchedulesRetrieveResponse = zSchedule
+
+export const zApiV1BuilderSchedulesPartialUpdateBody = zPatchedRescheduleRequest
+
+export const zApiV1BuilderSchedulesPartialUpdatePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderSchedulesPartialUpdateResponse = zSchedule
+
+export const zApiV1BuilderSchedulesAcknowledgeCreatePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1BuilderSchedulesAcknowledgeCreateResponse = zSchedule
+
+/**
+ * No response body
+ */
+export const zApiV1BuilderStaffSessionDestroyResponse = z.void()
+
+export const zApiV1BuilderStaffSessionCreateBody = zSessionRequestRequest
+
+export const zApiV1BuilderStaffSessionCreateResponse = zSessionResponse
+
 export const zDestroyCartHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
 })
@@ -13349,197 +13100,6 @@ export const zVivaReturnLookupQuery = z.object({
 })
 
 export const zVivaReturnLookupResponse2 = zVivaReturnLookupResponse
-
-export const zApiV1PageConfigListResponse = z.array(zPublishedPageLayout)
-
-export const zApiV1PageConfigRetrievePath = z.object({
-  pageType: z.string(),
-})
-
-export const zApiV1PageConfigRetrieveQuery = z.object({
-  locale: z.string().optional(),
-})
-
-export const zApiV1PageConfigRetrieveResponse = zPageLayout
-
-export const zApiV1PageConfigAdminListQuery = z.object({
-  cursor: z.string().optional(),
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-  page: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pageSize: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pagination: z.enum(['false', 'true']).optional().default('true'),
-  paginationType: z.enum([
-    'cursor',
-    'limitOffset',
-    'pageNumber',
-  ]).optional().default('pageNumber'),
-  search: z.string().optional(),
-})
-
-export const zApiV1PageConfigAdminListResponse = zPaginatedPageLayoutAdminDetailList
-
-export const zApiV1PageConfigAdminCreateBody = zPageLayoutAdminDetailRequest
-
-export const zApiV1PageConfigAdminCreateQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminCreateResponse = zPageLayoutAdminDetail
-
-export const zApiV1PageConfigAdminDestroyPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-/**
- * No response body
- */
-export const zApiV1PageConfigAdminDestroyResponse = z.void()
-
-export const zApiV1PageConfigAdminRetrievePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigAdminRetrieveQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminRetrieveResponse = zPageLayoutAdminDetail
-
-export const zApiV1PageConfigAdminPartialUpdateBody = zPatchedPageLayoutAdminDetailRequest
-
-export const zApiV1PageConfigAdminPartialUpdatePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigAdminPartialUpdateQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminPartialUpdateResponse = zPageLayoutAdminDetail
-
-export const zApiV1PageConfigAdminUpdateBody = zPageLayoutAdminDetailRequest
-
-export const zApiV1PageConfigAdminUpdatePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigAdminUpdateQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminUpdateResponse = zPageLayoutAdminDetail
-
-export const zApiV1PageConfigNavigationRetrieveQuery = z.object({
-  locale: z.string().optional(),
-})
-
-/**
- * Navigation items keyed by slot (header/footer/mobile). Missing slots mean 'use the storefront's built-in menu'.
- */
-export const zApiV1PageConfigNavigationRetrieveResponse = z.record(z.string(), z.array(z.unknown()))
-
-export const zApiV1PageConfigNavigationAdminListQuery = z.object({
-  cursor: z.string().optional(),
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-  page: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pageSize: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pagination: z.enum(['false', 'true']).optional().default('true'),
-  paginationType: z.enum([
-    'cursor',
-    'limitOffset',
-    'pageNumber',
-  ]).optional().default('pageNumber'),
-  search: z.string().optional(),
-})
-
-export const zApiV1PageConfigNavigationAdminListResponse = zPaginatedNavigationMenuList
-
-export const zApiV1PageConfigNavigationAdminCreateBody = zNavigationMenuRequest
-
-export const zApiV1PageConfigNavigationAdminCreateQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigNavigationAdminCreateResponse = zNavigationMenu
-
-export const zApiV1PageConfigNavigationAdminDestroyPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-/**
- * No response body
- */
-export const zApiV1PageConfigNavigationAdminDestroyResponse = z.void()
-
-export const zApiV1PageConfigNavigationAdminRetrievePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigNavigationAdminRetrieveQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigNavigationAdminRetrieveResponse = zNavigationMenu
-
-export const zApiV1PageConfigNavigationAdminPartialUpdateBody = zPatchedNavigationMenuRequest
-
-export const zApiV1PageConfigNavigationAdminPartialUpdatePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigNavigationAdminPartialUpdateQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigNavigationAdminPartialUpdateResponse = zNavigationMenu
-
-export const zApiV1PageConfigNavigationAdminUpdateBody = zNavigationMenuRequest
-
-export const zApiV1PageConfigNavigationAdminUpdatePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigNavigationAdminUpdateQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zApiV1PageConfigNavigationAdminUpdateResponse = zNavigationMenu
 
 export const zListPayWayQuery = z.object({
   active: z.union([
