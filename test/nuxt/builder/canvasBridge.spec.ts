@@ -39,7 +39,8 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-const told = () => tells.mock.calls.map(([event]) => event.type)
+/** What the canvas said about itself: ready, drawn, failed (the boxes it reports on every draw are their own cases). */
+const told = () => tells.mock.calls.map(([event]) => event.type).filter(type => type !== 'boxes')
 
 function send(data: unknown, from: { source?: MessageEventSource, origin?: string } = {}) {
   window.dispatchEvent(new MessageEvent('message', { data, source: from.source ?? parent, origin: from.origin ?? window.location.origin }))
@@ -133,6 +134,66 @@ describe('the canvas bridge', () => {
     expect(tells.mock.calls.map(([event]) => event).filter(event => event.type === 'navigate')).toEqual([
       { channel: BUILDER_CANVAS_CHANNEL, type: 'navigate', path: '/about' },
     ])
+  })
+
+  describe('sections', () => {
+    /** Each section as the renderer marks it on the canvas, with the box its contents take. */
+    function drawSections(boxes: Record<string, DOMRect>) {
+      document.body.innerHTML = Object.keys(boxes)
+        .map(id => `<div ${BUILDER_CANVAS_NODE_ATTRIBUTE}="${id}" class="contents"><section><a href="/about">More</a></section></div>`)
+        .join('')
+      vi.spyOn(Range.prototype, 'getBoundingClientRect').mockImplementation(function (this: Range) {
+        const id = (this.startContainer as Element).getAttribute?.(BUILDER_CANVAS_NODE_ATTRIBUTE)
+        return id && boxes[id] ? boxes[id] : new DOMRect()
+      })
+    }
+    const boxesTold = () => tells.mock.calls.map(([event]) => event).filter(event => event.type === 'boxes')
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('picks a section that is clicked, and follows none of its links', () => {
+      drawSections({ hero: new DOMRect(0, 0, 800, 400) })
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true })
+
+      document.querySelector('a')!.dispatchEvent(click)
+
+      expect(click.defaultPrevented).toBe(true)
+      const sent = tells.mock.calls.map(([event]) => event)
+      expect(sent).toContainEqual({ channel: BUILDER_CANVAS_CHANNEL, type: 'pick', node: 'hero' })
+      expect(sent.some(event => event.type === 'navigate')).toBe(false)
+    })
+
+    it('says where the selected section is, once it is told which', async () => {
+      drawSections({ hero: new DOMRect(0, 0, 800, 400), grid: new DOMRect(0, 400, 800, 300) })
+
+      send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'grid' })
+
+      await vi.waitFor(() => expect(boxesTold().at(-1)).toEqual({
+        channel: BUILDER_CANVAS_CHANNEL,
+        type: 'boxes',
+        hover: null,
+        selected: { node: 'grid', x: 0, y: 400, width: 800, height: 300 },
+      }))
+    })
+
+    it('says where the section under the pointer is, apart from the selected one', async () => {
+      drawSections({ hero: new DOMRect(0, 0, 800, 400), grid: new DOMRect(0, 400, 800, 300) })
+      send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'grid' })
+
+      document.querySelector('[data-builder-node="hero"] section')!.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+
+      await vi.waitFor(() => expect(boxesTold().at(-1)).toMatchObject({ hover: { node: 'hero' }, selected: { node: 'grid' } }))
+    })
+
+    it('says a section in no view, or drawn empty, is nowhere', async () => {
+      drawSections({ hero: new DOMRect(0, 0, 0, 0) })
+
+      send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'hero' })
+
+      await vi.waitFor(() => expect(boxesTold().at(-1)).toMatchObject({ selected: null }))
+    })
   })
 
   it('never sends a form', () => {
