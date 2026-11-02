@@ -81,11 +81,37 @@ describe('opening documents', () => {
   })
 })
 
+describe('moving a node', () => {
+  it('moves it to the place named, as one change, and says where it went of how many', async () => {
+    const store = await open()
+
+    store.move(HOME, 'b', 0)
+
+    expect(store.opened[HOME]!.copy.draft.order).toEqual(['b', 'a'])
+    expect(store.moved).toEqual({ documentKey: HOME, nodeId: 'b', index: 0, count: 2 })
+    expect(store.undo()).toBe(HOME)
+    expect(store.opened[HOME]!.copy.draft.order).toEqual(['a', 'b'])
+  })
+
+  it('does nothing where it cannot go, nor for STAFF', async () => {
+    const store = await open()
+    store.move(HOME, 'b', 1)
+    store.move(HOME, 'b', 2)
+    expect(store.moved).toBeUndefined()
+    expect(store.canUndo).toBe(false)
+
+    store.role = 'staff'
+    store.move(HOME, 'b', 0)
+    expect(store.opened[HOME]!.copy.draft.order).toEqual(['a', 'b'])
+    expect(store.moved).toBeUndefined()
+  })
+})
+
 describe('changes and their history', () => {
   it('records a change, and undoes and redoes it in the document it was made in', async () => {
     const store = await open()
     const before = store.opened[HOME]!.copy
-    const moved = moveNode(before, 'b', -1)
+    const moved = moveNode(before, 'b', 0)
 
     store.change(HOME, moved)
     expect(store.opened[HOME]!.copy).toEqual(moved)
@@ -98,7 +124,7 @@ describe('changes and their history', () => {
   it('walks back across documents, newest first', async () => {
     const store = await open()
 
-    store.change(HOME, moveNode(store.opened[HOME]!.copy, 'b', -1))
+    store.change(HOME, moveNode(store.opened[HOME]!.copy, 'b', 0))
     store.change(HEADER, setNodeHidden(store.opened[HEADER]!.copy, 'menu', true))
 
     expect(store.undo()).toBe(HEADER)
@@ -133,7 +159,7 @@ describe('changes and their history', () => {
   it('forgets what was undone once a new change is made', async () => {
     const store = await open()
 
-    store.change(HOME, moveNode(store.opened[HOME]!.copy, 'b', -1))
+    store.change(HOME, moveNode(store.opened[HOME]!.copy, 'b', 0))
     store.undo()
     store.change(HOME, setNodeHidden(store.opened[HOME]!.copy, 'a', true))
 
@@ -164,7 +190,7 @@ describe('changes and their history', () => {
     const store = await open('staff')
     const before = store.opened[HOME]!.copy
 
-    store.change(HOME, moveNode(before, 'b', -1))
+    store.change(HOME, moveNode(before, 'b', 0))
 
     expect(store.opened[HOME]!.copy).toBe(before)
     expect(store.canUndo).toBe(false)
@@ -172,7 +198,7 @@ describe('changes and their history', () => {
 
   it('takes someone else\'s saved copy, and drops the history of that document only', async () => {
     const store = await open()
-    store.change(HOME, moveNode(store.opened[HOME]!.copy, 'b', -1))
+    store.change(HOME, moveNode(store.opened[HOME]!.copy, 'b', 0))
     store.change(HEADER, setNodeHidden(store.opened[HEADER]!.copy, 'menu', true))
     const theirs = { ...envelope(HOME, { sections: { c: { type: 'hero_banner@1', settings: {} } }, order: ['c'] }), draftRevision: 9 }
 

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { builderNodeRef, builderOutline, builderProblemNodeId, findBuilderNode, parseBuilderNodeRef } from '~/utils/builderOutline'
+import { builderNodeRef, builderOutline, builderOutlineDrag, builderOutlineDropIndex, builderProblemNodeId, findBuilderNode, parseBuilderNodeRef } from '~/utils/builderOutline'
 import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 import type { BlockDefinition } from '~~/shared/types/builder'
+import type { BuilderOutlineNode } from '~/utils/builderOutline'
 
 const blocks = new Map<string, BlockDefinition>([[promoBanner.type, promoBanner], [promoItem.type, promoItem]])
 
@@ -88,5 +89,37 @@ describe('builderProblemNodeId', () => {
     ['', undefined],
   ])('names the node of %j', (path, nodeId) => {
     expect(builderProblemNodeId(path)).toBe(nodeId)
+  })
+})
+
+describe('dragging a row of the outline', () => {
+  const row = (ref: string, children: BuilderOutlineNode[] = []): BuilderOutlineNode =>
+    ({ ref, documentKey: 'template:home', nodeId: ref, blockType: 'x', hidden: false, children })
+  // Two sections of blocks, the second's first block holding one of its own.
+  const rows = [row('one', [row('a'), row('b')]), row('two', [row('c', [row('c1')]), row('d')])]
+
+  it('drops a section beside the sections only, with every block folded away', () => {
+    const drag = builderOutlineDrag(rows, 'two')!
+
+    expect(drag.siblings).toEqual(['one', 'two'])
+    expect([...drag.folded]).toEqual(['a', 'b', 'c', 'c1', 'd'])
+  })
+
+  it('drops a block beside its own siblings only, with theirs folded away', () => {
+    const drag = builderOutlineDrag(rows, 'd')!
+
+    expect(drag.siblings).toEqual(['c', 'd'])
+    expect([...drag.folded]).toEqual(['c1'])
+  })
+
+  it('has nothing to drag for a row the outline does not have', () => {
+    expect(builderOutlineDrag(rows, 'gone')).toBeUndefined()
+  })
+
+  it('lands among its siblings by the order the drop left the rows in, the rows of other nodes aside', () => {
+    const drag = builderOutlineDrag(rows, 'two')!
+
+    expect(builderOutlineDropIndex(drag, 'two', ['two', 'one', 'a', 'b', 'c', 'c1', 'd'])).toBe(0)
+    expect(builderOutlineDropIndex(drag, 'two', ['one', 'a', 'b', 'two', 'c', 'c1', 'd'])).toBe(1)
   })
 })

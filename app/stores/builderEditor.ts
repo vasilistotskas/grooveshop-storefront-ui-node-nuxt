@@ -18,6 +18,14 @@ export interface BuilderEditorDocument {
  */
 export type BuilderEditorStatus = 'idle' | 'loading' | 'ready' | 'notFound' | 'unreadable' | 'error'
 
+/** A node moved among its siblings: to place `index` (0 is the first) of `count`. */
+export interface BuilderEditorMove {
+  documentKey: string
+  nodeId: string
+  index: number
+  count: number
+}
+
 /** One step of the editor's undo history: a document before and after a change. */
 interface BuilderHistoryEntry {
   key: string
@@ -151,6 +159,22 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     setCopy(key, next)
   }
 
+  /** The last node moved among its siblings, and where to: for the editor to announce. */
+  const moved = shallowRef<BuilderEditorMove>()
+
+  /**
+   * Moves a node to place `to` among its siblings (0 is the first), as a
+   * change, however it was asked for: the toolbar, a shortcut or a drag.
+   * Nothing happens where it cannot go (`canMoveNode`).
+   */
+  function move(key: string, nodeId: string, to: number): void {
+    const copy = opened.value[key]?.copy
+    if (!canEdit.value || !copy || !canMoveNode(copy, nodeId, to)) return
+    const next = moveNode(copy, nodeId, to)
+    change(key, next)
+    moved.value = { documentKey: key, nodeId, index: to, count: builderNodeSiblings(next, nodeId)!.length }
+  }
+
   /** Takes back the last change, whichever document it was in. Answers that document's key. */
   function undo(): string | undefined {
     const entry = undoStack.value.at(-1)
@@ -210,6 +234,8 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     canRedo,
     open,
     change,
+    moved,
+    move,
     undo,
     redo,
     acceptSaved,

@@ -42,22 +42,25 @@ function allNodes(draft: BuilderDocument): Array<{ id: string, node: BuilderNode
   return draft.order.flatMap(id => subtree(draft.sections[id]!, id))
 }
 
-/** Whether a node can move one place up (`-1`) or down (`1`) among its siblings. */
-export function canMoveNode(copy: BuilderWorkingCopy, nodeId: string, delta: -1 | 1): boolean {
-  const place = placeOf(copy.draft, nodeId)
-  if (!place) return false
-  const target = place.order.indexOf(nodeId) + delta
-  return target >= 0 && target < place.order.length
+/** The ids of a node and its siblings, in order: the sections of the document, or the blocks of its parent. */
+export function builderNodeSiblings(copy: BuilderWorkingCopy, nodeId: string): readonly string[] | undefined {
+  return placeOf(copy.draft, nodeId)?.order
 }
 
-/** The copy with a node moved one place up or down among its siblings; the copy itself when it cannot move. */
-export function moveNode(copy: BuilderWorkingCopy, nodeId: string, delta: -1 | 1): BuilderWorkingCopy {
-  if (!canMoveNode(copy, nodeId, delta)) return copy
+/** Whether a node can move to place `to` among its siblings (0 is the first), a place other than its own. */
+export function canMoveNode(copy: BuilderWorkingCopy, nodeId: string, to: number): boolean {
+  const place = placeOf(copy.draft, nodeId)
+  if (!place) return false
+  return Number.isInteger(to) && to >= 0 && to < place.order.length && to !== place.order.indexOf(nodeId)
+}
+
+/** The copy with a node moved to place `to` among its siblings; the copy itself when it cannot move there. */
+export function moveNode(copy: BuilderWorkingCopy, nodeId: string, to: number): BuilderWorkingCopy {
+  if (!canMoveNode(copy, nodeId, to)) return copy
   const next = structuredClone(copy)
   const { order } = placeOf(next.draft, nodeId)!
-  const from = order.indexOf(nodeId)
-  order.splice(from, 1)
-  order.splice(from + delta, 0, nodeId)
+  order.splice(order.indexOf(nodeId), 1)
+  order.splice(to, 0, nodeId)
   return next
 }
 

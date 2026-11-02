@@ -96,6 +96,35 @@ export function builderOutline(
   return document.order.map(id => outlineNode(documentKey, id, document.sections[id]!, blocks))
 }
 
+/** What dragging one row of the outline may do (`builderOutlineDrag`). */
+export interface BuilderOutlineDrag {
+  /** The rows it may be dropped beside, in order, itself among them. */
+  siblings: readonly string[]
+  /** The rows folded away while it is dragged. */
+  folded: ReadonlySet<string>
+}
+
+/**
+ * What dragging the row `ref` may do. A node moves among its own siblings
+ * only, as the toolbar's Move up and Move down do. While it is dragged, the
+ * rows below each sibling are folded away, so the siblings sit next to each
+ * other and a drop between two of them is never a drop among the blocks of
+ * one. `undefined` for a row the outline does not have.
+ */
+export function builderOutlineDrag(nodes: readonly BuilderOutlineNode[], ref: string): BuilderOutlineDrag | undefined {
+  const levelOf = (level: readonly BuilderOutlineNode[]): readonly BuilderOutlineNode[] | undefined =>
+    level.some(node => node.ref === ref) ? level : level.map(node => levelOf(node.children)).find(found => found !== undefined)
+  const level = levelOf(nodes)
+  if (!level) return undefined
+  const below = (node: BuilderOutlineNode): string[] => node.children.flatMap(child => [child.ref, ...below(child)])
+  return { siblings: level.map(node => node.ref), folded: new Set(level.flatMap(below)) }
+}
+
+/** Where a dragged row lands among its siblings (0 is the first), from the order the drop left the rows in. */
+export function builderOutlineDropIndex(drag: BuilderOutlineDrag, ref: string, order: readonly string[]): number {
+  return order.filter(row => drag.siblings.includes(row)).indexOf(ref)
+}
+
 /**
  * The node a problem of a refused save is about, from its JSON pointer into
  * what was sent: the deepest `/sections/<id>` or `/blocks/<id>` of the draft,

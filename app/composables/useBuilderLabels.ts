@@ -47,14 +47,17 @@ export function useBuilderLabels() {
   const { locale } = useI18n({ useScope: 'global' })
   const labels = (composer ??= createComposer())
   const read = (key: string) => labels.t(key, {}, { locale: locale.value })
+  /**
+   * What a block type is called. A type this build does not define (a
+   * document written by another build) is shown by its type name, which
+   * is what the merchant would have to report.
+   */
+  const blockLabel = (type: string) => labels.te(`blocks.${type}.label`, DEFAULT_LOCALE) ? read(`blocks.${type}.label`) : type
 
   return {
-    /**
-     * What a block type is called. A type this build does not define (a
-     * document written by another build) is shown by its type name, which
-     * is what the merchant would have to report.
-     */
-    blockLabel: (type: string) => labels.te(`blocks.${type}.label`, DEFAULT_LOCALE) ? read(`blocks.${type}.label`) : type,
+    blockLabel,
+    /** What a section or block is called: its own title where it has one, else what its type is called. */
+    nodeLabel: (node: BuilderNode) => builderNodeTitle(node, builderEditorBlocks) ?? blockLabel(builderBlockType(node)),
     groupLabel: (group: BuilderEditorGroup) => read(`groups.${group}`),
     /** What a page type of the storefront's static routes is called (`template:<name>`; Django holds no other). */
     templateLabel: (name: StaticLayoutPageType) => read(`templates.${name}`),

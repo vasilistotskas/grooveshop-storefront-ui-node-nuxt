@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
 import {
   canDuplicateNode,
+  builderNodeSiblings,
   canMoveNode,
   builderLibraryOffers,
   builderNodePosition,
@@ -52,16 +53,24 @@ const page = (): BuilderWorkingCopy => ({
 })
 
 describe('moving a node', () => {
-  it('moves a section among the sections, and a block among its siblings', () => {
-    expect(moveNode(page(), 'list', -1).draft.order).toEqual(['list', 'top'])
+  it('moves a section among the sections, and a block among its siblings, to the place named', () => {
+    expect(moveNode(page(), 'list', 0).draft.order).toEqual(['list', 'top'])
     expect(moveNode(page(), 'a', 1).draft.sections.list!.blockOrder).toEqual(['b', 'a'])
   })
 
-  it('goes no further than either end, and leaves the copy as it was', () => {
+  it('names a node with its siblings, in order', () => {
+    expect(builderNodeSiblings(page(), 'b')).toEqual(['a', 'b'])
+    expect(builderNodeSiblings(page(), 'top')).toEqual(['top', 'list'])
+    expect(builderNodeSiblings(page(), 'gone')).toBeUndefined()
+  })
+
+  it('goes nowhere past either end, nor to the place it holds, and leaves the copy as it was', () => {
     const copy = page()
 
     expect(canMoveNode(copy, 'top', -1)).toBe(false)
+    expect(canMoveNode(copy, 'b', 2)).toBe(false)
     expect(canMoveNode(copy, 'b', 1)).toBe(false)
+    expect(canMoveNode(copy, 'b', 0.5)).toBe(false)
     expect(moveNode(copy, 'top', -1)).toBe(copy)
     expect(canMoveNode(copy, 'top', 1)).toBe(true)
   })
@@ -70,7 +79,7 @@ describe('moving a node', () => {
     const copy = page()
     const before = structuredClone(copy)
 
-    moveNode(copy, 'list', -1)
+    moveNode(copy, 'list', 0)
 
     expect(copy).toEqual(before)
   })

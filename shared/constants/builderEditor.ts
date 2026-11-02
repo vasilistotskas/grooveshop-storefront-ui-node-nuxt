@@ -113,3 +113,6 @@ export const BUILDER_CANVAS_PREVIEW_STATE = 'builder-canvas-preview'
  * section groups drawn around it (`BUILDER_EDITOR_GROUPS`).
  */
 export const BUILDER_PREVIEW_MAX_DOCUMENTS = 1 + BUILDER_EDITOR_GROUPS.length
+
+/** How long a row of the outline takes to slide into its new place while one is dragged, in milliseconds (none for reduced motion). */
+export const BUILDER_OUTLINE_DRAG_ANIMATION_MS = 150
