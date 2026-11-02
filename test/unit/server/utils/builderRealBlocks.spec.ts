@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
-import { parseDocument } from '~~/server/utils/builderDocument'
+import { parseDocument } from '~~/shared/builder/document'
 import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
 import { linkPointers } from '~~/shared/builder/linkPointers'
 import type { BlockDefinition } from '~~/shared/types/builder'

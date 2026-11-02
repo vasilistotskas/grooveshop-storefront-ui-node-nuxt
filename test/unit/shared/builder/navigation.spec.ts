@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
-import { parseDocument } from '~~/server/utils/builderDocument'
-import { navigationItems } from '~~/server/utils/builderNavigation'
-import type { PublishedTargets } from '~~/server/utils/builderNavigation'
-import type { BlockDefinition, BuilderDocument } from '~~/shared/types/builder'
+import { parseDocument } from '~~/shared/builder/document'
+import { navigationItems } from '~~/shared/builder/navigation'
+import type { BlockDefinition, BuilderDocument, PublishedTargets } from '~~/shared/types/builder'
 
 /**
  * The menus a group document gives the chrome. The shape is what `useNavigation`

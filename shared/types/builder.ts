@@ -1,6 +1,7 @@
 import type { ZodObject } from 'zod'
 
-import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, LINK_REF_KINDS, LINK_ROUTES } from '../constants/builder'
+import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
+import type { BlockUpgradeFailure } from '../builder/upgrade'
 import type { StoreFeatureName } from '../utils/storeFeature'
 
 export type BlockKind = (typeof BLOCK_KINDS)[number]
@@ -173,6 +174,45 @@ export interface BlockCatalogue {
 export interface DocumentRoot {
   schema: ZodObject
   translatable: readonly SettingsPointer[]
+}
+
+// ── Reading a document ─────────────────────────────────────────────
+
+/** Why `parseDocument` left a node out: the code is stable, `detail` says more. */
+export type BuilderNodeSkipReason
+  = | BlockUpgradeFailure
+    | 'invalid_id'
+    | 'invalid_node'
+    | 'unknown_type'
+    | 'wrong_kind'
+    | 'not_allowed'
+    | 'invalid_settings'
+    | 'upgrade_failed'
+
+/** A node `parseDocument` left out, and why. */
+export interface BuilderNodeSkip {
+  /** Node ids from the document's root (`hero/slide_2`), `@document` for its own settings, empty for the whole document. */
+  path: string
+  reason: BuilderNodeSkipReason
+  detail?: string
+}
+
+/** What the store has published: the pages and content pages a menu or a link may point at. */
+export interface PublishedTargets {
+  /** Page types of the pages in the current release. */
+  pages: ReadonlySet<string>
+  /** Slugs of the published content pages. */
+  contentPages: ReadonlySet<string>
+}
+
+/** A record kind a link names by id, whose address needs the record's current slug. */
+export type LinkSlugKind = (typeof LINK_SLUG_KINDS)[number]
+
+/** What `resolveLinks` needs to turn a record into its address. */
+export interface LinkTargets {
+  /** Current slug of each product, category, blog post and blog category the page names. */
+  slugs: Readonly<Record<LinkSlugKind, ReadonlyMap<number, string>>>
+  published: PublishedTargets
 }
 
 // ── The rendered page ──────────────────────────────────────────────

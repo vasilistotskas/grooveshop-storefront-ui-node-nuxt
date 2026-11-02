@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
-import { sectionProps } from '~~/server/utils/builderProps'
+import { sectionProps } from '~~/shared/builder/props'
 import type { BuilderNode } from '~~/shared/types/builder'
 import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 

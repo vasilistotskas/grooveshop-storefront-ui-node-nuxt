@@ -1,10 +1,8 @@
-/** What the store has published: the pages and content pages a menu or a link may point at. */
-export interface PublishedTargets {
-  /** Page types of the pages in the current release. */
-  pages: ReadonlySet<string>
-  /** Slugs of the published content pages. */
-  contentPages: ReadonlySet<string>
-}
+import type { BlockDefinition, BuilderDocument, PublishedTargets } from '../types/builder'
+import type { NavigationItems, NavLink } from '../types/navigation'
+import { contentPagePath, pagePath } from '../utils/entityPaths'
+import { sectionProps } from './props'
+import { parseVersionedType } from './upgrade'
 
 const MENU_SLOTS: Record<string, keyof NavigationItems> = {
   header_menu: 'header',
@@ -60,7 +58,7 @@ function visibleLink(link: LinkProps, targets: PublishedTargets): NavLink | unde
 export function navigationItems(
   document: BuilderDocument,
   targets: PublishedTargets,
-  registry: ReadonlyMap<string, BlockDefinition> = builderBlocks,
+  registry: ReadonlyMap<string, BlockDefinition>,
 ): NavigationItems {
   const items: NavigationItems = {}
   for (const id of document.order) {

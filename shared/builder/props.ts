@@ -1,3 +1,6 @@
+import type { BlockDefinition, BuilderNode } from '../types/builder'
+import { parseVersionedType } from './upgrade'
+
 /**
  * The props a section component receives for a parsed node: its settings,
  * and each list of children under the prop the block names for it
@@ -11,7 +14,7 @@
  */
 export function sectionProps(
   node: BuilderNode,
-  registry: ReadonlyMap<string, BlockDefinition> = builderBlocks,
+  registry: ReadonlyMap<string, BlockDefinition>,
 ): Record<string, unknown> {
   const definition = registry.get(parseVersionedType(node.type)?.type ?? '')
   const lists: Record<string, Record<string, unknown>[]> = {}

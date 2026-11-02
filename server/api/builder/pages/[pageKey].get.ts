@@ -38,14 +38,14 @@ export default defineCachedRoute(async (event): Promise<BuilderPageResponse> => 
       { method: 'GET', query: { locale: requestLocale(event) } },
     )
     const published = await parseDataAs(response, ZodBuilderPublished)
-    const parsed = parseDocument(published.page, 'page')
-    const document = resolveLinks(parsed, await readLinkTargets(event, collectLinkRefs(parsed)))
+    const parsed = parseDocument(published.page, 'page', builderBlocks, { onSkip: logSkippedNode })
+    const document = resolveLinks(parsed, await readLinkTargets(event, collectLinkRefs(parsed, builderBlocks)), builderBlocks)
     return {
       page: {
         ...(document.settings && { settings: document.settings }),
         sections: document.order.map((id) => {
           const node = document.sections[id]!
-          return { id, componentType: parseVersionedType(node.type)!.type, props: sectionProps(node) }
+          return { id, componentType: parseVersionedType(node.type)!.type, props: sectionProps(node, builderBlocks) }
         }),
       },
     }

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { collectLinkRefs, resolveLinks } from '~~/server/utils/builderLinks'
-import type { LinkTargets } from '~~/server/utils/builderLinks'
-import type { BuilderDocument } from '~~/shared/types/builder'
+import { collectLinkRefs, resolveLinks } from '~~/shared/builder/links'
+import { fixtureBlocks } from '~~/test/fixtures/builder/blocks'
+import type { BlockDefinition, BuilderDocument, LinkTargets } from '~~/shared/types/builder'
+
+const registry = new Map<string, BlockDefinition>(fixtureBlocks.map(block => [block.type, block]))
 
 /** A section holding one `promo_item` per link: the fixture block whose `href` is a link. */
 function pageWith(...links: unknown[]): BuilderDocument {
@@ -35,12 +37,12 @@ describe('collectLinkRefs', () => {
       { ref: { kind: 'page', id: 'about' } },
     )
 
-    expect(collectLinkRefs(document)).toEqual([{ kind: 'product', id: 2 }, { kind: 'page', id: 'about' }])
+    expect(collectLinkRefs(document, registry)).toEqual([{ kind: 'product', id: 2 }, { kind: 'page', id: 'about' }])
   })
 
   it('finds nothing in a document with no link, or whose link setting is absent', () => {
-    expect(collectLinkRefs(pageWith(undefined))).toEqual([])
-    expect(collectLinkRefs({ sections: {}, order: [] })).toEqual([])
+    expect(collectLinkRefs(pageWith(undefined), registry)).toEqual([])
+    expect(collectLinkRefs({ sections: {}, order: [] }, registry)).toEqual([])
   })
 })
 
@@ -56,13 +58,13 @@ describe('resolveLinks', () => {
     [{ ref: { kind: 'contentPage', id: 'privacy' } }, '/privacy-policy'],
     [{ ref: { kind: 'contentPage', id: 'faq' } }, '/info/faq'],
   ])('turns %j into %s', (link, address) => {
-    expect(hrefsOf(resolveLinks(pageWith(link), targets))).toEqual([address])
+    expect(hrefsOf(resolveLinks(pageWith(link), targets, registry))).toEqual([address])
   })
 
   it('links a record at the slug it has NOW, not the one it had when the page was written', () => {
     const renamed: LinkTargets = { ...targets, slugs: { ...targets.slugs, product: new Map([[2, 'renamed']]) } }
 
-    expect(hrefsOf(resolveLinks(pageWith({ ref: { kind: 'product', id: 2 } }), renamed))).toEqual(['/products/2/renamed'])
+    expect(hrefsOf(resolveLinks(pageWith({ ref: { kind: 'product', id: 2 } }), renamed, registry))).toEqual(['/products/2/renamed'])
   })
 
   it.each([
@@ -71,14 +73,14 @@ describe('resolveLinks', () => {
     ['a page that is not published', { ref: { kind: 'page', id: 'draft' } }],
     ['a content page that is not published', { ref: { kind: 'contentPage', id: 'secret' } }],
   ])('takes out a link to %s, so no call to action leads nowhere', (_, link) => {
-    expect(hrefsOf(resolveLinks(pageWith(link, { route: '/offers' }), targets))).toEqual([undefined, '/offers'])
+    expect(hrefsOf(resolveLinks(pageWith(link, { route: '/offers' }), targets, registry))).toEqual([undefined, '/offers'])
   })
 
   it('does not change the document it is given', () => {
     const document = pageWith({ ref: { kind: 'product', id: 2 } })
     const before = JSON.stringify(document)
 
-    resolveLinks(document, targets)
+    resolveLinks(document, targets, registry)
 
     expect(JSON.stringify(document)).toBe(before)
   })

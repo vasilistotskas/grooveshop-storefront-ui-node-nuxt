@@ -20,7 +20,7 @@ export default defineCachedRoute(async (event): Promise<NavigationItems> => {
     const published = await readPublishedSummary(event)
     const targets = await publishedTargets(event, published)
     return Object.assign({}, ...Object.values(published.groups).map(group =>
-      navigationItems(parseDocument(group, 'group'), targets)))
+      navigationItems(parseDocument(group, 'group', builderBlocks, { onSkip: logSkippedNode }), targets, builderBlocks)))
   }
   catch (error) {
     return handleError(event, error)
