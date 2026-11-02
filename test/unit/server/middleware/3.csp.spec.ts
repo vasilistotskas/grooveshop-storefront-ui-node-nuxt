@@ -16,6 +16,7 @@ import { getResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
 import middleware from '~~/server/middleware/3.csp'
 import { callHandler, createTestEvent, setRuntimeConfig } from '~~/test/helpers/nitro'
+import { signInBuilderStaff } from '~~/test/helpers/builderStaff'
 
 const INTERNAL_DJANGO_URL = 'http://backend-service:80'
 
@@ -29,14 +30,13 @@ interface RunResult {
   'Content-Security-Policy': string
 }
 
-function runWith(url: string, options: RunOptions = {}): RunResult {
+async function runWith(url: string, options: RunOptions = {}): Promise<RunResult> {
   const event = createTestEvent({
     url,
     headers: options.requestHeaders,
     context: options.tenant ? { tenant: options.tenant } : {},
   })
-  // The middleware is synchronous; callHandler only binds the event.
-  void callHandler(middleware, event)
+  await callHandler(middleware, event)
   return { 'event': event, 'Content-Security-Policy': getResponseHeader(event, 'Content-Security-Policy') as string }
 }
 
@@ -54,30 +54,67 @@ beforeEach(() => {
   })
 })
 
+describe('who may frame a response', () => {
+  const framing = (result: RunResult) => ({
+    frameAncestors: directive(result['Content-Security-Policy'], 'frame-ancestors'),
+    xFrameOptions: getResponseHeader(result.event, 'X-Frame-Options'),
+  })
+  const NOBODY = { frameAncestors: `frame-ancestors 'none'`, xFrameOptions: 'DENY' }
+  const THE_STORE = { frameAncestors: `frame-ancestors 'self'`, xFrameOptions: 'SAMEORIGIN' }
+
+  it('lets nobody frame a page', async () => {
+    expect(framing(await runWith('/products'))).toEqual(NOBODY)
+  })
+
+  it('lets the store frame a page the editor previews, for a staff member', async () => {
+    const cookie = await signInBuilderStaff()
+
+    expect(framing(await runWith('/products?builder-canvas', { requestHeaders: { cookie } }))).toEqual(THE_STORE)
+    expect(framing(await runWith('/en/?builder-canvas=1', { requestHeaders: { cookie } }))).toEqual(THE_STORE)
+  })
+
+  it('lets nobody frame the preview without a staff session', async () => {
+    expect(framing(await runWith('/products?builder-canvas'))).toEqual(NOBODY)
+  })
+
+  it('lets nobody frame a page a staff member opens outside the editor', async () => {
+    const cookie = await signInBuilderStaff()
+
+    expect(framing(await runWith('/products', { requestHeaders: { cookie } }))).toEqual(NOBODY)
+  })
+
+  it('denies framing an API answer, which carries no CSP', async () => {
+    const result = await runWith('/api/products')
+
+    expect(result['Content-Security-Policy']).toBeUndefined()
+    expect(getResponseHeader(result.event, 'X-Frame-Options')).toBe('DENY')
+  })
+})
+
 describe('server/middleware/3.csp', () => {
-  it('never leaks the internal SSR upstream into the CSP', () => {
-    const csp = runWith('/products/3/some-product')['Content-Security-Policy']
+  it('never leaks the internal SSR upstream into the CSP', async () => {
+    const csp = (await runWith('/products/3/some-product'))['Content-Security-Policy']
     expect(csp).toContain('default-src \'self\'')
     expect(csp).not.toContain(INTERNAL_DJANGO_URL)
     expect(csp).not.toContain('backend-service')
   })
 
-  it('uses the public API origin in connect-src and keeps wss for the socket', () => {
-    const csp = runWith('/products/3/some-product')['Content-Security-Policy']
+  it('uses the public API origin in connect-src and keeps wss for the socket', async () => {
+    const csp = (await runWith('/products/3/some-product'))['Content-Security-Policy']
     const connectSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('connect-src')) ?? ''
     expect(connectSrc).toContain('https://api.webside.gr')
     expect(connectSrc).toContain('wss://api.webside.gr')
     expect(connectSrc).toContain('\'self\'')
   })
 
-  it('puts the configured platform maps host in connect-src on every tenant\'s pages', () => {
-    const csp = runWith('/checkout', { tenant: { apiDomain: 'api.tenant.example' } })['Content-Security-Policy']
+  it('puts the configured platform maps host in connect-src on every tenant\'s pages', async () => {
+    const csp = (await runWith('/checkout', { tenant: { apiDomain: 'api.tenant.example' } }))['Content-Security-Policy']
     expect(directive(csp, 'connect-src').split(/\s+/)).toContain('https://maps.platform.test')
     expect(directive(csp, 'worker-src')).toBe(`worker-src 'self'`)
   })
 
-  it('allows the asset origins for images but not the API host', () => {
-    const csp = runWith('/products/3/some-product')['Content-Security-Policy']
+  it('allows the asset origins for images but not the API host', async () => {
+    const csp = (await runWith('/products/3/some-product'))['Content-Security-Policy']
     const imgSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('img-src')) ?? ''
     expect(imgSrc).toContain('https://assets.webside.gr')
     expect(imgSrc).toContain('https://static.webside.gr')
@@ -85,10 +122,10 @@ describe('server/middleware/3.csp', () => {
     expect(imgSrc).not.toContain('api.webside.gr')
   })
 
-  it('allows the TikTok Pixel origins when the tenant provisions a pixel id', () => {
-    const csp = runWith('/products/3/some-product', {
+  it('allows the TikTok Pixel origins when the tenant provisions a pixel id', async () => {
+    const csp = (await runWith('/products/3/some-product', {
       tenant: { tiktokPixelId: 'TENANT_TT_ID' },
-    })['Content-Security-Policy']
+    }))['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     expect(directive('script-src')).toContain('https://analytics.tiktok.com')
@@ -97,25 +134,25 @@ describe('server/middleware/3.csp', () => {
     expect(directive('img-src')).toContain('https://*.tiktok.com')
   })
 
-  it('does not gate on TikTok origins when the tenant has no pixel id (no platform/env fallback)', () => {
-    const csp = runWith('/products/3/some-product', {
+  it('does not gate on TikTok origins when the tenant has no pixel id (no platform/env fallback)', async () => {
+    const csp = (await runWith('/products/3/some-product', {
       tenant: { tiktokPixelId: '' },
-    })['Content-Security-Policy']
+    }))['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     expect(directive('script-src')).not.toContain('analytics.tiktok.com')
   })
 
-  it('does not gate on Meta/TikTok origins when there is no tenant at all', () => {
-    const csp = runWith('/products/3/some-product')['Content-Security-Policy']
+  it('does not gate on Meta/TikTok origins when there is no tenant at all', async () => {
+    const csp = (await runWith('/products/3/some-product'))['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     expect(directive('script-src')).not.toContain('analytics.tiktok.com')
     expect(directive('script-src')).not.toContain('connect.facebook.net')
   })
 
-  it('appends filtered tenant allowedCspSources to the four browser directives', () => {
-    const csp = runWith('/products/3/some-product', {
+  it('appends filtered tenant allowedCspSources to the four browser directives', async () => {
+    const csp = (await runWith('/products/3/some-product', {
       tenant: {
         allowedCspSources: [
           'https://cdn.tenant.example',
@@ -124,7 +161,7 @@ describe('server/middleware/3.csp', () => {
           'http://insecure.example', // must be dropped too
         ],
       },
-    })['Content-Security-Policy']
+    }))['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     for (const name of ['script-src', 'img-src', 'connect-src', 'frame-src']) {
@@ -138,10 +175,10 @@ describe('server/middleware/3.csp', () => {
     expect(directive('style-src')).not.toContain('cdn.tenant.example')
   })
 
-  it('lists ONLY the tenant apiDomain origin (https + wss) in connect-src, never the platform host beside it', () => {
-    const csp = runWith('/products/3/some-product', {
+  it('lists ONLY the tenant apiDomain origin (https + wss) in connect-src, never the platform host beside it', async () => {
+    const csp = (await runWith('/products/3/some-product', {
       tenant: { apiDomain: 'api.tenant.example' },
-    })['Content-Security-Policy']
+    }))['Content-Security-Policy']
     const connectSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('connect-src')) ?? ''
     expect(connectSrc).toContain('https://api.tenant.example')
     expect(connectSrc).toContain('wss://api.tenant.example')
@@ -151,22 +188,22 @@ describe('server/middleware/3.csp', () => {
     expect(csp).not.toContain('api.webside.gr')
   })
 
-  it('falls back to the platform host in connect-src only when the tenant has no apiDomain', () => {
-    const csp = runWith('/products/3/some-product', {
+  it('falls back to the platform host in connect-src only when the tenant has no apiDomain', async () => {
+    const csp = (await runWith('/products/3/some-product', {
       tenant: { apiDomain: '' },
-    })['Content-Security-Policy']
+    }))['Content-Security-Policy']
     const connectSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('connect-src')) ?? ''
     expect(connectSrc).toContain('https://api.webside.gr')
     expect(connectSrc.match(/api\.webside\.gr/g)?.length).toBe(2) // https + wss, no duplicate
   })
 
-  it('additively allows the tenant assetsDomain/staticDomain origins in img-src and connect-src alongside the platform origins', () => {
-    const csp = runWith('/products/3/some-product', {
+  it('additively allows the tenant assetsDomain/staticDomain origins in img-src and connect-src alongside the platform origins', async () => {
+    const csp = (await runWith('/products/3/some-product', {
       tenant: {
         assetsDomain: 'assets.tenant.example',
         staticDomain: 'static.tenant.example',
       },
-    })['Content-Security-Policy']
+    }))['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     for (const name of ['img-src', 'connect-src']) {
@@ -179,25 +216,25 @@ describe('server/middleware/3.csp', () => {
     }
   })
 
-  it('omits the tenant assets/static origins when the tenant has none', () => {
-    const csp = runWith('/products/3/some-product', {
+  it('omits the tenant assets/static origins when the tenant has none', async () => {
+    const csp = (await runWith('/products/3/some-product', {
       tenant: { assetsDomain: '', staticDomain: '' },
-    })['Content-Security-Policy']
+    }))['Content-Security-Policy']
     const imgSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('img-src')) ?? ''
     expect(imgSrc).toContain('https://assets.webside.gr')
     expect(imgSrc).not.toContain('tenant.example')
   })
 
-  it('skips API, _nuxt and _ipx routes (no CSP header set)', () => {
-    expect(runWith('/api/products/3')['Content-Security-Policy']).toBeUndefined()
-    expect(runWith('/_nuxt/entry.js')['Content-Security-Policy']).toBeUndefined()
-    expect(runWith('/_ipx/_/image.png')['Content-Security-Policy']).toBeUndefined()
+  it('skips API, _nuxt and _ipx routes (no CSP header set)', async () => {
+    expect((await runWith('/api/products/3'))['Content-Security-Policy']).toBeUndefined()
+    expect((await runWith('/_nuxt/entry.js'))['Content-Security-Policy']).toBeUndefined()
+    expect((await runWith('/_ipx/_/image.png'))['Content-Security-Policy']).toBeUndefined()
   })
 
-  it('emits a per-request nonce + strict-dynamic in script-src for SSR routes', () => {
+  it('emits a per-request nonce + strict-dynamic in script-src for SSR routes', async () => {
     // An UNCACHED route: /products and /blog are now SWR-cached families,
     // and a cached response cannot carry a per-request nonce.
-    const result = runWith('/search')
+    const result = await runWith('/search')
     const scriptSrc = result['Content-Security-Policy']!
       .split(';').map(d => d.trim()).find(d => d.startsWith('script-src')) ?? ''
     const nonce = result.event.context.cspNonce as string
@@ -209,16 +246,16 @@ describe('server/middleware/3.csp', () => {
     expect(scriptSrc).toContain('https://js.stripe.com')
   })
 
-  it('keeps the nonce-free policy on the SWR-cached homepage', () => {
+  it('keeps the nonce-free policy on the SWR-cached homepage', async () => {
     // '/' is served from Nitro's cache (SWR_ROUTE_RULES): a per-request
     // nonce would be reused for the whole cache lifetime, so the cached
     // routes keep the 'unsafe-inline'-based policy instead.
-    const result = runWith('/')
+    const result = await runWith('/')
     expect(result.event.context.cspNonce).toBeUndefined()
     expect(result['Content-Security-Policy']!).not.toContain('nonce-')
   })
 
-  it('keeps the nonce-free policy across the SWR-cached route families', () => {
+  it('keeps the nonce-free policy across the SWR-cached route families', async () => {
     // Regression: these are glob route rules, so an exact-path Set lookup
     // missed every nested URL and handed them a nonce that the cached
     // HTML would then reuse for the whole TTL.
@@ -231,28 +268,28 @@ describe('server/middleware/3.csp', () => {
       '/products/3/some-product',
       '/products/category/2/Powerbank',
     ]) {
-      const result = runWith(path)
+      const result = await runWith(path)
       expect(result.event.context.cspNonce, path).toBeUndefined()
       expect(result['Content-Security-Policy']!, path).not.toContain('nonce-')
     }
   })
 
-  it('still nonces sibling paths that merely share a prefix', () => {
+  it('still nonces sibling paths that merely share a prefix', async () => {
     // One segment deeper than a custom page, which is cached (`/blogging`).
     for (const path of ['/blogging/2026', '/productsxyz/1', '/cart']) {
-      expect(runWith(path).event.context.cspNonce, path).toEqual(expect.any(String))
+      expect((await runWith(path)).event.context.cspNonce, path).toEqual(expect.any(String))
     }
   })
 
-  it('serves a custom page, which Nitro caches, no nonce', () => {
+  it('serves a custom page, which Nitro caches, no nonce', async () => {
     for (const path of ['/kelari', '/en/kelari']) {
-      expect(runWith(path).event.context.cspNonce, path).toBeUndefined()
+      expect((await runWith(path)).event.context.cspNonce, path).toBeUndefined()
     }
   })
 
-  it('keeps the nonce-free unsafe-inline policy on prerendered routes', () => {
+  it('keeps the nonce-free unsafe-inline policy on prerendered routes', async () => {
     for (const path of ['/about', '/about/', '/about?utm_source=x']) {
-      const result = runWith(path)
+      const result = await runWith(path)
       const csp = result['Content-Security-Policy']!
       expect(result.event.context.cspNonce).toBeUndefined()
       // The policy must not mention nonces at all, or browsers would
@@ -263,14 +300,14 @@ describe('server/middleware/3.csp', () => {
     }
   })
 
-  it('still issues a nonce when a client sends x-nitro-prerender', () => {
+  it('still issues a nonce when a client sends x-nitro-prerender', async () => {
     // The prerender exemption is gated on import.meta.prerender (a
     // build-time constant), not on this header — a visitor could
     // otherwise suppress the nonce on any route and be served the
     // weaker baked policy instead.
     // On an UNCACHED route, so the assertion isolates the header (a
     // cached route has its own, legitimate reason to omit the nonce).
-    const result = runWith('/search', {
+    const result = await runWith('/search', {
       requestHeaders: { 'x-nitro-prerender': '/search' },
     })
     expect(result.event.context.cspNonce).toEqual(expect.any(String))
@@ -286,28 +323,28 @@ describe('server/middleware/3.csp', () => {
     const directive = (csp: string, name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
 
-    it('allows the conversion beacon to be fetched', () => {
-      const csp = runWith('/')['Content-Security-Policy']
+    it('allows the conversion beacon to be fetched', async () => {
+      const csp = (await runWith('/'))['Content-Security-Policy']
       expect(directive(csp, 'connect-src'))
         .toContain('https://pagead2.googlesyndication.com')
     })
 
-    it('allows the same beacon as an image fallback', () => {
-      const csp = runWith('/')['Content-Security-Policy']
+    it('allows the same beacon as an image fallback', async () => {
+      const csp = (await runWith('/'))['Content-Security-Policy']
       expect(directive(csp, 'img-src'))
         .toContain('https://pagead2.googlesyndication.com')
     })
 
-    it('allows the tags themselves to load', () => {
-      const csp = runWith('/')['Content-Security-Policy']
+    it('allows the tags themselves to load', async () => {
+      const csp = (await runWith('/'))['Content-Security-Policy']
       const scriptSrc = directive(csp, 'script-src')
       expect(scriptSrc).toContain('https://www.googleadservices.com')
       expect(scriptSrc).toContain('https://googleads.g.doubleclick.net')
     })
 
-    it('keeps the doubleclick measurement endpoints reachable', () => {
+    it('keeps the doubleclick measurement endpoints reachable', async () => {
       const connectSrc = directive(
-        runWith('/')['Content-Security-Policy'],
+        (await runWith('/'))['Content-Security-Policy'],
         'connect-src',
       )
       expect(connectSrc).toContain('https://ad.doubleclick.net')
@@ -315,37 +352,37 @@ describe('server/middleware/3.csp', () => {
     })
   })
 
-  it('allows the Meta Pixel origins only when the tenant provisions an id', () => {
-    const withPixel = runWith('/search', { tenant: { metaPixelId: '123' } })['Content-Security-Policy']
-    const without = runWith('/search', { tenant: { metaPixelId: '' } })['Content-Security-Policy']
+  it('allows the Meta Pixel origins only when the tenant provisions an id', async () => {
+    const withPixel = (await runWith('/search', { tenant: { metaPixelId: '123' } }))['Content-Security-Policy']
+    const without = (await runWith('/search', { tenant: { metaPixelId: '' } }))['Content-Security-Policy']
 
     expect(directive(withPixel, 'script-src')).toContain('https://connect.facebook.net')
     expect(directive(withPixel, 'frame-src')).toContain('https://www.facebook.com')
     expect(directive(without, 'script-src')).not.toContain('connect.facebook.net')
   })
 
-  it('allows the ChatGPT Ads origin only when the tenant provisions an id', () => {
-    const withPixel = runWith('/search', { tenant: { openaiPixelId: 'oa-1' } })['Content-Security-Policy']
-    const without = runWith('/search', { tenant: {} })['Content-Security-Policy']
+  it('allows the ChatGPT Ads origin only when the tenant provisions an id', async () => {
+    const withPixel = (await runWith('/search', { tenant: { openaiPixelId: 'oa-1' } }))['Content-Security-Policy']
+    const without = (await runWith('/search', { tenant: {} }))['Content-Security-Policy']
 
     expect(directive(withPixel, 'script-src')).toContain('https://bzrcdn.openai.com')
     expect(directive(withPixel, 'connect-src')).toContain('https://bzrcdn.openai.com')
     expect(without).not.toContain('bzrcdn.openai.com')
   })
 
-  it('widens the policy for Google sign-in only when the platform flag enables it', () => {
-    const disabled = runWith('/search')['Content-Security-Policy']
+  it('widens the policy for Google sign-in only when the platform flag enables it', async () => {
+    const disabled = (await runWith('/search'))['Content-Security-Policy']
     setRuntimeConfig({ public: { googleGsiEnable: true } })
-    const enabled = runWith('/search')['Content-Security-Policy']
+    const enabled = (await runWith('/search'))['Content-Security-Policy']
 
     expect(directive(enabled, 'script-src')).toContain('https://accounts.google.com/gsi/client')
     expect(disabled).not.toContain('accounts.google.com/gsi/client')
   })
 
-  it('falls back to the request Host, never X-Forwarded-Host, when no API host is configured', () => {
+  it('falls back to the request Host, never X-Forwarded-Host, when no API host is configured', async () => {
     setRuntimeConfig({ public: { djangoHostName: '' } })
 
-    const csp = runWith('/search', { requestHeaders: { 'x-forwarded-host': 'evil.example' } })['Content-Security-Policy']
+    const csp = (await runWith('/search', { requestHeaders: { 'x-forwarded-host': 'evil.example' } }))['Content-Security-Policy']
 
     expect(directive(csp, 'connect-src')).toContain('https://shop.test')
     expect(directive(csp, 'connect-src')).toContain('wss://shop.test')

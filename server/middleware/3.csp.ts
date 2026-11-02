@@ -19,10 +19,21 @@ import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/serve
  *     effective — the policy must not mention nonces at all or browsers
  *     disable 'unsafe-inline'.
  *
- * Skipped for API routes (JSON responses) and static assets.
+ * Framing: no page may be framed (`frame-ancestors 'none'`, `X-Frame-Options:
+ * DENY`), except a page the editor shows as its preview, to a live staff
+ * session: `'self'` and `SAMEORIGIN` (`builderCanvasFraming`). Decided
+ * here, on the request itself, outside Nitro's page cache, so a cached
+ * entry never carries one request's framing. `X-Frame-Options` goes on
+ * every response this middleware sees, the API's included, so the store
+ * keeps it without the ingress adding one.
+ *
+ * The CSP itself is skipped for API routes (JSON responses) and static assets.
  */
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const path = event.url.pathname
+
+  const frameAncestors = await builderCanvasFraming(event)
+  event.res.headers.set('X-Frame-Options', frameAncestors === 'self' ? 'SAMEORIGIN' : 'DENY')
 
   // Skip CSP for API routes, static assets, and internal Nuxt routes
   if (path.startsWith('/api/') || path.startsWith('/_nuxt/') || path.startsWith('/_ipx/')) {
@@ -89,6 +100,7 @@ export default defineEventHandler((event) => {
     tenantAssetsDomain: tenant?.assetsDomain,
     tenantStaticDomain: tenant?.staticDomain,
     nonce,
+    frameAncestors,
   })
 
   event.res.headers.set('Content-Security-Policy', directives.join('; '))

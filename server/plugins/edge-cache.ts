@@ -28,6 +28,9 @@ export default defineNitroPlugin((nitroApp) => {
           res.statusCode = restored
           res.setHeader('cache-control', PRIVATE_CACHE_CONTROL)
         }
+        else if (isBuilderCanvasResponse(event)) {
+          res.setHeader('cache-control', PRIVATE_CACHE_CONTROL)
+        }
         else if (isEdgeCacheableResponse(event)) {
           res.setHeader('cache-control', 'no-cache')
           res.setHeader('cloudflare-cdn-cache-control', EDGE_CACHE_CONTROL)

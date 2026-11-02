@@ -22,6 +22,13 @@ import { BOXNOW_FRAME_ORIGINS } from './boxnow-widget'
  * ``test/unit/shared/utils/csp-nuxt-image-handler.spec.ts``, which recomputes
  * it from the installed module, so a handler change fails CI.
  */
+/**
+ * Who may frame a page: nobody (`'none'`), or the store's own pages
+ * (`'self'`), which only the editor's preview of a page is given
+ * (`builderCanvasFraming`, `server/utils/builderSession.ts`).
+ */
+export type CspFrameAncestors = 'none' | 'self'
+
 const NUXT_IMAGE_ONERROR_HASH = 'sha256-bwK6T5wZVTANitXbrTsel7kl/PyCjCd/Dq5Qoz3imjM='
 
 export interface CspOptions {
@@ -93,6 +100,8 @@ export interface CspOptions {
   googleGsiEnabled?: boolean
   /** Per-request script nonce; omit for the nonce-free (prerender) policy. */
   nonce?: string
+  /** Who may frame the page; see `CspFrameAncestors`. */
+  frameAncestors: CspFrameAncestors
 }
 
 export function buildCspDirectives(options: CspOptions): string[] {
@@ -111,6 +120,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     tenantAssetsDomain,
     tenantStaticDomain,
     nonce,
+    frameAncestors,
   } = options
 
   // Per-tenant source expansion — see the CspOptions doc for the
@@ -333,6 +343,6 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'${metaFormAction}`,
-    `frame-ancestors 'none'`,
+    `frame-ancestors '${frameAncestors}'`,
   ]
 }

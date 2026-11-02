@@ -126,6 +126,19 @@ describe('server/plugins/edge-cache', () => {
     expect((await respond(url, options))['cache-control']).toBe(options.headers!['cache-control'])
   })
 
+  describe('a page asked for as the editor\'s preview', () => {
+    const PRIVATE = { 'cache-control': 'private, no-store', 'cloudflare-cdn-cache-control': undefined, 'cache-tag': undefined }
+
+    it('is never stored at the edge, though Nitro cached its render', async () => {
+      expect(await respond('/?builder-canvas')).toEqual(PRIVATE)
+      expect(await respond('/en/products?builder-canvas=1')).toEqual(PRIVATE)
+    })
+
+    it('stays private on a revalidation', async () => {
+      expect(await respond('/?builder-canvas', { status: 304, headers: { 'cache-control': 'public, max-age=300, s-maxage=300' } })).toEqual(PRIVATE)
+    })
+  })
+
   it('leaves a POST to /api alone', async () => {
     expect((await respond('/api/_allauth/app/v1/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' } }))['cache-control']).toBeUndefined()
   })

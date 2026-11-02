@@ -75,3 +75,11 @@ export const BUILDER_HISTORY_COALESCE_MS = 1000
 
 /** The settings pane's width in CSS pixels: what it opens at, and how far it may be dragged. */
 export const BUILDER_SETTINGS_PANE = { min: 300, default: 340, max: 480 } as const
+
+/**
+ * The query parameter that marks a request for a store page as the editor's
+ * preview (its canvas): only such a request, from a live staff session, may
+ * be framed, and only by the store's own pages (`builderCanvasFraming`).
+ * Every response to it is private (`server/utils/edgeCache.ts`).
+ */
+export const BUILDER_CANVAS_QUERY = 'builder-canvas'
