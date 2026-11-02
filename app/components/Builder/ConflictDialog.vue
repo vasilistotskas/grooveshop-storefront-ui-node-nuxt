@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { t, locale } = useStoreI18n('components/Builder/ConflictDialog')
-const { blockLabel } = useBuilderLabels()
+const { nodeLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
 
@@ -34,7 +34,7 @@ const changed = computed(() => {
   const theirCopy = { draft: theirDraft.data, i18n: theirI18n.data }
   return changedSections(mine, theirCopy).map((id) => {
     const node = mine.draft.sections[id] ?? theirCopy.draft.sections[id]!
-    return builderNodeTitle(node, builderEditorBlocks) ?? blockLabel(builderBlockType(node))
+    return nodeLabel(node)
   })
 })
 

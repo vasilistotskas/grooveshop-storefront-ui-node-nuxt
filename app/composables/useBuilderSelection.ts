@@ -9,7 +9,7 @@
 export function useBuilderSelection() {
   const store = useBuilderEditorStore()
   const { selected, select } = useBuilderEditorView()
-  const { blockLabel } = useBuilderLabels()
+  const { nodeLabel } = useBuilderLabels()
 
   const selection = computed(() => {
     const ref = selected.value
@@ -18,12 +18,14 @@ export function useBuilderSelection() {
     const node = parsed && document ? findBuilderNode(document.copy.draft, parsed.nodeId) : undefined
     if (!parsed || !document || !node) return undefined
     const copy = document.copy
+    const index = builderNodeSiblings(copy, parsed.nodeId)!.indexOf(parsed.nodeId)
     return {
       ...parsed,
-      label: builderNodeTitle(node, builderEditorBlocks) ?? blockLabel(builderBlockType(node)),
+      label: nodeLabel(node),
       hidden: node.disabled === true,
-      canMoveUp: canMoveNode(copy, parsed.nodeId, -1),
-      canMoveDown: canMoveNode(copy, parsed.nodeId, 1),
+      index,
+      canMoveUp: canMoveNode(copy, parsed.nodeId, index - 1),
+      canMoveDown: canMoveNode(copy, parsed.nodeId, index + 1),
       canDuplicate: canDuplicateNode(copy, parsed.nodeId, builderEditorBlocks),
     }
   })
@@ -32,7 +34,7 @@ export function useBuilderSelection() {
 
   function move(delta: -1 | 1): void {
     const current = selection.value
-    if (current) store.change(current.documentKey, moveNode(copyOf(current.documentKey), current.nodeId, delta))
+    if (current) store.move(current.documentKey, current.nodeId, current.index + delta)
   }
 
   function toggleHidden(): void {

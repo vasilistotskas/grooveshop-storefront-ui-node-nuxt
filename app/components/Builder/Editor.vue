@@ -14,6 +14,7 @@ const autosave = useBuilderAutosaveStore()
 const toast = useToast()
 const { documentKey, openDocument } = useBuilderEditorView()
 const { selection, move } = useBuilderSelection()
+const { nodeLabel } = useBuilderLabels()
 
 /** The outline as a drawer, below the width that fits it beside the preview. */
 const outlineOpen = ref(false)
@@ -50,6 +51,22 @@ defineShortcuts(computed(() => ({
   alt_arrowup: selection.value?.canMoveUp && store.canEdit ? () => move(-1) : undefined,
   alt_arrowdown: selection.value?.canMoveDown && store.canEdit ? () => move(1) : undefined,
 })))
+
+// Every move is said, however it was made (the toolbar, a shortcut, a drag
+// in the outline): where the node went, of how many. The same words twice
+// in a row are cleared first, or the live region would not change.
+const announcer = useAnnouncer()
+watch(() => store.moved, async (moved) => {
+  const draft = moved && store.opened[moved.documentKey]?.copy.draft
+  const node = moved && draft ? findBuilderNode(draft, moved.nodeId) : undefined
+  if (!moved || !node) return
+  const text = t('moved', { name: nodeLabel(node), position: moved.index + 1, count: moved.count })
+  if (announcer.message.value === text) {
+    announcer.set('')
+    await nextTick()
+  }
+  announcer.polite(text)
+})
 
 // Leaving the page saves what waits for the autosave delay.
 useEventListener(window, 'pagehide', () => autosave.flush())
@@ -209,6 +226,7 @@ watch(() => autosave.overall, (state) => {
 
 <i18n lang="yaml">
 el:
+  moved: "{name}: μετακινήθηκε στη θέση {position} από {count}"
   settings:
     title: Ρυθμίσεις
     close: Κλείσιμο των ρυθμίσεων
@@ -240,6 +258,7 @@ el:
     description: Δεν ήταν δυνατή η σύνδεση με το κατάστημα.
     retry: Δοκιμάστε ξανά
 en:
+  moved: "{name} moved to position {position} of {count}"
   settings:
     title: Settings
     close: Close the settings

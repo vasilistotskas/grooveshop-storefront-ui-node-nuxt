@@ -10,6 +10,8 @@ import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { resetBuilderEditorStores } from '~~/test/helpers/builderEditor'
 import { useBuilderLibraryStore } from '~/stores/builderLibrary'
 import { setTenantFeatures } from '~~/test/helpers/tenant'
+import Sortable from 'sortablejs'
+import type { SortableEvent } from 'sortablejs'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
 
 /**
@@ -626,6 +628,65 @@ describe('editing the structure of a page', () => {
     expect(wrapper.find('[role="toolbar"]').exists()).toBe(false)
     expect(wrapper.find('button[aria-label="Αναίρεση"]').exists()).toBe(false)
     expect(wrapper.find('button[aria-label^="Προσθήκη ενότητας"]').exists()).toBe(false)
+    expect(wrapper.find('[data-builder-drag]').exists()).toBe(false)
+  })
+
+  describe('dragging in the outline', () => {
+    /** The page's tree, its rows' list items, and the Sortable.js instance on it. */
+    function pageTree(wrapper: Awaited<ReturnType<typeof open>>) {
+      const list = wrapper.findAll('nav[aria-label="Δομή σελίδας"] section')[1]!.get('[role="tree"]').element as HTMLElement
+      const sortable = Sortable.get(list)!
+      return { list, rows: () => [...list.children] as HTMLElement[], options: sortable.options }
+    }
+
+    /** What Sortable.js does on a drop: the row moved in the page, then its events. */
+    function drop(tree: ReturnType<typeof pageTree>, from: number, to: number) {
+      const item = tree.rows()[from]!
+      tree.options.onStart!({ item } as SortableEvent)
+      const rest = tree.rows().filter(row => row !== item)
+      tree.list.insertBefore(item, rest[to] ?? null)
+      tree.options.onUpdate!({ item, from: tree.list, oldIndex: from, newIndex: to } as SortableEvent)
+      tree.options.onEnd!({ item } as SortableEvent)
+    }
+
+    const announced = (wrapper: Awaited<ReturnType<typeof open>>) => wrapper.get('.nuxt-announcer').text()
+
+    it('moves a section dropped among the sections, saves it and says where it went', async () => {
+      const wrapper = await open()
+      const tree = pageTree(wrapper)
+
+      drop(tree, 0, 2)
+      await saveNow()
+
+      expect(pageRows(wrapper)).toEqual(['Πλέγμα προϊόντων', 'Εγγραφή στο newsletter, Κρυφό', 'Ενέργεια για όλη τη μέρα, Κεντρικό banner'])
+      expect(api.callsTo(DRAFT_URL)[0]!.options.body.draft.order).toEqual(['grid', 'news', 'hero'])
+      expect(announced(wrapper)).toBe('Ενέργεια για όλη τη μέρα: μετακινήθηκε στη θέση 3 από 3')
+    })
+
+    it('lets a row be dropped beside its own siblings only, folding away the blocks while it is dragged', async () => {
+      const wrapper = await open('/_builder?node=template:home/s1')
+      const tree = pageTree(wrapper)
+      const [hero, stat, grid] = tree.rows()
+
+      tree.options.onStart!({ item: grid } as SortableEvent)
+      await flushPromises()
+
+      expect(tree.options.onMove!({ related: hero } as never, {} as never)).toBe(true)
+      expect(tree.options.onMove!({ related: stat } as never, {} as never)).toBe(false)
+      expect(stat!.classList.contains('hidden')).toBe(true)
+      tree.options.onEnd!({ item: grid } as SortableEvent)
+      await flushPromises()
+      expect(stat!.classList.contains('hidden')).toBe(false)
+    })
+
+    it('says a move made from the toolbar too', async () => {
+      const wrapper = await open(HERO)
+
+      await button(wrapper, 'Μετακίνηση κάτω').trigger('click')
+      await flushPromises()
+
+      expect(announced(wrapper)).toBe('Ενέργεια για όλη τη μέρα: μετακινήθηκε στη θέση 2 από 3')
+    })
   })
 
   describe('the settings of the selected section', () => {

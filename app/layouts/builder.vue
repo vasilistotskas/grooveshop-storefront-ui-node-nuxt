@@ -12,5 +12,6 @@ updateAppConfig({ ui: { colors: { ...appConfig.builder.colors } } })
 <template>
   <div class="fixed inset-0 flex flex-col bg-default text-default">
     <slot />
+    <NuxtAnnouncer />
   </div>
 </template>

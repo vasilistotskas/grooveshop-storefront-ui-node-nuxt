@@ -5,7 +5,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useStoreI18n('components/Builder/Canvas')
-const { documentLabel, blockLabel } = useBuilderLabels()
+const { documentLabel, nodeLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const { device, selected, openDocument, select, setDevice } = useBuilderEditorView()
 const toast = useToast()
@@ -175,7 +175,7 @@ const insertPoints = computed(() => {
   const order = document.copy.draft.order
   const nameOf = (node: string) => {
     const section = document.copy.draft.sections[node]
-    return section ? builderNodeTitle(section, builderEditorBlocks) ?? blockLabel(builderBlockType(section)) : node
+    return section ? nodeLabel(section) : node
   }
   const points = new Map<string, { key: string, left: number, top: number, index: number, label: string }>()
   for (const box of [boxes.value.hover, boxes.value.selected]) {
