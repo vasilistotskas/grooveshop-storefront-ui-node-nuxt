@@ -26,6 +26,12 @@ export function parseBuilderDocumentKey(key: string): { kind: BuilderDocumentKin
   return name === undefined ? { kind } : { kind, name }
 }
 
+/** Whether a document key is a page the store draws on its own: a page it made, or a template. */
+export function builderPageKind(key: string): boolean {
+  const { kind } = parseBuilderDocumentKey(key)
+  return kind === 'page' || kind === 'template'
+}
+
 /** The key of a document of `kind` named `name`: `builderDocumentKey('group', 'header')` is `group:header`. */
 export function builderDocumentKey(kind: Exclude<BuilderDocumentKind, 'theme'>, name: string): string {
   return `${kind}:${name}`

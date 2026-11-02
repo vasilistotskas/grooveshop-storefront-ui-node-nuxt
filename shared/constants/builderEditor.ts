@@ -88,7 +88,7 @@ export const BUILDER_CANVAS_QUERY = 'builder-canvas'
 export const BUILDER_CANVAS_CHANNEL = 'grooveshop-builder-canvas'
 
 /** How long the canvas waits after the last change it was sent before it asks for a new preview, in milliseconds. */
-export const BUILDER_CANVAS_PREVIEW_DELAY_MS = 150
+export const BUILDER_CANVAS_PREVIEW_DELAY_MS = 300
 
 /** The key of the state that holds what the canvas draws in place of the published store (`useBuilderCanvasPreview`). */
 export const BUILDER_CANVAS_PREVIEW_STATE = 'builder-canvas-preview'

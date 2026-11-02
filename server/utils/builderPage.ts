@@ -2,8 +2,7 @@ import type { RequestEvent } from 'nuxt/server'
 
 /**
  * A page document, as Django resolved it for one language (a published
- * page) or as the editor's working copy resolves (`resolveWorkingCopy`),
- * made ready to render: every node brought to its block's current version,
+ * page, or the editor's working copy in its place), made ready to render: every node brought to its block's current version,
  * validated and rebuilt (`parseDocument`, an unusable node left out with a
  * warning), its links answered as the addresses they have now
  * (`resolveLinks`), each section as its block type and its component's props
