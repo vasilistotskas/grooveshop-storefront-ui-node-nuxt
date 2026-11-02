@@ -37,12 +37,17 @@ const EDITOR_UI = {
   base: 'px-3 py-2 *:my-3 sm:px-3',
 }
 
+const editorRef = useTemplateRef('editorRef')
 const html = computed(() => props.value)
 
-/** An editor with nothing typed in it writes one empty paragraph: that is no text. */
+/**
+ * An emptied editor still writes an empty paragraph; whether anything is
+ * left is the editor's own document's answer (TipTap's `isEmpty`: no text
+ * and no divider), so an emptied field takes the setting out.
+ */
 function update(next: unknown): void {
   const value = typeof next === 'string' ? next : ''
-  emit('update', builderRichTextIsEmpty(value) ? undefined : value)
+  emit('update', editorRef.value?.editor?.isEmpty ? undefined : value)
 }
 
 const items = computed<EditorToolbarItem[][]>(() => [
@@ -73,7 +78,6 @@ const items = computed<EditorToolbarItem[][]>(() => [
 
 // The link of the selection: an address the staff member types, applied to
 // the selected words (or the link the cursor is in), or taken off them.
-const editorRef = useTemplateRef('editorRef')
 const linkOpen = ref(false)
 const linkHref = ref('')
 const linkError = ref(false)

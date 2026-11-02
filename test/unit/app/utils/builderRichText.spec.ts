@@ -1,18 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { builderRichTextIsEmpty, builderRichTextLinkAllowed } from '~/utils/builderRichText'
-
-describe('builderRichTextIsEmpty', () => {
-  it('takes an emptied editor\'s paragraphs for no text', () => {
-    expect(builderRichTextIsEmpty('')).toBe(true)
-    expect(builderRichTextIsEmpty('<p></p>')).toBe(true)
-    expect(builderRichTextIsEmpty('<p> &nbsp; </p><p><br></p>')).toBe(true)
-  })
-
-  it('keeps text, and markup that shows something without text', () => {
-    expect(builderRichTextIsEmpty('<p>Γεια</p>')).toBe(false)
-    expect(builderRichTextIsEmpty('<div data-type="horizontalRule"><hr></div>')).toBe(false)
-  })
-})
+import { builderRichTextLinkAllowed } from '~/utils/builderRichText'
 
 describe('builderRichTextLinkAllowed', () => {
   it('takes an https address and a path of the store', () => {

@@ -53,8 +53,20 @@ describe('BuilderRichTextField', () => {
     await flushPromises()
     editor().commands.clearContent(true)
     await flushPromises()
+    editor().commands.setContent('<p></p><p></p>', { emitUpdate: true })
+    await flushPromises()
 
-    expect(updates).toEqual(['<p>Κείμενο νέο</p>', undefined])
+    expect(updates).toEqual(['<p>Κείμενο νέο</p>', undefined, undefined])
+  })
+
+  it('keeps a field that holds only a divider: it shows something, though it has no text', async () => {
+    const { updates, editor } = await mount('<p>Κείμενο</p>')
+
+    editor().commands.setContent('<hr>', { emitUpdate: true })
+    await flushPromises()
+
+    expect(updates).toHaveLength(1)
+    expect(updates[0]).toContain('<hr>')
   })
 
   it('links the selected words to a path of the store, and refuses an address the store would not keep', async () => {
