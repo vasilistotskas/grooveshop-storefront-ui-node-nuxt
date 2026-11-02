@@ -19,6 +19,8 @@ const { selection, move } = useBuilderSelection()
 const outlineOpen = ref(false)
 /** The settings as a drawer, below the width that fits them beside the preview. */
 const settingsOpen = ref(false)
+/** The preview fills its pane edge to edge; the states before it keep the panel's padding. */
+const previewPanelUi = computed(() => store.status === 'ready' ? { body: 'gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0' } : undefined)
 
 watch(() => props.session.staff.role, (role) => {
   store.role = role
@@ -28,7 +30,7 @@ watch(documentKey, key => store.open(key), { immediate: true })
 /** Undo and redo land on the document they changed, so the change is in view. */
 async function step(direction: 'undo' | 'redo'): Promise<void> {
   const key = direction === 'undo' ? store.undo() : store.redo()
-  if (key && !key.startsWith('group:') && key !== documentKey.value) await openDocument(key)
+  if (key && parseBuilderDocumentKey(key).kind !== 'group' && key !== documentKey.value) await openDocument(key)
 }
 
 // Not while typing: a text field keeps its own undo (`usingInput` is off).
@@ -105,7 +107,10 @@ watch(() => autosave.overall, (state) => {
       </template>
     </UDashboardSidebar>
 
-    <UDashboardPanel id="builder-preview">
+    <UDashboardPanel
+      id="builder-preview"
+      :ui="previewPanelUi"
+    >
       <template #header>
         <UAlert
           v-if="autosave.overall === 'signedOut'"
@@ -119,7 +124,12 @@ watch(() => autosave.overall, (state) => {
         <BuilderRecoveryNotice v-if="store.status === 'ready'" />
       </template>
       <template #body>
+        <BuilderCanvas
+          v-if="store.status === 'ready'"
+          :document-key="documentKey"
+        />
         <div
+          v-else
           class="flex flex-1 items-center justify-center"
           role="status"
         >
@@ -150,12 +160,6 @@ watch(() => autosave.overall, (state) => {
             :title="t('error.title')"
             :description="t('error.description')"
             :actions="[{ label: t('error.retry'), color: 'neutral', variant: 'outline', onClick: () => store.open(documentKey) }]"
-          />
-          <UEmpty
-            v-else
-            icon="i-lucide-monitor"
-            variant="naked"
-            :title="t('preview.title')"
           />
         </div>
       </template>
@@ -225,8 +229,6 @@ el:
     title: Η σελίδα δεν φορτώθηκε
     description: Δεν ήταν δυνατή η σύνδεση με το κατάστημα.
     retry: Δοκιμάστε ξανά
-  preview:
-    title: Η ζωντανή προβολή έρχεται σύντομα
 en:
   settings:
     title: Settings
@@ -258,6 +260,4 @@ en:
     title: The page didn't load
     description: The store couldn't be reached.
     retry: Try again
-  preview:
-    title: The live preview is coming soon
 </i18n>

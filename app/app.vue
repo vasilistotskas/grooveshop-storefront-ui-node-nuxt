@@ -3,13 +3,24 @@ import { withTrailingSlash } from 'ufo'
 import type { SupportedLocale } from '~~/i18n/locales'
 
 setupPageHeader()
-setupGoogleAnalyticsConsent()
-setupMetaPixelConsent()
-setupTikTokPixelConsent()
-setupOpenAIPixelConsent()
-setupCookieConsentTracking()
 setupCursorState()
-setupSocialLogin()
+
+// The page builder's own pages, the editor and the store page it shows as
+// its preview, are no shopper's visit (`useBuilderSurface`): no analytics,
+// no ad pixels, no consent banner to answer, no sign-in prompt, and never
+// indexed. A preview would otherwise count every staff edit as a visit.
+const builderSurface = useBuilderSurface()
+if (builderSurface) {
+  useRobotsRule(false)
+}
+else {
+  setupGoogleAnalyticsConsent()
+  setupMetaPixelConsent()
+  setupTikTokPixelConsent()
+  setupOpenAIPixelConsent()
+  setupCookieConsentTracking()
+  setupSocialLogin()
+}
 
 const { enabled } = useAuthPreviewMode()
 const { loggedIn, user } = useUserSession()
@@ -242,6 +253,9 @@ useHead({
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <component :is="cookieConsent" />
+    <component
+      :is="cookieConsent"
+      v-if="!builderSurface"
+    />
   </UApp>
 </template>

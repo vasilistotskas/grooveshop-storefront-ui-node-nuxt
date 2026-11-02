@@ -19,6 +19,8 @@ export default defineNuxtPlugin({
   name: 'attribution',
   parallel: true,
   setup() {
+    // The page builder's pages are no shopper's landing (`useBuilderSurface`).
+    if (useBuilderSurface()) return
     const { capture } = useOrderAttribution()
     const { location } = window
     const landing = {

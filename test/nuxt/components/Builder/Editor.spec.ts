@@ -209,6 +209,104 @@ describe('the page editor', () => {
   })
 })
 
+describe('the preview', () => {
+  /** The canvas's window, as a message port: a real source a message can name. */
+  let canvas: MessagePort
+  let sent: ReturnType<typeof vi.fn<MessagePort['postMessage']>>
+
+  async function openWithCanvas(route = '/_builder') {
+    const wrapper = await open(route)
+    canvas = new MessageChannel().port1
+    sent = vi.fn<MessagePort['postMessage']>()
+    vi.spyOn(canvas, 'postMessage').mockImplementation(sent)
+    Object.defineProperty(wrapper.get('iframe').element, 'contentWindow', { value: canvas, configurable: true })
+    return wrapper
+  }
+
+  function tell(data: Record<string, unknown>, source: MessageEventSource = canvas) {
+    window.dispatchEvent(new MessageEvent('message', { data: { channel: BUILDER_CANVAS_CHANNEL, ...data }, source, origin: window.location.origin }))
+  }
+
+  const sentKeys = () => sent.mock.calls.map(([command]) => Object.keys(command.documents))
+
+  it('draws the page at its own address, asked for as the preview', async () => {
+    const wrapper = await openWithCanvas()
+    const frame = wrapper.get('iframe')
+
+    expect(frame.attributes('src')).toBe('/?builder-canvas')
+    expect(frame.attributes('title')).toBe('Προεπισκόπηση: Αρχική σελίδα')
+    expect(frame.attributes('sandbox')).toBe('allow-same-origin allow-scripts')
+    expect(wrapper.text()).toContain('Η προεπισκόπηση σχεδιάζεται')
+  })
+
+  it('sends the page and its groups once the canvas listens, and again on every change', async () => {
+    const wrapper = await openWithCanvas('/_builder?node=template:home/hero')
+
+    tell({ type: 'ready' })
+    expect(sentKeys()).toEqual([['template:home', 'group:header', 'group:footer']])
+    expect(sent.mock.calls[0]![1]).toBe(window.location.origin)
+
+    await wrapper.get('button[aria-label="Μετακίνηση κάτω"]').trigger('click')
+    await flushPromises()
+
+    expect(sent).toHaveBeenCalledTimes(2)
+    expect(sent.mock.calls[1]![0].documents['template:home'].draft.order).toEqual(['grid', 'hero', 'news'])
+  })
+
+  it('shows the preview once drawn, and says when it could not be updated, offering to try again', async () => {
+    const wrapper = await openWithCanvas()
+
+    tell({ type: 'drawn' })
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('Η προεπισκόπηση σχεδιάζεται')
+
+    tell({ type: 'failed' })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Η προεπισκόπηση δεν ενημερώθηκε')
+    await wrapper.findAll('button').find(button => button.text() === 'Δοκιμή ξανά')!.trigger('click')
+    expect(sent).toHaveBeenCalledTimes(1)
+  })
+
+  it('takes no message from another window', async () => {
+    const wrapper = await openWithCanvas()
+
+    tell({ type: 'drawn' }, new MessageChannel().port1)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Η προεπισκόπηση σχεδιάζεται')
+  })
+
+  it('opens the page a link in the preview leads to', async () => {
+    await openWithCanvas()
+
+    tell({ type: 'navigate', path: '/summer-sale' })
+    await flushPromises()
+
+    await vi.waitFor(() => expect(useRoute().query.doc).toBe('page:summer-sale'))
+  })
+
+  it('says a link leads to a page the editor does not build', async () => {
+    await openWithCanvas()
+
+    tell({ type: 'navigate', path: '/cart' })
+    await flushPromises()
+
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Αυτή η σελίδα δεν φτιάχνεται εδώ'))
+    expect(useRoute().query.doc).toBeUndefined()
+  })
+
+  it('draws the page at a device\'s width, kept in the address', async () => {
+    const wrapper = await openWithCanvas()
+
+    await wrapper.get('button[aria-label="Κινητό"]').trigger('click')
+    await flushPromises()
+
+    await vi.waitFor(() => expect(useRoute().query.device).toBe('phone'))
+    expect(wrapper.get('iframe').attributes('style')).toContain(`width: ${BUILDER_PREVIEW_DEVICES.phone}px`)
+    expect(wrapper.get('button[aria-label="Κινητό"]').attributes('aria-pressed')).toBe('true')
+  })
+})
+
 describe('editing the structure of a page', () => {
   const DRAFT_URL = `${documentUrl('template:home')}/draft`
   const HERO = '/_builder?node=template:home/hero'

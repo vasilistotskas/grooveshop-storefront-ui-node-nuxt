@@ -83,3 +83,18 @@ export const BUILDER_SETTINGS_PANE = { min: 300, default: 340, max: 480 } as con
  * Every response to it is private (`server/utils/edgeCache.ts`).
  */
 export const BUILDER_CANVAS_QUERY = 'builder-canvas'
+
+/** The name the editor and its canvas tag their messages with (`shared/schemas/builderCanvas.ts`). */
+export const BUILDER_CANVAS_CHANNEL = 'grooveshop-builder-canvas'
+
+/** How long the canvas waits after the last change it was sent before it asks for a new preview, in milliseconds. */
+export const BUILDER_CANVAS_PREVIEW_DELAY_MS = 150
+
+/** The key of the state that holds what the canvas draws in place of the published store (`useBuilderCanvasPreview`). */
+export const BUILDER_CANVAS_PREVIEW_STATE = 'builder-canvas-preview'
+
+/**
+ * The most working copies one preview asks for: the page shown and the
+ * section groups drawn around it (`BUILDER_EDITOR_GROUPS`).
+ */
+export const BUILDER_PREVIEW_MAX_DOCUMENTS = 1 + BUILDER_EDITOR_GROUPS.length

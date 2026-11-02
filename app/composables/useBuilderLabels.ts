@@ -48,6 +48,11 @@ export function useBuilderLabels() {
     groupLabel: (group: BuilderEditorGroup) => read(`groups.${group}`),
     /** What a page type of the storefront's static routes is called (`template:<name>`; Django holds no other). */
     templateLabel: (name: StaticLayoutPageType) => read(`templates.${name}`),
+    /** What a page document is called: a page type by its name, a page the store made by its address. */
+    documentLabel: (key: string): string => {
+      const { kind, name = key } = parseBuilderDocumentKey(key)
+      return kind === 'template' && isStaticLayoutPageType(name) ? read(`templates.${name}`) : pagePath(name)
+    },
     /** What a setting is called, by its path (`prompt.title`): one name per setting, whichever block has it. */
     settingLabel: (path: string) => read(`settings.${path}.label`),
     /** The setting's help line, for the settings that have one. */
