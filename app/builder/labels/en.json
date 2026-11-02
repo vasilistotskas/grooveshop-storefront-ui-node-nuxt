@@ -416,7 +416,7 @@
   },
   "options": {
     "surface": {
-      "default": "Default",
+      "default": "Basic",
       "muted": "Muted",
       "ink": "Dark"
     },
