@@ -1,5 +1,5 @@
 {
-  "hash": "9d9dea794b38d3c9",
+  "hash": "5339b88c65041eab",
   "blocks": [
     {
       "type": "about_content",
@@ -1934,7 +1934,9 @@
         "/heading",
         "/body",
         "/ctaText",
-        "/prompt"
+        "/prompt/title",
+        "/prompt/text",
+        "/prompt/ctaText"
       ],
       "refs": {},
       "linkRefs": [

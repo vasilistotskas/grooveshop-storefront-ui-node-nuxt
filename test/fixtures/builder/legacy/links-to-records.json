@@ -158,17 +158,9 @@
     "i18n": {
       "en": {
         "00000000-0000-4000-8000-000000000951": {
-          "/prompt": {
-            "title": "Questions?",
-            "text": "Read the FAQ.",
-            "ctaText": "FAQ",
-            "ctaLink": {
-              "ref": {
-                "kind": "contentPage",
-                "id": "faq"
-              }
-            }
-          }
+          "/prompt/title": "Questions?",
+          "/prompt/text": "Read the FAQ.",
+          "/prompt/ctaText": "FAQ"
         }
       }
     },

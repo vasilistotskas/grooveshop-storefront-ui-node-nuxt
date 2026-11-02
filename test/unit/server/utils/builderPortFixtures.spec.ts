@@ -95,6 +95,13 @@ describe('the real blocks', () => {
     expect(blocks.map(block => block.type)).toEqual(definitions.map(block => block.type).sort())
   })
 
+  it('never let a link be translated: no link setting is, or sits under, a translatable pointer', () => {
+    const overlaps = definitions.flatMap(block => block.linkRefs.flatMap(link =>
+      block.translatable.filter(pointer => link === pointer || link.startsWith(`${pointer}/`)).map(pointer => `${block.type}: ${link} under ${pointer}`)))
+
+    expect(overlaps).toEqual([])
+  })
+
   it('mark rich text so Django sanitises it on save', () => {
     const richText = buildBlockCatalogue(definitions).blocks.find(block => block.type === 'rich_text')!
 

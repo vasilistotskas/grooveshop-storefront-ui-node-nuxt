@@ -112,6 +112,22 @@ function sameValue(a: unknown, b: unknown): boolean {
   return a === b
 }
 
+/** The value `segments` name inside `value`, or `undefined` where the path does not exist. */
+function valueAt(value: unknown, segments: readonly string[]): unknown {
+  return segments.reduce<unknown>((inner, segment) => (isRecord(inner) ? inner[segment] : undefined), value)
+}
+
+/** `value` without the leaves at `paths` (each a list of keys into nested objects), left as it is where they are not. */
+function without(value: unknown, paths: readonly (readonly string[])[]): unknown {
+  if (paths.length === 0 || !isRecord(value)) return value
+  const heads = new Set(paths.filter(path => path.length === 1).map(path => path[0]))
+  return Object.fromEntries(Object.entries(value).flatMap(([key, inner]) => {
+    if (heads.has(key)) return []
+    const below = paths.filter(path => path.length > 1 && path[0] === key).map(path => path.slice(1))
+    return [[key, without(inner, below)]]
+  }))
+}
+
 export function put(overlay: BuilderOverlay, locale: string, id: string, pointer: string, value: unknown) {
   ((overlay[locale] ??= {})[id] ??= {})[pointer] = value
 }
@@ -192,6 +208,12 @@ function convertNode(
   }
 
   for (const [locale, partial] of Object.entries(overrides)) {
+    // A setting's translation with its links read, once, so a link that names nothing is one error.
+    const converted = new Map<string, unknown>()
+    const translation = (key: string): unknown => {
+      if (!converted.has(key)) converted.set(key, withLinks(camelizeDeep(partial[key]), key, locale))
+      return converted.get(key)
+    }
     for (const [key, value] of Object.entries(partial)) {
       if (listProps.has(key)) {
         const own = props[key]
@@ -203,11 +225,18 @@ function convertNode(
         continue
       }
       else if (key in shape) {
-        // The override sets a setting that cannot vary by language. Dropping an
-        // identical one loses nothing; dropping a different one would change
-        // what that language renders, which the import must never do.
-        if (!sameValue(withLinks(camelizeDeep(value), key, locale), settings[key])) {
-          context.errors.push({ code: 'untranslatable_override', path: `${path}/${key}`, message: `the ${locale} translation of "${key}" differs from the default, but ${definition.type} does not let "${key}" vary by language` })
+        // The override sets what cannot vary by language: the whole setting, or
+        // what is left of it once its translatable leaves are set aside (a link
+        // beside the text of an object). Dropping an identical one loses
+        // nothing; dropping a different one would change what that language
+        // renders, which the import must never do. Links are compared by what
+        // they name, so `/en/products/2/x` is the default's `/products/2/x`.
+        const leaves = definition.translatable.filter(pointer => pointer.startsWith(`/${key}/`)).map(pointer => pointer.split('/').slice(2))
+        if (!sameValue(without(translation(key), leaves), without(settings[key], leaves))) {
+          const only = leaves.map(leaf => `/${key}/${leaf.join('/')}`).join(', ')
+          context.errors.push({ code: 'untranslatable_override', path: `${path}/${key}`, message: leaves.length > 0
+            ? `the ${locale} translation of "${key}" changes more than ${only}, the only parts of it ${definition.type} lets vary by language`
+            : `the ${locale} translation of "${key}" differs from the default, but ${definition.type} does not let "${key}" vary by language` })
         }
       }
       else {
@@ -216,8 +245,10 @@ function convertNode(
     }
     // In the declared order of the block's translatable settings, so the answer is stable.
     for (const pointer of definition.translatable) {
-      const key = pointer.slice(1)
-      if (key in partial && !listProps.has(key)) put(context.overlay, locale, id, pointer, withLinks(camelizeDeep(partial[key]), key, locale))
+      const [key, ...rest] = pointer.slice(1).split('/') as [string, ...string[]]
+      if (!(key in partial) || listProps.has(key)) continue
+      const value = valueAt(translation(key), rest)
+      if (value !== undefined) put(context.overlay, locale, id, pointer, value)
     }
   }
 }

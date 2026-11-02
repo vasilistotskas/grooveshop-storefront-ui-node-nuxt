@@ -20,7 +20,7 @@ export default defineBlock({
       ctaLink: builderField.link().optional(),
     }).optional(),
   }),
-  translatable: ['/heading', '/body', '/ctaText', '/prompt'],
+  translatable: ['/heading', '/body', '/ctaText', '/prompt/title', '/prompt/text', '/prompt/ctaText'],
   limits: { maxBlocks: 12 },
   children: { allowed: ['feature_item'], maxDepth: 1 },
   childList: { feature_item: 'items' },
