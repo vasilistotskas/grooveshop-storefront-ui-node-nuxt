@@ -91,7 +91,7 @@ describe('GET /api/builder/pages/[pageKey]', () => {
     /** Django as the page handler meets it: the page, the slugs of records, the release and the content pages. */
     const store = (page: unknown, slugs: Record<string, Record<string, unknown>> = {}) => backend.reply(({ path }) => {
       if (path.endsWith('/builder/link-targets')) return slugs
-      if (path.endsWith('/builder/published')) return { release: 3, groups: {}, pages: [{ key: 'about', kind: 'template', updatedAt: '2026-11-01T10:00:00Z' }] }
+      if (path.endsWith('/builder/published')) return { release: 3, locale: 'el', theme: null, groups: {}, pages: [{ key: 'about', kind: 'template', updatedAt: '2026-11-01T10:00:00Z' }] }
       if (path.endsWith('/content-page')) return { results: [{ slug: 'faq', translatedLocales: ['el'] }] }
       return page
     })

@@ -1994,6 +1994,12 @@ export type Brand = {
 export type BuilderDocumentKindEnum = 'theme' | 'group' | 'template' | 'page'
 
 /**
+ * * `page` - Σελίδα
+ * * `template` - Πρότυπο
+ */
+export type BuilderPageKindEnum = 'page' | 'template'
+
+/**
  * * `checkpoint` - Ονομασμένη αποθήκευση
  * * `publish` - Δημοσίευση
  */
@@ -3588,6 +3594,80 @@ export type InvoiceDownloadResponse = {
      * Λίστα σε cache από γραμμές ``{rate, subtotal, vat, gross}`` — παγιωμένη τη στιγμή της έκδοσης, ώστε η εκ νέου απόδοση του τιμολογίου να δίνει πάντα τον ίδιο πίνακα ΦΠΑ ακόμη κι αν αλλάξουν οι συντελεστές των προϊόντων.
      */
   readonly vatBreakdown: unknown
+}
+
+/**
+ * * `product` - Προϊόν
+ * * `category` - Κατηγορία
+ * * `blogPost` - Άρθρο ιστολογίου
+ * * `blogCategory` - Κατηγορία ιστολογίου
+ * * `page` - Σελίδα
+ * * `contentPage` - Σελίδα περιεχομένου
+ */
+export type LinkKindEnum = 'product' | 'category' | 'blogPost' | 'blogCategory' | 'page' | 'contentPage'
+
+export type LinkLabel = {
+  label: string | null
+  active: boolean
+  source?: BuilderPageKindEnum
+}
+
+/**
+ * ``{kind: {id: {label, active}}}`` for the kinds asked about.
+ */
+export type LinkLabelsResponse = {
+  product?: {
+    [key: string]: LinkLabel
+  }
+  category?: {
+    [key: string]: LinkLabel
+  }
+  blogPost?: {
+    [key: string]: LinkLabel
+  }
+  blogCategory?: {
+    [key: string]: LinkLabel
+  }
+  page?: {
+    [key: string]: LinkLabel
+  }
+  contentPage?: {
+    [key: string]: LinkLabel
+  }
+}
+
+export type LinkSearchResponse = {
+  results: Array<LinkSearchResult>
+}
+
+export type LinkSearchResult = {
+  kind: LinkKindEnum
+  /**
+     * A number for products, categories, posts and blog categories; the key or slug for pages and content pages.
+     */
+  id: number | string
+  label: string | null
+  slug: string
+  active: boolean
+  source?: BuilderPageKindEnum
+}
+
+/**
+ * ``{kind: {id: slug}}`` for the kinds asked about.
+ */
+export type LinkTargetsResponse = {
+  product?: {
+    [key: string]: string
+  }
+  category?: {
+    [key: string]: string
+  }
+  blogPost?: {
+    [key: string]: string
+  }
+  blogCategory?: {
+    [key: string]: string
+  }
 }
 
 /**
@@ -6616,6 +6696,19 @@ export type PointsTransaction = {
   readonly createdAt: string
 }
 
+export type PreviewCopyRequest = {
+  draft: unknown
+  i18n?: unknown
+}
+
+export type PreviewResolveRequest = {
+  pageKey: string
+  locale?: string
+  documents?: {
+    [key: string]: PreviewCopyRequest
+  }
+}
+
 /**
  * * `LOW` - Χαμηλή προτεραιότητα
  * * `NORMAL` - Κανονική προτεραιότητα
@@ -8144,9 +8237,45 @@ export type PublicSettings = {
   }
 }
 
+export type PublishVersionWriteRequest = {
+  note?: string
+}
+
 export type PublishWriteRequest = {
   documents: Array<string>
   note?: string
+}
+
+/**
+ * ``GET published``: the chrome and the list of pages.
+ */
+export type PublishedIndex = {
+  release: number
+  locale: string
+  theme: ResolvedDocument | null
+  groups: {
+    [key: string]: ResolvedDocument
+  }
+  pages: Array<PublishedPageEntry>
+}
+
+/**
+ * ``GET published/<pageKey>`` and ``POST preview/resolve``.
+ */
+export type PublishedPage = {
+  release: number
+  locale: string
+  theme: ResolvedDocument | null
+  groups: {
+    [key: string]: ResolvedDocument
+  }
+  page: ResolvedDocument
+}
+
+export type PublishedPageEntry = {
+  key: string
+  kind: BuilderPageKindEnum
+  updatedAt: string
 }
 
 /**
@@ -8477,6 +8606,23 @@ export type ResolvedAsset = {
   readonly alt: string
 }
 
+/**
+ * A document of the current release as the public read answers it.
+ * The envelope is ours; the section trees in ``sections`` are shaped by
+ * the storefront's block catalogue, so they stay open.
+ */
+export type ResolvedDocument = {
+  key: string
+  version: number
+  sections: {
+    [key: string]: unknown
+  }
+  order: Array<string>
+  settings?: {
+    [key: string]: unknown
+  }
+}
+
 export type ResolvedMedia = {
   results: Array<ResolvedAsset>
 }
@@ -8639,22 +8785,6 @@ export type SearchVolume = {
   byLanguage: {
     [key: string]: number
   }
-}
-
-export type SessionRequestRequest = {
-  ticket: string
-}
-
-export type SessionResponse = {
-  token: string
-  expiresAt: string
-  staff: SessionStaff
-}
-
-export type SessionStaff = {
-  id: number
-  name: string
-  role: string
 }
 
 export type Setting = {
@@ -8890,6 +9020,22 @@ export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 export type Staff = {
   id: number
   name: string
+}
+
+export type StaffSessionResponse = {
+  token: string
+  expiresAt: string
+  staff: StaffSessionStaff
+}
+
+export type StaffSessionStaff = {
+  id: number
+  name: string
+  role: string
+}
+
+export type StaffSessionTicketRequest = {
+  ticket: string
 }
 
 /**
@@ -16628,6 +16774,10 @@ export type ApiV1BuilderDocumentsListData = {
   path?: never
   query?: {
     /**
+         * Only the documents of this kind.
+         */
+    kind?: 'group' | 'page' | 'template' | 'theme'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -16642,6 +16792,12 @@ export type ApiV1BuilderDocumentsListData = {
   }
   url: '/api/v1/builder/documents'
 }
+
+export type ApiV1BuilderDocumentsListErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderDocumentsListError = ApiV1BuilderDocumentsListErrors[keyof ApiV1BuilderDocumentsListErrors]
 
 export type ApiV1BuilderDocumentsListResponses = {
   200: PaginatedDocumentListList
@@ -16817,6 +16973,29 @@ export type ApiV1BuilderDocumentsVersionsRetrieveResponses = {
 
 export type ApiV1BuilderDocumentsVersionsRetrieveResponse = ApiV1BuilderDocumentsVersionsRetrieveResponses[keyof ApiV1BuilderDocumentsVersionsRetrieveResponses]
 
+export type ApiV1BuilderDocumentsVersionsPublishCreateData = {
+  body?: PublishVersionWriteRequest
+  path: {
+    key: string
+    number: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}/versions/{number}/publish'
+}
+
+export type ApiV1BuilderDocumentsVersionsPublishCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsVersionsPublishCreateError = ApiV1BuilderDocumentsVersionsPublishCreateErrors[keyof ApiV1BuilderDocumentsVersionsPublishCreateErrors]
+
+export type ApiV1BuilderDocumentsVersionsPublishCreateResponses = {
+  201: Release
+}
+
+export type ApiV1BuilderDocumentsVersionsPublishCreateResponse = ApiV1BuilderDocumentsVersionsPublishCreateResponses[keyof ApiV1BuilderDocumentsVersionsPublishCreateResponses]
+
 export type ApiV1BuilderDocumentsVersionsRestoreCreateData = {
   body?: never
   headers: {
@@ -16845,6 +17024,86 @@ export type ApiV1BuilderDocumentsVersionsRestoreCreateResponses = {
 }
 
 export type ApiV1BuilderDocumentsVersionsRestoreCreateResponse = ApiV1BuilderDocumentsVersionsRestoreCreateResponses[keyof ApiV1BuilderDocumentsVersionsRestoreCreateResponses]
+
+export type ApiV1BuilderLinkLabelsRetrieveData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    blogCategory?: string
+    /**
+         * Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    blogPost?: string
+    /**
+         * Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    category?: string
+    /**
+         * Comma-separated keys (page keys, content page slugs) (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    contentPage?: string
+    /**
+         * Language to resolve the content in; unknown or omitted means the store's default language.
+         */
+    locale?: string
+    /**
+         * Comma-separated keys (page keys, content page slugs) (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    page?: string
+    /**
+         * Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    product?: string
+  }
+  url: '/api/v1/builder/link-labels'
+}
+
+export type ApiV1BuilderLinkLabelsRetrieveErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderLinkLabelsRetrieveError = ApiV1BuilderLinkLabelsRetrieveErrors[keyof ApiV1BuilderLinkLabelsRetrieveErrors]
+
+export type ApiV1BuilderLinkLabelsRetrieveResponses = {
+  200: LinkLabelsResponse
+}
+
+export type ApiV1BuilderLinkLabelsRetrieveResponse = ApiV1BuilderLinkLabelsRetrieveResponses[keyof ApiV1BuilderLinkLabelsRetrieveResponses]
+
+export type ApiV1BuilderLinkSearchRetrieveData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Comma-separated kinds to search, in the order of the answer: product, category, blogPost, blogCategory, page, contentPage. All when omitted.
+         */
+    kinds?: string
+    /**
+         * Language to resolve the content in; unknown or omitted means the store's default language.
+         */
+    locale?: string
+    /**
+         * Text the label or slug contains. Shorter than `BUILDER_LINK_SEARCH_MIN_CHARS` (2 by default) answers an empty list, not an error.
+         */
+    q?: string
+  }
+  url: '/api/v1/builder/link-search'
+}
+
+export type ApiV1BuilderLinkSearchRetrieveErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderLinkSearchRetrieveError = ApiV1BuilderLinkSearchRetrieveErrors[keyof ApiV1BuilderLinkSearchRetrieveErrors]
+
+export type ApiV1BuilderLinkSearchRetrieveResponses = {
+  200: LinkSearchResponse
+}
+
+export type ApiV1BuilderLinkSearchRetrieveResponse = ApiV1BuilderLinkSearchRetrieveResponses[keyof ApiV1BuilderLinkSearchRetrieveResponses]
 
 export type ApiV1BuilderLinkTargetsRetrieveData = {
   body?: never
@@ -16877,9 +17136,7 @@ export type ApiV1BuilderLinkTargetsRetrieveErrors = {
 export type ApiV1BuilderLinkTargetsRetrieveError = ApiV1BuilderLinkTargetsRetrieveErrors[keyof ApiV1BuilderLinkTargetsRetrieveErrors]
 
 export type ApiV1BuilderLinkTargetsRetrieveResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: LinkTargetsResponse
 }
 
 export type ApiV1BuilderLinkTargetsRetrieveResponse = ApiV1BuilderLinkTargetsRetrieveResponses[keyof ApiV1BuilderLinkTargetsRetrieveResponses]
@@ -17024,6 +17281,27 @@ export type ApiV1BuilderMediaResolveRetrieveResponses = {
 
 export type ApiV1BuilderMediaResolveRetrieveResponse = ApiV1BuilderMediaResolveRetrieveResponses[keyof ApiV1BuilderMediaResolveRetrieveResponses]
 
+export type ApiV1BuilderPreviewResolveCreateData = {
+  body: PreviewResolveRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/preview/resolve'
+}
+
+export type ApiV1BuilderPreviewResolveCreateErrors = {
+  400: ApiValidationError | ApiError
+  404: ErrorResponse
+  503: ErrorResponse
+}
+
+export type ApiV1BuilderPreviewResolveCreateError = ApiV1BuilderPreviewResolveCreateErrors[keyof ApiV1BuilderPreviewResolveCreateErrors]
+
+export type ApiV1BuilderPreviewResolveCreateResponses = {
+  200: PublishedPage
+}
+
+export type ApiV1BuilderPreviewResolveCreateResponse = ApiV1BuilderPreviewResolveCreateResponses[keyof ApiV1BuilderPreviewResolveCreateResponses]
+
 export type ApiV1BuilderPublishCreateData = {
   body: PublishWriteRequest
   path?: never
@@ -17057,9 +17335,7 @@ export type BuilderPublishedIndexData = {
 }
 
 export type BuilderPublishedIndexResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: PublishedIndex
 }
 
 export type BuilderPublishedIndexResponse = BuilderPublishedIndexResponses[keyof BuilderPublishedIndexResponses]
@@ -17085,9 +17361,7 @@ export type ApiV1BuilderPublishedRetrieveErrors = {
 export type ApiV1BuilderPublishedRetrieveError = ApiV1BuilderPublishedRetrieveErrors[keyof ApiV1BuilderPublishedRetrieveErrors]
 
 export type ApiV1BuilderPublishedRetrieveResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: PublishedPage
 }
 
 export type ApiV1BuilderPublishedRetrieveResponse = ApiV1BuilderPublishedRetrieveResponses[keyof ApiV1BuilderPublishedRetrieveResponses]
@@ -17282,7 +17556,7 @@ export type ApiV1BuilderStaffSessionDestroyResponses = {
 export type ApiV1BuilderStaffSessionDestroyResponse = ApiV1BuilderStaffSessionDestroyResponses[keyof ApiV1BuilderStaffSessionDestroyResponses]
 
 export type ApiV1BuilderStaffSessionCreateData = {
-  body: SessionRequestRequest
+  body: StaffSessionTicketRequest
   path?: never
   query?: never
   url: '/api/v1/builder/staff-session'
@@ -17295,7 +17569,7 @@ export type ApiV1BuilderStaffSessionCreateErrors = {
 export type ApiV1BuilderStaffSessionCreateError = ApiV1BuilderStaffSessionCreateErrors[keyof ApiV1BuilderStaffSessionCreateErrors]
 
 export type ApiV1BuilderStaffSessionCreateResponses = {
-  200: SessionResponse
+  200: StaffSessionResponse
 }
 
 export type ApiV1BuilderStaffSessionCreateResponse = ApiV1BuilderStaffSessionCreateResponses[keyof ApiV1BuilderStaffSessionCreateResponses]

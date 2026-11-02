@@ -28,7 +28,7 @@ export default defineEventHandler(async (event): Promise<BuilderPreviewResponse>
         method: 'POST',
         headers,
         body: { pageKey: parseBuilderDocumentKey(pageKey).name, locale: requestLocale(event), documents },
-      }).then(response => parseDataAs(response, ZodBuilderPreviewResolved)),
+      }).then(response => parseDataAs(response, zApiV1BuilderPreviewResolveCreateResponse)),
       readPublishedSummary(event).then(summary => publishedTargets(event, summary)),
     ])
     const page = await builderPageOf(event, resolved.page)

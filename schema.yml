@@ -8695,6 +8695,16 @@ paths:
     get:
       operationId: api_v1_builder_documents_list
       parameters:
+        - in: query
+          name: kind
+          schema:
+            type: string
+            enum:
+              - group
+              - page
+              - template
+              - theme
+          description: Only the documents of this kind.
         - name: page
           required: false
           in: query
@@ -8729,6 +8739,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedDocumentListList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
           description: ''
   /api/v1/builder/documents/{key}:
     get:
@@ -8988,6 +9006,54 @@ paths:
               schema:
                 $ref: '#/components/schemas/VersionDetail'
           description: ''
+  /api/v1/builder/documents/{key}/versions/{number}/publish:
+    post:
+      operationId: api_v1_builder_documents_versions_publish_create
+      description: 'Release one stored version of ONE document: the previous release with only that key repointed. The draft is left as it is. Its references must still exist (`reference_not_found` with the `document`); `nothing_to_publish` when it is already the published version.'
+      parameters:
+        - in: path
+          name: key
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: number
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+      tags:
+        - Builder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishVersionWriteRequest'
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Release'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/builder/documents/{key}/versions/{number}/restore:
     post:
       operationId: api_v1_builder_documents_versions_restore_create
@@ -9037,6 +9103,104 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/builder/link-labels:
+    get:
+      operationId: api_v1_builder_link_labels_retrieve
+      description: '`{kind: {id: {label, active}}}` for the ids asked about, whether or not they can still be linked: `active` is the rule a publish checks references with, so an inactive or unpublished record keeps its `label` with `active: false`, and one that exists nowhere is `{label: null, active: false}`. A page also has `source` (`page` or `template`). The label is in `locale`, else the default language.'
+      parameters:
+        - in: query
+          name: blogCategory
+          schema:
+            type: string
+          description: Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+        - in: query
+          name: blogPost
+          schema:
+            type: string
+          description: Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+        - in: query
+          name: contentPage
+          schema:
+            type: string
+          description: Comma-separated keys (page keys, content page slugs) (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+        - in: query
+          name: locale
+          schema:
+            type: string
+          description: Language to resolve the content in; unknown or omitted means the store's default language.
+        - in: query
+          name: page
+          schema:
+            type: string
+          description: Comma-separated keys (page keys, content page slugs) (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+        - in: query
+          name: product
+          schema:
+            type: string
+          description: Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+      tags:
+        - Builder
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkLabelsResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+  /api/v1/builder/link-search:
+    get:
+      operationId: api_v1_builder_link_search_retrieve
+      description: '`{results: [{kind, id, label, slug, active}]}`, grouped by kind and ordered by label, at most `BUILDER_LINK_SEARCH_LIMIT` of each kind. Only what a link may point at (the rule a publish checks references with), so `active` is always true. `id` is a number for products, categories, posts and blog categories and the key or slug for pages and content pages; a page result also has `source` (`page` or `template`). The label is in `locale`, else the default language, else the slug. The storefront builds the path from the slug.'
+      parameters:
+        - in: query
+          name: kinds
+          schema:
+            type: string
+          description: 'Comma-separated kinds to search, in the order of the answer: product, category, blogPost, blogCategory, page, contentPage. All when omitted.'
+        - in: query
+          name: locale
+          schema:
+            type: string
+          description: Language to resolve the content in; unknown or omitted means the store's default language.
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Text the label or slug contains. Shorter than `BUILDER_LINK_SEARCH_MIN_CHARS` (2 by default) answers an empty list, not an error.
+      tags:
+        - Builder
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkSearchResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
   /api/v1/builder/link-targets:
     get:
       operationId: api_v1_builder_link_targets_retrieve
@@ -9072,8 +9236,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: {}
+                $ref: '#/components/schemas/LinkTargetsResponse'
           description: ''
         '400':
           content:
@@ -9304,6 +9467,47 @@ paths:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
           description: ''
+  /api/v1/builder/preview/resolve:
+    post:
+      operationId: api_v1_builder_preview_resolve_create
+      description: '`{release, locale, theme, groups, page}`, as `published/<pageKey>` answers, if the working copies in `documents` (`{key: {draft, i18n}}`, at most `BUILDER_PREVIEW_MAX_DOCUMENTS`) were released now: each stands in for the current release''s document of its key and everything else is the release''s, resolved by the same code (overlay merged, disabled nodes dropped). A working copy has `version: 0`. Every copy is validated like a draft save (400 `invalid_document`, each problem with its `document`; references are not checked, as on a save); nothing is stored. 404 `page_not_published` when neither a copy nor the release has the page. Never cached: `Cache-Control: private, no-store`. The content keys are the storefront''s own and are not camelCased.'
+      tags:
+        - Builder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewResolveRequest'
+        required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishedPage'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/builder/publish:
     post:
       operationId: api_v1_builder_publish_create
@@ -9359,8 +9563,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: {}
+                $ref: '#/components/schemas/PublishedIndex'
           description: ''
   /api/v1/builder/published/{page_key}:
     get:
@@ -9387,8 +9590,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: {}
+                $ref: '#/components/schemas/PublishedPage'
           description: ''
         '404':
           content:
@@ -9701,13 +9903,13 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SessionRequestRequest'
+              $ref: '#/components/schemas/StaffSessionTicketRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SessionRequestRequest'
+              $ref: '#/components/schemas/StaffSessionTicketRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/SessionRequestRequest'
+              $ref: '#/components/schemas/StaffSessionTicketRequest'
         required: true
       security:
         - {}
@@ -9716,7 +9918,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SessionResponse'
+                $ref: '#/components/schemas/StaffSessionResponse'
           description: ''
         '400':
           content:
@@ -36766,6 +36968,14 @@ components:
         * `group` - Ομάδα ενοτήτων
         * `template` - Πρότυπο
         * `page` - Σελίδα
+    BuilderPageKindEnum:
+      enum:
+        - page
+        - template
+      type: string
+      description: |-
+        * `page` - Σελίδα
+        * `template` - Πρότυπο
     BuilderVersionKindEnum:
       enum:
         - checkpoint
@@ -39360,6 +39570,117 @@ components:
         - total
         - totalVat
         - vatBreakdown
+    LinkKindEnum:
+      enum:
+        - product
+        - category
+        - blogPost
+        - blogCategory
+        - page
+        - contentPage
+      type: string
+      description: |-
+        * `product` - Προϊόν
+        * `category` - Κατηγορία
+        * `blogPost` - Άρθρο ιστολογίου
+        * `blogCategory` - Κατηγορία ιστολογίου
+        * `page` - Σελίδα
+        * `contentPage` - Σελίδα περιεχομένου
+    LinkLabel:
+      type: object
+      properties:
+        label:
+          type: string
+          nullable: true
+        active:
+          type: boolean
+        source:
+          $ref: '#/components/schemas/BuilderPageKindEnum'
+      required:
+        - active
+        - label
+    LinkLabelsResponse:
+      type: object
+      description: '``{kind: {id: {label, active}}}`` for the kinds asked about.'
+      properties:
+        product:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+        category:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+        blogPost:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+        blogCategory:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+        page:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+        contentPage:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+    LinkSearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkSearchResult'
+      required:
+        - results
+    LinkSearchResult:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/LinkKindEnum'
+        id:
+          oneOf:
+            - type: integer
+            - type: string
+          description: A number for products, categories, posts and blog categories; the key or slug for pages and content pages.
+        label:
+          type: string
+          nullable: true
+        slug:
+          type: string
+        active:
+          type: boolean
+        source:
+          $ref: '#/components/schemas/BuilderPageKindEnum'
+      required:
+        - active
+        - id
+        - kind
+        - label
+        - slug
+    LinkTargetsResponse:
+      type: object
+      description: '``{kind: {id: slug}}`` for the kinds asked about.'
+      properties:
+        product:
+          type: object
+          additionalProperties:
+            type: string
+        category:
+          type: object
+          additionalProperties:
+            type: string
+        blogPost:
+          type: object
+          additionalProperties:
+            type: string
+        blogCategory:
+          type: object
+          additionalProperties:
+            type: string
     LocationTypeEnum:
       enum:
         - HOME
@@ -44552,6 +44873,29 @@ components:
         - points
         - referenceOrder
         - transactionType
+    PreviewCopyRequest:
+      type: object
+      properties:
+        draft: {}
+        i18n: {}
+      required:
+        - draft
+    PreviewResolveRequest:
+      type: object
+      properties:
+        pageKey:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[-a-zA-Z0-9_]+$
+        locale:
+          type: string
+        documents:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PreviewCopyRequest'
+      required:
+        - pageKey
     PriorityEnum:
       enum:
         - LOW
@@ -47536,6 +47880,13 @@ components:
           description: Τιμές ρυθμίσεων με κλειδί το όνομα της ρύθμισης.
       required:
         - settings
+    PublishVersionWriteRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          default: ''
+          maxLength: 255
     PublishWriteRequest:
       type: object
       properties:
@@ -47551,6 +47902,70 @@ components:
           maxLength: 255
       required:
         - documents
+    PublishedIndex:
+      type: object
+      description: '``GET published``: the chrome and the list of pages.'
+      properties:
+        release:
+          type: integer
+        locale:
+          type: string
+        theme:
+          allOf:
+            - $ref: '#/components/schemas/ResolvedDocument'
+          nullable: true
+        groups:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ResolvedDocument'
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublishedPageEntry'
+      required:
+        - groups
+        - locale
+        - pages
+        - release
+        - theme
+    PublishedPage:
+      type: object
+      description: '``GET published/<pageKey>`` and ``POST preview/resolve``.'
+      properties:
+        release:
+          type: integer
+        locale:
+          type: string
+        theme:
+          allOf:
+            - $ref: '#/components/schemas/ResolvedDocument'
+          nullable: true
+        groups:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ResolvedDocument'
+        page:
+          $ref: '#/components/schemas/ResolvedDocument'
+      required:
+        - groups
+        - locale
+        - page
+        - release
+        - theme
+    PublishedPageEntry:
+      type: object
+      properties:
+        key:
+          type: string
+        kind:
+          $ref: '#/components/schemas/BuilderPageKindEnum'
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - key
+        - kind
+        - updatedAt
     RateEnum:
       enum:
         - 1
@@ -48063,6 +48478,32 @@ components:
         - mime
         - path
         - width
+    ResolvedDocument:
+      type: object
+      description: |-
+        A document of the current release as the public read answers it.
+        The envelope is ours; the section trees in ``sections`` are shaped by
+        the storefront's block catalogue, so they stay open.
+      properties:
+        key:
+          type: string
+        version:
+          type: integer
+        sections:
+          type: object
+          additionalProperties: true
+        order:
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+          additionalProperties: true
+      required:
+        - key
+        - order
+        - sections
+        - version
     ResolvedMedia:
       type: object
       properties:
@@ -48306,42 +48747,6 @@ components:
         - byContentType
         - byLanguage
         - total
-    SessionRequestRequest:
-      type: object
-      properties:
-        ticket:
-          type: string
-          minLength: 1
-          maxLength: 128
-      required:
-        - ticket
-    SessionResponse:
-      type: object
-      properties:
-        token:
-          type: string
-        expiresAt:
-          type: string
-          format: date-time
-        staff:
-          $ref: '#/components/schemas/SessionStaff'
-      required:
-        - expiresAt
-        - staff
-        - token
-    SessionStaff:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        role:
-          type: string
-      required:
-        - id
-        - name
-        - role
     Setting:
       type: object
       properties:
@@ -48687,6 +49092,42 @@ components:
       required:
         - id
         - name
+    StaffSessionResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        staff:
+          $ref: '#/components/schemas/StaffSessionStaff'
+      required:
+        - expiresAt
+        - staff
+        - token
+    StaffSessionStaff:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+      required:
+        - id
+        - name
+        - role
+    StaffSessionTicketRequest:
+      type: object
+      properties:
+        ticket:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+        - ticket
     StoreFeatures:
       type: object
       description: |-

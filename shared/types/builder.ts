@@ -256,12 +256,3 @@ export interface BuilderPage {
 export interface BuilderPageResponse {
   page: BuilderPage | null
 }
-
-/** A page of the current release, as the sitemap lists it. */
-export interface PublishedPage {
-  /** The page key: a static route's page type, or a custom page's slug. */
-  key: string
-  kind: 'template' | 'page'
-  /** When the page's published version was made: the sitemap's lastmod. */
-  updatedAt: string
-}

@@ -37,7 +37,7 @@ export default defineCachedRoute(async (event): Promise<BuilderPageResponse> => 
       `${config.apiBaseUrl}/builder/published/${pageKey}`,
       { method: 'GET', query: { locale: requestLocale(event) } },
     )
-    const published = await parseDataAs(response, ZodBuilderPublished)
+    const published = await parseDataAs(response, zApiV1BuilderPublishedRetrieveResponse)
     return { page: await builderPageOf(event, published.page) }
   }
   catch (error) {

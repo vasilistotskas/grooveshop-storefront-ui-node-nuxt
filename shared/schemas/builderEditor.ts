@@ -75,19 +75,6 @@ export const ZodBuilderPreviewRequest = z.object({
     }),
 })
 
-/**
- * What Django's `POST builder/preview/resolve` answers: `published/<pageKey>`'s
- * shape, the working copies resolved in place of the release's documents.
- * The documents' content is the storefront's (`parseDocument`), so it is
- * read here as data, as the published reads read it.
- */
-export const ZodBuilderPreviewResolved = z.object({
-  release: z.number().int(),
-  locale: z.string(),
-  groups: z.record(z.string(), z.unknown()),
-  page: z.unknown(),
-})
-
 /** `If-Match` of a draft save: the revision the change is made against, `0` for a document that does not exist yet. */
 export const ZodBuilderRevisionHeaders = z.object({
   'if-match': z.string().regex(/^\d{1,10}$/),

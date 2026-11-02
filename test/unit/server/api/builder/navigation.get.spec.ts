@@ -38,7 +38,7 @@ function serve(options: { groups?: Record<string, unknown>, pages?: string[], co
   const { groups = { header: HEADER, footer: FOOTER }, pages = ['about'], contentPages = ['terms'] } = options
   backend.reply(({ path }) => {
     if (path.endsWith('/builder/published')) {
-      return { release: 4, groups, pages: pages.map(key => ({ key, kind: 'template', updatedAt: '2026-11-01T10:00:00Z' })) }
+      return { release: 4, locale: 'el', theme: null, groups, pages: pages.map(key => ({ key, kind: 'template', updatedAt: '2026-11-01T10:00:00Z' })) }
     }
     if (path.endsWith('/content-page')) {
       return contentPages === 'down'

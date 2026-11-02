@@ -19,7 +19,7 @@ describe('publishedPagesForHost', () => {
       { key: 'about', kind: 'template', updatedAt: '2026-10-01T08:00:00Z' },
       { key: 'kelari', kind: 'page', updatedAt: '2026-10-14T18:30:00Z' },
     ]
-    backend.reply({ release: 3, groups: {}, pages })
+    backend.reply({ release: 3, locale: 'el', theme: null, groups: {}, pages })
 
     await expect(publishedPagesForHost('webside.gr', API)).resolves.toEqual(pages)
     expect(backend.requests.map(request => request.path)).toEqual([`${API}/builder/published`])
@@ -33,7 +33,7 @@ describe('publishedPagesForHost', () => {
   })
 
   it('fails closed when the answer is not the contract', async () => {
-    backend.reply({ release: 3, groups: {}, pages: [{ pageType: 'about' }] })
+    backend.reply({ release: 3, locale: 'el', theme: null, groups: {}, pages: [{ pageType: 'about' }] })
 
     await expect(publishedPagesForHost('webside.gr', API)).resolves.toBeNull()
   })
