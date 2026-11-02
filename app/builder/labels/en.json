@@ -220,8 +220,7 @@
       "label": "Caption"
     },
     "categoryId": {
-      "label": "Category (number)",
-      "help": "The category's number in the admin."
+      "label": "Category"
     },
     "columns": {
       "label": "Columns"
@@ -334,15 +333,15 @@
       "label": "How many"
     },
     "parentId": {
-      "label": "Parent category (number)",
+      "label": "Parent category",
       "help": "Shows its subcategories. Empty for the top ones."
     },
     "placeholder": {
       "label": "Placeholder"
     },
     "productId": {
-      "label": "Product (number)",
-      "help": "The product's number in the admin."
+      "label": "Product",
+      "help": "The product the slide shows, with its price."
     },
     "prompt": {
       "label": "Closing card",

@@ -30,6 +30,20 @@ const text = computed(() => typeof value.value === 'string' ? value.value : '')
 const number = computed(() => typeof value.value === 'number' ? value.value : undefined)
 const list = computed(() => Array.isArray(value.value) ? value.value.map(String) : [])
 
+/**
+ * The kind of record a record setting names (`refs`), when it is one a
+ * link may name and so the record picker finds; a media id is not.
+ */
+const recordKind = computed(() => {
+  const field = props.field
+  return field.kind === 'record' ? LINK_REF_KINDS.find(kind => kind === field.refKind) : undefined
+})
+const record = computed(() => {
+  const kind = recordKind.value
+  const stored = value.value
+  return kind && (typeof stored === 'number' || typeof stored === 'string') ? builderLinkRefOf(kind, stored) : undefined
+})
+
 /** A choice's items: its values, and "the section's own default" first when the setting may be left out. */
 const choiceItems = computed(() => {
   const field = props.field
@@ -110,7 +124,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
     :name="field.path"
   >
     <UInput
-      v-if="field.kind === 'text' || field.kind === 'url' || (field.kind === 'record' && (field.refKind === 'page' || field.refKind === 'contentPage'))"
+      v-if="field.kind === 'text' || field.kind === 'url'"
       :model-value="text"
       :type="field.kind === 'url' ? 'url' : 'text'"
       :maxlength="field.kind === 'text' ? field.maxLength : undefined"
@@ -164,6 +178,15 @@ function moveListItem(index: number, delta: -1 | 1): void {
       size="sm"
       :disabled="disabled"
       @update:model-value="setToggle"
+    />
+    <BuilderRecordPicker
+      v-else-if="recordKind"
+      :kinds="[recordKind]"
+      :value="record"
+      :label="label"
+      :clearable="!field.required"
+      :disabled="disabled"
+      @update="(next: BuilderLinkRef | undefined) => set(next?.id)"
     />
     <UInputNumber
       v-else-if="field.kind === 'number' || field.kind === 'record'"
