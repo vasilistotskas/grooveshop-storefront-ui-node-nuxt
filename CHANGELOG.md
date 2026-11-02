@@ -1,3 +1,10 @@
+# [3.293.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.292.0...v3.293.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** pick the record a link or a setting points at by its name ([#338](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/338)) ([9f1432d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9f1432d3104176709bb88734aa9562b3db971cda))
+
 # [3.292.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.291.0...v3.292.0) (2026-11-02)
 
 
