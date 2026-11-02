@@ -238,6 +238,14 @@ describe('the canvas bridge', () => {
       })
     })
 
+    it('reports a section that overflows sideways only as wide as the frame shows it', async () => {
+      drawSections({ row: new DOMRect(-40, 100, window.innerWidth + 200, 80) })
+
+      send({ channel: BUILDER_CANVAS_CHANNEL, type: 'select', node: 'row' })
+
+      await vi.waitFor(() => expect(boxesTold().at(-1)).toMatchObject({ selected: { node: 'row', x: 0, y: 100, width: window.innerWidth, height: 80 } }))
+    })
+
     it('says a section in no view, or drawn empty, is nowhere', async () => {
       drawSections({ hero: new DOMRect(0, 0, 0, 0) })
 
