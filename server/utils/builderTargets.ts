@@ -2,8 +2,6 @@ import { createError, useRuntimeConfig } from 'nuxt/server'
 import type { RequestEvent } from 'nuxt/server'
 import type * as z from 'zod'
 
-import type { PublishedTargets } from './builderNavigation'
-
 /** The current release in outline: its section groups and the pages it holds (`GET builder/published`). */
 export async function readPublishedSummary(event: RequestEvent): Promise<z.output<typeof ZodBuilderPublishedSummary>> {
   return parseDataAs(

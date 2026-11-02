@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
-import { parseDocument } from '~~/server/utils/builderDocument'
+import { parseDocument } from '~~/shared/builder/document'
 import type { BlockDefinition } from '~~/shared/types/builder'
 import home from '~~/test/fixtures/builder/seeds/home.json'
 

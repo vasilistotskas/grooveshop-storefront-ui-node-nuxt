@@ -41,6 +41,9 @@ export const NAVIGATION_ROUTES = ['/', '/products', '/blog', '/contact', '/offer
  */
 export const LINK_ROUTES = [...NAVIGATION_ROUTES, '/account/login', '/account/signup'] as const
 
+/** The record kinds a link names by id, whose address needs the record's current slug (`GET builder/link-targets`). */
+export const LINK_SLUG_KINDS = ['product', 'category', 'blogPost', 'blogCategory'] as const
+
 /** The most ids of one kind `GET builder/link-targets` answers in one call (Django refuses more). */
 export const LINK_TARGETS_MAX_IDS = 100
 
