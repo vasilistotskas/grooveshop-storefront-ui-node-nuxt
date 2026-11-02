@@ -138,9 +138,10 @@ modules, and CI.
 ## Deployment and release
 
 - CI (`.github/workflows/ci.yml`) runs Trivy, typecheck and lint, unit and
-  Nuxt tests, and a production build on every pull request and on each push
-  to `main` (a push whose tree its pull request already tested skips straight
-  to the release).
+  Nuxt tests, the e2e regression tests, a production build and an OpenAPI
+  schema freshness check on every pull request and on each push to `main`.
+  A push whose tree its pull request already tested runs only Trivy before
+  the release, plus the build when `main` has no fonts cache for that tree.
 - A push to `main` releases with semantic-release from Conventional Commits:
   version, `CHANGELOG.md` and a GitHub Release. Nothing is published to npm.
 - A published release builds the Docker image (`docker.yml`) and pushes it to
@@ -162,7 +163,6 @@ To run the published image locally: `docker compose -f docker/compose.yaml up`
 ## Related repositories
 
 - [grooveshop-django-api](https://github.com/vasilistotskas/grooveshop-django-api): Django REST API, admin, and background jobs; the platform's source of truth
-- [grooveshop-storefront-ui-node-nuxt](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt): Nuxt server-rendered storefront for every store
 - [grooveshop-media-stream](https://github.com/vasilistotskas/grooveshop-media-stream): NestJS image processing and caching service
 - [grooveshop-agent-gateway](https://github.com/vasilistotskas/grooveshop-agent-gateway): Go gateway for AI agents (MCP, UCP, ACP), catalogue feeds and the storefront chat
 - grooveshop-infrastructure (private): Kubernetes manifests deployed by Argo CD
