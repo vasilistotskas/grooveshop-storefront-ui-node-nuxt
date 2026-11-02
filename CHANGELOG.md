@@ -1,3 +1,10 @@
+## [3.289.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.289.0...v3.289.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* **builder:** bring a selected section into the preview under the store's pinned header ([#334](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/334)) ([d944689](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d944689d25a386f1160654bcba276c4bae2ebb7b))
+
 # [3.289.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.288.0...v3.289.0) (2026-11-02)
 
 
