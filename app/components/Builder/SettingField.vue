@@ -302,12 +302,13 @@ function moveListItem(index: number, delta: -1 | 1): void {
         @click="() => set([...list, ''])"
       />
     </div>
-    <p
+    <LazyBuilderRichTextField
       v-else-if="field.kind === 'richText'"
-      class="text-sm text-muted"
-    >
-      {{ t('richTextSoon') }}
-    </p>
+      :value="text"
+      :label="label"
+      :disabled="disabled"
+      @update="set"
+    />
   </UFormField>
 </template>
 
@@ -325,7 +326,6 @@ el:
   itemDown: "Μετακίνηση κάτω: {number}"
   itemRemove: "Αφαίρεση: {number}"
   itemAdd: Προσθήκη
-  richTextSoon: Η μορφοποιημένη επεξεργασία κειμένου έρχεται σύντομα.
 en:
   default: Default
   "on": "On"
@@ -339,5 +339,4 @@ en:
   itemDown: "Move {number} down"
   itemRemove: "Remove {number}"
   itemAdd: Add
-  richTextSoon: Formatted text editing is coming soon.
 </i18n>
