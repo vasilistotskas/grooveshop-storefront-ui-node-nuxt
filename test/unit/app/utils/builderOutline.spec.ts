@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { builderNodeRef, builderOutline, parseBuilderNodeRef } from '~/utils/builderOutline'
+import { builderNodeRef, builderOutline, builderProblemNodeId, findBuilderNode, parseBuilderNodeRef } from '~/utils/builderOutline'
 import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 import type { BlockDefinition } from '~~/shared/types/builder'
 
@@ -64,5 +64,29 @@ describe('node references', () => {
 
   it.each(['hero_1', 'template:home/', 'nope/hero_1', 'template:home/hero 1', ''])('refuse %j', (ref) => {
     expect(parseBuilderNodeRef(ref)).toBeUndefined()
+  })
+})
+
+describe('findBuilderNode', () => {
+  it('finds a node at any depth, and nothing for an id the document does not hold', () => {
+    const inner = { type: 'promo_item@1', settings: { label: 'X' } }
+    const draft = { sections: { s: { type: 'promo_banner@2', settings: {}, blocks: { i: inner }, blockOrder: ['i'] } }, order: ['s'] }
+
+    expect(findBuilderNode(draft, 'i')).toBe(inner)
+    expect(findBuilderNode(draft, 's')).toBe(draft.sections.s)
+    expect(findBuilderNode(draft, 'nope')).toBeUndefined()
+  })
+})
+
+describe('builderProblemNodeId', () => {
+  it.each([
+    ['/sections/hero/settings/title', 'hero'],
+    ['/sections/hero/blocks/slide_2/settings/heading', 'slide_2'],
+    ['/sections/hero/type', 'hero'],
+    ['/i18n/en/slide_2/~1heading', 'slide_2'],
+    ['/order', undefined],
+    ['', undefined],
+  ])('names the node of %j', (path, nodeId) => {
+    expect(builderProblemNodeId(path)).toBe(nodeId)
   })
 })

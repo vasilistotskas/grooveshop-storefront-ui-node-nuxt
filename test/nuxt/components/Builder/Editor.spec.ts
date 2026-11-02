@@ -6,6 +6,8 @@ import { UApp } from '#components'
 import BuilderEditor from '~/components/Builder/Editor.vue'
 import BuilderLayout from '~/layouts/builder.vue'
 import { failWith } from '~~/test/helpers/api'
+import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
+import { resetBuilderEditorStores } from '~~/test/helpers/builderEditor'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
 
 /**
@@ -29,7 +31,7 @@ const row = (key: string, kind: string) => ({
   hasUnpublishedChanges: false,
 })
 
-const detail = (key: string, kind: string, draft: unknown) => ({ ...row(key, kind), draft, i18n: {}, draftCatalogueHash: 'h' })
+const detail = <Draft>(key: string, kind: string, draft: Draft) => ({ ...row(key, kind), draft, i18n: {}, draftCatalogueHash: 'h' })
 
 const HOME = detail('template:home', 'template', {
   sections: {
@@ -53,10 +55,7 @@ const LIST = [row('group:footer', 'group'), row('group:header', 'group'), row('p
 const documentUrl = (key: string) => `/api/builder/documents/${encodeURIComponent(key)}`
 
 beforeEach(() => {
-  const store = useBuilderEditorStore()
-  store.documents = []
-  store.opened = {}
-  store.status = 'idle'
+  resetBuilderEditorStores()
   api.routes({
     '/api/builder/documents': LIST,
     [documentUrl('template:home')]: HOME,
@@ -207,5 +206,181 @@ describe('the page editor', () => {
     await flushPromises()
 
     expect(wrapper.findComponent(BuilderEditor).emitted('signOut')).toHaveLength(1)
+  })
+})
+
+describe('editing the structure of a page', () => {
+  const DRAFT_URL = `${documentUrl('template:home')}/draft`
+  const HERO = '/_builder?node=template:home/hero'
+
+  /** The rows of "This page". */
+  const pageRows = (wrapper: Awaited<ReturnType<typeof open>>) => outline(wrapper)[1]!.rows
+
+  const button = (wrapper: Awaited<ReturnType<typeof open>>, label: string) => wrapper.get(`button[aria-label="${label}"]`)
+
+  /** Saves what waits, now, and lets the request finish. */
+  async function saveNow() {
+    useBuilderAutosaveStore().flush()
+    await flushPromises()
+  }
+
+  const clickInDocument = (text: string) =>
+    [...document.querySelectorAll<HTMLButtonElement>('button')].find(item => item.textContent?.trim() === text)!.click()
+
+  beforeEach(() => {
+    api.routes({
+      '/api/builder/documents': LIST,
+      [documentUrl('template:home')]: HOME,
+      [documentUrl('group:header')]: HEADER,
+      [documentUrl('group:footer')]: FOOTER,
+      [DRAFT_URL]: (_url: string, options: { body: { draft: unknown, i18n: unknown } }) => ({ ...HOME, draftRevision: 3, draft: options.body.draft, i18n: options.body.i18n }),
+    })
+  })
+
+  it('moves the selected section from its toolbar, and saves the page against its revision', async () => {
+    const wrapper = await open(HERO)
+
+    await button(wrapper, 'Μετακίνηση κάτω').trigger('click')
+    await saveNow()
+
+    expect(pageRows(wrapper)[0]).toBe('Πλέγμα προϊόντων')
+    const [call] = api.callsTo(DRAFT_URL)
+    expect(call!.options).toMatchObject({ method: 'PUT', headers: { 'If-Match': '2' } })
+    expect(call!.options.body.draft.order).toEqual(['grid', 'hero', 'news'])
+    await vi.waitFor(() => expect(wrapper.get('[role="status"]').text()).toContain('Αποθηκεύτηκε'))
+  })
+
+  it('keeps the first section from moving up', async () => {
+    const wrapper = await open(HERO)
+
+    expect(button(wrapper, 'Μετακίνηση πάνω').attributes('disabled')).toBeDefined()
+  })
+
+  it('hides a section from shoppers and shows it again', async () => {
+    const wrapper = await open(HERO)
+
+    await button(wrapper, 'Απόκρυψη από τους πελάτες').trigger('click')
+    expect(pageRows(wrapper)[0]).toContain('Κρυφό')
+
+    await button(wrapper, 'Εμφάνιση στους πελάτες').trigger('click')
+    expect(pageRows(wrapper)[0]).not.toContain('Κρυφό')
+  })
+
+  it('duplicates a section right after it, and selects the copy', async () => {
+    const wrapper = await open(HERO)
+
+    await button(wrapper, 'Διπλότυπο').trigger('click')
+    await flushPromises()
+
+    expect(pageRows(wrapper).slice(0, 2)).toEqual(['Ενέργεια για όλη τη μέρα, Κεντρικό banner', 'Ενέργεια για όλη τη μέρα, Κεντρικό banner'])
+    await vi.waitFor(() => expect(String(useRoute().query.node)).toMatch(/^template:home\/(?!hero$)/))
+  })
+
+  it('removes a section only once confirmed, and undo brings it back', async () => {
+    const wrapper = await open(HERO)
+
+    await button(wrapper, 'Αφαίρεση').trigger('click')
+    await flushPromises()
+    expect(pageRows(wrapper)).toHaveLength(3)
+    ;[...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(item => item.textContent?.trim() === 'Αφαίρεση')!.click()
+    await flushPromises()
+
+    expect(pageRows(wrapper)).toEqual(['Πλέγμα προϊόντων', 'Εγγραφή στο newsletter, Κρυφό'])
+    await button(wrapper, 'Αναίρεση').trigger('click')
+    expect(pageRows(wrapper)[0]).toBe('Ενέργεια για όλη τη μέρα, Κεντρικό banner')
+  })
+
+  it('offers STAFF no change at all', async () => {
+    const wrapper = await open(HERO, { ...session, staff: { ...session.staff, role: 'staff' } })
+
+    expect(wrapper.find('[role="toolbar"]').exists()).toBe(false)
+    expect(wrapper.find('button[aria-label="Αναίρεση"]').exists()).toBe(false)
+  })
+
+  describe('when someone else saved in between', () => {
+    const conflict = { code: 'revision_conflict', detail: 'x', currentRevision: 6, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }
+    const THEIRS = { ...HOME, draftRevision: 6, draft: { sections: { other: { type: 'products_grid@1', settings: { title: 'Νέες αφίξεις' } } }, order: ['other'] } }
+
+    async function conflicted() {
+      const wrapper = await open(HERO)
+      api.routes({
+        '/api/builder/documents': LIST,
+        [documentUrl('template:home')]: THEIRS,
+        [documentUrl('group:header')]: HEADER,
+        [documentUrl('group:footer')]: FOOTER,
+        [DRAFT_URL]: failWith(409, conflict),
+      })
+      await button(wrapper, 'Μετακίνηση κάτω').trigger('click')
+      await saveNow()
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Η σελίδα αποθηκεύτηκε στο μεταξύ από: Nikos'))
+      return wrapper
+    }
+
+    it('asks which version to keep, and says where they differ', async () => {
+      await conflicted()
+
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Οι δύο εκδοχές διαφέρουν σε:'))
+      expect(document.body.textContent).toContain('Νέες αφίξεις')
+    })
+
+    it('keeps mine by saving it over theirs', async () => {
+      await conflicted()
+      api.routes({ [DRAFT_URL]: () => ({ ...HOME, draftRevision: 7 }) })
+
+      clickInDocument('Κράτησε τη δική μου')
+      await flushPromises()
+
+      expect(api.callsTo(DRAFT_URL).at(-1)!.options.headers).toEqual({ 'If-Match': '6' })
+      await vi.waitFor(() => expect(useBuilderAutosaveStore().stateOf('template:home')).toBe('saved'))
+    })
+
+    it('loads theirs in place of mine', async () => {
+      const wrapper = await conflicted()
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Οι δύο εκδοχές διαφέρουν σε:'))
+
+      clickInDocument('Φόρτωσε την αποθηκευμένη')
+      await flushPromises()
+
+      expect(pageRows(wrapper)).toEqual(['Νέες αφίξεις, Πλέγμα προϊόντων'])
+      expect(useBuilderAutosaveStore().stateOf('template:home')).toBe('saved')
+    })
+  })
+
+  describe('changes an earlier session could not save', () => {
+    const KEPT_KEY = () => `builder-recovery:${useRequestURL().host}:template:home`
+    const kept = (revision: number) => ({
+      revision,
+      copy: { draft: { sections: { hero: HOME.draft.sections.hero }, order: ['hero'] }, i18n: {} },
+      keptAt: '2026-11-02T09:00:00.000Z',
+    })
+
+    beforeEach(() => {
+      localStorage.clear()
+    })
+
+    it('are offered back, and restoring them makes them a change that is saved', async () => {
+      localStorage.setItem(KEPT_KEY(), JSON.stringify(kept(2)))
+      const wrapper = await open()
+
+      expect(wrapper.text()).toContain('Υπάρχουν αλλαγές που δεν αποθηκεύτηκαν')
+      expect(wrapper.text()).not.toContain('Η σελίδα άλλαξε από τότε')
+      await wrapper.findAll('button').find(item => item.text() === 'Επαναφορά')!.trigger('click')
+      await saveNow()
+
+      expect(pageRows(wrapper)).toEqual(['Ενέργεια για όλη τη μέρα, Κεντρικό banner'])
+      expect(api.callsTo(DRAFT_URL)).toHaveLength(1)
+      expect(wrapper.text()).not.toContain('Υπάρχουν αλλαγές που δεν αποθηκεύτηκαν')
+    })
+
+    it('warn when the page changed after they were kept, and can be discarded', async () => {
+      localStorage.setItem(KEPT_KEY(), JSON.stringify(kept(1)))
+      const wrapper = await open()
+
+      expect(wrapper.text()).toContain('Η σελίδα άλλαξε από τότε')
+      await wrapper.findAll('button').find(item => item.text() === 'Απόρριψη')!.trigger('click')
+
+      expect(wrapper.text()).not.toContain('Υπάρχουν αλλαγές που δεν αποθηκεύτηκαν')
+      expect(localStorage.getItem(KEPT_KEY())).toBeNull()
+    })
   })
 })

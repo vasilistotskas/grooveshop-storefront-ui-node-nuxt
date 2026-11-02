@@ -2,6 +2,7 @@
 const { t } = useStoreI18n('components/Builder/Outline')
 const { blockLabel, groupLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
+const autosave = useBuilderAutosaveStore()
 const { documentKey, selected, select } = useBuilderEditorView()
 
 /** One row of the outline, as `UTree` takes it. */
@@ -12,6 +13,8 @@ interface OutlineItem {
   /** The block's own name, when the row is named by the node's title instead. */
   blockName?: string
   hidden: boolean
+  /** Django refused the last save because of this node. */
+  problem: boolean
   children?: OutlineItem[]
 }
 
@@ -19,20 +22,22 @@ interface OutlineItem {
 const SECTION_ICON = 'i-lucide-panel-top'
 const BLOCK_ICON = 'i-lucide-square-dot'
 
-function toItem(node: BuilderOutlineNode, depth = 0): OutlineItem {
+function toItem(node: BuilderOutlineNode, problems: ReadonlySet<string>, depth = 0): OutlineItem {
   return {
     id: node.ref,
     label: node.title ?? blockLabel(node.blockType),
     icon: depth === 0 ? SECTION_ICON : BLOCK_ICON,
     ...(node.title !== undefined && { blockName: blockLabel(node.blockType) }),
     hidden: node.hidden,
-    ...(node.children.length > 0 && { children: node.children.map(child => toItem(child, depth + 1)) }),
+    problem: problems.has(node.nodeId),
+    ...(node.children.length > 0 && { children: node.children.map(child => toItem(child, problems, depth + 1)) }),
   }
 }
 
 function itemsOf(key: string): OutlineItem[] {
   const document = store.opened[key]
-  return document ? builderOutline(key, document.draft, builderEditorBlocks).map(node => toItem(node)) : []
+  const problems = new Set((autosave.saves[key]?.problems ?? []).flatMap(({ path }) => builderProblemNodeId(path) ?? []))
+  return document ? builderOutline(key, document.copy.draft, builderEditorBlocks).map(node => toItem(node, problems)) : []
 }
 
 /** The trees, top to bottom as the storefront draws them: the groups above the page, the page, the groups below it. */
@@ -106,6 +111,13 @@ function onSelect(item: OutlineItem | undefined) {
             v-if="item.blockName"
             class="sr-only"
           >, {{ item.blockName }}</span>
+          <template v-if="item.problem">
+            <UIcon
+              name="i-lucide-circle-alert"
+              class="ms-1 size-3.5 shrink-0 align-middle text-error"
+            />
+            <span class="sr-only">, {{ t('problem') }}</span>
+          </template>
           <template v-if="item.hidden">
             <UIcon
               name="i-lucide-eye-off"
@@ -130,10 +142,12 @@ el:
   label: Δομή σελίδας
   page: Αυτή η σελίδα
   hidden: Κρυφό
+  problem: δεν αποθηκεύτηκε
   empty: Δεν έχει ενότητες ακόμη.
 en:
   label: Page outline
   page: This page
   hidden: Hidden
+  problem: not saved
   empty: No sections yet.
 </i18n>
