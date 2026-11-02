@@ -99,6 +99,9 @@ export const BUILDER_CANVAS_PREVIEW_DELAY_MS = 300
 /** The selected section's toolbar over the preview, in CSS pixels: its size, and its distance from the section and the pane's edges. */
 export const BUILDER_CANVAS_TOOLBAR = { width: 248, height: 76, gap: 8 } as const
 
+/** Where across the canvas, as shares of its width, it looks for a header pinned to the top of the viewport. */
+export const BUILDER_CANVAS_PINNED_SAMPLES = [0.05, 0.5, 0.95] as const
+
 /** The attribute the canvas marks each drawn section's root element with: its node id. */
 export const BUILDER_CANVAS_NODE_ATTRIBUTE = 'data-builder-node'
 

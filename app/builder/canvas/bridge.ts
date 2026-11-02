@@ -61,13 +61,36 @@ export function startBuilderCanvas(nuxtApp: NuxtApp, preview: Ref<BuilderPreview
     })
   }
 
-  /** Brings the selected section into view when none of it is in view, then says where it is. */
+  /**
+   * How much of the top of the viewport the store keeps covered: the bottom
+   * of whatever is pinned there (a sticky or fixed header, an announcement
+   * bar), measured where it stands now, in every design alike. What reaches
+   * past half the viewport is an overlay, not a header, and is left out.
+   */
+  function pinnedTop(): number {
+    let bottom = 0
+    for (const share of BUILDER_CANVAS_PINNED_SAMPLES) {
+      for (let element: Element | null = document.elementFromPoint(window.innerWidth * share, 0); element && element !== document.body; element = element.parentElement) {
+        const { position } = getComputedStyle(element)
+        if (position !== 'fixed' && position !== 'sticky') continue
+        const rect = element.getBoundingClientRect()
+        if (rect.top <= 0 && rect.bottom < window.innerHeight / 2) bottom = Math.max(bottom, rect.bottom)
+      }
+    }
+    return bottom
+  }
+
+  /**
+   * Brings the selected section into view when none of it shows below the
+   * store's pinned header, its top just under that header; then says where
+   * it is. The canvas's own window only: `scrollIntoView` would scroll the
+   * editor around the frame as well, since both are on the same origin.
+   */
   function showSelected(): void {
     const box = boxOf(selected)
-    // The canvas's own window only: `scrollIntoView` would scroll the editor
-    // around the frame as well, since both are on the same origin.
-    if (box && (box.y + box.height < 0 || box.y > window.innerHeight)) {
-      window.scrollTo({ top: window.scrollY + box.y, behavior: 'smooth' })
+    const covered = pinnedTop()
+    if (box && (box.y + box.height <= covered || box.y >= window.innerHeight)) {
+      window.scrollTo({ top: window.scrollY + box.y - covered, behavior: 'smooth' })
     }
     measure()
   }
