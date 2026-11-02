@@ -8,6 +8,7 @@ import BuilderLayout from '~/layouts/builder.vue'
 import { failWith } from '~~/test/helpers/api'
 import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { resetBuilderEditorStores } from '~~/test/helpers/builderEditor'
+import { setTenantFeatures } from '~~/test/helpers/tenant'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
 
 /**
@@ -443,11 +444,135 @@ describe('editing the structure of a page', () => {
     expect(pageRows(wrapper)[0]).toBe('Ενέργεια για όλη τη μέρα, Κεντρικό banner')
   })
 
+  describe('adding from the library', () => {
+    /** The library's cards, by their names, in the order it shows them. */
+    const cards = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] [data-library-card]')]
+    const cardNames = () => cards().map(card => card.querySelector('span.text-sm')!.textContent!.trim())
+    const card = (name: string) => cards().find(item => item.textContent!.includes(name))!
+
+    it('opens on the page\'s sections only, from the "+" of its heading', async () => {
+      const wrapper = await open()
+
+      await button(wrapper, 'Προσθήκη ενότητας: Αυτή η σελίδα').trigger('click')
+      await flushPromises()
+
+      expect(document.querySelector('[role="dialog"]')!.textContent).toContain('Προσθήκη ενότητας')
+      expect(cardNames()).toContain('Ερωτήσεις και απαντήσεις')
+      expect(cardNames()).not.toContain('Μενού κεφαλίδας')
+    })
+
+    it('adds a section at the end with what its preset holds, selects it and saves it', async () => {
+      const wrapper = await open()
+      await button(wrapper, 'Προσθήκη ενότητας: Αυτή η σελίδα').trigger('click')
+      await flushPromises()
+
+      card('Ερωτήσεις και απαντήσεις').click()
+      await flushPromises()
+      await saveNow()
+
+      const sent = api.callsTo(DRAFT_URL).at(-1)!.options.body.draft
+      const added = sent.order.at(-1)
+      expect(sent.order.slice(0, 3)).toEqual(['hero', 'grid', 'news'])
+      expect(sent.sections[added]).toMatchObject({ type: 'faq@1', settings: {} })
+      expect(sent.sections[added].blockOrder).toHaveLength(3)
+      expect(Object.values(sent.sections[added].blocks)[0]).toEqual({ type: 'faq_item@1', settings: { question: 'Η ερώτηση του πελάτη', answer: 'Η απάντησή σας.' } })
+      await vi.waitFor(() => expect(useRoute().query.node).toBe(`template:home/${added}`))
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+    })
+
+    it('finds a section by its name, with or without accents', async () => {
+      const wrapper = await open()
+      await button(wrapper, 'Προσθήκη ενότητας: Αυτή η σελίδα').trigger('click')
+      await flushPromises()
+
+      const search = document.querySelector<HTMLInputElement>('[role="dialog"] input')!
+      search.value = 'ερωτησεις'
+      search.dispatchEvent(new Event('input'))
+      await flushPromises()
+
+      expect(cardNames()).toEqual(['Ερωτήσεις και απαντήσεις'])
+    })
+
+    it('shows a section whose store feature is off, says why, and adds nothing', async () => {
+      setTenantFeatures({ loyalty: false })
+      const wrapper = await open()
+      await button(wrapper, 'Προσθήκη ενότητας: Αυτή η σελίδα').trigger('click')
+      await flushPromises()
+
+      const refused = card('Πρόγραμμα επιβράβευσης')
+      expect(refused.getAttribute('aria-disabled')).toBe('true')
+      expect(refused.textContent).toContain('Χρειάζεται το πρόγραμμα επιβράβευσης')
+      refused.click()
+      await flushPromises()
+
+      expect(pageRows(wrapper)).toHaveLength(3)
+      expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+    })
+
+    it('adds a block inside the selected section, offering only what it takes', async () => {
+      const wrapper = await open(HERO)
+
+      await button(wrapper, 'Προσθήκη μέσα').trigger('click')
+      await flushPromises()
+
+      expect(cardNames()).toEqual(['Αριθμός'])
+      card('Αριθμός').click()
+      await flushPromises()
+      expect(useBuilderEditorStore().opened['template:home']!.copy.draft.sections.hero!.blockOrder).toHaveLength(2)
+    })
+
+    it('adds a section right below the selected one', async () => {
+      const wrapper = await open(HERO)
+
+      await button(wrapper, 'Προσθήκη από κάτω').trigger('click')
+      await flushPromises()
+      card('Διαχωριστικό').click()
+      await flushPromises()
+
+      const order = useBuilderEditorStore().opened['template:home']!.copy.draft.order
+      expect(order).toHaveLength(4)
+      expect(order[0]).toBe('hero')
+      expect(order.slice(2)).toEqual(['grid', 'news'])
+    })
+  })
+
+  describe('a section whose store feature is off', () => {
+    const NEWS = '/_builder?node=template:home/news'
+
+    beforeEach(() => {
+      api.routes({
+        '/api/builder/documents': LIST,
+        [documentUrl('template:home')]: HOME,
+        [documentUrl('group:header')]: HEADER,
+        [documentUrl('group:footer')]: FOOTER,
+        [DRAFT_URL]: failWith(400, {
+          code: 'invalid_document',
+          detail: 'x',
+          errors: [{ path: '/sections/news/type', code: 'feature_disabled', message: 'newsletter_signup needs a feature that is off for this store.' }],
+        }),
+      })
+    })
+
+    it('says so on the node when a save is refused for it, and removes it in one click', async () => {
+      const wrapper = await open(NEWS)
+      // A change, so the page is saved and the store refuses it.
+      await button(wrapper, 'Εμφάνιση στους πελάτες').trigger('click')
+      await saveNow()
+
+      await vi.waitFor(() => expect(wrapper.text()).toContain('Χρειάζεται το newsletter, που είναι κλειστό σε αυτό το κατάστημα'))
+      await wrapper.findAll('button').find(item => item.text() === 'Αφαίρεση' && item.element.closest('[role="alert"], [data-slot="root"]'))!.trigger('click')
+      await flushPromises()
+
+      expect(pageRows(wrapper)).toEqual(['Ενέργεια για όλη τη μέρα, Κεντρικό banner', 'Πλέγμα προϊόντων'])
+    })
+  })
+
   it('offers STAFF no change at all', async () => {
     const wrapper = await open(HERO, { ...session, staff: { ...session.staff, role: 'staff' } })
 
     expect(wrapper.find('[role="toolbar"]').exists()).toBe(false)
     expect(wrapper.find('button[aria-label="Αναίρεση"]').exists()).toBe(false)
+    expect(wrapper.find('button[aria-label^="Προσθήκη ενότητας"]').exists()).toBe(false)
   })
 
   describe('the settings of the selected section', () => {

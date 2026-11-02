@@ -14,5 +14,6 @@ export default defineBlock({
   limits: { maxBlocks: 24 },
   children: { allowed: ['gallery_image'], maxDepth: 1 },
   childList: { gallery_image: 'items' },
-  editor: { title: ['title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['title'], category: 'content' },
 })

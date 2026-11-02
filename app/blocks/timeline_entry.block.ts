@@ -12,5 +12,6 @@ export default defineBlock({
     icon: builderField.icon(100).optional(),
   }),
   translatable: ['/title', '/date', '/text'],
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
   editor: { title: ['title'] },
 })

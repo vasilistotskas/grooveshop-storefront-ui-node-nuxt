@@ -19,6 +19,15 @@ const { selection, move } = useBuilderSelection()
 const outlineOpen = ref(false)
 /** The settings as a drawer, below the width that fits them beside the preview. */
 const settingsOpen = ref(false)
+
+// The library opens over everything: on a narrow screen the drawer it was
+// opened from closes, so what is added lands in view of the preview.
+const library = useBuilderLibraryStore()
+watch(() => library.target, (target) => {
+  if (!target) return
+  outlineOpen.value = false
+  settingsOpen.value = false
+})
 /** The preview fills its pane edge to edge; the states before it keep the panel's padding. */
 const previewPanelUi = computed(() => store.status === 'ready' ? { body: 'gap-0 overflow-hidden p-0 sm:gap-0 sm:p-0' } : undefined)
 
@@ -195,6 +204,7 @@ watch(() => autosave.overall, (state) => {
   </UDashboardGroup>
 
   <BuilderConflictDialog />
+  <BuilderLibrary v-if="store.status === 'ready'" />
 </template>
 
 <i18n lang="yaml">

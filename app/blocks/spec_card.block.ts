@@ -14,5 +14,6 @@ export default defineBlock({
   limits: { maxBlocks: 8 },
   children: { allowed: ['spec_row'], maxDepth: 1 },
   childList: { spec_row: 'rows' },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 2 }, () => ({ type: 'spec_row' })) }],
   editor: { title: ['name', 'label'] },
 })

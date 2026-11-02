@@ -11,4 +11,6 @@ export default defineBlock({
   limits: { maxBlocks: 4 },
   children: { allowed: ['stat'], maxDepth: 1 },
   childList: { stat: 'items' },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'stat' })) }],
+  editor: { category: 'trust' },
 })

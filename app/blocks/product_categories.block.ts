@@ -5,6 +5,7 @@ export default defineBlock({
   type: 'product_categories',
   version: 1,
   kinds: ['section'],
+  feature: 'catalogue',
   schema: z.object({
     surface: builderField.surface().optional(),
     heading: builderField.text(200).optional(),
@@ -14,5 +15,6 @@ export default defineBlock({
   }),
   translatable: ['/heading'],
   refs: { '/parentId': 'category' },
-  editor: { title: ['heading'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['heading'], category: 'products' },
 })

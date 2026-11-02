@@ -11,5 +11,6 @@ export default defineBlock({
   }),
   // A name is what the store writes in each language (a brand in Greek letters, a person as the language spells them).
   translatable: ['/name'],
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
   editor: { title: ['name'] },
 })

@@ -1,5 +1,5 @@
 {
-  "hash": "398190a92230307c",
+  "hash": "2edd34365362935a",
   "blocks": [
     {
       "type": "about_content",
@@ -22,6 +22,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -52,6 +57,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "blog",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -284,6 +295,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "blog",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -516,6 +533,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "blog",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -748,6 +771,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "blog",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -782,6 +811,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -819,6 +853,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -869,6 +908,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -1098,6 +1142,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -1129,6 +1178,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -1179,6 +1233,22 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "faq_item"
+            },
+            {
+              "type": "faq_item"
+            },
+            {
+              "type": "faq_item"
+            }
+          ]
+        }
       ]
     },
     {
@@ -1220,6 +1290,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -1264,6 +1339,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -1519,6 +1599,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "catalogue",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -1954,6 +2040,22 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "feature_item"
+            },
+            {
+              "type": "feature_item"
+            },
+            {
+              "type": "feature_item"
+            }
+          ]
+        }
       ]
     },
     {
@@ -1999,6 +2101,22 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "nav_link"
+            },
+            {
+              "type": "nav_link"
+            },
+            {
+              "type": "nav_link"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2027,6 +2145,19 @@
       ],
       "groups": [
         "footer"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "footer_column"
+            },
+            {
+              "type": "footer_column"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2101,6 +2232,22 @@
       ],
       "groups": [
         "header"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "nav_link"
+            },
+            {
+              "type": "nav_link"
+            },
+            {
+              "type": "nav_link"
+            }
+          ]
+        }
       ]
     },
     {
@@ -2547,6 +2694,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -2786,6 +2938,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -3252,6 +3409,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -3299,6 +3461,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -3696,6 +3863,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "loyalty",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -3961,6 +4134,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -3990,6 +4168,22 @@
       ],
       "groups": [
         "mobile"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "nav_link"
+            },
+            {
+              "type": "nav_link"
+            },
+            {
+              "type": "nav_link"
+            }
+          ]
+        }
       ]
     },
     {
@@ -4083,6 +4277,14 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "settings": {
+            "route": "/"
+          }
+        }
       ]
     },
     {
@@ -4140,6 +4342,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "newsletter",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -4376,6 +4584,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "promotions",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -4583,6 +4797,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -4623,6 +4842,22 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "partner"
+            },
+            {
+              "type": "partner"
+            },
+            {
+              "type": "partner"
+            }
+          ]
+        }
       ]
     },
     {
@@ -4680,6 +4915,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "catalogue",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -4930,6 +5171,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "catalogue",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5180,6 +5427,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "catalogue",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5220,6 +5473,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5255,6 +5513,12 @@
       },
       "kinds": [
         "section"
+      ],
+      "feature": "catalogue",
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5291,6 +5555,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5321,6 +5590,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5354,6 +5628,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5403,6 +5682,19 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "spec_row"
+            },
+            {
+              "type": "spec_row"
+            }
+          ]
+        }
       ]
     },
     {
@@ -5444,6 +5736,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5485,6 +5782,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5521,6 +5823,22 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "stat"
+            },
+            {
+              "type": "stat"
+            },
+            {
+              "type": "stat"
+            }
+          ]
+        }
       ]
     },
     {
@@ -5573,6 +5891,22 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "timeline_entry"
+            },
+            {
+              "type": "timeline_entry"
+            },
+            {
+              "type": "timeline_entry"
+            }
+          ]
+        }
       ]
     },
     {
@@ -5622,6 +5956,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5669,6 +6008,22 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "testimonial"
+            },
+            {
+              "type": "testimonial"
+            },
+            {
+              "type": "testimonial"
+            }
+          ]
+        }
       ]
     },
     {
@@ -5718,6 +6073,11 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -5955,6 +6315,15 @@
       },
       "kinds": [
         "block"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "settings": {
+            "kind": "custom",
+            "icon": "i-lucide-shield-check"
+          }
+        }
       ]
     },
     {
@@ -6005,6 +6374,22 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "blocks": [
+            {
+              "type": "trust_badge"
+            },
+            {
+              "type": "trust_badge"
+            },
+            {
+              "type": "trust_badge"
+            }
+          ]
+        }
       ]
     },
     {
@@ -6028,6 +6413,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -6051,6 +6441,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     },
     {
@@ -6074,6 +6469,11 @@
       },
       "kinds": [
         "section"
+      ],
+      "presets": [
+        {
+          "id": "default"
+        }
       ]
     }
   ],

@@ -32,7 +32,7 @@ export default defineEventHandler(async (event): Promise<BuilderPreviewResponse>
       readPublishedSummary(event).then(summary => publishedTargets(event, summary)),
     ])
     const page = await builderPageOf(event, resolved.page)
-    const navigation = builderNavigationOf(resolved.groups, targets)
+    const navigation = builderNavigationOf(event, resolved.groups, targets)
     event.res.headers.set('Cache-Control', 'private, no-store')
     return { pages: { [pageKey]: page }, navigation }
   }

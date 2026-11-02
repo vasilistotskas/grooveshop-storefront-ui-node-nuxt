@@ -55,7 +55,7 @@ describe('the real blocks', () => {
     const bare = { type: 'trust_badges@1', settings: {}, blocks: { a: { type: 'trust_badge@1', settings: { kind: 'custom', label: 'Bare' } } }, blockOrder: ['a'] }
 
     expect(badge.schema.anyOf).toEqual([{ required: ['imageUrl'] }, { required: ['icon'] }])
-    expect(parseDocument({ sections: { s1: bare }, order: ['s1'] }, 'page', registry).sections.s1).not.toHaveProperty('blocks')
+    expect(parseDocument({ sections: { s1: bare }, order: ['s1'] }, 'page', registry, { featureOn: () => true }).sections.s1).not.toHaveProperty('blocks')
   })
 
   it('are closed: a key the schema does not name is refused, by Django and by the parse', () => {

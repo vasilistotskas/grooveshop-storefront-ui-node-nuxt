@@ -26,5 +26,6 @@ export default defineBlock({
   limits: { maxBlocks: 4 },
   children: { allowed: ['stat'], maxDepth: 1 },
   childList: { stat: 'stats' },
-  editor: { title: ['heading', 'title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['heading', 'title'], category: 'hero' },
 })

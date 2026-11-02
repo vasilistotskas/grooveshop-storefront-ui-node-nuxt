@@ -3,6 +3,32 @@ const { t } = useStoreI18n('components/Builder/NodeActions')
 const store = useBuilderEditorStore()
 const { selection, move, toggleHidden, duplicate, remove } = useBuilderSelection()
 
+const library = useBuilderLibraryStore()
+
+/** Whether the selected node takes blocks of its own. */
+const takesBlocks = computed(() => {
+  const current = selection.value
+  const document = current && store.opened[current.documentKey]
+  const node = current && document ? findBuilderNode(document.copy.draft, current.nodeId) : undefined
+  return Boolean(node && builderEditorBlocks.get(builderBlockType(node))?.children.allowed.length)
+})
+
+/** Opens the library to add a node right after the selected one, beside it. */
+function addBelow(): void {
+  const current = selection.value
+  const document = current && store.opened[current.documentKey]
+  const position = current && document ? builderNodePosition(document.copy, current.nodeId) : undefined
+  if (current && position) library.open(current.documentKey, { ...position, index: position.index + 1 })
+}
+
+/** Opens the library to add a block at the end of the selected node. */
+function addInside(): void {
+  const current = selection.value
+  const document = current && store.opened[current.documentKey]
+  const node = current && document ? findBuilderNode(document.copy.draft, current.nodeId) : undefined
+  if (current && node) library.open(current.documentKey, { parentId: current.nodeId, index: node.blockOrder?.length ?? 0 })
+}
+
 const confirmingRemove = ref(false)
 
 async function confirmRemove(): Promise<void> {
@@ -72,6 +98,27 @@ async function confirmRemove(): Promise<void> {
           @click="toggleHidden"
         />
       </UTooltip>
+      <UTooltip :text="t('addBelow')">
+        <UButton
+          icon="i-lucide-plus"
+          color="neutral"
+          variant="ghost"
+          :aria-label="t('addBelow')"
+          @click="addBelow"
+        />
+      </UTooltip>
+      <UTooltip
+        v-if="takesBlocks"
+        :text="t('addInside')"
+      >
+        <UButton
+          icon="i-lucide-list-plus"
+          color="neutral"
+          variant="ghost"
+          :aria-label="t('addInside')"
+          @click="addInside"
+        />
+      </UTooltip>
       <UTooltip :text="t('remove')">
         <UButton
           icon="i-lucide-trash-2"
@@ -117,6 +164,8 @@ el:
   duplicateLimit: Δεν χωράει άλλο ένα εδώ
   hide: Απόκρυψη από τους πελάτες
   show: Εμφάνιση στους πελάτες
+  addBelow: Προσθήκη από κάτω
+  addInside: Προσθήκη μέσα
   remove: Αφαίρεση
   confirm:
     title: "Αφαίρεση: {name};"
@@ -131,6 +180,8 @@ en:
   duplicateLimit: There is no room for another one here
   hide: Hide from shoppers
   show: Show to shoppers
+  addBelow: Add below
+  addInside: Add inside
   remove: Remove
   confirm:
     title: "Remove {name}?"

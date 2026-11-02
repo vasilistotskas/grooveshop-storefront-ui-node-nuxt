@@ -9,4 +9,5 @@ export default defineBlock({
     text: builderField.requiredText(300),
   }),
   translatable: ['/text'],
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
 })

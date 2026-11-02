@@ -227,3 +227,111 @@ export function setNodeSetting(copy: BuilderWorkingCopy, nodeId: string, path: s
   place.node.settings = write(place.node.settings, 0)
   return next
 }
+
+/**
+ * Where a new node goes: inside `parentId` (a section or a block), or at the
+ * top of the document without one, before the node now at `index` (the end
+ * when it is past the last).
+ */
+export interface BuilderInsertPoint {
+  parentId?: string
+  index: number
+}
+
+/** The copy with `node` added as `nodeId` at `at`; the copy it was given when `at` names no parent it has. */
+export function insertNode(copy: BuilderWorkingCopy, at: BuilderInsertPoint, nodeId: string, node: BuilderNode): BuilderWorkingCopy {
+  const next = structuredClone(copy)
+  if (at.parentId === undefined) {
+    next.draft.sections[nodeId] = structuredClone(node)
+    next.draft.order.splice(Math.min(at.index, next.draft.order.length), 0, nodeId)
+    return next
+  }
+  const parent = placeOf(next.draft, at.parentId)?.node
+  if (!parent) return copy
+  parent.blocks = { ...parent.blocks, [nodeId]: structuredClone(node) }
+  parent.blockOrder = [...(parent.blockOrder ?? [])]
+  parent.blockOrder.splice(Math.min(at.index, parent.blockOrder.length), 0, nodeId)
+  return next
+}
+
+/** Why the library shows a block it cannot add there now. */
+export type BuilderLibraryRefusal = 'feature' | 'perTemplate' | 'full'
+
+export interface BuilderLibraryOffer {
+  definition: BlockDefinition
+  /** Set when the block is shown but cannot be added: why. */
+  refusal?: BuilderLibraryRefusal
+}
+
+/**
+ * What the add-section library offers at `at` in the document `documentKey`:
+ * the blocks that may sit there, and of those, the ones that cannot be added
+ * now, with why. A section (no parent) of a type that may sit at the top of
+ * this document (`builderPlacementAllowed`); a block of a type its parent
+ * takes, while nesting is allowed that deep. Only a block with a preset to
+ * insert is offered, and a deprecated one never is.
+ *
+ * Shown but refused: a block whose store feature is off (`featureOn`), one
+ * the document already holds as many of as its `maxPerTemplate`, and every
+ * block when the parent holds its `maxBlocks`. Django checks all of it again
+ * on save; this is what the merchant is offered.
+ */
+export function builderLibraryOffers(
+  copy: BuilderWorkingCopy,
+  documentKey: string,
+  at: Pick<BuilderInsertPoint, 'parentId'>,
+  blocks: ReadonlyMap<string, BlockDefinition>,
+  featureOn: (feature: StoreFeatureName) => boolean,
+): BuilderLibraryOffer[] {
+  const parent = at.parentId === undefined ? undefined : ancestryOf(copy.draft, at.parentId, blocks)
+  if (at.parentId !== undefined && !parent) return []
+  const candidates = [...blocks.values()].filter(definition => !definition.deprecated && definition.presets?.length && (parent
+    ? definition.kinds.includes('block') && parent.definition.children.allowed.includes(definition.type) && parent.childLevel <= parent.depthLimit
+    : definition.kinds.includes('section') && builderPlacementAllowed(definition, documentKey)))
+  const present = allNodes(copy.draft).map(({ node }) => builderBlockType(node))
+  const full = parent?.definition.limits.maxBlocks !== undefined && (parent.node.blockOrder?.length ?? 0) >= parent.definition.limits.maxBlocks
+  return candidates.map((definition) => {
+    const limit = definition.limits.maxPerTemplate
+    const refusal: BuilderLibraryRefusal | undefined = definition.feature && !featureOn(definition.feature)
+      ? 'feature'
+      : full
+        ? 'full'
+        : limit !== undefined && present.filter(type => type === definition.type).length >= limit ? 'perTemplate' : undefined
+    return refusal ? { definition, refusal } : { definition }
+  })
+}
+
+/**
+ * A node with what decides how deep below it a block may sit: its level (a
+ * section is 1), the level its children would be, and the deepest level its
+ * ancestors allow, as `parseDocument` counts it.
+ */
+function ancestryOf(draft: BuilderDocument, nodeId: string, blocks: ReadonlyMap<string, BlockDefinition>) {
+  const walk = (order: readonly string[], map: Record<string, BuilderNode>, depth: number, depthLimit: number): { node: BuilderNode, definition: BlockDefinition, childLevel: number, depthLimit: number } | undefined => {
+    for (const id of order) {
+      const node = map[id]
+      const definition = node && blocks.get(builderBlockType(node))
+      if (!node || !definition) continue
+      const limit = Math.min(depthLimit, depth + (definition.children.maxDepth ?? BUILDER_MAX_NODE_DEPTH))
+      if (id === nodeId) return { node, definition, childLevel: depth + 1, depthLimit: limit }
+      const below = node.blockOrder && walk(node.blockOrder, node.blocks ?? {}, depth + 1, limit)
+      if (below) return below
+    }
+    return undefined
+  }
+  return walk(draft.order, draft.sections, 1, BUILDER_MAX_NODE_DEPTH)
+}
+
+/** Where a node sits: its parent's id (none for a section) and its index among its siblings; `undefined` for a node the copy does not hold. */
+export function builderNodePosition(copy: BuilderWorkingCopy, nodeId: string): BuilderInsertPoint | undefined {
+  const walk = (order: readonly string[], map: Record<string, BuilderNode>, parentId?: string): BuilderInsertPoint | undefined => {
+    for (const [index, id] of order.entries()) {
+      if (id === nodeId) return parentId === undefined ? { index } : { parentId, index }
+      const node = map[id]
+      const below = node?.blockOrder && walk(node.blockOrder, node.blocks ?? {}, id)
+      if (below) return below
+    }
+    return undefined
+  }
+  return walk(copy.draft.order, copy.draft.sections)
+}

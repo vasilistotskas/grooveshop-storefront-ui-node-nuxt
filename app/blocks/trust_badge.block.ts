@@ -17,5 +17,6 @@ export default defineBlock({
     .refine(badge => Boolean(badge.imageUrl || badge.icon), { message: 'needs imageUrl or icon' })
     .meta({ anyOf: [{ required: ['imageUrl'] }, { required: ['icon'] }] }),
   translatable: ['/label'],
+  presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { kind: 'custom', icon: 'i-lucide-shield-check' } }],
   editor: { title: ['label'] },
 })

@@ -485,5 +485,82 @@
     "feedback": "Feedback",
     "account-login": "Sign in",
     "account-signup": "Sign up"
+  },
+  "presets": {
+    "bullet": {
+      "default": {
+        "text": "A point worth knowing"
+      }
+    },
+    "faq_item": {
+      "default": {
+        "question": "A shopper's question",
+        "answer": "Your answer."
+      }
+    },
+    "feature_item": {
+      "default": {
+        "title": "A benefit"
+      }
+    },
+    "footer_column": {
+      "default": {
+        "label": "Column"
+      }
+    },
+    "nav_link": {
+      "default": {
+        "label": "Link"
+      }
+    },
+    "partner": {
+      "default": {
+        "name": "Partner"
+      }
+    },
+    "spec_card": {
+      "default": {
+        "name": "Specifications"
+      }
+    },
+    "spec_row": {
+      "default": {
+        "label": "Feature",
+        "value": "Value"
+      }
+    },
+    "stat": {
+      "default": {
+        "value": "100+",
+        "label": "A number that matters"
+      }
+    },
+    "timeline_entry": {
+      "default": {
+        "title": "A milestone"
+      }
+    },
+    "trust_badge": {
+      "default": {
+        "label": "A promise to the shopper"
+      }
+    }
+  },
+  "categories": {
+    "hero": "Heroes",
+    "products": "Products",
+    "content": "Content",
+    "trust": "Trust",
+    "blog": "Blog",
+    "store": "Store",
+    "layout": "Layout",
+    "navigation": "Navigation"
+  },
+  "features": {
+    "loyalty": "the loyalty programme",
+    "promotions": "promotions",
+    "blog": "the blog",
+    "newsletter": "the newsletter",
+    "catalogue": "the product catalogue"
   }
 }

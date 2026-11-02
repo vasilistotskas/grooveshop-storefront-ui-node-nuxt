@@ -1,0 +1,21 @@
+[
+  { "groups": null, "templates": null, "document": "template:home", "allowed": true },
+  { "groups": null, "templates": null, "document": "page:summer-sale", "allowed": true },
+  { "groups": null, "templates": null, "document": "group:header", "allowed": false },
+  { "groups": null, "templates": null, "document": "theme", "allowed": false },
+  { "groups": ["header"], "templates": null, "document": "group:header", "allowed": true },
+  { "groups": ["header"], "templates": null, "document": "group:footer", "allowed": false },
+  { "groups": ["header"], "templates": null, "document": "template:home", "allowed": false },
+  { "groups": ["header"], "templates": null, "document": "page:summer-sale", "allowed": false },
+  { "groups": ["theme"], "templates": null, "document": "theme", "allowed": true },
+  { "groups": ["theme"], "templates": null, "document": "group:header", "allowed": false },
+  { "groups": null, "templates": ["home"], "document": "template:home", "allowed": true },
+  { "groups": null, "templates": ["home"], "document": "template:products", "allowed": false },
+  { "groups": null, "templates": ["home"], "document": "page:summer-sale", "allowed": false },
+  { "groups": null, "templates": ["page"], "document": "page:summer-sale", "allowed": true },
+  { "groups": null, "templates": ["page"], "document": "template:home", "allowed": false },
+  { "groups": ["header"], "templates": ["home"], "document": "template:home", "allowed": true },
+  { "groups": ["header"], "templates": ["home"], "document": "group:header", "allowed": true },
+  { "groups": [], "templates": null, "document": "template:home", "allowed": false },
+  { "groups": null, "templates": [], "document": "template:home", "allowed": false }
+]

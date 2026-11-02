@@ -35,6 +35,7 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
     ...(definition.templates && { templates: [...definition.templates] }),
     ...(definition.feature && { feature: definition.feature }),
     ...(definition.deprecated && { deprecated: true }),
+    ...(definition.presets && { presets: definition.presets.map(preset => structuredClone(preset)) }),
   }
 }
 

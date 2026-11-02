@@ -4,17 +4,21 @@ import { defineBlock } from '~~/shared/builder/defineBlock'
 import { parseDocument as parseWith } from '~~/shared/builder/document'
 import type { BlockDefinition, BuilderDocumentKind, BuilderNode, BuilderNodeSkip } from '~~/shared/types/builder'
 import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
+import type { StoreFeatureName } from '~~/shared/utils/storeFeature'
 
 const registry = new Map<string, BlockDefinition>([promoBanner, promoItem].map(block => [block.type, block]))
 
 /** What the parser reported, in order. */
 let skips: BuilderNodeSkip[] = []
+const skipped = () => skips
+/** The store features that are off in a case; every other one is on. */
+let featuresOff: readonly StoreFeatureName[] = []
 beforeEach(() => {
   skips = []
+  featuresOff = []
 })
-const skipped = () => skips
 const parseDocument = (raw: unknown, kind: BuilderDocumentKind, blocks: ReadonlyMap<string, BlockDefinition> = registry) =>
-  parseWith(raw, kind, blocks, { onSkip: skip => skips.push(skip) })
+  parseWith(raw, kind, blocks, { featureOn: feature => !featuresOff.includes(feature), onSkip: skip => skips.push(skip) })
 
 const item = (label: string, extra: Partial<BuilderNode> = {}): BuilderNode => ({ type: 'promo_item@1', settings: { label }, ...extra })
 const banner = (extra: Partial<BuilderNode> = {}): BuilderNode => ({ type: 'promo_banner@2', settings: { title: 'Sale' }, ...extra })
@@ -212,6 +216,23 @@ describe('parseDocument', () => {
 
       expect(document.sections.a!.blocks!.n).not.toHaveProperty('blocks')
       expect(skipped()).toEqual([expect.objectContaining({ path: 'a/n/m', reason: 'not_allowed' })])
+    })
+  })
+
+  describe('a block whose store feature is off', () => {
+    const loyal = defineBlock({ type: 'loyal', version: 1, kinds: ['section'], schema: z.object({}), feature: 'loyalty' })
+    const blocks = new Map<string, BlockDefinition>([loyal, promoBanner, promoItem].map(block => [block.type, block]))
+    const page = { sections: { a: { type: 'loyal@1', settings: {} }, b: banner() }, order: ['a', 'b'] }
+
+    it('is drawn while the feature is on', () => {
+      expect(parseDocument(page, 'page', blocks).order).toEqual(['a', 'b'])
+    })
+
+    it('is left out, with a warning, once it is off, and the rest of the page is kept', () => {
+      featuresOff = ['loyalty']
+
+      expect(parseDocument(page, 'page', blocks).order).toEqual(['b'])
+      expect(skipped()).toEqual([{ path: 'a', reason: 'feature_disabled', detail: 'loyalty' }])
     })
   })
 

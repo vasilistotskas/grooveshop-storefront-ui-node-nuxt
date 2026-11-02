@@ -8,4 +8,6 @@ export default defineBlock({
   schema: z.object({
     variant: z.enum(['line', 'thread']).optional(),
   }),
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { category: 'layout' },
 })

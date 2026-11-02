@@ -9,5 +9,6 @@ export default defineBlock({
     title: builderField.text(200).optional(),
   }),
   translatable: ['/title'],
-  editor: { title: ['title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['title'], category: 'products' },
 })

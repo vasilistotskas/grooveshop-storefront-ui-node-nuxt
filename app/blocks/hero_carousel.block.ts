@@ -20,4 +20,6 @@ export default defineBlock({
   limits: { maxBlocks: 8 },
   children: { allowed: ['hero_slide'], maxDepth: 1 },
   childList: { hero_slide: 'slides' },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { category: 'hero' },
 })

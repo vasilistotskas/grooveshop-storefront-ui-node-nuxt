@@ -24,5 +24,6 @@ export default defineBlock({
     .meta({ oneOf: [{ required: ['page'] }, { required: ['contentPage'] }, { required: ['route'] }, { required: ['href'] }] }),
   translatable: ['/label'],
   refs: { '/page': 'page', '/contentPage': 'contentPage' },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { route: '/' } }],
   editor: { title: ['label'] },
 })

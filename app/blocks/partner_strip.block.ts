@@ -13,5 +13,6 @@ export default defineBlock({
   limits: { maxBlocks: 12 },
   children: { allowed: ['partner'], maxDepth: 1 },
   childList: { partner: 'items' },
-  editor: { title: ['title', 'label'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'partner' })) }],
+  editor: { title: ['title', 'label'], category: 'trust' },
 })

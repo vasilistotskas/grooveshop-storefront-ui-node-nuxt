@@ -10,7 +10,7 @@ import type { RequestEvent } from 'nuxt/server'
  * through this one function, so the preview draws what a release will.
  */
 export async function builderPageOf(event: RequestEvent, raw: unknown): Promise<BuilderPage> {
-  const parsed = parseDocument(raw, 'page', builderBlocks, { onSkip: logSkippedNode })
+  const parsed = parseDocument(raw, 'page', builderBlocks, { featureOn: storeFeatureOf(event), onSkip: logSkippedNode })
   const document = resolveLinks(parsed, await readLinkTargets(event, collectLinkRefs(parsed, builderBlocks)), builderBlocks)
   return {
     ...(document.settings && { settings: document.settings }),
@@ -28,7 +28,18 @@ export async function builderPageOf(event: RequestEvent, raw: unknown): Promise<
  * does not hold is hidden. The published menus and the editor's preview of
  * them go through this one function.
  */
-export function builderNavigationOf(groups: Readonly<Record<string, unknown>>, targets: PublishedTargets): NavigationItems {
+export function builderNavigationOf(event: RequestEvent, groups: Readonly<Record<string, unknown>>, targets: PublishedTargets): NavigationItems {
+  const featureOn = storeFeatureOf(event)
   return Object.assign({}, ...Object.values(groups).map(group =>
-    navigationItems(parseDocument(group, 'group', builderBlocks, { onSkip: logSkippedNode }), targets, builderBlocks)))
+    navigationItems(parseDocument(group, 'group', builderBlocks, { featureOn, onSkip: logSkippedNode }), targets, builderBlocks)))
+}
+
+/**
+ * Whether a store feature is on for the store of the request: a block that
+ * needs one that is off is left out of what the store draws (`parseDocument`),
+ * with a warning, so turning a feature off never leaves a dead section on a
+ * live page.
+ */
+function storeFeatureOf(event: RequestEvent): (feature: StoreFeatureName) => boolean {
+  return feature => eventStoreFeature(event, feature)
 }

@@ -10,5 +10,6 @@ export default defineBlock({
     value: builderField.requiredText(80),
   }),
   translatable: ['/label', '/value'],
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
   editor: { title: ['label'] },
 })

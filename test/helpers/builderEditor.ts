@@ -1,6 +1,7 @@
 import { getActivePinia } from 'pinia'
 import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { useBuilderEditorStore } from '~/stores/builderEditor'
+import { useBuilderLibraryStore } from '~/stores/builderLibrary'
 
 /**
  * Starts the editor's stores afresh: they live as long as the Nuxt app,
@@ -10,7 +11,7 @@ import { useBuilderEditorStore } from '~/stores/builderEditor'
  */
 export function resetBuilderEditorStores(): void {
   const pinia = getActivePinia()
-  for (const store of [useBuilderAutosaveStore(), useBuilderEditorStore()]) {
+  for (const store of [useBuilderAutosaveStore(), useBuilderEditorStore(), useBuilderLibraryStore()]) {
     store.$dispose()
     if (pinia) Reflect.deleteProperty(pinia.state.value, store.$id)
   }

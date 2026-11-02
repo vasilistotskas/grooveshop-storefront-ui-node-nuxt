@@ -10,5 +10,6 @@ export default defineBlock({
     content: builderField.richText(20000).optional(),
   }),
   translatable: ['/title', '/content'],
-  editor: { title: ['title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['title'], category: 'content' },
 })

@@ -8,4 +8,6 @@ export default defineBlock({
   schema: z.object({
     height: z.enum(['sm', 'md', 'lg', 'xl']).optional(),
   }),
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { category: 'layout' },
 })
