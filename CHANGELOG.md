@@ -1,3 +1,10 @@
+# [3.282.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.281.0...v3.282.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** links name a record or a fixed route, resolved when a page is read ([#322](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/322)) ([31adfae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/31adfae6312b9ab80257fa928577af02b57acebd))
+
 # [3.281.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.2...v3.281.0) (2026-11-01)
 
 
