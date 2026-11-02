@@ -5,7 +5,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useStoreI18n('components/Builder/Canvas')
-const { documentLabel } = useBuilderLabels()
+const { documentLabel, blockLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const { device, selected, openDocument, select, setDevice } = useBuilderEditorView()
 const toast = useToast()
@@ -71,7 +71,12 @@ useEventListener(window, 'message', (event: MessageEvent) => {
       void select(builderNodeRef(props.documentKey, message.data.node))
       break
     case 'boxes':
-      boxes.value = { hover: message.data.hover, selected: message.data.selected }
+      // The pointer left the frame for an insert point over it: the section it
+      // was on stays the hovered one until the pointer leaves the insert point.
+      boxes.value = {
+        hover: message.data.hover ?? (onInsertPoint.value ? boxes.value.hover : null),
+        selected: message.data.selected,
+      }
       break
     case 'drawn':
       state.value = 'drawn'
@@ -149,6 +154,46 @@ const toolbarStyle = computed(() => {
   }
 })
 
+const library = useBuilderLibraryStore()
+
+/** Whether the pointer is on an insert point: the hovered section keeps its outline and points while it is. */
+const onInsertPoint = ref(false)
+function leaveInsertPoint(): void {
+  onInsertPoint.value = false
+}
+
+/**
+ * Where the preview offers to add a section: below the section under the
+ * pointer and below the selected one, and above the first section, so every
+ * place between sections is one click away. Each is a point on the edge of
+ * that section's outline, in the pane's pixels, and the index the new section
+ * takes in the page.
+ */
+const insertPoints = computed(() => {
+  const document = store.opened[props.documentKey]
+  if (!store.canEdit || !document) return []
+  const order = document.copy.draft.order
+  const nameOf = (node: string) => {
+    const section = document.copy.draft.sections[node]
+    return section ? builderNodeTitle(section, builderEditorBlocks) ?? blockLabel(builderBlockType(section)) : node
+  }
+  const points = new Map<string, { key: string, left: number, top: number, index: number, label: string }>()
+  for (const box of [boxes.value.hover, boxes.value.selected]) {
+    const outline = inPane(box)
+    const index = box ? order.indexOf(box.node) : -1
+    if (!box || !outline || index < 0) continue
+    const left = outline.left + outline.width / 2
+    points.set(`below:${box.node}`, { key: `below:${box.node}`, left, top: outline.top + outline.height, index: index + 1, label: t('insert.below', { name: nameOf(box.node) }) })
+    if (index === 0) points.set(`above:${box.node}`, { key: `above:${box.node}`, left, top: outline.top, index: 0, label: t('insert.above', { name: nameOf(box.node) }) })
+  }
+  return [...points.values()]
+})
+
+function insertAt(index: number): void {
+  onInsertPoint.value = false
+  library.open(props.documentKey, { index })
+}
+
 const pageName = computed(() => documentLabel(props.documentKey))
 </script>
 
@@ -222,6 +267,24 @@ const pageName = computed(() => documentLabel(props.documentKey))
           :style="{ left: pixels(selectedOutline.left), top: pixels(selectedOutline.top), width: pixels(selectedOutline.width), height: pixels(selectedOutline.height) }"
           data-builder-outline="selected"
         />
+        <UTooltip
+          v-for="point in insertPoints"
+          :key="point.key"
+          :text="point.label"
+        >
+          <UButton
+            icon="i-lucide-plus"
+            color="primary"
+            size="xs"
+            class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full shadow-md"
+            :style="{ left: pixels(point.left), top: pixels(point.top) }"
+            :aria-label="point.label"
+            data-builder-insert
+            @mouseenter="() => { onInsertPoint = true }"
+            @mouseleave="leaveInsertPoint"
+            @click="() => insertAt(point.index)"
+          />
+        </UTooltip>
         <div
           v-if="toolbarStyle && store.canEdit"
           class="absolute rounded-md bg-default p-2 shadow-lg ring ring-default"
@@ -258,6 +321,9 @@ const pageName = computed(() => documentLabel(props.documentKey))
 <i18n lang="yaml">
 el:
   label: Προεπισκόπηση
+  insert:
+    below: "Προσθήκη ενότητας κάτω από: {name}"
+    above: "Προσθήκη ενότητας πάνω από: {name}"
   frame: "Προεπισκόπηση: {name}"
   loading: Η προεπισκόπηση σχεδιάζεται…
   devices:
@@ -278,6 +344,9 @@ el:
     description: Αυτή η σελίδα δεν εμφανίζεται μόνη της στο κατάστημα.
 en:
   label: Preview
+  insert:
+    below: "Add a section below {name}"
+    above: "Add a section above {name}"
   frame: "Preview: {name}"
   loading: Drawing the preview…
   devices:

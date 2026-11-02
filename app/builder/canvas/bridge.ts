@@ -49,7 +49,11 @@ export function startBuilderCanvas(nuxtApp: NuxtApp, preview: Ref<BuilderPreview
     const range = document.createRange()
     range.selectNodeContents(element)
     const { x, y, width, height } = range.getBoundingClientRect()
-    return width > 0 && height > 0 ? { node, x, y, width, height } : null
+    // What overflows sideways (a row that scrolls) is not in view: the box is
+    // what the frame shows, so its outline and insert points stay on screen.
+    const left = Math.max(x, 0)
+    const right = Math.min(x + width, window.innerWidth)
+    return right > left && height > 0 ? { node, x: left, y, width: right - left, height } : null
   }
 
   /** Says where the sections are, once per frame however many changes ask for it. */

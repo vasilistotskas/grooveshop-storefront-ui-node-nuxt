@@ -8,6 +8,7 @@ import BuilderLayout from '~/layouts/builder.vue'
 import { failWith } from '~~/test/helpers/api'
 import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { resetBuilderEditorStores } from '~~/test/helpers/builderEditor'
+import { useBuilderLibraryStore } from '~/stores/builderLibrary'
 import { setTenantFeatures } from '~~/test/helpers/tenant'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
 
@@ -349,6 +350,58 @@ describe('the preview', () => {
 
     expect(wrapper.find('[data-builder-outline="selected"]').exists()).toBe(true)
     expect(wrapper.find('[role="toolbar"]').exists()).toBe(false)
+  })
+
+  describe('adding from the preview', () => {
+    const points = (wrapper: Awaited<ReturnType<typeof openWithCanvas>>) =>
+      wrapper.findAll('[data-builder-insert]').map(point => point.attributes('aria-label'))
+
+    it('offers to add a section below the one under the pointer, and above the first', async () => {
+      const wrapper = await openWithCanvas()
+
+      tell({ type: 'boxes', hover: box('grid'), selected: null })
+      await flushPromises()
+      expect(points(wrapper)).toEqual(['Προσθήκη ενότητας κάτω από: Πλέγμα προϊόντων'])
+
+      tell({ type: 'boxes', hover: box('hero'), selected: null })
+      await flushPromises()
+      expect(points(wrapper)).toEqual(['Προσθήκη ενότητας κάτω από: Ενέργεια για όλη τη μέρα', 'Προσθήκη ενότητας πάνω από: Ενέργεια για όλη τη μέρα'])
+    })
+
+    it('opens the library at the place the point names', async () => {
+      const wrapper = await openWithCanvas()
+      tell({ type: 'boxes', hover: box('grid'), selected: null })
+      await flushPromises()
+
+      await wrapper.get('[data-builder-insert]').trigger('click')
+
+      expect(useBuilderLibraryStore().target).toEqual({ documentKey: 'template:home', index: 2 })
+    })
+
+    it('keeps a point while the pointer is on it, though it left the frame', async () => {
+      const wrapper = await openWithCanvas()
+      tell({ type: 'boxes', hover: box('grid'), selected: null })
+      await flushPromises()
+
+      await wrapper.get('[data-builder-insert]').trigger('mouseenter')
+      tell({ type: 'boxes', hover: null, selected: null })
+      await flushPromises()
+      expect(points(wrapper)).toHaveLength(1)
+
+      await wrapper.get('[data-builder-insert]').trigger('mouseleave')
+      tell({ type: 'boxes', hover: null, selected: null })
+      await flushPromises()
+      expect(points(wrapper)).toEqual([])
+    })
+
+    it('offers STAFF nowhere to add', async () => {
+      const wrapper = await openWithCanvas('/_builder', { ...session, staff: { ...session.staff, role: 'staff' } })
+
+      tell({ type: 'boxes', hover: box('grid'), selected: null })
+      await flushPromises()
+
+      expect(points(wrapper)).toEqual([])
+    })
   })
 
   it('draws the page at a device\'s width, kept in the address', async () => {
