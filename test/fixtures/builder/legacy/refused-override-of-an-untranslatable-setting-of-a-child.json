@@ -1,0 +1,51 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000916",
+          "type": "testimonials",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "items": [
+              {
+                "name": "Μαρία",
+                "rating": 5
+              }
+            ]
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "items": [
+                  {
+                    "name": "Maria",
+                    "rating": 4
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "code": "unconvertible",
+    "errors": [
+      {
+        "path": "/sections/00000000-0000-4000-8000-000000000916/items/0/rating",
+        "code": "untranslatable_override",
+        "message": "the en translation of \"rating\" differs from the default, but testimonial does not let \"rating\" vary by language"
+      }
+    ]
+  }
+}

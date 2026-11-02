@@ -45,6 +45,7 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
     schema,
     translatable: [...definition.translatable],
     refs: { ...definition.refs } as Record<string, BlockRefKind>,
+    linkRefs: [...definition.linkRefs],
     limits: { ...definition.limits },
     children: { allowed: [...definition.children.allowed], ...(maxDepth === undefined ? {} : { maxDepth }) },
     kinds: [...definition.kinds],

@@ -5,7 +5,7 @@ import { REPO, withoutComments } from '../../helpers/sourceText'
 
 /**
  * The page builder's staff session (`server/utils/builderSession.ts`) is
- * read ONLY by `server/api/builder/**`, and none of those routes is cached.
+ * read ONLY by `server/api/builder/**`, and none of the routes that read it is cached.
  *
  * The storefront's SSR and handler caches hold ANONYMOUS renders, replayed
  * to every visitor of a store. A page or route that read the staff cookie
@@ -41,9 +41,11 @@ describe('the builder staff session', () => {
     expect(offenders).toEqual([])
   })
 
-  it('is never read by a route that goes through a cache', () => {
+  it('is never named by a builder route that goes through a cache', () => {
     const cached = sourceFiles.filter(({ path, source }) =>
-      path.startsWith('server/api/builder/') && /\bdefine(?:CachedRoute|CachedEventHandler|CachedFunction)\b/.test(source))
+      path.startsWith('server/api/builder/')
+      && SESSION_NAMES.test(source)
+      && /\bdefine(?:CachedRoute|CachedEventHandler|CachedFunction)\b/.test(source))
 
     expect(cached.map(({ path }) => path)).toEqual([])
   })

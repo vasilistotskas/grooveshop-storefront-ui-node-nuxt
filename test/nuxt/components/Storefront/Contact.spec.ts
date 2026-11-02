@@ -6,14 +6,14 @@ import Contact from '~/components/Storefront/Contact.vue'
 
 /**
  * The contact page: the enquiry form beside the ways to reach the store
- * and its hours. A tenant's own layout can already carry the form (a
+ * and its hours. A tenant's own page can already carry the form (a
  * `contact_panel`), the hours (`business_hours`) or the page's heading
  * (a hero); the page stands down for each rather than say it twice.
  * The pieces are stubbed (each has its own spec), so what is asserted
  * here is which of them the page decides to draw.
  */
-const layout = vi.hoisted(() => ({ sections: [] as Array<{ uuid: string, componentType: string }> }))
-mockNuxtImport('usePageConfig', () => async () => ({ sections: ref(layout.sections) }))
+const layout = vi.hoisted(() => ({ sections: [] as BuilderSection[] }))
+mockNuxtImport('useBuilderPage', () => async () => ({ sections: ref(layout.sections) }))
 
 const STUBS = {
   ContactForm: { template: '<form data-stub="form" />' },
@@ -23,7 +23,7 @@ const STUBS = {
   PageBreadcrumb: { template: '<nav data-stub="breadcrumb" />' },
 }
 
-const section = (componentType: string) => ({ uuid: `uuid-${componentType}`, componentType })
+const section = (componentType: string): BuilderSection => ({ id: `id-${componentType}`, componentType, props: {} })
 
 beforeEach(() => {
   layout.sections = []
@@ -65,7 +65,7 @@ describe('Storefront/Contact', () => {
   })
 
   it('leaves the heading and the breadcrumb to a layout that opens with its own hero', async () => {
-    layout.sections = [section('page_hero')]
+    layout.sections = [section('hero_banner')]
 
     const wrapper = await mount()
 

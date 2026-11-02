@@ -12,5 +12,5 @@ export default defineBlock({
     role: builderField.text(100).optional(),
     rating: builderField.integer(1, 5).optional(),
   }),
-  translatable: ['/text', '/role'],
+  translatable: ['/name', '/text', '/role'],
 })

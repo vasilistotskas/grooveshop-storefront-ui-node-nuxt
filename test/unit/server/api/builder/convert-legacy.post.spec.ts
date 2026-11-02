@@ -34,7 +34,7 @@ beforeEach(() => {
 
 describe('POST /api/builder/convert-legacy', () => {
   it('answers a legacy layout with its document, overlay and warnings', async () => {
-    const response = await post(request([section({ i18n: { en: { title: 'Sale EN', props: { tone: 'info' } } } })]))
+    const response = await post(request([section({ i18n: { en: { title: 'Sale EN', props: { unknown_key: 'x' } } } })]))
 
     expect(response.status).toBe(200)
     expect(response.headers.get('cache-control')).toBe('private, no-store')
@@ -44,7 +44,7 @@ describe('POST /api/builder/convert-legacy', () => {
         order: [ID],
       },
       i18n: { en: { [ID]: { '/title': 'Sale EN' } } },
-      warnings: [{ code: 'dropped_override', path: `/sections/${ID}/tone`, message: 'the en translation of "tone" is not translatable; it was dropped' }],
+      warnings: [{ code: 'dropped_override', path: `/sections/${ID}/unknownKey`, message: 'the en translation sets "unknownKey", which promo_banner has no setting for; it was dropped' }],
     })
   })
 
@@ -69,6 +69,28 @@ describe('POST /api/builder/convert-legacy', () => {
       expect((await post(request(), '')).status).toBe(401)
       expect((await post(request(), TOKEN)).status).toBe(401)
     })
+  })
+
+  it('refuses a translation that would change what a language renders: a setting that cannot vary, set differently', async () => {
+    const response = await post(request([section({ i18n: { en: { props: { tone: 'info' } } } })]))
+
+    expect(response.status).toBe(422)
+    expect(response.body).toEqual({
+      code: 'unconvertible',
+      errors: [{
+        path: `/sections/${ID}/tone`,
+        code: 'untranslatable_override',
+        message: 'the en translation of "tone" differs from the default, but promo_banner does not let "tone" vary by language',
+      }],
+    })
+  })
+
+  it('lets a translation that repeats the default through, since dropping it loses nothing', async () => {
+    const response = await post(request([section({ i18n: { en: { props: { tone: 'accent' } } } })]))
+
+    expect(response.status).toBe(200)
+    expect(response.body.warnings).toEqual([])
+    expect(response.body.i18n).toEqual({})
   })
 
   it('answers 422 with every reason when a section cannot be converted, and converts nothing', async () => {

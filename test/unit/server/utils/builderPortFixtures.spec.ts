@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { parseDocument } from '~~/server/utils/builderDocument'
+import { resolveLinks } from '~~/server/utils/builderLinks'
+import type { LinkTargets } from '~~/server/utils/builderLinks'
 import { sectionProps } from '~~/server/utils/builderProps'
-import { parseSectionProps } from '~~/server/utils/pageSectionProps'
+import { parseSectionProps } from '~~/test/helpers/legacyPageSectionProps'
 import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
 import { convertLegacyLayout } from '~~/shared/builder/fromLegacy'
-import type { BuilderOverlay, LegacyLayout, LegacyWarning } from '~~/shared/builder/fromLegacy'
+import type { BuilderOverlay, LegacyError, LegacyLayout, LegacyWarning } from '~~/shared/builder/fromLegacy'
 import { convertLegacyMenu } from '~~/shared/builder/fromLegacyMenu'
 import type { LegacyMenu } from '~~/shared/builder/fromLegacyMenu'
 import type { BlockDefinition, BuilderDocument, BuilderDocumentKind, BuilderNode } from '~~/shared/types/builder'
@@ -41,10 +43,16 @@ type Request = { schema: string, key: string, defaultLocale: string } & (
 
 interface Fixture {
   request: Request
-  response: { document: BuilderDocument, i18n: BuilderOverlay, warnings: LegacyWarning[] }
+  /** The 200 body, or for a layout the converter refuses the 422 body. */
+  response: { document: BuilderDocument, i18n: BuilderOverlay, warnings: LegacyWarning[] } | { code: 'unconvertible', errors: LegacyError[] }
 }
 const files = import.meta.glob<{ default: Fixture }>('../../../fixtures/builder/legacy/*.json', { eager: true })
-const fixtures = Object.entries(files).map(([path, { default: fixture }]) => ({ name: path.split('/').pop()!.replace('.json', ''), ...fixture }))
+const all = Object.entries(files).map(([path, { default: fixture }]) => ({ name: path.split('/').pop()!.replace('.json', ''), ...fixture }))
+
+type Converted = Extract<Fixture['response'], { document: unknown }>
+const refused = all.flatMap(fixture => 'code' in fixture.response ? [{ ...fixture, response: fixture.response }] : [])
+/** The fixtures the converter answers 200 to. */
+const fixtures = all.flatMap(fixture => 'document' in fixture.response ? [{ ...fixture, response: fixture.response as Converted }] : [])
 
 /** What DRF's camel-case renderer does to a stored body: every key, at every depth. */
 function camelizeKeys(value: unknown): unknown {
@@ -56,7 +64,7 @@ function camelizeKeys(value: unknown): unknown {
   ]))
 }
 
-const convert = ({ request }: Fixture) => request.kind === 'group'
+const convert = ({ request }: Pick<Fixture, 'request'>) => request.kind === 'group'
   ? convertLegacyMenu(request.legacy, { defaultLocale: request.defaultLocale, registry })
   : convertLegacyLayout(request.legacy, { kind: request.kind, defaultLocale: request.defaultLocale, registry, roots: BUILDER_DOCUMENT_ROOTS })
 
@@ -87,6 +95,13 @@ describe('the real blocks', () => {
     expect(blocks.map(block => block.type)).toEqual(definitions.map(block => block.type).sort())
   })
 
+  it('never let a link be translated: no link setting is, or sits under, a translatable pointer', () => {
+    const overlaps = definitions.flatMap(block => block.linkRefs.flatMap(link =>
+      block.translatable.filter(pointer => link === pointer || link.startsWith(`${pointer}/`)).map(pointer => `${block.type}: ${link} under ${pointer}`)))
+
+    expect(overlaps).toEqual([])
+  })
+
   it('mark rich text so Django sanitises it on save', () => {
     const richText = buildBlockCatalogue(definitions).blocks.find(block => block.type === 'rich_text')!
 
@@ -112,6 +127,10 @@ describe('the real blocks', () => {
 describe('converting a legacy layout', () => {
   it.each(fixtures.map(fixture => [fixture.name, fixture] as const))('%s: gives the recorded response', (_, fixture) => {
     expect(convert(fixture)).toEqual(fixture.response)
+  })
+
+  it.each(refused.map(fixture => [fixture.name, fixture] as const))('%s: refuses the layout with the recorded errors', (_, fixture) => {
+    expect(() => convert(fixture)).toThrow(expect.objectContaining({ errors: fixture.response.errors }))
   })
 
   it('is deterministic: the same request gives the same bytes', () => {
@@ -150,11 +169,26 @@ describe('converting a legacy layout', () => {
   })
 })
 
+/**
+ * The store the fixtures' links point into: the slugs their records have, the
+ * pages and content pages they name published. A fixture's legacy link is the
+ * record's own address, so resolving the converted link must give it back.
+ */
+const targets: LinkTargets = {
+  slugs: {
+    product: new Map([[2, 'mini-powerbank']]),
+    category: new Map([[3, 'powerbank']]),
+    blogPost: new Map([[4, 'guide']]),
+    blogCategory: new Map([[5, 'news']]),
+  },
+  published: { pages: new Set(['about', 'signup']), contentPages: new Set(['privacy', 'faq']) },
+}
+
 describe('porting a legacy section to a block', () => {
   const sections = layouts.flatMap(fixture => (fixture.request.legacy as LegacyLayout).sections.map(section => ({ fixture, section })))
 
   it.each(sections.map(({ fixture, section }) => [`${fixture.name}: ${section.type}`, fixture, section] as const))('%s: the component gets the same props', (_, fixture, section) => {
-    const document = parseDocument(fixture.response.document, 'page', registry)
+    const document = resolveLinks(parseDocument(fixture.response.document, 'page', registry), targets, registry)
 
     expect(document.order, 'every section parses').toEqual(fixture.response.document.order)
     expect(JSON.parse(JSON.stringify(sectionProps(document.sections[section.id]!, registry)))).toEqual(legacyProps(section))

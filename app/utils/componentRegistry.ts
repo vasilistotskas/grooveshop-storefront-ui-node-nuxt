@@ -100,7 +100,7 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for
   // these componentTypes: a tenant without a published layout for them
-  // renders nothing (see usePageConfig's FALLBACK_LAYOUTS).
+  // renders nothing.
   'about_content@webside': lazySection(() => import('~/components/variants/webside/PageSection/AboutContent.vue')),
   'vision_content@webside': lazySection(() => import('~/components/variants/webside/PageSection/VisionContent.vue')),
   'what_is_microlearning@webside': lazySection(() => import('~/components/variants/webside/PageSection/WhatIsMicrolearning.vue')),

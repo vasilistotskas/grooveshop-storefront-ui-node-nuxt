@@ -1,0 +1,203 @@
+{
+  "request": {
+    "schema": "default",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Homepage",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-5eed00000001",
+          "type": "hero_carousel",
+          "title": "",
+          "isVisible": true,
+          "props": {}
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000002",
+          "type": "trust_badges",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "default"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000003",
+          "type": "product_categories",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "default",
+            "layout": "tiles"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000004",
+          "type": "products_grid",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "ordering": "newest",
+            "surface": "muted"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000005",
+          "type": "offers_preview",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "ink"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000006",
+          "type": "featured_products",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "ordering": "popular",
+            "surface": "default"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000007",
+          "type": "loyalty_hero",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "default"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000008",
+          "type": "stats_strip",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "default"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000009",
+          "type": "blog_posts_grid",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "muted"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000010",
+          "type": "testimonials",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "default"
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-5eed00000011",
+          "type": "faq",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "surface": "muted"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-5eed00000001": {
+          "type": "hero_carousel@1",
+          "settings": {}
+        },
+        "00000000-0000-4000-8000-5eed00000002": {
+          "type": "trust_badges@1",
+          "settings": {
+            "surface": "default"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000003": {
+          "type": "product_categories@1",
+          "settings": {
+            "surface": "default",
+            "layout": "tiles"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000004": {
+          "type": "products_grid@1",
+          "settings": {
+            "surface": "muted",
+            "ordering": "newest"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000005": {
+          "type": "offers_preview@1",
+          "settings": {
+            "surface": "ink"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000006": {
+          "type": "featured_products@1",
+          "settings": {
+            "surface": "default",
+            "ordering": "popular"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000007": {
+          "type": "loyalty_hero@1",
+          "settings": {
+            "surface": "default"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000008": {
+          "type": "stats_strip@1",
+          "settings": {
+            "surface": "default"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000009": {
+          "type": "blog_posts_grid@1",
+          "settings": {
+            "surface": "muted"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000010": {
+          "type": "testimonials@1",
+          "settings": {
+            "surface": "default"
+          }
+        },
+        "00000000-0000-4000-8000-5eed00000011": {
+          "type": "faq@1",
+          "settings": {
+            "surface": "muted"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-5eed00000001",
+        "00000000-0000-4000-8000-5eed00000002",
+        "00000000-0000-4000-8000-5eed00000003",
+        "00000000-0000-4000-8000-5eed00000004",
+        "00000000-0000-4000-8000-5eed00000005",
+        "00000000-0000-4000-8000-5eed00000006",
+        "00000000-0000-4000-8000-5eed00000007",
+        "00000000-0000-4000-8000-5eed00000008",
+        "00000000-0000-4000-8000-5eed00000009",
+        "00000000-0000-4000-8000-5eed00000010",
+        "00000000-0000-4000-8000-5eed00000011"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

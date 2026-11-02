@@ -13,16 +13,15 @@ import {
  * the homepage its h1 and `/contact` a second one.
  */
 describe('pageSections', () => {
-  it('knows the three section types that own a page heading', () => {
+  it('knows the two section types that own a page heading', () => {
     expect([...HEADING_SECTION_TYPES].sort()).toEqual([
       'contact_panel',
       'hero_banner',
-      'page_hero',
     ])
   })
 
   it('reports a heading only when one of those is present', () => {
-    expect(sectionsProvideHeading([{ componentType: 'page_hero' }])).toBe(true)
+    expect(sectionsProvideHeading([{ componentType: 'hero_banner' }])).toBe(true)
     expect(sectionsProvideHeading([{ componentType: 'rich_text' }])).toBe(false)
     expect(sectionsProvideHeading(undefined)).toBe(false)
   })
@@ -51,13 +50,13 @@ describe('pageSections', () => {
 
   it('reports a form only for the section that carries one', () => {
     expect(sectionsProvideForm([{ componentType: 'contact_panel' }])).toBe(true)
-    expect(sectionsProvideForm([{ componentType: 'page_hero' }])).toBe(false)
+    expect(sectionsProvideForm([{ componentType: 'hero_banner' }])).toBe(false)
   })
 
   it('takes the page title from the section that owns the heading', () => {
     const sections = [
       { componentType: 'partner_strip', props: { heading: 'Not this one' } },
-      { componentType: 'page_hero', props: { heading: 'Project register' } },
+      { componentType: 'hero_banner', props: { heading: 'Project register' } },
       { componentType: 'cta_banner', props: { heading: 'Nor this' } },
     ]
 
@@ -65,15 +64,15 @@ describe('pageSections', () => {
   })
 
   it('falls through when the heading section carries no heading', () => {
-    // The caller's fallback is `PageLayout.title`; an empty string
-    // must not win over it.
-    expect(sectionsHeadingText([{ componentType: 'page_hero', props: {} }]))
+    // The caller's fallback is the page's own SEO title or the store's; an
+    // empty string must not win over it.
+    expect(sectionsHeadingText([{ componentType: 'hero_banner', props: {} }]))
       .toBeUndefined()
     expect(sectionsHeadingText([
-      { componentType: 'page_hero', props: { heading: '   ' } },
+      { componentType: 'hero_banner', props: { heading: '   ' } },
     ])).toBeUndefined()
     expect(sectionsHeadingText([
-      { componentType: 'page_hero', props: { heading: 42 } },
+      { componentType: 'hero_banner', props: { heading: 42 } },
     ])).toBeUndefined()
     expect(sectionsHeadingText([{ componentType: 'rich_text', props: { heading: 'x' } }]))
       .toBeUndefined()

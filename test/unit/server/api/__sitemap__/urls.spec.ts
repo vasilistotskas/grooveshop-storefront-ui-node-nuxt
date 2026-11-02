@@ -53,10 +53,10 @@ function serve(catalogue: Catalogue = {}) {
       case '/product': return page(products)
       case '/product/category': return page(productCategories)
       case '/content-page': return page(contentPages)
-      case '/page-config':
+      case '/builder/published':
         return layouts === 'down'
           ? jsonResponse({ detail: 'upstream down' }, 500)
-          : layouts.map(pageType => ({ pageType, lastModified: UPDATED }))
+          : { release: 1, groups: {}, pages: layouts.map(key => ({ key, kind: 'page', updatedAt: UPDATED })) }
       default: return jsonResponse({ detail: 'Not found.' }, 404)
     }
   })
@@ -174,9 +174,9 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
 
     await sitemap({ ...tenantContext(), locale: 'en' })
 
-    // The store's layouts are not per language.
+    // The store's pages are not per language.
     const reads = backend.requests.filter(request =>
-      !request.url.pathname.endsWith('/page-config'))
+      !request.url.pathname.endsWith('/builder/published'))
     expect(reads).toHaveLength(5)
     for (const read of reads) {
       expect(read.headers.get('x-forwarded-host')).toBe(HOST)
@@ -331,7 +331,7 @@ describe('server/api/__sitemap__/urls — custom pages', () => {
 
     await sitemap(tenantContext())
 
-    const layouts = backend.requests.find(request => request.url.pathname.endsWith('/page-config'))
+    const layouts = backend.requests.find(request => request.url.pathname.endsWith('/builder/published'))
     expect(layouts?.headers.get('x-forwarded-host')).toBe(HOST)
   })
 
@@ -341,7 +341,7 @@ describe('server/api/__sitemap__/urls — custom pages', () => {
     const urls = locs(await sitemap())
 
     expect(urls).not.toContain('/kelari')
-    expect(backend.requests.some(request => request.url.pathname.endsWith('/page-config'))).toBe(false)
+    expect(backend.requests.some(request => request.url.pathname.endsWith('/builder/published'))).toBe(false)
   })
 
   it('lists no custom page when the read fails, and everything else still', async () => {

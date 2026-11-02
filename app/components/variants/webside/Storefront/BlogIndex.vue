@@ -28,7 +28,7 @@ useHead({
 // Optional per-tenant branded band above the page content — sections
 // from the published 'blog' PageLayout. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
-const { sections: brandSections } = await usePageConfig('blog')
+const { sections: brandSections } = await useBuilderPage('blog')
 </script>
 
 <template>
@@ -67,7 +67,7 @@ const { sections: brandSections } = await usePageConfig('blog')
     >
       <PageSectionRenderer
         v-for="section in brandSections"
-        :key="section.uuid"
+        :key="section.id"
         :section="section"
       />
     </div>

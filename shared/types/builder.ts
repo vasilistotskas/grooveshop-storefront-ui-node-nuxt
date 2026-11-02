@@ -1,11 +1,23 @@
 import type { ZodObject } from 'zod'
 
-import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS } from '../constants/builder'
+import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, LINK_REF_KINDS, LINK_ROUTES } from '../constants/builder'
 import type { StoreFeatureName } from '../utils/storeFeature'
 
 export type BlockKind = (typeof BLOCK_KINDS)[number]
 export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
 export type BuilderDocumentKind = (typeof BUILDER_DOCUMENT_KINDS)[number]
+export type LinkRefKind = (typeof LINK_REF_KINDS)[number]
+
+/** A record a link points at: a numeric id for a product, category, blog post or blog category, a page type or a slug for a page or a content page. */
+export type BuilderLinkRef
+  = | { kind: Exclude<LinkRefKind, 'page' | 'contentPage'>, id: number }
+    | { kind: 'page' | 'contentPage', id: string }
+
+/** A link setting as a document stores it: where it goes, never a typed internal path. */
+export type BuilderLink
+  = | { href: string }
+    | { route: (typeof LINK_ROUTES)[number] }
+    | { ref: BuilderLinkRef }
 
 /** A JSON pointer into a block's `settings`, e.g. `/title`. */
 export type SettingsPointer = `/${string}`
@@ -104,6 +116,8 @@ export interface BlockConfig<Schema extends ZodObject = ZodObject> {
 export interface BlockDefinition<Schema extends ZodObject = ZodObject> extends BlockConfig<Schema> {
   translatable: readonly SettingsPointer[]
   refs: Readonly<Partial<Record<SettingsPointer, BlockRefKind>>>
+  /** The link settings of the schema (`builderField.link()`), derived by `defineBlock`: Django checks the records they name. */
+  linkRefs: readonly SettingsPointer[]
   limits: BlockLimits
   children: BlockChildren
   childList: Readonly<Record<string, string>>
@@ -121,6 +135,8 @@ export interface CatalogueBlock {
   schema: Record<string, unknown>
   translatable: string[]
   refs: Record<string, BlockRefKind>
+  /** Pointers of the link settings: each value is a `{ href }`, a `{ route }` or a `{ ref: { kind, id } }` whose record Django checks. */
+  linkRefs: string[]
   limits: BlockLimits
   children: { allowed: string[], maxDepth?: number }
   kinds: BlockKind[]
@@ -155,4 +171,41 @@ export interface BlockCatalogue {
 export interface DocumentRoot {
   schema: ZodObject
   translatable: readonly SettingsPointer[]
+}
+
+// ── The rendered page ──────────────────────────────────────────────
+
+/** One section of a page as the renderer takes it: its block type and the props its component gets (`sectionProps`). */
+export interface BuilderSection {
+  id: string
+  /** The block type, without its version: the section component's key in the registry. */
+  componentType: string
+  props: Record<string, unknown>
+}
+
+/** A published page, parsed and resolved for one language. */
+export interface BuilderPage {
+  /** The page's own settings: its SEO copy, in the page's language. */
+  settings?: Record<string, unknown>
+  sections: BuilderSection[]
+}
+
+/**
+ * What `GET /api/builder/pages/<key>` answers. `page` is `null` when the
+ * release has no page or template of that key: the normal state of a page
+ * type a store has not built, travelling inside an object so the absent
+ * state is data a cache can hold (a bare `null` is a 204, and a thrown 404
+ * is never cached).
+ */
+export interface BuilderPageResponse {
+  page: BuilderPage | null
+}
+
+/** A page of the current release, as the sitemap lists it. */
+export interface PublishedPage {
+  /** The page key: a static route's page type, or a custom page's slug. */
+  key: string
+  kind: 'template' | 'page'
+  /** When the page's published version was made: the sitemap's lastmod. */
+  updatedAt: string
 }

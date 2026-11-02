@@ -58,9 +58,13 @@
             "mobileImageUrl": "media/demo/uploads/hero-mobile.jpg",
             "imageAlt": "A pair of headphones",
             "ctaText": "Shop now",
-            "ctaLink": "/products",
+            "ctaLink": {
+              "route": "/products"
+            },
             "secondaryCtaText": "Offers",
-            "secondaryCtaLink": "https://example.com/offers",
+            "secondaryCtaLink": {
+              "href": "https://example.com/offers"
+            },
             "overlayOpacity": 0.4,
             "decor": "orbs",
             "align": "left",

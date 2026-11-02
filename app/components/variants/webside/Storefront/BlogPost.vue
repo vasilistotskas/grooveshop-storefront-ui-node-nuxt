@@ -25,7 +25,7 @@ await useLikedBlogPost(blogPostId)
 // The store's own bands under the post (a promo banner, a signup, a CTA):
 // the published 'blog-post' PageLayout. Fallback is EMPTY, so a store
 // without a layout renders the post as it always did.
-const { sections: bandSections } = await usePageConfig('blog-post', { placement: 'below-content' })
+const { sections: bandSections } = await useBuilderPage('blog-post', { placement: 'below-content' })
 
 // An "updated" line only earns its place when the post really changed
 // after going live. `updatedAt` is set on every save, so a
@@ -367,7 +367,7 @@ onReactivated(async () => {
       >
         <PageSectionRenderer
           v-for="section in bandSections"
-          :key="section.uuid"
+          :key="section.id"
           :section="section"
           placement="below-content"
         />

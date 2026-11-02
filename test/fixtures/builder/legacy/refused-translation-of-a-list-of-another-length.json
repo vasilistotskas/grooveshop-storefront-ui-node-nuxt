@@ -1,0 +1,55 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000917",
+          "type": "hero_banner",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "stats": [
+              {
+                "value": "500+",
+                "label": "Orders"
+              },
+              {
+                "value": "24h",
+                "label": "Delivery"
+              }
+            ]
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "stats": [
+                  {
+                    "value": "500+",
+                    "label": "Orders EN"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "code": "unconvertible",
+    "errors": [
+      {
+        "path": "/sections/00000000-0000-4000-8000-000000000917/stats",
+        "code": "list_length_mismatch",
+        "message": "the en translation of \"stats\" has 1 entries and the default 2: a list is the same in every language, only its entries are translated"
+      }
+    ]
+  }
+}

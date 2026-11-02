@@ -15,3 +15,13 @@ export interface NavColumn {
   showsMerchantIdentity?: boolean
   children: NavLink[]
 }
+
+/**
+ * The store's configured menus, by slot. A slot the store has not set is
+ * absent, which the chrome reads as "use the built-in menu".
+ */
+export interface NavigationItems {
+  header?: NavLink[]
+  mobile?: NavLink[]
+  footer?: NavColumn[]
+}

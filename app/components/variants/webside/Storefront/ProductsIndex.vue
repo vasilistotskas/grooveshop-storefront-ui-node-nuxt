@@ -15,7 +15,7 @@ const handleToggleFilters = () => {
 // Optional per-tenant branded band above the page content — sections
 // from the published 'products' PageLayout. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
-const { sections: brandSections } = await usePageConfig('products')
+const { sections: brandSections } = await useBuilderPage('products')
 </script>
 
 <template>
@@ -69,7 +69,7 @@ const { sections: brandSections } = await usePageConfig('products')
     >
       <PageSectionRenderer
         v-for="section in brandSections"
-        :key="section.uuid"
+        :key="section.id"
         :section="section"
       />
     </div>

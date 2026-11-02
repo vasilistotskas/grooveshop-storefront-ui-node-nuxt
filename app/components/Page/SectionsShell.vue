@@ -13,7 +13,7 @@
  * sections — in its webside copy of this file, because its sections are
  * cards on a page rather than bands.
  */
-defineProps<{ sections: PageSection[] }>()
+defineProps<{ sections: BuilderSection[] }>()
 
 defineSlots<{
   /** The page's h1, which is a page concern, not a section's. */
@@ -28,7 +28,7 @@ defineSlots<{
     <slot name="title" />
     <PageSectionRenderer
       v-for="section in sections"
-      :key="section.uuid"
+      :key="section.id"
       :section="section"
     />
     <slot name="after" />

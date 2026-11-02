@@ -1,3 +1,31 @@
+# [3.282.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.281.0...v3.282.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** links name a record or a fixed route, resolved when a page is read ([#322](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/322)) ([31adfae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/31adfae6312b9ab80257fa928577af02b57acebd))
+
+# [3.281.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.2...v3.281.0) (2026-11-01)
+
+
+### Features
+
+* **builder:** render pages and menus from the builder ([#319](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/319)) ([8eefc0f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8eefc0f3bad4db9f9e8b99c342943c348753b0cd))
+
+## [3.280.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.1...v3.280.2) (2026-11-01)
+
+
+### Bug Fixes
+
+* **builder:** make the converter refuse a translation it would lose ([#321](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/321)) ([5e1c874](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5e1c874b9d0ea530bcaa1388ce9be8b06ff04b85))
+
+## [3.280.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.0...v3.280.1) (2026-11-01)
+
+
+### Performance Improvements
+
+* **analytics:** opt the Meta pixel out of its automatic click tracking ([#312](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/312)) ([4951516](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/49515163edcda208abcccd6121e79bb8fd9f0689))
+
 # [3.280.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.279.1...v3.280.0) (2026-11-01)
 
 

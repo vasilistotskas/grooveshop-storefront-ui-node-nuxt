@@ -67,7 +67,9 @@
                 "kind": "shipping",
                 "label": "ACS Courier",
                 "icon": "i-lucide-truck",
-                "href": "https://example.com/acs"
+                "href": {
+                  "href": "https://example.com/acs"
+                }
               }
             },
             "00000000-0000-4000-8000-000000000034-3": {

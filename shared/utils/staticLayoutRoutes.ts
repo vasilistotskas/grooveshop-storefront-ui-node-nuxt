@@ -2,15 +2,15 @@ export interface StaticLayoutRoute {
   /** The route that renders the page type's layout. */
   readonly path: `/${string}`
   /**
-   * Whether the route answers 404 until the store publishes the layout.
-   * The others render a code-level fallback (`usePageConfig`) and exist
+   * Whether the route answers 404 until the store publishes the page.
+   * The others render their own content with or without one and exist
    * on every store.
    */
   readonly requiresLayout: boolean
 }
 
 /**
- * The page-config layouts a STATIC route renders, by page type, with the
+ * The builder pages a STATIC route renders, by page type, with the
  * route that renders each.
  *
  * Every other published layout is a custom page: the catch-all

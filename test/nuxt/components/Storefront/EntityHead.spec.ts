@@ -8,7 +8,7 @@ import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.v
 import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from '~~/test/fixtures/product'
-import { makePageLayout } from '~~/test/fixtures/pageLayout'
+import { makeBuilderPage } from '~~/test/fixtures/builderPage'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
@@ -219,13 +219,13 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
     expect(redirects()).toEqual([])
   })
 
-  it('keeps its own title and description under a blog-post layout that carries SEO fields', async () => {
+  it('keeps its own title and description under a blog-post page that carries SEO fields', async () => {
     api.routes({
       '/api/blog/posts/7': post({ en: { ...GREEK_AND_ENGLISH.en, seoTitle: 'Spring guide SEO', seoDescription: 'The own description of the article.' } }),
       '/api/blog/categories/2': post({}).category,
       '/api/shipping/policy': [],
-      '/api/page-config/blog-post': {
-        layout: makePageLayout({ pageType: 'blog-post', title: 'Blog post', seoTitle: 'Layout title', seoDescription: 'Layout description' }),
+      '/api/builder/pages/blog-post': {
+        page: makeBuilderPage({ settings: { seoTitle: 'Page title', seoDescription: 'Page description' } }),
       },
       '/api/*': { count: 0, next: null, previous: null, results: [] },
     })
@@ -234,7 +234,7 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
     const head = await headOf(Component)
 
     expect(head.title).toContain('Spring guide SEO')
-    expect(head.title).not.toContain('Layout title')
+    expect(head.title).not.toContain('Page title')
     expect(head.description).toBe('The own description of the article.')
   })
 

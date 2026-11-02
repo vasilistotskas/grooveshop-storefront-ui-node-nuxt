@@ -39,7 +39,9 @@
             "subheading": "While they last",
             "limit": 3,
             "ctaText": "All offers",
-            "ctaLink": "/offers"
+            "ctaLink": {
+              "route": "/offers"
+            }
           }
         }
       },

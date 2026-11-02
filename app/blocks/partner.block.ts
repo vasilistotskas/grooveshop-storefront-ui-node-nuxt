@@ -9,4 +9,6 @@ export default defineBlock({
     name: builderField.requiredText(60),
     href: builderField.link().optional(),
   }),
+  // A name is what the store writes in each language (a brand in Greek letters, a person as the language spells them).
+  translatable: ['/name'],
 })

@@ -11,7 +11,7 @@ export default defineCachedRoute(async (event): Promise<ContentPageResponse> => 
     // useBackendFetch: ContentPage rows are per-tenant — a raw $fetch
     // carries no X-Forwarded-Host, Django would resolve the public
     // schema and every tenant would get a 404 (same reasoning as
-    // page-config/[pageType].get.ts).
+    // builder/pages/[pageKey].get.ts).
     const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/content-page/${params.slug}`,
       { method: 'GET' },

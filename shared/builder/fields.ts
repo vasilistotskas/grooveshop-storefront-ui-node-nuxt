@@ -1,9 +1,11 @@
 import * as z from 'zod'
 
+import { LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
+
 /**
  * The setting shapes the builder's blocks share, the constraints
- * `page_config`'s section schemas have always set: a length, a link that
- * is a path or `https://`, a `#rrggbb` colour, a surface from a fixed
+ * `page_config`'s section schemas have always set: a length, a link
+ * (see `link`), a `#rrggbb` colour, a surface from a fixed
  * list. A block takes them from here, so one rule has one definition.
  *
  * No `.default()` anywhere: a block's parse returns what was stored and
@@ -11,7 +13,30 @@ import * as z from 'zod'
  */
 const text = (max: number) => z.string().max(max)
 
-const LINK_PATTERN = /^(\/|https:\/\/)/
+const httpsUrl = () => z.string().max(1000).regex(/^https:\/\//)
+const recordId = () => z.number().int().min(1).max(2_147_483_647)
+
+/**
+ * A link names WHERE it goes and never a typed internal path, so it cannot go
+ * stale: an external `https://` URL, one of the fixed routes that point at no
+ * record, or a record (resolved to its current address when a page is read).
+ * The marker lets `defineBlock` list every link setting of a block, so Django
+ * checks and indexes the records they name (`linkRefs`).
+ */
+const link = () => z.union([
+  z.strictObject({ href: httpsUrl() }),
+  z.strictObject({ route: z.enum(LINK_ROUTES) }),
+  z.strictObject({
+    ref: z.discriminatedUnion('kind', [
+      z.strictObject({ kind: z.literal('product'), id: recordId() }),
+      z.strictObject({ kind: z.literal('category'), id: recordId() }),
+      z.strictObject({ kind: z.literal('blogCategory'), id: recordId() }),
+      z.strictObject({ kind: z.literal('blogPost'), id: recordId() }),
+      z.strictObject({ kind: z.literal('page'), id: z.string().min(1).max(64) }),
+      z.strictObject({ kind: z.literal('contentPage'), id: z.string().min(1).max(64).regex(/^[-a-zA-Z0-9_]+$/) }),
+    ]),
+  }),
+]).meta({ [LINK_SCHEMA_MARKER]: true })
 
 /** The settings a rail of products shares, the three bands of `products_*` over: `ordering` is what makes two rails on one page different. */
 function productRail(maxPageSize: number) {
@@ -20,7 +45,7 @@ function productRail(maxPageSize: number) {
     heading: text(200).optional(),
     subheading: text(500).optional(),
     ctaText: text(100).optional(),
-    ctaLink: z.string().max(1000).regex(LINK_PATTERN).optional(),
+    ctaLink: link().optional(),
     ordering: z.enum(['featured', 'newest', 'popular', 'discounted', 'rating']).optional(),
     categoryId: z.number().int().min(1).max(2_147_483_647).optional(),
     showAddToCart: z.boolean().optional(),
@@ -35,7 +60,7 @@ function blogRail() {
     heading: text(200).optional(),
     subheading: text(500).optional(),
     ctaText: text(100).optional(),
-    ctaLink: z.string().max(1000).regex(LINK_PATTERN).optional(),
+    ctaLink: link().optional(),
     categoryId: z.number().int().min(1).max(2_147_483_647).optional(),
   }
 }
@@ -48,14 +73,13 @@ export const builderField = {
   requiredText: (max: number) => z.string().min(1).max(max),
   integer: (min: number, max: number) => z.number().int().min(min).max(max),
   number: (min: number, max: number) => z.number().min(min).max(max),
-  /** An internal path or an `https://` URL. */
-  link: () => z.string().max(1000).regex(LINK_PATTERN),
-  httpsUrl: () => z.string().max(1000).regex(/^https:\/\//),
+  link,
+  httpsUrl,
   /** An icon name of the icon sets, `i-<set>:<name>`. */
   icon: (max?: number) => (max === undefined ? z.string() : z.string().max(max)).regex(/^i-[a-z0-9:-]+$/),
   hexColor: () => z.string().regex(/^#[0-9a-fA-F]{6}$/),
   /** An id of a record in the store: a positive integer. */
-  id: () => z.number().int().min(1).max(2_147_483_647),
+  id: recordId,
   /** Which of the two page grounds a band paints. */
   surface: () => z.enum(['default', 'muted']),
   /** A band that may also be drawn dark. */

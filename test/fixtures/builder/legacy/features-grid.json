@@ -55,12 +55,19 @@
             "columns": 3,
             "decor": "gradient_tiles",
             "ctaText": "Learn more",
-            "ctaLink": "/about",
+            "ctaLink": {
+              "ref": {
+                "kind": "page",
+                "id": "about"
+              }
+            },
             "prompt": {
               "title": "Did not find yours?",
               "text": "Write to us.",
               "ctaText": "Contact",
-              "ctaLink": "/contact"
+              "ctaLink": {
+                "route": "/contact"
+              }
             }
           },
           "blocks": {

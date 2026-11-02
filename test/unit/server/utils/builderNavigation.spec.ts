@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { parseDocument } from '~~/server/utils/builderDocument'
 import { navigationItems } from '~~/server/utils/builderNavigation'
-import type { NavigationTargets } from '~~/server/utils/builderNavigation'
+import type { PublishedTargets } from '~~/server/utils/builderNavigation'
 import { convertLegacyMenu } from '~~/shared/builder/fromLegacyMenu'
 import type { LegacyMenu } from '~~/shared/builder/fromLegacyMenu'
 import type { BlockDefinition, BuilderDocument } from '~~/shared/types/builder'
@@ -19,8 +19,8 @@ const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/
 const definitions = Object.values(modules).map(({ default: block }) => block)
 const registry = new Map(definitions.map(block => [block.type, block]))
 
-const everything: NavigationTargets = { pages: new Set(['about']), contentPages: new Set(['terms', 'privacy', 'faq']) }
-const nothing: NavigationTargets = { pages: new Set(), contentPages: new Set() }
+const everything: PublishedTargets = { pages: new Set(['about']), contentPages: new Set(['terms', 'privacy', 'faq']) }
+const nothing: PublishedTargets = { pages: new Set(), contentPages: new Set() }
 
 const parsed = (response: { document: unknown }): BuilderDocument => parseDocument(response.document, 'group', registry)
 

@@ -9,7 +9,7 @@ await useProductsIndexPage(t)
 // Optional per-tenant branded band above the page content — sections
 // from the published 'products' PageLayout. The fallback is EMPTY, so a
 // tenant without one gets the listing alone.
-const { sections: brandSections } = await usePageConfig('products')
+const { sections: brandSections } = await useBuilderPage('products')
 </script>
 
 <template>
@@ -34,7 +34,7 @@ const { sections: brandSections } = await usePageConfig('products')
          listing; their heading, when they carry one, is the page's. -->
     <PageSectionRenderer
       v-for="section in brandSections"
-      :key="section.uuid"
+      :key="section.id"
       :section="section"
     />
 

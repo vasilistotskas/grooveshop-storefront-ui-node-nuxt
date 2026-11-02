@@ -5,11 +5,10 @@ const tenantStore = useTenantStore()
 
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
-// Per-tenant homepage composition: the published PageLayout ('home')
-// drives which sections render in which order; the code-level fallback
-// in usePageConfig mirrors the platform homepage exactly for tenants
-// (and pre-cutover webside) without a published layout.
-const { sections } = await usePageConfig('home')
+// Per-tenant homepage composition: the store's published `home` page drives
+// which sections render in which order. A new store gets the platform's
+// default home as its first release, so there is no code-level layout here.
+const { sections } = await useBuilderPage('home')
 
 useHead({
   titleTemplate: '%s',

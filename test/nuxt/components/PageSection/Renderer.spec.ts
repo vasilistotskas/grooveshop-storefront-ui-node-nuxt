@@ -3,28 +3,20 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import Renderer from '~/components/PageSection/Renderer.vue'
 import CtaBanner from '~/components/PageSection/CtaBanner.vue'
 import FyteiaCtaBanner from '~/components/PageSection/variants/ekfyseosfyteias/CtaBanner.vue'
-import type { ComponentTypeEnum, PageSection } from '~~/shared/openapi/types.gen'
-import { fixtureUuid } from '~~/test/fixtures/product'
+import { makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
- * The page-builder dispatcher: a section row's `componentType` picks the
+ * The page-builder dispatcher: a section's `componentType` picks the
  * component through `componentRegistry` — the tenant's own
- * `<type>@<schema>` variant first — and the row's title and props are
- * bound onto it. Every registered section is a lazy component, so a test
- * waits for its import to land before looking for it.
+ * `<type>@<schema>` variant first — and the section's props are bound onto
+ * it. Every registered section is a lazy component, so a test waits for its
+ * import to land before looking for it.
  */
-const section = (componentType: ComponentTypeEnum, props: Record<string, unknown> = {}): PageSection => ({
-  id: 1,
-  uuid: fixtureUuid(9, 1),
-  componentType,
-  title: 'Δωρεάν αποστολή',
-  isVisible: true,
-  props,
-  sortOrder: 0,
-})
+const section = (componentType: string, props: Record<string, unknown> = {}) =>
+  makeBuilderSection({ componentType, props: { title: 'Δωρεάν αποστολή', ...props } })
 
-const mountSection = (value: PageSection) =>
+const mountSection = (value: BuilderSection) =>
   mountSuspended(Renderer, { route: false, props: { section: value } })
 
 describe('PageSection/Renderer', () => {
@@ -32,7 +24,7 @@ describe('PageSection/Renderer', () => {
     setTenant({ schemaName: 'test' })
   })
 
-  it('renders the registered section with the row\'s title and props', async () => {
+  it('renders the registered section with its props', async () => {
     const wrapper = await mountSection(section('cta_banner', { description: 'Για αγορές άνω των 30 €' }))
 
     await vi.waitFor(() => expect(wrapper.findComponent(CtaBanner).exists()).toBe(true))
@@ -84,8 +76,8 @@ describe('PageSection/Renderer', () => {
   })
 
   it('renders nothing for a section type it does not know', async () => {
-    // A row written by a newer Django than this build knows.
-    const wrapper = await mountSection(section('no_such_section' as ComponentTypeEnum))
+    // A block type this build has no component for.
+    const wrapper = await mountSection(section('no_such_section'))
 
     expect(wrapper.html()).toBe('<!--v-if-->')
   })

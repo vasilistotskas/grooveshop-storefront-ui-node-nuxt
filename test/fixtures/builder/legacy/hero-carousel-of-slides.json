@@ -49,7 +49,9 @@
           "settings": {
             "autoplayMs": 6000,
             "aspect": "wide",
-            "link": "/offers"
+            "link": {
+              "route": "/offers"
+            }
           },
           "blocks": {
             "00000000-0000-4000-8000-000000000019-1": {
@@ -62,9 +64,13 @@
                 "heading": "Up to 30% off",
                 "subheading": "This week only",
                 "ctaText": "Shop",
-                "ctaLink": "/offers",
+                "ctaLink": {
+                  "route": "/offers"
+                },
                 "secondaryCtaText": "Details",
-                "secondaryCtaLink": "https://example.com/d",
+                "secondaryCtaLink": {
+                  "href": "https://example.com/d"
+                },
                 "productId": 12
               }
             },

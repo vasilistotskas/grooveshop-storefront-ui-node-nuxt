@@ -12,7 +12,7 @@ useHead({
 // Optional per-tenant branded band above the form — sections from a
 // published 'feedback' PageLayout. Fallback is EMPTY, so tenants without
 // a layout render exactly as before.
-const { sections: brandSections } = await usePageConfig('feedback')
+const { sections: brandSections } = await useBuilderPage('feedback')
 </script>
 
 <template>
@@ -29,7 +29,7 @@ const { sections: brandSections } = await usePageConfig('feedback')
     >
       <PageSectionRenderer
         v-for="section in brandSections"
-        :key="section.uuid"
+        :key="section.id"
         :section="section"
       />
     </div>

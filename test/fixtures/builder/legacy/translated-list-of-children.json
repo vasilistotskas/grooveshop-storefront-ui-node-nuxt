@@ -35,6 +35,10 @@
                   {
                     "value": "500+",
                     "label": "Orders EN"
+                  },
+                  {
+                    "value": "24h",
+                    "label": "Delivery EN"
                   }
                 ]
               }
@@ -84,17 +88,15 @@
           "/heading": "Headphones EN"
         },
         "00000000-0000-4000-8000-000000000911-1": {
-          "/value": "500+",
-          "/label": "Orders EN"
+          "/label": "Orders EN",
+          "/value": "500+"
+        },
+        "00000000-0000-4000-8000-000000000911-2": {
+          "/label": "Delivery EN",
+          "/value": "24h"
         }
       }
     },
-    "warnings": [
-      {
-        "code": "list_length_mismatch",
-        "path": "/sections/00000000-0000-4000-8000-000000000911/stats",
-        "message": "the en translation of \"stats\" has 1 entries, the default 2; matched by position"
-      }
-    ]
+    "warnings": []
   }
 }

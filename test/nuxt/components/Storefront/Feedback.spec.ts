@@ -9,8 +9,8 @@ import Feedback from '~/components/Storefront/Feedback.vue'
  * branded sections above — and no second heading when one of them is
  * already the page's.
  */
-const layout = vi.hoisted(() => ({ sections: [] as Array<{ uuid: string, componentType: string }> }))
-mockNuxtImport('usePageConfig', () => async () => ({ sections: ref(layout.sections) }))
+const layout = vi.hoisted(() => ({ sections: [] as BuilderSection[] }))
+mockNuxtImport('useBuilderPage', () => async () => ({ sections: ref(layout.sections) }))
 
 const STUBS = {
   FeedbackForm: { template: '<form data-stub="form" />' },
@@ -37,7 +37,7 @@ describe('Storefront/Feedback', () => {
   })
 
   it('draws the tenant\'s sections above the form', async () => {
-    layout.sections = [{ uuid: 'a', componentType: 'rich_text' }]
+    layout.sections = [{ id: 'a', componentType: 'rich_text', props: {} }]
 
     const wrapper = await mount()
 
@@ -45,7 +45,7 @@ describe('Storefront/Feedback', () => {
   })
 
   it('does not add a second heading when a section already owns it', async () => {
-    layout.sections = [{ uuid: 'a', componentType: 'page_hero' }]
+    layout.sections = [{ id: 'a', componentType: 'hero_banner', props: {} }]
 
     const wrapper = await mount()
 
