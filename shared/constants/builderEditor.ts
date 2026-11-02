@@ -116,3 +116,6 @@ export const BUILDER_PREVIEW_MAX_DOCUMENTS = 1 + BUILDER_EDITOR_GROUPS.length
 
 /** How long a row of the outline takes to slide into its new place while one is dragged, in milliseconds (none for reduced motion). */
 export const BUILDER_OUTLINE_DRAG_ANIMATION_MS = 150
+
+/** The heading levels the rich-text editor offers: under the section's own title, which is the band's heading. */
+export const BUILDER_RICH_TEXT_HEADING_LEVELS = [2, 3, 4] as const
