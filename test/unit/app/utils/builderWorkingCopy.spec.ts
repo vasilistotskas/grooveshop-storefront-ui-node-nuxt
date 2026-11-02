@@ -10,6 +10,8 @@ import {
   removeNode,
   sameWorkingCopy,
   setNodeHidden,
+  setNodeSetting,
+  settingAt,
   upgradeDraft,
 } from '~/utils/builderWorkingCopy'
 import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
@@ -125,6 +127,49 @@ describe('duplicating a node', () => {
     expect(canDuplicateNode(full, 'a', blocks)).toBe(false)
     expect(canDuplicateNode(page(), 'top', blocks)).toBe(false)
     expect(canDuplicateNode(page(), 'list', blocks)).toBe(true)
+  })
+})
+
+describe('changing a setting', () => {
+  it('sets a setting of a node, and leaves the copy it was given alone', () => {
+    const copy = page()
+    const next = setNodeSetting(copy, 'a', 'label', 'Άλφα')
+
+    expect(next.draft.sections.list!.blocks!.a!.settings).toEqual({ label: 'Άλφα' })
+    expect(copy.draft.sections.list!.blocks!.a!.settings).toEqual({ label: 'Α' })
+  })
+
+  it('sets a setting inside an object setting, making the object when there is none', () => {
+    const next = setNodeSetting(page(), 'top', 'prompt.title', 'Γεια')
+
+    expect(next.draft.sections.top!.settings).toEqual({ prompt: { title: 'Γεια' } })
+    expect(settingAt(next.draft.sections.top!.settings, 'prompt.title')).toBe('Γεια')
+  })
+
+  it.each([['nothing', undefined], ['an empty text', ''], ['an empty list', []]])('takes a setting out for %s', (_case, value) => {
+    expect(setNodeSetting(page(), 'list', 'title', value).draft.sections.list!.settings).toEqual({})
+  })
+
+  it('takes out an object setting left with no settings', () => {
+    const withPrompt = setNodeSetting(page(), 'top', 'prompt.title', 'Γεια')
+
+    expect(setNodeSetting(withPrompt, 'top', 'prompt.title', undefined).draft.sections.top!.settings).toEqual({})
+  })
+
+  it('keeps false and zero, which are values', () => {
+    expect(setNodeSetting(page(), 'top', 'marquee', false).draft.sections.top!.settings).toEqual({ marquee: false })
+    expect(setNodeSetting(page(), 'top', 'autoplayMs', 0).draft.sections.top!.settings).toEqual({ autoplayMs: 0 })
+  })
+
+  it('returns the copy unchanged for a node it does not hold', () => {
+    const copy = page()
+
+    expect(setNodeSetting(copy, 'gone', 'label', 'x')).toBe(copy)
+  })
+
+  it('reads nothing through a value that is not an object', () => {
+    expect(settingAt({ label: 'Α' }, 'label.inner')).toBeUndefined()
+    expect(settingAt({}, 'prompt.title')).toBeUndefined()
   })
 })
 

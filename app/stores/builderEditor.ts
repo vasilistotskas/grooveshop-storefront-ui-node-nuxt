@@ -23,6 +23,10 @@ interface BuilderHistoryEntry {
   key: string
   before: BuilderWorkingCopy
   after: BuilderWorkingCopy
+  /** What the change edited (one setting of one node), so typing into it is one step. */
+  coalesce?: string
+  /** When the change was last extended, in milliseconds. */
+  at: number
 }
 
 /**
@@ -127,11 +131,22 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     useBuilderAutosaveStore().schedule(key)
   }
 
-  /** Changes a document: recorded for undo (forgetting what was undone), then saved. */
-  function change(key: string, next: BuilderWorkingCopy): void {
+  /**
+   * Changes a document: recorded for undo (forgetting what was undone), then
+   * saved. Changes with the same `coalesce` (one setting of one node) made
+   * within `BUILDER_HISTORY_COALESCE_MS` of each other are one step, so undo
+   * takes back a word typed, not a letter.
+   */
+  function change(key: string, next: BuilderWorkingCopy, { coalesce }: { coalesce?: string } = {}): void {
     const document = opened.value[key]
     if (!canEdit.value || !document || sameWorkingCopy(document.copy, next)) return
-    undoStack.value = [...undoStack.value, { key, before: document.copy, after: next }].slice(-BUILDER_HISTORY_LIMIT)
+    const now = Date.now()
+    const last = undoStack.value.at(-1)
+    const extendsLast = coalesce !== undefined && last?.key === key && last.coalesce === coalesce
+      && redoStack.value.length === 0 && now - last.at < BUILDER_HISTORY_COALESCE_MS
+    undoStack.value = extendsLast
+      ? [...undoStack.value.slice(0, -1), { ...last!, after: next, at: now }]
+      : [...undoStack.value, { key, before: document.copy, after: next, at: now, ...(coalesce !== undefined && { coalesce }) }].slice(-BUILDER_HISTORY_LIMIT)
     redoStack.value = []
     setCopy(key, next)
   }

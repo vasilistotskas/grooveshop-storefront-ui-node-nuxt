@@ -17,6 +17,8 @@ const { selection, move } = useBuilderSelection()
 
 /** The outline as a drawer, below the width that fits it beside the preview. */
 const outlineOpen = ref(false)
+/** The settings as a drawer, below the width that fits them beside the preview. */
+const settingsOpen = ref(false)
 
 watch(() => props.session.staff.role, (role) => {
   store.role = role
@@ -65,6 +67,7 @@ watch(() => autosave.overall, (state) => {
     :session="session"
     @sign-out="emit('signOut')"
     @open-outline="() => { outlineOpen = true }"
+    @open-settings="() => { settingsOpen = true }"
   />
 
   <UDashboardGroup
@@ -80,7 +83,7 @@ watch(() => autosave.overall, (state) => {
       :min-size="BUILDER_OUTLINE_PANE.min"
       :default-size="BUILDER_OUTLINE_PANE.default"
       :max-size="BUILDER_OUTLINE_PANE.max"
-      :ui="{ header: 'h-12 justify-between', body: 'px-2 py-3' }"
+      :ui="{ root: 'min-h-0', header: 'h-12 justify-between', body: 'px-2 py-3' }"
     >
       <template #header>
         <h2 class="text-sm font-semibold">
@@ -157,6 +160,34 @@ watch(() => autosave.overall, (state) => {
         </div>
       </template>
     </UDashboardPanel>
+
+    <UDashboardSidebar
+      id="builder-settings"
+      v-model:open="settingsOpen"
+      side="right"
+      resizable
+      :toggle="false"
+      :min-size="BUILDER_SETTINGS_PANE.min"
+      :default-size="BUILDER_SETTINGS_PANE.default"
+      :max-size="BUILDER_SETTINGS_PANE.max"
+      :ui="{ root: 'min-h-0', header: 'h-12 justify-between', body: 'px-4 py-3' }"
+    >
+      <template #header>
+        <h2 class="text-sm font-semibold">
+          {{ t('settings.title') }}
+        </h2>
+        <UButton
+          icon="i-lucide-x"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          class="lg:hidden"
+          :aria-label="t('settings.close')"
+          @click="() => { settingsOpen = false }"
+        />
+      </template>
+      <BuilderInspector v-if="store.status === 'ready'" />
+    </UDashboardSidebar>
   </UDashboardGroup>
 
   <BuilderConflictDialog />
@@ -164,6 +195,9 @@ watch(() => autosave.overall, (state) => {
 
 <i18n lang="yaml">
 el:
+  settings:
+    title: Ρυθμίσεις
+    close: Κλείσιμο των ρυθμίσεων
   expiring:
     title: Η σύνδεση λήγει σε λίγα λεπτά
     description: Οι αλλαγές σας αποθηκεύονται. Για να συνεχίσετε μετά, ανοίξτε ξανά τον επεξεργαστή από τη διαχείριση του καταστήματος.
@@ -194,6 +228,9 @@ el:
   preview:
     title: Η ζωντανή προβολή έρχεται σύντομα
 en:
+  settings:
+    title: Settings
+    close: Close the settings
   expiring:
     title: Your session ends in a few minutes
     description: Your changes are being saved. To carry on afterwards, open the editor again from your store's admin.

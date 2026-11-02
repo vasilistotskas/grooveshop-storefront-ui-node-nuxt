@@ -297,6 +297,88 @@ describe('editing the structure of a page', () => {
     expect(wrapper.find('button[aria-label="Αναίρεση"]').exists()).toBe(false)
   })
 
+  describe('the settings of the selected section', () => {
+    /** The control a field's label names, as a screen reader finds it. */
+    const control = (wrapper: Awaited<ReturnType<typeof open>>, label: string) => {
+      const named = wrapper.findAll('label').find(item => item.text().trim() === label)
+      return wrapper.get(`[id="${named!.attributes('for')}"]`)
+    }
+
+    /** One choice of a segmented setting, by its name. */
+    const option = (wrapper: Awaited<ReturnType<typeof open>>, name: string) =>
+      wrapper.findAll('[data-slot="item"]').find(item => item.text().trim() === name)!.get('[role="radio"]')
+
+    it('asks for a section when nothing is selected', async () => {
+      const wrapper = await open()
+
+      expect(wrapper.text()).toContain('Δεν έχει επιλεγεί ενότητα')
+    })
+
+    it('shows the selected section\'s settings with what they hold', async () => {
+      const wrapper = await open(HERO)
+
+      expect(wrapper.get('#builder-inspector-title').text()).toBe('Ενέργεια για όλη τη μέρα')
+      expect((control(wrapper, 'Επικεφαλίδα').element as HTMLInputElement).value).toBe('Ενέργεια για όλη τη μέρα')
+      expect(wrapper.text()).toContain('Σύνδεσμος κουμπιού')
+    })
+
+    it('changes a setting as it is typed, and saves it', async () => {
+      const wrapper = await open(HERO)
+
+      await control(wrapper, 'Επικεφαλίδα').setValue('Καλημέρα')
+      await saveNow()
+
+      expect(pageRows(wrapper)[0]).toBe('Καλημέρα, Κεντρικό banner')
+      expect(api.callsTo(DRAFT_URL)[0]!.options.body.draft.sections.hero.settings.heading).toBe('Καλημέρα')
+    })
+
+    it('sets a choice, and leaves it to the section again', async () => {
+      const wrapper = await open(HERO)
+      const settings = () => useBuilderEditorStore().opened['template:home']!.copy.draft.sections.hero!.settings
+
+      await option(wrapper, 'Κέντρο').trigger('click')
+      expect(settings()).toMatchObject({ align: 'center' })
+
+      await option(wrapper, 'Προεπιλογή').trigger('click')
+      expect(settings()).not.toHaveProperty('align')
+    })
+
+    it('says what is wrong with a setting as it is typed', async () => {
+      const wrapper = await open(HERO)
+
+      await control(wrapper, 'Επικεφαλίδα').setValue('α'.repeat(201))
+
+      expect(wrapper.text()).toContain('Είναι πολύ μεγάλο.')
+    })
+
+    it('shows the store\'s refusal of a save on the setting it names', async () => {
+      api.routes({
+        '/api/builder/documents': LIST,
+        [documentUrl('template:home')]: HOME,
+        [documentUrl('group:header')]: HEADER,
+        [documentUrl('group:footer')]: FOOTER,
+        [DRAFT_URL]: failWith(400, {
+          code: 'invalid_document',
+          detail: 'x',
+          errors: [{ path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Δεν επιτρέπεται εδώ.' }],
+        }),
+      })
+      const wrapper = await open(HERO)
+
+      await control(wrapper, 'Επικεφαλίδα').setValue('Καλημέρα')
+      await saveNow()
+
+      expect(control(wrapper, 'Επικεφαλίδα').attributes('aria-invalid')).toBe('true')
+      expect(wrapper.text()).toContain('Δεν επιτρέπεται εδώ.')
+    })
+
+    it('shows STAFF the settings, but lets them change none', async () => {
+      const wrapper = await open(HERO, { ...session, staff: { ...session.staff, role: 'staff' } })
+
+      expect(control(wrapper, 'Επικεφαλίδα').attributes('disabled')).toBeDefined()
+    })
+  })
+
   describe('when someone else saved in between', () => {
     const conflict = { code: 'revision_conflict', detail: 'x', currentRevision: 6, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }
     const THEIRS = { ...HOME, draftRevision: 6, draft: { sections: { other: { type: 'products_grid@1', settings: { title: 'Νέες αφίξεις' } } }, order: ['other'] } }

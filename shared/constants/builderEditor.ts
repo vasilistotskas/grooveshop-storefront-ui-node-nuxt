@@ -63,3 +63,15 @@ export const BUILDER_SESSION_WARNING_MS = 10 * 60 * 1000
 
 /** The prefix of the browser storage key that keeps unsaved changes when a save could not be made. */
 export const BUILDER_RECOVERY_STORAGE_PREFIX = 'builder-recovery'
+
+/** A text setting that may hold this many characters or more is edited in a textarea, not a single line. */
+export const BUILDER_TEXTAREA_MIN_LENGTH = 300
+
+/** A choice of this many options or fewer is drawn as buttons side by side; more, as a menu. */
+export const BUILDER_SEGMENTED_CHOICE_MAX = 3
+
+/** Typing into one setting within this many milliseconds is one step of the undo history. */
+export const BUILDER_HISTORY_COALESCE_MS = 1000
+
+/** The settings pane's width in CSS pixels: what it opens at, and how far it may be dragged. */
+export const BUILDER_SETTINGS_PANE = { min: 300, default: 340, max: 480 } as const

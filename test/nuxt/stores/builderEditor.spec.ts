@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { createPinia, setActivePinia } from 'pinia'
 import { useBuilderEditorStore } from '~/stores/builderEditor'
-import { moveNode, setNodeHidden } from '~/utils/builderWorkingCopy'
+import { moveNode, setNodeHidden, setNodeSetting } from '~/utils/builderWorkingCopy'
 
 /**
  * The editor's documents and its undo history: a change is recorded and
@@ -104,6 +104,30 @@ describe('changes and their history', () => {
     expect(store.undo()).toBe(HEADER)
     expect(store.undo()).toBe(HOME)
     expect(store.canUndo).toBe(false)
+  })
+
+  it('makes typing into one setting one step, and a pause or another setting a new one', async () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(10_000)
+    const store = await open()
+    const before = store.opened[HOME]!.copy
+    const type = (text: string, path = 'heading', at = 'a') =>
+      store.change(HOME, setNodeSetting(store.opened[HOME]!.copy, at, path, text), { coalesce: `${at}/${path}` })
+
+    type('Γ')
+    now.mockReturnValue(10_000 + BUILDER_HISTORY_COALESCE_MS - 1)
+    type('Γε')
+    const word = store.opened[HOME]!.copy
+    now.mockReturnValue(10_000 + 2 * BUILDER_HISTORY_COALESCE_MS)
+    type('Γεια')
+    type('Νέα', 'subheading')
+
+    store.undo()
+    store.undo()
+    expect(store.opened[HOME]!.copy).toEqual(word)
+    store.undo()
+    expect(store.opened[HOME]!.copy).toEqual(before)
+    expect(store.canUndo).toBe(false)
+    now.mockRestore()
   })
 
   it('forgets what was undone once a new change is made', async () => {
