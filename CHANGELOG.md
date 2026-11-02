@@ -1,3 +1,10 @@
+# [3.284.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.283.1...v3.284.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** open pages in the editor with their section groups and outline ([#326](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/326)) ([265c595](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/265c5951ed5b17b3e1a6f12dfcda98065632306e))
+
 ## [3.283.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.283.0...v3.283.1) (2026-11-02)
 
 
