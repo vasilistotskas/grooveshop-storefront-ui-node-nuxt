@@ -21,6 +21,27 @@ const disabledFeature = computed(() => {
   return refused && node ? builderEditorBlocks.get(builderBlockType(node))?.feature : undefined
 })
 
+// Where this staff member turns that feature on: the store admin's page for
+// it, for a role that may change settings, asked once one is off (`enabled`
+// only holds a request back, so the feature changing is what asks).
+const { data: features } = useLazyApi('/api/builder/features', {
+  enabled: computed(() => disabledFeature.value !== undefined && store.canEdit),
+  watch: [disabledFeature],
+})
+const turnOnUrl = computed(() => disabledFeature.value ? features.value?.features[disabledFeature.value]?.turnOnUrl ?? undefined : undefined)
+
+/** The way out of a refused save: remove the node, or (for whoever may) turn its feature on in the store admin. */
+const featureActions = computed(() => {
+  if (!store.canEdit || !disabledFeature.value) return []
+  const feature = featureLabel(disabledFeature.value)
+  return [
+    { label: t('featureOff.remove'), color: 'warning' as const, variant: 'solid' as const, onClick: remove },
+    ...(turnOnUrl.value
+      ? [{ label: t('featureOff.turnOn', { feature }), color: 'warning' as const, variant: 'outline' as const, trailingIcon: 'i-lucide-external-link', to: turnOnUrl.value, target: '_blank' }]
+      : []),
+  ]
+})
+
 /** Where the selected node lives, as the outline names it: a section group, or this page. */
 const context = computed(() => {
   const key = selection.value?.documentKey
@@ -54,8 +75,8 @@ const context = computed(() => {
       variant="subtle"
       icon="i-lucide-circle-off"
       :title="t('featureOff.title', { feature: featureLabel(disabledFeature) })"
-      :description="t('featureOff.description')"
-      :actions="store.canEdit ? [{ label: t('featureOff.remove'), color: 'warning', variant: 'solid', onClick: remove }] : []"
+      :description="turnOnUrl ? t('featureOff.descriptionTurnOn') : t('featureOff.description')"
+      :actions="featureActions"
     />
     <BuilderSettingsForm
       :key="`${selection.documentKey}/${selection.nodeId}`"
@@ -78,7 +99,9 @@ el:
   featureOff:
     title: "Χρειάζεται {feature}, που είναι κλειστό σε αυτό το κατάστημα"
     description: Η σελίδα δεν αποθηκεύεται όσο υπάρχει. Αφαιρέστε το, ή ζητήστε να ανοίξει η λειτουργία.
+    descriptionTurnOn: Η σελίδα δεν αποθηκεύεται όσο υπάρχει. Αφαιρέστε το, ή ενεργοποιήστε τη λειτουργία στις ρυθμίσεις του καταστήματος και κάντε ξανά μια αλλαγή.
     remove: Αφαίρεση
+    turnOn: "Ενεργοποιήστε {feature}"
   empty:
     title: Δεν έχει επιλεγεί ενότητα
     description: Διαλέξτε μια ενότητα ή ένα στοιχείο στη δομή της σελίδας για να αλλάξετε τις ρυθμίσεις του.
@@ -87,7 +110,9 @@ en:
   featureOff:
     title: "Needs {feature}, which is off for this store"
     description: The page can't be saved while it's here. Remove it, or have the feature turned on.
+    descriptionTurnOn: The page can't be saved while it's here. Remove it, or turn the feature on in the store settings and make a change again.
     remove: Remove
+    turnOn: "Turn on {feature}"
   empty:
     title: Nothing selected
     description: Pick a section or a block in the page outline to change its settings.

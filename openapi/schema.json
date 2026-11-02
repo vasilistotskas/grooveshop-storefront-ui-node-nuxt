@@ -15967,6 +15967,32 @@
                 }
             }
         },
+        "/api/v1/builder/features": {
+            "get": {
+                "operationId": "api_v1_builder_features_retrieve",
+                "description": "`{features: {<name>: {on, turnOnUrl}}}` for every store feature (the names of the tenant payload's `features`). `on`: its plan flag and every setting it needs are on. `turnOnUrl`: the store admin page of the first setting that is off, only for a role that may change settings (Admin, Owner); null when the feature is on, when the plan keeps it off, or for any other role.",
+                "tags": [
+                    "Builder"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuilderFeatures"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/builder/link-labels": {
             "get": {
                 "operationId": "api_v1_builder_link_labels_retrieve",
@@ -16605,6 +16631,276 @@
                                             "$ref": "#/components/schemas/ApiError"
                                         }
                                     ]
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/builder/presence": {
+            "post": {
+                "operationId": "api_v1_builder_presence_create",
+                "description": "A heartbeat: the documents this editor has open (the full list; ones left out are let go of). Answers who ELSE has each of them open, `{documents: {key: [{id, name, since}]}}`, the caller excluded. A person lapses `BUILDER_PRESENCE_TTL_SECONDS` after their last heartbeat. It is a hint: the draft's `If-Match` revision still decides a save.",
+                "tags": [
+                    "Builder"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PresenceWriteRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Presence"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "api_v1_builder_presence_destroy",
+                "description": "Who else has a document open: a heartbeat, and sign-out.",
+                "tags": [
+                    "Builder"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/builder/preview-links": {
+            "get": {
+                "operationId": "api_v1_builder_preview_links_list",
+                "description": "The links that still open, newest first.",
+                "tags": [
+                    "Builder"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PreviewLink"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "api_v1_builder_preview_links_create",
+                "description": "Freeze the current drafts of the named documents behind a link anyone can open without signing in, for `BUILDER_PREVIEW_LINK_TTL_SECONDS`. Every draft is validated like a save (400 `invalid_document` with each problem's `document`). The `token` is in this answer only; open `published`-style at `preview/<token>/<pageKey>`.",
+                "tags": [
+                    "Builder"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewLinkWriteRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreviewLinkCreated"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/builder/preview-links/{id}": {
+            "delete": {
+                "operationId": "api_v1_builder_preview_links_destroy",
+                "description": "Revoke a link at once.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Builder"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/builder/preview/{token}/{page_key}": {
+            "get": {
+                "operationId": "api_v1_builder_preview_retrieve",
+                "description": "The shape of `published/<pageKey>`, with the documents frozen in the link standing in for the current release's. 404 `preview_link_expired` for a token that is unknown, revoked or past its time, `page_not_published` when neither the link nor the release has the page. Never cached: `Cache-Control: private, no-store`, and not for search engines.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "locale",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Language to resolve the content in; unknown or omitted means the store's default language."
+                    },
+                    {
+                        "in": "path",
+                        "name": "pageKey",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Builder"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublishedPage"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -62096,6 +62392,17 @@
                 "type": "string",
                 "description": "* `theme` - Θέμα\n* `group` - Ομάδα ενοτήτων\n* `template` - Πρότυπο\n* `page` - Σελίδα"
             },
+            "BuilderFeatures": {
+                "type": "object",
+                "properties": {
+                    "features": {
+                        "$ref": "#/components/schemas/StoreFeatureStates"
+                    }
+                },
+                "required": [
+                    "features"
+                ]
+            },
             "BuilderPageKindEnum": {
                 "enum": [
                     "page",
@@ -64633,6 +64940,26 @@
                 "required": [
                     "max",
                     "min"
+                ]
+            },
+            "FeatureState": {
+                "type": "object",
+                "description": "One store feature as the editor needs it.",
+                "properties": {
+                    "on": {
+                        "type": "boolean",
+                        "description": "Plan flag and every setting it needs are on."
+                    },
+                    "turnOnUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "The store admin page where this person switches it on; null when it is on, when only the platform can (the plan), or when their role cannot change settings."
+                    }
+                },
+                "required": [
+                    "on",
+                    "turnOnUrl"
                 ]
             },
             "FeedbackWrite": {
@@ -72126,6 +72453,60 @@
                     "transactionType"
                 ]
             },
+            "Presence": {
+                "type": "object",
+                "description": "``{documents: {key: [{id, name, since}]}}``: who else has each of the\ndocuments named in the heartbeat open.",
+                "properties": {
+                    "documents": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/PresenceEntry"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "documents"
+                ]
+            },
+            "PresenceEntry": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "since": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "since"
+                ]
+            },
+            "PresenceWriteRequest": {
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                        }
+                    }
+                },
+                "required": [
+                    "documents"
+                ]
+            },
             "PreviewCopyRequest": {
                 "type": "object",
                 "properties": {
@@ -72134,6 +72515,129 @@
                 },
                 "required": [
                     "draft"
+                ]
+            },
+            "PreviewLink": {
+                "type": "object",
+                "description": "A link as the staff list shows it. The token is not here: it exists\nonly in the answer that made the link.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "note": {
+                        "type": "string",
+                        "title": "Σημείωση",
+                        "maxLength": 255
+                    },
+                    "createdBy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Staff"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Δημιουργήθηκε στις"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Λήγει στις"
+                    }
+                },
+                "required": [
+                    "createdAt",
+                    "createdBy",
+                    "documents",
+                    "expiresAt",
+                    "id"
+                ]
+            },
+            "PreviewLinkCreated": {
+                "type": "object",
+                "description": "The answer that makes a link: the token, once.",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "note": {
+                        "type": "string",
+                        "title": "Σημείωση",
+                        "maxLength": 255
+                    },
+                    "createdBy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Staff"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Δημιουργήθηκε στις"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Λήγει στις"
+                    }
+                },
+                "required": [
+                    "createdAt",
+                    "createdBy",
+                    "documents",
+                    "expiresAt",
+                    "id",
+                    "token"
+                ]
+            },
+            "PreviewLinkWriteRequest": {
+                "type": "object",
+                "properties": {
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                        }
+                    },
+                    "note": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "documents"
                 ]
             },
             "PreviewResolveRequest": {
@@ -77587,6 +78091,185 @@
                 },
                 "required": [
                     "ticket"
+                ]
+            },
+            "StoreFeatureStates": {
+                "type": "object",
+                "description": "Every ``TenantConfig.features`` name, with its state.",
+                "properties": {
+                    "blog": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "blogComments": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "productReviews": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "accountReviews": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "favourites": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "newsletter": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "feedback": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "loyalty": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "promotions": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "giftCards": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "wholesale": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "b2bInvoicing": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "productSuggestions": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "productAlerts": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "priceHistory": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "contactAttachments": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "chatWidget": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "catalogue": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "cart": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "accountReviews",
+                    "b2bInvoicing",
+                    "blog",
+                    "blogComments",
+                    "cart",
+                    "catalogue",
+                    "chatWidget",
+                    "contactAttachments",
+                    "favourites",
+                    "feedback",
+                    "giftCards",
+                    "loyalty",
+                    "newsletter",
+                    "priceHistory",
+                    "productAlerts",
+                    "productReviews",
+                    "productSuggestions",
+                    "promotions",
+                    "wholesale"
                 ]
             },
             "StoreFeatures": {

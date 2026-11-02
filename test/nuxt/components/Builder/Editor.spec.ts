@@ -609,7 +609,54 @@ describe('editing the structure of a page', () => {
           detail: 'x',
           errors: [{ path: '/sections/news/type', code: 'feature_disabled', message: 'newsletter_signup needs a feature that is off for this store.' }],
         }),
+        [FEATURES_URL]: { features: { newsletter: { on: false, turnOnUrl: TURN_ON_URL } } },
       })
+    })
+
+    const FEATURES_URL = '/api/builder/features'
+    const TURN_ON_URL = 'https://api.webside.gr/el/admin/extra_settings/setting/12/change/'
+
+    /** A change, so the page is saved and the store refuses it for the node's feature. */
+    async function refuse(wrapper: Awaited<ReturnType<typeof open>>) {
+      await button(wrapper, 'Εμφάνιση στους πελάτες').trigger('click')
+      await saveNow()
+      await vi.waitFor(() => expect(wrapper.text()).toContain('Χρειάζεται το newsletter, που είναι κλειστό σε αυτό το κατάστημα'))
+      await flushPromises()
+    }
+
+    it('asks where the feature is turned on only once one is off, and offers to, in the store admin', async () => {
+      const wrapper = await open(NEWS)
+      expect(api.callsTo(FEATURES_URL)).toHaveLength(0)
+
+      await refuse(wrapper)
+
+      const turnOn = wrapper.findAll('a').find(item => item.text().includes('Ενεργοποιήστε το newsletter'))!
+      expect(turnOn.attributes('href')).toBe(TURN_ON_URL)
+      expect(turnOn.attributes('target')).toBe('_blank')
+      expect(wrapper.text()).toContain('ενεργοποιήστε τη λειτουργία στις ρυθμίσεις του καταστήματος')
+      expect(api.callsTo(FEATURES_URL)).toHaveLength(1)
+    })
+
+    it('offers no way to turn it on when the store answers none (the plan keeps it off, or the role may not)', async () => {
+      api.routes({
+        '/api/builder/documents': LIST,
+        [documentUrl('template:home')]: HOME,
+        [documentUrl('group:header')]: HEADER,
+        [documentUrl('group:footer')]: FOOTER,
+        [DRAFT_URL]: failWith(400, {
+          code: 'invalid_document',
+          detail: 'x',
+          errors: [{ path: '/sections/news/type', code: 'feature_disabled', message: 'newsletter_signup needs a feature that is off for this store.' }],
+        }),
+        [FEATURES_URL]: { features: { newsletter: { on: false, turnOnUrl: null } } },
+      })
+      const wrapper = await open(NEWS)
+
+      await refuse(wrapper)
+
+      expect(api.callsTo(FEATURES_URL)).toHaveLength(1)
+      expect(wrapper.text()).not.toContain('Ενεργοποιήστε')
+      expect(wrapper.text()).toContain('ζητήστε να ανοίξει η λειτουργία')
     })
 
     it('says so on the node when a save is refused for it, and removes it in one click', async () => {
