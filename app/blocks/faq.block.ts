@@ -15,5 +15,6 @@ export default defineBlock({
   limits: { maxBlocks: 30 },
   children: { allowed: ['faq_item'], maxDepth: 1 },
   childList: { faq_item: 'items' },
-  editor: { title: ['heading'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'faq_item' })) }],
+  editor: { title: ['heading'], category: 'content' },
 })

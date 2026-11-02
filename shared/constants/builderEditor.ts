@@ -43,6 +43,12 @@ export const BUILDER_EDITOR_QUERY = {
   device: 'device',
 } as const
 
+/** The tabs of the editor's add-section library, in the order it shows them; each section block names one (`editor.category`). */
+export const BUILDER_BLOCK_CATEGORIES = ['hero', 'products', 'content', 'trust', 'blog', 'store', 'layout', 'navigation'] as const
+
+/** The preset the library inserts when a block is added: every block the library offers has one (`presets`). */
+export const BUILDER_DEFAULT_PRESET = 'default'
+
 /** The editor's route, without a locale prefix (`app/pages/_builder.vue`; Django's admin sends staff here). */
 export const BUILDER_EDITOR_ROUTE = '/_builder'
 

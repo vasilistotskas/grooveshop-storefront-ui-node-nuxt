@@ -5,6 +5,7 @@ export default defineBlock({
   type: 'newsletter_signup',
   version: 1,
   kinds: ['section'],
+  feature: 'newsletter',
   schema: z.object({
     title: builderField.text(200).optional(),
     heading: builderField.text(200).optional(),
@@ -14,5 +15,6 @@ export default defineBlock({
     surface: builderField.surface().optional(),
   }),
   translatable: ['/title', '/heading', '/description', '/placeholder', '/buttonText'],
-  editor: { title: ['heading', 'title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['heading', 'title'], category: 'store' },
 })

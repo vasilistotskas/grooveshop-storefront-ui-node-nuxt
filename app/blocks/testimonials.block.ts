@@ -14,5 +14,6 @@ export default defineBlock({
   limits: { maxBlocks: 20 },
   children: { allowed: ['testimonial'], maxDepth: 1 },
   childList: { testimonial: 'items' },
-  editor: { title: ['heading', 'title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'testimonial' })) }],
+  editor: { title: ['heading', 'title'], category: 'trust' },
 })

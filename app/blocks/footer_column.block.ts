@@ -13,5 +13,6 @@ export default defineBlock({
   translatable: ['/label'],
   children: { allowed: ['nav_link'], maxDepth: 1 },
   childList: { nav_link: 'children' },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'nav_link' })) }],
   editor: { title: ['label'] },
 })

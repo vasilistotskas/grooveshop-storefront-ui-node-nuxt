@@ -15,5 +15,6 @@ export default defineBlock({
     surface: builderField.surface().optional(),
   }),
   translatable: ['/title', '/heading', '/description', '/buttonText'],
-  editor: { title: ['heading', 'title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['heading', 'title'], category: 'store' },
 })

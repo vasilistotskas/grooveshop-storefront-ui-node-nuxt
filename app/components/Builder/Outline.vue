@@ -69,6 +69,13 @@ function ancestorsOf(items: readonly OutlineItem[], id: string): string[] {
   return []
 }
 
+const library = useBuilderLibraryStore()
+
+/** Opens the library to add a section at the end of the document `key`. */
+function addSection(key: string): void {
+  library.open(key, { index: store.opened[key]?.copy.draft.order.length ?? 0 })
+}
+
 function onSelect(item: OutlineItem | undefined) {
   if (item) void select(item.id)
 }
@@ -84,12 +91,27 @@ function onSelect(item: OutlineItem | undefined) {
       :key="tree.key"
       :aria-labelledby="`outline-${tree.key}`"
     >
-      <h2
-        :id="`outline-${tree.key}`"
-        class="px-2 pb-1 text-xs font-medium text-muted"
-      >
-        {{ tree.label }}
-      </h2>
+      <div class="flex items-center justify-between gap-2 px-2 pb-1">
+        <h2
+          :id="`outline-${tree.key}`"
+          class="text-xs font-medium text-muted"
+        >
+          {{ tree.label }}
+        </h2>
+        <UTooltip
+          v-if="store.canEdit"
+          :text="t('add', { name: tree.label })"
+        >
+          <UButton
+            icon="i-lucide-plus"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            :aria-label="t('add', { name: tree.label })"
+            @click="() => addSection(tree.key)"
+          />
+        </UTooltip>
+      </div>
       <UTree
         v-if="tree.items.length > 0"
         :items="tree.items"
@@ -144,10 +166,12 @@ el:
   hidden: Κρυφό
   problem: δεν αποθηκεύτηκε
   empty: Δεν έχει ενότητες ακόμη.
+  add: "Προσθήκη ενότητας: {name}"
 en:
   label: Page outline
   page: This page
   hidden: Hidden
   problem: not saved
   empty: No sections yet.
+  add: "Add a section to {name}"
 </i18n>

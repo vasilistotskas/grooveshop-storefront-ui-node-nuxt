@@ -5,6 +5,7 @@ export default defineBlock({
   type: 'loyalty_hero',
   version: 1,
   kinds: ['section'],
+  feature: 'loyalty',
   schema: z.object({
     title: builderField.text(200).optional(),
     surface: builderField.surface().optional(),
@@ -15,5 +16,6 @@ export default defineBlock({
     secondaryCtaLink: builderField.link().optional(),
   }),
   translatable: ['/title', '/eyebrow', '/ctaText', '/secondaryCtaText'],
-  editor: { title: ['title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['title'], category: 'hero' },
 })

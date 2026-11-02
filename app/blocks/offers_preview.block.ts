@@ -5,6 +5,7 @@ export default defineBlock({
   type: 'offers_preview',
   version: 1,
   kinds: ['section'],
+  feature: 'promotions',
   schema: z.object({
     title: builderField.text(200).optional(),
     surface: builderField.inkSurface().optional(),
@@ -16,5 +17,6 @@ export default defineBlock({
     ctaLink: builderField.link().optional(),
   }),
   translatable: ['/title', '/eyebrow', '/heading', '/subheading', '/ctaText'],
-  editor: { title: ['heading', 'title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['heading', 'title'], category: 'products' },
 })

@@ -485,5 +485,82 @@
     "feedback": "Σχόλια",
     "account-login": "Σύνδεση",
     "account-signup": "Εγγραφή"
+  },
+  "presets": {
+    "bullet": {
+      "default": {
+        "text": "Ένα σημείο που αξίζει να ξέρει ο πελάτης"
+      }
+    },
+    "faq_item": {
+      "default": {
+        "question": "Η ερώτηση του πελάτη",
+        "answer": "Η απάντησή σας."
+      }
+    },
+    "feature_item": {
+      "default": {
+        "title": "Ένα πλεονέκτημα"
+      }
+    },
+    "footer_column": {
+      "default": {
+        "label": "Στήλη"
+      }
+    },
+    "nav_link": {
+      "default": {
+        "label": "Σύνδεσμος"
+      }
+    },
+    "partner": {
+      "default": {
+        "name": "Συνεργάτης"
+      }
+    },
+    "spec_card": {
+      "default": {
+        "name": "Προδιαγραφές"
+      }
+    },
+    "spec_row": {
+      "default": {
+        "label": "Χαρακτηριστικό",
+        "value": "Τιμή"
+      }
+    },
+    "stat": {
+      "default": {
+        "value": "100+",
+        "label": "Ένας αριθμός που μετράει"
+      }
+    },
+    "timeline_entry": {
+      "default": {
+        "title": "Ένα ορόσημο"
+      }
+    },
+    "trust_badge": {
+      "default": {
+        "label": "Μια εγγύηση για τον πελάτη"
+      }
+    }
+  },
+  "categories": {
+    "hero": "Κεντρικές",
+    "products": "Προϊόντα",
+    "content": "Περιεχόμενο",
+    "trust": "Εμπιστοσύνη",
+    "blog": "Ιστολόγιο",
+    "store": "Κατάστημα",
+    "layout": "Διάταξη",
+    "navigation": "Πλοήγηση"
+  },
+  "features": {
+    "loyalty": "το πρόγραμμα επιβράβευσης",
+    "promotions": "τις προσφορές",
+    "blog": "το ιστολόγιο",
+    "newsletter": "το newsletter",
+    "catalogue": "τον κατάλογο προϊόντων"
   }
 }

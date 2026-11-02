@@ -4,8 +4,11 @@ import { defineBlock } from '~~/shared/builder/defineBlock'
 import {
   canDuplicateNode,
   canMoveNode,
+  builderLibraryOffers,
+  builderNodePosition,
   changedSections,
   duplicateNode,
+  insertNode,
   moveNode,
   removeNode,
   sameWorkingCopy,
@@ -207,5 +210,89 @@ describe('sameWorkingCopy', () => {
   it('tells an unchanged copy from a changed one', () => {
     expect(sameWorkingCopy(page(), page())).toBe(true)
     expect(sameWorkingCopy(page(), setNodeHidden(page(), 'top', true))).toBe(false)
+  })
+})
+
+describe('inserting a node', () => {
+  it('adds a section at its place in the page', () => {
+    const next = insertNode(page(), { index: 1 }, 'new', node('hero@1'))
+
+    expect(next.draft.order).toEqual(['top', 'new', 'list'])
+    expect(next.draft.sections.new).toEqual(node('hero@1'))
+  })
+
+  it('adds a block inside a section, past the end at the end', () => {
+    const next = insertNode(page(), { parentId: 'list', index: 9 }, 'c', node('item@1', { label: 'Γ' }))
+
+    expect(next.draft.sections.list!.blockOrder).toEqual(['a', 'b', 'c'])
+    expect(next.draft.sections.list!.blocks!.c).toEqual(node('item@1', { label: 'Γ' }))
+  })
+
+  it('gives children to a node that had none', () => {
+    const next = insertNode(page(), { parentId: 'top', index: 0 }, 'x', node('item@1'))
+
+    expect(next.draft.sections.top).toMatchObject({ blockOrder: ['x'], blocks: { x: node('item@1') } })
+  })
+
+  it('changes nothing for a parent the copy does not hold, and never the copy it is given', () => {
+    const copy = page()
+    const before = structuredClone(copy)
+
+    expect(insertNode(copy, { parentId: 'gone', index: 0 }, 'x', node('item@1'))).toBe(copy)
+    insertNode(copy, { index: 0 }, 'x', node('hero@1'))
+    expect(copy).toEqual(before)
+  })
+})
+
+describe('what the library offers', () => {
+  const preset = [{ id: 'default' }]
+  const library = new Map<string, BlockDefinition>([
+    defineBlock({ type: 'banner', version: 1, kinds: ['section'], schema: z.object({}), presets: preset }),
+    defineBlock({ type: 'once', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, limits: { maxPerTemplate: 1 } }),
+    defineBlock({ type: 'loyal', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, feature: 'loyalty' }),
+    defineBlock({ type: 'menu', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, groups: ['header'] }),
+    defineBlock({ type: 'old', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, deprecated: true }),
+    defineBlock({ type: 'bare', version: 1, kinds: ['section'], schema: z.object({}) }),
+    defineBlock({ type: 'box', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, limits: { maxBlocks: 2 }, children: { allowed: ['tile'] } }),
+    defineBlock({ type: 'shallow', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, children: { allowed: ['tile'], maxDepth: 1 } }),
+    defineBlock({ type: 'tile', version: 1, kinds: ['block'], schema: z.object({}), presets: preset, children: { allowed: ['tile'] } }),
+  ].map(block => [block.type, block]))
+  const copyOf = (sections: Record<string, BuilderNode>): BuilderWorkingCopy => ({ draft: { sections, order: Object.keys(sections) }, i18n: {} })
+  const offers = (copy: BuilderWorkingCopy, parentId?: string, documentKey = 'template:home', off: readonly string[] = []) =>
+    builderLibraryOffers(copy, documentKey, { parentId }, library, feature => !off.includes(feature))
+      .map(({ definition, refusal }) => refusal ? `${definition.type} (${refusal})` : definition.type)
+
+  it('offers the sections that may sit in the document, never a deprecated one or one with nothing to insert', () => {
+    expect(offers(copyOf({}))).toEqual(['banner', 'once', 'loyal', 'box', 'shallow'])
+    expect(offers(copyOf({}), undefined, 'group:header')).toEqual(['menu'])
+  })
+
+  it('shows a section whose store feature is off, refused', () => {
+    expect(offers(copyOf({}), undefined, 'template:home', ['loyalty'])).toContain('loyal (feature)')
+  })
+
+  it('refuses a section the document already holds as many of as it may', () => {
+    expect(offers(copyOf({ a: node('once@1') }))).toContain('once (perTemplate)')
+  })
+
+  it('offers inside a section only what it takes, and nothing once it is full', () => {
+    expect(offers(copyOf({ a: node('box@1') }), 'a')).toEqual(['tile'])
+    expect(offers(copyOf({ a: node('box@1', {}, { t1: node('tile@1'), t2: node('tile@1') }) }), 'a')).toEqual(['tile (full)'])
+  })
+
+  it('offers nothing below the depth a section allows, or inside a node the copy does not hold', () => {
+    const nested = copyOf({ a: node('shallow@1', {}, { t1: node('tile@1') }) })
+
+    expect(offers(nested, 'a')).toEqual(['tile'])
+    expect(offers(nested, 't1')).toEqual([])
+    expect(offers(nested, 'gone')).toEqual([])
+  })
+})
+
+describe('where a node sits', () => {
+  it('names a section by its index, and a block by its parent and index', () => {
+    expect(builderNodePosition(page(), 'list')).toEqual({ index: 1 })
+    expect(builderNodePosition(page(), 'b')).toEqual({ parentId: 'list', index: 1 })
+    expect(builderNodePosition(page(), 'gone')).toBeUndefined()
   })
 })

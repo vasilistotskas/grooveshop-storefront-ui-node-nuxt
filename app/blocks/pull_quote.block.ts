@@ -11,4 +11,6 @@ export default defineBlock({
     attribution: builderField.text(120).optional(),
   }),
   translatable: ['/quote', '/text', '/attribution'],
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { category: 'content' },
 })

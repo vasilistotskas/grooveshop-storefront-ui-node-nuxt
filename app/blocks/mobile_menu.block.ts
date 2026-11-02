@@ -9,4 +9,6 @@ export default defineBlock({
   groups: ['mobile'],
   children: { allowed: ['nav_link'], maxDepth: 1 },
   childList: { nav_link: 'links' },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'nav_link' })) }],
+  editor: { category: 'navigation' },
 })

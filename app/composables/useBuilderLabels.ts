@@ -29,6 +29,16 @@ function createComposer() {
 }
 
 /**
+ * The text a preset starts with, by setting path (`presets.<type>.<preset>`),
+ * in the language a draft is written in: the store's content, not the
+ * editor's interface, so it never follows the editor's language.
+ */
+export function builderPresetText(type: string, preset: string): Readonly<Record<string, string>> | undefined {
+  const presets: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = { el, en }[DEFAULT_LOCALE].presets
+  return presets[type]?.[preset]
+}
+
+/**
  * Labels in the editor's language (the route's locale, not the language
  * being edited). Each function reads the locale when it runs, so a template
  * that calls it re-renders on a language switch.
@@ -48,6 +58,10 @@ export function useBuilderLabels() {
     groupLabel: (group: BuilderEditorGroup) => read(`groups.${group}`),
     /** What a page type of the storefront's static routes is called (`template:<name>`; Django holds no other). */
     templateLabel: (name: StaticLayoutPageType) => read(`templates.${name}`),
+    /** What a tab of the add-section library is called. */
+    categoryLabel: (category: (typeof BUILDER_BLOCK_CATEGORIES)[number]) => read(`categories.${category}`),
+    /** What a store feature a block needs is called, as it reads after "needs". */
+    featureLabel: (feature: StoreFeatureName) => read(`features.${feature}`),
     /** What a page document is called: a page type by its name, a page the store made by its address. */
     documentLabel: (key: string): string => {
       const { kind, name = key } = parseBuilderDocumentKey(key)

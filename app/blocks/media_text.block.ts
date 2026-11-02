@@ -23,5 +23,6 @@ export default defineBlock({
   limits: { maxBlocks: 10 },
   children: { allowed: ['bullet', 'spec_card'], maxDepth: 2 },
   childList: { bullet: 'bullets', spec_card: 'specs' },
-  editor: { title: ['heading', 'title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['heading', 'title'], category: 'content' },
 })

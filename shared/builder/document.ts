@@ -13,6 +13,7 @@ import type {
 } from '../types/builder'
 import { BUILDER_DOCUMENT_ROOTS } from './documentRoots'
 import { BlockUpgradeError, parseVersionedType, upgradeNode } from './upgrade'
+import type { StoreFeatureName } from '../utils/storeFeature'
 
 const zDocumentShell = z.object({
   settings: z.unknown().optional(),
@@ -34,6 +35,8 @@ function skip(context: ParseContext, path: string, reason: BuilderNodeSkipReason
 
 interface ParseContext {
   registry: ReadonlyMap<string, BlockDefinition>
+  /** Whether a store feature a block needs (`feature`) is on: a block whose feature is off is left out. */
+  featureOn: (feature: StoreFeatureName) => boolean
   /** Told about every node left out; the caller decides where that goes (a log line on the server). */
   onSkip?: (skip: BuilderNodeSkip) => void
 }
@@ -60,6 +63,7 @@ function parseNode(
   if (!definition) return skip(context, path, 'unknown_type', shell.data.type)
   if (!definition.kinds.includes(position.kind)) return skip(context, path, 'wrong_kind', `${written.type} is not a ${position.kind}`)
   if (position.allowed && !position.allowed.includes(written.type)) return skip(context, path, 'not_allowed', written.type)
+  if (definition.feature && !context.featureOn(definition.feature)) return skip(context, path, 'feature_disabled', definition.feature)
 
   let upgraded: BuilderNode
   try {
@@ -125,9 +129,9 @@ export function parseDocument(
   raw: unknown,
   kind: BuilderDocumentKind,
   registry: ReadonlyMap<string, BlockDefinition>,
-  { onSkip }: { onSkip?: (skip: BuilderNodeSkip) => void } = {},
+  { featureOn, onSkip }: { featureOn: (feature: StoreFeatureName) => boolean, onSkip?: (skip: BuilderNodeSkip) => void },
 ): BuilderDocument {
-  const context: ParseContext = { registry, onSkip }
+  const context: ParseContext = { registry, featureOn, onSkip }
   const shell = zDocumentShell.safeParse(raw)
   if (!shell.success) {
     skip(context, '', 'invalid_node', z.prettifyError(shell.error))

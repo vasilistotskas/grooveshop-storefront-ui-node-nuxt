@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import el from '~/builder/labels/el.json'
 import en from '~/builder/labels/en.json'
-import { BUILDER_EDITOR_GROUPS } from '~~/shared/constants/builderEditor'
+import { BUILDER_BLOCK_CATEGORIES, BUILDER_EDITOR_GROUPS } from '~~/shared/constants/builderEditor'
 import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
 import { LINK_ROUTES } from '~~/shared/constants/builder'
 import { builderRouteLabelKey, builderSettingsFields, flattenSettingsFields } from '~/utils/builderSettingsFields'
@@ -76,6 +76,16 @@ describe.each(SUPPORTED_LOCALES)('the editor labels in %s', (locale) => {
       .filter(key => String(key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], labels)).trim() === '')
 
     expect(blank).toEqual([])
+  })
+
+  it('name every store feature a block needs, and only those', () => {
+    const needed = [...new Set(Object.values(modules).flatMap(module => module.default.feature ?? []))].sort()
+
+    expect(Object.keys(labels.features).sort()).toEqual(needed)
+  })
+
+  it('name every tab of the add-section library, and only those', () => {
+    expect(Object.keys(labels.categories).sort()).toEqual([...BUILDER_BLOCK_CATEGORIES].sort())
   })
 
   it('name every section group the editor shows, and only those', () => {

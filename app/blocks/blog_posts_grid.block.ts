@@ -5,10 +5,13 @@ export default defineBlock({
   type: 'blog_posts_grid',
   version: 1,
   kinds: ['section'],
+  feature: 'blog',
   schema: z.object({
     ...builderField.blogRail(),
     count: builderField.integer(1, 24).optional(),
   }),
   translatable: ['/heading', '/subheading', '/ctaText'],
   refs: { '/categoryId': 'blogCategory' },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { category: 'blog' },
 })

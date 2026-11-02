@@ -12,5 +12,6 @@ export default defineBlock({
     address: builderField.text(300).optional(),
   }),
   translatable: ['/title', '/address'],
-  editor: { title: ['title'] },
+  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  editor: { title: ['title'], category: 'store' },
 })

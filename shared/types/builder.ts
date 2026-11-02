@@ -3,6 +3,7 @@ import type { ZodObject } from 'zod'
 import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
 import type { BlockUpgradeFailure } from '../builder/upgrade'
 import type { StoreFeatureName } from '../utils/storeFeature'
+import type { BUILDER_BLOCK_CATEGORIES } from '../constants/builderEditor'
 
 export type BlockKind = (typeof BLOCK_KINDS)[number]
 export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
@@ -124,6 +125,8 @@ export interface BlockEditorConfig {
    * a setting of the schema (`defineBlock` checks).
    */
   title?: readonly string[]
+  /** The tab of the add-section library a section is listed under (`BUILDER_BLOCK_CATEGORIES`); a block that only sits inside another has none. */
+  category?: (typeof BUILDER_BLOCK_CATEGORIES)[number]
 }
 
 /** What `defineBlock` returns: `BlockConfig` with every default filled in. */
@@ -202,6 +205,7 @@ export type BuilderNodeSkipReason
     | 'not_allowed'
     | 'invalid_settings'
     | 'upgrade_failed'
+    | 'feature_disabled'
 
 /** A node `parseDocument` left out, and why. */
 export interface BuilderNodeSkip {

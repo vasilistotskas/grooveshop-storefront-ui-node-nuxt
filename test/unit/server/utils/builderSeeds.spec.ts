@@ -58,7 +58,7 @@ describe('the home seed', () => {
   })
 
   it('is valid against the catalogue it is snapshotted beside: every section survives the parse unchanged', () => {
-    const parsed = parseDocument(home.document, 'template', registry)
+    const parsed = parseDocument(home.document, 'template', registry, { featureOn: () => true })
 
     expect(parsed.order).toEqual(home.document.order)
     expect(parsed.sections).toEqual(home.document.sections)

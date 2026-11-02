@@ -24,7 +24,7 @@ const node = (type: string, settings: Record<string, unknown>, children: Record<
   ...(Object.keys(children).length > 0 && { blocks: children, blockOrder: Object.keys(children) }),
 })
 /** A group document holding one menu section, parsed against the real blocks as the route parses it. */
-const menu = (section: TestNode): BuilderDocument => parseDocument({ sections: { menu: section }, order: ['menu'] }, 'group', registry)
+const menu = (section: TestNode): BuilderDocument => parseDocument({ sections: { menu: section }, order: ['menu'] }, 'group', registry, { featureOn: () => true })
 const link = (settings: Record<string, unknown>) => node('nav_link', settings)
 
 const header = () => menu(node('header_menu', {}, {
