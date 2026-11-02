@@ -69,9 +69,8 @@ export function sectionsProvideHeading(
 /**
  * The text of the heading a section list owns, for the page's `<title>`.
  *
- * `PageLayout.title` is the admin's own label for the layout and is
- * NOT translatable, so a builder page's title tag was one language for
- * both locales — "Μητρώο έργων" on `/en/empeiria`, and "Eidikefsi"
+ * A layout's admin label was NOT translatable, so a page's title tag
+ * was one language for both locales — "Μητρώο έργων" on `/en/empeiria`, and "Eidikefsi"
  * (the slug, title-cased) on the pages whose layout predates its own
  * naming. The heading of the section that owns the `<h1>` is the same
  * text a reader sees at the top of the page, and it IS localised (a

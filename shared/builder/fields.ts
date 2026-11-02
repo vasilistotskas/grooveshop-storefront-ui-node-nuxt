@@ -3,8 +3,7 @@ import * as z from 'zod'
 import { LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
 
 /**
- * The setting shapes the builder's blocks share, the constraints
- * `page_config`'s section schemas have always set: a length, a link
+ * The setting shapes the builder's blocks share: a length, a link
  * (see `link`), a `#rrggbb` colour, a surface from a fixed
  * list. A block takes them from here, so one rule has one definition.
  *

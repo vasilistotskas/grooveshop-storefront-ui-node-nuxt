@@ -7,7 +7,7 @@
  * - `secondary` — company and legal links: one inline row in the
  *   desktop footer's bottom bar, one collapsed row on a phone.
  *
- * An operator-configured footer (the store's `footer` NavigationMenu)
+ * An operator-configured footer (the store's builder `group:footer` menu)
  * replaces the code defaults, as it always has: its first two columns
  * are the primary ones and every later column's links are secondary —
  * the demo store's Shop, Help, Company and Legal columns land exactly

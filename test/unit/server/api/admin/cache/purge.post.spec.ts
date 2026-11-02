@@ -52,8 +52,8 @@ const PLATFORM_KEYS = [
   'nitro:handlers:health:default.json',
 ]
 
-// The `page_config` and `sitemap_seo` surfaces as Django sends them
-// (`core/cache/surfaces.py`).
+// The `page_config` and `sitemap_seo` surfaces as Django sent them on
+// 2026-09-18 (`core/cache/surfaces.py`), with the keys above.
 const PAGE_CONFIG_PATTERNS = [
   'cache:nitro:handlers:pageConfig*',
   'cache:nitro:handlers:pageConfigNavigation*',

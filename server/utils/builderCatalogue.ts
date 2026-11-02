@@ -96,7 +96,9 @@ export function buildBlockCatalogue(
   const documentKinds = Object.fromEntries(
     BUILDER_DOCUMENT_KINDS.flatMap((kind) => {
       const root = roots[kind]
-      return root ? [[kind, { schema: settingsJsonSchema(root.schema), translatable: [...root.translatable] }]] : []
+      return root
+        ? [[kind, { schema: settingsJsonSchema(root.schema), translatable: [...root.translatable], linkRefs: linkPointers(root.schema) }]]
+        : []
     }),
   )
   const names = [...templates].sort()

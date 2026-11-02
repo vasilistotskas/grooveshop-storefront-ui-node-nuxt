@@ -21,7 +21,7 @@ const {
 await useLikedBlogPost(blogPostId)
 
 // The store's own bands under the post (a promo banner, a signup, a CTA):
-// the published 'blog-post' PageLayout. Fallback is EMPTY, so a store
+// the published 'blog-post' builder page. Fallback is EMPTY, so a store
 // without a layout renders the post as it always did.
 const { sections: bandSections } = await useBuilderPage('blog-post', { placement: 'below-content' })
 

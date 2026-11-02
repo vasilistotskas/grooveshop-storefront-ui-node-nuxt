@@ -32,7 +32,7 @@ export interface FooterLinkColumn {
  * operator's "Εξυπηρέτηση" column and once in "Σελίδες".
  *
  * Paths are compared with the locale prefix stripped. The base carries
- * `NavigationMenu` rows verbatim from Django while the Pages column is
+ * the footer menu's paths unprefixed while the Pages column is
  * built with `localePath()`, so on a tenant serving a second locale
  * `/terms-of-use` and `/en/terms-of-use` are the same destination
  * spelled two ways, and a raw string comparison silently stops

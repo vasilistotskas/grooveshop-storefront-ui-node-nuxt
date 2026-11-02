@@ -20,8 +20,8 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * menu below `xl`, the same buttons in both, so the bar, and the funding
  * strip above it, keep their height.
  *
- * Data, not markup: the links are the tenant's `NavigationMenu` header
- * rows (`useNavigation`), the phone number is the published
+ * Data, not markup: the links are the tenant's builder `group:header`
+ * menu (`useNavigation`), the phone number is the published
  * `INVOICE_SELLER_PHONE` (`useMerchantIdentity`, the same value the
  * contact page's methods card prints) and the logo is the tenant's own.
  * A store that has published no phone gets no button.

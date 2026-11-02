@@ -15,7 +15,7 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * - Ωράριο: `BUSINESS_HOURS`, consecutive days with the same hours run
  *   together, then the tenant's social links (`socials*` on the tenant).
  * - Ο ιστότοπος: the footer navigation (`useFooterNavigation`) — the
- *   `NavigationMenu` footer rows when configured.
+ *   store's builder `group:footer` menu when it has one.
  * The legal line is the merchant identity (`MerchantIdentity`: ΓΕΜΗ and
  * ΑΦΜ, which N. 4919/2022 art. 22 wants on the e-shop) and the
  * navigation's legal links.

@@ -63,10 +63,12 @@ interface GatedRoute extends FeatureGatedRoute {
    */
   contentSlug?: string
   /**
-   * Layout gate — the `page_config` pageType this route renders.
+   * Page gate — the builder page (template or page key) this route
+   * renders.
    *
    * Same shape as `contentSlug` one layer over: the route exists for
-   * every tenant and throws a hard 404 where no layout is published.
+   * every tenant and throws a hard 404 where the current release has
+   * no such page.
    */
   pageType?: string
 }

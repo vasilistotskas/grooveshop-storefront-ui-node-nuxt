@@ -1,9 +1,8 @@
 /**
  * The props a section component receives for a parsed node: its settings,
  * and each list of children under the prop the block names for it
- * (`childList`), in order. Exactly the shape `page_config` has always
- * handed the same component, so a section renders the same whichever
- * producer made its data and no component has to read blocks itself.
+ * (`childList`), in order: the flat props shape the section components
+ * were written against, so no component has to read blocks itself.
  *
  * A disabled child is left out, as a hidden slide would be. A block with no
  * children has no list prop at all (an empty list and none render alike).

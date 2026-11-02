@@ -1,5 +1,5 @@
 {
-  "hash": "5339b88c65041eab",
+  "hash": "398190a92230307c",
   "blocks": [
     {
       "type": "about_content",
@@ -6102,7 +6102,8 @@
         "/seoTitle",
         "/seoDescription",
         "/seoKeywords"
-      ]
+      ],
+      "linkRefs": []
     },
     "template": {
       "schema": {
@@ -6128,7 +6129,8 @@
         "/seoTitle",
         "/seoDescription",
         "/seoKeywords"
-      ]
+      ],
+      "linkRefs": []
     }
   },
   "templates": [

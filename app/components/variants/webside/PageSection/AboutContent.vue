@@ -10,7 +10,7 @@ const tenantStore = useTenantStore()
 // inherited its text from the single-tenant era). The ``storeName``
 // placeholder lets each tenant's i18n override substitute its own
 // brand name without forking the template; full per-tenant content
-// rewrites go through the ``page_config`` API.
+// rewrites go through the page builder.
 // Fallback is the platform site name from runtime config — never a
 // hardcoded brand string (N2 in MULTI_TENANT_AUDIT.md).
 const storeName = computed(

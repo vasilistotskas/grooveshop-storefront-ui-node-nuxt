@@ -10,7 +10,7 @@ useHead({
 })
 
 // Optional per-tenant branded band above the form — sections from a
-// published 'feedback' PageLayout. Fallback is EMPTY, so tenants without
+// published 'feedback' builder page. Fallback is EMPTY, so tenants without
 // a layout render exactly as before.
 const { sections: brandSections } = await useBuilderPage('feedback')
 </script>

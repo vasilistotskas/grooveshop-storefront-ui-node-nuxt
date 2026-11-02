@@ -2,7 +2,7 @@
 export const BLOCK_KINDS = ['section', 'block'] as const
 
 /** What a setting that names another record refers to; Django checks the record exists. */
-export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage', 'media', 'menu'] as const
+export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage', 'media'] as const
 
 /** The records a link may point at: the reference kinds that have a page of their own. */
 export const LINK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage'] as const
@@ -16,7 +16,7 @@ export const BUILDER_MAX_NODE_DEPTH = 3
 /** A section or block id in a document (and a key of its `sections` / `blocks` maps). */
 export const BUILDER_NODE_ID_PATTERN = /^[\w-]{1,64}$/
 
-/** A block's type name: lower snake case, as the page-config section types are. */
+/** A block's type name: lower snake case. */
 export const BLOCK_TYPE_PATTERN = /^[a-z][a-z0-9_]*$/
 
 /** A node's `type`: `<block type>@<version>`. */
