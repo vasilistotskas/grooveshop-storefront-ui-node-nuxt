@@ -1,3 +1,10 @@
+# [3.289.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.288.0...v3.289.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** select and change a section in the live preview ([#333](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/333)) ([df68e29](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/df68e29e604a383131e6a4c330cd907b673a8a90))
+
 # [3.288.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.287.0...v3.288.0) (2026-11-02)
 
 
