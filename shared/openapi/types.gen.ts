@@ -467,6 +467,66 @@ export type AgentProfile = {
  */
 export type AgentProtocolEnum = 'ucp' | 'acp' | 'mcp'
 
+export type Asset = {
+  readonly id: number
+  readonly path: string
+  /**
+     * Πλάτος
+     *
+     * Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+     */
+  readonly width: number
+  /**
+     * Ύψος
+     *
+     * Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+     */
+  readonly height: number
+  /**
+     * Τύπος
+     */
+  readonly mime: string
+  /**
+     * Μέγεθος (bytes)
+     */
+  readonly sizeBytes: number
+  /**
+     * Σημείο εστίασης X
+     *
+     * Το 0 είναι η αριστερή άκρη, το 1 η δεξιά.
+     */
+  readonly focalX: number
+  /**
+     * Σημείο εστίασης Y
+     *
+     * Το 0 είναι η πάνω άκρη, το 1 η κάτω.
+     */
+  readonly focalY: number
+  readonly alt: {
+    [key: string]: string
+  }
+  uploadedBy: Staff | null
+  readonly usedBy: Array<string>
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+}
+
+export type AssetUploadRequest = {
+  file: Blob | File
+  focalX?: number | null
+  focalY?: number | null
+  /**
+     * {language: text}; a language not named keeps its text.
+     */
+  alt?: unknown
+}
+
 /**
  * Serializer for Attribute with translations.
  */
@@ -1925,6 +1985,20 @@ export type Brand = {
   readonly name: string
 }
 
+/**
+ * * `theme` - Θέμα
+ * * `group` - Ομάδα ενοτήτων
+ * * `template` - Πρότυπο
+ * * `page` - Σελίδα
+ */
+export type BuilderDocumentKindEnum = 'theme' | 'group' | 'template' | 'page'
+
+/**
+ * * `checkpoint` - Ονομασμένη αποθήκευση
+ * * `publish` - Δημοσίευση
+ */
+export type BuilderVersionKindEnum = 'checkpoint' | 'publish'
+
 export type BulkSubscriptionFailure = {
   readonly topic: string
   readonly error: string
@@ -2470,6 +2544,10 @@ export type CartPaymentIntentResponse = {
   currency: string
 }
 
+export type CheckpointWriteRequest = {
+  note?: string
+}
+
 /**
  * * `gclid` - gclid
  * * `gbraid` - gbraid
@@ -2489,54 +2567,6 @@ export type ClickIdsEnum = 'gclid' | 'gbraid' | 'wbraid' | 'msclkid' | 'ttclid' 
  * * `3` - Μεγάλο
  */
 export type CompartmentSizeEnum = 1 | 2 | 3
-
-/**
- * * `hero_banner` - Κεντρικό banner
- * * `hero_carousel` - Κεντρικό καρουζέλ
- * * `products_slider` - Slider προϊόντων
- * * `products_grid` - Πλέγμα προϊόντων
- * * `featured_products` - Προτεινόμενα Προϊόντα
- * * `product_categories` - Κατηγορίες προϊόντος
- * * `blog_categories` - Λωρίδα κατηγοριών Blog
- * * `blog_posts_carousel` - Καρουζέλ άρθρων Blog
- * * `blog_posts_grid` - Πλέγμα άρθρων Blog
- * * `blog_posts_list` - Λίστα άρθρων Blog
- * * `recently_viewed` - Λωρίδα πρόσφατα προβληθέντων
- * * `rich_text` - Μπλοκ εμπλουτισμένου κειμένου
- * * `cta_banner` - Banner παρότρυνσης για δράση
- * * `newsletter_signup` - Εγγραφή στο newsletter
- * * `testimonials` - Μαρτυρίες πελατών
- * * `about_content` - Περιεχόμενο «Σχετικά με εμάς»
- * * `vision_content` - Περιεχόμενο «Όραμα»
- * * `what_is_microlearning` - Τι είναι η μικρομάθηση
- * * `why_microlearning` - Γιατί μικρομάθηση
- * * `spacer` - Κενό διάστημα
- * * `divider` - Διαχωριστικό
- * * `loyalty_hero` - Κεντρική ενότητα προγράμματος πιστότητας
- * * `search_bar` - Γραμμή αναζήτησης
- * * `business_hours` - Ωράριο λειτουργίας
- * * `location_map` - Χάρτης τοποθεσίας
- * * `features_grid` - Πλέγμα χαρακτηριστικών
- * * `media_text` - Πολυμέσα + κείμενο
- * * `image_gallery` - Συλλογή εικόνων
- * * `story_timeline` - Χρονολόγιο ιστορίας
- * * `faq` - Συχνές ερωτήσεις (accordion)
- * * `trust_badges` - Σήματα εμπιστοσύνης
- * * `offers_preview` - Προεπισκόπηση προσφορών
- * * `stats_strip` - Λωρίδα στατιστικών
- * * `partner_strip` - Λωρίδα συνεργατών
- * * `pull_quote` - Επισημασμένο απόσπασμα
- * * `reference_cards` - Κάρτες αναφοράς
- * * `page_hero` - Κεντρική ενότητα σελίδας
- * * `feature_lists` - Λίστες χαρακτηριστικών
- * * `option_selector` - Επιλογέας επιλογών
- * * `comparison_table` - Πίνακας σύγκρισης
- * * `flow_steps` - Βήματα ροής
- * * `project_register` - Μητρώο έργων
- * * `vendor_cards` - Κάρτες προμηθευτών
- * * `contact_panel` - Πλαίσιο επικοινωνίας
- */
-export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'about_content' | 'vision_content' | 'what_is_microlearning' | 'why_microlearning' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar' | 'business_hours' | 'location_map' | 'features_grid' | 'media_text' | 'image_gallery' | 'story_timeline' | 'faq' | 'trust_badges' | 'offers_preview' | 'stats_strip' | 'partner_strip' | 'pull_quote' | 'reference_cards' | 'page_hero' | 'feature_lists' | 'option_selector' | 'comparison_table' | 'flow_steps' | 'project_register' | 'vendor_cards' | 'contact_panel'
 
 export type ConfirmAgentPaymentRequestRequest = {
   /**
@@ -3119,6 +3149,61 @@ export type Detail = {
   code?: string
 }
 
+export type DocumentDetail = {
+  /**
+     * Κλειδί
+     */
+  readonly key: string
+  kind: BuilderDocumentKindEnum
+  /**
+     * Αναθεώρηση πρόχειρου
+     *
+     * Αλλάζει με κάθε αλλαγή του πρόχειρου· κάθε αποθήκευση δηλώνει την αναθεώρηση πάνω στην οποία έγινε (If-Match).
+     */
+  readonly draftRevision: number
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  updatedBy: Staff | null
+  readonly publishedVersion: number | null
+  readonly hasUnpublishedChanges: boolean
+  draft: unknown
+  i18n: unknown
+  /**
+     * Αποτύπωμα καταλόγου
+     *
+     * Η έκδοση του καταλόγου του καταστήματος με την οποία ελέγχθηκε τελευταία φορά το πρόχειρο.
+     */
+  readonly draftCatalogueHash: string
+}
+
+export type DocumentList = {
+  /**
+     * Κλειδί
+     */
+  readonly key: string
+  kind: BuilderDocumentKindEnum
+  /**
+     * Αναθεώρηση πρόχειρου
+     *
+     * Αλλάζει με κάθε αλλαγή του πρόχειρου· κάθε αποθήκευση δηλώνει την αναθεώρηση πάνω στην οποία έγινε (If-Match).
+     */
+  readonly draftRevision: number
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  updatedBy: Staff | null
+  readonly publishedVersion: number | null
+  readonly hasUnpublishedChanges: boolean
+}
+
+export type DraftWriteRequest = {
+  draft: unknown
+  i18n?: unknown
+}
+
 export type EmailPreference = {
   readonly key: string
   readonly title: string
@@ -3603,34 +3688,6 @@ export type MerchantLegalIdentity = {
   readonly inLiquidation: boolean
   readonly missingFields: Array<string>
   readonly isComplete: boolean
-}
-
-/**
- * The slot row alone.
- *
- * Columns and links are relational and edited in the admin; this
- * surface used to carry the JSON menu and validate it, and that blob
- * no longer exists on the model.
- */
-export type NavigationMenu = {
-  /**
-     * Θέση
-     */
-  slot: SlotEnum
-}
-
-/**
- * The slot row alone.
- *
- * Columns and links are relational and edited in the admin; this
- * surface used to carry the JSON menu and validate it, and that blob
- * no longer exists on the model.
- */
-export type NavigationMenuRequest = {
-  /**
-     * Θέση
-     */
-  slot: SlotEnum
 }
 
 export type NewsletterAvailability = {
@@ -4961,169 +5018,6 @@ export type OrderWriteRequest = {
   customerNotes?: string
 }
 
-/**
- * The public, per-locale layout (``public_page_config``).
- *
- * Page config answers ONE locale per request (see
- * ``page_config.localization``), so the SEO fields travel as flat
- * strings resolved for it rather than as a ``translations`` object.
- */
-export type PageLayout = {
-  readonly id: number
-  readonly uuid: string
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType: string
-  /**
-     * Τίτλος
-     *
-     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
-     */
-  title: string
-  readonly seoTitle: string
-  readonly seoDescription: string
-  readonly seoKeywords: string
-  /**
-     * Δημοσιευμένο
-     */
-  isPublished?: boolean
-  /**
-     * Μεταδεδομένα
-     */
-  metadata?: unknown
-  readonly sections: Array<PageSection>
-}
-
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export type PageLayoutAdminDetail = {
-  readonly id: number
-  readonly uuid: string
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType: string
-  /**
-     * Τίτλος
-     *
-     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
-     */
-  title: string
-  translations: {
-    el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-    en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-  }
-  /**
-     * Δημοσιευμένο
-     */
-  isPublished?: boolean
-  /**
-     * Μεταδεδομένα
-     */
-  metadata?: unknown
-  readonly sections: Array<PageSection>
-}
-
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export type PageLayoutAdminDetailRequest = {
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType: string
-  /**
-     * Τίτλος
-     *
-     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
-     */
-  title: string
-  translations: {
-    el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-    en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-  }
-  /**
-     * Δημοσιευμένο
-     */
-  isPublished?: boolean
-  /**
-     * Μεταδεδομένα
-     */
-  metadata?: unknown
-}
-
-export type PageSection = {
-  readonly id: number
-  readonly uuid: string
-  /**
-     * Τύπος στοιχείου
-     */
-  componentType: ComponentTypeEnum
-  /**
-     * Τίτλος
-     */
-  title?: string
-  /**
-     * Ορατό
-     */
-  isVisible?: boolean
-  /**
-     * Ιδιότητες
-     *
-     * Ρυθμίσεις του στοιχείου σε μορφή JSON.
-     */
-  props?: unknown
-  /**
-     * Σειρά ταξινόμησης
-     */
-  readonly sortOrder: number | null
-}
-
-export type PageSectionRequest = {
-  /**
-     * Τύπος στοιχείου
-     */
-  componentType: ComponentTypeEnum
-  /**
-     * Τίτλος
-     */
-  title?: string
-  /**
-     * Ορατό
-     */
-  isVisible?: boolean
-  /**
-     * Ιδιότητες
-     *
-     * Ρυθμίσεις του στοιχείου σε μορφή JSON.
-     */
-  props?: unknown
-}
-
 export type PaginatedAcsStationList = {
   links?: {
     next?: string | null
@@ -5135,6 +5029,19 @@ export type PaginatedAcsStationList = {
   pageTotalResults?: number
   page?: number
   results: Array<AcsStation>
+}
+
+export type PaginatedAssetList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<Asset>
 }
 
 export type PaginatedAttributeList = {
@@ -5306,6 +5213,19 @@ export type PaginatedCountryList = {
   results: Array<Country>
 }
 
+export type PaginatedDocumentListList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<DocumentList>
+}
+
 export type PaginatedGiftCardList = {
   links?: {
     next?: string | null
@@ -5317,19 +5237,6 @@ export type PaginatedGiftCardList = {
   pageTotalResults?: number
   page?: number
   results: Array<GiftCard>
-}
-
-export type PaginatedNavigationMenuList = {
-  links?: {
-    next?: string | null
-    previous?: string | null
-  }
-  count: number
-  totalPages?: number
-  pageSize?: number
-  pageTotalResults?: number
-  page?: number
-  results: Array<NavigationMenu>
 }
 
 export type PaginatedNotificationUserDetailList = {
@@ -5382,19 +5289,6 @@ export type PaginatedOrderList = {
   pageTotalResults?: number
   page?: number
   results: Array<Order>
-}
-
-export type PaginatedPageLayoutAdminDetailList = {
-  links?: {
-    next?: string | null
-    previous?: string | null
-  }
-  count: number
-  totalPages?: number
-  pageSize?: number
-  pageTotalResults?: number
-  page?: number
-  results: Array<PageLayoutAdminDetail>
 }
 
 export type PaginatedPayWayList = {
@@ -5540,6 +5434,32 @@ export type PaginatedRegionList = {
   results: Array<Region>
 }
 
+export type PaginatedReleaseList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<Release>
+}
+
+export type PaginatedScheduleList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<Schedule>
+}
+
 export type PaginatedSubscriptionTopicList = {
   links?: {
     next?: string | null
@@ -5629,6 +5549,28 @@ export type PaginatedUserSubscriptionList = {
   pageTotalResults?: number
   page?: number
   results: Array<UserSubscription>
+}
+
+export type PaginatedVersionListList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<VersionList>
+}
+
+export type PatchedAssetUpdateRequest = {
+  focalX?: number | null
+  focalY?: number | null
+  /**
+     * {language: text}; a language not named keeps its text.
+     */
+  alt?: unknown
 }
 
 /**
@@ -5843,20 +5785,6 @@ export type PatchedEmailPreferencesWriteRequest = {
   types?: Array<EmailPreferenceChoiceRequest>
 }
 
-/**
- * The slot row alone.
- *
- * Columns and links are relational and edited in the admin; this
- * surface used to carry the JSON menu and validate it, and that blob
- * no longer exists on the model.
- */
-export type PatchedNavigationMenuRequest = {
-  /**
-     * Θέση
-     */
-  slot?: SlotEnum
-}
-
 export type PatchedNotificationUserWriteRequest = {
   /**
      * Αναγνωσμένη
@@ -5934,44 +5862,6 @@ export type PatchedOrderWriteRequest = {
      * Σημειώσεις Πελάτη
      */
   customerNotes?: string
-}
-
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export type PatchedPageLayoutAdminDetailRequest = {
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType?: string
-  /**
-     * Τίτλος
-     *
-     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
-     */
-  title?: string
-  translations?: {
-    el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-    en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-  }
-  /**
-     * Δημοσιευμένο
-     */
-  isPublished?: boolean
-  /**
-     * Μεταδεδομένα
-     */
-  metadata?: unknown
 }
 
 /**
@@ -6209,6 +6099,10 @@ export type PatchedRegionWriteRequest = {
      * Κωδικός Χώρας (Alpha 2)
      */
   country?: string
+}
+
+export type PatchedRescheduleRequest = {
+  scheduledFor?: string
 }
 
 /**
@@ -8250,23 +8144,9 @@ export type PublicSettings = {
   }
 }
 
-/**
- * One published layout of the store, as the storefront's sitemap
- * lists it (``public_published_layouts``).
- *
- * ``last_modified`` is the later of the layout's own ``updated_at`` and
- * its newest section's: editing a section changes the page without
- * touching the layout row, and a sitemap ``<lastmod>`` that missed it
- * would tell crawlers the page had not changed.
- */
-export type PublishedPageLayout = {
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType: string
-  readonly lastModified: string
+export type PublishWriteRequest = {
+  documents: Array<string>
+  note?: string
 }
 
 /**
@@ -8484,6 +8364,28 @@ export type RelationEnum = 'PRODUCT' | 'REWARD' | 'CATEGORY' | 'ORDER'
  */
 export type RelationTypeEnum = 'similar' | 'complementary' | 'accessory' | 'replacement' | 'bundle'
 
+export type Release = {
+  readonly id: number
+  /**
+     * Αριθμός
+     */
+  readonly number: number
+  /**
+     * Δημοσιεύθηκε στις
+     */
+  readonly publishedAt: string
+  publishedBy: Staff | null
+  /**
+     * Σημείωση
+     */
+  readonly note: string
+  /**
+     * Αριθμός
+     */
+  readonly rolledBackFrom: number
+  versions: unknown
+}
+
 /**
  * Serializer for releasing stock reservations.
  */
@@ -8541,6 +8443,44 @@ export type ReserveStockResponse = {
   message: string
 }
 
+export type ResolvedAsset = {
+  readonly id: number
+  readonly path: string
+  /**
+     * Πλάτος
+     *
+     * Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+     */
+  readonly width: number
+  /**
+     * Ύψος
+     *
+     * Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+     */
+  readonly height: number
+  /**
+     * Τύπος
+     */
+  readonly mime: string
+  /**
+     * Σημείο εστίασης X
+     *
+     * Το 0 είναι η αριστερή άκρη, το 1 η δεξιά.
+     */
+  readonly focalX: number
+  /**
+     * Σημείο εστίασης Y
+     *
+     * Το 0 είναι η πάνω άκρη, το 1 η κάτω.
+     */
+  readonly focalY: number
+  readonly alt: string
+}
+
+export type ResolvedMedia = {
+  results: Array<ResolvedAsset>
+}
+
 /**
  * * `product` - product
  * * `blog_post` - blog_post
@@ -8554,6 +8494,11 @@ export type ResultTypeEnum = 'product' | 'blog_post'
  */
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE'
 
+export type RollbackWriteRequest = {
+  release: number
+  note?: string
+}
+
 /**
  * * `PENDING` - Εκκρεμεί σάρωση
  * * `CLEAN` - Καθαρό
@@ -8562,6 +8507,58 @@ export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE'
  * * `SKIPPED` - Δεν σαρώθηκε
  */
 export type ScanStatusEnum = 'PENDING' | 'CLEAN' | 'INFECTED' | 'ERROR' | 'SKIPPED'
+
+export type Schedule = {
+  readonly id: number
+  /**
+     * Προγραμματισμένο για
+     */
+  readonly scheduledFor: string
+  /**
+     * Κατάσταση
+     */
+  status: ScheduleStatusEnum
+  readonly documents: Array<string>
+  /**
+     * Σημείωση
+     */
+  readonly note: string
+  scheduledBy: Staff | null
+  /**
+     * Εκτελέστηκε στις
+     */
+  readonly executedAt: string | null
+  /**
+     * Αριθμός
+     */
+  readonly release: number
+  /**
+     * Αποτυχία
+     *
+     * Γιατί δεν μπόρεσε να δημοσιευτεί: [{path, code, message}]
+     */
+  readonly failure: unknown
+  /**
+     * Επιβεβαιώθηκε στις
+     *
+     * Πότε είδε κάποιος ότι απέτυχε. Ένας προγραμματισμός που απέτυχε εμφανίζεται στον πίνακα ελέγχου του καταστήματος μέχρι τότε.
+     */
+  readonly acknowledgedAt: string | null
+}
+
+/**
+ * * `pending` - Εκκρεμεί
+ * * `published` - Δημοσιευμένο
+ * * `cancelled` - Ακυρώθηκε
+ * * `failed` - Απέτυχε
+ */
+export type ScheduleStatusEnum = 'pending' | 'published' | 'cancelled' | 'failed'
+
+export type ScheduleWriteRequest = {
+  documents: Array<string>
+  scheduledFor: string
+  note?: string
+}
 
 /**
  * Serializer for search analytics response.
@@ -8642,6 +8639,22 @@ export type SearchVolume = {
   byLanguage: {
     [key: string]: number
   }
+}
+
+export type SessionRequestRequest = {
+  ticket: string
+}
+
+export type SessionResponse = {
+  token: string
+  expiresAt: string
+  staff: SessionStaff
+}
+
+export type SessionStaff = {
+  id: number
+  name: string
+  role: string
 }
 
 export type Setting = {
@@ -8874,12 +8887,10 @@ export type ShippingProvider = {
  */
 export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 
-/**
- * * `header` - Κεφαλίδα
- * * `footer` - Υποσέλιδο
- * * `mobile` - Κινητό
- */
-export type SlotEnum = 'header' | 'footer' | 'mobile'
+export type Staff = {
+  id: number
+  name: string
+}
 
 /**
  * Each optional feature's effective state for the store: its plan
@@ -10034,6 +10045,78 @@ export type VariantAxisValue = {
   value: string
 }
 
+export type VersionDetail = {
+  readonly id: number
+  /**
+     * Αριθμός
+     */
+  readonly number: number
+  kind: BuilderVersionKindEnum
+  /**
+     * Σημείωση
+     */
+  readonly note: string
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  createdBy: Staff | null
+  /**
+     * Μέγεθος (bytes)
+     */
+  readonly sizeBytes: number
+  /**
+     * Τύποι μπλοκ
+     *
+     * Κάθε τύπος@έκδοση που χρησιμοποιείται, για τον έλεγχο χρήσης του καταλόγου.
+     */
+  readonly blockTypes: Array<string>
+  /**
+     * Αποτύπωμα καταλόγου
+     */
+  readonly catalogueHash: string
+  data: unknown
+  i18n: unknown
+  /**
+     * Αναφορές
+     *
+     * {είδος: {αναγνωριστικό στόχου: [δείκτες κόμβων]}}
+     */
+  readonly refs: unknown
+}
+
+export type VersionList = {
+  readonly id: number
+  /**
+     * Αριθμός
+     */
+  readonly number: number
+  kind: BuilderVersionKindEnum
+  /**
+     * Σημείωση
+     */
+  readonly note: string
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  createdBy: Staff | null
+  /**
+     * Μέγεθος (bytes)
+     */
+  readonly sizeBytes: number
+  /**
+     * Τύποι μπλοκ
+     *
+     * Κάθε τύπος@έκδοση που χρησιμοποιείται, για τον έλεγχο χρήσης του καταλόγου.
+     */
+  readonly blockTypes: Array<string>
+  /**
+     * Αποτύπωμα καταλόγου
+     */
+  readonly catalogueHash: string
+}
+
 /**
  * * `UNCHECKED` - Δεν έχει ελεγχθεί
  * * `VALID` - Έγκυρο
@@ -10123,472 +10206,6 @@ export type ApiValidationError = {
   [key: string]: unknown
 }
 
-export type PageSectionHeroBannerProps = {
-  heading?: string
-  stats?: Array<{
-    value: string
-    label: string
-  }>
-  subheading?: string
-  eyebrow?: string
-  imageUrl?: string
-  ctaText?: string
-  ctaLink?: string
-  secondaryCtaText?: string
-  secondaryCtaLink?: string
-  overlayOpacity?: number
-  decor?: 'none' | 'orbs' | 'gradient'
-  mobileImageUrl?: string
-  imageAlt?: string
-  align?: 'left' | 'center'
-  theme?: 'light' | 'dark' | 'auto'
-}
-
-export type PageSectionHeroCarouselProps = {
-  slides?: Array<{
-    imageUrl: string
-    mobileImageUrl?: string
-    alt?: string
-    eyebrow?: string
-    heading?: string
-    subheading?: string
-    ctaText?: string
-    ctaLink?: string
-    secondaryCtaText?: string
-    secondaryCtaLink?: string
-    productId?: number
-  }>
-  autoplayMs?: 0 | number
-  aspect?: 'wide' | 'banner' | 'square'
-  images?: Array<string>
-  mobileImages?: Array<string>
-  link?: string
-}
-
-export type PageSectionProductsSliderProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  subheading?: string
-  ctaText?: string
-  ctaLink?: string
-  ordering?: 'featured' | 'newest' | 'popular' | 'discounted' | 'rating'
-  categoryId?: number
-  showAddToCart?: boolean
-  pageSize?: number
-}
-
-export type PageSectionProductsGridProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  subheading?: string
-  ctaText?: string
-  ctaLink?: string
-  ordering?: 'featured' | 'newest' | 'popular' | 'discounted' | 'rating'
-  categoryId?: number
-  showAddToCart?: boolean
-  pageSize?: number
-}
-
-export type PageSectionFeaturedProductsProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  subheading?: string
-  ctaText?: string
-  ctaLink?: string
-  ordering?: 'featured' | 'newest' | 'popular' | 'discounted' | 'rating'
-  categoryId?: number
-  showAddToCart?: boolean
-  pageSize?: number
-  columns?: number
-}
-
-export type PageSectionProductCategoriesProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  layout?: 'slider' | 'grid' | 'tiles'
-  parentId?: number
-  limit?: number
-}
-
-export type PageSectionBlogCategoriesProps = {
-  [key: string]: never
-}
-
-export type PageSectionBlogPostsCarouselProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  subheading?: string
-  ctaText?: string
-  ctaLink?: string
-  categoryId?: number
-  count?: number
-}
-
-export type PageSectionBlogPostsGridProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  subheading?: string
-  ctaText?: string
-  ctaLink?: string
-  categoryId?: number
-  count?: number
-}
-
-export type PageSectionBlogPostsListProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  subheading?: string
-  ctaText?: string
-  ctaLink?: string
-  categoryId?: number
-  pageSize?: number
-}
-
-export type PageSectionRecentlyViewedProps = {
-  heading?: string
-}
-
-export type PageSectionRichTextProps = {
-  content?: string
-}
-
-export type PageSectionCtaBannerProps = {
-  heading?: string
-  description?: string
-  buttonText?: string
-  buttonLink?: string
-  backgroundColor?: string
-  surface?: 'default' | 'muted'
-}
-
-export type PageSectionNewsletterSignupProps = {
-  heading?: string
-  description?: string
-  placeholder?: string
-  buttonText?: string
-  surface?: 'default' | 'muted'
-}
-
-export type PageSectionTestimonialsProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  items?: Array<{
-    name?: string
-    text?: string
-    avatar?: string
-    role?: string
-    rating?: number
-  }>
-}
-
-export type PageSectionSpacerProps = {
-  height?: 'sm' | 'md' | 'lg' | 'xl'
-}
-
-export type PageSectionDividerProps = {
-  variant?: 'line' | 'thread'
-}
-
-export type PageSectionLoyaltyHeroProps = {
-  surface?: 'default' | 'muted'
-  eyebrow?: string
-  ctaText?: string
-  ctaLink?: string
-  secondaryCtaText?: string
-  secondaryCtaLink?: string
-}
-
-export type PageSectionSearchBarProps = {
-  [key: string]: never
-}
-
-export type PageSectionAboutContentProps = {
-  [key: string]: never
-}
-
-export type PageSectionVisionContentProps = {
-  [key: string]: never
-}
-
-export type PageSectionWhatIsMicrolearningProps = {
-  [key: string]: never
-}
-
-export type PageSectionWhyMicrolearningProps = {
-  [key: string]: never
-}
-
-export type PageSectionBusinessHoursProps = {
-  surface?: 'default' | 'muted'
-}
-
-export type PageSectionLocationMapProps = {
-  surface?: 'default' | 'muted'
-  embedUrl?: string
-  address?: string
-}
-
-export type PageSectionPartnerStripProps = {
-  label?: string
-  items?: Array<{
-    name: string
-    href?: string
-  }>
-}
-
-export type PageSectionPageHeroProps = {
-  eyebrow?: string
-  heading?: string
-  standfirst?: string
-  body?: string
-  ctaText?: string
-  ctaLink?: string
-  secondaryCtaText?: string
-  secondaryCtaLink?: string
-  stats?: Array<{
-    value: string
-    label: string
-  }>
-  callout?: {
-    tone?: 'info' | 'warning' | 'success'
-    title: string
-    text?: string
-    note?: string
-  }
-  facts?: Array<{
-    label: string
-    value: string
-  }>
-}
-
-export type PageSectionFeatureListsProps = {
-  heading?: string
-  note?: string
-  emphasis?: string
-  items?: Array<{
-    title: string
-    icon?: string
-    bullets?: Array<string>
-  }>
-}
-
-export type PageSectionOptionSelectorProps = {
-  heading?: string
-  standfirst?: string
-  rowsLabel?: string
-  rationaleLabel?: string
-  bulletsLabel?: string
-  layout?: 'cards' | 'strip' | 'rail'
-  prompt?: {
-    title: string
-    text?: string
-    ctaText?: string
-    ctaLink?: string
-  }
-  options?: Array<{
-    name: string
-    label?: string
-    model?: string
-    title?: string
-    rationale?: string
-    note?: string
-    ctaText?: string
-    ctaLink?: string
-    bullets?: Array<string>
-    rows?: Array<{
-      label: string
-      value: string
-    }>
-  }>
-}
-
-export type PageSectionComparisonTableProps = {
-  heading?: string
-  rowLabel?: string
-  note?: string
-  columns?: Array<string>
-  rows?: Array<{
-    label: string
-    values: Array<string>
-  }>
-}
-
-export type PageSectionFlowStepsProps = {
-  heading?: string
-  body?: string
-  items?: Array<{
-    title: string
-    label?: string
-    lines?: Array<string>
-  }>
-}
-
-export type PageSectionReferenceCardsProps = {
-  heading?: string
-  metaLabel?: string
-  ctaText?: string
-  ctaLink?: string
-  items?: Array<{
-    title: string
-    label?: string
-    text?: string
-    meta?: string
-  }>
-}
-
-export type PageSectionProjectRegisterProps = {
-  metaLabel?: string
-  note?: string
-  sectors?: Array<{
-    key: string
-    label: string
-  }>
-  items?: Array<{
-    title: string
-    sector?: string
-    note?: string
-    meta?: string
-  }>
-}
-
-export type PageSectionVendorCardsProps = {
-  note?: string
-  items?: Array<{
-    title: string
-    label?: string
-    text?: string
-    tags?: Array<string>
-  }>
-}
-
-export type PageSectionContactPanelProps = {
-  eyebrow?: string
-  heading?: string
-  body?: string
-  hint?: string
-  responseTime?: string
-  subjects?: Array<{
-    label: string
-  }>
-}
-
-export type PageSectionPullQuoteProps = {
-  quote?: string
-  text?: string
-  attribution?: string
-}
-
-export type PageSectionFeaturesGridProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  items?: Array<{
-    title: string
-    text?: string
-    icon?: string
-  }>
-  body?: string
-  columns?: number
-  decor?: 'none' | 'gradient_tiles' | 'framed'
-  ctaText?: string
-  ctaLink?: string
-  prompt?: {
-    title: string
-    text?: string
-    ctaText?: string
-    ctaLink?: string
-  }
-}
-
-export type PageSectionMediaTextProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  body?: string
-  eyebrow?: string
-  note?: string
-  emphasis?: string
-  bullets?: Array<{
-    text: string
-  }>
-  specs?: Array<{
-    label?: string
-    name: string
-    subtitle?: string
-    rows?: Array<{
-      label: string
-      value: string
-    }>
-  }>
-  imageUrl?: string
-  imagePosition?: 'left' | 'right'
-  ctaText?: string
-  ctaLink?: string
-  decor?: 'none' | 'orbs' | 'gradient'
-}
-
-export type PageSectionImageGalleryProps = {
-  surface?: 'default' | 'muted'
-  items?: Array<{
-    src: string
-    alt: string
-    caption?: string
-  }>
-  columns?: number
-}
-
-export type PageSectionStoryTimelineProps = {
-  heading?: string
-  subheading?: string
-  items?: Array<{
-    title: string
-    date?: string
-    text?: string
-    icon?: string
-  }>
-  surface?: 'default' | 'muted'
-}
-
-export type PageSectionFaqProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  subheading?: string
-  items?: Array<{
-    question: string
-    answer: string
-  }>
-  multiple?: boolean
-}
-
-export type PageSectionTrustBadgesProps = {
-  surface?: 'default' | 'muted'
-  heading?: string
-  items?: Array<unknown & {
-    kind: 'payment' | 'shipping' | 'ai' | 'custom'
-    label: string
-    imageUrl?: string
-    icon?: string
-    href?: string
-  }>
-  marquee?: boolean
-}
-
-export type PageSectionOffersPreviewProps = {
-  surface?: 'default' | 'muted' | 'ink'
-  eyebrow?: string
-  heading?: string
-  subheading?: string
-  limit?: number
-  ctaText?: string
-  ctaLink?: string
-}
-
-export type PageSectionStatsStripProps = {
-  items?: Array<{
-    value: string
-    label: string
-  }>
-  surface?: 'default' | 'muted'
-}
-
 /**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
@@ -10621,6 +10238,10 @@ export type AgentFavouriteWritable = {
      * Πότε προστέθηκε το προϊόν στα αγαπημένα
      */
   addedAt: string
+}
+
+export type AssetWritable = {
+  [key: string]: unknown
 }
 
 /**
@@ -11098,6 +10719,16 @@ export type CountryDetailWritable = {
      * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
+}
+
+export type DocumentDetailWritable = {
+  kind: BuilderDocumentKindEnum
+  draft: unknown
+  i18n: unknown
+}
+
+export type DocumentListWritable = {
+  kind: BuilderDocumentKindEnum
 }
 
 export type FeedbackWriteWritable = {
@@ -11607,95 +11238,6 @@ export type OrderItemRestockResponseWritable = {
   item: OrderItemWritable
 }
 
-/**
- * The public, per-locale layout (``public_page_config``).
- *
- * Page config answers ONE locale per request (see
- * ``page_config.localization``), so the SEO fields travel as flat
- * strings resolved for it rather than as a ``translations`` object.
- */
-export type PageLayoutWritable = {
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType: string
-  /**
-     * Τίτλος
-     *
-     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
-     */
-  title: string
-  /**
-     * Δημοσιευμένο
-     */
-  isPublished?: boolean
-  /**
-     * Μεταδεδομένα
-     */
-  metadata?: unknown
-}
-
-/**
- * The staff read of a layout: every language's SEO, not one.
- */
-export type PageLayoutAdminDetailWritable = {
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType: string
-  /**
-     * Τίτλος
-     *
-     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
-     */
-  title: string
-  translations: {
-    el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-    en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
-    }
-  }
-  /**
-     * Δημοσιευμένο
-     */
-  isPublished?: boolean
-  /**
-     * Μεταδεδομένα
-     */
-  metadata?: unknown
-}
-
-export type PageSectionWritable = {
-  /**
-     * Τύπος στοιχείου
-     */
-  componentType: ComponentTypeEnum
-  /**
-     * Τίτλος
-     */
-  title?: string
-  /**
-     * Ορατό
-     */
-  isVisible?: boolean
-  /**
-     * Ιδιότητες
-     *
-     * Ρυθμίσεις του στοιχείου σε μορφή JSON.
-     */
-  props?: unknown
-}
-
 export type PaginatedAcsStationListWritable = {
   links?: {
     next?: string | null
@@ -11707,6 +11249,19 @@ export type PaginatedAcsStationListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<unknown>
+}
+
+export type PaginatedAssetListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<AssetWritable>
 }
 
 export type PaginatedAttributeListWritable = {
@@ -11878,6 +11433,19 @@ export type PaginatedCountryListWritable = {
   results: Array<CountryWritable>
 }
 
+export type PaginatedDocumentListListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<DocumentListWritable>
+}
+
 export type PaginatedGiftCardListWritable = {
   links?: {
     next?: string | null
@@ -11941,19 +11509,6 @@ export type PaginatedOrderListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<OrderWritable>
-}
-
-export type PaginatedPageLayoutAdminDetailListWritable = {
-  links?: {
-    next?: string | null
-    previous?: string | null
-  }
-  count: number
-  totalPages?: number
-  pageSize?: number
-  pageTotalResults?: number
-  page?: number
-  results: Array<PageLayoutAdminDetailWritable>
 }
 
 export type PaginatedPayWayListWritable = {
@@ -12099,6 +11654,32 @@ export type PaginatedRegionListWritable = {
   results: Array<RegionWritable>
 }
 
+export type PaginatedReleaseListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ReleaseWritable>
+}
+
+export type PaginatedScheduleListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ScheduleWritable>
+}
+
 export type PaginatedSubscriptionTopicListWritable = {
   links?: {
     next?: string | null
@@ -12188,6 +11769,19 @@ export type PaginatedUserSubscriptionListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<UserSubscriptionWritable>
+}
+
+export type PaginatedVersionListListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<VersionListWritable>
 }
 
 export type PatchedTaggedItemWriteRequestWritable = {
@@ -12684,24 +12278,6 @@ export type ProductVariantsResponseWritable = {
   variants: Array<ProductVariantWritable>
 }
 
-/**
- * One published layout of the store, as the storefront's sitemap
- * lists it (``public_published_layouts``).
- *
- * ``last_modified`` is the later of the layout's own ``updated_at`` and
- * its newest section's: editing a section changes the page without
- * touching the layout row, and a sitemap ``<lastmod>`` that missed it
- * would tell crawlers the page had not changed.
- */
-export type PublishedPageLayoutWritable = {
-  /**
-     * Τύπος σελίδας
-     *
-     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
-     */
-  pageType: string
-}
-
 export type RecommendationItemWritable = {
   [key: string]: unknown
 }
@@ -12756,6 +12332,18 @@ export type RegionDetailWritable = {
      * Κωδικός Χώρας (Alpha 2)
      */
   country: string
+}
+
+export type ReleaseWritable = {
+  versions: unknown
+}
+
+export type ResolvedMediaWritable = {
+  results: Array<unknown>
+}
+
+export type ScheduleWritable = {
+  [key: string]: unknown
 }
 
 /**
@@ -13158,28 +12746,14 @@ export type UserSubscriptionDetailWritable = {
   metadata?: unknown
 }
 
-export type PageSectionBlogCategoriesPropsWritable = {
-  [key: string]: never
+export type VersionDetailWritable = {
+  kind: BuilderVersionKindEnum
+  data: unknown
+  i18n: unknown
 }
 
-export type PageSectionSearchBarPropsWritable = {
-  [key: string]: never
-}
-
-export type PageSectionAboutContentPropsWritable = {
-  [key: string]: never
-}
-
-export type PageSectionVisionContentPropsWritable = {
-  [key: string]: never
-}
-
-export type PageSectionWhatIsMicrolearningPropsWritable = {
-  [key: string]: never
-}
-
-export type PageSectionWhyMicrolearningPropsWritable = {
-  [key: string]: never
+export type VersionListWritable = {
+  kind: BuilderVersionKindEnum
 }
 
 export type GetAgentProfileData = {
@@ -17048,6 +16622,683 @@ export type UpdateBlogTagResponses = {
 }
 
 export type UpdateBlogTagResponse = UpdateBlogTagResponses[keyof UpdateBlogTagResponses]
+
+export type ApiV1BuilderDocumentsListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/builder/documents'
+}
+
+export type ApiV1BuilderDocumentsListResponses = {
+  200: PaginatedDocumentListList
+}
+
+export type ApiV1BuilderDocumentsListResponse = ApiV1BuilderDocumentsListResponses[keyof ApiV1BuilderDocumentsListResponses]
+
+export type ApiV1BuilderDocumentsDestroyData = {
+  body?: never
+  headers: {
+    /**
+         * The draft revision this change is made against, as read from the document (`draftRevision`, or the ETag). `0` creates a document that does not exist. A stale revision answers 409 `revision_conflict` with the current one and who saved it.
+         */
+    'If-Match': string
+  }
+  path: {
+    key: string
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}'
+}
+
+export type ApiV1BuilderDocumentsDestroyErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsDestroyError = ApiV1BuilderDocumentsDestroyErrors[keyof ApiV1BuilderDocumentsDestroyErrors]
+
+export type ApiV1BuilderDocumentsDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type ApiV1BuilderDocumentsDestroyResponse = ApiV1BuilderDocumentsDestroyResponses[keyof ApiV1BuilderDocumentsDestroyResponses]
+
+export type ApiV1BuilderDocumentsRetrieveData = {
+  body?: never
+  path: {
+    key: string
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}'
+}
+
+export type ApiV1BuilderDocumentsRetrieveResponses = {
+  200: DocumentDetail
+}
+
+export type ApiV1BuilderDocumentsRetrieveResponse = ApiV1BuilderDocumentsRetrieveResponses[keyof ApiV1BuilderDocumentsRetrieveResponses]
+
+export type ApiV1BuilderDocumentsCheckpointCreateData = {
+  body?: CheckpointWriteRequest
+  path: {
+    key: string
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}/checkpoint'
+}
+
+export type ApiV1BuilderDocumentsCheckpointCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsCheckpointCreateError = ApiV1BuilderDocumentsCheckpointCreateErrors[keyof ApiV1BuilderDocumentsCheckpointCreateErrors]
+
+export type ApiV1BuilderDocumentsCheckpointCreateResponses = {
+  201: VersionList
+}
+
+export type ApiV1BuilderDocumentsCheckpointCreateResponse = ApiV1BuilderDocumentsCheckpointCreateResponses[keyof ApiV1BuilderDocumentsCheckpointCreateResponses]
+
+export type ApiV1BuilderDocumentsDiscardCreateData = {
+  body?: never
+  headers: {
+    /**
+         * The draft revision this change is made against, as read from the document (`draftRevision`, or the ETag). `0` creates a document that does not exist. A stale revision answers 409 `revision_conflict` with the current one and who saved it.
+         */
+    'If-Match': string
+  }
+  path: {
+    key: string
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}/discard'
+}
+
+export type ApiV1BuilderDocumentsDiscardCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsDiscardCreateError = ApiV1BuilderDocumentsDiscardCreateErrors[keyof ApiV1BuilderDocumentsDiscardCreateErrors]
+
+export type ApiV1BuilderDocumentsDiscardCreateResponses = {
+  200: DocumentDetail
+}
+
+export type ApiV1BuilderDocumentsDiscardCreateResponse = ApiV1BuilderDocumentsDiscardCreateResponses[keyof ApiV1BuilderDocumentsDiscardCreateResponses]
+
+export type ApiV1BuilderDocumentsDraftUpdateData = {
+  body: DraftWriteRequest
+  headers: {
+    /**
+         * The draft revision this change is made against, as read from the document (`draftRevision`, or the ETag). `0` creates a document that does not exist. A stale revision answers 409 `revision_conflict` with the current one and who saved it.
+         */
+    'If-Match': string
+  }
+  path: {
+    key: string
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}/draft'
+}
+
+export type ApiV1BuilderDocumentsDraftUpdateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsDraftUpdateError = ApiV1BuilderDocumentsDraftUpdateErrors[keyof ApiV1BuilderDocumentsDraftUpdateErrors]
+
+export type ApiV1BuilderDocumentsDraftUpdateResponses = {
+  200: DocumentDetail
+}
+
+export type ApiV1BuilderDocumentsDraftUpdateResponse = ApiV1BuilderDocumentsDraftUpdateResponses[keyof ApiV1BuilderDocumentsDraftUpdateResponses]
+
+export type ApiV1BuilderDocumentsVersionsListData = {
+  body?: never
+  path: {
+    key: string
+  }
+  query?: {
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/builder/documents/{key}/versions'
+}
+
+export type ApiV1BuilderDocumentsVersionsListResponses = {
+  200: PaginatedVersionListList
+}
+
+export type ApiV1BuilderDocumentsVersionsListResponse = ApiV1BuilderDocumentsVersionsListResponses[keyof ApiV1BuilderDocumentsVersionsListResponses]
+
+export type ApiV1BuilderDocumentsVersionsRetrieveData = {
+  body?: never
+  path: {
+    key: string
+    number: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}/versions/{number}'
+}
+
+export type ApiV1BuilderDocumentsVersionsRetrieveResponses = {
+  200: VersionDetail
+}
+
+export type ApiV1BuilderDocumentsVersionsRetrieveResponse = ApiV1BuilderDocumentsVersionsRetrieveResponses[keyof ApiV1BuilderDocumentsVersionsRetrieveResponses]
+
+export type ApiV1BuilderDocumentsVersionsRestoreCreateData = {
+  body?: never
+  headers: {
+    /**
+         * The draft revision this change is made against, as read from the document (`draftRevision`, or the ETag). `0` creates a document that does not exist. A stale revision answers 409 `revision_conflict` with the current one and who saved it.
+         */
+    'If-Match': string
+  }
+  path: {
+    key: string
+    number: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/documents/{key}/versions/{number}/restore'
+}
+
+export type ApiV1BuilderDocumentsVersionsRestoreCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsVersionsRestoreCreateError = ApiV1BuilderDocumentsVersionsRestoreCreateErrors[keyof ApiV1BuilderDocumentsVersionsRestoreCreateErrors]
+
+export type ApiV1BuilderDocumentsVersionsRestoreCreateResponses = {
+  200: DocumentDetail
+}
+
+export type ApiV1BuilderDocumentsVersionsRestoreCreateResponse = ApiV1BuilderDocumentsVersionsRestoreCreateResponses[keyof ApiV1BuilderDocumentsVersionsRestoreCreateResponses]
+
+export type ApiV1BuilderLinkTargetsRetrieveData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Comma-separated κατηγορία ιστολογίου ids to resolve (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    blogCategory?: string
+    /**
+         * Comma-separated άρθρο ιστολογίου ids to resolve (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    blogPost?: string
+    /**
+         * Comma-separated κατηγορία ids to resolve (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    category?: string
+    /**
+         * Comma-separated προϊόν ids to resolve (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    product?: string
+  }
+  url: '/api/v1/builder/link-targets'
+}
+
+export type ApiV1BuilderLinkTargetsRetrieveErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderLinkTargetsRetrieveError = ApiV1BuilderLinkTargetsRetrieveErrors[keyof ApiV1BuilderLinkTargetsRetrieveErrors]
+
+export type ApiV1BuilderLinkTargetsRetrieveResponses = {
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type ApiV1BuilderLinkTargetsRetrieveResponse = ApiV1BuilderLinkTargetsRetrieveResponses[keyof ApiV1BuilderLinkTargetsRetrieveResponses]
+
+export type ApiV1BuilderMediaListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, sizeBytes, -sizeBytes
+         */
+    ordering?: string
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/builder/media'
+}
+
+export type ApiV1BuilderMediaListResponses = {
+  200: PaginatedAssetList
+}
+
+export type ApiV1BuilderMediaListResponse = ApiV1BuilderMediaListResponses[keyof ApiV1BuilderMediaListResponses]
+
+export type ApiV1BuilderMediaCreateData = {
+  body: AssetUploadRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/media'
+}
+
+export type ApiV1BuilderMediaCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderMediaCreateError = ApiV1BuilderMediaCreateErrors[keyof ApiV1BuilderMediaCreateErrors]
+
+export type ApiV1BuilderMediaCreateResponses = {
+  201: Asset
+}
+
+export type ApiV1BuilderMediaCreateResponse = ApiV1BuilderMediaCreateResponses[keyof ApiV1BuilderMediaCreateResponses]
+
+export type ApiV1BuilderMediaDestroyData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/media/{id}'
+}
+
+export type ApiV1BuilderMediaDestroyErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderMediaDestroyError = ApiV1BuilderMediaDestroyErrors[keyof ApiV1BuilderMediaDestroyErrors]
+
+export type ApiV1BuilderMediaDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type ApiV1BuilderMediaDestroyResponse = ApiV1BuilderMediaDestroyResponses[keyof ApiV1BuilderMediaDestroyResponses]
+
+export type ApiV1BuilderMediaRetrieveData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/media/{id}'
+}
+
+export type ApiV1BuilderMediaRetrieveResponses = {
+  200: Asset
+}
+
+export type ApiV1BuilderMediaRetrieveResponse = ApiV1BuilderMediaRetrieveResponses[keyof ApiV1BuilderMediaRetrieveResponses]
+
+export type ApiV1BuilderMediaPartialUpdateData = {
+  body?: PatchedAssetUpdateRequest
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/media/{id}'
+}
+
+export type ApiV1BuilderMediaPartialUpdateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderMediaPartialUpdateError = ApiV1BuilderMediaPartialUpdateErrors[keyof ApiV1BuilderMediaPartialUpdateErrors]
+
+export type ApiV1BuilderMediaPartialUpdateResponses = {
+  200: Asset
+}
+
+export type ApiV1BuilderMediaPartialUpdateResponse = ApiV1BuilderMediaPartialUpdateResponses[keyof ApiV1BuilderMediaPartialUpdateResponses]
+
+export type ApiV1BuilderMediaResolveRetrieveData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+         * Comma-separated asset ids (`media` references).
+         */
+    ids: string
+    /**
+         * Language of the alt text; default if unknown.
+         */
+    locale?: string
+  }
+  url: '/api/v1/builder/media/resolve'
+}
+
+export type ApiV1BuilderMediaResolveRetrieveErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderMediaResolveRetrieveError = ApiV1BuilderMediaResolveRetrieveErrors[keyof ApiV1BuilderMediaResolveRetrieveErrors]
+
+export type ApiV1BuilderMediaResolveRetrieveResponses = {
+  200: ResolvedMedia
+}
+
+export type ApiV1BuilderMediaResolveRetrieveResponse = ApiV1BuilderMediaResolveRetrieveResponses[keyof ApiV1BuilderMediaResolveRetrieveResponses]
+
+export type ApiV1BuilderPublishCreateData = {
+  body: PublishWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/publish'
+}
+
+export type ApiV1BuilderPublishCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderPublishCreateError = ApiV1BuilderPublishCreateErrors[keyof ApiV1BuilderPublishCreateErrors]
+
+export type ApiV1BuilderPublishCreateResponses = {
+  201: Release
+}
+
+export type ApiV1BuilderPublishCreateResponse = ApiV1BuilderPublishCreateResponses[keyof ApiV1BuilderPublishCreateResponses]
+
+export type BuilderPublishedIndexData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Language to resolve the content in; unknown or omitted means the store's default language.
+         */
+    locale?: string
+  }
+  url: '/api/v1/builder/published'
+}
+
+export type BuilderPublishedIndexResponses = {
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type BuilderPublishedIndexResponse = BuilderPublishedIndexResponses[keyof BuilderPublishedIndexResponses]
+
+export type ApiV1BuilderPublishedRetrieveData = {
+  body?: never
+  path: {
+    pageKey: string
+  }
+  query?: {
+    /**
+         * Language to resolve the content in; unknown or omitted means the store's default language.
+         */
+    locale?: string
+  }
+  url: '/api/v1/builder/published/{page_key}'
+}
+
+export type ApiV1BuilderPublishedRetrieveErrors = {
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderPublishedRetrieveError = ApiV1BuilderPublishedRetrieveErrors[keyof ApiV1BuilderPublishedRetrieveErrors]
+
+export type ApiV1BuilderPublishedRetrieveResponses = {
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type ApiV1BuilderPublishedRetrieveResponse = ApiV1BuilderPublishedRetrieveResponses[keyof ApiV1BuilderPublishedRetrieveResponses]
+
+export type ApiV1BuilderReleasesListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/builder/releases'
+}
+
+export type ApiV1BuilderReleasesListResponses = {
+  200: PaginatedReleaseList
+}
+
+export type ApiV1BuilderReleasesListResponse = ApiV1BuilderReleasesListResponses[keyof ApiV1BuilderReleasesListResponses]
+
+export type ApiV1BuilderRollbackCreateData = {
+  body: RollbackWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/rollback'
+}
+
+export type ApiV1BuilderRollbackCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderRollbackCreateError = ApiV1BuilderRollbackCreateErrors[keyof ApiV1BuilderRollbackCreateErrors]
+
+export type ApiV1BuilderRollbackCreateResponses = {
+  201: Release
+}
+
+export type ApiV1BuilderRollbackCreateResponse = ApiV1BuilderRollbackCreateResponses[keyof ApiV1BuilderRollbackCreateResponses]
+
+export type ApiV1BuilderSchedulesListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/builder/schedules'
+}
+
+export type ApiV1BuilderSchedulesListResponses = {
+  200: PaginatedScheduleList
+}
+
+export type ApiV1BuilderSchedulesListResponse = ApiV1BuilderSchedulesListResponses[keyof ApiV1BuilderSchedulesListResponses]
+
+export type ApiV1BuilderSchedulesCreateData = {
+  body: ScheduleWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/schedules'
+}
+
+export type ApiV1BuilderSchedulesCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderSchedulesCreateError = ApiV1BuilderSchedulesCreateErrors[keyof ApiV1BuilderSchedulesCreateErrors]
+
+export type ApiV1BuilderSchedulesCreateResponses = {
+  201: Schedule
+}
+
+export type ApiV1BuilderSchedulesCreateResponse = ApiV1BuilderSchedulesCreateResponses[keyof ApiV1BuilderSchedulesCreateResponses]
+
+export type ApiV1BuilderSchedulesDestroyData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/schedules/{id}'
+}
+
+export type ApiV1BuilderSchedulesDestroyErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderSchedulesDestroyError = ApiV1BuilderSchedulesDestroyErrors[keyof ApiV1BuilderSchedulesDestroyErrors]
+
+export type ApiV1BuilderSchedulesDestroyResponses = {
+  200: Schedule
+}
+
+export type ApiV1BuilderSchedulesDestroyResponse = ApiV1BuilderSchedulesDestroyResponses[keyof ApiV1BuilderSchedulesDestroyResponses]
+
+export type ApiV1BuilderSchedulesRetrieveData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/schedules/{id}'
+}
+
+export type ApiV1BuilderSchedulesRetrieveResponses = {
+  200: Schedule
+}
+
+export type ApiV1BuilderSchedulesRetrieveResponse = ApiV1BuilderSchedulesRetrieveResponses[keyof ApiV1BuilderSchedulesRetrieveResponses]
+
+export type ApiV1BuilderSchedulesPartialUpdateData = {
+  body?: PatchedRescheduleRequest
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/schedules/{id}'
+}
+
+export type ApiV1BuilderSchedulesPartialUpdateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderSchedulesPartialUpdateError = ApiV1BuilderSchedulesPartialUpdateErrors[keyof ApiV1BuilderSchedulesPartialUpdateErrors]
+
+export type ApiV1BuilderSchedulesPartialUpdateResponses = {
+  200: Schedule
+}
+
+export type ApiV1BuilderSchedulesPartialUpdateResponse = ApiV1BuilderSchedulesPartialUpdateResponses[keyof ApiV1BuilderSchedulesPartialUpdateResponses]
+
+export type ApiV1BuilderSchedulesAcknowledgeCreateData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/builder/schedules/{id}/acknowledge'
+}
+
+export type ApiV1BuilderSchedulesAcknowledgeCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderSchedulesAcknowledgeCreateError = ApiV1BuilderSchedulesAcknowledgeCreateErrors[keyof ApiV1BuilderSchedulesAcknowledgeCreateErrors]
+
+export type ApiV1BuilderSchedulesAcknowledgeCreateResponses = {
+  200: Schedule
+}
+
+export type ApiV1BuilderSchedulesAcknowledgeCreateResponse = ApiV1BuilderSchedulesAcknowledgeCreateResponses[keyof ApiV1BuilderSchedulesAcknowledgeCreateResponses]
+
+export type ApiV1BuilderStaffSessionDestroyData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/builder/staff-session'
+}
+
+export type ApiV1BuilderStaffSessionDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type ApiV1BuilderStaffSessionDestroyResponse = ApiV1BuilderStaffSessionDestroyResponses[keyof ApiV1BuilderStaffSessionDestroyResponses]
+
+export type ApiV1BuilderStaffSessionCreateData = {
+  body: SessionRequestRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/staff-session'
+}
+
+export type ApiV1BuilderStaffSessionCreateErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderStaffSessionCreateError = ApiV1BuilderStaffSessionCreateErrors[keyof ApiV1BuilderStaffSessionCreateErrors]
+
+export type ApiV1BuilderStaffSessionCreateResponses = {
+  200: SessionResponse
+}
+
+export type ApiV1BuilderStaffSessionCreateResponse = ApiV1BuilderStaffSessionCreateResponses[keyof ApiV1BuilderStaffSessionCreateResponses]
 
 export type DestroyCartData = {
   body?: never
@@ -21234,338 +21485,6 @@ export type VivaReturnLookupResponses = {
 }
 
 export type VivaReturnLookupResponse2 = VivaReturnLookupResponses[keyof VivaReturnLookupResponses]
-
-export type ApiV1PageConfigListData = {
-  body?: never
-  path?: never
-  query?: never
-  url: '/api/v1/page-config'
-}
-
-export type ApiV1PageConfigListResponses = {
-  200: Array<PublishedPageLayout>
-}
-
-export type ApiV1PageConfigListResponse = ApiV1PageConfigListResponses[keyof ApiV1PageConfigListResponses]
-
-export type ApiV1PageConfigRetrieveData = {
-  body?: never
-  path: {
-    pageType: string
-  }
-  query?: {
-    /**
-         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout's SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store's default language.
-         */
-    locale?: string
-  }
-  url: '/api/v1/page-config/{page_type}'
-}
-
-export type ApiV1PageConfigRetrieveResponses = {
-  200: PageLayout
-}
-
-export type ApiV1PageConfigRetrieveResponse = ApiV1PageConfigRetrieveResponses[keyof ApiV1PageConfigRetrieveResponses]
-
-export type ApiV1PageConfigAdminListData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-         * Δείκτης (cursor) για σελιδοποίηση
-         */
-    cursor?: string
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-    /**
-         * A page number within the paginated result set.
-         */
-    page?: string | number
-    /**
-         * Αριθμός αποτελεσμάτων ανά σελίδα
-         */
-    pageSize?: string | number
-    /**
-         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
-         */
-    pagination?: 'false' | 'true'
-    /**
-         * Τύπος στρατηγικής σελιδοποίησης
-         */
-    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
-    /**
-         * A search term.
-         */
-    search?: string
-  }
-  url: '/api/v1/page-config/admin'
-}
-
-export type ApiV1PageConfigAdminListResponses = {
-  200: PaginatedPageLayoutAdminDetailList
-}
-
-export type ApiV1PageConfigAdminListResponse = ApiV1PageConfigAdminListResponses[keyof ApiV1PageConfigAdminListResponses]
-
-export type ApiV1PageConfigAdminCreateData = {
-  body: PageLayoutAdminDetailRequest
-  path?: never
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/admin'
-}
-
-export type ApiV1PageConfigAdminCreateResponses = {
-  201: PageLayoutAdminDetail
-}
-
-export type ApiV1PageConfigAdminCreateResponse = ApiV1PageConfigAdminCreateResponses[keyof ApiV1PageConfigAdminCreateResponses]
-
-export type ApiV1PageConfigAdminDestroyData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/page-config/admin/{id}'
-}
-
-export type ApiV1PageConfigAdminDestroyResponses = {
-  /**
-     * No response body
-     */
-  204: void
-}
-
-export type ApiV1PageConfigAdminDestroyResponse = ApiV1PageConfigAdminDestroyResponses[keyof ApiV1PageConfigAdminDestroyResponses]
-
-export type ApiV1PageConfigAdminRetrieveData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/admin/{id}'
-}
-
-export type ApiV1PageConfigAdminRetrieveResponses = {
-  200: PageLayoutAdminDetail
-}
-
-export type ApiV1PageConfigAdminRetrieveResponse = ApiV1PageConfigAdminRetrieveResponses[keyof ApiV1PageConfigAdminRetrieveResponses]
-
-export type ApiV1PageConfigAdminPartialUpdateData = {
-  body?: PatchedPageLayoutAdminDetailRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/admin/{id}'
-}
-
-export type ApiV1PageConfigAdminPartialUpdateResponses = {
-  200: PageLayoutAdminDetail
-}
-
-export type ApiV1PageConfigAdminPartialUpdateResponse = ApiV1PageConfigAdminPartialUpdateResponses[keyof ApiV1PageConfigAdminPartialUpdateResponses]
-
-export type ApiV1PageConfigAdminUpdateData = {
-  body: PageLayoutAdminDetailRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/admin/{id}'
-}
-
-export type ApiV1PageConfigAdminUpdateResponses = {
-  200: PageLayoutAdminDetail
-}
-
-export type ApiV1PageConfigAdminUpdateResponse = ApiV1PageConfigAdminUpdateResponses[keyof ApiV1PageConfigAdminUpdateResponses]
-
-export type ApiV1PageConfigNavigationRetrieveData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout's SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store's default language.
-         */
-    locale?: string
-  }
-  url: '/api/v1/page-config/navigation'
-}
-
-export type ApiV1PageConfigNavigationRetrieveResponses = {
-  /**
-     * Navigation items keyed by slot (header/footer/mobile). Missing slots mean 'use the storefront's built-in menu'.
-     */
-  200: {
-    [key: string]: Array<unknown>
-  }
-}
-
-export type ApiV1PageConfigNavigationRetrieveResponse = ApiV1PageConfigNavigationRetrieveResponses[keyof ApiV1PageConfigNavigationRetrieveResponses]
-
-export type ApiV1PageConfigNavigationAdminListData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-         * Δείκτης (cursor) για σελιδοποίηση
-         */
-    cursor?: string
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-    /**
-         * A page number within the paginated result set.
-         */
-    page?: string | number
-    /**
-         * Αριθμός αποτελεσμάτων ανά σελίδα
-         */
-    pageSize?: string | number
-    /**
-         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
-         */
-    pagination?: 'false' | 'true'
-    /**
-         * Τύπος στρατηγικής σελιδοποίησης
-         */
-    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
-    /**
-         * A search term.
-         */
-    search?: string
-  }
-  url: '/api/v1/page-config/navigation/admin'
-}
-
-export type ApiV1PageConfigNavigationAdminListResponses = {
-  200: PaginatedNavigationMenuList
-}
-
-export type ApiV1PageConfigNavigationAdminListResponse = ApiV1PageConfigNavigationAdminListResponses[keyof ApiV1PageConfigNavigationAdminListResponses]
-
-export type ApiV1PageConfigNavigationAdminCreateData = {
-  body: NavigationMenuRequest
-  path?: never
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/navigation/admin'
-}
-
-export type ApiV1PageConfigNavigationAdminCreateResponses = {
-  201: NavigationMenu
-}
-
-export type ApiV1PageConfigNavigationAdminCreateResponse = ApiV1PageConfigNavigationAdminCreateResponses[keyof ApiV1PageConfigNavigationAdminCreateResponses]
-
-export type ApiV1PageConfigNavigationAdminDestroyData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/page-config/navigation/admin/{id}'
-}
-
-export type ApiV1PageConfigNavigationAdminDestroyResponses = {
-  /**
-     * No response body
-     */
-  204: void
-}
-
-export type ApiV1PageConfigNavigationAdminDestroyResponse = ApiV1PageConfigNavigationAdminDestroyResponses[keyof ApiV1PageConfigNavigationAdminDestroyResponses]
-
-export type ApiV1PageConfigNavigationAdminRetrieveData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/navigation/admin/{id}'
-}
-
-export type ApiV1PageConfigNavigationAdminRetrieveResponses = {
-  200: NavigationMenu
-}
-
-export type ApiV1PageConfigNavigationAdminRetrieveResponse = ApiV1PageConfigNavigationAdminRetrieveResponses[keyof ApiV1PageConfigNavigationAdminRetrieveResponses]
-
-export type ApiV1PageConfigNavigationAdminPartialUpdateData = {
-  body?: PatchedNavigationMenuRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/navigation/admin/{id}'
-}
-
-export type ApiV1PageConfigNavigationAdminPartialUpdateResponses = {
-  200: NavigationMenu
-}
-
-export type ApiV1PageConfigNavigationAdminPartialUpdateResponse = ApiV1PageConfigNavigationAdminPartialUpdateResponses[keyof ApiV1PageConfigNavigationAdminPartialUpdateResponses]
-
-export type ApiV1PageConfigNavigationAdminUpdateData = {
-  body: NavigationMenuRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/page-config/navigation/admin/{id}'
-}
-
-export type ApiV1PageConfigNavigationAdminUpdateResponses = {
-  200: NavigationMenu
-}
-
-export type ApiV1PageConfigNavigationAdminUpdateResponse = ApiV1PageConfigNavigationAdminUpdateResponses[keyof ApiV1PageConfigNavigationAdminUpdateResponses]
 
 export type ListPayWayData = {
   body?: never
