@@ -78,7 +78,7 @@ export function buildCategoryForest(
 
 /** A category's listing page, before the locale prefix. */
 export function categoryUrl(id: number, slug: string) {
-  return `/products/category/${id}/${slug}`
+  return categoryPath(id, slug)
 }
 
 /** The nodes from a root down to `id`, both ends included; empty when `id` is not in the forest. */

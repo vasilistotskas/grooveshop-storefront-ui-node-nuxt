@@ -1,5 +1,7 @@
 import type { BlockDefinition, BuilderDocument, BuilderDocumentKind, BuilderNode, DocumentRoot } from '../types/builder'
 import { BUILDER_DOCUMENT_NODE_ID } from '../constants/builder'
+import { parseLegacyLink } from './legacyLink'
+import { REMOVE_LINK, mapLinkSettings } from './linkSettings'
 import { formatVersionedType } from './upgrade'
 
 /**
@@ -12,7 +14,8 @@ import { formatVersionedType } from './upgrade'
  * - a prop that is a list of objects and that the block feeds from child
  *   blocks (`childList`) becomes those children, in the declaration order of
  *   `childList`, each with the same rule one level down;
- * - any other prop the block has a setting for becomes that setting, camelCased;
+ * - any other prop the block has a setting for becomes that setting, camelCased,
+ *   a link setting read as the record or route it names (`parseLegacyLink`);
  * - anything else is dropped with a warning (a prop no component reads).
  */
 
@@ -47,9 +50,11 @@ export interface LegacyError {
    * vary by language, and it differs from the default's, so converting would
    * change what that language renders. `list_length_mismatch`: a language
    * translates a list with another number of entries, which is a different
-   * layout, not a translation.
+   * layout, not a translation. `unresolvable_link`: a link that is neither an
+   * external URL, a fixed route nor a record of the store, which a link by
+   * record cannot keep.
    */
-  code: 'unknown_block_type' | 'invalid_settings' | 'untranslatable_override' | 'list_length_mismatch'
+  code: 'unknown_block_type' | 'invalid_settings' | 'untranslatable_override' | 'list_length_mismatch' | 'unresolvable_link'
   message: string
 }
 
@@ -131,9 +136,19 @@ function convertNode(
   const listProps = new Set(lists.map(([, list]) => list))
   const shape = definition.schema.shape
 
+  /** The links inside the value of the setting `key` read as what they name; a link that names nothing is an error and is left out. */
+  const withLinks = (value: unknown, key: string, locale?: string): unknown =>
+    mapLinkSettings({ [key]: value }, definition.linkRefs, (link, pointer) => {
+      if (typeof link !== 'string') return link
+      const parsed = parseLegacyLink(link)
+      if ('link' in parsed) return parsed.link
+      context.errors.push({ code: 'unresolvable_link', path: `${path}${pointer}`, message: `${locale ? `the ${locale} translation: ` : ''}${parsed.error}` })
+      return REMOVE_LINK
+    })[key]
+
   const settings: Record<string, unknown> = {}
   for (const key of Object.keys(shape)) {
-    if (key in props) settings[key] = camelizeDeep(props[key])
+    if (key in props) settings[key] = withLinks(camelizeDeep(props[key]), key)
   }
   for (const key of Object.keys(props)) {
     if (!(key in shape) && !listProps.has(key)) {
@@ -191,7 +206,7 @@ function convertNode(
         // The override sets a setting that cannot vary by language. Dropping an
         // identical one loses nothing; dropping a different one would change
         // what that language renders, which the import must never do.
-        if (!sameValue(camelizeDeep(value), camelizeDeep(props[key]))) {
+        if (!sameValue(withLinks(camelizeDeep(value), key, locale), settings[key])) {
           context.errors.push({ code: 'untranslatable_override', path: `${path}/${key}`, message: `the ${locale} translation of "${key}" differs from the default, but ${definition.type} does not let "${key}" vary by language` })
         }
       }
@@ -202,7 +217,7 @@ function convertNode(
     // In the declared order of the block's translatable settings, so the answer is stable.
     for (const pointer of definition.translatable) {
       const key = pointer.slice(1)
-      if (key in partial && !listProps.has(key)) put(context.overlay, locale, id, pointer, camelizeDeep(partial[key]))
+      if (key in partial && !listProps.has(key)) put(context.overlay, locale, id, pointer, withLinks(camelizeDeep(partial[key]), key, locale))
     }
   }
 }

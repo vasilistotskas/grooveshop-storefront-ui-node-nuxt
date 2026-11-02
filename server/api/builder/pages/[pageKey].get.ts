@@ -10,6 +10,12 @@ import { getRouterParam, useRuntimeConfig } from 'nuxt/server'
  * answered as its block type and the props its component gets
  * (`sectionProps`), so the client never holds a block definition or Zod.
  *
+ * A link setting is stored as WHERE it goes (an external URL, a fixed route or
+ * a record) and answered as the address it has now (`resolveLinks`): a record
+ * renamed after the page was written is linked at its new slug, and a link to
+ * something gone is left out of the props. The slugs come from one call to
+ * Django, inside this cache, so a rename shows within the cache's lifetime.
+ *
  * `{ page: null }` is Django's `page_not_published`, the normal state of a
  * page type the store has not built: data, so it is cached (a thrown error
  * is never cached, and each render would pay a round-trip). Every other
@@ -32,7 +38,8 @@ export default defineCachedRoute(async (event): Promise<BuilderPageResponse> => 
       { method: 'GET', query: { locale: requestLocale(event) } },
     )
     const published = await parseDataAs(response, ZodBuilderPublished)
-    const document = parseDocument(published.page, 'page')
+    const parsed = parseDocument(published.page, 'page')
+    const document = resolveLinks(parsed, await readLinkTargets(event, collectLinkRefs(parsed)))
     return {
       page: {
         ...(document.settings && { settings: document.settings }),

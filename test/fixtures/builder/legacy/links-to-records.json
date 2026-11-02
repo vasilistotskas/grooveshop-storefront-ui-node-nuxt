@@ -1,0 +1,177 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000950",
+          "type": "hero_carousel",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "link": "/blog/post/4/guide",
+            "slides": [
+              {
+                "image_url": "media/demo/uploads/a.jpg",
+                "cta_link": "/products/2/mini-powerbank",
+                "secondary_cta_link": "/products/category/3/powerbank"
+              },
+              {
+                "image_url": "media/demo/uploads/b.jpg",
+                "cta_link": "/blog/category/5/news"
+              }
+            ]
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "link": "/en/blog/post/4/guide",
+                "slides": [
+                  {
+                    "cta_link": "/en/products/2/mini-powerbank",
+                    "secondary_cta_link": "/en/products/category/3/powerbank"
+                  },
+                  {
+                    "cta_link": "/en/blog/category/5/news"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000951",
+          "type": "features_grid",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "cta_text": "Policies",
+            "cta_link": "/privacy-policy",
+            "prompt": {
+              "title": "Questions",
+              "text": "Read the FAQ.",
+              "cta_text": "FAQ",
+              "cta_link": "/info/faq"
+            }
+          },
+          "i18n": {
+            "en": {
+              "props": {
+                "prompt": {
+                  "title": "Questions?",
+                  "text": "Read the FAQ.",
+                  "cta_text": "FAQ",
+                  "cta_link": "/en/info/faq"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000950": {
+          "type": "hero_carousel@1",
+          "settings": {
+            "link": {
+              "ref": {
+                "kind": "blogPost",
+                "id": 4
+              }
+            }
+          },
+          "blocks": {
+            "00000000-0000-4000-8000-000000000950-1": {
+              "type": "hero_slide@1",
+              "settings": {
+                "imageUrl": "media/demo/uploads/a.jpg",
+                "ctaLink": {
+                  "ref": {
+                    "kind": "product",
+                    "id": 2
+                  }
+                },
+                "secondaryCtaLink": {
+                  "ref": {
+                    "kind": "category",
+                    "id": 3
+                  }
+                }
+              }
+            },
+            "00000000-0000-4000-8000-000000000950-2": {
+              "type": "hero_slide@1",
+              "settings": {
+                "imageUrl": "media/demo/uploads/b.jpg",
+                "ctaLink": {
+                  "ref": {
+                    "kind": "blogCategory",
+                    "id": 5
+                  }
+                }
+              }
+            }
+          },
+          "blockOrder": [
+            "00000000-0000-4000-8000-000000000950-1",
+            "00000000-0000-4000-8000-000000000950-2"
+          ]
+        },
+        "00000000-0000-4000-8000-000000000951": {
+          "type": "features_grid@1",
+          "settings": {
+            "ctaText": "Policies",
+            "ctaLink": {
+              "ref": {
+                "kind": "contentPage",
+                "id": "privacy"
+              }
+            },
+            "prompt": {
+              "title": "Questions",
+              "text": "Read the FAQ.",
+              "ctaText": "FAQ",
+              "ctaLink": {
+                "ref": {
+                  "kind": "contentPage",
+                  "id": "faq"
+                }
+              }
+            }
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000950",
+        "00000000-0000-4000-8000-000000000951"
+      ]
+    },
+    "i18n": {
+      "en": {
+        "00000000-0000-4000-8000-000000000951": {
+          "/prompt": {
+            "title": "Questions?",
+            "text": "Read the FAQ.",
+            "ctaText": "FAQ",
+            "ctaLink": {
+              "ref": {
+                "kind": "contentPage",
+                "id": "faq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "warnings": []
+  }
+}

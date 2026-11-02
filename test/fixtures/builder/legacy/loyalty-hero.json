@@ -36,9 +36,13 @@
             "surface": "muted",
             "eyebrow": "Loyalty",
             "ctaText": "Join",
-            "ctaLink": "/account/signup",
+            "ctaLink": {
+              "route": "/account/signup"
+            },
             "secondaryCtaText": "How it works",
-            "secondaryCtaLink": "/loyalty-program"
+            "secondaryCtaLink": {
+              "route": "/loyalty-program"
+            }
           }
         }
       },

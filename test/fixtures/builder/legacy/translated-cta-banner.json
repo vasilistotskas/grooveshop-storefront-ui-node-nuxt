@@ -44,7 +44,12 @@
             "title": "Join us",
             "heading": "Ready when you are",
             "buttonText": "Start",
-            "buttonLink": "/signup",
+            "buttonLink": {
+              "ref": {
+                "kind": "page",
+                "id": "signup"
+              }
+            },
             "backgroundColor": "#1f2937"
           }
         }

@@ -2,7 +2,10 @@
 export const BLOCK_KINDS = ['section', 'block'] as const
 
 /** What a setting that names another record refers to; Django checks the record exists. */
-export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'page', 'contentPage', 'media', 'menu'] as const
+export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage', 'media', 'menu'] as const
+
+/** The records a link may point at: the reference kinds that have a page of their own. */
+export const LINK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage'] as const
 
 /**
  * How deep a document nests: a section is level 1, a block inside it 2,
@@ -30,3 +33,16 @@ export const BUILDER_DOCUMENT_NODE_ID = '@document'
  * Django's `BuiltInRoute` lists, which carry no session and no `robots: false`.
  */
 export const NAVIGATION_ROUTES = ['/', '/products', '/blog', '/contact', '/offers', '/gift-cards', '/loyalty-program', '/feedback'] as const
+
+/**
+ * The routes a link may name, besides a record: the navigation routes and the
+ * two entrances of an account. Each answers on every store and points at no
+ * record, so a link to one cannot go stale.
+ */
+export const LINK_ROUTES = [...NAVIGATION_ROUTES, '/account/login', '/account/signup'] as const
+
+/** The most ids of one kind `GET builder/link-targets` answers in one call (Django refuses more). */
+export const LINK_TARGETS_MAX_IDS = 100
+
+/** The JSON Schema keyword that marks a link setting in a block's schema; `defineBlock` lists the marked ones as `linkRefs`. */
+export const LINK_SCHEMA_MARKER = 'x-builder-link'

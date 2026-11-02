@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
+import { builderField } from '~~/shared/builder/fields'
 import { builderBlocks, builderCatalogueDocument, buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 
@@ -15,6 +16,7 @@ describe('buildBlockCatalogue', () => {
       schema: expect.objectContaining({ type: 'object' }),
       translatable: ['/title', '/note/text'],
       refs: { '/productId': 'product' },
+      linkRefs: [],
       limits: { maxPerTemplate: 3 },
       children: { allowed: ['promo_item'], maxDepth: 1 },
       kinds: ['section'],
@@ -31,10 +33,29 @@ describe('buildBlockCatalogue', () => {
       schema: expect.any(Object),
       translatable: ['/label'],
       refs: {},
+      linkRefs: ['/href'],
       limits: { maxBlocks: 4 },
       children: { allowed: [] },
       kinds: ['block'],
     })
+  })
+
+  it('lists the link settings of a block, whatever their depth, as `linkRefs`', () => {
+    const linked = defineBlock({
+      type: 'linked',
+      version: 1,
+      kinds: ['section'],
+      schema: z.object({
+        ctaLink: builderField.link().optional(),
+        prompt: z.object({ ctaLink: builderField.link().optional() }).optional(),
+        slides: z.array(z.object({ to: builderField.link() })).optional(),
+        heading: builderField.text(10).optional(),
+      }),
+    })
+    const block = buildBlockCatalogue([linked]).blocks[0]!
+
+    expect(block.linkRefs).toEqual(['/ctaLink', '/prompt/ctaLink', '/slides/*/to'])
+    expect(block.schema).toMatchObject({ properties: { ctaLink: { 'x-builder-link': true, 'anyOf': expect.any(Array) } } })
   })
 
   it('marks a deprecated block and carries its feature gate', () => {
@@ -63,8 +84,18 @@ describe('buildBlockCatalogue', () => {
     it('carries the rules of the fields', () => {
       expect(schema.properties.title).toMatchObject({ type: 'string', maxLength: 80 })
       expect(schema.properties.productId).toMatchObject({ type: 'integer' })
+      // A link is one of three closed shapes: an external URL, a fixed route, a record.
       expect(blockOf('promo_item').schema).toMatchObject({
-        properties: { href: { type: 'string', pattern: '^(\\/|https:\\/\\/)' } },
+        properties: {
+          href: {
+            'x-builder-link': true,
+            'anyOf': [
+              { required: ['href'], additionalProperties: false, properties: { href: { type: 'string', pattern: '^https:\\/\\/' } } },
+              { required: ['route'], additionalProperties: false, properties: { route: { enum: expect.arrayContaining(['/offers', '/account/signup']) } } },
+              { required: ['ref'], additionalProperties: false, properties: { ref: { oneOf: expect.any(Array) } } },
+            ],
+          },
+        },
       })
     })
 
