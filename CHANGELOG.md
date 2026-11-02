@@ -1,3 +1,10 @@
+# [3.283.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.282.1...v3.283.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** drop the legacy converter and list root link settings in the catalogue ([#324](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/324)) ([56fb1b3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/56fb1b34dc157e73b08cdc38bd92443c576114be))
+
 ## [3.282.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.282.0...v3.282.1) (2026-11-02)
 
 
