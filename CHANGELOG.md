@@ -1,3 +1,10 @@
+## [3.283.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.283.0...v3.283.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* **api:** regenerate the client from Django v3.192.0, without page_config ([#328](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/328)) ([736ad5b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/736ad5b789bc408c55cf2f4025e95ba791a59872))
+
 # [3.283.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.282.1...v3.283.0) (2026-11-02)
 
 
