@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import handler from '~~/server/api/builder/documents/[key].get'
+import handler from '~~/server/api/builder/documents/[key]/index.get'
 import { BUILDER_STAFF_TOKEN, signInBuilderStaff } from '~~/test/helpers/builderStaff'
 import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 

@@ -65,6 +65,8 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       </template>
     </UPopover>
 
+    <BuilderHistory class="ms-auto" />
+
     <UDropdownMenu
       :items="accountItems"
       :content="{ align: 'end' }"
@@ -72,7 +74,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       <UButton
         color="neutral"
         variant="ghost"
-        class="ms-auto"
+        :class="store.canEdit ? '' : 'ms-auto'"
         :aria-label="t('account', { name: session.staff.name })"
       >
         <UAvatar
