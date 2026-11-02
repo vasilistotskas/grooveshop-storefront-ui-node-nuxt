@@ -12,7 +12,18 @@ import { LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
  */
 const text = (max: number) => z.string().max(max)
 
-const httpsUrl = () => z.string().max(1000).regex(/^https:\/\//)
+/**
+ * The patterns of the shared text formats. Exported so the editor can tell
+ * which control a setting needs from its JSON Schema `pattern`, which is
+ * exactly one of these, rather than guess from a setting's name.
+ */
+export const BUILDER_FIELD_PATTERNS = {
+  httpsUrl: /^https:\/\//,
+  icon: /^i-[a-z0-9:-]+$/,
+  hexColor: /^#[0-9a-fA-F]{6}$/,
+} as const
+
+const httpsUrl = () => z.string().max(1000).regex(BUILDER_FIELD_PATTERNS.httpsUrl)
 const recordId = () => z.number().int().min(1).max(2_147_483_647)
 
 /**
@@ -75,8 +86,8 @@ export const builderField = {
   link,
   httpsUrl,
   /** An icon name of the icon sets, `i-<set>:<name>`. */
-  icon: (max?: number) => (max === undefined ? z.string() : z.string().max(max)).regex(/^i-[a-z0-9:-]+$/),
-  hexColor: () => z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  icon: (max?: number) => (max === undefined ? z.string() : z.string().max(max)).regex(BUILDER_FIELD_PATTERNS.icon),
+  hexColor: () => z.string().regex(BUILDER_FIELD_PATTERNS.hexColor),
   /** An id of a record in the store: a positive integer. */
   id: recordId,
   /** Which of the two page grounds a band paints. */

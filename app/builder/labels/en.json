@@ -176,5 +176,314 @@
     "vision": "Vision",
     "what-is-microlearning": "What is microlearning",
     "why-microlearning": "Why microlearning"
+  },
+  "settings": {
+    "address": {
+      "label": "Address"
+    },
+    "align": {
+      "label": "Alignment"
+    },
+    "alt": {
+      "label": "Image description",
+      "help": "Read aloud to people who can't see the image."
+    },
+    "answer": {
+      "label": "Answer"
+    },
+    "aspect": {
+      "label": "Shape"
+    },
+    "attribution": {
+      "label": "Attribution"
+    },
+    "autoplayMs": {
+      "label": "Autoplay (milliseconds)",
+      "help": "0 for no autoplay."
+    },
+    "avatar": {
+      "label": "Photo"
+    },
+    "backgroundColor": {
+      "label": "Background colour"
+    },
+    "body": {
+      "label": "Text"
+    },
+    "buttonLink": {
+      "label": "Button link"
+    },
+    "buttonText": {
+      "label": "Button text"
+    },
+    "caption": {
+      "label": "Caption"
+    },
+    "categoryId": {
+      "label": "Category (number)",
+      "help": "The category's number in the admin."
+    },
+    "columns": {
+      "label": "Columns"
+    },
+    "content": {
+      "label": "Content"
+    },
+    "contentPage": {
+      "label": "Content page"
+    },
+    "count": {
+      "label": "How many"
+    },
+    "ctaLink": {
+      "label": "Button link"
+    },
+    "ctaText": {
+      "label": "Button text"
+    },
+    "date": {
+      "label": "Date"
+    },
+    "decor": {
+      "label": "Decoration"
+    },
+    "description": {
+      "label": "Description"
+    },
+    "embedUrl": {
+      "label": "Map embed address"
+    },
+    "emphasis": {
+      "label": "Emphasis",
+      "help": "Part of the text set in bold."
+    },
+    "eyebrow": {
+      "label": "Eyebrow"
+    },
+    "heading": {
+      "label": "Heading"
+    },
+    "height": {
+      "label": "Height"
+    },
+    "hint": {
+      "label": "Hint"
+    },
+    "href": {
+      "label": "External link"
+    },
+    "icon": {
+      "label": "Icon"
+    },
+    "imageAlt": {
+      "label": "Image description",
+      "help": "Read aloud to people who can't see the image."
+    },
+    "imagePosition": {
+      "label": "Image position"
+    },
+    "imageUrl": {
+      "label": "Image"
+    },
+    "images": {
+      "label": "Images"
+    },
+    "kind": {
+      "label": "Kind"
+    },
+    "label": {
+      "label": "Label"
+    },
+    "layout": {
+      "label": "Layout"
+    },
+    "limit": {
+      "label": "Most to show"
+    },
+    "link": {
+      "label": "Link"
+    },
+    "marquee": {
+      "label": "Scrolling row"
+    },
+    "mobileImageUrl": {
+      "label": "Image on phones"
+    },
+    "mobileImages": {
+      "label": "Images on phones"
+    },
+    "multiple": {
+      "label": "Several open at once"
+    },
+    "name": {
+      "label": "Name"
+    },
+    "note": {
+      "label": "Note"
+    },
+    "ordering": {
+      "label": "Order"
+    },
+    "overlayOpacity": {
+      "label": "Image shade"
+    },
+    "page": {
+      "label": "Page"
+    },
+    "pageSize": {
+      "label": "How many"
+    },
+    "parentId": {
+      "label": "Parent category (number)",
+      "help": "Shows its subcategories. Empty for the top ones."
+    },
+    "placeholder": {
+      "label": "Placeholder"
+    },
+    "productId": {
+      "label": "Product (number)",
+      "help": "The product's number in the admin."
+    },
+    "prompt": {
+      "label": "Closing card",
+      "title": {
+        "label": "Title"
+      },
+      "text": {
+        "label": "Text"
+      },
+      "ctaText": {
+        "label": "Button text"
+      },
+      "ctaLink": {
+        "label": "Button link"
+      }
+    },
+    "question": {
+      "label": "Question"
+    },
+    "quote": {
+      "label": "Quote"
+    },
+    "rating": {
+      "label": "Rating"
+    },
+    "role": {
+      "label": "Role"
+    },
+    "route": {
+      "label": "Store page"
+    },
+    "secondaryCtaLink": {
+      "label": "Second button link"
+    },
+    "secondaryCtaText": {
+      "label": "Second button text"
+    },
+    "showAddToCart": {
+      "label": "Add to cart button"
+    },
+    "showsMerchantIdentity": {
+      "label": "Business details"
+    },
+    "src": {
+      "label": "Image"
+    },
+    "subheading": {
+      "label": "Subheading"
+    },
+    "subtitle": {
+      "label": "Subtitle"
+    },
+    "surface": {
+      "label": "Background"
+    },
+    "text": {
+      "label": "Text"
+    },
+    "theme": {
+      "label": "Text colours"
+    },
+    "title": {
+      "label": "Title"
+    },
+    "value": {
+      "label": "Value"
+    },
+    "variant": {
+      "label": "Style"
+    }
+  },
+  "options": {
+    "surface": {
+      "default": "Default",
+      "muted": "Muted",
+      "ink": "Dark"
+    },
+    "variant": {
+      "line": "Line",
+      "thread": "Woven strip"
+    },
+    "ordering": {
+      "featured": "Featured",
+      "newest": "Newest",
+      "popular": "Popular",
+      "discounted": "On sale",
+      "rating": "Top rated"
+    },
+    "decor": {
+      "none": "None",
+      "gradient_tiles": "Gradient tiles",
+      "framed": "Framed",
+      "orbs": "Orbs",
+      "gradient": "Gradient"
+    },
+    "align": {
+      "left": "Left",
+      "center": "Centre"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Automatic"
+    },
+    "aspect": {
+      "wide": "Wide",
+      "banner": "Banner",
+      "square": "Square"
+    },
+    "imagePosition": {
+      "left": "Left",
+      "right": "Right"
+    },
+    "layout": {
+      "slider": "Slider",
+      "grid": "Grid",
+      "tiles": "Tiles"
+    },
+    "height": {
+      "sm": "Small",
+      "md": "Medium",
+      "lg": "Large",
+      "xl": "Extra large"
+    },
+    "kind": {
+      "payment": "Payment",
+      "shipping": "Shipping",
+      "ai": "AI assistants",
+      "custom": "Your own"
+    }
+  },
+  "routes": {
+    "home": "Home page",
+    "products": "Products",
+    "blog": "Blog",
+    "contact": "Contact",
+    "offers": "Offers",
+    "gift-cards": "Gift cards",
+    "loyalty-program": "Loyalty programme",
+    "feedback": "Feedback",
+    "account-login": "Sign in",
+    "account-signup": "Sign up"
   }
 }

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { BuilderNode } from '../types/builder'
-import { BUILDER_NODE_ID_PATTERN } from '../constants/builder'
+import { BUILDER_DOCUMENT_NODE_ID, BUILDER_NODE_ID_PATTERN } from '../constants/builder'
 import { BUILDER_DOCUMENT_KEY_PATTERN } from '../constants/builderEditor'
 
 /** `/api/builder/documents/<key>`: a document key as Django names them. */
@@ -41,3 +41,31 @@ export const ZodBuilderDraft = z.object({
   sections: z.record(zNodeId, zDraftNode),
   order: z.array(zNodeId),
 }).refine(document => ordersAll(document.sections, document.order), { message: 'order must name every section once' })
+
+/**
+ * A working copy's per-language overlay (`i18n` of a document): the
+ * translated value of a setting, `i18n[locale][node id][JSON pointer]`, with
+ * `@document` as the node id of the document's own settings. Django checks
+ * every entry against the catalogue on save.
+ */
+export const ZodBuilderOverlay = z.record(
+  z.string().min(2).max(15),
+  z.record(z.union([zNodeId, z.literal(BUILDER_DOCUMENT_NODE_ID)]), z.record(z.string().startsWith('/'), z.unknown())),
+)
+
+/** `PUT /api/builder/documents/<key>/draft`: the whole working copy. */
+export const ZodBuilderDraftWrite = z.object({
+  draft: ZodBuilderDraft,
+  i18n: ZodBuilderOverlay,
+})
+
+/** `If-Match` of a draft save: the revision the change is made against, `0` for a document that does not exist yet. */
+export const ZodBuilderRevisionHeaders = z.object({
+  'if-match': z.string().regex(/^\d{1,10}$/),
+})
+
+/** Django's 503 when it cannot check a save against the storefront's catalogue: nothing was saved. */
+export const ZodBuilderStorefrontUnavailable = z.object({
+  code: z.literal('storefront_unavailable'),
+  detail: z.string(),
+})

@@ -1,3 +1,17 @@
+# [3.286.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.285.0...v3.286.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** change a section's settings in the editor, from its block's schema ([#330](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/330)) ([a881e92](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a881e9203051c269972e60b79bfd5dabf7b58653))
+
+# [3.285.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.284.0...v3.285.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** change a page's sections in the editor, with autosave and undo ([#329](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/329)) ([5f672eb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5f672eb0661d83399850d036d86305d723583b98))
+
 # [3.284.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.283.1...v3.284.0) (2026-11-02)
 
 

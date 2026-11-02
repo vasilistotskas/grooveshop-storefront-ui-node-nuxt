@@ -46,6 +46,36 @@ export const BUILDER_EDITOR_QUERY = {
 /** The editor's route, without a locale prefix (`app/pages/_builder.vue`; Django's admin sends staff here). */
 export const BUILDER_EDITOR_ROUTE = '/_builder'
 
+/** How long the editor waits after the last change before it saves the working copy, in milliseconds. */
+export const BUILDER_AUTOSAVE_DELAY_MS = 1000
+
+/**
+ * The waits between attempts when a save got no answer or a 5xx, in
+ * milliseconds. After the last one the editor stops and offers to try again.
+ */
+export const BUILDER_AUTOSAVE_RETRY_MS = [2000, 5000, 15000, 30000] as const
+
+/** The most steps undo walks back in one editing session. */
+export const BUILDER_HISTORY_LIMIT = 100
+
+/** How long before the staff session ends the editor warns, in milliseconds (the token is never renewed). */
+export const BUILDER_SESSION_WARNING_MS = 10 * 60 * 1000
+
+/** The prefix of the browser storage key that keeps unsaved changes when a save could not be made. */
+export const BUILDER_RECOVERY_STORAGE_PREFIX = 'builder-recovery'
+
+/** A text setting that may hold this many characters or more is edited in a textarea, not a single line. */
+export const BUILDER_TEXTAREA_MIN_LENGTH = 300
+
+/** A choice of this many options or fewer is drawn as buttons side by side; more, as a menu. */
+export const BUILDER_SEGMENTED_CHOICE_MAX = 3
+
+/** Typing into one setting within this many milliseconds is one step of the undo history. */
+export const BUILDER_HISTORY_COALESCE_MS = 1000
+
+/** The settings pane's width in CSS pixels: what it opens at, and how far it may be dragged. */
+export const BUILDER_SETTINGS_PANE = { min: 300, default: 340, max: 480 } as const
+
 /**
  * The query parameter that marks a request for a store page as the editor's
  * preview (its canvas): only such a request, from a live staff session, may

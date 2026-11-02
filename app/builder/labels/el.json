@@ -176,5 +176,314 @@
     "vision": "Όραμα",
     "what-is-microlearning": "Τι είναι η μικρομάθηση",
     "why-microlearning": "Γιατί μικρομάθηση"
+  },
+  "settings": {
+    "address": {
+      "label": "Διεύθυνση"
+    },
+    "align": {
+      "label": "Στοίχιση"
+    },
+    "alt": {
+      "label": "Περιγραφή εικόνας",
+      "help": "Διαβάζεται σε όσους δεν βλέπουν την εικόνα."
+    },
+    "answer": {
+      "label": "Απάντηση"
+    },
+    "aspect": {
+      "label": "Αναλογία"
+    },
+    "attribution": {
+      "label": "Πηγή"
+    },
+    "autoplayMs": {
+      "label": "Αυτόματη εναλλαγή (χιλιοστά του δευτερολέπτου)",
+      "help": "0 για χωρίς αυτόματη εναλλαγή."
+    },
+    "avatar": {
+      "label": "Φωτογραφία"
+    },
+    "backgroundColor": {
+      "label": "Χρώμα φόντου"
+    },
+    "body": {
+      "label": "Κείμενο"
+    },
+    "buttonLink": {
+      "label": "Σύνδεσμος κουμπιού"
+    },
+    "buttonText": {
+      "label": "Κείμενο κουμπιού"
+    },
+    "caption": {
+      "label": "Λεζάντα"
+    },
+    "categoryId": {
+      "label": "Κατηγορία (αριθμός)",
+      "help": "Ο αριθμός της κατηγορίας στη διαχείριση."
+    },
+    "columns": {
+      "label": "Στήλες"
+    },
+    "content": {
+      "label": "Περιεχόμενο"
+    },
+    "contentPage": {
+      "label": "Σελίδα περιεχομένου"
+    },
+    "count": {
+      "label": "Πλήθος"
+    },
+    "ctaLink": {
+      "label": "Σύνδεσμος κουμπιού"
+    },
+    "ctaText": {
+      "label": "Κείμενο κουμπιού"
+    },
+    "date": {
+      "label": "Ημερομηνία"
+    },
+    "decor": {
+      "label": "Διακόσμηση"
+    },
+    "description": {
+      "label": "Περιγραφή"
+    },
+    "embedUrl": {
+      "label": "Διεύθυνση ενσωμάτωσης χάρτη"
+    },
+    "emphasis": {
+      "label": "Έμφαση",
+      "help": "Μέρος του κειμένου που γράφεται έντονα."
+    },
+    "eyebrow": {
+      "label": "Υπέρτιτλος"
+    },
+    "heading": {
+      "label": "Επικεφαλίδα"
+    },
+    "height": {
+      "label": "Ύψος"
+    },
+    "hint": {
+      "label": "Υπόδειξη"
+    },
+    "href": {
+      "label": "Εξωτερικός σύνδεσμος"
+    },
+    "icon": {
+      "label": "Εικονίδιο"
+    },
+    "imageAlt": {
+      "label": "Περιγραφή εικόνας",
+      "help": "Διαβάζεται σε όσους δεν βλέπουν την εικόνα."
+    },
+    "imagePosition": {
+      "label": "Θέση εικόνας"
+    },
+    "imageUrl": {
+      "label": "Εικόνα"
+    },
+    "images": {
+      "label": "Εικόνες"
+    },
+    "kind": {
+      "label": "Είδος"
+    },
+    "label": {
+      "label": "Ετικέτα"
+    },
+    "layout": {
+      "label": "Διάταξη"
+    },
+    "limit": {
+      "label": "Μέγιστο πλήθος"
+    },
+    "link": {
+      "label": "Σύνδεσμος"
+    },
+    "marquee": {
+      "label": "Κυλιόμενη σειρά"
+    },
+    "mobileImageUrl": {
+      "label": "Εικόνα για κινητά"
+    },
+    "mobileImages": {
+      "label": "Εικόνες για κινητά"
+    },
+    "multiple": {
+      "label": "Πολλές ανοιχτές μαζί"
+    },
+    "name": {
+      "label": "Όνομα"
+    },
+    "note": {
+      "label": "Σημείωση"
+    },
+    "ordering": {
+      "label": "Σειρά"
+    },
+    "overlayOpacity": {
+      "label": "Σκίαση εικόνας"
+    },
+    "page": {
+      "label": "Σελίδα"
+    },
+    "pageSize": {
+      "label": "Πλήθος"
+    },
+    "parentId": {
+      "label": "Γονική κατηγορία (αριθμός)",
+      "help": "Δείχνει τις υποκατηγορίες της. Κενό για τις βασικές."
+    },
+    "placeholder": {
+      "label": "Κείμενο στο κενό πεδίο"
+    },
+    "productId": {
+      "label": "Προϊόν (αριθμός)",
+      "help": "Ο αριθμός του προϊόντος στη διαχείριση."
+    },
+    "prompt": {
+      "label": "Κάρτα στο τέλος",
+      "title": {
+        "label": "Τίτλος"
+      },
+      "text": {
+        "label": "Κείμενο"
+      },
+      "ctaText": {
+        "label": "Κείμενο κουμπιού"
+      },
+      "ctaLink": {
+        "label": "Σύνδεσμος κουμπιού"
+      }
+    },
+    "question": {
+      "label": "Ερώτηση"
+    },
+    "quote": {
+      "label": "Απόσπασμα"
+    },
+    "rating": {
+      "label": "Βαθμολογία"
+    },
+    "role": {
+      "label": "Ιδιότητα"
+    },
+    "route": {
+      "label": "Σελίδα του καταστήματος"
+    },
+    "secondaryCtaLink": {
+      "label": "Σύνδεσμος δεύτερου κουμπιού"
+    },
+    "secondaryCtaText": {
+      "label": "Κείμενο δεύτερου κουμπιού"
+    },
+    "showAddToCart": {
+      "label": "Κουμπί προσθήκης στο καλάθι"
+    },
+    "showsMerchantIdentity": {
+      "label": "Στοιχεία της επιχείρησης"
+    },
+    "src": {
+      "label": "Εικόνα"
+    },
+    "subheading": {
+      "label": "Υπότιτλος"
+    },
+    "subtitle": {
+      "label": "Υπότιτλος"
+    },
+    "surface": {
+      "label": "Φόντο"
+    },
+    "text": {
+      "label": "Κείμενο"
+    },
+    "theme": {
+      "label": "Χρώματα κειμένου"
+    },
+    "title": {
+      "label": "Τίτλος"
+    },
+    "value": {
+      "label": "Τιμή"
+    },
+    "variant": {
+      "label": "Μορφή"
+    }
+  },
+  "options": {
+    "surface": {
+      "default": "Βασικό",
+      "muted": "Απαλό",
+      "ink": "Σκούρο"
+    },
+    "variant": {
+      "line": "Γραμμή",
+      "thread": "Υφαντή λωρίδα"
+    },
+    "ordering": {
+      "featured": "Προτεινόμενα",
+      "newest": "Νεότερα",
+      "popular": "Δημοφιλή",
+      "discounted": "Σε έκπτωση",
+      "rating": "Καλύτερη βαθμολογία"
+    },
+    "decor": {
+      "none": "Καμία",
+      "gradient_tiles": "Πλακίδια με διαβάθμιση",
+      "framed": "Με πλαίσιο",
+      "orbs": "Σφαίρες",
+      "gradient": "Διαβάθμιση"
+    },
+    "align": {
+      "left": "Αριστερά",
+      "center": "Κέντρο"
+    },
+    "theme": {
+      "light": "Ανοιχτά",
+      "dark": "Σκούρα",
+      "auto": "Αυτόματα"
+    },
+    "aspect": {
+      "wide": "Φαρδιά",
+      "banner": "Λωρίδα",
+      "square": "Τετράγωνη"
+    },
+    "imagePosition": {
+      "left": "Αριστερά",
+      "right": "Δεξιά"
+    },
+    "layout": {
+      "slider": "Κυλιόμενη σειρά",
+      "grid": "Πλέγμα",
+      "tiles": "Πλακίδια"
+    },
+    "height": {
+      "sm": "Μικρό",
+      "md": "Μεσαίο",
+      "lg": "Μεγάλο",
+      "xl": "Πολύ μεγάλο"
+    },
+    "kind": {
+      "payment": "Πληρωμή",
+      "shipping": "Αποστολή",
+      "ai": "Βοηθοί AI",
+      "custom": "Δικό σας"
+    }
+  },
+  "routes": {
+    "home": "Αρχική σελίδα",
+    "products": "Προϊόντα",
+    "blog": "Ιστολόγιο",
+    "contact": "Επικοινωνία",
+    "offers": "Προσφορές",
+    "gift-cards": "Δωροκάρτες",
+    "loyalty-program": "Πρόγραμμα επιβράβευσης",
+    "feedback": "Σχόλια",
+    "account-login": "Σύνδεση",
+    "account-signup": "Εγγραφή"
   }
 }

@@ -10,15 +10,56 @@ const emit = defineEmits<{
 const { t } = useStoreI18n('components/Builder/Editor')
 
 const store = useBuilderEditorStore()
+const autosave = useBuilderAutosaveStore()
+const toast = useToast()
 const { documentKey, openDocument } = useBuilderEditorView()
+const { selection, move } = useBuilderSelection()
 
 /** The outline as a drawer, below the width that fits it beside the preview. */
 const outlineOpen = ref(false)
+/** The settings as a drawer, below the width that fits them beside the preview. */
+const settingsOpen = ref(false)
 
 watch(() => props.session.staff.role, (role) => {
   store.role = role
 }, { immediate: true })
 watch(documentKey, key => store.open(key), { immediate: true })
+
+/** Undo and redo land on the document they changed, so the change is in view. */
+async function step(direction: 'undo' | 'redo'): Promise<void> {
+  const key = direction === 'undo' ? store.undo() : store.redo()
+  if (key && !key.startsWith('group:') && key !== documentKey.value) await openDocument(key)
+}
+
+// Not while typing: a text field keeps its own undo (`usingInput` is off).
+defineShortcuts(computed(() => ({
+  meta_z: store.canUndo ? () => step('undo') : undefined,
+  meta_shift_z: store.canRedo ? () => step('redo') : undefined,
+  meta_y: store.canRedo ? () => step('redo') : undefined,
+  alt_arrowup: selection.value?.canMoveUp && store.canEdit ? () => move(-1) : undefined,
+  alt_arrowdown: selection.value?.canMoveDown && store.canEdit ? () => move(1) : undefined,
+})))
+
+// Leaving the page saves what waits for the autosave delay.
+useEventListener(window, 'pagehide', () => autosave.flush())
+useEventListener(document, 'visibilitychange', () => {
+  if (document.visibilityState === 'hidden') autosave.flush()
+})
+
+// The staff token is never renewed: say so before it ends.
+const { start: warnBeforeExpiry } = useTimeoutFn(() => {
+  toast.add({ title: t('expiring.title'), description: t('expiring.description'), color: 'warning', icon: 'i-lucide-clock', duration: 0 })
+}, () => Math.max(0, Date.parse(props.session.expiresAt) - Date.now() - BUILDER_SESSION_WARNING_MS), { immediate: false })
+onMounted(warnBeforeExpiry)
+
+watch(() => autosave.overall, (state) => {
+  if (state === 'invalid') {
+    toast.add({ title: t('invalid.title'), description: t('invalid.description'), color: 'error', icon: 'i-lucide-circle-alert' })
+  }
+  else if (state === 'failed') {
+    toast.add({ title: t('failed.title'), description: t('failed.description'), color: 'error', icon: 'i-lucide-circle-alert' })
+  }
+})
 </script>
 
 <template>
@@ -26,6 +67,7 @@ watch(documentKey, key => store.open(key), { immediate: true })
     :session="session"
     @sign-out="emit('signOut')"
     @open-outline="() => { outlineOpen = true }"
+    @open-settings="() => { settingsOpen = true }"
   />
 
   <UDashboardGroup
@@ -41,7 +83,7 @@ watch(documentKey, key => store.open(key), { immediate: true })
       :min-size="BUILDER_OUTLINE_PANE.min"
       :default-size="BUILDER_OUTLINE_PANE.default"
       :max-size="BUILDER_OUTLINE_PANE.max"
-      :ui="{ header: 'h-12 justify-between', body: 'px-2 py-3' }"
+      :ui="{ root: 'min-h-0', header: 'h-12 justify-between', body: 'px-2 py-3' }"
     >
       <template #header>
         <h2 class="text-sm font-semibold">
@@ -58,9 +100,24 @@ watch(documentKey, key => store.open(key), { immediate: true })
         />
       </template>
       <BuilderOutline v-if="store.status === 'ready'" />
+      <template #footer>
+        <BuilderNodeActions />
+      </template>
     </UDashboardSidebar>
 
     <UDashboardPanel id="builder-preview">
+      <template #header>
+        <UAlert
+          v-if="autosave.overall === 'signedOut'"
+          icon="i-lucide-log-out"
+          color="error"
+          variant="subtle"
+          :title="t('signedOut.title')"
+          :description="t('signedOut.description')"
+          class="rounded-none"
+        />
+        <BuilderRecoveryNotice v-if="store.status === 'ready'" />
+      </template>
       <template #body>
         <div
           class="flex flex-1 items-center justify-center"
@@ -103,11 +160,56 @@ watch(documentKey, key => store.open(key), { immediate: true })
         </div>
       </template>
     </UDashboardPanel>
+
+    <UDashboardSidebar
+      id="builder-settings"
+      v-model:open="settingsOpen"
+      side="right"
+      resizable
+      :toggle="false"
+      :min-size="BUILDER_SETTINGS_PANE.min"
+      :default-size="BUILDER_SETTINGS_PANE.default"
+      :max-size="BUILDER_SETTINGS_PANE.max"
+      :ui="{ root: 'min-h-0', header: 'h-12 justify-between', body: 'px-4 py-3' }"
+    >
+      <template #header>
+        <h2 class="text-sm font-semibold">
+          {{ t('settings.title') }}
+        </h2>
+        <UButton
+          icon="i-lucide-x"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          class="lg:hidden"
+          :aria-label="t('settings.close')"
+          @click="() => { settingsOpen = false }"
+        />
+      </template>
+      <BuilderInspector v-if="store.status === 'ready'" />
+    </UDashboardSidebar>
   </UDashboardGroup>
+
+  <BuilderConflictDialog />
 </template>
 
 <i18n lang="yaml">
 el:
+  settings:
+    title: Ρυθμίσεις
+    close: Κλείσιμο των ρυθμίσεων
+  expiring:
+    title: Η σύνδεση λήγει σε λίγα λεπτά
+    description: Οι αλλαγές σας αποθηκεύονται. Για να συνεχίσετε μετά, ανοίξτε ξανά τον επεξεργαστή από τη διαχείριση του καταστήματος.
+  signedOut:
+    title: Η σύνδεση έληξε
+    description: Όσα δεν αποθηκεύτηκαν κρατήθηκαν σε αυτή τη συσκευή. Ανοίξτε ξανά τον επεξεργαστή από τη διαχείριση του καταστήματος για να τα επαναφέρετε.
+  invalid:
+    title: Η αλλαγή δεν αποθηκεύτηκε
+    description: Το κατάστημα δεν τη δέχτηκε. Αναιρέστε την ή διορθώστε την ενότητα και θα αποθηκευτεί ξανά.
+  failed:
+    title: Η αποθήκευση απέτυχε
+    description: Οι αλλαγές σας είναι ακόμη εδώ. Δοκιμάστε ξανά σε λίγο.
   outline:
     title: Δομή σελίδας
     close: Κλείσιμο της δομής
@@ -126,6 +228,21 @@ el:
   preview:
     title: Η ζωντανή προβολή έρχεται σύντομα
 en:
+  settings:
+    title: Settings
+    close: Close the settings
+  expiring:
+    title: Your session ends in a few minutes
+    description: Your changes are being saved. To carry on afterwards, open the editor again from your store's admin.
+  signedOut:
+    title: Your session has ended
+    description: What was not saved is kept on this device. Open the editor again from your store's admin to restore it.
+  invalid:
+    title: The change was not saved
+    description: The store refused it. Undo it, or fix the section, and it will be saved again.
+  failed:
+    title: Saving failed
+    description: Your changes are still here. Try again in a moment.
   outline:
     title: Page outline
     close: Close the outline
