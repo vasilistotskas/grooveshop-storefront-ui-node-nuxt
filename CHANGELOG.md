@@ -1,3 +1,10 @@
+## [3.282.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.282.0...v3.282.1) (2026-11-02)
+
+
+### Performance Improvements
+
+* **overlays:** stop modal dialogs restyling the whole page on open ([#310](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/310)) ([dde6f70](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dde6f70b9f3e774ba011d394831f1443e0f284fb)), closes [unovue/reka-ui#3070](https://github.com/unovue/reka-ui/issues/3070)
+
 # [3.282.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.281.0...v3.282.0) (2026-11-02)
 
 
