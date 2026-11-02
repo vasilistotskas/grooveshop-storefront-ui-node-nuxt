@@ -25,6 +25,8 @@ describe('parseLegacyLink', () => {
     ['/products/2', ref('product', 2)],
     ['/products/category/3/powerbank', ref('category', 3)],
     ['/products/category/3', ref('category', 3)],
+    // The slug is ignored: the same product has a different slug on staging and on production.
+    ['/products/2/mini-power-bank-5000mah-tsephs-me-o8onh-lcd-black', ref('product', 2)],
     ['/blog/post/4/guide', ref('blogPost', 4)],
     ['/blog/category/5/news', ref('blogCategory', 5)],
     // A hierarchical blog category path still names the category by its id.
