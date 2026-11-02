@@ -70,6 +70,18 @@ function requestPath(event: H3Event): string {
 }
 
 /**
+ * Whether this answers a request for a page as the editor's preview
+ * (`BUILDER_CANVAS_QUERY`): always `PRIVATE_CACHE_CONTROL`, whatever the
+ * status, signed in or not. Only a staff member's request may be framed
+ * (`builderCanvasFraming`); a copy stored at the edge from anyone's request
+ * would answer the next one with the wrong framing, or a 304 revalidated
+ * against it.
+ */
+export function isBuilderCanvasResponse(event: H3Event): boolean {
+  return hasBuilderCanvasMarker(event.path)
+}
+
+/**
  * Whether this response may be stored at the edge. The ``s-maxage``
  * test is how Nitro marks a response its SWR page cache produced — on a
  * render and on a replay alike (``nitropack`` ``runtime/internal/cache``).

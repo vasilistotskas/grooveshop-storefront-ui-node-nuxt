@@ -13,17 +13,23 @@ import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from '~~/shared/utils/e
 const pick = (directives: string[], name: string) =>
   (directives.find(d => d.startsWith(`${name} `)) ?? '').split(/\s+/).slice(1)
 
+describe('who may frame a page', () => {
+  it.each(['none', 'self'] as const)('says frame-ancestors %s, as asked', (frameAncestors) => {
+    expect(pick(buildCspDirectives({ dev: false, frameAncestors }), 'frame-ancestors')).toEqual([`'${frameAncestors}'`])
+  })
+})
+
 describe('third-party integrations the checkout and login actually load', () => {
   it('allows the Stripe 3-D Secure iframe origin', () => {
     // StripePayment.vue calls confirmCardPayment, which runs the SCA
     // challenge in an iframe served from hooks.stripe.com. Without it
     // every 3-D Secure card is blocked at the moment of payment — and
     // under EU SCA that is most cards, not an edge case.
-    expect(pick(buildCspDirectives({ dev: false }), 'frame-src')).toContain('https://hooks.stripe.com')
+    expect(pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'frame-src')).toContain('https://hooks.stripe.com')
   })
 
   it('allows the sibling js.stripe.com origins Elements starts frames on', () => {
-    const directives = buildCspDirectives({ dev: false })
+    const directives = buildCspDirectives({ dev: false, frameAncestors: 'none' })
     expect(pick(directives, 'script-src')).toContain('https://*.js.stripe.com')
     expect(pick(directives, 'frame-src')).toContain('https://*.js.stripe.com')
     // The bare origin must survive alongside the wildcard: *.js.stripe.com
@@ -35,7 +41,7 @@ describe('third-party integrations the checkout and login actually load', () => 
   it('allows the Google Identity Services script when One Tap is enabled', () => {
     // setupSocialLogin loads accounts.google.com/gsi/client as a SCRIPT,
     // while the policy listed accounts.google.com under frame-src only.
-    const directives = buildCspDirectives({ dev: false, googleGsiEnabled: true })
+    const directives = buildCspDirectives({ dev: false, frameAncestors: 'none', googleGsiEnabled: true })
     expect(pick(directives, 'script-src')).toContain('https://accounts.google.com/gsi/client')
     expect(pick(directives, 'connect-src')).toContain('https://accounts.google.com/gsi/')
     expect(pick(directives, 'connect-src')).toContain('https://apis.google.com/js/')
@@ -46,7 +52,7 @@ describe('third-party integrations the checkout and login actually load', () => 
     // Gated like the pixel ids: a store that does not offer Google
     // sign-in should not widen its policy for it. The script does not
     // load in that case either, so the origins would be dead weight.
-    const directives = buildCspDirectives({ dev: false, googleGsiEnabled: false })
+    const directives = buildCspDirectives({ dev: false, frameAncestors: 'none', googleGsiEnabled: false })
     const google = (name: string) => pick(directives, name).filter(source => /(accounts|apis)\.google\.com/.test(source))
     expect(google('script-src')).toEqual([])
     expect(google('connect-src')).toEqual([])
@@ -59,7 +65,7 @@ describe('frame-src', () => {
     // and CSP validates every hop of a frame's redirect chain. The list
     // is `BOXNOW_FRAME_ORIGINS` — one source of truth with the
     // postMessage origin check (`boxnow-widget.spec.ts`).
-    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    const frameSrc = pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'frame-src')
 
     expect(BOXNOW_FRAME_ORIGINS).toEqual(expect.arrayContaining([
       'https://widget-v5.boxnow.gr',
@@ -73,7 +79,7 @@ describe('frame-src', () => {
   it('drops the unverified BoxNow bg/hr origins', () => {
     // Only GR and CY are confirmed live BoxNow markets for this store
     // (verified 2026-09-27) — bg/hr were unverified guesses.
-    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    const frameSrc = pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'frame-src')
     expect(frameSrc.filter(source => /boxnow\.(bg|hr)/.test(source))).toEqual([])
   })
 
@@ -82,7 +88,7 @@ describe('frame-src', () => {
     // sanitiser and a frame-src with no video host. An origin the
     // sanitiser frames but CSP omits renders as a blank box with only a
     // console entry — invisible to any test that checks one layer.
-    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    const frameSrc = pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'frame-src')
 
     expect(EMBED_FRAME_ORIGINS.filter(origin => !frameSrc.includes(origin))).toEqual([])
   })
@@ -90,7 +96,7 @@ describe('frame-src', () => {
   it('frames YouTube only from its privacy-enhanced host', () => {
     // The regular host sets YouTube and DoubleClick cookies as the frame
     // loads; the sanitiser never frames it, so the policy refuses it too.
-    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    const frameSrc = pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'frame-src')
 
     expect(frameSrc).toContain('https://www.youtube-nocookie.com')
     expect(frameSrc).not.toContain('https://www.youtube.com')
@@ -99,7 +105,7 @@ describe('frame-src', () => {
 
 describe('img-src', () => {
   it('allows a YouTube facade\'s poster', () => {
-    expect(pick(buildCspDirectives({ dev: false }), 'img-src')).toContain(YOUTUBE_THUMBNAIL_ORIGIN)
+    expect(pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'img-src')).toContain(YOUTUBE_THUMBNAIL_ORIGIN)
   })
 })
 
@@ -109,18 +115,18 @@ describe('the maps', () => {
   it('lets the map worker reach the platform maps host, and nothing else for tiles', () => {
     // MapLibre's worker fetches the TileJSON and every vector tile; the
     // glyphs are same-origin. No tile provider's origin is left anywhere.
-    const directives = buildCspDirectives({ dev: false, mapsTileJsonUrl: TILEJSON })
+    const directives = buildCspDirectives({ dev: false, frameAncestors: 'none', mapsTileJsonUrl: TILEJSON })
     expect(pick(directives, 'connect-src')).toContain('https://maps.grooveshop.space')
     expect(directives.join(';')).not.toMatch(/cartocdn|openstreetmap/)
   })
 
   it('allows the map worker as a same-origin script, with or without a nonce', () => {
-    expect(pick(buildCspDirectives({ dev: false, nonce: 'abc' }), 'worker-src')).toEqual([`'self'`])
+    expect(pick(buildCspDirectives({ dev: false, frameAncestors: 'none', nonce: 'abc' }), 'worker-src')).toEqual([`'self'`])
   })
 
   it('adds no maps origin for an unset or unparseable TileJSON URL', () => {
     for (const mapsTileJsonUrl of ['', 'not a url']) {
-      const connect = pick(buildCspDirectives({ dev: false, mapsTileJsonUrl }), 'connect-src')
+      const connect = pick(buildCspDirectives({ dev: false, frameAncestors: 'none', mapsTileJsonUrl }), 'connect-src')
       expect(connect.some(source => source.includes('maps'))).toBe(false)
     }
   })
