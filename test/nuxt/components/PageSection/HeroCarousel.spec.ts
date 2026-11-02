@@ -31,7 +31,7 @@ const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
  * PANEL beside the artwork rather than copy over it.
  *
  * The first is the regression that put the demo store's homepage on
- * its SECOND band: `page_config.schemas` accepted `slides`, Django
+ * its SECOND band: the section schema accepted `slides`, Django
  * stored them and the server proxy passed them through, while the
  * component read only the flat `images` array — no error anywhere,
  * just a missing band.
@@ -271,7 +271,7 @@ describe('PageSectionHeroCarousel', () => {
   })
 
   it('renders nothing without artwork', async () => {
-    // A prop-less `hero_carousel` is what `page_config.defaults` inserts
+    // A prop-less `hero_carousel` is what the default home seed holds
     // for a brand-new store. It must be absent, not an empty band.
     const wrapper = await mountHero({})
 

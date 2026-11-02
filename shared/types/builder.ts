@@ -152,6 +152,8 @@ export interface CatalogueDocumentKind {
   schema: Record<string, unknown>
   /** Pointers into the root settings that may be written per language. */
   translatable: string[]
+  /** Pointers of the root's link settings, as a block's `linkRefs`. */
+  linkRefs: string[]
 }
 
 export interface BlockCatalogue {

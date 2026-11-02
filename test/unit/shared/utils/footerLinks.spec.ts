@@ -82,7 +82,7 @@ describe('dedupeFooterContentPages', () => {
   })
 
   it('matches across the locale prefix', () => {
-    // The base carries NavigationMenu rows verbatim from Django, while
+    // The base carries the footer menu's paths unprefixed, while
     // the Pages column is built with localePath(). On a tenant serving
     // `en` those are the same destination spelled two ways, and a raw
     // string comparison would list both.

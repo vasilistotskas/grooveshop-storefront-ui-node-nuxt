@@ -3,10 +3,9 @@ import { STATIC_LAYOUT_ROUTES, isStaticLayoutPageType } from './staticLayoutRout
 
 /**
  * Where a record of the store is served, before the locale prefix: the one
- * place that writes these routes. The address a page links to a record, the
- * address a link of the page builder resolves to, and the address a legacy
- * link is read back from (`parseLegacyLink`) all come from here, so a route
- * that moves is changed once.
+ * place that writes these routes. The address a page links to a record and
+ * the address a link of the page builder resolves to both come from here,
+ * so a route that moves is changed once.
  */
 
 export const productPath = (id: number, slug: string): string => `/products/${id}/${slug}`

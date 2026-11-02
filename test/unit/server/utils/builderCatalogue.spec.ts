@@ -157,6 +157,7 @@ describe('buildBlockCatalogue', () => {
           additionalProperties: false,
         },
         translatable: ['/seoTitle', '/seoDescription', '/seoKeywords'],
+        linkRefs: [],
       })
       expect(documentKinds.template).toEqual(documentKinds.page)
     })
@@ -164,6 +165,12 @@ describe('buildBlockCatalogue', () => {
     it('lists no kind that has no root settings: the theme and a group', () => {
       expect(documentKinds).not.toHaveProperty('theme')
       expect(documentKinds).not.toHaveProperty('group')
+    })
+
+    it('names the link settings of a root, as of a block, so Django indexes what they point at', () => {
+      const root = { schema: z.object({ cta: builderField.link().optional() }), translatable: [] }
+
+      expect(buildBlockCatalogue([], { page: root }).documentKinds.page?.linkRefs).toEqual(['/cta'])
     })
   })
 

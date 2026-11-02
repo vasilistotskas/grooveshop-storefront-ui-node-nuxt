@@ -1092,10 +1092,10 @@ export default defineNuxtConfig({
         'i-lucide:plus',
         'i-lucide:sun',
         'i-lucide:upload',
-        // Authored in the DATABASE, not in this repo: page_config
-        // layouts and navigation rows carry an `icon` string (see
-        // page_config/models.py, and the devtools seeders for the
-        // engineering set). No scanner can see those, so a CMS icon has
+        // Authored in the DATABASE, not in this repo: builder
+        // documents (menu links, footer columns, sections) carry an
+        // `icon` setting (see the `builderField.icon` settings of
+        // `app/blocks`). No scanner can see those, so a CMS icon has
         // to be declared here to render server-side.
         //
         // Add a genuinely new one in Django and SSR cannot resolve it:

@@ -6,7 +6,7 @@ import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse, log 
 /**
  * The chrome's menus. They need the menu blocks, which the unit project's
  * fixture set does not have, so the REAL blocks stand in for `#builder-blocks`
- * (the way `builderPortFixtures.spec.ts` reads them).
+ * (the way `builderSeeds.spec.ts` reads them).
  */
 vi.mock('#builder-blocks', async () => ({
   default: (await Promise.all(Object.values(import.meta.glob<{ default: BlockDefinition }>('../../../../../app/blocks/*.block.ts')).map(load => load())))

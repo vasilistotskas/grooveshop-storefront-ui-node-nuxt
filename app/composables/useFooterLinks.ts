@@ -22,7 +22,7 @@ export function useFooterLinks() {
     }
   })
 
-  // Operator-configured footer wins (per-tenant NavigationMenu rows);
+  // Operator-configured footer wins (the store's builder footer menu);
   // the code-level columns below are the DEFAULT for a tenant that has
   // published none — which is most of them, so this is the ordinary
   // render path, not a degraded one. It cannot be deleted: a store
@@ -30,7 +30,7 @@ export function useFooterLinks() {
   // and cookies pages.
   //
   // It carries only links EVERY store has. Brand-specific
-  // information architecture belongs in a NavigationMenu row, not here:
+  // information architecture belongs in the store's footer menu, not here:
   // this list used to include "Όραμα" and a whole Microlearning column,
   // so every tenant's footer advertised another company's product
   // concept and linked to /vision, /what-is-microlearning and

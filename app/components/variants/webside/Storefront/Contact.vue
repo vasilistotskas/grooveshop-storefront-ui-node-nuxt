@@ -9,7 +9,7 @@ useHead({
 })
 
 // Optional per-tenant branded band above the page content — sections
-// from the published 'contact' PageLayout. Fallback is EMPTY, so pages
+// from the published 'contact' builder page. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
 const { sections: brandSections } = await useBuilderPage('contact')
 </script>

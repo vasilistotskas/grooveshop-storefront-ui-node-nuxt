@@ -8,7 +8,7 @@ import { setTenant } from '~~/test/helpers/tenant'
 /**
  * «Εκ φύσεως Φυτειάς» header. What it must get right:
  *
- * - the page links are the operator's `NavigationMenu` header rows, the
+ * - the page links are the operator's builder header menu, the
  *   current page marked with `aria-current` and nothing else;
  * - the phone button is the published phone, as a `tel:` link a phone
  *   can dial, and absent for a store that published none;

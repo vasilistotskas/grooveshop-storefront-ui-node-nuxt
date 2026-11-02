@@ -7,7 +7,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  * The footer every store renders, and the links it may carry.
  *
  * The code-level columns are what a tenant renders until an operator
- * publishes a NavigationMenu footer — the ordinary path for most stores —
+ * publishes a footer menu — the ordinary path for most stores —
  * so they may only link pages EVERY store has. They used to carry the
  * platform store's own IA ("Όραμα", a Microlearning column), so every
  * tenant advertised another company's concept and linked /vision,

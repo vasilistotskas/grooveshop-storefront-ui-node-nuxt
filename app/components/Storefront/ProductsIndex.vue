@@ -7,7 +7,7 @@ provideListingScope({ categoryId: undefined })
 await useProductsIndexPage(t)
 
 // Optional per-tenant branded band above the page content — sections
-// from the published 'products' PageLayout. The fallback is EMPTY, so a
+// from the published 'products' builder page. The fallback is EMPTY, so a
 // tenant without one gets the listing alone.
 const { sections: brandSections } = await useBuilderPage('products')
 </script>
