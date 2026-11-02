@@ -1,3 +1,10 @@
+# [3.294.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.293.0...v3.294.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** offer to turn on the feature a refused section needs ([#340](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/340)) ([4ec1458](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4ec1458bbe2dac52f12872939b1d269a6d5bb488))
+
 # [3.293.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.292.0...v3.293.0) (2026-11-02)
 
 
