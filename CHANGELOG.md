@@ -1,3 +1,10 @@
+# [3.287.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.286.0...v3.287.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** let the store frame the editor's preview of a page, for staff only ([#331](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/331)) ([39a6fcf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/39a6fcfa180496fd622b81f7c85285205eda7a5c))
+
 # [3.286.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.285.0...v3.286.0) (2026-11-02)
 
 
