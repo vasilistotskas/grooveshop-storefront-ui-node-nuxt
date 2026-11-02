@@ -25,7 +25,7 @@ describe('buildBlockCatalogue', () => {
     })
   })
 
-  it('leaves out what a block does not set: groups, templates, feature, deprecated, maxDepth', () => {
+  it('leaves out what a block does not set (groups, templates, feature, deprecated, maxDepth) and what only the editor reads', () => {
     expect(blockOf('promo_item')).toEqual({
       type: 'promo_item',
       version: 1,

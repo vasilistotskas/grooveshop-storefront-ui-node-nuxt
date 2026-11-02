@@ -14,4 +14,5 @@ export default defineBlock({
   limits: { maxBlocks: 8 },
   children: { allowed: ['spec_row'], maxDepth: 1 },
   childList: { spec_row: 'rows' },
+  editor: { title: ['name', 'label'] },
 })

@@ -16,4 +16,5 @@ export default defineBlock({
     hint: builderField.text(400).optional(),
   }),
   translatable: ['/title', '/eyebrow', '/heading', '/body', '/hint'],
+  editor: { title: ['heading', 'title'] },
 })

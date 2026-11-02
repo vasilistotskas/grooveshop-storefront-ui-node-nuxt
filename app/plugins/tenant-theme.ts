@@ -13,6 +13,10 @@
  *
  * Values are allowlist-checked against the Django ``TailwindColor``
  * choices; anything else is ignored.
+ *
+ * Not on the page editor (`isBuilderEditorPath`): it is drawn in the
+ * platform's look with its own palette (`app/layouts/builder.vue`), and the
+ * store is what its preview frame shows.
  */
 export default defineNuxtPlugin({
   name: 'tenant-theme',
@@ -20,7 +24,7 @@ export default defineNuxtPlugin({
   dependsOn: ['tenant'],
   setup() {
     const tenant = useTenant()
-    if (!tenant.value) return
+    if (!tenant.value || isBuilderEditorPath(useRequestURL().pathname)) return
 
     const appConfig = useAppConfig()
     const { primaryColor, neutralColor } = tenant.value

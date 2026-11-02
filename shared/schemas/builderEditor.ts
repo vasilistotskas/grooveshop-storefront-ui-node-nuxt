@@ -1,0 +1,43 @@
+import { z } from 'zod'
+import type { BuilderNode } from '../types/builder'
+import { BUILDER_NODE_ID_PATTERN } from '../constants/builder'
+import { BUILDER_DOCUMENT_KEY_PATTERN } from '../constants/builderEditor'
+
+/** `/api/builder/documents/<key>`: a document key as Django names them. */
+export const ZodBuilderDocumentParams = z.object({
+  key: z.string().regex(BUILDER_DOCUMENT_KEY_PATTERN),
+})
+
+const zNodeId = z.string().regex(BUILDER_NODE_ID_PATTERN)
+
+/** Whether `order` names every id of `map` exactly once, as Django requires of a saved document. */
+const ordersAll = (map: Record<string, unknown> = {}, order: readonly string[] = []) =>
+  order.length === Object.keys(map).length && new Set(order).size === order.length && order.every(id => Object.hasOwn(map, id))
+
+/**
+ * A node of a working copy, by its STRUCTURE only: its type, whether it is
+ * hidden, its settings as an opaque object, its children. The settings are
+ * checked against their block where they are edited, and Django checks the
+ * whole node on every save; this is what the editor needs to draw the
+ * outline and to move nodes around.
+ */
+const zDraftNode: z.ZodType<BuilderNode> = z.lazy(() => z.object({
+  type: z.string(),
+  disabled: z.boolean().optional(),
+  settings: z.record(z.string(), z.unknown()),
+  blocks: z.record(zNodeId, zDraftNode).optional(),
+  blockOrder: z.array(zNodeId).optional(),
+}).refine(node => ordersAll(node.blocks, node.blockOrder), { message: 'blockOrder must name every block once' }))
+
+/**
+ * A document's working copy (`draft` of `GET documents/<key>`) as the
+ * editor opens it. A document that is not this shape (written by a build
+ * with another format) is not opened, rather than half-drawn and saved
+ * back mangled. Each order lists its map exactly once, as Django's own
+ * check of a saved document does.
+ */
+export const ZodBuilderDraft = z.object({
+  settings: z.record(z.string(), z.unknown()).optional(),
+  sections: z.record(zNodeId, zDraftNode),
+  order: z.array(zNodeId),
+}).refine(document => ordersAll(document.sections, document.order), { message: 'order must name every section once' })

@@ -15,4 +15,5 @@ export default defineBlock({
   limits: { maxBlocks: 12 },
   children: { allowed: ['trust_badge'], maxDepth: 1 },
   childList: { trust_badge: 'items' },
+  editor: { title: ['heading', 'title'] },
 })

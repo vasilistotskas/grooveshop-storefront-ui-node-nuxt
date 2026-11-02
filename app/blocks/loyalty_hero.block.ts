@@ -15,4 +15,5 @@ export default defineBlock({
     secondaryCtaLink: builderField.link().optional(),
   }),
   translatable: ['/title', '/eyebrow', '/ctaText', '/secondaryCtaText'],
+  editor: { title: ['title'] },
 })

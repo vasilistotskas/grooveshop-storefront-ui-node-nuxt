@@ -10,4 +10,5 @@ export default defineBlock({
     heading: builderField.text(200).optional(),
   }),
   translatable: ['/title', '/heading'],
+  editor: { title: ['heading', 'title'] },
 })

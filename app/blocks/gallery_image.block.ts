@@ -11,4 +11,5 @@ export default defineBlock({
     caption: builderField.text(200).optional(),
   }),
   translatable: ['/alt', '/caption'],
+  editor: { title: ['caption'] },
 })

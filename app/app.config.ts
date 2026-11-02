@@ -311,4 +311,16 @@ export default defineAppConfig({
     mode: 'css',
     cssLayer: 'base',
   },
+  /**
+   * The page editor's own look (`app/layouts/builder.vue`). On a store's host
+   * `primary` is that store's brand colour, so the editor names its own
+   * palette: its controls look the same on every store, and they never blend
+   * into the store's preview beside them.
+   */
+  builder: {
+    colors: {
+      primary: 'violet',
+      neutral: 'slate',
+    },
+  },
 })

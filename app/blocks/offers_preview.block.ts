@@ -16,4 +16,5 @@ export default defineBlock({
     ctaLink: builderField.link().optional(),
   }),
   translatable: ['/title', '/eyebrow', '/heading', '/subheading', '/ctaText'],
+  editor: { title: ['heading', 'title'] },
 })

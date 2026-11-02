@@ -22,7 +22,8 @@ import { linkPointers } from './linkPointers'
  * A definition holds data only, never a component: the server reads every
  * definition to serve the catalogue and to parse documents, and must not
  * bundle the components. The renderer maps `type` to its component on the
- * client (`app/utils/componentRegistry.ts`).
+ * client (`app/utils/componentRegistry.ts`). What only the editor reads
+ * (`editor`) never reaches the catalogue.
  */
 export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema>): BlockDefinition<Schema> {
   const fail = (message: string): never => {
@@ -83,6 +84,12 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     fail('childList props must be distinct and not a setting of the schema')
   }
 
+  for (const setting of config.editor?.title ?? []) {
+    if (!settings.has(setting)) {
+      fail(`editor.title names "${setting}", which is not a setting of the schema`)
+    }
+  }
+
   return {
     ...config,
     translatable: config.translatable ?? [],
@@ -91,5 +98,6 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     limits: config.limits ?? {},
     children: config.children ?? { allowed: [] },
     childList: config.childList ?? {},
+    editor: config.editor ?? {},
   }
 }

@@ -7,10 +7,10 @@ import { createTestEvent, log, runNitroPlugin } from '~~/test/helpers/nitro'
  * last into the head. What the CSS says is `server/utils/themeTokens.ts`'s
  * contract (its own spec); this pins when the block is emitted and how.
  */
-async function render(context: Record<string, unknown>) {
+async function render(context: Record<string, unknown>, url = '/') {
   const nitroApp = await runNitroPlugin(plugin)
   const html = { head: ['<meta charset="utf-8">'] }
-  await nitroApp.hooks.callHook('render:html', html, { event: createTestEvent({ context }) })
+  await nitroApp.hooks.callHook('render:html', html, { event: createTestEvent({ context, url }) })
   return html.head
 }
 
@@ -35,6 +35,14 @@ describe('server/plugins/tenant-theme', () => {
     ['webside, which changes nothing', { tenant: { schemaName: 'webside' } }],
   ])('adds nothing for %s', async (_label, context) => {
     expect(await render(context)).toEqual(['<meta charset="utf-8">'])
+  })
+
+  it.each(['/_builder', '/en/_builder'])('adds nothing to the page editor (%s), which is drawn in the platform\'s look', async (url) => {
+    expect(await render({ tenant: THEMED }, url)).toEqual(['<meta charset="utf-8">'])
+  })
+
+  it('still themes a store page whose path merely contains the editor\'s', async () => {
+    expect(await render({ tenant: THEMED }, '/blog/_builder-tips')).toHaveLength(2)
   })
 
   it('warns about invalid theme metadata and still applies the tenant fields', async () => {

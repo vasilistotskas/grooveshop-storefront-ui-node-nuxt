@@ -1,0 +1,180 @@
+{
+  "blocks": {
+    "about_content": {
+      "label": "About us"
+    },
+    "blog_categories": {
+      "label": "Blog categories"
+    },
+    "blog_posts_carousel": {
+      "label": "Blog post carousel"
+    },
+    "blog_posts_grid": {
+      "label": "Blog post grid"
+    },
+    "blog_posts_list": {
+      "label": "Blog post list"
+    },
+    "bullet": {
+      "label": "Bullet point"
+    },
+    "business_hours": {
+      "label": "Opening hours"
+    },
+    "contact_panel": {
+      "label": "Contact"
+    },
+    "cta_banner": {
+      "label": "Call to action"
+    },
+    "divider": {
+      "label": "Divider"
+    },
+    "faq": {
+      "label": "Questions and answers"
+    },
+    "faq_item": {
+      "label": "Question"
+    },
+    "feature_item": {
+      "label": "Feature"
+    },
+    "featured_products": {
+      "label": "Featured products"
+    },
+    "features_grid": {
+      "label": "Feature grid"
+    },
+    "footer_column": {
+      "label": "Footer column"
+    },
+    "footer_menu": {
+      "label": "Footer menu"
+    },
+    "gallery_image": {
+      "label": "Image"
+    },
+    "header_menu": {
+      "label": "Header menu"
+    },
+    "hero_banner": {
+      "label": "Hero banner"
+    },
+    "hero_carousel": {
+      "label": "Hero carousel"
+    },
+    "hero_slide": {
+      "label": "Slide"
+    },
+    "image_gallery": {
+      "label": "Image gallery"
+    },
+    "location_map": {
+      "label": "Location map"
+    },
+    "loyalty_hero": {
+      "label": "Loyalty programme"
+    },
+    "media_text": {
+      "label": "Image with text"
+    },
+    "mobile_menu": {
+      "label": "Mobile menu"
+    },
+    "nav_link": {
+      "label": "Link"
+    },
+    "newsletter_signup": {
+      "label": "Newsletter sign-up"
+    },
+    "offers_preview": {
+      "label": "Offers"
+    },
+    "partner": {
+      "label": "Partner"
+    },
+    "partner_strip": {
+      "label": "Partners"
+    },
+    "product_categories": {
+      "label": "Product categories"
+    },
+    "products_grid": {
+      "label": "Product grid"
+    },
+    "products_slider": {
+      "label": "Product carousel"
+    },
+    "pull_quote": {
+      "label": "Pull quote"
+    },
+    "recently_viewed": {
+      "label": "Recently viewed"
+    },
+    "rich_text": {
+      "label": "Text"
+    },
+    "search_bar": {
+      "label": "Search"
+    },
+    "spacer": {
+      "label": "Spacer"
+    },
+    "spec_card": {
+      "label": "Spec card"
+    },
+    "spec_row": {
+      "label": "Spec"
+    },
+    "stat": {
+      "label": "Figure"
+    },
+    "stats_strip": {
+      "label": "Figures"
+    },
+    "story_timeline": {
+      "label": "Our story"
+    },
+    "testimonial": {
+      "label": "Review"
+    },
+    "testimonials": {
+      "label": "Customer reviews"
+    },
+    "timeline_entry": {
+      "label": "Milestone"
+    },
+    "trust_badge": {
+      "label": "Trust badge"
+    },
+    "trust_badges": {
+      "label": "Trust badges"
+    },
+    "vision_content": {
+      "label": "Our vision"
+    },
+    "what_is_microlearning": {
+      "label": "What is microlearning"
+    },
+    "why_microlearning": {
+      "label": "Why microlearning"
+    }
+  },
+  "groups": {
+    "header": "Header, on every page",
+    "mobile": "Mobile menu, on every page",
+    "footer": "Footer, on every page"
+  },
+  "templates": {
+    "home": "Home page",
+    "products": "Products",
+    "blog": "Blog",
+    "blog-post": "Blog post",
+    "contact": "Contact",
+    "feedback": "Feedback",
+    "about": "About us",
+    "vision": "Vision",
+    "what-is-microlearning": "What is microlearning",
+    "why-microlearning": "Why microlearning"
+  }
+}

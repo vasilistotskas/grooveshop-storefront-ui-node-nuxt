@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import tenantThemePlugin from '~/plugins/tenant-theme'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
@@ -9,6 +10,9 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
  * than written into the colour config every component reads.
  */
 const run = () => (tenantThemePlugin as unknown as () => void)()
+
+const { requestUrl } = vi.hoisted(() => ({ requestUrl: { href: 'https://shop.example/' } }))
+mockNuxtImport('useRequestURL', () => () => new URL(requestUrl.href))
 
 describe('tenant-theme plugin', () => {
   let original: { primary: string, neutral: string }
@@ -21,6 +25,7 @@ describe('tenant-theme plugin', () => {
   afterEach(() => {
     Object.assign(useAppConfig().ui.colors, original)
     useState('tenant').value = null
+    requestUrl.href = 'https://shop.example/'
   })
 
   const colors = () => useAppConfig().ui.colors as { primary: string, neutral: string }
@@ -39,6 +44,15 @@ describe('tenant-theme plugin', () => {
     ['an empty value', ''],
   ])('ignores %s', (_case, value) => {
     useState('tenant').value = validTenantConfig('shop.example', { primaryColor: value, neutralColor: value })
+
+    run()
+
+    expect(colors()).toEqual(expect.objectContaining(original))
+  })
+
+  it.each(['/_builder', '/en/_builder'])('leaves the palette alone on the page editor (%s), which has its own', (path) => {
+    requestUrl.href = `https://shop.example${path}`
+    useState('tenant').value = validTenantConfig('shop.example', { primaryColor: 'emerald', neutralColor: 'stone' })
 
     run()
 

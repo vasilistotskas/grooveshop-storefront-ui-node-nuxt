@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { BUILDER_STAFF_ROLES } from '../constants/builderSession'
 
 /** `POST /api/builder/session`: the single-use ticket Django's admin minted for "Edit storefront". */
 export const ZodBuilderSessionBody = z.object({
@@ -9,7 +10,7 @@ export const ZodBuilderSessionBody = z.object({
 export const ZodBuilderStaff = z.object({
   id: z.number().int(),
   name: z.string(),
-  role: z.string(),
+  role: z.enum(BUILDER_STAFF_ROLES),
 })
 
 /** What Django answers a valid ticket with: `POST {apiBaseUrl}/builder/staff-session`. */

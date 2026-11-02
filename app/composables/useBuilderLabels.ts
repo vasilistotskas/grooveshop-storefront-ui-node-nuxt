@@ -1,0 +1,52 @@
+import { createI18n } from 'vue-i18n'
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import type { SupportedLocale } from '~~/i18n/locales'
+import el from '~/builder/labels/el.json'
+import en from '~/builder/labels/en.json'
+
+type BuilderLabelMessages = typeof el
+
+/**
+ * The editor's names for the block catalogue: what each block, section
+ * group and page type is called, in Greek and English
+ * (`app/builder/labels/<locale>.json`).
+ *
+ * Its own composer, apart from the app's: these texts exist only in the
+ * editor, so they stay out of the global locale files (every page would
+ * carry them, and the store's text editor would offer them), and only the
+ * editor's chunk imports this file. Every key is checked for both
+ * languages by `test/unit/app/builder/labels.spec.ts`.
+ */
+let composer: ReturnType<typeof createComposer> | undefined
+
+function createComposer() {
+  return createI18n<[BuilderLabelMessages], SupportedLocale, false>({
+    legacy: false,
+    locale: DEFAULT_LOCALE,
+    fallbackLocale: DEFAULT_LOCALE,
+    messages: { el, en },
+  }).global
+}
+
+/**
+ * Labels in the editor's language (the route's locale, not the language
+ * being edited). Each function reads the locale when it runs, so a template
+ * that calls it re-renders on a language switch.
+ */
+export function useBuilderLabels() {
+  const { locale } = useI18n({ useScope: 'global' })
+  const labels = (composer ??= createComposer())
+  const read = (key: string) => labels.t(key, {}, { locale: locale.value })
+
+  return {
+    /**
+     * What a block type is called. A type this build does not define (a
+     * document written by another build) is shown by its type name, which
+     * is what the merchant would have to report.
+     */
+    blockLabel: (type: string) => labels.te(`blocks.${type}.label`, DEFAULT_LOCALE) ? read(`blocks.${type}.label`) : type,
+    groupLabel: (group: BuilderEditorGroup) => read(`groups.${group}`),
+    /** What a page type of the storefront's static routes is called (`template:<name>`; Django holds no other). */
+    templateLabel: (name: StaticLayoutPageType) => read(`templates.${name}`),
+  }
+}

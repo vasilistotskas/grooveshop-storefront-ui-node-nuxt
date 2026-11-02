@@ -1,24 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
+import { UApp } from '#components'
 import BuilderShell from '~/components/Builder/Shell.vue'
 import BuilderLayout from '~/layouts/builder.vue'
 import { failWith } from '~~/test/helpers/api'
 
 /**
- * The page editor's shell (a placeholder until the editor): it signs the
- * staff member in with the ticket Django's admin put on the address, or
- * with the session the browser already holds, says who is signed in, and
- * signs out.
+ * The page editor's shell: it signs the staff member in with the ticket
+ * Django's admin put on the address, or with the session the browser
+ * already holds, opens the editor as them, and signs out.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 
 const SESSION_URL = '/api/builder/session'
-const info = { staff: { id: 7, name: 'Maria Papadopoulou', role: 'ADMIN' }, expiresAt: '2026-11-01T18:00:00+02:00' }
+const info = { staff: { id: 7, name: 'Maria Papadopoulou', role: 'admin' }, expiresAt: '2026-11-01T18:00:00+02:00' }
 
 const Framed = defineComponent({
-  render: () => h(BuilderLayout, null, { default: () => h(BuilderShell) }),
+  // UApp, as `app.vue` mounts it: the tooltips and menus need its providers.
+  render: () => h(UApp, null, { default: () => h(BuilderLayout, null, { default: () => h(BuilderShell) }) }),
 })
 
 /** Mounts the shell and waits for the sign-in to settle (a ticket's replace is a real navigation). */
@@ -30,8 +32,17 @@ async function open(route = '/_builder') {
 
 const methodsOf = () => api.callsTo(SESSION_URL).map(call => call.options?.method ?? 'GET')
 
+/** The editor's account button, which only a signed-in staff member has. */
+const ACCOUNT = 'button[aria-label="Λογαριασμός: Maria Papadopoulou"]'
+
+async function signOutFrom(wrapper: Awaited<ReturnType<typeof open>>) {
+  await wrapper.get(ACCOUNT).trigger('keydown', { key: 'Enter' })
+  await flushPromises()
+  ;[...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find(item => item.textContent?.includes('Αποσύνδεση'))!.click()
+}
+
 beforeEach(() => {
-  api.routes({ [SESSION_URL]: info })
+  api.routes({ [SESSION_URL]: info, '/api/builder/documents': [] })
 })
 
 describe('the builder shell', () => {
@@ -41,8 +52,8 @@ describe('the builder shell', () => {
 
       expect(api.callsTo(SESSION_URL).map(call => ({ method: call.options.method, body: call.options.body })))
         .toEqual([{ method: 'POST', body: { ticket: 'one-time-ticket' } }])
-      expect(wrapper.text()).toContain('Συνδεδεμένος ως Maria Papadopoulou')
-      expect(wrapper.text()).toContain('ADMIN')
+      expect(wrapper.find(ACCOUNT).exists()).toBe(true)
+      expect(wrapper.text()).toContain('Διαχειριστής')
     })
 
     it('takes the ticket off the address, and keeps the rest of it', async () => {
@@ -59,7 +70,7 @@ describe('the builder shell', () => {
       const wrapper = await open('/_builder?ticket=used-ticket')
 
       expect(wrapper.text()).toContain('Ο σύνδεσμος δεν ισχύει πια')
-      expect(wrapper.text()).not.toContain('Συνδεδεμένος ως')
+      expect(wrapper.find(ACCOUNT).exists()).toBe(false)
     })
   })
 
@@ -68,7 +79,7 @@ describe('the builder shell', () => {
       const wrapper = await open()
 
       expect(methodsOf()).toEqual(['GET'])
-      expect(wrapper.text()).toContain('Συνδεδεμένος ως Maria Papadopoulou')
+      expect(wrapper.find(ACCOUNT).exists()).toBe(true)
     })
 
     it('says the visitor is not signed in when there is no session', async () => {
@@ -77,7 +88,7 @@ describe('the builder shell', () => {
       const wrapper = await open()
 
       expect(wrapper.text()).toContain('Δεν είστε συνδεδεμένοι')
-      expect(wrapper.text()).not.toContain('Συνδεδεμένος ως')
+      expect(wrapper.find(ACCOUNT).exists()).toBe(false)
     })
 
     it('says the sign-in failed for anything else', async () => {
@@ -93,12 +104,12 @@ describe('the builder shell', () => {
     it('ends the session and shows the visitor signed out', async () => {
       const wrapper = await open()
 
-      await wrapper.get('button[aria-label="Αποσύνδεση"]').trigger('click')
+      await signOutFrom(wrapper)
       await vi.waitFor(() => expect(wrapper.text()).toContain('Δεν είστε συνδεδεμένοι'))
 
       expect(methodsOf()).toEqual(['GET', 'DELETE'])
       expect(wrapper.text()).toContain('Δεν είστε συνδεδεμένοι')
-      expect(wrapper.find('button[aria-label="Αποσύνδεση"]').exists()).toBe(false)
+      expect(wrapper.find(ACCOUNT).exists()).toBe(false)
     })
 
     it('offers it only to someone signed in', async () => {
@@ -106,7 +117,7 @@ describe('the builder shell', () => {
 
       const wrapper = await open()
 
-      expect(wrapper.find('button[aria-label="Αποσύνδεση"]').exists()).toBe(false)
+      expect(wrapper.find(ACCOUNT).exists()).toBe(false)
     })
   })
 })

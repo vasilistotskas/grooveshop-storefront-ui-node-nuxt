@@ -14,4 +14,5 @@ export default defineBlock({
     surface: builderField.surface().optional(),
   }),
   translatable: ['/title', '/heading', '/description', '/placeholder', '/buttonText'],
+  editor: { title: ['heading', 'title'] },
 })

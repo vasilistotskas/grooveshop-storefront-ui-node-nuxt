@@ -17,4 +17,5 @@ export default defineBlock({
     .refine(badge => Boolean(badge.imageUrl || badge.icon), { message: 'needs imageUrl or icon' })
     .meta({ anyOf: [{ required: ['imageUrl'] }, { required: ['icon'] }] }),
   translatable: ['/label'],
+  editor: { title: ['label'] },
 })
