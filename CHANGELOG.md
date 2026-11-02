@@ -1,3 +1,10 @@
+# [3.292.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.291.0...v3.292.0) (2026-11-02)
+
+
+### Features
+
+* **builder:** reorder sections and blocks by dragging them in the outline ([#337](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/337)) ([f608afc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f608afccc3add66c4bdd7b4e859a261b43fa7bd1))
+
 # [3.291.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.290.0...v3.291.0) (2026-11-02)
 
 
