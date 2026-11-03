@@ -70,6 +70,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
 
     <div class="ms-auto flex items-center gap-1 max-lg:w-full max-lg:justify-end">
       <BuilderHistory />
+      <BuilderShareDialog v-if="store.status === 'ready' && store.canEdit" />
       <BuilderVersionHistory v-if="store.status === 'ready'" />
       <BuilderPublish />
 

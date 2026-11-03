@@ -1,6 +1,6 @@
 import { splitLocale } from '~~/shared/i18n/localeFromPath'
 import { isStaticLayoutPageType, STATIC_LAYOUT_ROUTES } from './staticLayoutRoutes'
-import { BUILDER_CANVAS_QUERY, BUILDER_EDITOR_ROUTE } from '../constants/builderEditor'
+import { BUILDER_CANVAS_QUERY, BUILDER_EDITOR_ROUTE, BUILDER_SHARE_PAGE_QUERY, BUILDER_SHARE_ROUTE } from '../constants/builderEditor'
 import type { BuilderDocumentKind } from '../types/builder'
 import type { BuilderSurface } from '../types/builderEditor'
 
@@ -14,6 +14,16 @@ import type { BuilderSurface } from '../types/builderEditor'
  */
 export function isBuilderEditorPath(path: string): boolean {
   return splitLocale(path.split('?')[0] ?? '').route === BUILDER_EDITOR_ROUTE
+}
+
+/** Whether a path is a share-preview link, in any language (`/en/_builder/preview/<token>`). */
+export function isBuilderSharePath(path: string): boolean {
+  return splitLocale(path.split('?')[0] ?? '').route.startsWith(`${BUILDER_SHARE_ROUTE}/`)
+}
+
+/** The route of a share link for `token` showing the page `page` (a slug), without a locale prefix. */
+export function builderSharePath(token: string, page: string): string {
+  return `${BUILDER_SHARE_ROUTE}/${token}?${new URLSearchParams({ [BUILDER_SHARE_PAGE_QUERY]: page })}`
 }
 
 /**
@@ -65,6 +75,7 @@ export function builderDocumentAt(path: string, keys: readonly string[]): string
 /** The page builder surface a path (with its query) is, or `null` for a page of the store (`BuilderSurface`). */
 export function builderSurfaceOf(path: string): BuilderSurface | null {
   if (isBuilderEditorPath(path)) return 'editor'
+  if (isBuilderSharePath(path)) return 'share'
   return hasBuilderCanvasMarker(path) ? 'canvas' : null
 }
 

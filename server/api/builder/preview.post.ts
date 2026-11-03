@@ -22,19 +22,14 @@ export default defineEventHandler(async (event): Promise<BuilderPreviewResponse>
     const { headers } = await requireBuilderStaff(event)
     const { documents } = await readValidatedBody(event, ZodBuilderPreviewRequest)
     const pageKey = Object.keys(documents).find(key => builderPageKind(key))!
-    // What the menus may link to does not depend on the copies: read it while Django resolves them.
-    const [resolved, targets] = await Promise.all([
-      useBackendFetch(event)(`${config.apiBaseUrl}/builder/preview/resolve`, {
-        method: 'POST',
-        headers,
-        body: { pageKey: parseBuilderDocumentKey(pageKey).name, locale: requestLocale(event), documents },
-      }).then(response => parseDataAs(response, zApiV1BuilderPreviewResolveCreateResponse)),
-      readPublishedSummary(event).then(summary => publishedTargets(event, summary)),
-    ])
-    const page = await builderPageOf(event, resolved.page)
-    const navigation = builderNavigationOf(event, resolved.groups, targets)
+    const resolving = useBackendFetch(event)(`${config.apiBaseUrl}/builder/preview/resolve`, {
+      method: 'POST',
+      headers,
+      body: { pageKey: parseBuilderDocumentKey(pageKey).name, locale: requestLocale(event), documents },
+    }).then(response => parseDataAs(response, zApiV1BuilderPreviewResolveCreateResponse))
+    const preview = await builderPreviewOf(event, pageKey, resolving)
     event.res.headers.set('Cache-Control', 'private, no-store')
-    return { pages: { [pageKey]: page }, navigation }
+    return preview
   }
   catch (error) {
     event.res.headers.set('Cache-Control', 'private, no-store')

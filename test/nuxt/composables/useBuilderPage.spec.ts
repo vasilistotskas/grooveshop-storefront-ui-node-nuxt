@@ -97,6 +97,18 @@ describe('useBuilderPage', () => {
     })
   })
 
+  it('draws the page of a share link from the preview it holds, as the canvas does', async () => {
+    surface.mockReturnValue('share')
+    mockUseFetchFn.mockReturnValue(answer({ sections: [{ id: 'published', componentType: 'spacer', props: {} }] }))
+    useBuilderCanvasPreview().value = { pages: { 'page:about': { sections: [{ id: 'shared', componentType: 'spacer', props: {} }] } }, navigation: {} }
+
+    const { sections } = await callUseBuilderPage('about')
+
+    expect(sections.value.map(({ id }) => id)).toEqual(['shared'])
+    surface.mockReturnValue(null)
+    useBuilderCanvasPreview().value = null
+  })
+
   it('answers no page for an unpublished key outside the preview', async () => {
     mockUseFetchFn.mockReturnValue(answer(null))
     useBuilderCanvasPreview().value = { pages: { 'template:home': { sections: [] } }, navigation: {} }
