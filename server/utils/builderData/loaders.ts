@@ -93,11 +93,32 @@ export const RECORD_LOADERS: { [Kind in DataRecordKind]: (context: LoaderContext
   blogCategory: ({ tenantHost, locale }, ids) => readByIds(query => readBlogCategories(tenantHost, locale, query), ids),
 }
 
-/** What the resolver reads by descriptor, one loader per source: the items the descriptor lists now, in the order Django answers them. */
-export const QUERY_LOADERS: { [Source in DataSource]: (context: LoaderContext, descriptor: unknown) => Promise<DataItems[Source][]> } = {
-  product: async ({ tenantHost, locale }, descriptor) => (await readProducts(tenantHost, locale, productQuery(descriptor))).results,
-  blogPost: async ({ tenantHost, locale }, descriptor) => (await readBlogPosts(tenantHost, locale, blogPostQuery(descriptor))).results,
-  category: async ({ tenantHost, locale }, descriptor) => (await readCategories(tenantHost, locale, categoryQuery(descriptor))).results,
-  blogCategory: async ({ tenantHost, locale }, descriptor) => (await readBlogCategories(tenantHost, locale, blogCategoryQuery(descriptor))).results,
-  promotion: async ({ tenantHost, locale }, descriptor) => (await readPromotions(tenantHost, locale, {})).slice(0, promotionLimit(descriptor)),
+const answerOf = <Item>({ results, count }: { results: Item[], count: number }): QueryAnswer<Item> => ({ items: results, total: count })
+
+/**
+ * What the resolver reads by descriptor, one loader per source: the items the
+ * descriptor lists now, in the order Django answers them, and how many match
+ * in all.
+ */
+export const QUERY_LOADERS: { [Source in DataSource]: (context: LoaderContext, descriptor: unknown) => Promise<QueryAnswer<DataItems[Source]>> } = {
+  product: async ({ tenantHost, locale }, descriptor) => answerOf(await readProducts(tenantHost, locale, productQuery(descriptor))),
+  blogPost: async ({ tenantHost, locale }, descriptor) => answerOf(await readBlogPosts(tenantHost, locale, blogPostQuery(descriptor))),
+  category: async ({ tenantHost, locale }, descriptor) => {
+    const query = categoryQuery(descriptor)
+    const answer = answerOf(await readCategories(tenantHost, locale, query))
+    // A catalogue hung under ONE root offers no choice at its top level: the
+    // band would draw a single tile whose only job is to open the tree. Its
+    // children are what the merchant means by "shop by category", so they are
+    // listed instead; with two or more roots the roots are the choice.
+    const [only] = answer.items
+    if (query.isRoot !== true || answer.total !== 1 || !only) return answer
+    const children = answerOf(await readCategories(tenantHost, locale, { parent: only.id, pageSize: query.pageSize ?? DATA_LIMITS.maxQueryLimit }))
+    return children.items.length > 0 ? children : answer
+  },
+  blogCategory: async ({ tenantHost, locale }, descriptor) => answerOf(await readBlogCategories(tenantHost, locale, blogCategoryQuery(descriptor))),
+  // The offers endpoint has no page size: every live offer, of which the descriptor keeps the first.
+  promotion: async ({ tenantHost, locale }, descriptor) => {
+    const offers = await readPromotions(tenantHost, locale, {})
+    return { items: offers.slice(0, promotionLimit(descriptor)), total: offers.length }
+  },
 }

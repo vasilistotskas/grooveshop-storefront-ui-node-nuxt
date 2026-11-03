@@ -1,60 +1,62 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { describe, it, expect } from 'vitest'
+import { defineComponent, h } from 'vue'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductCategories from '~/components/PageSection/ProductCategories.vue'
 
-interface Entry { id: number, label: string, slug: string, to: string, children: Entry[] }
+/** A category as the page route hands it over (the fields a tile draws). */
+const category = (id: number, name: string): ProductCategory => ({
+  id,
+  slug: `c-${id}`,
+  mainImagePath: `media/uploads/c-${id}.jpg`,
+  recursiveProductCount: id * 2,
+  translations: { el: { name } },
+}) as unknown as ProductCategory
 
-const categories = ref<Entry[]>([])
-mockNuxtImport('useCategoryMenu', () => () => ({ categories }))
+/** The `categories` data setting as the page route hands it over. */
+const categories = (...items: ProductCategory[]) => ({
+  status: items.length ? 'ok' : 'empty',
+  items,
+  total: items.length,
+  descriptor: { mode: 'roots', limit: 8 },
+}) as ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
 
-const entry = (id: number, label: string, children: Entry[] = []): Entry =>
-  ({ id, label, slug: `c-${id}`, to: `/products/category/${id}/c-${id}`, children })
-
-/** Stands in for a tile: renders the category's label. */
+/** Stands in for a tile: renders the category's label and where it goes. */
 const TileStub = defineComponent({
   props: { category: { type: Object, required: true } },
-  setup: props => () => h('li', { 'data-category': (props.category as Entry).label }),
+  setup: props => () => h('li', {
+    'data-category': (props.category as { label: string }).label,
+    'data-to': (props.category as { to: string }).to,
+  }),
 })
 
 const mountBand = (props: Record<string, unknown> = {}) =>
-  mountSuspended(ProductCategories, { route: false, props, global: { stubs: { PageSectionCategoryTile: TileStub } } })
+  mountSuspended(ProductCategories, { route: false, props: { categories: categories(), ...props }, global: { stubs: { PageSectionCategoryTile: TileStub } } })
 
 const tiles = (wrapper: Awaited<ReturnType<typeof mountBand>>) =>
   wrapper.findAll('[data-category]').map(li => li.attributes('data-category'))
 
+/**
+ * The way into the catalogue. The categories arrive read (the page route
+ * resolved the rule: the main categories, or the children of one), so the
+ * band fetches nothing and draws what it is handed.
+ */
 describe('PageSection/ProductCategories', () => {
-  beforeEach(() => {
-    categories.value = []
-  })
-
-  it('draws the roots when the catalogue has several', async () => {
-    categories.value = [entry(1, 'Ήχος'), entry(2, 'Θήκες')]
-
-    const wrapper = await mountBand()
+  it('draws a tile for each category it was given, named in the page\'s language, in the order it was given', async () => {
+    const wrapper = await mountBand({ categories: categories(category(1, 'Ήχος'), category(2, 'Θήκες')) })
 
     expect(tiles(wrapper)).toEqual(['Ήχος', 'Θήκες'])
   })
 
-  it('draws the CHILDREN when everything hangs under one root', async () => {
-    // A single root is not a choice: the band would offer one tile
-    // whose only job is to open the tree.
-    categories.value = [entry(1, 'Αξεσουάρ', [entry(2, 'Φορτιστές'), entry(3, 'Καλώδια')])]
+  it('sends each tile to its category\'s page', async () => {
+    const wrapper = await mountBand({ categories: categories(category(7, 'Ήχος')) })
 
-    const wrapper = await mountBand()
-
-    expect(tiles(wrapper)).toEqual(['Φορτιστές', 'Καλώδια'])
+    expect(wrapper.get('[data-category]').attributes('data-to')).toBe('/products/category/7/c-7')
   })
 
-  it('draws the chosen parent\'s children, capped at the limit', async () => {
-    categories.value = [
-      entry(1, 'Ήχος'),
-      entry(2, 'Θήκες', [entry(3, 'Δερμάτινες'), entry(4, 'Σιλικόνης'), entry(5, 'Πορτοφόλι')]),
-    ]
+  it('uses the operator\'s heading over the default', async () => {
+    const wrapper = await mountBand({ categories: categories(category(1, 'Ήχος')), heading: 'Αγόρασε ανά είδος' })
 
-    const wrapper = await mountBand({ parentId: 2, limit: 2 })
-
-    expect(tiles(wrapper)).toEqual(['Δερμάτινες', 'Σιλικόνης'])
+    expect(wrapper.find('h2').text()).toBe('Αγόρασε ανά είδος')
   })
 
   it('renders nothing for a store with no categories', async () => {

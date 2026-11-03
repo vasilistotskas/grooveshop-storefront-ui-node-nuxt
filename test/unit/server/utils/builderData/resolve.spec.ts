@@ -4,15 +4,22 @@ import { cachedRead } from '~~/server/utils/builderData/loaders'
 import { readData, resolveBuilderData } from '~~/server/utils/builderData/resolve'
 import { backend, cacheOptionsOf, createRequestEvent, jsonResponse } from '~~/test/helpers/nitro'
 import { makeBlogPost } from '~~/test/fixtures/blog'
-import { makeProductCard } from '~~/test/fixtures/product'
+import { makeProductCard, makeProductCategory } from '~~/test/fixtures/product'
 import { makePromotion } from '~~/test/fixtures/promotion'
 import { zListProductResponse } from '~~/shared/openapi/zod.gen'
-import type { DataPlan } from '~~/shared/types/builderData'
+import type { DataPlan, DataResolution, QueryAnswer } from '~~/shared/types/builderData'
 
 const page = (results: unknown[]) => ({ count: results.length, results })
 const context = { tenantHost: 'shop-a.test', locale: 'en' }
 const emptyIds = { product: [], blogPost: [], category: [], blogCategory: [] }
 const newest = { mode: 'filter', ordering: 'newest', limit: 4 }
+
+/** A list the reads answered, which is not a failed one. */
+const answerOf = (resolution: DataResolution, key: string): QueryAnswer<unknown> => {
+  const answer = resolution.queries.get(key)
+  if (answer === undefined || answer === 'failed') throw new Error(`${key} did not answer`)
+  return answer
+}
 
 const planOf = (overrides: Partial<DataPlan> = {}): DataPlan => ({ ids: emptyIds, queries: new Map(), ...overrides })
 
@@ -56,8 +63,8 @@ describe('readData', () => {
       ['/api/v1/blog/post', '-viewCount', null],
     ]))
     expect(backend.requests).toHaveLength(2)
-    expect((resolution.queries.get('p') as unknown[]).length).toBe(1)
-    expect((resolution.queries.get('b') as unknown[]).length).toBe(1)
+    expect(answerOf(resolution, 'p')).toEqual({ items: [expect.objectContaining({ id: 1 })], total: 1 })
+    expect(answerOf(resolution, 'b')).toEqual({ items: [expect.objectContaining({ id: 3 })], total: 1 })
   })
 
   it('keeps the first `limit` offers: the endpoint has no page size', async () => {
@@ -65,7 +72,9 @@ describe('readData', () => {
 
     const resolution = await readData(context, planOf({ queries: new Map([['o', { source: 'promotion' as const, descriptor: { limit: 2 }, key: 'o' }]]) }))
 
-    expect((resolution.queries.get('o') as Array<{ id: number }>).map(({ id }) => id)).toEqual([1, 2])
+    expect((answerOf(resolution, 'o').items as Array<{ id: number }>).map(({ id }) => id)).toEqual([1, 2])
+    // The count is of every live offer, not of the two kept.
+    expect(answerOf(resolution, 'o').total).toBe(3)
     expect(backend.lastRequest.url.pathname).toBe('/api/v1/promotion')
   })
 
@@ -85,6 +94,57 @@ describe('readData', () => {
     ]))
   })
 
+  it('counts what matches in all, not only the page it keeps', async () => {
+    backend.reply(() => ({ count: 40, results: [makeProductCard({ id: 1 })] }))
+
+    const resolution = await readData(context, planOf({ queries: new Map([['p', { source: 'product' as const, descriptor: newest, key: 'p' }]]) }))
+
+    expect(answerOf(resolution, 'p').total).toBe(40)
+  })
+
+  describe('the main categories', () => {
+    const roots = new Map([['c', { source: 'category' as const, descriptor: { mode: 'roots', limit: 8 }, key: 'c' }]])
+    const page = (...ids: number[]) => ({ count: ids.length, results: ids.map(id => makeProductCategory({ id })) })
+    const idsOf = (resolution: DataResolution) => (answerOf(resolution, 'c').items as Array<{ id: number }>).map(({ id }) => id)
+
+    it('are the roots when the catalogue has several', async () => {
+      backend.reply(() => page(1, 2))
+
+      const resolution = await readData(context, planOf({ queries: roots }))
+
+      expect(idsOf(resolution)).toEqual([1, 2])
+      expect(backend.requests).toHaveLength(1)
+      expect(backend.lastRequest.url.searchParams.get('isRoot')).toBe('true')
+    })
+
+    it('are the CHILDREN of the root when everything hangs under one: a single root is not a choice', async () => {
+      backend.reply(request => request.url.searchParams.get('parent') === '5' ? page(6, 7) : page(5))
+
+      const resolution = await readData(context, planOf({ queries: roots }))
+
+      expect(idsOf(resolution)).toEqual([6, 7])
+      expect(backend.requests.map(({ url }) => url.searchParams.get('parent'))).toEqual([null, '5'])
+      expect(backend.lastRequest.url.searchParams.get('pageSize')).toBe('8')
+    })
+
+    it('stay the one root when it has no children to open', async () => {
+      backend.reply(request => request.url.searchParams.get('parent') === '5' ? page() : page(5))
+
+      expect(idsOf(await readData(context, planOf({ queries: roots })))).toEqual([5])
+    })
+
+    it('are the children of the category the descriptor names, and are not hoisted again', async () => {
+      backend.reply(() => page(9))
+      const children = new Map([['c', { source: 'category' as const, descriptor: { mode: 'children', parent: 5, limit: 8 }, key: 'c' }]])
+
+      const resolution = await readData(context, planOf({ queries: children }))
+
+      expect(idsOf(resolution)).toEqual([9])
+      expect(backend.requests).toHaveLength(1)
+      expect(backend.lastRequest.url.searchParams.get('parent')).toBe('5')
+    })
+  })
+
   it('answers `failed` for the read that failed and still answers the others', async () => {
     backend.reply(request => request.url.pathname.endsWith('/blog/post') ? jsonResponse({ detail: 'down' }, 503) : page([makeProductCard({ id: 1 })]))
     const queries = new Map([
@@ -95,7 +155,7 @@ describe('readData', () => {
     const resolution = await readData(context, planOf({ queries, ids: { ...emptyIds, blogCategory: [1] } }))
 
     expect(resolution.queries.get('b')).toBe('failed')
-    expect(resolution.queries.get('p')).toHaveLength(1)
+    expect(answerOf(resolution, 'p').items).toHaveLength(1)
     expect(resolution.records.blogCategory).toBe('failed')
   })
 

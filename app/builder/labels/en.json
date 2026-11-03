@@ -219,6 +219,9 @@
     "caption": {
       "label": "Caption"
     },
+    "categories": {
+      "label": "What it lists"
+    },
     "categoryId": {
       "label": "Category"
     },
@@ -296,9 +299,6 @@
     "layout": {
       "label": "Layout"
     },
-    "limit": {
-      "label": "Most to show"
-    },
     "link": {
       "label": "Link"
     },
@@ -320,6 +320,9 @@
     "note": {
       "label": "Note"
     },
+    "offers": {
+      "label": "What it lists"
+    },
     "overlayOpacity": {
       "label": "Image shade"
     },
@@ -328,10 +331,6 @@
     },
     "pageSize": {
       "label": "How many"
-    },
-    "parentId": {
-      "label": "Parent category",
-      "help": "Shows its subcategories. Empty for the top ones."
     },
     "placeholder": {
       "label": "Placeholder"

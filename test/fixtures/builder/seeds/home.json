@@ -13,10 +13,14 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000003": {
-        "type": "product_categories@1",
+        "type": "product_categories@2",
         "settings": {
           "surface": "default",
-          "layout": "tiles"
+          "layout": "tiles",
+          "categories": {
+            "mode": "roots",
+            "limit": 8
+          }
         }
       },
       "00000000-0000-4000-8000-5eed00000004": {
@@ -31,9 +35,12 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000005": {
-        "type": "offers_preview@1",
+        "type": "offers_preview@2",
         "settings": {
-          "surface": "ink"
+          "surface": "ink",
+          "offers": {
+            "limit": 3
+          }
         }
       },
       "00000000-0000-4000-8000-5eed00000006": {
