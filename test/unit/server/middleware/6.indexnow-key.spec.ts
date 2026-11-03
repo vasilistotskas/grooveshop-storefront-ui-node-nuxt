@@ -8,7 +8,7 @@ const KEY = 'a1b2c3d4e5f60718'
 async function request(url: string, indexnowKey = KEY) {
   const event = createRequestEvent({ url, host: 'tenant.example' })
   event.context.tenant = validTenantConfig('tenant.example', { indexnowKey })
-  const body = await callHandler(middleware, event)
+  const body = await callHandler(middleware, event as never)
   return { body, contentType: event.res.headers.get('content-type') }
 }
 
