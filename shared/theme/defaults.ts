@@ -1,6 +1,6 @@
-import type { StorefrontDesign } from './design'
-import type { ThemeColorScale, ThemeSettings } from './settings'
-import { TAILWIND_PALETTES } from './tailwindPalettes'
+import type { StorefrontDesign } from './design.ts'
+import type { ThemeColorScale, ThemeSettings } from './settings.ts'
+import { TAILWIND_PALETTES } from './tailwindPalettes.ts'
 
 const palette = (name: keyof typeof TAILWIND_PALETTES): ThemeColorScale => ({
   source: TAILWIND_PALETTES[name]['500'],

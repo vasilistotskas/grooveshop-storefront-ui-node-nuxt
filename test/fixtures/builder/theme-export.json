@@ -1,0 +1,96 @@
+{
+  "stores": [
+    {
+      "schema": "demo",
+      "fields": {
+        "schemaName": "demo",
+        "themePreset": "default",
+        "primaryColor": "neutral",
+        "neutralColor": "zinc",
+        "accentHex": "#003DFF",
+        "successHex": "#16a34a",
+        "warningHex": "#ca8a04",
+        "errorHex": "#dc2626",
+        "infoHex": "#2563eb",
+        "themeMetadata": {}
+      }
+    },
+    {
+      "schema": "ekfyseosfyteias",
+      "fields": {
+        "schemaName": "ekfyseosfyteias",
+        "themePreset": "custom",
+        "primaryColor": "neutral",
+        "neutralColor": "stone",
+        "accentHex": "#b3694b",
+        "successHex": "#16a34a",
+        "warningHex": "#ca8a04",
+        "errorHex": "#dc2626",
+        "infoHex": "#2563eb",
+        "themeMetadata": {
+          "colors": {
+            "primaryScale": {
+              "50": "#f7f9f5",
+              "100": "#eef3e9",
+              "200": "#dce7d3",
+              "300": "#c5d9b8",
+              "400": "#b1bd99",
+              "500": "#9aa882",
+              "600": "#7f8a6c",
+              "700": "#676d58",
+              "800": "#525849",
+              "900": "#43493d",
+              "950": "#22271f"
+            },
+            "secondaryScale": {
+              "50": "#f3f9f7",
+              "100": "#e0f1ec",
+              "200": "#c1e3d9",
+              "300": "#aacfc6",
+              "400": "#7eb8ac",
+              "500": "#5d9d91",
+              "600": "#4a7f77",
+              "700": "#3d6662",
+              "800": "#345451",
+              "900": "#2d4644",
+              "950": "#172827"
+            }
+          },
+          "radius": "0.5rem",
+          "fontSans": "commissioner",
+          "likedHex": "#c17f56",
+          "container": "default",
+          "darkColors": {
+            "neutralScale": {
+              "800": "#2c3128",
+              "900": "#23261f",
+              "950": "#1d201a"
+            },
+            "primaryScale": {
+              "800": "#3a4034",
+              "900": "#262a22",
+              "950": "#171a14"
+            }
+          },
+          "fontDisplay": "vollkorn",
+          "accentDarkHex": "#d09d75"
+        }
+      }
+    },
+    {
+      "schema": "webside",
+      "fields": {
+        "schemaName": "webside",
+        "themePreset": "default",
+        "primaryColor": "neutral",
+        "neutralColor": "zinc",
+        "accentHex": "#003DFF",
+        "successHex": "#16a34a",
+        "warningHex": "#ca8a04",
+        "errorHex": "#dc2626",
+        "infoHex": "#2563eb",
+        "themeMetadata": {}
+      }
+    }
+  ]
+}
