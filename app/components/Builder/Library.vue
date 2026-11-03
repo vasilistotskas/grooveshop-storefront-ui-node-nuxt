@@ -31,7 +31,7 @@ const offers = computed(() => {
   const target = library.target
   const document = target && store.opened[target.documentKey]
   if (!target || !document) return []
-  return builderLibraryOffers(document.copy, target.documentKey, { parentId: target.parentId }, builderEditorBlocks, feature => storeFeatureOn(tenantStore.config, feature))
+  return builderLibraryOffers(document.copy, target.documentKey, { parentId: target.parentId }, builderEditorBlocks, feature => storeFeatureOn(tenantStore.config, feature), tenantStore.schemaName)
 })
 
 const category = ref<string>(ALL)

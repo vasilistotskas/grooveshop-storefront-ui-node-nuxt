@@ -19,6 +19,9 @@ export const BUILDER_NODE_ID_PATTERN = /^[\w-]{1,64}$/
 /** A block's type name: lower snake case. */
 export const BLOCK_TYPE_PATTERN = /^[a-z][a-z0-9_]*$/
 
+/** A design as a block names it (`designs`): a tenant schema, the key the component registry's `<type>@<design>` variants use. */
+export const BUILDER_DESIGN_PATTERN = /^[A-Za-z_]\w{0,62}$/
+
 /** A node's `type`: `<block type>@<version>`. */
 export const VERSIONED_BLOCK_TYPE_PATTERN = /^([a-z][a-z0-9_]*)@([1-9]\d*)$/
 

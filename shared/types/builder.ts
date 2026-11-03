@@ -112,6 +112,13 @@ export interface BlockConfig<Schema extends ZodObject = ZodObject> {
   templates?: readonly string[]
   /** The store feature that must be on for a store to use it. */
   feature?: StoreFeatureName
+  /**
+   * The designs that draw it, by the tenant schema the component registry keys
+   * a variant by (`<type>@<design>`). None named means every design. A block
+   * with a presentation in one design only is declared so: another store's
+   * catalogue does not list it, so it is neither offered nor accepted there.
+   */
+  designs?: readonly string[]
   /** Still renders and upgrades, but the editor no longer offers it. */
   deprecated?: boolean
   /** `upgrade[n]` turns a version `n` node into one for version `n + 1`. */
@@ -176,6 +183,8 @@ export interface CatalogueBlock {
   groups?: string[]
   templates?: string[]
   feature?: string
+  /** The designs that draw it; absent for a block every design draws. */
+  designs?: string[]
   deprecated?: boolean
 }
 
