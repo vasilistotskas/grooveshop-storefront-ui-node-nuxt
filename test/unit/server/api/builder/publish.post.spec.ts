@@ -13,7 +13,7 @@ const RELEASE = {
   publishedAt: '2026-11-03T10:00:00+02:00',
   publishedBy: { id: 7, name: 'Maria Papadopoulou' },
   note: 'Νέο banner',
-  rolledBackFrom: 0,
+  rolledBackFrom: null,
   versions: { 'template:home': 4 },
   documents: [{ key: 'template:home', versionNumber: 4, changed: true }],
 }

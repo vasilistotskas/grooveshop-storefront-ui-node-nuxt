@@ -4820,7 +4820,7 @@ export const zRelease = z.object({
   publishedAt: z.iso.datetime({ offset: true }).readonly(),
   publishedBy: zStaff.nullable(),
   note: z.string().readonly(),
-  rolledBackFrom: z.int().gte(0).lte(2147483647).readonly(),
+  rolledBackFrom: z.int().gte(0).lte(2147483647).readonly().nullable(),
   versions: z.unknown(),
   documents: z.array(zReleaseDocument).readonly(),
 })
@@ -4846,7 +4846,7 @@ export const zSchedule = z.object({
   note: z.string().readonly(),
   scheduledBy: zStaff.nullable(),
   executedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  release: z.int().gte(0).lte(2147483647).readonly(),
+  release: z.int().gte(0).lte(2147483647).readonly().nullable(),
   failure: z.unknown(),
   acknowledgedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
 })
@@ -11274,11 +11274,26 @@ export const zApiV1BuilderSchedulesListQuery = z.object({
     z.int(),
   ]).optional(),
   search: z.string().optional(),
+  status: z.enum([
+    'cancelled',
+    'failed',
+    'pending',
+    'published',
+  ]).optional(),
 })
 
 export const zApiV1BuilderSchedulesListResponse = zPaginatedScheduleList
 
 export const zApiV1BuilderSchedulesCreateBody = zScheduleWriteRequest
+
+export const zApiV1BuilderSchedulesCreateQuery = z.object({
+  status: z.enum([
+    'cancelled',
+    'failed',
+    'pending',
+    'published',
+  ]).optional(),
+})
 
 export const zApiV1BuilderSchedulesCreateResponse = zSchedule
 

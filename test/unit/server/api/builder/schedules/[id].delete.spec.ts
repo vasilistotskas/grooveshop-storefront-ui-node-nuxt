@@ -6,7 +6,7 @@ import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 const route = '/api/builder/schedules/:id'
 const cancel = (id: string, cookie?: string) => callRoute(handler, { route, url: `/api/builder/schedules/${id}`, method: 'DELETE', headers: cookie ? { cookie } : {} })
 
-const CANCELLED = { id: 3, scheduledFor: '2026-11-05T08:00:00Z', status: 'cancelled', documents: ['template:home'], note: '', scheduledBy: null, executedAt: null, release: 0, failure: null, acknowledgedAt: null }
+const CANCELLED = { id: 3, scheduledFor: '2026-11-05T08:00:00Z', status: 'cancelled', documents: ['template:home'], note: '', scheduledBy: null, executedAt: null, release: null, failure: null, acknowledgedAt: null }
 
 describe('DELETE /api/builder/schedules/:id', () => {
   it('cancels the schedule, as the staff member', async () => {

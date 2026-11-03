@@ -6,7 +6,7 @@ import { backend, callRoute } from '~~/test/helpers/nitro'
 const route = '/api/builder/schedules/:id/acknowledge'
 const acknowledge = (id: string, cookie?: string) => callRoute(handler, { route, url: `/api/builder/schedules/${id}/acknowledge`, method: 'POST', headers: cookie ? { cookie } : {} })
 
-const SEEN = { id: 3, scheduledFor: '2026-11-05T08:00:00Z', status: 'failed', documents: ['template:home'], note: '', scheduledBy: null, executedAt: '2026-11-05T08:00:05Z', release: 0, failure: { problems: [] }, acknowledgedAt: '2026-11-05T09:00:00Z' }
+const SEEN = { id: 3, scheduledFor: '2026-11-05T08:00:00Z', status: 'failed', documents: ['template:home'], note: '', scheduledBy: null, executedAt: '2026-11-05T08:00:05Z', release: null, failure: { problems: [] }, acknowledgedAt: '2026-11-05T09:00:00Z' }
 
 describe('POST /api/builder/schedules/:id/acknowledge', () => {
   it('says the failed schedule was seen, as the staff member', async () => {

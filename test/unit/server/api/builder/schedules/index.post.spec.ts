@@ -14,7 +14,7 @@ const SCHEDULE = {
   note: '',
   scheduledBy: { id: 7, name: 'Maria Papadopoulou' },
   executedAt: null,
-  release: 0,
+  release: null,
   failure: null,
   acknowledgedAt: null,
 }

@@ -8682,7 +8682,7 @@ export type Release = {
   /**
      * Αριθμός
      */
-  readonly rolledBackFrom: number
+  readonly rolledBackFrom: number | null
   versions: unknown
   readonly documents: Array<ReleaseDocument>
 }
@@ -8858,7 +8858,7 @@ export type Schedule = {
   /**
      * Αριθμός
      */
-  readonly release: number
+  readonly release: number | null
   /**
      * Αποτυχία
      *
@@ -17914,6 +17914,10 @@ export type ApiV1BuilderSchedulesListData = {
          * A search term.
          */
     search?: string
+    /**
+         * Only the schedules in this state; any other value lists them all.
+         */
+    status?: 'cancelled' | 'failed' | 'pending' | 'published'
   }
   url: '/api/v1/builder/schedules'
 }
@@ -17927,7 +17931,12 @@ export type ApiV1BuilderSchedulesListResponse = ApiV1BuilderSchedulesListRespons
 export type ApiV1BuilderSchedulesCreateData = {
   body: ScheduleWriteRequest
   path?: never
-  query?: never
+  query?: {
+    /**
+         * Only the schedules in this state; any other value lists them all.
+         */
+    status?: 'cancelled' | 'failed' | 'pending' | 'published'
+  }
   url: '/api/v1/builder/schedules'
 }
 

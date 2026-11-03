@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { getLocalTimeZone, now } from '@internationalized/date'
-import type { ZonedDateTime } from '@internationalized/date'
+import { getLocalTimeZone, now, toCalendarDateTime, toZoned } from '@internationalized/date'
+import type { CalendarDateTime } from '@internationalized/date'
 
 /**
  * Publishing the page being edited: the page and the section groups drawn
@@ -14,7 +14,9 @@ import type { ZonedDateTime } from '@internationalized/date'
  * They go live now, or at a time the staff member picks (Django's `POST
  * builder/schedules`): validated and frozen now, released then. The time is
  * the staff member's own, sent with its offset, since the store's timezone
- * is not exposed.
+ * is not exposed. The dialog lists the store's publishes still to come, each
+ * one cancellable, and the ones that failed with why, until someone says
+ * they saw them.
  */
 const { t, locale } = useStoreI18n('components/Builder/Publish')
 const { documentLabel, groupLabel } = useBuilderLabels()
@@ -33,7 +35,8 @@ const timeZone = getLocalTimeZone()
 const open = ref(false)
 /** Now, or at a time. */
 const when = ref<'now' | 'later'>('now')
-const at = shallowRef<ZonedDateTime>()
+/** The wall-clock time picked, read in `timeZone`: a zone-free value, so the field draws no zone segment. */
+const at = shallowRef<CalendarDateTime>()
 /** A time to publish at that has passed, or none picked. */
 const atInvalid = ref(false)
 const picked = ref<string[]>([])
@@ -106,7 +109,10 @@ watch(picked, (next) => {
 })
 
 /** The next whole hour but one: a time to begin from that is surely ahead. */
-const nextHour = () => now(timeZone).add({ hours: 2 }).set({ minute: 0, second: 0, millisecond: 0 })
+const nextHour = () => toCalendarDateTime(now(timeZone).add({ hours: 2 }).set({ minute: 0, second: 0, millisecond: 0 }))
+
+/** Now, as a wall-clock time in `timeZone`: the earliest time the field offers. */
+const earliest = () => toCalendarDateTime(now(timeZone))
 
 const whenItems = computed(() => [
   { label: t('when.now'), value: 'now' },
@@ -123,6 +129,7 @@ function begin(): void {
   open.value = true
   picked.value = keys.value.filter(changed)
   void check()
+  void loadSchedules()
 }
 
 /** A time as the staff member reads it: their language, their timezone. */
@@ -131,7 +138,7 @@ const formatTime = (iso: string) => new Intl.DateTimeFormat(locale.value, { date
 async function publish(): Promise<void> {
   const documents = picked.value.filter(key => keys.value.includes(key))
   if (documents.length === 0) return
-  atInvalid.value = when.value === 'later' && (!at.value || at.value.compare(now(timeZone)) <= 0)
+  atInvalid.value = when.value === 'later' && (!at.value || at.value.compare(earliest()) <= 0)
   if (atInvalid.value) return
   publishing.value = true
   unsaved.value = []
@@ -142,7 +149,7 @@ async function publish(): Promise<void> {
       return
     }
     if (when.value === 'later') {
-      const schedule = await $api('/api/builder/schedules', { method: 'POST', body: { documents, scheduledFor: at.value!.toAbsoluteString(), note: note.value.trim() } })
+      const schedule = await $api('/api/builder/schedules', { method: 'POST', body: { documents, scheduledFor: toZoned(at.value!, timeZone).toAbsoluteString(), note: note.value.trim() } })
       open.value = false
       toast.add({ title: t('scheduled.title'), description: t('scheduled.description', { when: formatTime(schedule.scheduledFor) }), color: 'success', icon: 'i-lucide-calendar-check' })
       return
@@ -167,6 +174,64 @@ function refusalOf(error: unknown): Array<{ document?: string | null, path: stri
   const data = typeof error === 'object' && error !== null && 'data' in error ? error.data : undefined
   const parsed = ZodBuilderDocumentRefusal.safeParse(data)
   return parsed.success ? parsed.data.errors : undefined
+}
+
+/** The store's publishes still to come, soonest first, and those that failed and nobody has seen yet. */
+const pending = ref<Schedule[]>([])
+const failed = ref<Schedule[]>([])
+/** The schedule being cancelled or acknowledged. */
+const acting = ref<number>()
+
+/** Reads the schedules the dialog lists (`GET /api/builder/schedules?status=`), as it opens. */
+async function loadSchedules(): Promise<void> {
+  try {
+    const [next, broken] = await Promise.all([
+      $api('/api/builder/schedules', { query: { status: 'pending' } }),
+      $api('/api/builder/schedules', { query: { status: 'failed' } }),
+    ])
+    pending.value = next.results
+    failed.value = broken.results.filter(schedule => !schedule.acknowledgedAt)
+  }
+  catch (error) {
+    notify('builder:schedules', error, { title: t('schedules.loadFailed') })
+  }
+}
+
+/** Why a schedule failed, as Django recorded it. */
+const failureOf = (schedule: Schedule) => {
+  const parsed = ZodBuilderScheduleFailure.safeParse(schedule.failure)
+  return parsed.success ? parsed.data : []
+}
+
+/** Cancels a publish still to come (`DELETE /api/builder/schedules/<id>`). */
+async function cancelSchedule(schedule: Schedule): Promise<void> {
+  acting.value = schedule.id
+  try {
+    await $api(`/api/builder/schedules/${schedule.id}`, { method: 'DELETE' })
+    pending.value = pending.value.filter(entry => entry.id !== schedule.id)
+    toast.add({ title: t('schedules.cancelled'), color: 'success', icon: 'i-lucide-calendar-x' })
+  }
+  catch (error) {
+    notify('builder:schedule-cancel', error, { title: t('schedules.cancelFailed') })
+  }
+  finally {
+    acting.value = undefined
+  }
+}
+
+/** Says a failed publish was seen (`POST /api/builder/schedules/<id>/acknowledge`): it stops being listed. */
+async function acknowledge(schedule: Schedule): Promise<void> {
+  acting.value = schedule.id
+  try {
+    await $api(`/api/builder/schedules/${schedule.id}/acknowledge`, { method: 'POST' })
+    failed.value = failed.value.filter(entry => entry.id !== schedule.id)
+  }
+  catch (error) {
+    notify('builder:schedule-acknowledge', error, { title: t('schedules.acknowledgeFailed') })
+  }
+  finally {
+    acting.value = undefined
+  }
 }
 
 /** Takes the staff member to the node a problem is about: its document, and the node selected. */
@@ -229,9 +294,8 @@ async function show(problem: { document?: string | null, path: string }): Promis
               v-model="at"
               granularity="minute"
               :hour-cycle="24"
-              :min-value="now(timeZone)"
+              :min-value="earliest()"
               :locale="locale"
-              hide-time-zone
               class="w-full"
             />
           </UFormField>
@@ -289,6 +353,70 @@ async function show(problem: { document?: string | null, path: string }): Promis
             </template>
           </UAlert>
         </form>
+        <section
+          v-if="failed.length || pending.length"
+          class="mt-6 flex flex-col gap-3 border-t border-default pt-4"
+          :aria-label="t('schedules.title')"
+        >
+          <h3 class="text-sm font-semibold text-highlighted">
+            {{ t('schedules.title') }}
+          </h3>
+          <UAlert
+            v-for="schedule in failed"
+            :key="schedule.id"
+            color="error"
+            variant="subtle"
+            icon="i-lucide-calendar-x-2"
+            :title="t('schedules.failed', { when: formatTime(schedule.scheduledFor) })"
+            :actions="[{ label: t('schedules.acknowledge'), color: 'error', variant: 'outline', size: 'xs', loading: acting === schedule.id, onClick: () => acknowledge(schedule) }]"
+          >
+            <template #description>
+              <p>{{ schedule.documents.map(labelOf).join(', ') }}</p>
+              <ul class="mt-1 list-disc ps-4">
+                <li
+                  v-for="(problem, index) in failureOf(schedule)"
+                  :key="index"
+                >
+                  <span
+                    v-if="problem.document"
+                    class="font-medium"
+                  >{{ labelOf(problem.document) }}: </span>{{ problem.message }}
+                </li>
+              </ul>
+            </template>
+          </UAlert>
+          <ul class="flex flex-col divide-y divide-default">
+            <li
+              v-for="schedule in pending"
+              :key="schedule.id"
+              class="flex items-start justify-between gap-3 py-2"
+            >
+              <div class="min-w-0 text-sm">
+                <p class="font-medium text-highlighted">
+                  {{ formatTime(schedule.scheduledFor) }}
+                </p>
+                <p class="text-muted">
+                  {{ schedule.documents.map(labelOf).join(', ') }}
+                </p>
+                <p
+                  v-if="schedule.note || schedule.scheduledBy"
+                  class="text-dimmed"
+                >
+                  {{ [schedule.note, schedule.scheduledBy?.name].filter(Boolean).join(' · ') }}
+                </p>
+              </div>
+              <UButton
+                color="neutral"
+                variant="outline"
+                size="xs"
+                class="shrink-0"
+                :label="t('schedules.cancel')"
+                :loading="acting === schedule.id"
+                @click="() => cancelSchedule(schedule)"
+              />
+            </li>
+          </ul>
+        </section>
       </template>
       <template #footer>
         <div class="flex w-full justify-end gap-2">
@@ -346,6 +474,15 @@ el:
   done:
     title: Δημοσιεύτηκε
     description: "Οι πελάτες βλέπουν πλέον την έκδοση #{number}."
+  schedules:
+    title: Προγραμματισμένες δημοσιεύσεις
+    failed: "Η δημοσίευση για τις {when} δεν έγινε"
+    acknowledge: Το είδα
+    cancel: Ακύρωση
+    cancelled: Ο προγραμματισμός ακυρώθηκε
+    loadFailed: Οι προγραμματισμένες δημοσιεύσεις δεν φορτώθηκαν
+    cancelFailed: Ο προγραμματισμός δεν ακυρώθηκε
+    acknowledgeFailed: Δεν καταγράφηκε ότι το είδατε
 en:
   publish: Publish
   title: Publish to the store
@@ -379,4 +516,13 @@ en:
   done:
     title: Published
     description: "Shoppers now see release #{number}."
+  schedules:
+    title: Scheduled publishes
+    failed: "The publish set for {when} did not happen"
+    acknowledge: Got it
+    cancel: Unschedule
+    cancelled: The schedule was cancelled
+    loadFailed: The scheduled publishes could not be loaded
+    cancelFailed: The schedule was not cancelled
+    acknowledgeFailed: Could not record that you saw it
 </i18n>

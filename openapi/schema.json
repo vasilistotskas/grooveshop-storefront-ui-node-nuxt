@@ -17586,6 +17586,20 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cancelled",
+                                "failed",
+                                "pending",
+                                "published"
+                            ]
+                        },
+                        "description": "Only the schedules in this state; any other value lists them all."
                     }
                 ],
                 "tags": [
@@ -17612,6 +17626,22 @@
             "post": {
                 "operationId": "api_v1_builder_schedules_create",
                 "description": "Release the drafts of the named documents together at `scheduledFor` (an ISO 8601 time; one without an offset is read in the store's timezone). Validated in full now, references included, and frozen: what goes live is what was checked.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cancelled",
+                                "failed",
+                                "pending",
+                                "published"
+                            ]
+                        },
+                        "description": "Only the schedules in this state; any other value lists them all."
+                    }
+                ],
                 "tags": [
                     "Builder"
                 ],
@@ -77578,7 +77608,8 @@
                         "maximum": 2147483647,
                         "minimum": 0,
                         "title": "Αριθμός",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "versions": {},
                     "documents": {
@@ -77937,7 +77968,8 @@
                         "maximum": 2147483647,
                         "minimum": 0,
                         "title": "Αριθμός",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "failure": {
                         "readOnly": true,

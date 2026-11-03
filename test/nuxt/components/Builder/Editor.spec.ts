@@ -753,7 +753,9 @@ describe('editing the structure of a page', () => {
     const PUBLISH_URL = '/api/builder/publish'
     const CHECK_URL = '/api/builder/publish/check'
     const CHECK_OK = { ok: true, changed: ['template:home'], problems: [] }
-    const RELEASE = { id: 9, number: 7, publishedAt: '2026-11-03T10:00:00+02:00', publishedBy: null, note: '', rolledBackFrom: 0, versions: {}, documents: [{ key: 'template:home', versionNumber: 4, changed: true }] }
+    const SCHEDULES_URL = '/api/builder/schedules'
+    const NO_SCHEDULES = { count: 0, results: [] }
+    const RELEASE = { id: 9, number: 7, publishedAt: '2026-11-03T10:00:00+02:00', publishedBy: null, note: '', rolledBackFrom: null, versions: {}, documents: [{ key: 'template:home', versionNumber: 4, changed: true }] }
 
     /** Opens the publish dialog from the top bar. */
     async function openPublish(wrapper: Awaited<ReturnType<typeof open>>) {
@@ -769,6 +771,8 @@ describe('editing the structure of a page', () => {
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
         [CHECK_URL]: CHECK_OK,
+        '/api/builder/presence': NOBODY_ELSE,
+        [SCHEDULES_URL]: NO_SCHEDULES,
         [DRAFT_URL]: (_url: string, options: { body: { draft: unknown, i18n: unknown } }) => ({ ...HOME, draftRevision: 3, hasUnpublishedChanges: true, draft: options.body.draft, i18n: options.body.i18n }),
         [PUBLISH_URL]: RELEASE,
       })
@@ -796,6 +800,8 @@ describe('editing the structure of a page', () => {
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
         [CHECK_URL]: { ok: false, changed: ['template:home'], problems: [{ document: 'template:home', path: '/sections/grid/settings/ctaLink', code: 'reference_not_found', message: 'Το προϊόν 12 δεν υπάρχει σε αυτό το κατάστημα.' }] },
+        '/api/builder/presence': NOBODY_ELSE,
+        [SCHEDULES_URL]: NO_SCHEDULES,
         [PUBLISH_URL]: RELEASE,
       })
       const wrapper = await open()
@@ -817,6 +823,8 @@ describe('editing the structure of a page', () => {
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
         [CHECK_URL]: CHECK_OK,
+        '/api/builder/presence': NOBODY_ELSE,
+        [SCHEDULES_URL]: NO_SCHEDULES,
         [PUBLISH_URL]: failWith(400, {
           code: 'invalid_document',
           detail: 'x',
@@ -840,6 +848,8 @@ describe('editing the structure of a page', () => {
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
         [CHECK_URL]: CHECK_OK,
+        '/api/builder/presence': NOBODY_ELSE,
+        [SCHEDULES_URL]: NO_SCHEDULES,
         [DRAFT_URL]: failWith(400, { code: 'invalid_document', detail: 'x', errors: [{ path: '/sections/hero', code: 'invalid', message: 'Όχι.' }] }),
         [PUBLISH_URL]: RELEASE,
       })
@@ -854,16 +864,16 @@ describe('editing the structure of a page', () => {
     })
 
     it('schedules the page for a time ahead, saved and checked now, and says when', async () => {
-      const SCHEDULES_URL = '/api/builder/schedules'
       api.routes({
         '/api/builder/documents': LIST,
         [documentUrl('template:home')]: { ...HOME, hasUnpublishedChanges: true },
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
         [CHECK_URL]: CHECK_OK,
-        [SCHEDULES_URL]: (_url: string, options: { body: { documents: string[], scheduledFor: string, note: string } }) => ({
-          id: 3, status: 'pending', documents: options.body.documents, scheduledFor: options.body.scheduledFor, note: '', scheduledBy: null, executedAt: null, release: 0, failure: null, acknowledgedAt: null,
-        }),
+        '/api/builder/presence': NOBODY_ELSE,
+        [SCHEDULES_URL]: (_url: string, options: { method?: string, body: { documents: string[], scheduledFor: string, note: string } }) => options.method === 'POST'
+          ? { id: 3, status: 'pending', documents: options.body.documents, scheduledFor: options.body.scheduledFor, note: '', scheduledBy: null, executedAt: null, release: null, failure: null, acknowledgedAt: null }
+          : NO_SCHEDULES,
       })
       const wrapper = await open()
 
@@ -872,15 +882,50 @@ describe('editing the structure of a page', () => {
       await flushPromises()
       expect(document.body.textContent).toContain('Στη δική σας ώρα')
       dialogButton('Προγραμματισμός').click()
-      await vi.waitFor(() => expect(api.callsTo(SCHEDULES_URL)).toHaveLength(1))
+      const scheduled = () => api.callsTo(SCHEDULES_URL).filter(call => call.options?.method === 'POST')
+      await vi.waitFor(() => expect(scheduled()).toHaveLength(1))
 
-      const { body } = api.callsTo(SCHEDULES_URL)[0]!.options
+      const { body } = scheduled()[0]!.options
       expect(body.documents).toEqual(['template:home'])
       // The time picked (two whole hours ahead to begin with), with an explicit offset (UTC).
       expect(body.scheduledFor).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:00:00\.000Z$/)
       expect(Date.parse(body.scheduledFor)).toBeGreaterThan(Date.now())
       expect(api.callsTo('/api/builder/publish')).toHaveLength(0)
       await vi.waitFor(() => expect(document.body.textContent).toContain('Θα δημοσιευτεί στις'))
+    })
+
+    it('lists the publishes still to come, each cancellable, and the failed ones with why, until they are seen', async () => {
+      const PENDING = { id: 3, status: 'pending', documents: ['template:home'], scheduledFor: '2026-11-20T08:00:00Z', note: 'Black Friday', scheduledBy: { id: 7, name: 'Maria' }, executedAt: null, release: null, failure: null, acknowledgedAt: null }
+      const FAILED = { ...PENDING, id: 4, status: 'failed', note: '', scheduledFor: '2026-11-01T08:00:00Z', failure: [{ document: 'template:home', path: '/sections/grid/settings/ctaLink', code: 'reference_not_found', message: 'Το προϊόν 12 δεν υπάρχει σε αυτό το κατάστημα.' }] }
+      const SEEN = { ...FAILED, id: 5, acknowledgedAt: '2026-11-01T09:00:00Z', failure: [{ path: '/order', code: 'x', message: 'Ήδη ειδωμένο.' }] }
+      api.routes({
+        '/api/builder/documents': LIST,
+        [documentUrl('template:home')]: { ...HOME, hasUnpublishedChanges: true },
+        [documentUrl('group:header')]: HEADER,
+        [documentUrl('group:footer')]: FOOTER,
+        [CHECK_URL]: CHECK_OK,
+        '/api/builder/presence': NOBODY_ELSE,
+        [SCHEDULES_URL]: (_url: string, options: { query: { status: string } }) => ({ count: 1, results: options.query.status === 'pending' ? [PENDING] : [FAILED, SEEN] }),
+        [`${SCHEDULES_URL}/3`]: { ...PENDING, status: 'cancelled' },
+        [`${SCHEDULES_URL}/4/acknowledge`]: { ...FAILED, acknowledgedAt: '2026-11-03T09:00:00Z' },
+      })
+      const wrapper = await open()
+
+      await openPublish(wrapper)
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Black Friday · Maria'))
+      expect(api.callsTo(SCHEDULES_URL).map(call => call.options.query)).toEqual([{ status: 'pending' }, { status: 'failed' }])
+      expect(document.body.textContent).toContain('Το προϊόν 12 δεν υπάρχει σε αυτό το κατάστημα.')
+      // One already seen is not listed again.
+      expect(document.body.textContent).not.toContain('Ήδη ειδωμένο.')
+
+      dialogButton('Ακύρωση').click()
+      await vi.waitFor(() => expect(document.body.textContent).not.toContain('Black Friday'))
+      expect(api.callsTo(`${SCHEDULES_URL}/3`)[0]!.options).toMatchObject({ method: 'DELETE' })
+
+      dialogButton('Το είδα').click()
+      await vi.waitFor(() => expect(document.body.textContent).not.toContain('Το προϊόν 12 δεν υπάρχει σε αυτό το κατάστημα.'))
+      expect(api.callsTo(`${SCHEDULES_URL}/4/acknowledge`)[0]!.options).toMatchObject({ method: 'POST' })
+      expect(document.body.textContent).not.toContain('Προγραμματισμένες δημοσιεύσεις')
     })
 
     it('offers STAFF no way to publish', async () => {
