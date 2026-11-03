@@ -3,7 +3,9 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import GiftCards from '~/components/Storefront/GiftCards.vue'
+import type { PublicValues } from '~~/shared/openapi/types.gen'
 import { makePayWay } from '~~/test/fixtures/payWay'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { setTenant } from '~~/test/helpers/tenant'
 import { failWith } from '~~/test/helpers/api'
 
@@ -22,14 +24,15 @@ mockNuxtImport('$fetch', () => api)
 // Stripe's script is a network load; the card element is not under test.
 mockNuxtImport('useScriptStripe', () => () => ({ onLoaded: () => {} }))
 
-const settings = vi.hoisted(() => ({ values: {} as Record<string, string> }))
+// The store's `values`; absent while the lookup "has not landed".
+const settings = vi.hoisted(() => ({ values: undefined as PublicValues | undefined }))
 
 const VIVA = makePayWay({ id: 1, providerCode: 'viva_wallet', settlement: 'online' })
 const STRIPE = makePayWay({ id: 2, providerCode: 'stripe', settlement: 'online' })
 
 function routes(extra: Record<string, unknown> = {}) {
   api.routes({
-    '/api/settings/public': () => ({ settings: settings.values }),
+    '/api/settings/public': () => ({ settings: {}, values: settings.values }),
     '/api/pay-way': { count: 1, results: [VIVA] },
     '/api/giftcard/purchase': {
       purchaseUuid: 'a1b2c3d4-0000-4000-8000-000000000001',
@@ -46,7 +49,7 @@ const text = (wrapper: Pick<VueWrapper, 'text'>) => wrapper.text().replace(/\u00
 
 beforeEach(() => {
   clearNuxtData()
-  settings.values = {}
+  settings.values = undefined
   setTenant({ stripePublishableKey: 'pk_test_123' })
   routes()
 })
@@ -106,7 +109,7 @@ describe('Storefront/GiftCards', () => {
     })
 
     it('says how many days a card is valid, as the store sets it (never rounded to years)', async () => {
-      settings.values = { GIFT_CARD_VALIDITY_DAYS: '1825' }
+      settings.values = makePublicValues({ giftCardValidityDays: 1825 })
       const wrapper = await mount()
 
       expect(wrapper.get('ul').text()).toContain('Ισχύει για 1.825 ημέρες')
@@ -127,7 +130,7 @@ describe('Storefront/GiftCards', () => {
     })
 
     it('leaves out a suggested amount the store does not allow', async () => {
-      settings.values = { GIFT_CARD_MIN_AMOUNT: '30' }
+      settings.values = makePublicValues({ giftCardMinAmount: 30 })
       const wrapper = await mount()
 
       expect(wrapper.get('fieldset').findAll('[data-slot="item"]').map(item => item.text().replace(/\u00A0/g, ' '))).toEqual(['50 €', '100 €', 'Άλλο'])
@@ -135,7 +138,7 @@ describe('Storefront/GiftCards', () => {
 
     it('stays on the step when the amount is over the store\'s maximum', async () => {
       // 50 € is no longer a suggestion, so it opens as a typed amount.
-      settings.values = { GIFT_CARD_MAX_AMOUNT: '40' }
+      settings.values = makePublicValues({ giftCardMaxAmount: 40 })
       const wrapper = await mount()
 
       await toRecipient(wrapper)
@@ -145,7 +148,7 @@ describe('Storefront/GiftCards', () => {
     })
 
     it('states the store\'s range', async () => {
-      settings.values = { GIFT_CARD_MIN_AMOUNT: '10.00', GIFT_CARD_MAX_AMOUNT: '500.00' }
+      settings.values = makePublicValues({ giftCardMinAmount: 10, giftCardMaxAmount: 500 })
       const wrapper = await mount()
 
       expect(text(wrapper)).toContain('Οποιοδήποτε ποσό από 10,00 € έως 500,00 €')

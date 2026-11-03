@@ -41,10 +41,7 @@ defineProps<{
 const { t } = useStoreI18n('components/Account/DemoAccountCard')
 
 const enabled = useStorePreference('demoAccount')
-const email = useSettingValue('DEMO_ACCOUNT_EMAIL')
-const password = useSettingValue('DEMO_ACCOUNT_PASSWORD')
-const b2bEmail = useSettingValue('DEMO_ACCOUNT_B2B_EMAIL')
-const b2bPassword = useSettingValue('DEMO_ACCOUNT_B2B_PASSWORD')
+const { values } = useStoreSettings()
 
 interface DemoAccount {
   key: 'retail' | 'wholesale'
@@ -55,11 +52,12 @@ interface DemoAccount {
 const accounts = computed<DemoAccount[]>(() => {
   if (!enabled.value) return []
   const rows: DemoAccount[] = []
-  if (email.value && password.value) {
-    rows.push({ key: 'retail', email: email.value, password: password.value })
+  const demo = values.value
+  if (demo?.demoAccountEmail && demo.demoAccountPassword) {
+    rows.push({ key: 'retail', email: demo.demoAccountEmail, password: demo.demoAccountPassword })
   }
-  if (b2bEmail.value && b2bPassword.value) {
-    rows.push({ key: 'wholesale', email: b2bEmail.value, password: b2bPassword.value })
+  if (demo?.demoAccountB2bEmail && demo.demoAccountB2bPassword) {
+    rows.push({ key: 'wholesale', email: demo.demoAccountB2bEmail, password: demo.demoAccountB2bPassword })
   }
   return rows
 })

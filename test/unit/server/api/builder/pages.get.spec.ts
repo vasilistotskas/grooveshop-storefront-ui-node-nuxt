@@ -303,7 +303,7 @@ describe('GET /api/builder/pages/[pageKey]', () => {
       const { status, body } = await get()
 
       expect(status).toBe(200)
-      expect(body.page.sections[0].props.products).toEqual({ status: 'failed', items: [] })
+      expect(body.page.sections[0].props.products).toEqual({ status: 'failed', items: [], descriptor: newest })
       expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ tag: 'builder-data', source: 'product' }))
     })
 

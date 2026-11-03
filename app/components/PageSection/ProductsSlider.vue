@@ -2,12 +2,14 @@
 /**
  * A rail of products, with a heading that says what it draws.
  *
- * `featured_products` renders the same band with a different default
- * ordering — the merchant's own arrangement rather than recency — which
- * is what makes two rails on one homepage two different bands.
+ * The products arrive read (`products`, a data setting the page route
+ * resolved), with the rule or hand-picked list they came from: the order of a
+ * rule is what makes two rails on one homepage two different bands, and it
+ * names this one.
  *
- * The whole band disappears when the query comes back empty. A heading
- * over nothing is what a brand-new store used to show.
+ * The whole band disappears when the list comes back empty: its block
+ * declares that, and a heading over nothing is what a brand-new store used
+ * to show.
  */
 const props = withDefaults(defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
@@ -16,46 +18,30 @@ const props = withDefaults(defineProps<{
   subheading?: string
   ctaText?: string
   ctaLink?: string
-  ordering?: ProductRailOrdering
-  categoryId?: number
   showAddToCart?: boolean
-  pageSize?: number
   surface?: 'default' | 'muted'
+  /** What the band lists: the products, and the rule or hand-picked list they came from. */
+  products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
-  ordering: 'newest',
-  pageSize: 8,
   showAddToCart: true,
 })
 
 const { t } = useStoreI18n('components/PageSection/ProductsSlider')
 const localePath = useLocalePath()
 
-const { products, hasProducts } = await useProductRail({
-  pageSize: () => props.pageSize,
-  ordering: () => props.ordering,
-  categoryId: () => props.categoryId,
-})
+const kind = computed(() => productRailKind(props.products.descriptor))
 
-/** The operator's words first; otherwise one that fits the ordering. */
+/** The operator's words first; otherwise one that fits what the band lists. */
 const label = computed(
-  () => props.heading || props.title || t(`heading.${props.ordering}`),
+  () => props.heading || props.title || t(`heading.${kind.value}`),
 )
 
 /**
- * Where "see all" goes when the operator has not said. The listing
- * sorts by the same Meilisearch fields the rail orders by (see the
- * allowlist in `Products/Toolbar.vue`), so a rail of new arrivals opens
- * the listing newest-first rather than in its default order — and its
- * link says so, which is what tells three rails on one page apart.
- * `discounted` and `rating` have no listing sort, so they open the
- * listing as it is, under the generic label.
+ * Where "see all" goes when the operator has not said: the listing sorted as
+ * the rail is (`PRODUCT_LISTING_SORT`), and its link says so, which is what
+ * tells three rails on one page apart. The orders with no listing sort open
+ * the listing as it is, under the generic label.
  */
-const LISTING_SORT: Partial<Record<ProductRailOrdering, string>> = {
-  featured: '-viewCount',
-  newest: '-createdAt',
-  popular: '-likesCount',
-}
-
 const cta = computed(() => {
   if (props.ctaText || props.ctaLink) {
     return {
@@ -63,10 +49,10 @@ const cta = computed(() => {
       link: props.ctaLink ? localePath(pathLocation(props.ctaLink)) : localePath('products'),
     }
   }
-  const sort = LISTING_SORT[props.ordering]
+  const sort = PRODUCT_LISTING_SORT[kind.value]
   return sort
     ? {
-        text: t(`all.${props.ordering}`),
+        text: t(`all.${kind.value}`),
         link: localePath({ path: '/products', query: { sort } }),
       }
     : { text: t('all_products'), link: localePath('products') }
@@ -75,7 +61,7 @@ const cta = computed(() => {
 
 <template>
   <PageSectionBand
-    v-if="hasProducts"
+    v-if="products.items.length"
     :heading="label"
     :subheading="subheading"
     :cta-text="cta.text"
@@ -83,7 +69,7 @@ const cta = computed(() => {
     :surface="surface"
   >
     <ProductsRail
-      :products="products"
+      :products="[...products.items]"
       :show-add-to-cart="showAddToCart"
     />
   </PageSectionBand>
@@ -93,25 +79,31 @@ const cta = computed(() => {
 el:
   all_products: Όλα τα προϊόντα
   all:
-    featured: Όλα τα επιλεγμένα
     newest: Όλες οι νέες αφίξεις
-    popular: Όλα τα δημοφιλή
+    mostViewed: Όλα τα δημοφιλή
+    mostLiked: Όλα τα αγαπημένα
   heading:
-    featured: Επιλεγμένα προϊόντα
+    picked: Επιλεγμένα προϊόντα
     newest: Νέες αφίξεις
-    popular: Δημοφιλή
+    mostViewed: Δημοφιλή
+    mostLiked: Αγαπημένα
+    topRated: Κορυφαίες αξιολογήσεις
     discounted: Σε προσφορά
-    rating: Κορυφαίες αξιολογήσεις
+    priceAsc: Οι καλύτερες τιμές
+    priceDesc: Premium επιλογές
 en:
   all_products: All products
   all:
-    featured: All featured
     newest: All new arrivals
-    popular: All popular
+    mostViewed: All most popular
+    mostLiked: All customer favourites
   heading:
-    featured: Featured products
+    picked: Selected products
     newest: New arrivals
-    popular: Most popular
+    mostViewed: Most popular
+    mostLiked: Customer favourites
+    topRated: Top rated
     discounted: On offer
-    rating: Top rated
+    priceAsc: Best prices
+    priceDesc: Premium picks
 </i18n>

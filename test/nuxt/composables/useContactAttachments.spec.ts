@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 
 /**
  * The contact form's upload step. What matters:
@@ -20,8 +21,8 @@ mockNuxtImport('$api', () => api)
 // `useApi` transports through Nuxt's own `$fetch`.
 mockNuxtImport('$fetch', () => api)
 
-/** The store's settings row this test serves; set in `beforeEach`. */
-let settings: Record<string, string> = {}
+/** The store's `values` this test serves; set in `beforeEach`. */
+let values = makePublicValues()
 
 /** One canned XHR exchange, driven by the test rather than a server. */
 class FakeXhr {
@@ -103,13 +104,13 @@ async function policy() {
   clearNuxtData(STORE_SETTINGS_KEY)
   // `runWithContext` is typed as possibly async; these readers are sync.
   let attachments!: ReturnType<typeof useContactAttachments>
-  let loaded!: ReturnType<typeof useStoreSettings>['settings']
+  let loaded!: ReturnType<typeof useStoreSettings>['values']
   nuxtApp.runWithContext(() => {
     attachments = useContactAttachments()
-    loaded = useStoreSettings().settings
+    loaded = useStoreSettings().values
   })
   // Assert on the store's limits only once its row has landed.
-  await vi.waitFor(() => expect(loaded.value).toEqual(settings), { interval: 1 })
+  await vi.waitFor(() => expect(loaded.value).toEqual(values), { interval: 1 })
   return attachments
 }
 
@@ -117,13 +118,11 @@ describe('useContactAttachments', () => {
   beforeEach(() => {
     FakeXhr.instances = []
     vi.stubGlobal('XMLHttpRequest', FakeXhr)
-    settings = {
-      CONTACT_ATTACHMENTS_MAX_COUNT: '2',
-      CONTACT_ATTACHMENTS_MAX_MB: '1',
-    }
+    values = makePublicValues({ contactAttachmentsMaxCount: 2, contactAttachmentsMaxMb: 1 })
     api.routes({
       '/api/settings/public': () => ({
-        settings: { ...settings },
+        settings: {},
+        values: { ...values },
         contactAttachmentsTypes: ['application/pdf', 'application/zip'],
       }),
     })
@@ -351,7 +350,7 @@ describe('useContactAttachments', () => {
   })
 
   it('never offers more files than one enquiry can carry, whatever the store sets', async () => {
-    settings.CONTACT_ATTACHMENTS_MAX_COUNT = '500'
+    values = makePublicValues({ contactAttachmentsMaxCount: 500 })
     const attachments = await policy()
 
     expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value)).success).toBe(true)
@@ -359,7 +358,7 @@ describe('useContactAttachments', () => {
   })
 
   it('refuses the file past that limit', async () => {
-    settings.CONTACT_ATTACHMENTS_MAX_COUNT = '500'
+    values = makePublicValues({ contactAttachmentsMaxCount: 500 })
     const attachments = await policy()
     const limit = attachments.maxCount.value
 
@@ -370,10 +369,10 @@ describe('useContactAttachments', () => {
     expect(attachments.canAddMore.value).toBe(false)
   })
 
-  it.each(['not a number', '0', '3files', ''])(
-    'keeps the control when the count reads %j, bounded only by what one enquiry carries',
+  it.each([0, -1])(
+    'keeps the control when the count is %j, bounded only by what one enquiry carries',
     async (value) => {
-      settings.CONTACT_ATTACHMENTS_MAX_COUNT = value
+      values = makePublicValues({ contactAttachmentsMaxCount: value })
 
       const attachments = await policy()
 
@@ -383,10 +382,10 @@ describe('useContactAttachments', () => {
     },
   )
 
-  it.each(['not a number', '0', '3MB', ''])(
-    'leaves the size to Django when it reads %j, instead of guessing one',
+  it.each([0, -1])(
+    'leaves the size to Django when it is %j, instead of guessing one',
     async (value) => {
-      settings.CONTACT_ATTACHMENTS_MAX_MB = value
+      values = makePublicValues({ contactAttachmentsMaxMb: value })
 
       const attachments = await policy()
       const refused = attachments.add([file('drawing.pdf', 50 * 1024 * 1024)])

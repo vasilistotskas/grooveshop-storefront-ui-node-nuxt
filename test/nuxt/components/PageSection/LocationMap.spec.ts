@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LocationMap from '~/components/PageSection/LocationMap.vue'
 import { setTenant } from '~~/test/helpers/tenant'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 
 /**
  * The location map band draws the store's own location
@@ -35,13 +36,13 @@ vi.mock('~/components/PageSection/LocationCanvas.client.vue', async () => {
   }
 })
 
-const { settings } = vi.hoisted(() => ({ settings: {} as Record<string, string> }))
-mockNuxtImport('useSettingValue', () => (key: string) => computed(() => settings[key] ?? ''))
+const { location } = vi.hoisted(() => ({ location: { lat: null as number | null, lng: null as number | null } }))
+mockNuxtImport('useStoreSettings', () => () => ({ values: computed(() => makePublicValues({ storeGeoLat: location.lat, storeGeoLng: location.lng })) }))
 
-/** The store's location, as its settings hold it: decimal degrees, as text. */
-function storeAt(lat: string, lng: string) {
-  settings.STORE_GEO_LAT = lat
-  settings.STORE_GEO_LNG = lng
+/** The store's location, as Django serves it: decimal degrees, or none. */
+function storeAt(lat: number | null, lng: number | null) {
+  location.lat = lat
+  location.lng = lng
 }
 
 const mountMap = (props: Record<string, unknown> = {}) =>
@@ -63,7 +64,7 @@ describe('the location map band', () => {
   // the shared Nuxt app's, so it is put back after every test.
   let originalUrl: unknown
   beforeEach(() => {
-    storeAt('', '')
+    storeAt(null, null)
     originalUrl = useRuntimeConfig().public.mapsTileJsonUrl
     useRuntimeConfig().public.mapsTileJsonUrl = 'https://maps.platform.test/basemap.json'
   })
@@ -72,7 +73,7 @@ describe('the location map band', () => {
   })
 
   it('offers the map instead of loading it, until the visitor asks', async () => {
-    storeAt('40.6403', '22.9439')
+    storeAt(40.6403, 22.9439)
     const wrapper = await mountMap()
 
     expect(wrapper.find('button').text()).toBe(COPY.show_map)
@@ -85,7 +86,7 @@ describe('the location map band', () => {
   })
 
   it('pins the store\'s own location on the canvas', async () => {
-    storeAt('40.565129', '22.119096')
+    storeAt(40.565129, 22.119096)
     const wrapper = await mountOpenMap()
 
     await vi.waitFor(() => expect(wrapper.find('[data-test="canvas"]').exists()).toBe(true))
@@ -95,14 +96,14 @@ describe('the location map band', () => {
   })
 
   it('draws the canvas at a zero coordinate — 0 is a place, not a missing value', async () => {
-    storeAt('0', '22.9439')
+    storeAt(0, 22.9439)
     const wrapper = await mountOpenMap()
 
     await vi.waitFor(() => expect(wrapper.find('[data-test="canvas"]').attributes('data-lat')).toBe('0'))
   })
 
   it('offers no map for a store without a location', async () => {
-    storeAt('', '')
+    storeAt(null, null)
 
     const wrapper = await mountMap({ address: '12 Main St' })
 
@@ -111,7 +112,7 @@ describe('the location map band', () => {
   })
 
   it('prefers the operator\'s own embed over the canvas, and names the frame', async () => {
-    storeAt('40.6403', '22.9439')
+    storeAt(40.6403, 22.9439)
     const wrapper = await mountMap({ embedUrl: 'https://www.google.com/maps/embed?pb=x' })
 
     const frame = wrapper.find('iframe')
@@ -131,7 +132,7 @@ describe('the location map band', () => {
     // There is no other tile source: an unconfigured host must hide the
     // canvas, not render a blank one.
     useRuntimeConfig().public.mapsTileJsonUrl = ''
-    storeAt('40.6403', '22.9439')
+    storeAt(40.6403, 22.9439)
 
     const wrapper = await mountMap()
 
@@ -145,7 +146,7 @@ describe('the location map band', () => {
 
   it('still shows the address line with no maps host and no embed', async () => {
     useRuntimeConfig().public.mapsTileJsonUrl = ''
-    storeAt('40.6403', '22.9439')
+    storeAt(40.6403, 22.9439)
 
     const wrapper = await mountMap({ address: '12 Main St' })
 
@@ -154,7 +155,7 @@ describe('the location map band', () => {
 
   describe('opening the place in a maps app', () => {
     it('links Google Maps and Apple Maps in a new tab, and says so to a screen reader', async () => {
-      storeAt('40.565129', '22.119096')
+      storeAt(40.565129, 22.119096)
       const wrapper = await mountMap({ address: 'Φυτειά Βέροιας, Ημαθία' })
 
       const links = wrapper.findAll('a')
@@ -167,7 +168,7 @@ describe('the location map band', () => {
 
     it('names the Apple place card after the store', async () => {
       setTenant({ storeName: 'Εκ Φύσεως Φυτειάς' })
-      storeAt('40.565129', '22.119096')
+      storeAt(40.565129, 22.119096)
 
       const wrapper = await mountMap()
 

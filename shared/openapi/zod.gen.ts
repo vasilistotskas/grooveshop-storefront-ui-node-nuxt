@@ -34,8 +34,8 @@ export const zAcsAddressValidationResponse = z.object({
 })
 
 /**
- * * `1` - Προπληρωμένο
- * * `2` - Αντικαταβολή
+ * * `1` - Prepaid
+ * * `2` - Cash on delivery
  */
 export const zAcsChargeType = z.union([z.literal(1), z.literal(2)])
 
@@ -208,11 +208,11 @@ export const zB2bPrice = z.object({
 })
 
 /**
- * * `PERCENTAGE` - Ποσοστιαία έκπτωση
- * * `FIXED_AMOUNT` - Έκπτωση σταθερού ποσού
- * * `FREE_SHIPPING` - Δωρεάν μεταφορικά
- * * `BXGY` - Αγόρασε X, πάρε Y με έκπτωση
- * * `FREE_GIFT` - Δωρεάν προϊόν δώρου
+ * * `PERCENTAGE` - Percentage off
+ * * `FIXED_AMOUNT` - Fixed amount off
+ * * `FREE_SHIPPING` - Free shipping
+ * * `BXGY` - Buy X get Y discounted
+ * * `FREE_GIFT` - Free gift item
  */
 export const zBenefitTypeEnum = z.enum([
   'PERCENTAGE',
@@ -629,18 +629,18 @@ export const zBoxNowNearestLockerResponse = z.object({
 })
 
 /**
- * * `pending_creation` - Εκκρεμής δημιουργία
- * * `new` - Νέο
- * * `in_depot` - Σε αποθήκη
- * * `final_destination` - Στο locker
- * * `delivered` - Παραδόθηκε
- * * `returned` - Επιστράφηκε
- * * `expired` - Έληξε
- * * `canceled` - Ακυρώθηκε
- * * `accepted_for_return` - Αποδεκτό για επιστροφή
- * * `accepted_to_locker` - Αποδεκτό σε locker
- * * `missing` - Λείπει
- * * `lost` - Χάθηκε
+ * * `pending_creation` - Pending creation
+ * * `new` - New
+ * * `in_depot` - In depot
+ * * `final_destination` - At locker
+ * * `delivered` - Delivered
+ * * `returned` - Returned
+ * * `expired` - Expired
+ * * `canceled` - Canceled
+ * * `accepted_for_return` - Accepted for return
+ * * `accepted_to_locker` - Accepted to locker
+ * * `missing` - Missing
+ * * `lost` - Lost
  */
 export const zBoxNowParcelState = z.enum([
   'pending_creation',
@@ -729,10 +729,10 @@ export const zBrand = z.object({
 export const zBuilderDocumentInvalidCodeEnum = z.enum(['invalid_document'])
 
 /**
- * * `theme` - Θέμα
- * * `group` - Ομάδα ενοτήτων
- * * `template` - Πρότυπο
- * * `page` - Σελίδα
+ * * `theme` - Theme
+ * * `group` - Section group
+ * * `template` - Template
+ * * `page` - Page
  */
 export const zBuilderDocumentKindEnum = z.enum([
   'theme',
@@ -742,15 +742,15 @@ export const zBuilderDocumentKindEnum = z.enum([
 ])
 
 /**
- * * `page` - Σελίδα
- * * `template` - Πρότυπο
+ * * `page` - Page
+ * * `template` - Template
  */
 export const zBuilderPageKindEnum = z.enum(['page', 'template'])
 
 /**
- * * `checkpoint` - Ονομασμένη αποθήκευση
- * * `publish` - Δημοσίευση
- * * `restore` - Επαναφορά
+ * * `checkpoint` - Named save
+ * * `publish` - Publish
+ * * `restore` - Restore
  */
 export const zBuilderVersionKindEnum = z.enum([
   'checkpoint',
@@ -775,10 +775,10 @@ export const zBulkSubscriptionResult = z.object({
 })
 
 /**
- * * `PENDING` - Σε αναμονή έγκρισης
- * * `APPROVED` - Εγκεκριμένο
- * * `REJECTED` - Απορρίφθηκε
- * * `SUSPENDED` - Σε αναστολή
+ * * `PENDING` - Pending review
+ * * `APPROVED` - Approved
+ * * `REJECTED` - Rejected
+ * * `SUSPENDED` - Suspended
  */
 export const zBusinessProfileStatusEnum = z.enum([
   'PENDING',
@@ -1255,12 +1255,12 @@ export const zFeatureState = z.object({
 })
 
 /**
- * * `general` - Γενικά
- * * `website` - Ιστότοπος & UX
- * * `products` - Προϊόντα
- * * `delivery` - Παράδοση
- * * `support` - Εξυπηρέτηση πελατών
- * * `other` - Άλλο
+ * * `general` - General
+ * * `website` - Website & UX
+ * * `products` - Products
+ * * `delivery` - Delivery
+ * * `support` - Customer support
+ * * `other` - Other
  */
 export const zFeedbackWriteCategoryEnum = z.enum([
   'general',
@@ -1298,14 +1298,14 @@ export const zFeedbackWriteRequest = z.object({
 })
 
 /**
- * * `BASEMENT` - Υπόγειο
- * * `GROUND_FLOOR` - Ισόγειο
- * * `FIRST_FLOOR` - 1ος όροφος
- * * `SECOND_FLOOR` - 2ος όροφος
- * * `THIRD_FLOOR` - 3ος όροφος
- * * `FOURTH_FLOOR` - 4ος όροφος
- * * `FIFTH_FLOOR` - 5ος όροφος
- * * `SIXTH_FLOOR_PLUS` - 6ος όροφος +
+ * * `BASEMENT` - Basement
+ * * `GROUND_FLOOR` - Ground Floor
+ * * `FIRST_FLOOR` - First Floor
+ * * `SECOND_FLOOR` - Second Floor
+ * * `THIRD_FLOOR` - Third Floor
+ * * `FOURTH_FLOOR` - Fourth Floor
+ * * `FIFTH_FLOOR` - Fifth Floor
+ * * `SIXTH_FLOOR_PLUS` - Sixth Floor Plus
  */
 export const zFloorEnum = z.enum([
   'BASEMENT',
@@ -1388,17 +1388,17 @@ export const zGiftCardPurchaseStatusResponse = z.object({
 })
 
 /**
- * * `ACTIVE` - Ενεργή
- * * `DISABLED` - Απενεργοποιημένη
+ * * `ACTIVE` - Active
+ * * `DISABLED` - Disabled
  */
 export const zGiftCardStatusEnum = z.enum(['ACTIVE', 'DISABLED'])
 
 /**
- * * `ISSUE` - Έκδοση
- * * `REDEEM` - Εξαργύρωση
- * * `REFUND_CREDIT` - Πίστωση επιστροφής
- * * `ADJUST` - Προσαρμογή
- * * `EXPIRE` - Λήξη
+ * * `ISSUE` - Issue
+ * * `REDEEM` - Redeem
+ * * `REFUND_CREDIT` - Refund credit
+ * * `ADJUST` - Adjust
+ * * `EXPIRE` - Expire
  */
 export const zGiftCardTransactionKindEnum = z.enum([
   'ISSUE',
@@ -1440,16 +1440,16 @@ export const zHealthCheckResponse = z.object({
 })
 
 /**
- * * `MAIN` - Κύρια εικόνα
- * * `BANNER` - Banner
- * * `ICON` - Εικόνα εικονιδίου
- * * `THUMBNAIL` - Εικόνα μικρογραφίας
- * * `GALLERY` - Εικόνα συλλογής
- * * `BACKGROUND` - Εικόνα φόντου
- * * `HERO` - Εικόνα εξωφύλλου
- * * `FEATURE` - Χαρακτηριστική εικόνα
- * * `PROMOTIONAL` - Προωθητική εικόνα
- * * `SEASONAL` - Εποχιακή εικόνα
+ * * `MAIN` - Main Image
+ * * `BANNER` - Banner Image
+ * * `ICON` - Icon Image
+ * * `THUMBNAIL` - Thumbnail Image
+ * * `GALLERY` - Gallery Image
+ * * `BACKGROUND` - Background Image
+ * * `HERO` - Hero Image
+ * * `FEATURE` - Feature Image
+ * * `PROMOTIONAL` - Promotional Image
+ * * `SEASONAL` - Seasonal Image
  */
 export const zImageTypeEnum = z.enum([
   'MAIN',
@@ -1479,12 +1479,12 @@ export const zInvoiceDownloadResponse = z.object({
 })
 
 /**
- * * `product` - Προϊόν
- * * `category` - Κατηγορία
- * * `blogPost` - Άρθρο ιστολογίου
- * * `blogCategory` - Κατηγορία ιστολογίου
- * * `page` - Σελίδα
- * * `contentPage` - Σελίδα περιεχομένου
+ * * `product` - Product
+ * * `category` - Category
+ * * `blogPost` - Blog post
+ * * `blogCategory` - Blog category
+ * * `page` - Page
+ * * `contentPage` - Content page
  */
 export const zLinkKindEnum = z.enum([
   'product',
@@ -1540,9 +1540,9 @@ export const zLinkTargetsResponse = z.object({
 })
 
 /**
- * * `HOME` - Σπίτι
- * * `OFFICE` - Γραφείο
- * * `OTHER` - Άλλο
+ * * `HOME` - Αρχική
+ * * `OFFICE` - Office
+ * * `OTHER` - Other
  */
 export const zLocationTypeEnum = z.enum([
   'HOME',
@@ -1633,8 +1633,8 @@ export const zNewsletterSubscribeRequest = z.object({
 })
 
 /**
- * * `pending_confirmation` - Εκκρεμεί επιβεβαίωση
- * * `already_subscribed` - Υπάρχει ήδη εγγραφή
+ * * `pending_confirmation` - Pending confirmation
+ * * `already_subscribed` - Already subscribed
  */
 export const zNewsletterSubscribeResponseStatusEnum = z.enum(['pending_confirmation', 'already_subscribed'])
 
@@ -1644,20 +1644,20 @@ export const zNewsletterSubscribeResponse = z.object({
 })
 
 /**
- * * `ORDER` - Παραγγελία
- * * `PAYMENT` - Πληρωμή
- * * `SHIPPING` - Μεταφορικά
- * * `CART` - Καλάθι
- * * `PRODUCT` - Προϊόν
- * * `ACCOUNT` - Λογαριασμός
- * * `SECURITY` - Ασφάλεια
- * * `PROMOTION` - Προσφορά
- * * `SYSTEM` - Σύστημα
- * * `REVIEW` - Κριτική
- * * `WISHLIST` - Λίστα επιθυμιών
- * * `SUPPORT` - Υποστήριξη
+ * * `ORDER` - Ταξινόμηση
+ * * `PAYMENT` - Payment
+ * * `SHIPPING` - Shipping
+ * * `CART` - Cart
+ * * `PRODUCT` - Product
+ * * `ACCOUNT` - Account
+ * * `SECURITY` - Security
+ * * `PROMOTION` - Promotion
+ * * `SYSTEM` - System
+ * * `REVIEW` - Review
+ * * `WISHLIST` - Wishlist
+ * * `SUPPORT` - Support
  * * `NEWSLETTER` - Newsletter
- * * `RECOMMENDATION` - Σύσταση
+ * * `RECOMMENDATION` - Recommendation
  */
 export const zNotificationCategory = z.enum([
   'ORDER',
@@ -1686,10 +1686,10 @@ export const zNotificationIdsRequest = z.object({
 
 /**
  * * `ERROR` - Σφάλμα
- * * `SUCCESS` - Επιτυχία
- * * `INFO` - Πληροφορία
- * * `WARNING` - Προειδοποίηση
- * * `DANGER` - Κίνδυνος
+ * * `SUCCESS` - Success
+ * * `INFO` - Info
+ * * `WARNING` - Warning
+ * * `DANGER` - Danger
  */
 export const zNotificationKindEnum = z.enum([
   'ERROR',
@@ -1704,23 +1704,23 @@ export const zNotificationSuccessResponse = z.object({
 })
 
 /**
- * * `order_created` - Η παραγγελία δημιουργήθηκε
- * * `order_processing` - Επεξεργασία παραγγελίας
- * * `order_shipped` - Η παραγγελία απεστάλη
- * * `order_delivered` - Η παραγγελία παραδόθηκε
- * * `order_completed` - Η παραγγελία ολοκληρώθηκε
- * * `order_canceled` - Η παραγγελία ακυρώθηκε
- * * `order_refunded` - Επιστράφηκαν τα χρήματα της παραγγελίας
- * * `shipment_dispatched` - Αποστολή απεστάλη
- * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
- * * `payment_failed` - Η πληρωμή απέτυχε
- * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
- * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
- * * `loyalty_tier_up` - Αναβάθμιση βαθμίδας πιστότητας
- * * `comment_liked` - Επισήμανση σχολίου blog
- * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
- * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
- * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
+ * * `order_created` - Order created
+ * * `order_processing` - Order processing
+ * * `order_shipped` - Order shipped
+ * * `order_delivered` - Order delivered
+ * * `order_completed` - Order completed
+ * * `order_canceled` - Order canceled
+ * * `order_refunded` - Order refunded
+ * * `shipment_dispatched` - Shipment dispatched
+ * * `payment_confirmed` - Payment confirmed
+ * * `payment_failed` - Payment failed
+ * * `price_drop_favourite` - Price drop (favourited product)
+ * * `restock_favourite` - Back in stock (favourited product)
+ * * `loyalty_tier_up` - Loyalty tier promotion
+ * * `comment_liked` - Blog comment liked
+ * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+ * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
  */
 export const zNotificationTypeEnum = z.enum([
   'order_created',
@@ -1764,8 +1764,8 @@ export const zNotificationUserWriteRequest = z.object({
 export const zNullEnum = z.unknown()
 
 /**
- * * `MARKDOWN` - Έκπτωση προϊόντος
- * * `PROMOTION` - Ενεργή προσφορά
+ * * `MARKDOWN` - Product markdown
+ * * `PROMOTION` - Live promotion
  */
 export const zOfferKindEnum = z.enum(['MARKDOWN', 'PROMOTION'])
 
@@ -1789,8 +1789,8 @@ export const zOrderAttributionInputRequest = z.object({
 })
 
 /**
- * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
- * * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
+ * * `parcel_with_courier` - Parcel already with the courier
+ * * `courier_unreachable` - Courier could not be reached
  */
 export const zOrderCancelErrorType = z.enum(['parcel_with_courier', 'courier_unreachable'])
 
@@ -1813,23 +1813,23 @@ export const zOrderCancelError = z.object({
 })
 
 /**
- * * `RECEIPT` - Απόδειξη
- * * `INVOICE` - Τιμολόγιο
+ * * `RECEIPT` - Receipt
+ * * `INVOICE` - Invoice
  */
 export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE'])
 
 /**
- * * `insufficient_stock` - Ανεπαρκές απόθεμα
- * * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς
- * * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
- * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
- * * `invalid_coupon` - Μη έγκυρο κουπόνι
- * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
- * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
- * * `payment_not_found` - Δεν βρέθηκε πληρωμή
- * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
- * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
- * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
+ * * `insufficient_stock` - Insufficient stock
+ * * `cart_invalid` - Cart not ready for checkout
+ * * `reservation_unavailable` - Stock reservation no longer valid
+ * * `invalid_order_data` - Invalid order data
+ * * `invalid_coupon` - Invalid coupon
+ * * `invalid_gift_card` - Invalid gift card
+ * * `legal_document_unavailable` - Legal document unavailable
+ * * `payment_not_found` - Payment not found
+ * * `payment_verification` - Payment verification failed
+ * * `payment_amount_mismatch` - Payment amount mismatch
+ * * `payment_currency_mismatch` - Payment currency mismatch
  */
 export const zOrderCreateErrorType = z.enum([
   'insufficient_stock',
@@ -1873,12 +1873,12 @@ export const zOrderCreateError = z.object({
 })
 
 /**
- * * `RECEIPT` - Απόδειξη
- * * `INVOICE` - Τιμολόγιο
- * * `PROFORMA` - Προτιμολόγιο
- * * `SHIPPING_LABEL` - Ετικέτα αποστολής
- * * `RETURN_LABEL` - Ετικέτα επιστροφής
- * * `CREDIT_NOTE` - Πιστωτικό
+ * * `RECEIPT` - Receipt
+ * * `INVOICE` - Invoice
+ * * `PROFORMA` - Proforma Invoice
+ * * `SHIPPING_LABEL` - Shipping Label
+ * * `RETURN_LABEL` - Return Label
+ * * `CREDIT_NOTE` - Credit Note
  */
 export const zOrderDocumentType = z.enum([
   'RECEIPT',
@@ -1928,13 +1928,13 @@ export const zOrderItemWriteRequest = z.object({
 })
 
 /**
- * * `direct` - Απευθείας
- * * `campaign` - Καμπάνια
- * * `paid` - Διαφήμιση
- * * `social` - Κοινωνικά δίκτυα
- * * `search` - Αναζήτηση
- * * `referral` - Παραπομπή
- * * `agent` - Πράκτορας AI
+ * * `direct` - Direct
+ * * `campaign` - Campaign
+ * * `paid` - Paid
+ * * `social` - Social
+ * * `search` - Search
+ * * `referral` - Referral
+ * * `agent` - AI agent
  */
 export const zOrderSourceType = z.enum([
   'direct',
@@ -1957,14 +1957,14 @@ export const zOrderAttribution = z.object({
 })
 
 /**
- * * `PENDING` - Εκκρεμεί
- * * `PROCESSING` - Σε επεξεργασία
- * * `SHIPPED` - Απεστάλη
- * * `DELIVERED` - Παραδόθηκε
- * * `COMPLETED` - Ολοκληρώθηκε
- * * `CANCELED` - Ακυρώθηκε
- * * `RETURNED` - Επιστράφηκε
- * * `REFUNDED` - Επιστράφηκαν τα χρήματα
+ * * `PENDING` - Pending
+ * * `PROCESSING` - Processing
+ * * `SHIPPED` - Shipped
+ * * `DELIVERED` - Delivered
+ * * `COMPLETED` - Completed
+ * * `CANCELED` - Canceled
+ * * `RETURNED` - Returned
+ * * `REFUNDED` - Refunded
  */
 export const zOrderStatus = z.enum([
   'PENDING',
@@ -2569,13 +2569,13 @@ export const zPatchedUserWriteRequest = z.object({
 })
 
 /**
- * * `CREDIT_CARD` - Πιστωτική κάρτα
- * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+ * * `CREDIT_CARD` - Credit Card
+ * * `PAY_ON_DELIVERY` - Pay On Delivery
  * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
- * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+ * * `PAY_ON_STORE` - Pay On Store
  * * `PAY_PAL` - PayPal
  * * `STRIPE` - Stripe
- * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+ * * `BANK_TRANSFER` - Bank Transfer
  * * `APPLE_PAY` - Apple Pay
  * * `GOOGLE_PAY` - Google Pay
  * * `VIVA_WALLET` - Viva Wallet
@@ -2594,8 +2594,8 @@ export const zPayWayKeyEnum = z.enum([
 ])
 
 /**
- * * `prepaid` - Προπληρωμένο
- * * `cod` - Αντικαταβολή
+ * * `prepaid` - Prepaid
+ * * `cod` - Cash on delivery
  */
 export const zPaymentModeEnum = z.enum(['prepaid', 'cod'])
 
@@ -2633,13 +2633,13 @@ export const zPaymentProviderError = z.object({
 })
 
 /**
- * * `PENDING` - Εκκρεμεί
- * * `PROCESSING` - Σε επεξεργασία
- * * `COMPLETED` - Ολοκληρώθηκε
- * * `FAILED` - Απέτυχε
- * * `REFUNDED` - Επιστράφηκαν τα χρήματα
- * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
- * * `CANCELED` - Ακυρώθηκε
+ * * `PENDING` - Pending
+ * * `PROCESSING` - Processing
+ * * `COMPLETED` - Completed
+ * * `FAILED` - Failed
+ * * `REFUNDED` - Refunded
+ * * `PARTIALLY_REFUNDED` - Partially Refunded
+ * * `CANCELED` - Canceled
  */
 export const zPaymentStatusEnum = z.enum([
   'PENDING',
@@ -2789,11 +2789,11 @@ export const zPreviewResolveRequest = z.object({
 })
 
 /**
- * * `LOW` - Χαμηλή προτεραιότητα
- * * `NORMAL` - Κανονική προτεραιότητα
- * * `HIGH` - Υψηλή προτεραιότητα
- * * `URGENT` - Επείγουσα προτεραιότητα
- * * `CRITICAL` - Κρίσιμη προτεραιότητα
+ * * `LOW` - Low Priority
+ * * `NORMAL` - Normal Priority
+ * * `HIGH` - High Priority
+ * * `URGENT` - Urgent Priority
+ * * `CRITICAL` - Critical Priority
  */
 export const zPriorityEnum = z.enum([
   'LOW',
@@ -2833,8 +2833,8 @@ export const zNotification = z.object({
 })
 
 /**
- * * `restock` - Αναπλήρωση
- * * `price_drop` - Πτώση τιμής
+ * * `restock` - Restock
+ * * `price_drop` - Price drop
  */
 export const zProductAlertKindEnum = z.enum(['restock', 'price_drop'])
 
@@ -3877,16 +3877,16 @@ export const zPublishedPageEntry = z.object({
 })
 
 /**
- * * `1` - Ένα
- * * `2` - Δύο
- * * `3` - Τρία
- * * `4` - Τέσσερα
- * * `5` - Πέντε
- * * `6` - Έξι
- * * `7` - Επτά
- * * `8` - Οκτώ
- * * `9` - Εννέα
- * * `10` - Δέκα
+ * * `1` - One
+ * * `2` - Two
+ * * `3` - Three
+ * * `4` - Four
+ * * `5` - Five
+ * * `6` - Six
+ * * `7` - Seven
+ * * `8` - Eight
+ * * `9` - Nine
+ * * `10` - Ten
  */
 export const zRateEnum = z.union([
   z.literal(1),
@@ -4004,8 +4004,8 @@ export const zProductRetrieve = z.object({
 })
 
 /**
- * * `impression` - Προβολή
- * * `click` - Κλικ
+ * * `impression` - Impression
+ * * `click` - Click
  */
 export const zRecommendationEventRequestKindEnum = z.enum(['impression', 'click'])
 
@@ -4102,10 +4102,10 @@ export const zRegionWriteRequest = z.object({
 })
 
 /**
- * * `PRODUCT` - Στοχεύει αυτό το προϊόν
- * * `REWARD` - Αυτό το προϊόν είναι η ανταμοιβή
- * * `CATEGORY` - Στοχεύει την κατηγορία αυτού του προϊόντος
- * * `ORDER` - Ισχύει για ολόκληρη την παραγγελία
+ * * `PRODUCT` - Targets this product
+ * * `REWARD` - This product is the reward
+ * * `CATEGORY` - Targets this product's category
+ * * `ORDER` - Applies to the whole order
  */
 export const zRelationEnum = z.enum([
   'PRODUCT',
@@ -4115,11 +4115,11 @@ export const zRelationEnum = z.enum([
 ])
 
 /**
- * * `similar` - Παρόμοιο προϊόν
- * * `complementary` - Ταιριάζει με
- * * `accessory` - Αξεσουάρ για
- * * `replacement` - Αντικατάσταση για
- * * `bundle` - Πακέτο με
+ * * `similar` - Similar product
+ * * `complementary` - Goes well with
+ * * `accessory` - Accessory for
+ * * `replacement` - Replacement for
+ * * `bundle` - Bundle with
  */
 export const zRelationTypeEnum = z.enum([
   'similar',
@@ -4229,9 +4229,43 @@ export const zResolvedMedia = z.object({
 export const zResultTypeEnum = z.enum(['product', 'blog_post'])
 
 /**
- * * `NEW` - Σε αναμονή έγκρισης
- * * `TRUE` - Εγκεκριμένο
- * * `FALSE` - Απορρίφθηκε
+ * * `customer` - customer
+ * * `free` - free
+ */
+export const zReturnFeesEnum = z.enum(['customer', 'free'])
+
+export const zPublicValues = z.object({
+  contactAttachmentsMaxCount: z.int(),
+  contactAttachmentsMaxMb: z.int(),
+  contactEmail: z.string(),
+  demoAccountB2bEmail: z.string(),
+  demoAccountB2bPassword: z.string(),
+  demoAccountEmail: z.string(),
+  demoAccountPassword: z.string(),
+  dispatchCutoff: z.string(),
+  giftCardMaxAmount: z.number(),
+  giftCardMinAmount: z.number(),
+  giftCardValidityDays: z.int(),
+  loyaltyNewCustomerBonusEnabled: z.boolean(),
+  loyaltyNewCustomerBonusPoints: z.int(),
+  loyaltyPointsExpirationDays: z.int(),
+  loyaltyPointsFactor: z.number(),
+  loyaltyRedemptionRatioEur: z.number(),
+  loyaltyTierMultiplierEnabled: z.boolean(),
+  loyaltyXpPerLevel: z.int(),
+  returnFees: z.union([
+    zReturnFeesEnum,
+    zBlankEnum,
+  ]),
+  returnWindowDays: z.int(),
+  storeGeoLat: z.number().nullable(),
+  storeGeoLng: z.number().nullable(),
+})
+
+/**
+ * * `NEW` - Waiting for approval
+ * * `TRUE` - Approved
+ * * `FALSE` - Rejected
  */
 export const zReviewStatus = z.enum([
   'NEW',
@@ -4245,11 +4279,11 @@ export const zRollbackWriteRequest = z.object({
 })
 
 /**
- * * `PENDING` - Εκκρεμεί σάρωση
- * * `CLEAN` - Καθαρό
- * * `INFECTED` - Μολυσμένο
- * * `ERROR` - Η σάρωση απέτυχε
- * * `SKIPPED` - Δεν σαρώθηκε
+ * * `PENDING` - Pending scan
+ * * `CLEAN` - Clean
+ * * `INFECTED` - Infected
+ * * `ERROR` - Scan failed
+ * * `SKIPPED` - Not scanned
  */
 export const zScanStatusEnum = z.enum([
   'PENDING',
@@ -4272,10 +4306,10 @@ export const zContactAttachment = z.object({
 })
 
 /**
- * * `pending` - Εκκρεμεί
- * * `published` - Δημοσιευμένο
- * * `cancelled` - Ακυρώθηκε
- * * `failed` - Απέτυχε
+ * * `pending` - Pending
+ * * `published` - Published
+ * * `cancelled` - Cancelled
+ * * `failed` - Failed
  */
 export const zScheduleStatusEnum = z.enum([
   'pending',
@@ -4325,10 +4359,10 @@ export const zSettingDetail = z.object({
 })
 
 /**
- * * `online` - Πληρωμή online κατά την ολοκλήρωση αγοράς
- * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
- * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
- * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
+ * * `online` - Paid online at checkout
+ * * `courier_cash` - Cash or card to the courier on delivery
+ * * `carrier_terminal` - Paid to the carrier before pickup
+ * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
  */
 export const zSettlementEnum = z.enum([
   'online',
@@ -4427,16 +4461,16 @@ export const zPayWayWriteRequest = z.object({
 })
 
 /**
- * * `pending_creation` - Εκκρεμής δημιουργία
- * * `new` - Νέο
- * * `in_transit` - Σε μεταφορά
- * * `at_destination` - Στο κατάστημα παράδοσης
- * * `out_for_delivery` - Σε διανομή
- * * `delivered` - Παραδόθηκε
- * * `attempted` - Απόπειρα παράδοσης
- * * `returned` - Επιστράφηκε
- * * `canceled` - Ακυρώθηκε
- * * `lost` - Χάθηκε
+ * * `pending_creation` - Pending creation
+ * * `new` - New
+ * * `in_transit` - In transit
+ * * `at_destination` - At destination station
+ * * `out_for_delivery` - Out for delivery
+ * * `delivered` - Delivered
+ * * `attempted` - Delivery attempted
+ * * `returned` - Returned
+ * * `canceled` - Canceled
+ * * `lost` - Lost
  */
 export const zShipmentStateEnum = z.enum([
   'pending_creation',
@@ -4452,8 +4486,8 @@ export const zShipmentStateEnum = z.enum([
 ])
 
 /**
- * * `home_delivery` - Κατ' οίκον παράδοση
- * * `pickup_point` - Σημείο παραλαβής / locker
+ * * `home_delivery` - Home delivery
+ * * `pickup_point` - Pickup point / locker
  */
 export const zShippingKind = z.enum(['home_delivery', 'pickup_point'])
 
@@ -4706,12 +4740,12 @@ export const zShippingProvider = z.object({
 })
 
 /**
- * * `1` - Κατάστημα
- * * `2` - Συνεργαζόμενο κατάστημα (2)
- * * `3` - Συνεργαζόμενο κατάστημα (3)
+ * * `1` - Shop
+ * * `2` - Partner shop (2)
+ * * `3` - Partner shop (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
- * * `7` - Smartpoint (χωρίς locker)
+ * * `7` - Smartpoint (no locker)
  * * `8` - Smartpoint locker
  */
 export const zShopKindEnum = z.union([
@@ -5104,12 +5138,12 @@ export const zStorePreferences = z.object({
 })
 
 /**
- * * `curated` - Επιλογή εμπόρου
- * * `variant_group` - Ίδια ομάδα παραλλαγών
- * * `category` - Ίδια κατηγορία
- * * `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα
- * * `co_purchase` - Αγοράζονται μαζί
- * * `popular` - Δημοφιλή
+ * * `curated` - Merchant curated
+ * * `variant_group` - Same variant group
+ * * `category` - Same category
+ * * `attributes` - Shared attributes, tags and brand
+ * * `co_purchase` - Bought together
+ * * `popular` - Popular
  */
 export const zStrategyEnum = z.enum([
   'curated',
@@ -5141,10 +5175,10 @@ export const zRecommendationItem = z.object({
 })
 
 /**
- * * `ACTIVE` - Ενεργή
- * * `PENDING` - Εκκρεμεί Επιβεβαίωση
- * * `UNSUBSCRIBED` - Απεγγράφηκε
- * * `BOUNCED` - Επιστράφηκε
+ * * `ACTIVE` - Active
+ * * `PENDING` - Pending Confirmation
+ * * `UNSUBSCRIBED` - Unsubscribed
+ * * `BOUNCED` - Bounced
  */
 export const zSubscriptionStatus = z.enum([
   'ACTIVE',
@@ -5154,11 +5188,11 @@ export const zSubscriptionStatus = z.enum([
 ])
 
 /**
- * * `pdp` - Σελίδα προϊόντος
- * * `cart` - Καλάθι
- * * `out_of_stock` - Εξαντλημένο
- * * `empty_cart` - Άδειο καλάθι
- * * `order_email` - Email παραγγελίας
+ * * `pdp` - Product page
+ * * `cart` - Cart
+ * * `out_of_stock` - Out of stock
+ * * `empty_cart` - Empty cart
+ * * `order_email` - Order email
  */
 export const zSurfaceEnum = z.enum([
   'pdp',
@@ -5308,9 +5342,9 @@ export const zTaggedItemWriteRequest = z.object({
 })
 
 /**
- * * `ORDER` - Ολόκληρη η παραγγελία
- * * `PRODUCTS` - Συγκεκριμένα προϊόντα
- * * `CATEGORIES` - Συγκεκριμένες κατηγορίες
+ * * `ORDER` - Entire order
+ * * `PRODUCTS` - Specific products
+ * * `CATEGORIES` - Specific categories
  */
 export const zTargetScopeEnum = z.enum([
   'ORDER',
@@ -5413,13 +5447,13 @@ export const zTopQuery = z.object({
 })
 
 /**
- * * `MARKETING` - Καμπάνιες marketing
- * * `PRODUCT` - Ενημερώσεις προϊόντων
- * * `ACCOUNT` - Ενημερώσεις λογαριασμού
- * * `SYSTEM` - Ειδοποιήσεις Συστήματος
+ * * `MARKETING` - Marketing Campaigns
+ * * `PRODUCT` - Product Updates
+ * * `ACCOUNT` - Account Updates
+ * * `SYSTEM` - System Notifications
  * * `NEWSLETTER` - Newsletter
- * * `PROMOTIONAL` - Προωθητικό
- * * `OTHER` - Άλλο
+ * * `PROMOTIONAL` - Promotional
+ * * `OTHER` - Other
  */
 export const zTopicCategory = z.enum([
   'MARKETING',
@@ -5537,10 +5571,10 @@ export const zSubscriptionTopicWriteRequest = z.object({
 })
 
 /**
- * * `EARN` - Κέρδος
- * * `REDEEM` - Εξαργύρωση
- * * `EXPIRE` - Λήξη
- * * `ADJUST` - Προσαρμογή
+ * * `EARN` - Earn
+ * * `REDEEM` - Redeem
+ * * `EXPIRE` - Expire
+ * * `ADJUST` - Adjust
  * * `BONUS` - Bonus
  */
 export const zTransactionTypeEnum = z.enum([
@@ -5599,8 +5633,8 @@ export const zTrendingSearchResponse = z.object({
 })
 
 /**
- * * `AUTOMATIC` - Αυτόματη
- * * `CODE` - Κωδικός κουπονιού
+ * * `AUTOMATIC` - Automatic
+ * * `CODE` - Coupon code
  */
 export const zTriggerEnum = z.enum(['AUTOMATIC', 'CODE'])
 
@@ -5694,9 +5728,9 @@ export const zCartCoupon = z.object({
 
 /**
  * * `apm` - APM
- * * `any_apm` - Οποιοδήποτε APM
- * * `warehouse` - Αποθήκη (warehouse)
- * * `depot` - Κέντρο διανομής (depot)
+ * * `any_apm` - Any APM
+ * * `warehouse` - Warehouse
+ * * `depot` - Depot
  */
 export const zTypeEnum = z.enum([
   'apm',
@@ -6524,10 +6558,10 @@ export const zPaginatedVersionListList = z.object({
 })
 
 /**
- * * `UNCHECKED` - Δεν έχει ελεγχθεί
- * * `VALID` - Έγκυρο
- * * `INVALID` - Μη έγκυρο
- * * `UNAVAILABLE` - Υπηρεσία μη διαθέσιμη
+ * * `UNCHECKED` - Not checked
+ * * `VALID` - Valid
+ * * `INVALID` - Invalid
+ * * `UNAVAILABLE` - Service unavailable
  */
 export const zViesStatusEnum = z.enum([
   'UNCHECKED',
@@ -6633,6 +6667,7 @@ export const zPublicSettings = z.object({
   fundingBanner: zFundingBanner,
   storeOffices: z.array(zStoreOffice),
   businessHours: zBusinessHours.nullable(),
+  values: zPublicValues,
   contactAttachmentsTypes: z.array(z.string()),
 })
 
@@ -13919,6 +13954,10 @@ export const zListProductQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
+  brand: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
   category: z.string().optional(),
   categoryId: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14097,6 +14136,10 @@ export const zListProductQuery = z.object({
   stock_Lte: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
+  ]).optional(),
+  tags: z.union([
+    z.string(),
+    z.array(z.int()),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Date: z.iso.date().optional(),
@@ -15216,6 +15259,10 @@ export const zListProductFeedQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
+  brand: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
   category: z.string().optional(),
   categoryId: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15394,6 +15441,10 @@ export const zListProductFeedQuery = z.object({
   stock_Lte: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
+  ]).optional(),
+  tags: z.union([
+    z.string(),
+    z.array(z.int()),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Date: z.iso.date().optional(),

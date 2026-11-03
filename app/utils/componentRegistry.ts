@@ -46,7 +46,7 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'hero_carousel': eagerSection(() => import('~/components/PageSection/HeroCarousel.vue')),
   'products_slider': lazySection(() => import('~/components/PageSection/ProductsSlider.vue')),
   'products_grid': lazySection(() => import('~/components/PageSection/ProductsGrid.vue')),
-  'featured_products': lazySection(() => import('~/components/PageSection/FeaturedProducts.vue')),
+  'featured_products': lazySection(() => import('~/components/PageSection/ProductsGrid.vue')),
   'product_categories': lazySection(() => import('~/components/PageSection/ProductCategories.vue')),
   'blog_categories': lazySection(() => import('~/components/PageSection/BlogCategories.vue')),
   'blog_posts_carousel': lazySection(() => import('~/components/PageSection/BlogPostsCarousel.vue')),
