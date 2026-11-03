@@ -95,21 +95,3 @@ export const ZodBuilderVersionParams = ZodBuilderDocumentParams.extend({
 export const ZodBuilderVersionsQuery = z.object({
   page: z.string().regex(/^\d{1,6}$/).optional(),
 })
-
-/** One problem Django found with a document, as `Issue.as_dict` sends it: where (a JSON pointer into what was sent), its code, a sentence, the document (null for a single-document request) and its params. */
-export const ZodBuilderDocumentProblem = z.object({ path: z.string(), code: z.string(), message: z.string(), document: z.string().nullish(), params: z.record(z.string(), z.string()).nullish() })
-
-/**
- * Django's refusal of documents (`400 invalid_document`): every problem;
- * `document` names the document when one request held several (a
- * publish). Django's OpenAPI schema types this answer only as an error with
- * a `detail`, so the editor reads it with this one schema, for a save and a
- * publish alike.
- */
-export const ZodBuilderDocumentRefusal = z.object({
-  code: z.literal('invalid_document'),
-  errors: z.array(ZodBuilderDocumentProblem),
-})
-
-/** Why a scheduled publish failed (`Schedule.failure`, which the OpenAPI schema leaves untyped): the problems it met, as a refusal lists them. */
-export const ZodBuilderScheduleFailure = z.array(ZodBuilderDocumentProblem)

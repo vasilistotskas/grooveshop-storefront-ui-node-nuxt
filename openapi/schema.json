@@ -15415,6 +15415,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -15487,6 +15490,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -15641,6 +15647,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -15859,6 +15868,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -16807,6 +16819,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -16904,6 +16919,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -17158,6 +17176,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -17231,6 +17252,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -17519,6 +17543,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -17691,6 +17718,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -17882,6 +17912,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -62813,6 +62846,36 @@
                     "name"
                 ]
             },
+            "BuilderDocumentInvalidCodeEnum": {
+                "enum": [
+                    "invalid_document"
+                ],
+                "type": "string",
+                "description": "* `invalid_document` - invalid_document"
+            },
+            "BuilderDocumentInvalidError": {
+                "type": "object",
+                "description": "The 400 of an operation that checks a document (``invalid_document``):\nthe refusal and everything wrong, each with the document it is in.",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "$ref": "#/components/schemas/BuilderDocumentInvalidCodeEnum"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublishProblem"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "detail",
+                    "errors"
+                ]
+            },
             "BuilderDocumentKindEnum": {
                 "enum": [
                     "theme",
@@ -62845,10 +62908,11 @@
             "BuilderVersionKindEnum": {
                 "enum": [
                     "checkpoint",
-                    "publish"
+                    "publish",
+                    "restore"
                 ],
                 "type": "string",
-                "description": "* `checkpoint` - Ονομασμένη αποθήκευση\n* `publish` - Δημοσίευση"
+                "description": "* `checkpoint` - Ονομασμένη αποθήκευση\n* `publish` - Δημοσίευση\n* `restore` - Επαναφορά"
             },
             "BulkSubscriptionFailure": {
                 "type": "object",
@@ -77972,9 +78036,12 @@
                         "nullable": true
                     },
                     "failure": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublishProblem"
+                        },
                         "readOnly": true,
-                        "title": "Αποτυχία",
-                        "description": "Γιατί δεν μπόρεσε να δημοσιευτεί: [{path, code, message}]"
+                        "nullable": true
                     },
                     "acknowledgedAt": {
                         "type": "string",
@@ -81160,6 +81227,13 @@
                     "kind": {
                         "$ref": "#/components/schemas/BuilderVersionKindEnum"
                     },
+                    "restoredFrom": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Επαναφορά από",
+                        "description": "Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά)."
+                    },
                     "note": {
                         "type": "string",
                         "readOnly": true,
@@ -81220,6 +81294,7 @@
                     "note",
                     "number",
                     "refs",
+                    "restoredFrom",
                     "sizeBytes"
                 ]
             },
@@ -81237,6 +81312,13 @@
                     },
                     "kind": {
                         "$ref": "#/components/schemas/BuilderVersionKindEnum"
+                    },
+                    "restoredFrom": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Επαναφορά από",
+                        "description": "Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά)."
                     },
                     "note": {
                         "type": "string",
@@ -81288,6 +81370,7 @@
                     "kind",
                     "note",
                     "number",
+                    "restoredFrom",
                     "sizeBytes"
                 ]
             },

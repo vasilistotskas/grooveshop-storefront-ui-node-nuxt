@@ -45,7 +45,7 @@ const publishing = ref(false)
 /** Why the last attempt did not publish: the drafts could not all be saved first, or Django's problems. */
 const unsaved = ref<string[]>([])
 /** Every problem in the way: from the check as the dialog opens and the picks change, or from Django's refusal. */
-const problems = ref<Array<{ document?: string | null, path: string, message: string }>>([])
+const problems = ref<PublishProblem[]>([])
 /** The check is asked: the drafts are saved, then Django says what publishing them would do. */
 const checking = ref(false)
 let checks = 0
@@ -170,9 +170,9 @@ async function publish(): Promise<void> {
 }
 
 /** Django's problems when it refuses the drafts (`400 invalid_document`), else nothing. */
-function refusalOf(error: unknown): Array<{ document?: string | null, path: string, message: string }> | undefined {
+function refusalOf(error: unknown): PublishProblem[] | undefined {
   const data = typeof error === 'object' && error !== null && 'data' in error ? error.data : undefined
-  const parsed = ZodBuilderDocumentRefusal.safeParse(data)
+  const parsed = zBuilderDocumentInvalidError.safeParse(data)
   return parsed.success ? parsed.data.errors : undefined
 }
 
@@ -195,12 +195,6 @@ async function loadSchedules(): Promise<void> {
   catch (error) {
     notify('builder:schedules', error, { title: t('schedules.loadFailed') })
   }
-}
-
-/** Why a schedule failed, as Django recorded it. */
-const failureOf = (schedule: Schedule) => {
-  const parsed = ZodBuilderScheduleFailure.safeParse(schedule.failure)
-  return parsed.success ? parsed.data : []
 }
 
 /** Cancels a publish still to come (`DELETE /api/builder/schedules/<id>`). */
@@ -235,7 +229,7 @@ async function acknowledge(schedule: Schedule): Promise<void> {
 }
 
 /** Takes the staff member to the node a problem is about: its document, and the node selected. */
-async function show(problem: { document?: string | null, path: string }): Promise<void> {
+async function show(problem: Pick<PublishProblem, 'document' | 'path'>): Promise<void> {
   const key = problem.document ?? documentKey.value
   const nodeId = builderProblemNodeId(problem.path)
   open.value = false
@@ -374,7 +368,7 @@ async function show(problem: { document?: string | null, path: string }): Promis
               <p>{{ schedule.documents.map(labelOf).join(', ') }}</p>
               <ul class="mt-1 list-disc ps-4">
                 <li
-                  v-for="(problem, index) in failureOf(schedule)"
+                  v-for="(problem, index) in schedule.failure ?? []"
                   :key="index"
                 >
                   <span

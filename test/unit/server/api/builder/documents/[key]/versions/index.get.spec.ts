@@ -19,6 +19,7 @@ const page = {
     sizeBytes: 1200,
     blockTypes: ['hero_banner@1'],
     catalogueHash: 'abc',
+    restoredFrom: null,
   }],
 }
 

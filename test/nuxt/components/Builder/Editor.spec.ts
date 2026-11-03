@@ -850,7 +850,7 @@ describe('editing the structure of a page', () => {
         [CHECK_URL]: CHECK_OK,
         '/api/builder/presence': NOBODY_ELSE,
         [SCHEDULES_URL]: NO_SCHEDULES,
-        [DRAFT_URL]: failWith(400, { code: 'invalid_document', detail: 'x', errors: [{ path: '/sections/hero', code: 'invalid', message: 'Όχι.' }] }),
+        [DRAFT_URL]: failWith(400, { code: 'invalid_document', detail: 'x', errors: [{ document: null, path: '/sections/hero', code: 'invalid', message: 'Όχι.' }] }),
         [PUBLISH_URL]: RELEASE,
       })
       const wrapper = await open(HERO)
@@ -897,7 +897,7 @@ describe('editing the structure of a page', () => {
     it('lists the publishes still to come, each cancellable, and the failed ones with why, until they are seen', async () => {
       const PENDING = { id: 3, status: 'pending', documents: ['template:home'], scheduledFor: '2026-11-20T08:00:00Z', note: 'Black Friday', scheduledBy: { id: 7, name: 'Maria' }, executedAt: null, release: null, failure: null, acknowledgedAt: null }
       const FAILED = { ...PENDING, id: 4, status: 'failed', note: '', scheduledFor: '2026-11-01T08:00:00Z', failure: [{ document: 'template:home', path: '/sections/grid/settings/ctaLink', code: 'reference_not_found', message: 'Το προϊόν 12 δεν υπάρχει σε αυτό το κατάστημα.' }] }
-      const SEEN = { ...FAILED, id: 5, acknowledgedAt: '2026-11-01T09:00:00Z', failure: [{ path: '/order', code: 'x', message: 'Ήδη ειδωμένο.' }] }
+      const SEEN = { ...FAILED, id: 5, acknowledgedAt: '2026-11-01T09:00:00Z', failure: [{ document: null, path: '/order', code: 'x', message: 'Ήδη ειδωμένο.' }] }
       api.routes({
         '/api/builder/documents': LIST,
         [documentUrl('template:home')]: { ...HOME, hasUnpublishedChanges: true },
@@ -1111,7 +1111,7 @@ describe('editing the structure of a page', () => {
         [DRAFT_URL]: failWith(400, {
           code: 'invalid_document',
           detail: 'x',
-          errors: [{ path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Δεν επιτρέπεται εδώ.' }],
+          errors: [{ document: null, path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Δεν επιτρέπεται εδώ.' }],
         }),
       })
       const wrapper = await open(HERO)

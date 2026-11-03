@@ -696,6 +696,11 @@ export const zBrand = z.object({
 })
 
 /**
+ * * `invalid_document` - invalid_document
+ */
+export const zBuilderDocumentInvalidCodeEnum = z.enum(['invalid_document'])
+
+/**
  * * `theme` - Θέμα
  * * `group` - Ομάδα ενοτήτων
  * * `template` - Πρότυπο
@@ -717,8 +722,13 @@ export const zBuilderPageKindEnum = z.enum(['page', 'template'])
 /**
  * * `checkpoint` - Ονομασμένη αποθήκευση
  * * `publish` - Δημοσίευση
+ * * `restore` - Επαναφορά
  */
-export const zBuilderVersionKindEnum = z.enum(['checkpoint', 'publish'])
+export const zBuilderVersionKindEnum = z.enum([
+  'checkpoint',
+  'publish',
+  'restore',
+])
 
 export const zBulkSubscriptionFailure = z.object({
   topic: z.string().readonly(),
@@ -3731,6 +3741,16 @@ export const zPublishProblem = z.object({
   params: z.record(z.string(), z.string()).nullish(),
 })
 
+/**
+ * The 400 of an operation that checks a document (``invalid_document``):
+ * the refusal and everything wrong, each with the document it is in.
+ */
+export const zBuilderDocumentInvalidError = z.object({
+  detail: z.string(),
+  code: zBuilderDocumentInvalidCodeEnum,
+  errors: z.array(zPublishProblem),
+})
+
 export const zPublishCheck = z.object({
   ok: z.boolean(),
   changed: z.array(z.string()),
@@ -4847,7 +4867,7 @@ export const zSchedule = z.object({
   scheduledBy: zStaff.nullable(),
   executedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   release: z.int().gte(0).lte(2147483647).readonly().nullable(),
-  failure: z.unknown(),
+  failure: z.array(zPublishProblem).readonly().nullable(),
   acknowledgedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
 })
 
@@ -6331,6 +6351,7 @@ export const zVersionDetail = z.object({
   id: z.int().readonly(),
   number: z.int().readonly(),
   kind: zBuilderVersionKindEnum,
+  restoredFrom: z.int().readonly().nullable(),
   note: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   createdBy: zStaff.nullable(),
@@ -6346,6 +6367,7 @@ export const zVersionList = z.object({
   id: z.int().readonly(),
   number: z.int().readonly(),
   kind: zBuilderVersionKindEnum,
+  restoredFrom: z.int().readonly().nullable(),
   note: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   createdBy: zStaff.nullable(),

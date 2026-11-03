@@ -8798,6 +8798,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -8838,6 +8839,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -8926,6 +8928,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9047,6 +9050,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9580,6 +9584,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
     delete:
       operationId: api_v1_builder_presence_destroy
@@ -9635,6 +9640,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9781,6 +9787,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '404':
           content:
@@ -9822,6 +9829,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9986,6 +9994,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -10087,6 +10096,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -10190,6 +10200,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -37403,6 +37414,29 @@ components:
       required:
         - id
         - name
+    BuilderDocumentInvalidCodeEnum:
+      enum:
+        - invalid_document
+      type: string
+      description: '* `invalid_document` - invalid_document'
+    BuilderDocumentInvalidError:
+      type: object
+      description: |-
+        The 400 of an operation that checks a document (``invalid_document``):
+        the refusal and everything wrong, each with the document it is in.
+      properties:
+        detail:
+          type: string
+        code:
+          $ref: '#/components/schemas/BuilderDocumentInvalidCodeEnum'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublishProblem'
+      required:
+        - code
+        - detail
+        - errors
     BuilderDocumentKindEnum:
       enum:
         - theme
@@ -37434,10 +37468,12 @@ components:
       enum:
         - checkpoint
         - publish
+        - restore
       type: string
       description: |-
         * `checkpoint` - Ονομασμένη αποθήκευση
         * `publish` - Δημοσίευση
+        * `restore` - Επαναφορά
     BulkSubscriptionFailure:
       type: object
       properties:
@@ -49261,9 +49297,11 @@ components:
           readOnly: true
           nullable: true
         failure:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublishProblem'
           readOnly: true
-          title: Αποτυχία
-          description: 'Γιατί δεν μπόρεσε να δημοσιευτεί: [{path, code, message}]'
+          nullable: true
         acknowledgedAt:
           type: string
           format: date-time
@@ -51742,6 +51780,12 @@ components:
           title: Αριθμός
         kind:
           $ref: '#/components/schemas/BuilderVersionKindEnum'
+        restoredFrom:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Επαναφορά από
+          description: Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά).
         note:
           type: string
           readOnly: true
@@ -51790,6 +51834,7 @@ components:
         - note
         - number
         - refs
+        - restoredFrom
         - sizeBytes
     VersionList:
       type: object
@@ -51803,6 +51848,12 @@ components:
           title: Αριθμός
         kind:
           $ref: '#/components/schemas/BuilderVersionKindEnum'
+        restoredFrom:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Επαναφορά από
+          description: Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά).
         note:
           type: string
           readOnly: true
@@ -51842,6 +51893,7 @@ components:
         - kind
         - note
         - number
+        - restoredFrom
         - sizeBytes
     ViesStatusEnum:
       enum:
