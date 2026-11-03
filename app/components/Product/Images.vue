@@ -26,6 +26,7 @@ const slides = computed(() => {
   const main = all.find(image => image.isMain)
   return main ? [main, ...all.filter(image => image !== main)] : all
 })
+const altOf = useProductImageAlt(slides, () => props.productName)
 
 const carousel = useTemplateRef('carousel')
 const selected = ref(0)
@@ -78,6 +79,7 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
              not a second tab stop, the button is the control. -->
         <ProductImage
           :image="item"
+          :alt="altOf(item)"
           :width="680"
           :height="680"
           :img-loading="index === 0 ? 'eager' : 'lazy'"
@@ -89,6 +91,7 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
       </UCarousel>
       <ProductImage
         v-else
+        :alt="altOf(undefined)"
         :width="680"
         :height="680"
         class="aspect-square w-full object-cover"
@@ -149,6 +152,7 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
       >
         <ProductImage
           :image="image"
+          :alt="altOf(image)"
           :width="132"
           :height="132"
           img-loading="lazy"

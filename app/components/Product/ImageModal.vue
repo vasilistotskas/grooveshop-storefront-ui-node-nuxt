@@ -19,6 +19,7 @@ const props = defineProps<{
 const open = defineModel<boolean>({ required: true })
 
 const { t } = useStoreI18n('components/Product/ImageModal')
+const altOf = useProductImageAlt(() => props.images, () => props.productName)
 
 const carousel = useTemplateRef('carousel')
 const active = ref(props.initialIndex)
@@ -125,6 +126,7 @@ const ARROW = 'bg-transparent text-white ring-white/20 hover:bg-white/10 disable
           >
             <ProductImage
               :image="item"
+              :alt="altOf(item)"
               :width="680"
               :height="680"
               img-loading="eager"
@@ -173,6 +175,7 @@ const ARROW = 'bg-transparent text-white ring-white/20 hover:bg-white/10 disable
         >
           <ProductImage
             :image="image"
+            :alt="altOf(image)"
             :width="52"
             :height="52"
             img-loading="lazy"

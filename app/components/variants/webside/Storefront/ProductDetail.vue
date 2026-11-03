@@ -287,7 +287,7 @@ useSchemaOrg([
             lg:grid-cols-2
           "
         >
-          <WebsideProductImages :product="product" />
+          <WebsideProductImages :product="product" :product-name="productName" />
 
           <!-- min-w-0: below lg this is a grid item in an implicit ``auto``
                track, whose min-width:auto otherwise inflates the track to the
@@ -635,6 +635,7 @@ useSchemaOrg([
               v-if="productImages && productImages[0]"
               :key="product?.id"
               :image="productImages[0]"
+              alt=""
               :width="64"
               :height="64"
               class="

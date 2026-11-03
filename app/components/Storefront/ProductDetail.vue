@@ -636,6 +636,7 @@ useSchemaOrg([
             <ProductImage
               v-if="productImages?.[0]"
               :image="productImages[0]"
+              alt=""
               :width="44"
               :height="44"
               class="size-full object-cover"
