@@ -68,6 +68,7 @@ const OUTAGE_CONTENT_SLUG = 'outage'
 const FAQ_CATEGORY_ID = 77
 const FAQ_CATEGORY_SLUG = 'chargers'
 const SLUG_PRODUCT_ID = 321
+const SIBLING_PRODUCT_ID = 322
 // The editor's accordion: one question, one collapsed section that is not.
 const SLUG_PRODUCT_DESCRIPTION = '<details class="mce-accordion"><summary>Πόσο κρατάει;</summary><p>Δύο μέρες.</p></details>'
   + '<details class="mce-accordion"><summary>Σημειώσεις</summary><p>Κάτι.</p></details>'
@@ -193,6 +194,21 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
     return
   }
 
+  // The product's variant group: it and a sibling, differing by colour.
+  if (reqUrl.pathname.endsWith(`/product/${SLUG_PRODUCT_ID}/variants`)) {
+    const variant = (id: number, slug: string, valueId: number) => ({
+      ...makeProduct({ id }),
+      discountPercent: 0,
+      slug,
+      attributeValues: [{ id, attributeId: 5, attributeName: 'Χρώμα', isVariant: true, schemaProperty: 'color', attributeValueId: valueId, value: 'Χρώμα', createdAt: '2026-01-01T00:00:00Z' }],
+    })
+    sendJson(res, {
+      axes: [{ id: 5, name: 'Χρώμα', schemaProperty: 'color', values: [{ id: 1, value: 'Μαύρο' }, { id: 2, value: 'Άσπρο' }] }],
+      variants: [variant(SLUG_PRODUCT_ID, SLUG_PRODUCT_SLUG, 1), variant(SIBLING_PRODUCT_ID, 'white', 2)],
+    })
+    return
+  }
+
   // One category, whose description answers a question.
   if (reqUrl.pathname.endsWith(`/product/category/${FAQ_CATEGORY_ID}`)) {
     sendJson(res, {
@@ -213,7 +229,12 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       }),
       slug: SLUG_PRODUCT_SLUG,
       weight: { unit: 'g', value: 105 },
-      attributes: [{ id: 1, attributeId: 1, attributeName: 'Χωρητικότητα', isVariant: false, attributeValueId: 1, value: '5000 mAh', createdAt: '2026-01-01T00:00:00Z' }],
+      variantGroup: 9,
+      variantGroupTitle: 'Ομάδα',
+      attributes: [
+        { id: 1, attributeId: 1, attributeName: 'Χωρητικότητα', isVariant: false, schemaProperty: '', attributeValueId: 1, value: '5000 mAh', createdAt: '2026-01-01T00:00:00Z' },
+        { id: 2, attributeId: 5, attributeName: 'Χρώμα', isVariant: true, schemaProperty: 'color', attributeValueId: 1, value: 'Μαύρο', createdAt: '2026-01-01T00:00:00Z' },
+      ],
       priceDropAlertsEnabled: false,
       ratingDistribution: [],
     })
@@ -563,6 +584,14 @@ export function describePageRenders(): void {
       const product = graph.find(node => node['@type'] === 'Product')
       expect(product?.additionalProperty).toEqual([{ '@type': 'PropertyValue', 'name': 'Χωρητικότητα', 'value': '5000 mAh' }])
       expect(product?.weight).toEqual({ '@type': 'QuantitativeValue', 'value': 105, 'unitCode': 'GRM' })
+      expect(product?.color).toBe('Μαύρο')
+      expect(product?.isVariantOf).toMatchObject({
+        '@type': 'ProductGroup',
+        'name': 'Ομάδα',
+        'productGroupID': '9',
+        'variesBy': ['https://schema.org/color'],
+        'hasVariant': [{ '@type': 'Product', 'url': expect.stringMatching(new RegExp(`^https://${host}/products/${SIBLING_PRODUCT_ID}/white$`)) }],
+      })
 
       const questions = graph.filter(node => node['@type'] === 'Question')
       expect(questions.map(node => node.name)).toEqual(['Πόσο κρατάει;'])

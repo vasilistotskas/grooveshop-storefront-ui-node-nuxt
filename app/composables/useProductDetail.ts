@@ -24,6 +24,8 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
   const { getFavouriteIdByProductId, updateFavouriteProducts } = useUserStore()
   const { transformImages } = useHtmlContent()
   const img = useMediaStreamImage()
+  const localePath = useLocalePath()
+  const { productUrl } = useUrls()
   const mediaStreamBaseUrl = useMediaStreamBaseUrl()
   const recentlyViewed = useRecentlyViewed()
   const metaPixel = useMetaPixel()
@@ -290,6 +292,22 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
     variantsRequest.then(variants => variants.execute()),
   ])
 
+  // The product's variant group for the structured data: the other
+  // variants' pages, and what they differ by where the store said which
+  // standard property an axis is (`Attribute.schema_property`).
+  const { axes, variants } = await variantsRequest
+  const variantGroupSchema = computed<ProductGroupSchema | undefined>(() => {
+    const group = product.value?.variantGroup
+    const siblings = variants.value.filter(variant => variant.id !== product.value?.id)
+    if (!group || siblings.length === 0) return undefined
+    return {
+      id: group,
+      name: product.value?.variantGroupTitle || productName.value,
+      variesBy: axes.value.map(axis => axis.schemaProperty).filter(Boolean),
+      variantPaths: siblings.map(variant => localePath({ path: productUrl(variant.id, variant.slug) })),
+    }
+  })
+
   // The reviews' own sheet reports a change; the list on THIS page and the
   // product's average are what must move.
   const onReviewChanged = () => Promise.all([
@@ -315,5 +333,6 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
     favouriteId,
     ogImage,
     catalogueImageUrls,
+    variantGroupSchema,
   }
 }

@@ -62,6 +62,7 @@ const {
   favouriteId,
   ogImage,
   catalogueImageUrls,
+  variantGroupSchema,
 } = await useProductDetail(productId, t)
 await categoriesReady
 const assurances = await useProductAssurances()
@@ -220,6 +221,7 @@ useSchemaOrg([
     currency: tenantStore.defaultCurrency,
     // The category's trail by name, the form Google reads.
     category: categoryPath.value.map(node => node.label).join(' > '),
+    variantGroup: variantGroupSchema.value,
     reviews: productReviewsEnabled.value ? (productReviews.value?.results ?? []) : null,
     anonymousReviewer: t('reviews.anonymous'),
     reviewComment: review => extractTranslated(review, 'comment', locale.value),
