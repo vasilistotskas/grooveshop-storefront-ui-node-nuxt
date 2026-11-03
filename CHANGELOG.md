@@ -1,3 +1,10 @@
+# [3.299.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.298.0...v3.299.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** publish and schedule from the editor ([#345](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/345)) ([6c8dfdf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6c8dfdf2132ce54175b7749af4aecc6698d8f1f5)), closes [#446](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/446)
+
 # [3.298.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.297.0...v3.298.0) (2026-11-03)
 
 
