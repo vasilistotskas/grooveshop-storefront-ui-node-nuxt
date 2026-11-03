@@ -113,7 +113,7 @@ describe('GET /api/builder/catalogue', () => {
     const response = await get({}, undefined, emptyHandler)
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
+    expect(response.body).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], dataLimits: { maxPickedIds: 24, maxFilterIds: 5, maxQueryLimit: 24, maxQueriesPerDocument: 12 }, documentKinds: expect.any(Object), templates: expect.any(Array) })
     expect(response.headers.get('etag')).toBe(`"${response.body.hash}"`)
   })
 })

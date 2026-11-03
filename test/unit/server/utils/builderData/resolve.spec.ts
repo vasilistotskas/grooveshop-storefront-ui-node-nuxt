@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { cacheKeyBelongsToHost } from '~~/server/utils/cacheKey'
 import { cachedRead } from '~~/server/utils/builderData/loaders'
 import { readData, resolveBuilderData } from '~~/server/utils/builderData/resolve'
-import { backend, cacheOptionsOf, createRequestEvent, jsonResponse } from '~~/test/helpers/nitro'
+import { backend, cacheOptionsOf, createRequestEvent, jsonResponse, log } from '~~/test/helpers/nitro'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { makeProductCard, makeProductCategory } from '~~/test/fixtures/product'
+import { DATA_LIMITS } from '~~/shared/constants/builder'
 import { makePromotion } from '~~/test/fixtures/promotion'
 import { zListProductResponse } from '~~/shared/openapi/zod.gen'
 import type { DataPlan, DataResolution, QueryAnswer } from '~~/shared/types/builderData'
@@ -92,6 +93,30 @@ describe('readData', () => {
       ['/api/v1/product/category', 'true', '8'],
       ['/api/v1/blog/category', null, '10'],
     ]))
+  })
+
+  it('starts every read at once: the lists do not wait on the records, nor the records on the lists', async () => {
+    const answers: Array<() => void> = []
+    backend.reply(request => new Promise((resolve) => {
+      answers.push(() => resolve(request.url.pathname.endsWith('/blog/post') ? page([makeBlogPost({ id: 3 })]) : page([makeProductCard({ id: 1 })])))
+    }) as never)
+    const queries = new Map([['b', { source: 'blogPost' as const, descriptor: { mode: 'filter', ordering: 'newest', limit: 2 }, key: 'b' }]])
+
+    const reading = readData(context, planOf({ ids: { ...emptyIds, product: [1] }, queries }))
+    await vi.waitFor(() => expect(backend.requests).toHaveLength(2))
+    answers.forEach(answer => answer())
+    await reading
+  })
+
+  it('reads no more lists than a document may, and says so, the rest being `failed`', async () => {
+    backend.reply(() => page([]))
+    const lists = Array.from({ length: DATA_LIMITS.maxQueriesPerDocument + 2 }, (_, index) => [`q${index}`, { source: 'product' as const, descriptor: { ...newest, limit: index + 1 }, key: `q${index}` }] as const)
+
+    const resolution = await readData(context, planOf({ queries: new Map(lists) }))
+
+    expect(backend.requests).toHaveLength(DATA_LIMITS.maxQueriesPerDocument)
+    expect([...resolution.queries.values()].filter(answer => answer === 'failed')).toHaveLength(2)
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ tag: 'builder-data', max: DATA_LIMITS.maxQueriesPerDocument }))
   })
 
   it('counts what matches in all, not only the page it keeps', async () => {

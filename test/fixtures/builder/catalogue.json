@@ -1,5 +1,5 @@
 {
-  "hash": "4d60290faf645dbb",
+  "hash": "04f0ac268a6c8f20",
   "blocks": [
     {
       "type": "about_content",
@@ -7074,6 +7074,12 @@
       ]
     }
   ],
+  "dataLimits": {
+    "maxPickedIds": 24,
+    "maxFilterIds": 5,
+    "maxQueryLimit": 24,
+    "maxQueriesPerDocument": 12
+  },
   "documentKinds": {
     "page": {
       "schema": {
