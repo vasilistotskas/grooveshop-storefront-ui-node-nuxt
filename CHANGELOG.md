@@ -1,3 +1,10 @@
+# [3.319.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.318.1...v3.319.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** let visitors attach files to webside's contact form ([#370](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/370)) ([1e75be5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1e75be513b67bfaaec0e3b455e162c48b3e33380))
+
 ## [3.318.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.318.0...v3.318.1) (2026-11-03)
 
 
