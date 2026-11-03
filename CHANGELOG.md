@@ -1,3 +1,10 @@
+# [3.317.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.316.0...v3.317.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** promise same-day dispatch on webside's product page ([#369](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/369)) ([ec19e1e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ec19e1e743a0b6db92a1358e0f2e2399d318a156))
+
 # [3.316.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.315.0...v3.316.0) (2026-11-03)
 
 
