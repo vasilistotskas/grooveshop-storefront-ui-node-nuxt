@@ -77,6 +77,8 @@ export const DATA_LIMITS = {
   maxFilterIds: 5,
   /** Most records one query returns. */
   maxQueryLimit: 24,
+  /** Most distinct lists one document reads: each is a call to Django on every page render. */
+  maxQueriesPerDocument: 12,
 } as const
 
 /** How a list of products may be ordered: each is a field the product list's `ordering_fields` declares. */

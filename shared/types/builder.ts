@@ -203,9 +203,18 @@ export interface CatalogueDocumentKind {
   defaults?: Record<string, unknown>
 }
 
+/** The caps a data setting lives under (`DATA_LIMITS`), stated to Django so it holds a document to the numbers the storefront reads with. */
+export interface CatalogueDataLimits {
+  maxPickedIds: number
+  maxFilterIds: number
+  maxQueryLimit: number
+  maxQueriesPerDocument: number
+}
+
 export interface BlockCatalogue {
   hash: string
   blocks: CatalogueBlock[]
+  dataLimits: CatalogueDataLimits
   /** Only the kinds that have root settings; any other accepts none. */
   documentKinds: Partial<Record<BuilderDocumentKind, CatalogueDocumentKind>>
   /**

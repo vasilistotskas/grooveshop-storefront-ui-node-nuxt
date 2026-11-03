@@ -1,3 +1,10 @@
+# [3.314.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.313.0...v3.314.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** seed an existing store's theme from what it renders today ([#363](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/363)) ([12c8c6a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12c8c6a2b3ed583191f3a521e43703b66207ccb5))
+
 # [3.313.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.312.0...v3.313.0) (2026-11-03)
 
 
