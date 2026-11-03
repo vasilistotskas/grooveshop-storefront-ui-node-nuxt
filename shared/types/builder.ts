@@ -187,6 +187,8 @@ export interface CatalogueDocumentKind {
   translatable: string[]
   /** Pointers of the root's link settings, as a block's `linkRefs`. */
   linkRefs: string[]
+  /** The contrast its colours must keep; only the theme has any. Django enforces the `error` rules on publish. */
+  contrast?: ContrastRule[]
 }
 
 export interface BlockCatalogue {
@@ -202,10 +204,28 @@ export interface BlockCatalogue {
   templates: string[]
 }
 
-/** What a kind of document may carry at its root: a Zod object and which of its settings are translatable. */
+/** One side of a contrast rule: a pointer into the document's root settings, or a literal `#RRGGBB`. */
+export type ContrastSide = SettingsPointer | `#${string}`
+
+/**
+ * A pair of colours that must stand apart, in WCAG 2.2 contrast: at least
+ * `min`. An `error` stops a publish (Django, `insufficient_contrast`); a
+ * `warning` is the editor's, with a Fix. Catalogue data, so Django needs
+ * no theme knowledge beyond comparing two colours.
+ */
+export interface ContrastRule {
+  id: string
+  foreground: ContrastSide
+  background: ContrastSide
+  min: number
+  severity: 'error' | 'warning'
+}
+
+/** What a kind of document may carry at its root: a Zod object, which of its settings are translatable, and the contrast its colours must keep. */
 export interface DocumentRoot {
   schema: ZodObject
   translatable: readonly SettingsPointer[]
+  contrast?: readonly ContrastRule[]
 }
 
 // ── Reading a document ─────────────────────────────────────────────

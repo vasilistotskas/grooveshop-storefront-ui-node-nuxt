@@ -46,7 +46,8 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
  * definitions give the same bytes.
  *
  * `documentKinds` states what each kind of document carries at its root
- * (`BUILDER_DOCUMENT_ROOTS`), and `templates` the page types the storefront's
+ * (`BUILDER_DOCUMENT_ROOTS`; the theme's with the `contrast` its colours
+ * must keep), and `templates` the page types the storefront's
  * static routes render (`STATIC_LAYOUT_ROUTES`): a layout of one is the
  * document `template:<pageType>`, any other the custom page
  * `page:<pageType>`, and a block's `templates` names these. Both are part of
@@ -81,7 +82,7 @@ export function buildBlockCatalogue(
     BUILDER_DOCUMENT_KINDS.flatMap((kind) => {
       const root = roots[kind]
       return root
-        ? [[kind, { schema: blockSettingsJsonSchema(root.schema), translatable: [...root.translatable], linkRefs: linkPointers(root.schema) }]]
+        ? [[kind, { schema: blockSettingsJsonSchema(root.schema), translatable: [...root.translatable], linkRefs: linkPointers(root.schema), ...(root.contrast && { contrast: [...root.contrast] }) }]]
         : []
     }),
   )
