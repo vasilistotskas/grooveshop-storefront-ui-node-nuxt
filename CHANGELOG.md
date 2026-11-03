@@ -1,3 +1,10 @@
+# [3.298.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.297.0...v3.298.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** presence notice when someone else edits the same page ([#344](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/344)) ([daba5a5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/daba5a53c5ac8d4fceb25acdca58b20117cb2249))
+
 # [3.297.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.296.0...v3.297.0) (2026-11-03)
 
 
