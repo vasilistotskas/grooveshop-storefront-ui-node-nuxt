@@ -7,11 +7,11 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 /** The `categories` data setting as the page route hands it over. */
 const categories = (ids: number[]) => ({
   status: ids.length ? 'ok' : 'empty',
-  items: ids.map(id => makeBlogCategory({ id, translations: { el: { name: `Κατηγορία ${id}` } } as BlogCategory['translations'] })),
+  items: ids.map(id => makeBlogCategory({ id, translations: { el: { name: `Νέα ${id}` } } as BlogCategory['translations'] })),
   descriptor: { limit: 10 },
 }) as ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 
-const mountBand = (props: Record<string, unknown> = {}, stubs: Record<string, unknown> = { BlogCategoriesSlider: { template: '<div data-test="slider" />' } }) =>
+const mountBand = (props: Record<string, unknown> = {}, stubs: Record<string, object> = { BlogCategoriesSlider: { template: '<div data-test="slider" />' } }) =>
   mountSuspended(BlogCategories, {
     route: false,
     props: { title: 'Κατηγορίες', categories: categories([1]), ...props },
@@ -41,7 +41,7 @@ describe('PageSection/BlogCategories', () => {
   it('hands the rail the categories it was given', async () => {
     const wrapper = await mountBand({}, { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } })
 
-    expect(wrapper.text()).toContain('Κατηγορία 1')
+    expect(wrapper.text()).toContain('Νέα 1')
   })
 
   it('draws no band when the blog has no categories', async () => {

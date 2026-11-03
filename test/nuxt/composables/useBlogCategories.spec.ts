@@ -48,7 +48,7 @@ describe('useBlogCategories', () => {
     })
 
     expect(api.callsTo(CATEGORIES_URL)).toHaveLength(1)
-    expect(list.categories.value).toHaveLength(10)
+    expect(list.categories.value).toHaveLength(12)
     expect(name(12)).toBe('Κατηγορία 12')
   })
 

@@ -222,9 +222,6 @@
     "categories": {
       "label": "Τι εμφανίζει"
     },
-    "categoryId": {
-      "label": "Κατηγορία"
-    },
     "columns": {
       "label": "Στήλες"
     },
@@ -325,9 +322,6 @@
     },
     "page": {
       "label": "Σελίδα"
-    },
-    "pageSize": {
-      "label": "Πλήθος"
     },
     "parentId": {
       "label": "Γονική κατηγορία",

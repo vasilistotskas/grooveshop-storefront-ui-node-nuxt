@@ -468,17 +468,17 @@ describe('webside design render', () => {
   })
 
   it('section blog_categories', async () => {
-    api.routes({ '/api/blog/categories': page([BLOG_CATEGORY], 100) })
+    const categories = { status: 'ok', items: [BLOG_CATEGORY], descriptor: { limit: 10 } }
 
-    await expectSnapshot(BlogCategories, {}, (html) => {
+    await expectSnapshot(BlogCategories, { props: { categories } }, (html) => {
       expect(html).toContain('Ασφάλεια')
     })
   })
 
   it('section blog_posts_list', async () => {
-    api.routes({ '/api/blog/posts': page([POST], 9) })
+    const posts = { status: 'ok', items: [POST], descriptor: { mode: 'filter', ordering: 'newest', limit: 9 } }
 
-    await expectSnapshot(BlogPostsList, {}, (html) => {
+    await expectSnapshot(BlogPostsList, { props: { posts } }, (html) => {
       expect(html).toContain('Τι είναι τα mAh')
     })
   })

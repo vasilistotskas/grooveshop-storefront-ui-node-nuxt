@@ -222,9 +222,6 @@
     "categories": {
       "label": "What it lists"
     },
-    "categoryId": {
-      "label": "Category"
-    },
     "columns": {
       "label": "Columns"
     },
@@ -325,9 +322,6 @@
     },
     "page": {
       "label": "Page"
-    },
-    "pageSize": {
-      "label": "How many"
     },
     "parentId": {
       "label": "Parent category",
