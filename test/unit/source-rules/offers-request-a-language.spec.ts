@@ -12,10 +12,12 @@ import type { AstNode } from '../../helpers/sourceText'
  * demo store's `/en` carried Greek offer cards over correct English
  * rows sitting unread in the database.
  *
- * There are three callers: the `/offers` page and the product page's
- * panel, which every tree reads through `usePublicPromotions` and
- * `useProductPromotions`, and the homepage band. Fixing the first two
- * and missing the third left exactly one Greek band on an otherwise
+ * There are two callers in the app: the `/offers` page and the product
+ * page's panel, which every tree reads through `usePublicPromotions` and
+ * `useProductPromotions`. The homepage band is read by the page route
+ * (`server/utils/builderData/loaders.ts`), whose reads send `languageCode`
+ * and key their cache by language (`resolve.spec.ts`). Fixing two callers
+ * and missing the third once left exactly one Greek band on an otherwise
  * English page, which is why this is a rule and not three edits.
  *
  * The cache key has to carry the locale too, or the first locale
@@ -66,7 +68,7 @@ beforeAll(() => {
 describe('a caller of the offers endpoints', () => {
   it('finds the callers at all', () => {
     // Guards the test: a rename would otherwise make it vacuous.
-    expect(callers.length).toBeGreaterThanOrEqual(3)
+    expect(callers.length).toBeGreaterThanOrEqual(2)
   })
 
   it('sends languageCode', () => {

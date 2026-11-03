@@ -26,6 +26,7 @@ const POSTS = [
 const posts = (items: BlogPost[]) => ({
   status: items.length ? 'ok' : 'empty',
   items,
+  total: items.length,
   descriptor: { mode: 'filter', ordering: 'newest', limit: 4 },
 }) as ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
 

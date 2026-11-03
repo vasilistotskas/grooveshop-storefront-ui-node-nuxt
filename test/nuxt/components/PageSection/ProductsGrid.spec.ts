@@ -20,6 +20,7 @@ const newest: DataDescriptor<'product'> = { mode: 'filter', ordering: 'newest', 
 const products = (ids: number[], descriptor: DataDescriptor<'product'> = newest) => ({
   status: ids.length ? 'ok' : 'empty',
   items: ids.map(id => makeProductCard({ id })),
+  total: ids.length,
   descriptor,
 }) as ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 
