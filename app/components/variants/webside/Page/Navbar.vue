@@ -183,7 +183,7 @@ const items = computed(() => [
               :key="item.key"
               class="flex w-full gap-4"
             >
-              <h2>
+              <div>
                 <Anchor
                   :text="item.label"
                   :title="item.label"
@@ -215,7 +215,7 @@ const items = computed(() => [
                 >
                   {{ item.label }}
                 </Anchor>
-              </h2>
+              </div>
             </li>
           </ul>
           <ul

@@ -137,6 +137,17 @@ describe.each(trees(ProductsCategory, WebsideProductsCategory))('$tree Storefron
     expect(seo.value.description()).toBe('Όλοι οι φορτιστές.')
   })
 
+  // The h1 is the category, not the word "Category" (webside's said
+  // «Κατηγορία» on every category until 2026-11-03).
+  it('titles the page with the category\'s name', async () => {
+    const wrapper = await mount()
+
+    const title = tree === 'default'
+      ? wrapper.getComponent({ name: 'ProductsHeader' }).props('title')
+      : wrapper.getComponent({ name: own('PageTitle') }).props('text')
+    expect(title).toBe('Φορτιστές')
+  })
+
   it('lists the category\'s products as the collection\'s items', async () => {
     await mount()
 

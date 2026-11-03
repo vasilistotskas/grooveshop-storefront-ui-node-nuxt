@@ -30,13 +30,20 @@ const toast = useToast()
 const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
-const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 const { productUrl } = useUrls()
 const { declare, canonicalUrl } = useDocumentLocales()
 
 const selectorQuantity = ref(1)
 
 const productId = String(route.params.id)
+
+// Where the product sits in the catalogue (Home › Power banks › the
+// product): the breadcrumb and the structured data's category. Started
+// beside the product's own requests.
+const { categoryPath, parentCrumbs, ready: categoriesReady } = useProductCategoryPath(
+  () => product.value?.category,
+  () => t('breadcrumb.items.products.label'),
+)
 
 const {
   product,
@@ -55,7 +62,9 @@ const {
   announcement,
   favouriteId,
   ogImage,
+  catalogueImageUrls,
 } = await useProductDetail(productId, t)
+await categoriesReady
 const assurances = await useProductAssurances()
 const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
@@ -97,16 +106,16 @@ const items = computed(() => [
     label: t('breadcrumb.items.index.label'),
     icon: t('breadcrumb.items.index.icon'),
   },
-  {
-    to: localePath('products'),
-    label: t('breadcrumb.items.products.label'),
-  },
+  ...parentCrumbs.value.map(crumb => ({
+    to: localePath(pathLocation(crumb.to)),
+    label: crumb.label,
+  })),
   {
     to: localePath({
       name: 'products-id-slug',
       params: { id: productId, slug: product.value?.slug ?? '' },
     }),
-    label: productTitle.value,
+    label: productName.value,
   },
 ])
 
@@ -187,9 +196,6 @@ useSeoMeta({
   ogLocale: () => dateLocale.value,
 
   twitterCard: 'summary_large_image',
-  twitterTitle: () => productTitle.value,
-  twitterDescription: () => productDescription.value,
-  twitterImage: () => ogImage.value,
   twitterImageAlt: () => productTitle.value,
 })
 // 'product' is a valid OG type per the OpenGraph spec for product detail pages;
@@ -210,6 +216,9 @@ useHead({
 })
 
 useSchemaOrg([
+  // The product's first photograph, not the store's logo, which the
+  // schema module puts there when the page names nothing.
+  defineWebPage(computed(() => ({ primaryImageOfPage: catalogueImageUrls.value[0] }))),
   // Object-valued schema properties (image, offers, aggregateRating,
   // review) may no longer be per-property getters since the
   // @unhead/schema-org v3 definer-type rewrite — reactive nodes must be
@@ -219,14 +228,11 @@ useSchemaOrg([
     name: productName.value,
     description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
     url: canonicalUrl.value,
-    // The catalogue feeds' variant (SEARCH_IMAGE_VARIANT): one URL per image
-    // across the structured data, the sitemap and the Google / Meta feeds.
-    imageUrls: (productImages.value ?? [])
-      .map(img => img.mainImagePath)
-      .filter((path): path is string => Boolean(path))
-      .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT)),
+    imageUrls: catalogueImageUrls.value,
     storeName: siteConfig.name,
     currency: tenantStore.defaultCurrency,
+    // The category's trail by name, the form Google reads.
+    category: categoryPath.value.map(node => node.label).join(' > '),
     reviews: productReviewsEnabled.value ? (productReviews.value?.results ?? []) : null,
     anonymousReviewer: t('reviews.anonymous'),
     reviewComment: review => extractTranslated(review, 'comment', locale.value),
@@ -238,12 +244,12 @@ useSchemaOrg([
         name: t('breadcrumb.items.index.label'),
         item: localePath('index'),
       },
+      ...parentCrumbs.value.map(crumb => ({
+        name: crumb.label,
+        item: localePath(pathLocation(crumb.to)),
+      })),
       {
-        name: t('breadcrumb.items.products.label'),
-        item: localePath('products'),
-      },
-      {
-        name: productTitle.value,
+        name: productName.value,
         item: canonicalUrl.value,
       },
     ],
