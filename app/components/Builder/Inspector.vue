@@ -45,17 +45,17 @@ const featureActions = computed(() => {
 })
 
 /** Where the selected node lives, as the outline names it: a section group, or this page. */
-// While another language is edited, the pane says which, so a change is
-// never taken for the page's own text.
-const { locale } = useBuilderEditorView()
-const translating = computed(() => locale.value === DEFAULT_LOCALE ? undefined : toUiLocales([locale.value])[0]?.name)
-
 const context = computed(() => {
   const key = selection.value?.documentKey
   if (!key) return ''
   const group = BUILDER_EDITOR_GROUPS.find(name => key === builderDocumentKey('group', name))
   return group ? groupLabel(group) : t('page')
 })
+
+// While another language is edited, the pane says which, so a change is
+// never taken for the page's own text.
+const { locale } = useBuilderEditorView()
+const translating = computed(() => locale.value === DEFAULT_LOCALE ? undefined : toUiLocales([locale.value])[0]?.name)
 </script>
 
 <template>

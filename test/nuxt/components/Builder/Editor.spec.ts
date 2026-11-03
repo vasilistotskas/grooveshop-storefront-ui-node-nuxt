@@ -779,7 +779,9 @@ describe('editing the structure of a page', () => {
       const surface = wrapper.findAll('label').find(item => item.text().trim() === 'Φόντο')!.element.closest('[data-slot="root"]')!
 
       expect(surface.textContent).toContain('Ίδιο σε κάθε γλώσσα')
-      expect([...surface.querySelectorAll('[role="radio"]')].every(radio => radio.hasAttribute('disabled') || radio.getAttribute('data-disabled') === '')).toBe(true)
+      const radios = [...surface.querySelectorAll('[role="radio"]')]
+      expect(radios).toHaveLength(3)
+      expect(radios.every(radio => radio.hasAttribute('disabled') || radio.getAttribute('data-disabled') === '')).toBe(true)
     })
 
     it('draws the preview in the language being edited', async () => {
