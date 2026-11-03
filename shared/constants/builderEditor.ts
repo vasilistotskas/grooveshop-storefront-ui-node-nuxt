@@ -123,5 +123,13 @@ export const BUILDER_LINK_SEARCH_DELAY_MS = 250
 /** The heading levels the rich-text editor offers: under the section's own title, which is the band's heading. */
 export const BUILDER_RICH_TEXT_HEADING_LEVELS = [2, 3, 4] as const
 
+/**
+ * How often the editor tells Django which documents it has open, in
+ * milliseconds. A person lapses `BUILDER_PRESENCE_TTL_SECONDS` after their
+ * last heartbeat (45 s by default), so this stays a third of it: one missed
+ * beat does not make someone vanish for the others.
+ */
+export const BUILDER_PRESENCE_HEARTBEAT_MS = 15_000
+
 /** How many versions one page of a document's history holds (Django's `max_page_size` is the ceiling). */
 export const BUILDER_VERSIONS_PAGE_SIZE = 30

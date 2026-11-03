@@ -147,6 +147,7 @@ watch(() => autosave.overall, (state) => {
           :description="t('signedOut.description')"
           class="rounded-none"
         />
+        <BuilderPresenceNotice />
         <BuilderRecoveryNotice v-if="store.status === 'ready'" />
       </template>
       <template #body>
