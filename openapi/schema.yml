@@ -50692,6 +50692,8 @@ components:
           readOnly: true
         bingSiteVerification:
           type: string
+        indexnowKey:
+          type: string
       required:
         - accentHex
         - agentCommerceEnabled

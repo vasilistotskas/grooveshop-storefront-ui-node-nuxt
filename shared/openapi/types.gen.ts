@@ -8314,6 +8314,7 @@ export type TenantConfig = {
   readonly socialsYoutube: string
   readonly boxNowPartnerId: string
   bingSiteVerification?: string
+  indexnowKey?: string
 }
 
 /**
@@ -11017,6 +11018,7 @@ export type TenantConfigWritable = {
   openaiPixelId?: string
   googleAdsAddPaymentInfoLabel?: string
   bingSiteVerification?: string
+  indexnowKey?: string
 }
 
 export type UserAddressWritable = {

@@ -79992,6 +79992,9 @@
                     },
                     "bingSiteVerification": {
                         "type": "string"
+                    },
+                    "indexnowKey": {
+                        "type": "string"
                     }
                 },
                 "required": [

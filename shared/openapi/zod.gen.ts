@@ -5498,6 +5498,7 @@ export const zTenantConfig = z.object({
   socialsYoutube: z.string().readonly(),
   boxNowPartnerId: z.string().readonly(),
   bingSiteVerification: z.string().optional(),
+  indexnowKey: z.string().optional(),
 })
 
 /**
@@ -8496,6 +8497,7 @@ export const zTenantConfigWritable = z.object({
   openaiPixelId: z.string().optional(),
   googleAdsAddPaymentInfoLabel: z.string().optional(),
   bingSiteVerification: z.string().optional(),
+  indexnowKey: z.string().optional(),
 })
 
 export const zUserAddressWritable = z.object({
