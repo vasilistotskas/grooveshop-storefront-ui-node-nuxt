@@ -1,3 +1,10 @@
+# [3.306.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.305.0...v3.306.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** read and apply the data settings of a page ([#350](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/350)) ([42bbf86](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/42bbf86606cdcc7c3cbb9e0e224b626e92b97cce))
+
 # [3.305.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.304.0...v3.305.0) (2026-11-03)
 
 
