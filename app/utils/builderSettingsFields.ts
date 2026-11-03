@@ -123,12 +123,20 @@ export function builderRouteLabelKey(route: string): string {
 
 /**
  * The setting of `nodeId` a problem of a refused save is about, as a path
- * (`prompt.title`), from the problem's JSON pointer into what was sent
- * (`/sections/<id>/.../settings/prompt/title`); `undefined` for a problem
- * about another node, or not about a setting.
+ * (`prompt.title`), from the problem's JSON pointer into what was sent:
+ * the draft's (`/sections/<id>/.../settings/prompt/title`), or, with
+ * `locale`, that language's translation (`/i18n/<locale>/<id>/prompt/title`).
+ * `undefined` for a problem about another node, another language, or not
+ * about a setting.
  */
-export function builderProblemSettingPath(pointer: string, nodeId: string): string | undefined {
+export function builderProblemSettingPath(pointer: string, nodeId: string, locale?: string): string | undefined {
   const segments = pointer.split('/').slice(1)
+  if (segments[0] === 'i18n') {
+    if (locale === undefined || segments[1] !== locale || segments[2] !== nodeId) return undefined
+    // The overlay's key is itself a pointer: Django names it whole (`/title`, escaped as `~1title`) or by its segments.
+    const setting = segments.slice(3).map(segment => segment.replaceAll('~1', '/').replaceAll('~0', '~')).join('/').split('/').filter(Boolean)
+    return setting.length > 0 ? setting.join('.') : undefined
+  }
   const at = segments.findIndex((segment, index) => segment === nodeId && segments[index + 1] === 'settings'
     && (segments[index - 1] === 'sections' || segments[index - 1] === 'blocks'))
   const rest = at < 0 ? [] : segments.slice(at + 2)

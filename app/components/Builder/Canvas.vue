@@ -2,12 +2,18 @@
 const props = defineProps<{
   /** The page document the preview draws. */
   documentKey: string
+  /**
+   * A copy that stands in for the page: a stored version looked at. The canvas
+   * is then a picture only, nothing in it selects, adds or moves anything.
+   */
+  preview?: BuilderWorkingCopy
 }>()
 
 const { t } = useStoreI18n('components/Builder/Canvas')
 const { documentLabel, nodeLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
-const { device, selected, openDocument, select, setDevice } = useBuilderEditorView()
+const { device, selected, locale, openDocument, select, setDevice } = useBuilderEditorView()
+const localePath = useLocalePath()
 const toast = useToast()
 
 const frame = useTemplateRef<HTMLIFrameElement>('frame')
@@ -17,10 +23,14 @@ const { width: paneWidth, height: paneHeight } = useElementSize(pane)
 /** Where the canvas stands: drawing the copies it was sent, showing them, or showing the last it could. */
 const state = ref<'loading' | 'drawn' | 'failed'>('loading')
 
-/** The store page that draws the document, asked for as the preview (`BUILDER_CANVAS_QUERY`). */
+/**
+ * The store page that draws the document, asked for as the preview
+ * (`BUILDER_CANVAS_QUERY`), in the language being edited: the page then
+ * asks for the preview in it (`X-Language`), and draws its own texts in it.
+ */
 const src = computed(() => {
   const path = builderDocumentPath(props.documentKey)
-  return path === undefined ? undefined : `${path}?${BUILDER_CANVAS_QUERY}`
+  return path === undefined ? undefined : `${localePath(pathLocation(path), locale.value)}?${BUILDER_CANVAS_QUERY}`
 })
 watch(src, () => {
   state.value = 'loading'
@@ -29,14 +39,14 @@ watch(src, () => {
 /** The copies the preview draws: this page, and the section groups around it. */
 const documents = computed<BuilderCanvasDocuments>(() => Object.fromEntries(
   [props.documentKey, ...store.groups.map(({ key }) => key)].flatMap((key) => {
-    const document = store.opened[key]
-    return document ? [[key, document.copy]] : []
+    const copy = key === props.documentKey && props.preview ? props.preview : store.opened[key]?.copy
+    return copy ? [[key, copy]] : []
   }),
 ))
 
 /** The selected node, when it is a section of this page: the canvas draws the page's sections only. */
 const selectedNode = computed(() => {
-  const ref = selected.value ? parseBuilderNodeRef(selected.value) : undefined
+  const ref = selected.value && !props.preview ? parseBuilderNodeRef(selected.value) : undefined
   return ref?.documentKey === props.documentKey ? ref.nodeId : null
 })
 
@@ -68,7 +78,7 @@ useEventListener(window, 'message', (event: MessageEvent) => {
       tellSelection()
       break
     case 'pick':
-      void select(builderNodeRef(props.documentKey, message.data.node))
+      if (!props.preview) void select(builderNodeRef(props.documentKey, message.data.node))
       break
     case 'boxes':
       // The pointer left the frame for an insert point over it: the section it
@@ -92,6 +102,7 @@ useEventListener(window, 'message', (event: MessageEvent) => {
 
 /** A link followed in the preview opens the page it leads to, when the store builds that page here. */
 async function follow(path: string): Promise<void> {
+  if (props.preview) return
   const key = builderDocumentAt(path, store.pages.map(({ key }) => key))
   if (key) {
     if (key !== props.documentKey) await openDocument(key)
@@ -171,7 +182,7 @@ function leaveInsertPoint(): void {
  */
 const insertPoints = computed(() => {
   const document = store.opened[props.documentKey]
-  if (!store.canEdit || !document) return []
+  if (!store.canEdit || !document || props.preview) return []
   const order = document.copy.draft.order
   const nameOf = (node: string) => {
     const section = document.copy.draft.sections[node]
@@ -256,7 +267,7 @@ const pageName = computed(() => documentLabel(props.documentKey))
           />
         </div>
         <div
-          v-if="hoverOutline"
+          v-if="hoverOutline && !preview"
           class="pointer-events-none absolute rounded-sm border-2 border-dashed border-primary/60"
           :style="{ left: pixels(hoverOutline.left), top: pixels(hoverOutline.top), width: pixels(hoverOutline.width), height: pixels(hoverOutline.height) }"
           data-builder-outline="hover"
@@ -286,7 +297,7 @@ const pageName = computed(() => documentLabel(props.documentKey))
           />
         </UTooltip>
         <div
-          v-if="toolbarStyle && store.canEdit"
+          v-if="toolbarStyle && store.canEdit && !preview"
           class="absolute rounded-md bg-default p-2 shadow-lg ring ring-default"
           :style="toolbarStyle"
         >

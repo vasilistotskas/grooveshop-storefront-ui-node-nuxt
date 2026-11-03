@@ -338,3 +338,27 @@ export function builderNodePosition(copy: BuilderWorkingCopy, nodeId: string): B
   }
   return walk(copy.draft.order, copy.draft.sections)
 }
+
+/**
+ * The working copy a stored document or version holds, as this build can open
+ * and save it whole: its `draft` read by its structure (`ZodBuilderDraft`) and
+ * brought to the current version of every block (`upgradeDraft`), its overlay
+ * by `ZodBuilderOverlay`. `undefined` when it is not one (written by a build
+ * with another format): the editor then does not open it rather than half-draw
+ * it and save it back mangled. `key` names the document in the log.
+ */
+export function readBuilderWorkingCopy(key: string, draft: unknown, i18n: unknown): BuilderWorkingCopy | undefined {
+  const parsedDraft = ZodBuilderDraft.safeParse(draft)
+  const parsedOverlay = ZodBuilderOverlay.safeParse(i18n)
+  const upgraded = parsedDraft.success ? upgradeDraft(parsedDraft.data, builderEditorBlocks) : undefined
+  if (!upgraded || !parsedOverlay.success) {
+    log.error({
+      action: 'builder:document_unreadable',
+      document: key,
+      issues: [...(parsedDraft.error?.issues ?? []), ...(parsedOverlay.error?.issues ?? [])].map(({ path, code }) => ({ path, code })),
+      upgraded: upgraded !== undefined,
+    })
+    return undefined
+  }
+  return { draft: upgraded, i18n: parsedOverlay.data }
+}

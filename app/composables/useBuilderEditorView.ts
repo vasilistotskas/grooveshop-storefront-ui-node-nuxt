@@ -1,8 +1,11 @@
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import type { SupportedLocale } from '~~/i18n/locales'
+
 /**
  * What the page editor shows, kept in the address (`BUILDER_EDITOR_QUERY`)
  * so a reload, a shared link or Back restores it: the document being
- * edited, the selected section or block, and the width the preview is
- * drawn at.
+ * edited, the selected section or block, the language it is edited in,
+ * and the width the preview is drawn at.
  *
  * Opening another document is a step in the history (Back returns to the
  * previous page); selecting a node replaces the current entry, so Back does
@@ -12,6 +15,7 @@
 export function useBuilderEditorView() {
   const route = useRoute()
   const router = useRouter()
+  const tenantStore = useTenantStore()
 
   const queryValue = (name: string): string | undefined => {
     const value = route.query[name]
@@ -27,6 +31,16 @@ export function useBuilderEditorView() {
   const selected = computed(() => {
     const ref = queryValue(BUILDER_EDITOR_QUERY.node)
     return ref !== undefined && parseBuilderNodeRef(ref) ? ref : undefined
+  })
+
+  /**
+   * The language being edited: the draft's (`DEFAULT_LOCALE`, in which every
+   * document is written) unless the address names another language the store
+   * serves, which is then written as a translation (`builderTranslation.ts`).
+   */
+  const locale = computed<SupportedLocale>(() => {
+    const value = queryValue(BUILDER_EDITOR_QUERY.locale)
+    return tenantStore.availableLocales.find(served => served === value && served !== DEFAULT_LOCALE) ?? DEFAULT_LOCALE
   })
 
   /** The width the preview is drawn at (`BUILDER_PREVIEW_DEVICES`); `full` fills the pane. */
@@ -51,5 +65,11 @@ export function useBuilderEditorView() {
     await router.replace({ query: next === 'full' ? query : { ...query, [BUILDER_EDITOR_QUERY.device]: next } })
   }
 
-  return { documentKey, selected, device, openDocument, select, setDevice }
+  /** Edits another language; like a selection, it replaces the current entry. */
+  async function setLocale(next: SupportedLocale): Promise<void> {
+    const { [BUILDER_EDITOR_QUERY.locale]: _, ...query } = route.query
+    await router.replace({ query: next === DEFAULT_LOCALE ? query : { ...query, [BUILDER_EDITOR_QUERY.locale]: next } })
+  }
+
+  return { documentKey, selected, locale, device, openDocument, select, setLocale, setDevice }
 }

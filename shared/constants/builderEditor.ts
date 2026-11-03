@@ -130,3 +130,6 @@ export const BUILDER_RICH_TEXT_HEADING_LEVELS = [2, 3, 4] as const
  * beat does not make someone vanish for the others.
  */
 export const BUILDER_PRESENCE_HEARTBEAT_MS = 15_000
+
+/** How many versions one page of a document's history holds (Django's `max_page_size` is the ceiling). */
+export const BUILDER_VERSIONS_PAGE_SIZE = 30
