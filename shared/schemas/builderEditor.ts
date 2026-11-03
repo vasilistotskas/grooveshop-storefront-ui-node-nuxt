@@ -85,3 +85,28 @@ export const ZodBuilderStorefrontUnavailable = z.object({
   code: z.literal('storefront_unavailable'),
   detail: z.string(),
 })
+
+/** `/api/builder/preview-links/<id>`: a share link, by the id Django gave it. */
+export const ZodBuilderPreviewLinkParams = z.object({
+  id: z.string().regex(/^\d{1,10}$/),
+})
+
+/**
+ * `POST /api/builder/preview-links`: the documents to freeze behind a link
+ * (the page and the section groups around it, as the editor's preview draws
+ * them: `BUILDER_PREVIEW_MAX_DOCUMENTS` at most), and an optional note.
+ */
+export const ZodBuilderPreviewLinkWrite = z.object({
+  documents: z.array(z.string().regex(BUILDER_DOCUMENT_KEY_PATTERN)).min(1).max(BUILDER_PREVIEW_MAX_DOCUMENTS),
+  note: z.string().max(255).optional(),
+})
+
+/** `/api/builder/shared/<token>`: the token of a share link, as Django mints them (URL-safe base64). */
+export const ZodBuilderShareParams = z.object({
+  token: z.string().regex(/^[\w-]{20,128}$/),
+})
+
+/** `GET /api/builder/shared/<token>`: the page of the link to draw, a slug as Django's route takes it. */
+export const ZodBuilderShareQuery = z.object({
+  page: z.string().regex(/^[-\w]{1,64}$/),
+})

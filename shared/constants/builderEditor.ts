@@ -49,6 +49,16 @@ export const BUILDER_BLOCK_CATEGORIES = ['hero', 'products', 'content', 'trust',
 /** The preset the library inserts when a block is added: every block the library offers has one (`presets`). */
 export const BUILDER_DEFAULT_PRESET = 'default'
 
+/**
+ * Where a share-preview link opens, without a locale prefix, followed by the
+ * link's token (`app/pages/_builder-preview/[token].vue`): a store page drawn
+ * from the drafts frozen in the link, for someone without an account.
+ */
+export const BUILDER_SHARE_ROUTE = '/_builder/preview'
+
+/** The query parameter of a share link that names the page of the link to draw (a slug). */
+export const BUILDER_SHARE_PAGE_QUERY = 'page'
+
 /** The editor's route, without a locale prefix (`app/pages/_builder.vue`; Django's admin sends staff here). */
 export const BUILDER_EDITOR_ROUTE = '/_builder'
 

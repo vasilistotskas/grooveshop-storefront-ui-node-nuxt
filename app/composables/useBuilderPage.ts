@@ -46,12 +46,13 @@ export async function useBuilderPage(
     { key: () => `builder-page-${pageKey}-${locale.value}` },
   )
 
-  // On the editor's preview the page is the one being edited, once the
+  // On the editor's preview, and on a share link, the page is the one being edited (or shared), once the
   // preview has drawn it (`useBuilderCanvasPreview`). Until then it is the
   // published page, or an empty one: a page the store has not published
   // yet is still drawn there, never answered as a 404.
   const preview = useBuilderCanvasPreview()
-  const canvas = useBuilderSurface() === 'canvas'
+  const surface = useBuilderSurface()
+  const canvas = surface === 'canvas' || surface === 'share'
   const page = computed<BuilderPage | null>(() => canvas
     ? builderCanvasPage(preview.value, pageKey) ?? data.value?.page ?? { sections: [] }
     : data.value?.page ?? null)

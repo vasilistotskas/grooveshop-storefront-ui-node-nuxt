@@ -68,6 +68,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
 
     <div class="ms-auto flex items-center gap-1">
       <BuilderHistory />
+      <BuilderShareDialog v-if="store.status === 'ready' && store.canEdit" />
 
       <UButton
         icon="i-lucide-sliders-horizontal"

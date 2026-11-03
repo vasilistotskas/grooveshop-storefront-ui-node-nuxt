@@ -1,8 +1,13 @@
 <script lang="ts" setup>
+const props = defineProps<{
+  /** The page's slug, when it is not the route's: a share-preview link draws the page it names. */
+  slug?: string
+}>()
+
 const { t } = useI18n()
 const route = useRoute()
 
-const slug = 'slug' in route.params ? route.params.slug : ''
+const slug = props.slug ?? ('slug' in route.params ? route.params.slug : '')
 
 if (!slug) {
   throw createError({
