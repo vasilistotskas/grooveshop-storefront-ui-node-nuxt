@@ -24,6 +24,7 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
   const { getFavouriteIdByProductId, updateFavouriteProducts } = useUserStore()
   const { transformImages } = useHtmlContent()
   const img = useMediaStreamImage()
+  const mediaStreamBaseUrl = useMediaStreamBaseUrl()
   const recentlyViewed = useRecentlyViewed()
   const metaPixel = useMetaPixel()
   const tiktokPixel = useTikTokPixel()
@@ -136,6 +137,14 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
   const favouriteId = computed(() =>
     product.value ? getFavouriteIdByProductId(product.value.id) : undefined,
   )
+
+  // The gallery as the catalogue feeds' variant (SEARCH_IMAGE_VARIANT):
+  // one URL per image across the structured data, the sitemap and the
+  // Google / Meta feeds. The first is the page's primary image.
+  const catalogueImageUrls = computed(() => (productImages.value ?? [])
+    .map(image => image.mainImagePath)
+    .filter((path): path is string => Boolean(path))
+    .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT)))
 
   const ogImage = computed(() => {
     if (!product.value?.mainImagePath) return ''
@@ -305,5 +314,6 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
     announcement,
     favouriteId,
     ogImage,
+    catalogueImageUrls,
   }
 }

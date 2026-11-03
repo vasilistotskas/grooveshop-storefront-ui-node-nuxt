@@ -152,7 +152,6 @@ export async function useBlogAuthorPage(options: {
     ogImage: ogImage.value,
     ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
     ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
-    twitterImage: ogImage.value,
   })
 
   // A Person entity for the page, so a search engine can attribute this

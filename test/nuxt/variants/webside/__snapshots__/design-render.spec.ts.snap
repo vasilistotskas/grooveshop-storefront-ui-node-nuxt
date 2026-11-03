@@ -48,18 +48,18 @@ exports[`webside design render > auth frame > is what the default layout draws a
                   <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
                     <ul class="flex items-center gap-4">
                       <li class="flex w-full gap-4">
-                        <h2><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                        <div><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></h2>
+                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></div>
                       </li>
                       <li class="flex w-full gap-4">
-                        <h2><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                        <div><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></h2>
+                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></div>
                       </li>
                     </ul>
                     <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
@@ -248,18 +248,18 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                   <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
                     <ul class="flex items-center gap-4">
                       <li class="flex w-full gap-4">
-                        <h2><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                        <div><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></h2>
+                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></div>
                       </li>
                       <li class="flex w-full gap-4">
-                        <h2><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                        <div><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></h2>
+                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></div>
                       </li>
                     </ul>
                     <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
@@ -770,18 +770,18 @@ exports[`webside design render > navbar 1`] = `
           <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
             <ul class="flex items-center gap-4">
               <li class="flex w-full gap-4">
-                <h2><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                <div><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></h2>
+                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></div>
               </li>
               <li class="flex w-full gap-4">
-                <h2><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                <div><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></h2>
+                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></div>
               </li>
             </ul>
             <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
@@ -1128,18 +1128,18 @@ exports[`webside design render > signed in > account chrome 1`] = `
                   <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
                     <ul class="flex items-center gap-4">
                       <li class="flex w-full gap-4">
-                        <h2><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                        <div><a href="/products" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></h2>
+                          after:scale-x-0" aria-label="Κατάστημα" title="Κατάστημα">Κατάστημα</a></div>
                       </li>
                       <li class="flex w-full gap-4">
-                        <h2><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
+                        <div><a href="/blog" class="w-full relative text-lg capitalize transition-colors after:absolute after:right-0 after:-bottom-1 after:left-0 after:h-0.5 after:bg-(--ui-secondary) after:transition-transform after:duration-200 motion-reduce:after:transition-none text-primary-700
                           hover:text-primary-900
                           dark:text-primary-200
                           hover:dark:text-primary-50
-                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></h2>
+                          after:scale-x-0" aria-label="Blog" title="Blog">Blog</a></div>
                       </li>
                     </ul>
                     <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
