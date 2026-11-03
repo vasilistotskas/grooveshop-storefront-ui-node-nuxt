@@ -1,5 +1,5 @@
 {
-  "hash": "f2f3405061fe1176",
+  "hash": "acefcad19a745955",
   "blocks": [
     {
       "type": "about_content",
@@ -6540,267 +6540,554 @@
           "colors": {
             "type": "object",
             "properties": {
-              "primary": {
+              "light": {
                 "type": "object",
                 "properties": {
-                  "source": {
-                    "type": "string",
-                    "pattern": "^#[0-9a-fA-F]{6}$"
-                  },
-                  "scale": {
+                  "primary": {
                     "type": "object",
                     "properties": {
-                      "50": {
+                      "source": {
                         "type": "string",
                         "pattern": "^#[0-9a-fA-F]{6}$"
                       },
-                      "100": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "200": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "300": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "400": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "500": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "600": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "700": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "800": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "900": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "950": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      "scale": {
+                        "type": "object",
+                        "properties": {
+                          "50": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "100": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "200": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "300": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "400": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "500": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "600": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "700": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "800": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "900": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "950": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        },
+                        "required": [
+                          "50",
+                          "100",
+                          "200",
+                          "300",
+                          "400",
+                          "500",
+                          "600",
+                          "700",
+                          "800",
+                          "900",
+                          "950"
+                        ],
+                        "additionalProperties": false
                       }
                     },
                     "required": [
-                      "50",
-                      "100",
-                      "200",
-                      "300",
-                      "400",
-                      "500",
-                      "600",
-                      "700",
-                      "800",
-                      "900",
-                      "950"
+                      "source",
+                      "scale"
                     ],
                     "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "source",
-                  "scale"
-                ],
-                "additionalProperties": false
-              },
-              "secondary": {
-                "type": "object",
-                "properties": {
-                  "source": {
-                    "type": "string",
-                    "pattern": "^#[0-9a-fA-F]{6}$"
                   },
-                  "scale": {
+                  "secondary": {
                     "type": "object",
                     "properties": {
-                      "50": {
+                      "source": {
                         "type": "string",
                         "pattern": "^#[0-9a-fA-F]{6}$"
                       },
-                      "100": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "200": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "300": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "400": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "500": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "600": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "700": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "800": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "900": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "950": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      "scale": {
+                        "type": "object",
+                        "properties": {
+                          "50": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "100": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "200": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "300": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "400": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "500": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "600": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "700": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "800": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "900": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "950": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        },
+                        "required": [
+                          "50",
+                          "100",
+                          "200",
+                          "300",
+                          "400",
+                          "500",
+                          "600",
+                          "700",
+                          "800",
+                          "900",
+                          "950"
+                        ],
+                        "additionalProperties": false
                       }
                     },
                     "required": [
-                      "50",
-                      "100",
-                      "200",
-                      "300",
-                      "400",
-                      "500",
-                      "600",
-                      "700",
-                      "800",
-                      "900",
-                      "950"
+                      "source",
+                      "scale"
                     ],
                     "additionalProperties": false
-                  }
-                },
-                "required": [
-                  "source",
-                  "scale"
-                ],
-                "additionalProperties": false
-              },
-              "neutral": {
-                "type": "object",
-                "properties": {
-                  "source": {
-                    "type": "string",
-                    "pattern": "^#[0-9a-fA-F]{6}$"
                   },
-                  "scale": {
+                  "neutral": {
                     "type": "object",
                     "properties": {
-                      "50": {
+                      "source": {
                         "type": "string",
                         "pattern": "^#[0-9a-fA-F]{6}$"
                       },
-                      "100": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "200": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "300": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "400": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "500": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "600": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "700": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "800": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "900": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
-                      },
-                      "950": {
-                        "type": "string",
-                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      "scale": {
+                        "type": "object",
+                        "properties": {
+                          "50": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "100": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "200": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "300": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "400": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "500": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "600": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "700": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "800": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "900": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "950": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        },
+                        "required": [
+                          "50",
+                          "100",
+                          "200",
+                          "300",
+                          "400",
+                          "500",
+                          "600",
+                          "700",
+                          "800",
+                          "900",
+                          "950"
+                        ],
+                        "additionalProperties": false
                       }
                     },
                     "required": [
-                      "50",
-                      "100",
-                      "200",
-                      "300",
-                      "400",
-                      "500",
-                      "600",
-                      "700",
-                      "800",
-                      "900",
-                      "950"
+                      "source",
+                      "scale"
                     ],
                     "additionalProperties": false
+                  },
+                  "accent": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "success": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "warning": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "error": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "info": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "liked": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
                   }
                 },
                 "required": [
-                  "source",
-                  "scale"
+                  "primary",
+                  "secondary",
+                  "neutral",
+                  "accent",
+                  "success",
+                  "warning",
+                  "error",
+                  "info",
+                  "liked"
                 ],
                 "additionalProperties": false
               },
-              "success": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}$"
-              },
-              "warning": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}$"
-              },
-              "error": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}$"
-              },
-              "info": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}$"
-              },
-              "liked": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}$"
+              "dark": {
+                "type": "object",
+                "properties": {
+                  "primary": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "scale": {
+                        "type": "object",
+                        "properties": {
+                          "50": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "100": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "200": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "300": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "400": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "500": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "600": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "700": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "800": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "900": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "950": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        },
+                        "required": [
+                          "50",
+                          "100",
+                          "200",
+                          "300",
+                          "400",
+                          "500",
+                          "600",
+                          "700",
+                          "800",
+                          "900",
+                          "950"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "source",
+                      "scale"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "secondary": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "scale": {
+                        "type": "object",
+                        "properties": {
+                          "50": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "100": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "200": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "300": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "400": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "500": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "600": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "700": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "800": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "900": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "950": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        },
+                        "required": [
+                          "50",
+                          "100",
+                          "200",
+                          "300",
+                          "400",
+                          "500",
+                          "600",
+                          "700",
+                          "800",
+                          "900",
+                          "950"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "source",
+                      "scale"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "neutral": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "scale": {
+                        "type": "object",
+                        "properties": {
+                          "50": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "100": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "200": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "300": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "400": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "500": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "600": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "700": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "800": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "900": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          },
+                          "950": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        },
+                        "required": [
+                          "50",
+                          "100",
+                          "200",
+                          "300",
+                          "400",
+                          "500",
+                          "600",
+                          "700",
+                          "800",
+                          "900",
+                          "950"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "source",
+                      "scale"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "accent": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "success": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "warning": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "error": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "info": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "liked": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  }
+                },
+                "required": [
+                  "primary",
+                  "secondary",
+                  "neutral",
+                  "accent",
+                  "success",
+                  "warning",
+                  "error",
+                  "info",
+                  "liked"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
-              "primary",
-              "secondary",
-              "neutral",
-              "success",
-              "warning",
-              "error",
-              "info",
-              "liked"
+              "light",
+              "dark"
             ],
             "additionalProperties": false
           },
@@ -6917,57 +7204,57 @@
       "contrast": [
         {
           "id": "body-text-light",
-          "foreground": "/colors/neutral/scale/700",
+          "foreground": "/colors/light/neutral/scale/700",
           "background": "#ffffff",
           "min": 4.5,
           "severity": "error"
         },
         {
           "id": "body-text-dark",
-          "foreground": "/colors/neutral/scale/200",
-          "background": "/colors/neutral/scale/900",
+          "foreground": "/colors/dark/neutral/scale/200",
+          "background": "/colors/dark/neutral/scale/900",
           "min": 4.5,
           "severity": "error"
         },
         {
           "id": "muted-text-light",
-          "foreground": "/colors/neutral/scale/500",
+          "foreground": "/colors/light/neutral/scale/500",
           "background": "#ffffff",
           "min": 4.5,
           "severity": "warning"
         },
         {
           "id": "muted-text-dark",
-          "foreground": "/colors/neutral/scale/400",
-          "background": "/colors/neutral/scale/900",
+          "foreground": "/colors/dark/neutral/scale/400",
+          "background": "/colors/dark/neutral/scale/900",
           "min": 4.5,
           "severity": "warning"
         },
         {
           "id": "primary-light",
-          "foreground": "/colors/primary/scale/500",
+          "foreground": "/colors/light/primary/scale/500",
           "background": "#ffffff",
           "min": 3,
           "severity": "warning"
         },
         {
           "id": "primary-dark",
-          "foreground": "/colors/primary/scale/400",
-          "background": "/colors/neutral/scale/900",
+          "foreground": "/colors/dark/primary/scale/400",
+          "background": "/colors/dark/neutral/scale/900",
           "min": 3,
           "severity": "warning"
         },
         {
-          "id": "secondary-light",
-          "foreground": "/colors/secondary/scale/500",
+          "id": "accent-light",
+          "foreground": "/colors/light/accent",
           "background": "#ffffff",
           "min": 3,
           "severity": "warning"
         },
         {
-          "id": "secondary-dark",
-          "foreground": "/colors/secondary/scale/400",
-          "background": "/colors/neutral/scale/900",
+          "id": "accent-dark",
+          "foreground": "/colors/dark/accent",
+          "background": "/colors/dark/neutral/scale/900",
           "min": 3,
           "severity": "warning"
         }
