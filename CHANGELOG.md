@@ -1,3 +1,12 @@
+# [3.313.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.312.0...v3.313.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** move the hero's product chips onto the data settings ([#372](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/372)) ([e59afa9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e59afa99b044ab59437e9a8ee6c36bec78cdac78))
+* **builder:** move the product categories and the offers onto the data settings ([#368](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/368)) ([fc27345](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fc2734573d0f43c5572d8c15146fd4eb2e5d5ea8))
+* **webside:** show the store's contact details and opening hours on its contact page ([#359](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/359)) ([db2d1f0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db2d1f01149eea351d7e3565befe4eb4d485cb43))
+
 # [3.312.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.311.0...v3.312.0) (2026-11-03)
 
 
