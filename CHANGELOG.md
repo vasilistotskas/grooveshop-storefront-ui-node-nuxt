@@ -1,3 +1,10 @@
+## [3.300.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.300.0...v3.300.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **builder:** accept the restore version kind, read problems with the generated schemas ([#347](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/347)) ([acedadf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/acedadff8925c24b09806a63666a581271d3f3b3)), closes [#442](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/442)
+
 # [3.300.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.299.0...v3.300.0) (2026-11-03)
 
 

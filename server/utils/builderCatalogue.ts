@@ -28,6 +28,7 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
     translatable: [...definition.translatable],
     refs: { ...definition.refs } as Record<string, BlockRefKind>,
     linkRefs: [...definition.linkRefs],
+    ...(Object.keys(definition.data).length > 0 && { data: structuredClone(definition.data) }),
     limits: { ...definition.limits },
     children: { allowed: [...definition.children.allowed], ...(maxDepth === undefined ? {} : { maxDepth }) },
     kinds: [...definition.kinds],
