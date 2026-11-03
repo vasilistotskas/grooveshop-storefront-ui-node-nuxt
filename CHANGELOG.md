@@ -1,3 +1,10 @@
+# [3.318.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.317.0...v3.318.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** edit the store theme in the editor ([#374](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/374)) ([5ce446f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ce446f5d7596f3da9ba33a47ec65c08282cd979))
+
 # [3.317.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.316.0...v3.317.0) (2026-11-03)
 
 
