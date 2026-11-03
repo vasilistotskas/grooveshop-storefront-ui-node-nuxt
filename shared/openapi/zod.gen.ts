@@ -107,6 +107,13 @@ export const zAgentProtocolEnum = z.enum([
   'mcp',
 ])
 
+export const zAssetImportRequest = z.object({
+  url: z.string().min(1).max(1000),
+  focalX: z.number().nullish(),
+  focalY: z.number().nullish(),
+  alt: z.unknown().optional(),
+})
+
 export const zAssetUploadRequest = z.object({
   file: z.string(),
   focalX: z.number().nullish(),
@@ -689,6 +696,11 @@ export const zBrand = z.object({
 })
 
 /**
+ * * `invalid_document` - invalid_document
+ */
+export const zBuilderDocumentInvalidCodeEnum = z.enum(['invalid_document'])
+
+/**
  * * `theme` - Θέμα
  * * `group` - Ομάδα ενοτήτων
  * * `template` - Πρότυπο
@@ -710,8 +722,13 @@ export const zBuilderPageKindEnum = z.enum(['page', 'template'])
 /**
  * * `checkpoint` - Ονομασμένη αποθήκευση
  * * `publish` - Δημοσίευση
+ * * `restore` - Επαναφορά
  */
-export const zBuilderVersionKindEnum = z.enum(['checkpoint', 'publish'])
+export const zBuilderVersionKindEnum = z.enum([
+  'checkpoint',
+  'publish',
+  'restore',
+])
 
 export const zBulkSubscriptionFailure = z.object({
   topic: z.string().readonly(),
@@ -3716,6 +3733,30 @@ export const zPublicSettings = z.object({
   settings: z.record(z.string(), z.string()),
 })
 
+export const zPublishProblem = z.object({
+  document: z.string().nullable(),
+  path: z.string(),
+  code: z.string(),
+  message: z.string(),
+  params: z.record(z.string(), z.string()).nullish(),
+})
+
+/**
+ * The 400 of an operation that checks a document (``invalid_document``):
+ * the refusal and everything wrong, each with the document it is in.
+ */
+export const zBuilderDocumentInvalidError = z.object({
+  detail: z.string(),
+  code: zBuilderDocumentInvalidCodeEnum,
+  errors: z.array(zPublishProblem),
+})
+
+export const zPublishCheck = z.object({
+  ok: z.boolean(),
+  changed: z.array(z.string()),
+  problems: z.array(zPublishProblem),
+})
+
 export const zPublishVersionWriteRequest = z.object({
   note: z.string().max(255).optional().default(''),
 })
@@ -3983,6 +4024,12 @@ export const zRelationTypeEnum = z.enum([
   'replacement',
   'bundle',
 ])
+
+export const zReleaseDocument = z.object({
+  key: z.string(),
+  versionNumber: z.int(),
+  changed: z.boolean(),
+})
 
 /**
  * Serializer for releasing stock reservations.
@@ -4691,6 +4738,27 @@ export const zAsset = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
 })
 
+/**
+ * The answer to an upload or an import: the asset, and whether it was
+ * already in the library.
+ */
+export const zAssetStored = z.object({
+  id: z.int().readonly(),
+  path: z.string().readonly(),
+  width: z.int().readonly(),
+  height: z.int().readonly(),
+  mime: z.string().readonly(),
+  sizeBytes: z.int().readonly(),
+  focalX: z.number().readonly(),
+  focalY: z.number().readonly(),
+  alt: z.record(z.string(), z.string()).readonly(),
+  uploadedBy: zStaff.nullable(),
+  usedBy: z.array(z.string()).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  duplicate: z.boolean().readonly(),
+})
+
 export const zDocumentDetail = z.object({
   key: z.string().readonly(),
   kind: zBuilderDocumentKindEnum,
@@ -4772,8 +4840,9 @@ export const zRelease = z.object({
   publishedAt: z.iso.datetime({ offset: true }).readonly(),
   publishedBy: zStaff.nullable(),
   note: z.string().readonly(),
-  rolledBackFrom: z.int().gte(0).lte(2147483647).readonly(),
+  rolledBackFrom: z.int().gte(0).lte(2147483647).readonly().nullable(),
   versions: z.unknown(),
+  documents: z.array(zReleaseDocument).readonly(),
 })
 
 export const zPaginatedReleaseList = z.object({
@@ -4797,8 +4866,8 @@ export const zSchedule = z.object({
   note: z.string().readonly(),
   scheduledBy: zStaff.nullable(),
   executedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  release: z.int().gte(0).lte(2147483647).readonly(),
-  failure: z.unknown(),
+  release: z.int().gte(0).lte(2147483647).readonly().nullable(),
+  failure: z.array(zPublishProblem).readonly().nullable(),
   acknowledgedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
 })
 
@@ -6282,6 +6351,7 @@ export const zVersionDetail = z.object({
   id: z.int().readonly(),
   number: z.int().readonly(),
   kind: zBuilderVersionKindEnum,
+  restoredFrom: z.int().readonly().nullable(),
   note: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   createdBy: zStaff.nullable(),
@@ -6297,6 +6367,7 @@ export const zVersionList = z.object({
   id: z.int().readonly(),
   number: z.int().readonly(),
   kind: zBuilderVersionKindEnum,
+  restoredFrom: z.int().readonly().nullable(),
   note: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   createdBy: zStaff.nullable(),
@@ -6448,6 +6519,12 @@ export const zAgentFavouriteWritable = z.object({
 })
 
 export const zAssetWritable = z.record(z.string(), z.unknown())
+
+/**
+ * The answer to an upload or an import: the asset, and whether it was
+ * already in the library.
+ */
+export const zAssetStoredWritable = z.record(z.string(), z.unknown())
 
 /**
  * Serializer for Attribute with translations.
@@ -11062,7 +11139,7 @@ export const zApiV1BuilderMediaListResponse = zPaginatedAssetList
 
 export const zApiV1BuilderMediaCreateBody = zAssetUploadRequest
 
-export const zApiV1BuilderMediaCreateResponse = zAsset
+export const zApiV1BuilderMediaCreateResponse = zAssetStored
 
 export const zApiV1BuilderMediaDestroyPath = z.object({
   id: z.union([
@@ -11096,12 +11173,23 @@ export const zApiV1BuilderMediaPartialUpdatePath = z.object({
 
 export const zApiV1BuilderMediaPartialUpdateResponse = zAsset
 
+export const zApiV1BuilderMediaImportCreateBody = zAssetImportRequest
+
+export const zApiV1BuilderMediaImportCreateResponse = zAssetStored
+
 export const zApiV1BuilderMediaResolveRetrieveQuery = z.object({
   ids: z.string(),
   locale: z.string().optional(),
 })
 
 export const zApiV1BuilderMediaResolveRetrieveResponse = zResolvedMedia
+
+export const zApiV1BuilderMediaStaffResolveRetrieveQuery = z.object({
+  ids: z.string(),
+  locale: z.string().optional(),
+})
+
+export const zApiV1BuilderMediaStaffResolveRetrieveResponse = zResolvedMedia
 
 /**
  * No response body
@@ -11130,6 +11218,17 @@ export const zApiV1BuilderPreviewLinksDestroyPath = z.object({
  */
 export const zApiV1BuilderPreviewLinksDestroyResponse = z.void()
 
+export const zApiV1BuilderPreviewMediaRetrievePath = z.object({
+  token: z.string(),
+})
+
+export const zApiV1BuilderPreviewMediaRetrieveQuery = z.object({
+  ids: z.string(),
+  locale: z.string().optional(),
+})
+
+export const zApiV1BuilderPreviewMediaRetrieveResponse = zResolvedMedia
+
 export const zApiV1BuilderPreviewRetrievePath = z.object({
   pageKey: z.string(),
   token: z.string(),
@@ -11148,6 +11247,10 @@ export const zApiV1BuilderPreviewResolveCreateResponse = zPublishedPage
 export const zApiV1BuilderPublishCreateBody = zPublishWriteRequest
 
 export const zApiV1BuilderPublishCreateResponse = zRelease
+
+export const zApiV1BuilderPublishCheckCreateBody = zPublishWriteRequest
+
+export const zApiV1BuilderPublishCheckCreateResponse = zPublishCheck
 
 export const zBuilderPublishedIndexQuery = z.object({
   locale: z.string().optional(),
@@ -11193,11 +11296,26 @@ export const zApiV1BuilderSchedulesListQuery = z.object({
     z.int(),
   ]).optional(),
   search: z.string().optional(),
+  status: z.enum([
+    'cancelled',
+    'failed',
+    'pending',
+    'published',
+  ]).optional(),
 })
 
 export const zApiV1BuilderSchedulesListResponse = zPaginatedScheduleList
 
 export const zApiV1BuilderSchedulesCreateBody = zScheduleWriteRequest
+
+export const zApiV1BuilderSchedulesCreateQuery = z.object({
+  status: z.enum([
+    'cancelled',
+    'failed',
+    'pending',
+    'published',
+  ]).optional(),
+})
 
 export const zApiV1BuilderSchedulesCreateResponse = zSchedule
 

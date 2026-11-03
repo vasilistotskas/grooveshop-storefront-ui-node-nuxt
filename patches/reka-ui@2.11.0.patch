@@ -25,6 +25,15 @@ Local fixes to reka-ui 2.11.0's built files. Drop each once upstream ships it.
    2026-10-27, unreleased on 2026-11-01): nothing there writes body
    pointer-events. Drop this part with the move to reka-ui v3.
 
+3. DateField and its kin (UInputDate, UInputTime) drop the brackets around a
+   time zone they do not draw (a CalendarDateTime, or `hideTimeZone`), but
+   only square ones. Greek formats the zone in parentheses ("10:00 (EET)"),
+   so an el field drew an empty "( )" after the time. Upstream source
+   (v2.11.0 and the v3 branch, 2026-11-03):
+   packages/core/src/shared/date/parser.ts:206-207
+   `['[', ']'].includes(segment.value.trim())`.
+   Patched: parentheses are dropped too.
+
 diff --git a/dist/Checkbox/CheckboxRoot.cjs b/dist/Checkbox/CheckboxRoot.cjs
 index a30adc5167cbb1247066eee81bfe9fd089a15ada..689e6a0a56514e12d439d51f1d8141aa52b2bb35 100644
 --- a/dist/Checkbox/CheckboxRoot.cjs
@@ -155,6 +164,32 @@ index 5f6debe40b7c68fd7084b5f8f9718d31340c50ec..c1e93641b26259feaf547061e8587a72
  		provideSwitchRootContext({
  			checked,
  			toggleCheck,
+diff --git a/dist/date/parser.cjs b/dist/date/parser.cjs
+index 5dd192c1ac02c392f924258e49117b87f108f404..701a2c3070a4f5b0551a3c650a5d180900ee2337 100644
+--- a/dist/date/parser.cjs
++++ b/dist/date/parser.cjs
+@@ -116,7 +116,7 @@ function createContentArr(props) {
+ 	}).filter((segment) => {
+ 		if (segment.part === null || segment.value === null) return false;
+ 		if (segment.part === "timeZoneName" && (!require_date_comparators.isZonedDateTime(props.dateRef) || hideTimeZone)) return false;
+-		if ((!require_date_comparators.isZonedDateTime(props.dateRef) || hideTimeZone) && segment.part === "literal" && ["[", "]"].includes(segment.value.trim())) return false;
++		if ((!require_date_comparators.isZonedDateTime(props.dateRef) || hideTimeZone) && segment.part === "literal" && ["[", "]", "(", ")"].includes(segment.value.trim())) return false;
+ 		return true;
+ 	});
+ 	return segmentContentArr;
+diff --git a/dist/date/parser.js b/dist/date/parser.js
+index f6c9d0f78591ffc05ce053ed3715b4f48ef1c49b..e9c3391f27c2e47773ac9f3664e56bf2eb224961 100644
+--- a/dist/date/parser.js
++++ b/dist/date/parser.js
+@@ -116,7 +116,7 @@ function createContentArr(props) {
+ 	}).filter((segment) => {
+ 		if (segment.part === null || segment.value === null) return false;
+ 		if (segment.part === "timeZoneName" && (!isZonedDateTime(props.dateRef) || hideTimeZone)) return false;
+-		if ((!isZonedDateTime(props.dateRef) || hideTimeZone) && segment.part === "literal" && ["[", "]"].includes(segment.value.trim())) return false;
++		if ((!isZonedDateTime(props.dateRef) || hideTimeZone) && segment.part === "literal" && ["[", "]", "(", ")"].includes(segment.value.trim())) return false;
+ 		return true;
+ 	});
+ 	return segmentContentArr;
 diff --git a/dist/shared/useBodyScrollLock.cjs b/dist/shared/useBodyScrollLock.cjs
 index e332a86d7cdf64057fdc955bb34aba73423a1a8b..7c4dc4c454db3b1002a4456a2c8274f149ba095c 100644
 --- a/dist/shared/useBodyScrollLock.cjs

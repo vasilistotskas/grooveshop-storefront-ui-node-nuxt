@@ -8798,6 +8798,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -8838,6 +8839,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -8926,6 +8928,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9047,6 +9050,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9310,7 +9314,7 @@ paths:
           description: ''
     post:
       operationId: api_v1_builder_media_create
-      description: 'Upload an image (multipart): `file`, optionally `focalX`, `focalY` (0 to 1) and `alt` (a JSON object, language to text). The size recorded is the one a browser shows.'
+      description: 'Upload an image (multipart): `file`, optionally `focalX`, `focalY` (0 to 1) and `alt` (a JSON object, language to text). The size recorded is the one a browser shows. The same image again is not stored twice: the answer is the asset already there (its alt text and focal point are kept) with `duplicate: true`.'
       tags:
         - Builder media
       requestBody:
@@ -9326,7 +9330,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Asset'
+                $ref: '#/components/schemas/AssetStored'
           description: ''
         '400':
           content:
@@ -9446,6 +9450,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/builder/media/import:
+    post:
+      operationId: api_v1_builder_media_import_create
+      description: 'Import an image of THIS store by path: one the storefront serves (`/img/...`, fetched from its internal address, no redirect followed) or one already uploaded (`media/<store>/uploads/...`, copied). The file passes the checks of an upload. An address with a scheme or host is refused (`external_url_not_allowed`), so is another store''s file (`import_other_store`), a redirect (`import_redirect`) and a missing file (`import_not_found`). The same image again answers the asset already there (`duplicate: true`).'
+      tags:
+        - Builder media
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetImportRequest'
+        required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetStored'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/builder/media/resolve:
     get:
       operationId: api_v1_builder_media_resolve_retrieve
@@ -9467,6 +9506,41 @@ paths:
       security:
         - cookieAuth: []
         - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolvedMedia'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+  /api/v1/builder/media/staff-resolve:
+    get:
+      operationId: api_v1_builder_media_staff_resolve_retrieve
+      description: 'The shape of `media/resolve`, for any asset of the library. Staff only and never cached (`private, no-store`): the public read answers only what the current release uses.'
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: string
+          description: Comma-separated asset ids (`media` references).
+          required: true
+        - in: query
+          name: locale
+          schema:
+            type: string
+          description: Language of the alt text; default if unknown.
+      tags:
+        - Builder media
+      security:
+        - cookieAuth: []
       responses:
         '200':
           content:
@@ -9510,6 +9584,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
     delete:
       operationId: api_v1_builder_presence_destroy
@@ -9565,6 +9640,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9592,6 +9668,53 @@ paths:
       responses:
         '204':
           description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/builder/preview-media/{token}:
+    get:
+      operationId: api_v1_builder_preview_media_retrieve
+      description: The shape of `media/resolve`, limited to the assets the link's documents reference (an id outside them is left out). An unknown, revoked or expired token is `404 preview_link_expired`. Never cached (`private, no-store`).
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: string
+          description: Comma-separated asset ids (`media` references).
+          required: true
+        - in: query
+          name: locale
+          schema:
+            type: string
+          description: Language of the alt text; default if unknown.
+        - in: path
+          name: token
+          schema:
+            type: string
+          required: true
+      tags:
+        - Builder media
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolvedMedia'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
         '404':
           content:
             application/json:
@@ -9664,6 +9787,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '404':
           content:
@@ -9697,6 +9821,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Release'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/builder/publish/check:
+    post:
+      operationId: api_v1_builder_publish_check_create
+      description: 'What `POST publish` of the same documents would do, without doing it: `ok`, the documents whose draft differs from the released version (`changed`), and every problem with its `document` (a draft that fails validation, a reference that no longer exists, `nothing_to_publish`). Same permission as the publish; stores nothing and takes no lock. An unknown document is `404`; no catalogue is `503`.'
+      tags:
+        - Builder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishWriteRequest'
+        required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishCheck'
           description: ''
         '400':
           content:
@@ -9834,6 +9994,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -9870,6 +10031,16 @@ paths:
           description: A search term.
           schema:
             type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - cancelled
+              - failed
+              - pending
+              - published
+          description: Only the schedules in this state; any other value lists them all.
       tags:
         - Builder
       security:
@@ -9884,6 +10055,17 @@ paths:
     post:
       operationId: api_v1_builder_schedules_create
       description: 'Release the drafts of the named documents together at `scheduledFor` (an ISO 8601 time; one without an offset is read in the store''s timezone). Validated in full now, references included, and frozen: what goes live is what was checked.'
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - cancelled
+              - failed
+              - pending
+              - published
+          description: Only the schedules in this state; any other value lists them all.
       tags:
         - Builder
       requestBody:
@@ -9914,6 +10096,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -10017,6 +10200,7 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
         '409':
           content:
@@ -34851,6 +35035,111 @@ components:
         - uploadedBy
         - usedBy
         - width
+    AssetImportRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          minLength: 1
+          description: 'A path of this store: `/img/x.png` (served by the storefront) or `media/<store>/uploads/x.png` (already uploaded).'
+          maxLength: 1000
+        focalX:
+          type: number
+          format: double
+          nullable: true
+        focalY:
+          type: number
+          format: double
+          nullable: true
+        alt:
+          description: '{language: text}; a language not named keeps its text.'
+      required:
+        - url
+    AssetStored:
+      type: object
+      description: |-
+        The answer to an upload or an import: the asset, and whether it was
+        already in the library.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        width:
+          type: integer
+          readOnly: true
+          title: Πλάτος
+          description: Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+        height:
+          type: integer
+          readOnly: true
+          title: Ύψος
+          description: Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+        mime:
+          type: string
+          readOnly: true
+          title: Τύπος
+        sizeBytes:
+          type: integer
+          readOnly: true
+          title: Μέγεθος (bytes)
+        focalX:
+          type: number
+          format: double
+          readOnly: true
+          title: Σημείο εστίασης X
+          description: Το 0 είναι η αριστερή άκρη, το 1 η δεξιά.
+        focalY:
+          type: number
+          format: double
+          readOnly: true
+          title: Σημείο εστίασης Y
+          description: Το 0 είναι η πάνω άκρη, το 1 η κάτω.
+        alt:
+          type: object
+          additionalProperties:
+            type: string
+          readOnly: true
+        uploadedBy:
+          allOf:
+            - $ref: '#/components/schemas/Staff'
+          nullable: true
+          readOnly: true
+        usedBy:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Δημιουργήθηκε στις
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Ενημερώθηκε στις
+        duplicate:
+          type: boolean
+          readOnly: true
+      required:
+        - alt
+        - createdAt
+        - duplicate
+        - focalX
+        - focalY
+        - height
+        - id
+        - mime
+        - path
+        - sizeBytes
+        - updatedAt
+        - uploadedBy
+        - usedBy
+        - width
     AssetUploadRequest:
       type: object
       properties:
@@ -37125,6 +37414,29 @@ components:
       required:
         - id
         - name
+    BuilderDocumentInvalidCodeEnum:
+      enum:
+        - invalid_document
+      type: string
+      description: '* `invalid_document` - invalid_document'
+    BuilderDocumentInvalidError:
+      type: object
+      description: |-
+        The 400 of an operation that checks a document (``invalid_document``):
+        the refusal and everything wrong, each with the document it is in.
+      properties:
+        detail:
+          type: string
+        code:
+          $ref: '#/components/schemas/BuilderDocumentInvalidCodeEnum'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublishProblem'
+      required:
+        - code
+        - detail
+        - errors
     BuilderDocumentKindEnum:
       enum:
         - theme
@@ -37156,10 +37468,12 @@ components:
       enum:
         - checkpoint
         - publish
+        - restore
       type: string
       description: |-
         * `checkpoint` - Ονομασμένη αποθήκευση
         * `publish` - Δημοσίευση
+        * `restore` - Επαναφορά
     BulkSubscriptionFailure:
       type: object
       properties:
@@ -48202,6 +48516,45 @@ components:
           description: Τιμές ρυθμίσεων με κλειδί το όνομα της ρύθμισης.
       required:
         - settings
+    PublishCheck:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        changed:
+          type: array
+          items:
+            type: string
+        problems:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublishProblem'
+      required:
+        - changed
+        - ok
+        - problems
+    PublishProblem:
+      type: object
+      properties:
+        document:
+          type: string
+          nullable: true
+        path:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+        params:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      required:
+        - code
+        - document
+        - message
+        - path
     PublishVersionWriteRequest:
       type: object
       properties:
@@ -48664,8 +49017,15 @@ components:
           minimum: 0
           title: Αριθμός
           readOnly: true
+          nullable: true
         versions: {}
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReleaseDocument'
+          readOnly: true
       required:
+        - documents
         - id
         - note
         - number
@@ -48673,6 +49033,20 @@ components:
         - publishedBy
         - rolledBackFrom
         - versions
+    ReleaseDocument:
+      type: object
+      properties:
+        key:
+          type: string
+        versionNumber:
+          type: integer
+        changed:
+          type: boolean
+          description: Differs from the release before it.
+      required:
+        - changed
+        - key
+        - versionNumber
     ReleaseReservationsRequestRequest:
       type: object
       description: Serializer for releasing stock reservations.
@@ -48921,10 +49295,13 @@ components:
           minimum: 0
           title: Αριθμός
           readOnly: true
+          nullable: true
         failure:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublishProblem'
           readOnly: true
-          title: Αποτυχία
-          description: 'Γιατί δεν μπόρεσε να δημοσιευτεί: [{path, code, message}]'
+          nullable: true
         acknowledgedAt:
           type: string
           format: date-time
@@ -51403,6 +51780,12 @@ components:
           title: Αριθμός
         kind:
           $ref: '#/components/schemas/BuilderVersionKindEnum'
+        restoredFrom:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Επαναφορά από
+          description: Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά).
         note:
           type: string
           readOnly: true
@@ -51451,6 +51834,7 @@ components:
         - note
         - number
         - refs
+        - restoredFrom
         - sizeBytes
     VersionList:
       type: object
@@ -51464,6 +51848,12 @@ components:
           title: Αριθμός
         kind:
           $ref: '#/components/schemas/BuilderVersionKindEnum'
+        restoredFrom:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Επαναφορά από
+          description: Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά).
         note:
           type: string
           readOnly: true
@@ -51503,6 +51893,7 @@ components:
         - kind
         - note
         - number
+        - restoredFrom
         - sizeBytes
     ViesStatusEnum:
       enum:

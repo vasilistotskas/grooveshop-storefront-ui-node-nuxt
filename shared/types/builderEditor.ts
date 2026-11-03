@@ -8,10 +8,12 @@ export type BuilderEditorGroup = (typeof BUILDER_EDITOR_GROUPS)[number]
 
 /**
  * A page of the page builder rather than of the store: the editor itself
- * (`/_builder`), or a store page drawn as the editor's preview (its canvas,
- * `BUILDER_CANVAS_QUERY`). Neither is a shopper's visit.
+ * (`/_builder`), a store page drawn as the editor's preview (its canvas,
+ * `BUILDER_CANVAS_QUERY`), or a share-preview link opened (`share`: the
+ * store's page drawn from drafts, for someone without an account). None is a
+ * shopper's visit.
  */
-export type BuilderSurface = 'editor' | 'canvas'
+export type BuilderSurface = 'editor' | 'canvas' | 'share'
 
 /** A width the preview is drawn at. */
 export type BuilderPreviewDevice = keyof typeof BUILDER_PREVIEW_DEVICES

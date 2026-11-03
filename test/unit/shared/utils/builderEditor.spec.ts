@@ -3,9 +3,11 @@ import {
   builderDocumentAt,
   builderDocumentKey,
   builderDocumentPath,
+  builderSharePath,
   builderSurfaceOf,
   hasBuilderCanvasMarker,
   isBuilderEditorPath,
+  isBuilderSharePath,
   parseBuilderDocumentKey,
 } from '~~/shared/utils/builderEditor'
 
@@ -33,12 +35,31 @@ describe('builderSurfaceOf', () => {
   it.each([
     ['/_builder', 'editor'],
     ['/en/_builder?doc=template:home', 'editor'],
+    ['/_builder/preview/abc_def-ghi?page=home', 'share'],
+    ['/en/_builder/preview/abc_def-ghi', 'share'],
     ['/?builder-canvas', 'canvas'],
     ['/en/products?builder-canvas', 'canvas'],
     ['/products', null],
     ['/', null],
   ])('reads %j as %j', (path, surface) => {
     expect(builderSurfaceOf(path)).toBe(surface)
+  })
+})
+
+describe('isBuilderSharePath', () => {
+  it.each(['/_builder/preview/abc', '/en/_builder/preview/abc?page=about'])('is true for the share link at %j', (path) => {
+    expect(isBuilderSharePath(path)).toBe(true)
+  })
+
+  it.each(['/_builder', '/_builder/preview', '/_builder/preview/', '/preview/abc', '/en/blog'])('is false for %j', (path) => {
+    expect(isBuilderSharePath(path)).toBe(false)
+  })
+
+  it('is the address builderSharePath writes, which names the page of the link', () => {
+    const path = builderSharePath('tok-en_1', 'summer-sale')
+
+    expect(path).toBe('/_builder/preview/tok-en_1?page=summer-sale')
+    expect(isBuilderSharePath(path)).toBe(true)
   })
 })
 

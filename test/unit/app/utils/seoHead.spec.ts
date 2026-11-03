@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   composeMetaDescription,
   documentCanonicalLocale,
+  isAddressTag,
   gateLocaleHeadByTenant,
   META_DESCRIPTION_MAX_LENGTH,
   META_DESCRIPTION_MIN_LENGTH,
@@ -246,5 +247,25 @@ describe('composeMetaDescription', () => {
     expect(composeMetaDescription(['Lead', 'Tail'], { min: 2 })).toBe('Lead')
     expect(composeMetaDescription(['Lead copy here', 'Tail'], { min: 99, max: 10 }))
       .toBe('Lead…')
+  })
+})
+
+describe('isAddressTag', () => {
+  it.each([
+    ['the canonical link', { tag: 'link', props: { rel: 'canonical', href: 'https://shop.test/a' } }],
+    ['an hreflang alternate', { tag: 'link', props: { rel: 'alternate', hreflang: 'en', href: 'https://shop.test/en/a' } }],
+    ['og:url', { tag: 'meta', props: { property: 'og:url', content: 'https://shop.test/a' } }],
+  ])('names the address in %s', (_name, tag) => {
+    expect(isAddressTag(tag)).toBe(true)
+  })
+
+  it.each([
+    ['an icon', { tag: 'link', props: { rel: 'icon', href: '/favicon.ico' } }],
+    ['a preconnect', { tag: 'link', props: { rel: 'preconnect', href: 'https://assets.shop.test' } }],
+    ['og:type', { tag: 'meta', props: { property: 'og:type', content: 'website' } }],
+    ['a robots meta', { tag: 'meta', props: { name: 'robots', content: 'noindex' } }],
+    ['a script', { tag: 'script', props: { property: 'og:url' } }],
+  ])('does not in %s', (_name, tag) => {
+    expect(isAddressTag(tag)).toBe(false)
   })
 })

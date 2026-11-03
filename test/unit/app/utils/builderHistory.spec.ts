@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { builderHistoryRows, groupBuilderHistoryByDay } from '~/utils/builderHistory'
 
-const version = (number: number, kind: 'checkpoint' | 'publish', createdAt: string) => ({
+const version = (number: number, kind: BuilderVersionKindEnum, createdAt: string) => ({
   id: number,
   number,
   kind,
@@ -11,6 +11,7 @@ const version = (number: number, kind: 'checkpoint' | 'publish', createdAt: stri
   sizeBytes: 100,
   blockTypes: [],
   catalogueHash: 'h',
+  restoredFrom: null,
 })
 
 const document = { updatedAt: '2026-11-03T12:00:00', updatedBy: { id: 9, name: 'Nikos' }, publishedVersion: 2, hasUnpublishedChanges: true }

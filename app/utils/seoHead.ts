@@ -170,6 +170,40 @@ export function pointHeadAtDocument<T extends object>(
   }
 }
 
+/** A resolved head tag, as far as `isAddressTag` reads it. */
+interface ResolvedHeadTag {
+  tag: string
+  props: Record<string, unknown>
+}
+
+/**
+ * Whether a head tag names the page's own address: the canonical link, the
+ * hreflang alternates and `og:url`, whoever produced them (the i18n head, the
+ * SEO module's defaults, a page).
+ */
+export function isAddressTag({ tag, props }: ResolvedHeadTag): boolean {
+  if (tag === 'link') return props.rel === 'canonical' || props.rel === 'alternate'
+  return tag === 'meta' && props.property === 'og:url'
+}
+
+/**
+ * Takes every tag that names the page's address out of the head once it is
+ * resolved. For a page whose address is a secret (a share-preview link: the
+ * path carries its token): the page is noindex, but a tag naming the address
+ * would still publish the token wherever the head is read, a crawler or a
+ * link unfurler included.
+ */
+export function hideAddressTags(head: ReturnType<typeof injectHead>): void {
+  head.use({
+    key: 'hide-address-tags',
+    hooks: {
+      'tags:resolve': (ctx) => {
+        ctx.tags = ctx.tags.filter((tag: ResolvedHeadTag) => !isAddressTag(tag))
+      },
+    },
+  })
+}
+
 /**
  * The length band a meta description has to land in to be useful.
  *
