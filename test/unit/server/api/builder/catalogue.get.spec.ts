@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/builder/catalogue.get'
+import * as z from 'zod'
 import { callRoute } from '~~/test/helpers/nitro'
 
 const get = (headers: Record<string, string> = {}, schema?: string, route = handler) => callRoute(route, {
@@ -68,13 +69,35 @@ describe('GET /api/builder/catalogue', () => {
   })
 
   describe('?schema', () => {
-    it('is accepted for a design and gives its blocks: every design has them all', async () => {
-      const [plain, webside, unknown] = await Promise.all([get(), get({}, 'webside'), get({}, 'no_such_design')])
+    it('gives a design the blocks and page types every design has and those of its own, not another design', async () => {
+      vi.resetModules()
+      const { defineBlock } = await import('~~/shared/builder/defineBlock')
+      const { promoBanner, promoItem } = await import('~~/test/fixtures/builder/blocks')
+      const only = (type: string, design: string) => defineBlock({ type, version: 1, kinds: ['section'], designs: [design], schema: z.object({}) })
+      vi.doMock('#builder-blocks', () => ({ default: [promoBanner, promoItem, only('about_content', 'webside'), only('partner_strip', 'fyteia')] }))
+      const { default: designHandler } = await import('~~/server/api/builder/catalogue.get')
+      const types = (response: { body: { blocks: Array<{ type: string }> } }) => response.body.blocks.map(block => block.type)
 
-      expect(webside.status).toBe(200)
-      expect(webside.body).toEqual(plain.body)
-      expect(unknown.body).toEqual(plain.body)
-      expect(webside.headers.get('etag')).toBe(plain.headers.get('etag'))
+      const [plain, webside, fyteia, unknown] = await Promise.all([get({}, undefined, designHandler), get({}, 'webside', designHandler), get({}, 'fyteia', designHandler), get({}, 'no_such_design', designHandler)])
+
+      expect(types(plain)).toEqual(['about_content', 'partner_strip', 'promo_banner', 'promo_item'])
+      expect(types(webside)).toEqual(['about_content', 'promo_banner', 'promo_item'])
+      expect(types(fyteia)).toEqual(['partner_strip', 'promo_banner', 'promo_item'])
+      expect(types(unknown)).toEqual(['promo_banner', 'promo_item'])
+      expect(plain.body.blocks[0]).toMatchObject({ type: 'about_content', designs: ['webside'] })
+      expect(webside.body.templates).toContain('why-microlearning')
+      expect(fyteia.body.templates).not.toContain('why-microlearning')
+      expect(fyteia.body.templates).toContain('about')
+      expect(new Set([plain, webside, fyteia, unknown].map(response => response.headers.get('etag'))).size).toBe(4)
+    })
+
+    it('answers a design the same every time, with its own hash for the ETag', async () => {
+      const first = await get({}, 'webside')
+      const again = await get({ 'if-none-match': first.headers.get('etag')! }, 'webside')
+
+      expect(first.status).toBe(200)
+      expect(first.headers.get('etag')).toBe(`"${first.body.hash}"`)
+      expect(again.status).toBe(304)
     })
 
     it.each(['bad-name', '1abc', 'a'.repeat(64)])('refuses %j: a schema is an identifier', async (schema) => {

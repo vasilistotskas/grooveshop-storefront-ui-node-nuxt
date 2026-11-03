@@ -272,7 +272,8 @@ export interface BuilderLibraryOffer {
  * now, with why. A section (no parent) of a type that may sit at the top of
  * this document (`builderPlacementAllowed`); a block of a type its parent
  * takes, while nesting is allowed that deep. Only a block with a preset to
- * insert is offered, and a deprecated one never is.
+ * insert is offered, and a deprecated one never is, nor one that exists for
+ * other designs only (`designs`; `design` is the store's).
  *
  * Shown but refused: a block whose store feature is off (`featureOn`), one
  * the document already holds as many of as its `maxPerTemplate`, and every
@@ -285,10 +286,11 @@ export function builderLibraryOffers(
   at: Pick<BuilderInsertPoint, 'parentId'>,
   blocks: ReadonlyMap<string, BlockDefinition>,
   featureOn: (feature: StoreFeatureName) => boolean,
+  design: string,
 ): BuilderLibraryOffer[] {
   const parent = at.parentId === undefined ? undefined : ancestryOf(copy.draft, at.parentId, blocks)
   if (at.parentId !== undefined && !parent) return []
-  const candidates = [...blocks.values()].filter(definition => !definition.deprecated && definition.presets?.length && (parent
+  const candidates = [...blocks.values()].filter(definition => !definition.deprecated && definition.presets?.length && (definition.designs === undefined || definition.designs.includes(design)) && (parent
     ? definition.kinds.includes('block') && parent.definition.children.allowed.includes(definition.type) && parent.childLevel <= parent.depthLimit
     : definition.kinds.includes('section') && builderPlacementAllowed(definition, documentKey)))
   const present = allNodes(copy.draft).map(({ node }) => builderBlockType(node))

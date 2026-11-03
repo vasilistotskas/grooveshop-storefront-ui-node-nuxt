@@ -35,6 +35,7 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
     ...(definition.groups && { groups: [...definition.groups] }),
     ...(definition.templates && { templates: [...definition.templates] }),
     ...(definition.feature && { feature: definition.feature }),
+    ...(definition.designs && { designs: [...definition.designs] }),
     ...(definition.deprecated && { deprecated: true }),
     ...(definition.presets && { presets: definition.presets.map(preset => structuredClone(preset)) }),
   }
@@ -92,19 +93,47 @@ export function buildBlockCatalogue(
 }
 
 /**
+ * The definitions a design draws: every one that names no `designs`, and every
+ * one that names `design`. Without a design, all of them (the catalogue of the
+ * build, for tooling). A block that has a presentation in one design only is
+ * declared so (`defineBlock`'s `designs`), and the catalogue of another
+ * store's design does not list it: it is neither offered nor accepted there.
+ */
+export function definitionsForDesign(definitions: readonly BlockDefinition[], design?: string): BlockDefinition[] {
+  return definitions.filter(definition => design === undefined || definition.designs === undefined || definition.designs.includes(design))
+}
+
+/**
  * Every block of this build: the `*.block.ts` files of `app/blocks`, which
  * `modules/builder-blocks` hands to the server bundle as the `#builder-blocks`
  * virtual module. The one registry `parseDocument` and the catalogue read.
  */
 export const builderBlocks: ReadonlyMap<string, BlockDefinition> = new Map(blockList.map(definition => [definition.type, definition]))
 
-/**
- * The catalogue of this build, and the JSON the endpoint serves. A constant
- * of the server bundle, so there is one answer for every store until the
- * next deploy; built when the server loads, so a contradictory set of
- * definitions stops the boot instead of the first request.
- */
-export const builderCatalogueDocument: BuilderCatalogueDocument = (() => {
-  const { hash, blocks, documentKinds, templates } = buildBlockCatalogue(blockList)
+function catalogueDocument(design?: string): BuilderCatalogueDocument {
+  const { hash, blocks, documentKinds, templates } = buildBlockCatalogue(definitionsForDesign(blockList, design), undefined, staticLayoutPageTypesFor(design))
   return { hash, json: JSON.stringify({ hash, blocks, documentKinds, templates }) }
-})()
+}
+
+/** The catalogue of the whole build, without a design: every block and every page type. */
+export const builderCatalogueDocument: BuilderCatalogueDocument = catalogueDocument()
+
+const documentsByDesign = new Map<string, BuilderCatalogueDocument>()
+
+/**
+ * The catalogue of what the store whose design is `design` draws, and the
+ * JSON the endpoint serves. A constant of the server bundle per design, so
+ * there is one answer for every store of a design until the next deploy: built
+ * the first time it is asked for, and the whole build's at load, so a
+ * contradictory set of definitions stops the boot instead of the first
+ * request.
+ */
+export function builderCatalogueDocumentFor(design?: string): BuilderCatalogueDocument {
+  if (design === undefined) return builderCatalogueDocument
+  let document = documentsByDesign.get(design)
+  if (!document) {
+    document = catalogueDocument(design)
+    documentsByDesign.set(design, document)
+  }
+  return document
+}

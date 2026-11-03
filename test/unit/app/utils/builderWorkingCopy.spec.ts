@@ -262,18 +262,25 @@ describe('what the library offers', () => {
     defineBlock({ type: 'menu', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, groups: ['header'] }),
     defineBlock({ type: 'old', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, deprecated: true }),
     defineBlock({ type: 'bare', version: 1, kinds: ['section'], schema: z.object({}) }),
+    defineBlock({ type: 'ours', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, designs: ['webside'] }),
     defineBlock({ type: 'box', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, limits: { maxBlocks: 2 }, children: { allowed: ['tile'] } }),
     defineBlock({ type: 'shallow', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, children: { allowed: ['tile'], maxDepth: 1 } }),
     defineBlock({ type: 'tile', version: 1, kinds: ['block'], schema: z.object({}), presets: preset, children: { allowed: ['tile'] } }),
   ].map(block => [block.type, block]))
   const copyOf = (sections: Record<string, BuilderNode>): BuilderWorkingCopy => ({ draft: { sections, order: Object.keys(sections) }, i18n: {} })
-  const offers = (copy: BuilderWorkingCopy, parentId?: string, documentKey = 'template:home', off: readonly string[] = []) =>
-    builderLibraryOffers(copy, documentKey, { parentId }, library, feature => !off.includes(feature))
+  const offers = (copy: BuilderWorkingCopy, parentId?: string, documentKey = 'template:home', off: readonly string[] = [], design = 'webside') =>
+    builderLibraryOffers(copy, documentKey, { parentId }, library, feature => !off.includes(feature), design)
       .map(({ definition, refusal }) => refusal ? `${definition.type} (${refusal})` : definition.type)
 
   it('offers the sections that may sit in the document, never a deprecated one or one with nothing to insert', () => {
-    expect(offers(copyOf({}))).toEqual(['banner', 'once', 'loyal', 'box', 'shallow'])
+    expect(offers(copyOf({}))).toEqual(['banner', 'once', 'loyal', 'ours', 'box', 'shallow'])
     expect(offers(copyOf({}), undefined, 'group:header')).toEqual(['menu'])
+  })
+
+  it('never offers a section that exists for other designs only', () => {
+    expect(offers(copyOf({}), undefined, 'template:home', [], 'webside')).toContain('ours')
+    expect(offers(copyOf({}), undefined, 'template:home', [], 'demo')).not.toContain('ours')
+    expect(offers(copyOf({}), undefined, 'template:home', [], 'demo')).toContain('banner')
   })
 
   it('shows a section whose store feature is off, refused', () => {

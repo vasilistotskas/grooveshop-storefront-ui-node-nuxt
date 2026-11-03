@@ -1,3 +1,10 @@
+# [3.304.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.303.1...v3.304.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** declare which designs draw a block or page type; serve each design its own catalogue ([#355](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/355)) ([1638dbd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1638dbd0908efa9811a5e2f00250c8c2ecd16690))
+
 ## [3.303.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.303.0...v3.303.1) (2026-11-03)
 
 
