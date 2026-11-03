@@ -1,5 +1,5 @@
 {
-  "hash": "871400a3811db76a",
+  "hash": "4d60290faf645dbb",
   "blocks": [
     {
       "type": "about_content",
@@ -4696,9 +4696,9 @@
     },
     {
       "type": "offers_preview",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4728,10 +4728,25 @@
             "type": "string",
             "maxLength": 500
           },
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 6
+          "offers": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            },
+            "required": [
+              "limit"
+            ],
+            "additionalProperties": false,
+            "x-builder-data": {
+              "field": "query",
+              "source": "promotion",
+              "onEmpty": "hide",
+              "maxLimit": 6
+            }
           },
           "ctaText": {
             "type": "string",
@@ -4909,6 +4924,9 @@
             "x-builder-link": true
           }
         },
+        "required": [
+          "offers"
+        ],
         "additionalProperties": false
       },
       "translatable": [
@@ -4922,6 +4940,14 @@
       "linkRefs": [
         "/ctaLink"
       ],
+      "data": {
+        "/offers": {
+          "field": "query",
+          "source": "promotion",
+          "onEmpty": "hide",
+          "maxLimit": 6
+        }
+      },
       "limits": {},
       "children": {
         "allowed": []
@@ -4932,7 +4958,12 @@
       "feature": "promotions",
       "presets": [
         {
-          "id": "default"
+          "id": "default",
+          "settings": {
+            "offers": {
+              "limit": 3
+            }
+          }
         }
       ]
     },
@@ -5212,9 +5243,9 @@
     },
     {
       "type": "product_categories",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -5239,26 +5270,79 @@
               "tiles"
             ]
           },
-          "parentId": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 2147483647
-          },
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 24
+          "categories": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "roots"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 24
+                  }
+                },
+                "required": [
+                  "mode",
+                  "limit"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "children"
+                  },
+                  "parent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 24
+                  }
+                },
+                "required": [
+                  "mode",
+                  "parent",
+                  "limit"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-data": {
+              "field": "query",
+              "source": "category",
+              "onEmpty": "hide",
+              "maxLimit": 24
+            }
           }
         },
+        "required": [
+          "categories"
+        ],
         "additionalProperties": false
       },
       "translatable": [
         "/heading"
       ],
-      "refs": {
-        "/parentId": "category"
-      },
+      "refs": {},
       "linkRefs": [],
+      "data": {
+        "/categories": {
+          "field": "query",
+          "source": "category",
+          "onEmpty": "hide",
+          "maxLimit": 24
+        }
+      },
       "limits": {},
       "children": {
         "allowed": []
@@ -5269,7 +5353,13 @@
       "feature": "catalogue",
       "presets": [
         {
-          "id": "default"
+          "id": "default",
+          "settings": {
+            "categories": {
+              "mode": "roots",
+              "limit": 8
+            }
+          }
         }
       ]
     },

@@ -48,20 +48,15 @@ export function useCategoryMenu() {
       else byParent.set(parent, [category])
     }
 
-    const build = (category: ProductCategory, depth: number): CategoryMenuEntry => ({
-      id: category.id,
-      slug: category.slug,
-      label: extractTranslated(category, 'name', locale.value) ?? category.slug,
-      to: categoryUrl(category.id, category.slug),
-      imagePath: category.mainImagePath,
-      productCount: category.recursiveProductCount,
-      children:
-        depth === 0
-          ? (byParent.get(category.id) ?? [])
-              .slice(0, MAX_CHILDREN)
-              .map(child => build(child, depth + 1))
-          : [],
-    })
+    const build = (category: ProductCategory, depth: number): CategoryMenuEntry => categoryMenuEntry(
+      category,
+      locale.value,
+      depth === 0
+        ? (byParent.get(category.id) ?? [])
+            .slice(0, MAX_CHILDREN)
+            .map(child => build(child, depth + 1))
+        : [],
+    )
 
     return (byParent.get(null) ?? []).slice(0, MAX_ROOTS).map(root => build(root, 0))
   })

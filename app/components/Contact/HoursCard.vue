@@ -10,17 +10,7 @@
  * the same data; this is the contact page's own, smaller card.)
  */
 const { t } = useStoreI18n('components/Contact/HoursCard')
-const { hasData, schedule, today, isOpen } = useBusinessHours()
-
-const rows = computed(() => {
-  if (!schedule.value) return []
-  return WEEK_DAY_KEYS.map(day => ({
-    day,
-    label: t(`days.${day}`),
-    entry: schedule.value?.[day] ?? null,
-    isToday: day === today.value,
-  }))
-})
+const { hasData, isOpen, rows } = useOpeningHoursRows(day => t(`days.${day}`))
 </script>
 
 <template>
