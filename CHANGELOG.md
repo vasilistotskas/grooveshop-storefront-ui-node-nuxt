@@ -1,3 +1,10 @@
+# [3.320.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.3...v3.320.0) (2026-11-03)
+
+
+### Features
+
+* **product:** alt text per product photograph ([#377](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/377)) ([91be5a6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91be5a6d5814d313282e5153f6a70d3266bb51ab))
+
 ## [3.319.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.2...v3.319.3) (2026-11-03)
 
 
