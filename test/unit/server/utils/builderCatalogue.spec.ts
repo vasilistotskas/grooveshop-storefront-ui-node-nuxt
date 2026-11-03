@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
+import { THEME_CONTRAST_RULES } from '~~/shared/builder/documentRoots'
 import { builderField } from '~~/shared/builder/fields'
 import { builderBlocks, builderCatalogueDocument, buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
@@ -144,7 +145,7 @@ describe('buildBlockCatalogue', () => {
     const { documentKinds } = buildBlockCatalogue([])
 
     it('states the root settings of a page and a template: their SEO copy, all translatable, limits as the model sets them', () => {
-      expect(Object.keys(documentKinds)).toEqual(['page', 'template'])
+      expect(Object.keys(documentKinds)).toEqual(['page', 'template', 'theme'])
       expect(documentKinds.page).toEqual({
         schema: {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -162,9 +163,17 @@ describe('buildBlockCatalogue', () => {
       expect(documentKinds.template).toEqual(documentKinds.page)
     })
 
-    it('lists no kind that has no root settings: the theme and a group', () => {
-      expect(documentKinds).not.toHaveProperty('theme')
+    it('lists no kind that has no root settings: a group', () => {
       expect(documentKinds).not.toHaveProperty('group')
+    })
+
+    it('states the root of the theme: nothing in it translatable, with the contrast its colours must keep', () => {
+      expect(documentKinds.theme).toMatchObject({ translatable: [], linkRefs: [], contrast: [...THEME_CONTRAST_RULES] })
+      expect(documentKinds.theme?.schema).toMatchObject({ type: 'object', required: ['colors', 'radius', 'fonts', 'container'], additionalProperties: false })
+    })
+
+    it('states contrast only for a root that has rules: a page has none', () => {
+      expect(documentKinds.page).not.toHaveProperty('contrast')
     })
 
     it('names the link settings of a root, as of a block, so Django indexes what they point at', () => {

@@ -32,10 +32,10 @@ describe('GET /api/builder/catalogue', () => {
     })
   })
 
-  it('states what a page and a template carry at their root, beside the blocks', async () => {
+  it('states what a page, a template and the theme carry at their root, beside the blocks', async () => {
     const response = await get()
 
-    expect(Object.keys(response.body.documentKinds)).toEqual(['page', 'template'])
+    expect(Object.keys(response.body.documentKinds)).toEqual(['page', 'template', 'theme'])
     expect(response.body.documentKinds.page.translatable).toEqual(['/seoTitle', '/seoDescription', '/seoKeywords'])
   })
 
