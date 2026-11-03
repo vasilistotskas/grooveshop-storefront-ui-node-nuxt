@@ -5,6 +5,7 @@ export default defineBlock({
   type: 'pull_quote',
   version: 1,
   kinds: ['section'],
+  designs: ['ekfyseosfyteias'],
   schema: z.object({
     quote: builderField.text(300).optional(),
     text: builderField.text(1000).optional(),

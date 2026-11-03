@@ -7,6 +7,13 @@ export interface StaticLayoutRoute {
    * on every store.
    */
   readonly requiresLayout: boolean
+  /**
+   * The designs the page type exists for (tenant schemas, as a block's
+   * `designs`); none named means every design. A page type whose content
+   * belongs to one design's own sections is declared so, and the other
+   * stores' catalogue does not list it as a template.
+   */
+  readonly designs?: readonly string[]
 }
 
 /**
@@ -34,13 +41,24 @@ export const STATIC_LAYOUT_ROUTES = {
   'blog-post': { path: '/blog', requiresLayout: false },
   'contact': { path: '/contact', requiresLayout: false },
   'feedback': { path: '/feedback', requiresLayout: false },
-  'about': { path: '/about', requiresLayout: true },
-  'vision': { path: '/vision', requiresLayout: true },
-  'what-is-microlearning': { path: '/what-is-microlearning', requiresLayout: true },
-  'why-microlearning': { path: '/why-microlearning', requiresLayout: true },
+  'about': { path: '/about', requiresLayout: true, designs: ['webside'] },
+  'vision': { path: '/vision', requiresLayout: true, designs: ['webside'] },
+  'what-is-microlearning': { path: '/what-is-microlearning', requiresLayout: true, designs: ['webside'] },
+  'why-microlearning': { path: '/why-microlearning', requiresLayout: true, designs: ['webside'] },
 } as const satisfies Readonly<Record<string, StaticLayoutRoute>>
 
 export type StaticLayoutPageType = keyof typeof STATIC_LAYOUT_ROUTES
+
+/**
+ * The page types a design has: every one that names no `designs` and every
+ * one that names `design`. Without a design, all of them.
+ */
+export function staticLayoutPageTypesFor(design?: string): StaticLayoutPageType[] {
+  return (Object.keys(STATIC_LAYOUT_ROUTES) as StaticLayoutPageType[]).filter((pageType) => {
+    const { designs }: StaticLayoutRoute = STATIC_LAYOUT_ROUTES[pageType]
+    return design === undefined || designs === undefined || designs.includes(design)
+  })
+}
 
 export function isStaticLayoutPageType(pageType: string): pageType is StaticLayoutPageType {
   return Object.hasOwn(STATIC_LAYOUT_ROUTES, pageType)

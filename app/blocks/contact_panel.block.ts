@@ -8,6 +8,7 @@ export default defineBlock({
   type: 'contact_panel',
   version: 1,
   kinds: ['section'],
+  designs: ['ekfyseosfyteias'],
   schema: z.object({
     title: builderField.text(200).optional(),
     eyebrow: builderField.text(100).optional(),

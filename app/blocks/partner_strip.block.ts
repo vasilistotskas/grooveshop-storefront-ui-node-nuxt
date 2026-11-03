@@ -5,6 +5,7 @@ export default defineBlock({
   type: 'partner_strip',
   version: 1,
   kinds: ['section'],
+  designs: ['ekfyseosfyteias'],
   schema: z.object({
     title: builderField.text(200).optional(),
     label: builderField.text(80).optional(),

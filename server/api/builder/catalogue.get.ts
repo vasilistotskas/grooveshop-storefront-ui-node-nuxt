@@ -8,10 +8,12 @@ import { defineEventHandler, getRequestHeader, getValidatedQuery, setResponseSta
  * builder document against it, so what a store can save always matches the
  * deployed storefront.
  *
- * `?schema=<schema>` names the store's design, as the texts catalogue's
- * does. Every design offers every block today, so it changes nothing yet;
- * it is validated and accepted so a design that adds or drops a block can
- * do it without a contract change.
+ * `?schema=<schema>` names the store's design (its tenant schema, as the
+ * texts catalogue's does) and answers the catalogue of what that design
+ * draws: a block or a page type that exists for other designs only
+ * (`designs`) is left out, so Django, which asks per store, refuses it on
+ * save and the editor never offers it. Without a schema it is the whole
+ * build's catalogue, for tooling. The hash is that view's own.
  *
  * Public and tenant-free, like `/api/texts/catalogue`: no `tenantCacheKey`
  * and no Nitro cache, because the catalogue is a constant of the server
@@ -21,8 +23,8 @@ import { defineEventHandler, getRequestHeader, getValidatedQuery, setResponseSta
  */
 export default defineEventHandler(async (event) => {
   try {
-    await getValidatedQuery(event, ZodBuilderCatalogueQuery)
-    const { hash, json } = builderCatalogueDocument
+    const { schema } = await getValidatedQuery(event, ZodBuilderCatalogueQuery)
+    const { hash, json } = builderCatalogueDocumentFor(schema)
     const etag = `"${hash}"`
     event.res.headers.set('Cache-Control', 'public, no-cache')
     event.res.headers.set('ETag', etag)

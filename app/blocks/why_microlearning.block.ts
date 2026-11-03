@@ -5,6 +5,7 @@ export default defineBlock({
   type: 'why_microlearning',
   version: 1,
   kinds: ['section'],
+  designs: ['webside'],
   schema: z.object({}),
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
   editor: { category: 'content' },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
+import { buildBlockCatalogue, definitionsForDesign } from '~~/server/utils/builderCatalogue'
 import { parseDocument } from '~~/shared/builder/document'
 import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
 import { linkPointers } from '~~/shared/builder/linkPointers'
@@ -56,6 +56,24 @@ describe('the real blocks', () => {
 
     expect(badge.schema.anyOf).toEqual([{ required: ['imageUrl'] }, { required: ['icon'] }])
     expect(parseDocument({ sections: { s1: bare }, order: ['s1'] }, 'page', registry, { featureOn: () => true }).sections.s1).not.toHaveProperty('blocks')
+  })
+
+  it('keep what a design does not draw out of that design catalogue, and miss nothing it draws', () => {
+    const types = (design?: string) => definitionsForDesign(definitions, design).map(block => block.type)
+
+    expect(types('webside')).toEqual(expect.arrayContaining(['about_content', 'vision_content', 'what_is_microlearning', 'why_microlearning']))
+    expect(types('webside')).not.toContain('contact_panel')
+    expect(types('ekfyseosfyteias')).toEqual(expect.arrayContaining(['contact_panel', 'partner_strip', 'partner', 'pull_quote']))
+    expect(types('ekfyseosfyteias')).not.toContain('about_content')
+    expect(types('demo')).not.toContain('about_content')
+    expect(types('demo')).not.toContain('partner_strip')
+    expect(types()).toHaveLength(definitions.length)
+  })
+
+  it('make a consistent catalogue of every design: no section allows a child its design does not have', () => {
+    for (const design of [undefined, 'webside', 'ekfyseosfyteias', 'demo']) {
+      expect(() => buildBlockCatalogue(definitionsForDesign(definitions, design)), String(design)).not.toThrow()
+    }
   })
 
   it('are closed: a key the schema does not name is refused, by Django and by the parse', () => {

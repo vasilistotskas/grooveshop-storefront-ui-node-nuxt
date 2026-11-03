@@ -4,6 +4,7 @@ import {
   BLOCK_KINDS,
   BLOCK_REF_KINDS,
   BLOCK_TYPE_PATTERN,
+  BUILDER_DESIGN_PATTERN,
   BUILDER_MAX_NODE_DEPTH,
 } from '../constants/builder'
 import type { BlockConfig, BlockDefinition, SettingsPointer } from '../types/builder'
@@ -40,6 +41,10 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
   }
   if (new Set(config.kinds).size !== config.kinds.length || config.kinds.some(kind => !isOneOf(BLOCK_KINDS, kind))) {
     fail(`kinds must be distinct values of ${BLOCK_KINDS.join(', ')}`)
+  }
+
+  if (config.designs !== undefined && (config.designs.length === 0 || new Set(config.designs).size !== config.designs.length || config.designs.some(design => !BUILDER_DESIGN_PATTERN.test(design)))) {
+    fail('designs, when given, must be a non-empty list of distinct tenant schema names')
   }
 
   const upgradeFrom = Object.keys(config.upgrade ?? {}).map(Number).sort((a, b) => a - b)

@@ -1,5 +1,5 @@
 {
-  "hash": "acefcad19a745955",
+  "hash": "1530b588e5da1401",
   "blocks": [
     {
       "type": "about_content",
@@ -22,6 +22,9 @@
       },
       "kinds": [
         "section"
+      ],
+      "designs": [
+        "webside"
       ],
       "presets": [
         {
@@ -908,6 +911,9 @@
       },
       "kinds": [
         "section"
+      ],
+      "designs": [
+        "ekfyseosfyteias"
       ],
       "presets": [
         {
@@ -4798,6 +4804,9 @@
       "kinds": [
         "block"
       ],
+      "designs": [
+        "ekfyseosfyteias"
+      ],
       "presets": [
         {
           "id": "default"
@@ -4842,6 +4851,9 @@
       },
       "kinds": [
         "section"
+      ],
+      "designs": [
+        "ekfyseosfyteias"
       ],
       "presets": [
         {
@@ -5473,6 +5485,9 @@
       },
       "kinds": [
         "section"
+      ],
+      "designs": [
+        "ekfyseosfyteias"
       ],
       "presets": [
         {
@@ -6414,6 +6429,9 @@
       "kinds": [
         "section"
       ],
+      "designs": [
+        "webside"
+      ],
       "presets": [
         {
           "id": "default"
@@ -6442,6 +6460,9 @@
       "kinds": [
         "section"
       ],
+      "designs": [
+        "webside"
+      ],
       "presets": [
         {
           "id": "default"
@@ -6469,6 +6490,9 @@
       },
       "kinds": [
         "section"
+      ],
+      "designs": [
+        "webside"
       ],
       "presets": [
         {

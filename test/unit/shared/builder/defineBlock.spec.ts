@@ -68,6 +68,23 @@ describe('defineBlock', () => {
     expect(() => define({ version })).toThrow(/integer of 1 or more/)
   })
 
+  describe('designs', () => {
+    const base = { type: 'only', version: 1, kinds: ['section'] as ['section'], schema: z.object({}) }
+
+    it('keeps the designs a block exists for, and none when it names none', () => {
+      expect(defineBlock({ ...base, designs: ['webside'] }).designs).toEqual(['webside'])
+      expect(defineBlock(base).designs).toBeUndefined()
+    })
+
+    it.each([
+      ['an empty list', []],
+      ['a repeated design', ['webside', 'webside']],
+      ['a name that is no tenant schema', ['web-side']],
+    ])('refuses %s', (_case, designs) => {
+      expect(() => defineBlock({ ...base, designs })).toThrow('defineBlock(only): designs')
+    })
+  })
+
   it('refuses a repeated kind', () => {
     expect(() => define({ kinds: ['section', 'section'] })).toThrow(/distinct/)
   })
