@@ -40,7 +40,7 @@ async function onAddEmail(values: z.infer<typeof emailFormZodSchema>) {
   await addEmail(values.email)
 }
 
-const columns: TableColumn<EmailAddress>[] = [
+const columns: TableColumn<AllAuthEmailAddress>[] = [
   {
     accessorKey: 'email',
     header: t('email.title'),

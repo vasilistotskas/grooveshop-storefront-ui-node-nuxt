@@ -40,7 +40,7 @@ const CONFIG = makeAllAuthConfig({
 
 const SESSION = makeSessionResponse({ user: { id: 1 } })
 
-const SESSIONS: SessionsGetResponse = {
+const SESSIONS: GetAllauthAppV1AuthSessionsResponse = {
   status: 200,
   data: [
     { id: 1, is_current: true, user_agent: 'Firefox', ip: '10.0.0.1', created_at: 1_700_000_000 },
@@ -48,7 +48,7 @@ const SESSIONS: SessionsGetResponse = {
   ],
 }
 
-const AUTHENTICATORS: AuthenticatorsResponse = {
+const AUTHENTICATORS: GetAllauthAppV1AccountAuthenticatorsResponse = {
   status: 200,
   data: [
     { id: 1, type: 'totp', created_at: 1_700_000_000, last_used_at: null },
@@ -130,7 +130,7 @@ describe('useAuthStore', () => {
     })
 
     it('is pending while the request is in flight', async () => {
-      let answer!: (value: ConfigResponse) => void
+      let answer!: (value: GetAllauthAppV1ConfigResponse) => void
       api.routes({
         '/api/_allauth/app/v1/config': () => new Promise((resolve) => {
           answer = resolve

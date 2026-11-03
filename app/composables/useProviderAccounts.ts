@@ -1,7 +1,7 @@
 /** A social account that is linked, or a provider the shopper can still connect. */
 export type ProviderCard
-  = | { kind: 'linked', key: string, providerId: string, name: string, account: ProviderAccount }
-    | { kind: 'connect', key: string, providerId: string, name: string, provider: Provider }
+  = | { kind: 'linked', key: string, providerId: string, name: string, account: AllAuthProviderAccount }
+    | { kind: 'connect', key: string, providerId: string, name: string, provider: AllAuthProvider }
 
 /**
  * The social accounts linked to the shopper's, and the providers the store
@@ -17,7 +17,7 @@ export type ProviderCard
  * provider in flight. Awaited in `<script setup>`.
  */
 export async function useProviderAccounts(options: {
-  disconnected: (account: ProviderAccount) => ToastInput
+  disconnected: (account: AllAuthProviderAccount) => ToastInput
 }) {
   const { connectedThirdPartyProviderAccounts, disconnectThirdPartyProviderAccount } = useAllAuthAccount()
   const { providerRedirect } = useAllAuthAuthentication()
@@ -32,7 +32,7 @@ export async function useProviderAccounts(options: {
   const accounts = computed(() => linked.value?.data ?? [])
 
   const cards = computed<ProviderCard[]>(() => {
-    const linkedCard = (account: ProviderAccount): ProviderCard => ({
+    const linkedCard = (account: AllAuthProviderAccount): ProviderCard => ({
       kind: 'linked',
       key: `${account.provider.id}:${account.uid}`,
       providerId: account.provider.id,
@@ -53,7 +53,7 @@ export async function useProviderAccounts(options: {
 
   const busy = ref<string | null>(null)
 
-  async function disconnect(account: ProviderAccount) {
+  async function disconnect(account: AllAuthProviderAccount) {
     busy.value = `${account.provider.id}:${account.uid}`
     try {
       linked.value = await disconnectThirdPartyProviderAccount({
@@ -70,7 +70,7 @@ export async function useProviderAccounts(options: {
     }
   }
 
-  function connect(provider: Provider) {
+  function connect(provider: AllAuthProvider) {
     busy.value = provider.id
     providerRedirect(provider, 'connect')
   }

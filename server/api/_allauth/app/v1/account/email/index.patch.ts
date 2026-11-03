@@ -4,13 +4,13 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodEmailPatchBody)
+    const validatedBody = await readValidatedBody(event, zPatchAllauthAppV1AccountEmailBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/account/email`, {
       body: validatedBody,
       method: 'PATCH',
       headers,
     })
-    return await parseDataAs(response, ZodEmailPatchResponse)
+    return await parseDataAs(response, zPatchAllauthAppV1AccountEmailResponse)
   }
   catch (error) {
     // Account-management 4xx payloads (wrong password, duplicate email,

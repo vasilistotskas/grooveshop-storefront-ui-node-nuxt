@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers: await getAllAuthHeaders(event),
     })
-    const sessionResponse = await parseDataAs(response, ZodSessionResponse)
+    const sessionResponse = await parseDataAs(response, zGetAllauthAppV1AuthSessionResponse)
     await processAllAuthSession(event, sessionResponse)
     if (sessionResponse.meta?.is_authenticated === false) {
       await clearUserSession(event)

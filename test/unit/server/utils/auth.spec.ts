@@ -14,8 +14,8 @@ import { updateCartSession } from '~~/server/utils/cartSession'
 import type { RequestEvent } from 'nuxt/server'
 import { backend, createRequestEvent, jsonResponse, setRuntimeConfig, testSession } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
-import { ZodAllAuthResponse } from '~~/shared/schemas/response/all-auth/response'
-import type { AllAuthResponse } from '~~/shared/types/response/all-auth/response'
+import { zAllAuthAuthenticatedResponse } from '~~/shared/openapi-allauth/zod.gen'
+import type { AllAuthResponse } from '~~/shared/types/allAuth'
 
 /** Run `fn` with a request to shop.test (see `createRequestEvent`). */
 function inRequest<T>(fn: (event: RequestEvent) => T, req: TestRequest = {}): T {
@@ -48,12 +48,12 @@ function userDetails(overrides: Record<string, unknown> = {}) {
   }
 }
 
-/** The allauth login success `processAllAuthSession` receives, parsed by the real `ZodAllAuthResponse`. */
-function loginResponse(meta: NonNullable<AllAuthResponse['meta']>): AllAuthResponse {
-  return ZodAllAuthResponse.parse({
+/** The allauth login success `processAllAuthSession` receives, parsed by the real `zAllAuthAuthenticatedResponse`. */
+function loginResponse(meta: Partial<AllAuthResponse['meta']>): AllAuthResponse {
+  return zAllAuthAuthenticatedResponse.parse({
     status: 200,
-    data: { user: { id: 7, display: 'maria' }, methods: [] },
-    meta,
+    data: { user: { id: 7, display: 'maria', has_usable_password: true }, methods: [] },
+    meta: { is_authenticated: true, ...meta },
   })
 }
 

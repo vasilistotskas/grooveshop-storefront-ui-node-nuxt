@@ -93,7 +93,7 @@ export const handleAllAuthClientError = (error: unknown): void => {
   if (isAllAuthClientError(error)) {
     const toast = useToast()
 
-    const errors = 'errors' in error.data.data ? error.data.data.errors : []
+    const errors = 'errors' in error.data.data ? error.data.data.errors ?? [] : []
     errors.forEach((error) => {
       // Unmapped codes used to render the literal i18n key
       // ("validation.api.password_too_common") — fall back to allauth's

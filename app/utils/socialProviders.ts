@@ -26,6 +26,6 @@ export function socialProviderIcon(providerId: string): string {
  * redirect-only flow runs on Django's origin, where the browser is
  * nobody, so allauth would refuse the link.
  */
-export function canConnectSocialProvider(provider: Provider): boolean {
+export function canConnectSocialProvider(provider: AllAuthProvider): boolean {
   return provider.flows.includes('provider_token')
 }

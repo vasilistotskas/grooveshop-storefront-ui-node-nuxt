@@ -59,7 +59,7 @@ export default function () {
     })
   }
 
-  async function login(body: LoginBody) {
+  async function login(body: AllAuthRequestLogin) {
     return asFreshSignIn(() => $api(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -92,7 +92,7 @@ export default function () {
     }))
   }
 
-  async function signup(body: SignupBody) {
+  async function signup(body: AllAuthRequestSignup) {
     return asFreshSignIn(() => $api(`${API_BASE_URL}/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -145,7 +145,7 @@ export default function () {
     })
   }
 
-  async function emailVerify(body: EmailVerifyPostBody) {
+  async function emailVerify(body: AllAuthRequestVerifyEmail) {
     return $api(`${API_BASE_URL}/email/verify`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -159,7 +159,7 @@ export default function () {
     })
   }
 
-  async function reauthenticate(body: ReauthenticateBody) {
+  async function reauthenticate(body: AllAuthRequestReauthenticate) {
     return $api(`${API_BASE_URL}/reauthenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -173,7 +173,7 @@ export default function () {
     })
   }
 
-  async function passwordRequest(body: PasswordRequestBody) {
+  async function passwordRequest(body: AllAuthRequestRequestPassword) {
     return $api(`${API_BASE_URL}/password/request`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -203,7 +203,7 @@ export default function () {
     })
   }
 
-  async function passwordReset(body: PasswordResetPostBody) {
+  async function passwordReset(body: AllAuthRequestResetPassword) {
     return $api(`${API_BASE_URL}/password/reset`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -217,7 +217,7 @@ export default function () {
     })
   }
 
-  function providerRedirect(provider: Provider, process: 'login' | 'connect' = 'login'): void {
+  function providerRedirect(provider: AllAuthProvider, process: 'login' | 'connect' = 'login'): void {
     if (import.meta.client) {
       const route = useRoute()
 
@@ -231,7 +231,7 @@ export default function () {
     }
   }
 
-  async function browserProviderRedirect(body: ProviderRedirectBody) {
+  async function browserProviderRedirect(body: AllAuthRequestProviderRedirect) {
     const config = useRuntimeConfig()
     const tenantStore = useTenantStore()
     const csrfToken = useCookie('csrftoken').value
@@ -268,7 +268,7 @@ export default function () {
     form.submit()
   }
 
-  async function providerToken(body: ProviderTokenBody) {
+  async function providerToken(body: AllAuthRequestProviderToken) {
     return $api(`${API_BASE_URL}/provider/token`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -282,7 +282,7 @@ export default function () {
     })
   }
 
-  async function providerSignup(body: ProviderSignupBody) {
+  async function providerSignup(body: AllAuthRequestProviderSignup) {
     return $api(`${API_BASE_URL}/provider/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -296,7 +296,7 @@ export default function () {
     })
   }
 
-  async function twoFaAuthenticate(body: TwoFaAuthenticateBody) {
+  async function twoFaAuthenticate(body: AllAuthRequestMfaAuthenticate) {
     return $api(`${API_BASE_URL}/2fa/authenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -310,7 +310,7 @@ export default function () {
     })
   }
 
-  async function twoFaReauthenticate(body: TwoFaReauthenticateBody) {
+  async function twoFaReauthenticate(body: AllAuthRequestMfaAuthenticate) {
     return $api(`${API_BASE_URL}/2fa/reauthenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -324,7 +324,7 @@ export default function () {
     })
   }
 
-  async function requestLoginCode(body: CodeRequestBody) {
+  async function requestLoginCode(body: AllAuthRequestRequestLoginCode) {
     return $api(`${API_BASE_URL}/code/request`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -338,7 +338,7 @@ export default function () {
     })
   }
 
-  async function confirmLoginCode(body: CodeConfirmBody) {
+  async function confirmLoginCode(body: AllAuthRequestConfirmLoginCode) {
     return $api(`${API_BASE_URL}/code/confirm`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -391,7 +391,7 @@ export default function () {
     })
   }
 
-  async function reauthenticateUsingWebAuthn(body: WebAuthnReauthenticatePostBody) {
+  async function reauthenticateUsingWebAuthn(body: AllAuthRequestReauthenticateWebAuthn) {
     return $api(`${API_BASE_URL}/webauthn/reauthenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -405,7 +405,7 @@ export default function () {
     })
   }
 
-  async function authenticateUsingWebAuthn(body: WebAuthnAuthenticatePostBody) {
+  async function authenticateUsingWebAuthn(body: AllAuthRequestAuthenticateWebAuthn) {
     return $api(`${API_BASE_URL}/webauthn/authenticate`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -419,7 +419,7 @@ export default function () {
     })
   }
 
-  async function loginUsingWebAuthn(body: WebAuthnLoginPostBody) {
+  async function loginUsingWebAuthn(body: AllAuthRequestLoginWebAuthn) {
     return $api(`${API_BASE_URL}/webauthn/login`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -459,7 +459,7 @@ export default function () {
     })
   }
 
-  async function signUpByPasskey(body: WebAuthnSignupPostBody) {
+  async function signUpByPasskey(body: AllAuthRequestPasskeySignup) {
     return $api(`${API_BASE_URL}/webauthn/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -486,7 +486,7 @@ export default function () {
     })
   }
 
-  async function signupWebAuthnCredential(body: WebAuthnSignupPutBody) {
+  async function signupWebAuthnCredential(body: AllAuthRequestAddWebAuthnAuthenticator) {
     return $api(`${API_BASE_URL}/webauthn/signup`, {
       method: 'PUT',
       headers: useRequestHeaders(),

@@ -99,7 +99,7 @@ and fake timers for debounce, polling and timeouts
 | `test/fixtures/allauth.ts` | allauth replies: `makeSessionResponse`, `makePendingFlowResponse(id)`, `makeBadResponse(...errors)`, `makeAllAuthConfig`, and `asProxiedError(body)` — a body as the app's `$fetch` throws it |
 
 Every fixture factory's defaults are parsed against its Zod schema (the
-generated one, or the app's own under `shared/schemas/**/all-auth`) in
+generated one, from Django's document or allauth's) in
 `test/unit/fixtures/*.spec.ts`, through `problems()` from
 `test/unit/fixtures/strictSchema.ts`: it makes EVERY nested object strict,
 where `schema.strict()` closes only the top level. A schema change fails

@@ -4,8 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import SessionsManage from '~/components/Account/SessionsManage.vue'
 import WebsideSessionsManage from '~/components/variants/webside/Account/SessionsManage.vue'
-import type { Session } from '~~/shared/types/model/all-auth'
-import type { SessionsGetResponse } from '~~/shared/types/response/all-auth/sessions/sessions'
+import type { AllAuthSession, GetAllauthAppV1AuthSessionsResponse } from '~~/shared/openapi-allauth/types.gen'
 import { FIXTURE_EPOCH, asProxiedError, makeAllAuthSession, makeBadResponse } from '~~/test/fixtures/allauth'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { TOOLTIP_STUB, pickFromRowMenu } from '~~/test/helpers/rowMenu'
@@ -21,8 +20,8 @@ import { trees } from '~~/test/helpers/trees'
  * `useAllAuthSessions`; the rows live in the real auth store.
  */
 const { getSessions, deleteSession, toastAdd } = vi.hoisted(() => ({
-  getSessions: vi.fn((): Promise<SessionsGetResponse | undefined> => Promise.resolve(undefined)),
-  deleteSession: vi.fn((_body: { sessions: number[] }): Promise<SessionsGetResponse | undefined> => Promise.resolve(undefined)),
+  getSessions: vi.fn((): Promise<GetAllauthAppV1AuthSessionsResponse | undefined> => Promise.resolve(undefined)),
+  deleteSession: vi.fn((_body: { sessions: number[] }): Promise<GetAllauthAppV1AuthSessionsResponse | undefined> => Promise.resolve(undefined)),
   toastAdd: vi.fn(),
 }))
 mockNuxtImport('useAllAuthSessions', () => () => ({ getSessions, deleteSession }))
@@ -49,7 +48,7 @@ const CURRENT = makeAllAuthSession({ id: 1, is_current: true, last_seen_at: FIXT
 const PHONE = makeAllAuthSession({ id: 2, user_agent: SAFARI_IPHONE, last_seen_at: FIXTURE_EPOCH - 2 * 24 * HOUR })
 const LAPTOP = makeAllAuthSession({ id: 3, user_agent: FIREFOX_LINUX })
 
-const answer = (sessions: Session[]): SessionsGetResponse => ({ status: 200, data: sessions })
+const answer = (sessions: AllAuthSession[]): GetAllauthAppV1AuthSessionsResponse => ({ status: 200, data: sessions })
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })

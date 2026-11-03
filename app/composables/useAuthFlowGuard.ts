@@ -16,7 +16,7 @@ export async function useAuthEventGuard(expected: AuthChangeEventType) {
 }
 
 /** `usePendingFlowGuard(id)`: allauth's pending flow is the one named `id`. */
-export async function usePendingFlowGuard(id: Flow['id']) {
+export async function usePendingFlowGuard(id: AllAuthFlow['id']) {
   const authInfo = useAuthInfo()
   const localePath = useLocalePath()
 

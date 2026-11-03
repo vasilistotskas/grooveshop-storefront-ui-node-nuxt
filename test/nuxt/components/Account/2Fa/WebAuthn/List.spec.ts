@@ -4,7 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import List from '~/components/Account/2Fa/WebAuthn/List.vue'
 import WebsideList from '~/components/variants/webside/Account/2Fa/WebAuthn/List.vue'
-import type { Authenticator } from '~~/shared/types/model/all-auth/account/authenticators/authenticators'
+import type { AllAuthAuthenticator } from '~~/shared/types/allAuth'
 import { FIXTURE_EPOCH, makeAuthenticator } from '~~/test/fixtures/allauth'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
@@ -24,7 +24,7 @@ import { TOOLTIP_STUB, pickFromRowMenu } from '~~/test/helpers/rowMenu'
 const { deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators, toastAdd } = vi.hoisted(() => ({
   deleteWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),
   updateWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),
-  getAuthenticators: vi.fn((): Promise<{ status: 200, data: Authenticator[] } | undefined> => Promise.resolve(undefined)),
+  getAuthenticators: vi.fn((): Promise<{ status: 200, data: AllAuthAuthenticator[] } | undefined> => Promise.resolve(undefined)),
   toastAdd: vi.fn(),
 }))
 mockNuxtImport('useAllAuthAccount', () => () => ({ deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators }))

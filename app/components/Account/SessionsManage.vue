@@ -29,7 +29,7 @@ function deviceName(userAgent: string) {
   return browser ?? system ?? t('unknown_device')
 }
 
-const describe = (session: Session) => ({
+const describe = (session: AllAuthSession) => ({
   icon: DEVICE_ICON[deviceClassFromUserAgent(session.user_agent)],
   name: deviceName(session.user_agent),
   seen: new Date((session.last_seen_at ?? session.created_at) * 1000).toISOString(),

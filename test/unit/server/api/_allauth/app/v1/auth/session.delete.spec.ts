@@ -12,6 +12,9 @@ import { backend, callRoute, jsonResponse, testSession } from '~~/test/helpers/n
 const route = '/api/_allauth/app/v1/auth/session'
 const CART_UUID = '6f1c1d8e-2a4b-4c3d-9e8f-0a1b2c3d4e5f'
 
+/** What allauth answers a logout with: the 401 of the visitor who is signed out now. */
+const loggedOut = jsonResponse({ status: 401, data: { flows: [{ id: 'login' }] }, meta: { is_authenticated: false } }, 401)
+
 const logout = () => callRoute(handler, {
   route,
   method: 'DELETE',
@@ -25,12 +28,11 @@ const cartCookieDeleted = (headers: Headers) =>
 describe('DELETE /api/_allauth/app/v1/auth/session', () => {
   it('logs the session out at allauth with the stored tokens', async () => {
     testSession.set({ secure: { sessionToken: 'sess-1', accessToken: 'knox-1' }, user: { id: 5 } })
-    backend.reply({ status: 200 })
+    backend.reply(loggedOut)
 
     const response = await logout()
 
-    expect(response.status).toBe(200)
-    expect(response.body).toEqual({ status: 200 })
+    expect(response.status).toBe(401)
     const sent = backend.lastRequest
     expect(sent.method).toBe('DELETE')
     expect(sent.path).toBe('http://backend.test/_allauth/app/v1/auth/session')
@@ -39,8 +41,7 @@ describe('DELETE /api/_allauth/app/v1/auth/session', () => {
   })
 
   it.each([
-    ['succeeds', () => backend.reply({ status: 200 }), 200],
-    ['answers 401', () => backend.reply(jsonResponse({ status: 401, data: { flows: [] }, meta: { is_authenticated: false } }, 401)), 401],
+    ['answers 401, as it does once the session is gone', () => backend.reply(loggedOut), 401],
     ['is unreachable', () => backend.failOnce(), 500],
   ])('clears the user and the cart session when allauth %s', async (_label, arrange, status) => {
     testSession.set({ secure: { sessionToken: 'sess-1', accessToken: 'knox-1' }, user: { id: 5 } })

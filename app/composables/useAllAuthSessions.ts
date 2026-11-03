@@ -13,7 +13,7 @@ export default function () {
     })
   }
 
-  async function deleteSession(body: SessionsDeleteBody) {
+  async function deleteSession(body: AllAuthRequestEndSessions) {
     return $api(`${API_BASE_URL}/sessions`, {
       method: 'DELETE',
       body,

@@ -68,7 +68,7 @@ describe('Utils - Auth', () => {
     })
 
     it('should identify reauthentication required from 401 response', () => {
-      const response: NotAuthenticatedResponse = {
+      const response: AllAuthAuthenticationResponse = {
         status: 401,
         meta: { is_authenticated: true },
         data: { flows: [{ id: 'reauthenticate' }] },
@@ -101,7 +101,7 @@ describe('Utils - Auth', () => {
   })
 
   /** A visitor mid-sign-in: allauth's 401 listing `flows`, pending or not. */
-  const withFlows = (flows: Flow[]): NotAuthenticatedResponse => ({
+  const withFlows = (flows: AllAuthFlow[]): AllAuthAuthenticationResponse => ({
     status: 401,
     meta: { is_authenticated: false },
     data: { flows },
@@ -109,9 +109,9 @@ describe('Utils - Auth', () => {
 
   describe('getPendingFlows', () => {
     it('should return pending flows from response', () => {
-      const pendingFlow1: Flow = { id: 'login_by_code', is_pending: true }
-      const pendingFlow2: Flow = { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }
-      const completedFlow: Flow = { id: 'login', is_pending: false }
+      const pendingFlow1: AllAuthFlow = { id: 'login_by_code', is_pending: true }
+      const pendingFlow2: AllAuthFlow = { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }
+      const completedFlow: AllAuthFlow = { id: 'login', is_pending: false }
 
       const result = getPendingFlows(withFlows([pendingFlow1, completedFlow, pendingFlow2]))
 
@@ -129,8 +129,8 @@ describe('Utils - Auth', () => {
 
   describe('getPendingFlow', () => {
     it('should return first pending flow', () => {
-      const pendingFlow1: Flow = { id: 'login_by_code', is_pending: true }
-      const pendingFlow2: Flow = { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }
+      const pendingFlow1: AllAuthFlow = { id: 'login_by_code', is_pending: true }
+      const pendingFlow2: AllAuthFlow = { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }
 
       expect(getPendingFlow(withFlows([pendingFlow1, pendingFlow2]))).toEqual(pendingFlow1)
     })
@@ -272,18 +272,18 @@ describe('Utils - Auth', () => {
   describe('determineAuthChangeEvent', () => {
     const user = (id: number) => ({ id, email: `u${id}@shop.test`, username: `u${id}` })
     /** Signed in as user `id` with `methods` authentication methods behind the session. */
-    const signedIn = (id = 1, meta: SessionResponse['meta'] = {}, methods = 1): SessionResponse => {
+    const signedIn = (id = 1, meta: AllAuthAuthenticatedResponse['meta'] = {}, methods = 1): AllAuthAuthenticatedResponse => {
       const response = makeSessionResponse({
         user: user(id),
         methods: Array.from({ length: methods }, (_, i) => ({ method: 'password' as const, at: FIXTURE_EPOCH + i })),
       })
       return { ...response, meta: { ...response.meta, ...meta } }
     }
-    const reauthRequired: NotAuthenticatedResponse = { status: 401, meta: { is_authenticated: true }, data: { flows: [] } }
-    const signedOut = (flows: Flow[] = []): NotAuthenticatedResponse =>
+    const reauthRequired: AllAuthAuthenticationResponse = { status: 401, meta: { is_authenticated: true }, data: { flows: [] } }
+    const signedOut = (flows: AllAuthFlow[] = []): AllAuthAuthenticationResponse =>
       ({ status: 401, meta: { is_authenticated: false }, data: { flows } })
     // Even one carrying a pending flow: a dead session is not a flow step.
-    const gone: InvalidSessionResponse = { status: 410, meta: { is_authenticated: false }, data: { flows: [{ id: 'login', is_pending: true }] } }
+    const gone: AllAuthSessionGoneResponse = { status: 410, meta: { is_authenticated: false }, data: { flows: [{ id: 'login', is_pending: true }] } }
 
     it.each([
       ['a torn-down session (410), whatever came before', gone, signedOut(), AuthChangeEvent.LOGGED_OUT],
@@ -347,7 +347,7 @@ describe('Utils - Auth', () => {
 
   describe('pathForFlow', () => {
     it('routes a typed flow by its preferred authenticator, or the one asked for', () => {
-      const flow: Flow = { id: 'mfa_authenticate', is_pending: true, types: ['totp', 'webauthn'] }
+      const flow: AllAuthFlow = { id: 'mfa_authenticate', is_pending: true, types: ['totp', 'webauthn'] }
       expect(pathForFlow(flow)).toBe('account-2fa-authenticate-webauthn')
       expect(pathForFlow(flow, 'totp')).toBe('account-2fa-authenticate-totp')
     })
@@ -358,7 +358,7 @@ describe('Utils - Auth', () => {
 
     it('fails loudly for a flow with no page', () => {
       // An id a newer allauth could send: outside `Flow['id']` by definition.
-      const unknownId = 'unheard_of' as string as Flow['id']
+      const unknownId = 'unheard_of' as string as AllAuthFlow['id']
       expect(() => pathForFlow({ id: unknownId, is_pending: true })).toThrow('Unknown path for flow: unheard_of')
     })
 

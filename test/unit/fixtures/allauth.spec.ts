@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { ZodBadResponse } from '~~/shared/schemas/error/all-auth/400'
-import { ZodNotAuthenticatedResponse } from '~~/shared/schemas/error/all-auth/401'
-import { ZodSessionResponse } from '~~/shared/schemas/response/all-auth/auth/session'
-import { ZodConfigResponse } from '~~/shared/schemas/response/all-auth/config'
-import { ZodEmailAddress, ZodProvider, ZodProviderAccount, ZodSession } from '~~/shared/schemas/model/all-auth'
-import { ZodAuthenticator } from '~~/shared/schemas/model/all-auth/account/authenticators/authenticators'
+import {
+  zAllAuthAuthenticatedResponse,
+  zAllAuthAuthenticationResponse,
+  zAllAuthAuthenticatorList,
+  zAllAuthEmailAddress,
+  zAllAuthErrorResponse,
+  zAllAuthProvider,
+  zAllAuthProviderAccount,
+  zAllAuthSession,
+  zGetAllauthAppV1ConfigResponse,
+} from '~~/shared/openapi-allauth/zod.gen'
 import { extractAllAuthError } from '~/utils/auth'
 import {
   asProxiedError,
@@ -24,24 +29,24 @@ import { problems } from '~~/test/unit/fixtures/strictSchema'
 /**
  * The allauth builders replace the session, pending-flow, 400 and
  * `/config` literals the auth-form and auth-store specs each spelled
- * out. Parsed strictly against the app's own allauth schemas, so a body
+ * out. Parsed strictly against the schemas generated from allauth's document, so a body
  * allauth cannot send fails here and names its field.
  */
 describe('allauth fixtures', () => {
   it.each([
-    ['makeSessionResponse', ZodSessionResponse, makeSessionResponse()],
-    ['makeSessionResponse with a passwordless user', ZodSessionResponse, makeSessionResponse({ user: { id: 1, has_usable_password: false }, methods: [] })],
-    ['makePendingFlowResponse', ZodNotAuthenticatedResponse, makePendingFlowResponse('verify_email')],
-    ['makePendingFlowResponse for MFA', ZodNotAuthenticatedResponse, makePendingFlowResponse('mfa_authenticate', { types: ['totp'] })],
-    ['makeBadResponse', ZodBadResponse, makeBadResponse({ code: 'email_taken', param: 'email', message: 'Taken.' })],
-    ['makeAllAuthConfig', ZodConfigResponse, makeAllAuthConfig()],
-    ['makeAuthenticator(totp)', ZodAuthenticator, makeAuthenticator('totp')],
-    ['makeAuthenticator(webauthn)', ZodAuthenticator, makeAuthenticator('webauthn')],
-    ['makeAuthenticator(recovery_codes)', ZodAuthenticator, makeAuthenticator('recovery_codes')],
-    ['makeAllAuthSession', ZodSession, makeAllAuthSession()],
-    ['makeEmailAddress', ZodEmailAddress, makeEmailAddress()],
-    ['makeSocialProvider', ZodProvider, makeSocialProvider()],
-    ['makeProviderAccount', ZodProviderAccount, makeProviderAccount()],
+    ['makeSessionResponse', zAllAuthAuthenticatedResponse, makeSessionResponse()],
+    ['makeSessionResponse with a passwordless user', zAllAuthAuthenticatedResponse, makeSessionResponse({ user: { id: 1, has_usable_password: false }, methods: [] })],
+    ['makePendingFlowResponse', zAllAuthAuthenticationResponse, makePendingFlowResponse('verify_email')],
+    ['makePendingFlowResponse for MFA', zAllAuthAuthenticationResponse, makePendingFlowResponse('mfa_authenticate', { types: ['totp'] })],
+    ['makeBadResponse', zAllAuthErrorResponse, makeBadResponse({ code: 'email_taken', param: 'email', message: 'Taken.' })],
+    ['makeAllAuthConfig', zGetAllauthAppV1ConfigResponse, makeAllAuthConfig()],
+    ['makeAuthenticator(totp)', zAllAuthAuthenticatorList.element, makeAuthenticator('totp')],
+    ['makeAuthenticator(webauthn)', zAllAuthAuthenticatorList.element, makeAuthenticator('webauthn')],
+    ['makeAuthenticator(recovery_codes)', zAllAuthAuthenticatorList.element, makeAuthenticator('recovery_codes')],
+    ['makeAllAuthSession', zAllAuthSession, makeAllAuthSession()],
+    ['makeEmailAddress', zAllAuthEmailAddress, makeEmailAddress()],
+    ['makeSocialProvider', zAllAuthProvider, makeSocialProvider()],
+    ['makeProviderAccount', zAllAuthProviderAccount, makeProviderAccount()],
   ] as const)('%s parses strictly', (_name, schema, value) => {
     expect(problems(schema, value)).toEqual([])
   })

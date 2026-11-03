@@ -86,7 +86,7 @@ export async function usePasswordResetConfirm(options: {
           await navigateTo(localePath('account-login'))
           return
         }
-        const errors = 'errors' in error.data.data ? error.data.data.errors : []
+        const errors = 'errors' in error.data.data ? error.data.data.errors ?? [] : []
         errors.forEach((error) => {
           toast.add({
             title: error.message,

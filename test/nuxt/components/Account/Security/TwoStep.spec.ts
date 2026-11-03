@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import YAML from 'yaml'
 import TwoStep from '~/components/Account/Security/TwoStep.vue'
 import WebsideTwoStep from '~/components/variants/webside/Account/Security/TwoStep.vue'
-import type { Authenticator } from '~~/shared/types/model/all-auth/account/authenticators/authenticators'
+import type { AllAuthAuthenticator } from '~~/shared/types/allAuth'
 import { makeAllAuthConfig, makeAuthenticator } from '~~/test/fixtures/allauth'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 import { trees } from '~~/test/helpers/trees'
@@ -27,7 +27,7 @@ const messagesOf = (tree: keyof typeof TILE_FILES) => YAML.parse(
   parseSfc(resolve(REPO, TILE_FILES[tree])).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
-function given(authenticators: Authenticator[], supported: Array<'totp' | 'webauthn' | 'recovery_codes'> = ['totp', 'recovery_codes', 'webauthn']) {
+function given(authenticators: AllAuthAuthenticator[], supported: Array<'totp' | 'webauthn' | 'recovery_codes'> = ['totp', 'recovery_codes', 'webauthn']) {
   const store = useAuthStore()
   store.config = makeAllAuthConfig({ mfa: { supported_types: supported, passkey_login_enabled: true } }).data
   store.authenticators = authenticators

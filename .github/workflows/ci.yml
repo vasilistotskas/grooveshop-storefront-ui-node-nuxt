@@ -382,10 +382,10 @@ jobs:
 
       - name: Check for drift in generated TypeScript files
         run: |
-          if ! git diff --exit-code shared/openapi/; then
+          if ! git diff --exit-code shared/openapi/ shared/openapi-allauth/; then
             echo ""
             echo "ERROR: Generated OpenAPI TypeScript files are out of date."
-            echo "Run 'pnpm openapi-ts' locally and commit the updated files in shared/openapi/."
+            echo "Run 'pnpm openapi-ts' locally and commit the updated files in shared/openapi/ and shared/openapi-allauth/."
             exit 1
           fi
 

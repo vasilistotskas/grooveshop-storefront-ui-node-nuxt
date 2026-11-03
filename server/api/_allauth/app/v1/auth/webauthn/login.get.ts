@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    const loginResponse = await parseDataAs(response, ZodWebAuthnLoginGetResponse)
+    const loginResponse = await parseDataAs(response, zGetAllauthAppV1AuthWebauthnLoginResponse)
     await processAllAuthSession(event, loginResponse)
     return loginResponse
   }

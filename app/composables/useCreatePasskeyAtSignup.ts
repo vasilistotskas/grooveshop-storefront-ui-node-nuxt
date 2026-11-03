@@ -44,18 +44,11 @@ export function useCreatePasskeyAtSignup(options: {
       hasError.value = false
 
       const optResp = await getWebAuthnCreateOptionsAtSignup()
-      const jsonOptions = optResp?.data.request_options.publicKey
-
-      if (!jsonOptions) {
-        throw new Error('No creation options')
-      }
-
-      const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(jsonOptions)
-      const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
+      const credential = await createWebAuthnCredential(optResp?.data.request_options.publicKey)
 
       await signupWebAuthnCredential({
         name: event.data.name,
-        credential: credential.toJSON(),
+        credential,
       })
 
       toast.add(options.created())

@@ -3,6 +3,7 @@ import handler from '~~/server/api/_allauth/app/v1/auth/session.get'
 import { zUserDetails } from '~~/shared/openapi/zod.gen'
 import type { BackendRequest } from '~~/test/helpers/nitro'
 import { backend, callRoute, jsonResponse, testSession } from '~~/test/helpers/nitro'
+import { makeSessionResponse } from '~~/test/fixtures/allauth'
 
 /**
  * GET /api/_allauth/app/v1/auth/session: refreshes the visitor's allauth
@@ -33,14 +34,10 @@ const user = {
   mainImagePath: '',
 }
 
-const authenticated = (meta: Record<string, unknown> = {}) => ({
-  status: 200,
-  data: {
-    user: { id: 5, email: 'maria@example.com' },
-    methods: [{ method: 'password', at: 1_700_000_000 }],
-  },
-  meta: { is_authenticated: true, ...meta },
-})
+const authenticated = (meta: Record<string, unknown> = {}) => {
+  const response = makeSessionResponse({ user: { id: 5, email: 'maria@example.com' } })
+  return { ...response, meta: { ...response.meta, ...meta } }
+}
 
 /** Django: the allauth session endpoint, and the account the session refresh then loads. */
 function djangoAnswers(session: unknown) {

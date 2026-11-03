@@ -3,7 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import ProviderList from '~/components/Account/Provider/List.vue'
 import WebsideProviderList from '~/components/variants/webside/Account/Provider/List.vue'
-import type { Provider } from '~~/shared/types/model/all-auth'
+import type { AllAuthProvider } from '~~/shared/openapi-allauth/types.gen'
 import { makeAllAuthConfig, makeSocialProvider } from '~~/test/fixtures/allauth'
 import { trees } from '~~/test/helpers/trees'
 
@@ -24,11 +24,11 @@ const GOOGLE = makeSocialProvider()
 const GITHUB = makeSocialProvider({ id: 'github', name: 'GitHub', client_id: 'github-client-id', flows: ['provider_redirect'] })
 const UNUSABLE = makeSocialProvider({ id: 'facebook', name: 'Facebook', client_id: '' })
 
-function offer(...providers: Provider[]) {
+function offer(...providers: AllAuthProvider[]) {
   useAuthStore().config = makeAllAuthConfig({ socialaccount: { providers } }).data
 }
 
-describe.each(trees(ProviderList, WebsideProviderList))('$tree Account/Provider/List', ({ C }) => {
+describe.each(trees(ProviderList, WebsideProviderList))('$tree Account/AllAuthProvider/List', ({ C }) => {
   async function mountList() {
     const wrapper = await mountSuspended(C, { route: false })
     await flushPromises()
@@ -82,7 +82,7 @@ describe.each(trees(ProviderList, WebsideProviderList))('$tree Account/Provider/
  * action, never "Google" alone. Webside draws the icon-only button the
  * same guidelines allow, so this is the default design's.
  */
-describe('default Account/Provider/List: the Google button', () => {
+describe('default Account/AllAuthProvider/List: the Google button', () => {
   beforeEach(() => {
     offer(GOOGLE, GITHUB)
   })

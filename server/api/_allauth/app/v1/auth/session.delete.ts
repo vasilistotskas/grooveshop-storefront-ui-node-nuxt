@@ -10,8 +10,9 @@ export default defineEventHandler(async (event) => {
       method: 'DELETE',
       headers,
     })
-    const parsed = await parseDataAs(response, ZodPasswordRequestResponse)
-    return parsed
+    // The document gives this operation no 2xx: allauth answers 401 once the
+    // session is gone.
+    return response
   }
   catch (error) {
     await handleAllAuthError(event, error)

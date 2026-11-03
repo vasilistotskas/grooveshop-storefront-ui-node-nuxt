@@ -2,7 +2,7 @@
 export interface MfaMethod {
   /** `<flow id>:<authenticator type>`, or the flow id alone for a flow with no types. */
   key: string
-  id: Flow['id']
+  id: AllAuthFlow['id']
   /** The authenticator type, when the flow has them. */
   type?: AuthenticatorTypeValues
   path: FlowPathValue
@@ -59,7 +59,7 @@ export function useMfaReauthenticationMethods() {
   const flows = computed(() => {
     const state = authState.value
     if (!state) return []
-    return 'data' in state && 'flows' in state.data ? state.data.flows || [] : []
+    return flowsOf(state)
   })
 
   const methods = computed<MfaMethod[]>(() => flows.value.flatMap((flow): MfaMethod[] => {

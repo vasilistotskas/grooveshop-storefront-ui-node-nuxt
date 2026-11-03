@@ -2,7 +2,7 @@
 import type { PropType } from 'vue'
 
 defineProps({
-  flow: { type: String as PropType<Flow['id']>, required: false },
+  flow: { type: String as PropType<AllAuthFlow['id']>, required: false },
 })
 
 defineSlots<{

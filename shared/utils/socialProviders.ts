@@ -8,7 +8,7 @@
  * exactly when it has a button.
  */
 export function usableSocialProviders(
-  config: { socialaccount?: { providers: Provider[] } } | null | undefined,
-): Provider[] {
+  config: { socialaccount?: { providers: AllAuthProvider[] } } | null | undefined,
+): AllAuthProvider[] {
   return (config?.socialaccount?.providers ?? []).filter(provider => provider.client_id !== '')
 }

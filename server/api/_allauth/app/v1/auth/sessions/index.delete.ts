@@ -4,13 +4,13 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodSessionsDeleteBody)
+    const validatedBody = await readValidatedBody(event, zDeleteAllauthAppV1AuthSessionsBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/sessions`, {
       body: validatedBody,
       method: 'DELETE',
       headers,
     })
-    return await parseDataAs(response, ZodSessionsDeleteResponse)
+    return await parseDataAs(response, zDeleteAllauthAppV1AuthSessionsResponse)
   }
   catch (error) {
     // Account-management 4xx payloads (wrong password, duplicate email,

@@ -4,13 +4,13 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodTotpPostBody)
+    const validatedBody = await readValidatedBody(event, zPostAllauthAppV1AccountAuthenticatorsTotpBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/account/authenticators/totp`, {
       body: validatedBody,
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, ZodTotpPostResponse)
+    return await parseDataAs(response, zPostAllauthAppV1AccountAuthenticatorsTotpResponse)
   }
   catch (error) {
     // Account-management 4xx payloads (wrong password, duplicate email,

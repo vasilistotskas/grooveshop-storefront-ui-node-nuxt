@@ -22,7 +22,7 @@ import {
 
 // ── Real payloads ─────────────────────────────────────────────────────
 
-/** allauth bodies, in the shapes `shared/schemas/error/all-auth/*` accept. */
+/** allauth bodies, in the shapes allauth's document gives (`shared/openapi-allauth`). */
 const allauth = {
   bad: { status: 400, errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }] },
   pendingMfa: (meta: Record<string, unknown> = {}) => ({

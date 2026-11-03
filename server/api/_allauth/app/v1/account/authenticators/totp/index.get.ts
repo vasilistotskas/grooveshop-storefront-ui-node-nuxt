@@ -8,13 +8,12 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodTotpGetResponse)
+    return await parseDataAs(response, zGetAllauthAppV1AccountAuthenticatorsTotpResponse)
   }
   catch (error) {
-    if (isAllAuthError(error)) {
-      if (error.data.status === 404 && 'meta' in error.data) {
-        return await parseDataAs(error.data, ZodTotpGetResponseError)
-      }
+    // No authenticator yet: allauth answers 404 with the secret to enrol with.
+    if (isNotFoundResponseError(error)) {
+      return error.data
     }
     await handleAllAuthError(event, error)
   }

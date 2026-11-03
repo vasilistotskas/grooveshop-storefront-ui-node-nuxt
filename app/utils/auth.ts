@@ -82,7 +82,7 @@ export const authInfo = (
   const responseMeta = 'meta' in response ? response.meta as { is_authenticated?: boolean | null } | undefined : undefined
   const isAuthenticated = responseMeta?.is_authenticated === true
   const requiresReauthentication = isAuthenticated && response.status === 401
-  const pendingFlow = 'data' in response ? response.data?.flows?.find(flow => flow.is_pending) ?? null : null
+  const pendingFlow = flowsOf(response).find(flow => flow.is_pending) ?? null
   const user = isAuthenticated && isAllAuthResponseSuccess(response) ? response.data.user : null
   log.info({ tag: 'auth', message: 'Auth info', isAuthenticated, requiresReauthentication, hasPendingFlow: !!pendingFlow })
   return {
@@ -176,8 +176,8 @@ function methodsHaveIncreased(
 }
 
 function hasFlowUpdated(
-  previousFlow: Flow | null,
-  currentFlow: Flow | null,
+  previousFlow: AllAuthFlow | null,
+  currentFlow: AllAuthFlow | null,
 ): boolean {
   if (currentFlow && (!previousFlow || currentFlow.id !== previousFlow.id)) {
     return true
@@ -202,7 +202,7 @@ export const sortAuthenticatorTypes = <T extends string>(types: readonly T[] | u
   return [...(types ?? [])].sort((a, b) => rank(a) - rank(b))
 }
 
-export const pathForFlow = (flow: Flow, authenticatorType?: string) => {
+export const pathForFlow = (flow: AllAuthFlow, authenticatorType?: string) => {
   // provider_redirect is an external OAuth redirect, not a Nuxt page.
   // Return null so navigateToPendingFlow skips navigation.
   if (flow.id === Flows.PROVIDER_REDIRECT) return null
@@ -216,18 +216,18 @@ export const pathForFlow = (flow: Flow, authenticatorType?: string) => {
   return path
 }
 
+/** The flows an answer lists: only a 401 or a 410 has any. */
+export const flowsOf = (
+  response: AllAuthResponse | AllAuthResponseError,
+): readonly AllAuthFlow[] => 'data' in response && 'flows' in response.data && response.data.flows ? response.data.flows : []
+
 export const getPendingFlows = (
   response: AllAuthResponse | AllAuthResponseError,
-): Flow[] => {
-  if ('data' in response && response.data?.flows) {
-    return response.data.flows.filter(flow => flow.is_pending)
-  }
-  return []
-}
+): AllAuthFlow[] => flowsOf(response).filter(flow => flow.is_pending)
 
 export const getPendingFlow = (
   response: AllAuthResponse | AllAuthResponseError,
-): Flow | null => {
+): AllAuthFlow | null => {
   const pendingFlows = getPendingFlows(response)
   return pendingFlows[0] ?? null
 }

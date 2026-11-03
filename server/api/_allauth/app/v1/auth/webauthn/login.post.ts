@@ -4,13 +4,13 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodWebAuthnLoginPostBody)
+    const validatedBody = await readValidatedBody(event, zPostAllauthAppV1AuthWebauthnLoginBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/webauthn/login`, {
       body: validatedBody,
       method: 'POST',
       headers,
     })
-    const providerResponse = await parseDataAs(response, ZodWebAuthnLoginPostResponse)
+    const providerResponse = await parseDataAs(response, zPostAllauthAppV1AuthWebauthnLoginResponse)
     await processAllAuthSession(event, providerResponse)
     return providerResponse
   }
