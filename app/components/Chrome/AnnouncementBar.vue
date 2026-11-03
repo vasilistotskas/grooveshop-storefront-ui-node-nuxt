@@ -12,27 +12,7 @@
  * Fails silent: no bar, or a disabled one, renders nothing. A bar is
  * chrome, not content.
  */
-const { locale } = useI18n()
-const { announcementBar } = useStoreSettings()
-
-const bar = computed(() => announcementBar.value?.enabled ? announcementBar.value : null)
-
-const text = computed(() =>
-  bar.value ? announcementText(bar.value, locale.value) : '',
-)
-
-// The phone's wording, when the operator wrote one; the bar is a single
-// line and a phone has less of it.
-const shortText = computed(() =>
-  bar.value ? announcementShortText(bar.value, locale.value) : '',
-)
-
-// Dismissal is remembered against this id, so a merchant re-shows the
-// bar to everyone by changing it. Without one `UBanner` does not
-// persist anything, which is the right default for an unversioned bar.
-const bannerId = computed(() =>
-  bar.value?.dismissible === false ? undefined : bar.value?.id,
-)
+const { bar, text, shortText, bannerId } = useAnnouncementBar()
 </script>
 
 <template>

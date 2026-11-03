@@ -2,32 +2,25 @@
 /**
  * The store's writing as a swipeable rail.
  *
- * Same query and same cards as `blog_posts_grid`; only the reading
+ * Same list and same cards as `blog_posts_grid`; only the reading
  * changes, which is the whole reason the two section types exist. It
  * used to mount the paginated `/blog` list with a "load more" button
  * inside a band, so a carousel section rendered no carousel at all.
  */
-const props = withDefaults(defineProps<{
+defineProps<{
   title?: string
   heading?: string
   subheading?: string
   ctaText?: string
   ctaLink?: string
-  categoryId?: number
-  count?: number
   surface?: 'default' | 'muted'
-}>(), {
-  count: 6,
-})
+  /** What the band lists: the posts, read by the page route. */
+  posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
+}>()
 
 const { t } = useStoreI18n('components/PageSection/BlogPostsCarousel')
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
-
-const { posts, hasPosts } = await useBlogRail({
-  count: () => props.count,
-  categoryId: () => props.categoryId,
-})
 
 /**
  * Arrows on the rail's own edges. Above it they would land on the
@@ -62,7 +55,7 @@ const arrowButton = {
 
 <template>
   <PageSectionBand
-    v-if="hasPosts"
+    v-if="posts.items.length"
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
@@ -71,7 +64,7 @@ const arrowButton = {
   >
     <UCarousel
       v-slot="{ item }"
-      :items="posts"
+      :items="[...posts.items]"
       :arrows="!isMobileOrTablet"
       :ui="carouselUi"
       :prev="arrowButton"
