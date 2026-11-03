@@ -76,26 +76,9 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     return documents.value.some(document => document.key === key) ? [{ group, key }] : []
   }))
 
-  /** The working copy of an envelope, or `undefined` when this editor cannot open and save it whole. */
-  function workingCopyOf(meta: DocumentDetail): BuilderWorkingCopy | undefined {
-    const draft = ZodBuilderDraft.safeParse(meta.draft)
-    const i18n = ZodBuilderOverlay.safeParse(meta.i18n)
-    const upgraded = draft.success ? upgradeDraft(draft.data, builderEditorBlocks) : undefined
-    if (!upgraded || !i18n.success) {
-      log.error({
-        action: 'builder:document_unreadable',
-        document: meta.key,
-        issues: [...(draft.error?.issues ?? []), ...(i18n.error?.issues ?? [])].map(({ path, code }) => ({ path, code })),
-        upgraded: upgraded !== undefined,
-      })
-      return undefined
-    }
-    return { draft: upgraded, i18n: i18n.data }
-  }
-
   async function read(key: string): Promise<BuilderEditorDocument | undefined> {
     const meta = await $api(`/api/builder/documents/${encodeURIComponent(key)}`)
-    const copy = workingCopyOf(meta)
+    const copy = readBuilderWorkingCopy(meta.key, meta.draft, meta.i18n)
     return copy && { meta, copy, saved: copy }
   }
 
@@ -208,7 +191,7 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
    * changes back as ours. Answers whether their copy could be opened.
    */
   function takeTheirs(key: string, meta: DocumentDetail): boolean {
-    const copy = workingCopyOf(meta)
+    const copy = readBuilderWorkingCopy(meta.key, meta.draft, meta.i18n)
     if (!copy) return false
     put(key, { meta, copy, saved: copy })
     undoStack.value = undoStack.value.filter(entry => entry.key !== key)
