@@ -116,6 +116,12 @@ overrides:
   # exactly the shape of input this parses, so the floor is not
   # optional. Capped <4 so a future major is a deliberate bump.
   '@tiptap/core@<3.30.5': '>=3.30.5 <4'
+
+  # Peer floor, not a CVE: h3 2.0.2 (dev tooling: @devframes, under
+  # @nuxt/devtools) wants crossws ^0.4.12, while devframe 0.8.2 (under
+  # @eslint/config-inspector) pins 0.4.10 and drags the shared copy
+  # below it. Capped <0.5 so a future minor is a deliberate bump.
+  'crossws@>=0.4.0 <0.4.12': '>=0.4.12 <0.5'
 allowBuilds:
   '@intlify/vue-i18n-bridge': true
   '@intlify/vue-router-bridge': true
@@ -191,7 +197,12 @@ minimumReleaseAgeExclude:
 #
 # @nuxt/ui pins reka-ui exactly; pnpm refuses to install if the pinned
 # version moves without the patch moving with it.
+#
+# nuxt-schema-org: the store's identity keeps its logo whatever its
+# Organization subtype, instead of a second "#organization" node
+# (unjs/unhead#1034, merged upstream, unreleased); see the patch header.
 patchedDependencies:
+  nuxt-schema-org@7.0.0: patches/nuxt-schema-org@7.0.0.patch
   reka-ui@2.11.0: patches/reka-ui@2.11.0.patch
 permissions:
   '@nuxtjs/seo':
