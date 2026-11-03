@@ -5,6 +5,12 @@
  * page. Extracted rather than written in each page because
  * `pages/index.vue` and `pages/[slug].vue` carried a byte-identical copy
  * of it.
+ *
+ * Both grids below `md` have ONE column that may shrink (`grid-cols-1` is
+ * `minmax(0, 1fr)`): an `auto` column is as wide as the widest section's
+ * min-content, and a section that scrolls a rail sideways (the blog posts, a
+ * product slider) reports the rail's whole width as its min-content, so the
+ * page scrolled sideways on a phone.
  */
 defineProps<{ sections: BuilderSection[] }>()
 
@@ -21,13 +27,13 @@ defineSlots<{
     <slot name="title" />
     <section
       class="
-        grid gap-4 pt-4
+        grid grid-cols-1 gap-4 pt-4
         md:flex md:flex-col md:gap-8
       "
     >
       <div
         class="
-          grid gap-4
+          grid grid-cols-1 gap-4
           md:gap-8
         "
       >
