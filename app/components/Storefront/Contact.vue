@@ -34,9 +34,7 @@ const showBreadcrumb = computed(
 )
 
 // A layout that already carries the opening hours would show them twice.
-const layoutHasHours = computed(() =>
-  brandSections.value.some(section => section.componentType === 'business_hours'),
-)
+const layoutHasHours = computed(() => sectionsProvideHours(brandSections.value))
 </script>
 
 <template>

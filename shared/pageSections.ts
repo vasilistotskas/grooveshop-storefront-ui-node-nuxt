@@ -108,3 +108,14 @@ export function sectionsProvideForm(
     FORM_SECTION_TYPES.has(section.componentType),
   )
 }
+
+/**
+ * Whether a rendered section list already carries the opening hours (the
+ * `business_hours` band), so the contact page does not print them a second
+ * time in its card.
+ */
+export function sectionsProvideHours(
+  sections: readonly { componentType: string }[] | undefined,
+): boolean {
+  return (sections ?? []).some(section => section.componentType === 'business_hours')
+}
