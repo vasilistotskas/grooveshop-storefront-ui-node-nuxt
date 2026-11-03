@@ -117,7 +117,7 @@ describe('the autosave', () => {
   it('says which problems Django found when it refuses the document', async () => {
     const editor = await openHome()
     const autosave = useBuilderAutosaveStore()
-    const errors = [{ path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Too long.' }]
+    const errors = [{ path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Too long.', document: null, params: null }]
     api.routes({ [DRAFT]: failWith(400, { code: 'invalid_document', detail: 'x', errors }) })
 
     changeOnce(editor)

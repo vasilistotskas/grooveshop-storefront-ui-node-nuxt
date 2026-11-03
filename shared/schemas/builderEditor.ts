@@ -96,8 +96,8 @@ export const ZodBuilderVersionsQuery = z.object({
   page: z.string().regex(/^\d{1,6}$/).optional(),
 })
 
-/** One problem Django found with a document: where (a JSON pointer into what was sent), its code, a sentence, and the document when several were sent. */
-export const ZodBuilderDocumentProblem = z.object({ path: z.string(), code: z.string(), message: z.string(), document: z.string().optional() })
+/** One problem Django found with a document, as `Issue.as_dict` sends it: where (a JSON pointer into what was sent), its code, a sentence, the document (null for a single-document request) and its params. */
+export const ZodBuilderDocumentProblem = z.object({ path: z.string(), code: z.string(), message: z.string(), document: z.string().nullish(), params: z.record(z.string(), z.string()).nullish() })
 
 /**
  * Django's refusal of documents (`400 invalid_document`): every problem;

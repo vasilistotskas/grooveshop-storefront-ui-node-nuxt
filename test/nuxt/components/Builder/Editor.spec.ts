@@ -615,7 +615,7 @@ describe('editing the structure of a page', () => {
         [DRAFT_URL]: failWith(400, {
           code: 'invalid_document',
           detail: 'x',
-          errors: [{ path: '/sections/news/type', code: 'feature_disabled', message: 'newsletter_signup needs a feature that is off for this store.' }],
+          errors: [{ path: '/sections/news/type', code: 'feature_disabled', message: 'newsletter_signup needs a feature that is off for this store.', document: null, params: null }],
         }),
         [FEATURES_URL]: { features: { newsletter: { on: false, turnOnUrl: TURN_ON_URL } } },
       })
@@ -655,7 +655,7 @@ describe('editing the structure of a page', () => {
         [DRAFT_URL]: failWith(400, {
           code: 'invalid_document',
           detail: 'x',
-          errors: [{ path: '/sections/news/type', code: 'feature_disabled', message: 'newsletter_signup needs a feature that is off for this store.' }],
+          errors: [{ path: '/sections/news/type', code: 'feature_disabled', message: 'newsletter_signup needs a feature that is off for this store.', document: null, params: null }],
         }),
         [FEATURES_URL]: { features: { newsletter: { on: false, turnOnUrl: null } } },
       })
