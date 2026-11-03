@@ -13,6 +13,17 @@ export interface LoaderContext {
 }
 
 /**
+ * The key of a cached read of the page's data: the store, the language, the
+ * store's tenant-config epoch and what was asked. The store is its own `:`
+ * segment (a cached function's key is not escaped), which is what
+ * `cacheKeyBelongsToHost` scopes a store's purge by, and the epoch is what
+ * lets a feature switch orphan every entry of the store at once.
+ */
+export function dataCacheKey(tenantHost: string, locale: string, asked: string): string {
+  return hashedCacheKey(`${tenantHost}:${locale}:e${tenantConfigEpoch(tenantHost)}:${asked}`)
+}
+
+/**
  * One read of a Django list endpoint, cached under what it asked.
  *
  * The key is the store, the language, the store's tenant-config epoch and
@@ -30,12 +41,13 @@ export function cachedRead<Schema extends z.ZodType>(
   name: string,
   path: string,
   schema: Schema,
+  { localized = true }: { localized?: boolean } = {},
 ) {
   return defineCachedFunction(
     async (tenantHost: string, locale: string, query: DjangoQuery): Promise<z.output<Schema>> => {
       const response = await backendFetchFor({ tenantHost, locale })(`${useRuntimeConfig().apiBaseUrl}${path}`, {
         method: 'GET',
-        query: { ...query, languageCode: locale },
+        query: localized ? { ...query, languageCode: locale } : query,
       })
       return parseDataAs(response, schema)
     },
@@ -44,7 +56,7 @@ export function cachedRead<Schema extends z.ZodType>(
       maxAge: DATA_CACHE_SECONDS,
       swr: false,
       getKey: (tenantHost: string, locale: string, query: DjangoQuery) =>
-        hashedCacheKey(`${tenantHost}:${locale}:e${tenantConfigEpoch(tenantHost)}:${JSON.stringify(Object.entries(query).sort(([a], [b]) => a < b ? -1 : 1))}`),
+        dataCacheKey(tenantHost, locale, JSON.stringify(Object.entries(query).sort(([a], [b]) => a < b ? -1 : 1))),
     },
   )
 }
@@ -55,6 +67,9 @@ const readBlogPosts = cachedRead('builderDataBlogPost', '/blog/post', zListBlogP
 const readCategories = cachedRead('builderDataCategory', '/product/category', zListProductCategoryResponse)
 const readBlogCategories = cachedRead('builderDataBlogCategory', '/blog/category', zListBlogCategoryResponse)
 const readPromotions = cachedRead('builderDataPromotion', '/promotion', zListPublicPromotionsResponse)
+
+/** The slugs of the records a page links to (`GET builder/link-targets`): they do not vary by language, so the call carries none. */
+export const readLinkSlugs = cachedRead('builderDataSlug', '/builder/link-targets', zApiV1BuilderLinkTargetsRetrieveResponse, { localized: false })
 
 /** Every id in as few reads as Django's page size allows, the answers in one list. */
 async function readByIds<Item>(

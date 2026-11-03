@@ -4,7 +4,7 @@ import { defineBlock } from '~~/shared/builder/defineBlock'
 import { THEME_CONTRAST_RULES } from '~~/shared/builder/documentRoots'
 import { builderField } from '~~/shared/builder/fields'
 import { builderBlocks, builderCatalogueDocument, buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
-import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
+import { fixtureBlocks, promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 
 const blockOf = (type: string) => buildBlockCatalogue([promoBanner, promoItem]).blocks.find(block => block.type === type)!
 
@@ -213,13 +213,13 @@ describe('buildBlockCatalogue', () => {
 
 describe('this build\'s catalogue', () => {
   it('registers the blocks of the build by type', () => {
-    expect([...builderBlocks.keys()]).toEqual(['promo_banner', 'promo_item'])
+    expect([...builderBlocks.keys()]).toEqual(['promo_banner', 'promo_item', 'promo_rail'])
   })
 
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    const { blocks, documentKinds, templates } = buildBlockCatalogue([promoBanner, promoItem])
+    const { blocks, documentKinds, templates } = buildBlockCatalogue(fixtureBlocks)
 
     expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds, templates })
   })

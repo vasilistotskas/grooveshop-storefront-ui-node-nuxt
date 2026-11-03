@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/builder/pages/[pageKey].get'
-import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse, log } from '~~/test/helpers/nitro'
+import { readPublishedPage } from '~~/server/utils/builderPageDocument'
+import { cacheKeyBelongsToHost } from '~~/server/utils/cacheKey'
+import { backend, cacheOptionsOf, callRoute, jsonResponse, log } from '~~/test/helpers/nitro'
+import { makeProductCard } from '~~/test/fixtures/product'
 
 const route = '/api/builder/pages/:pageKey'
 const API = 'http://backend.test/api/v1'
@@ -227,16 +230,111 @@ describe('GET /api/builder/pages/[pageKey]', () => {
     expect(backend.requests).toHaveLength(0)
   })
 
-  describe('its cache', () => {
-    it('is the handler named builderPage, which Django\'s purge after a release names', () => {
-      expect(cacheOptionsOf(handler).name).toBe('builderPage')
+  describe('its data', () => {
+    const rail = (settings: Record<string, unknown>) => published(document({
+      sections: { rail: { type: 'promo_rail@1', settings } },
+      order: ['rail'],
+    }))
+    const newest = { mode: 'filter', ordering: 'newest', limit: 4 }
+    const productPage = (...ids: number[]) => ({ count: ids.length, results: ids.map(id => makeProductCard({ id })) })
+
+    /** Django as the page meets it: the published page, then the products the page lists or names. */
+    const store = (page: unknown, products: (request: { searchParams: URLSearchParams }) => unknown) => backend.reply((request) => {
+      if (request.path.endsWith('/builder/published/about')) return page
+      return products(request.url)
     })
 
-    it('keys on the page, besides the store, the language and the epoch', () => {
-      const options = cacheOptionsOf(handler)
-      const key = (pageKey: string) => options.getKey!(createTestEvent({ context: { locale: 'el', params: { pageKey } } }))
+    it('answers a rule as the products it lists now, under the name of its setting', async () => {
+      store(rail({ heading: 'New', products: newest }), () => productPage(3, 5))
 
-      expect(key('about')).not.toBe(key('contact'))
+      const { body } = await get()
+
+      expect(body.page.sections).toHaveLength(1)
+      const { props } = body.page.sections[0]
+      expect(props.heading).toBe('New')
+      expect(props.products.status).toBe('ok')
+      expect(props.products.items.map((product: { id: number }) => product.id)).toEqual([3, 5])
+    })
+
+    it('reads the products as the store, in the page\'s language, and asks what the rule says', async () => {
+      store(rail({ products: { mode: 'filter', categories: [4, 2], ordering: 'discounted', limit: 6 } }), () => productPage(1))
+
+      await get('about', 'en')
+
+      const read = backend.requests.find(({ path }) => path.endsWith('/product'))!
+      expect(read.headers.get('x-forwarded-host')).toBe('shop.test')
+      expect(read.headers.get('x-language')).toBe('en')
+      expect(read.query).toMatchObject({ pageSize: '6', ordering: '-announcedDiscountPercent', minAnnouncedDiscountPercent: '1', category: '2_4', languageCode: 'en' })
+    })
+
+    it('reads every product the page names by id in ONE call: a hand-picked list and a spotlight together', async () => {
+      store(rail({ products: { mode: 'picked', ids: [9, 4] }, spotlight: 7 }), () => productPage(4, 7, 9))
+
+      const { body } = await get()
+
+      const reads = backend.requests.filter(({ path }) => path.endsWith('/product'))
+      expect(reads).toHaveLength(1)
+      expect(reads[0]!.query).toMatchObject({ id_In: '4,7,9', pageSize: '3' })
+      const { props } = body.page.sections[0]
+      expect(props.products.items.map((product: { id: number }) => product.id)).toEqual([9, 4])
+      expect(props.spotlight).toMatchObject({ status: 'ok', value: { id: 7 } })
+    })
+
+    it('leaves out a band whose rule lists nothing, as its block declares', async () => {
+      store(rail({ products: newest }), () => productPage())
+
+      const { status, body } = await get()
+
+      expect(status).toBe(200)
+      expect(body.page.sections).toEqual([])
+    })
+
+    it('hands the component the status of a record that is gone, when its block declares so', async () => {
+      store(rail({ products: newest, spotlight: 7 }), url => url.searchParams.has('id_In') ? productPage() : productPage(1))
+
+      const { body } = await get()
+
+      expect(body.page.sections[0].props.spotlight).toEqual({ status: 'missing' })
+    })
+
+    it('does not take a band out for a read that failed: the status says so, and the page still answers', async () => {
+      backend.reply(({ path }) => path.endsWith('/builder/published/about') ? rail({ products: newest }) : jsonResponse({ detail: 'Internal server error.' }, 500))
+
+      const { status, body } = await get()
+
+      expect(status).toBe(200)
+      expect(body.page.sections[0].props.products).toEqual({ status: 'failed', items: [] })
+      expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ tag: 'builder-data', source: 'product' }))
+    })
+
+    it('asks Django for nothing but the page when it has no data settings', async () => {
+      backend.reply(published(document({ sections: { a: { type: 'promo_banner@2', settings: { title: 'Plain' } } }, order: ['a'] })))
+
+      await get()
+
+      expect(backend.requests.map(({ path }) => path.replace(API, ''))).toEqual(['/builder/published/about'])
+    })
+  })
+
+  describe('its caches', () => {
+    it('is not cached itself: the document and the data are, each apart', () => {
+      expect(() => cacheOptionsOf(handler)).toThrow(/Not created by/)
+    })
+
+    it('caches the document as the function named builderPageDocument, which Django\'s purge after a release names', () => {
+      expect(cacheOptionsOf(readPublishedPage)).toMatchObject({ name: 'builderPageDocument', maxAge: 300 })
+    })
+
+    it('keys the document on the page, besides the store, the language and the epoch, with the store as its own segment', () => {
+      const { getKey } = cacheOptionsOf(readPublishedPage)
+      const key = (host: string, locale: string, pageKey: string) => getKey!(host, locale, pageKey, () => true) as string
+
+      expect(key('shop.test', 'el', 'about')).not.toBe(key('shop.test', 'el', 'contact'))
+      expect(key('shop.test', 'el', 'about')).not.toBe(key('shop.test', 'en', 'about'))
+      expect(key('shop.test', 'el', 'about')).not.toBe(key('other.test', 'el', 'about'))
+      const stored = `nitro:functions:builderPageDocument:${key('shop.test', 'el', 'about')}.json`
+      expect(cacheKeyBelongsToHost(stored, 'shop.test')).toBe(true)
+      expect(cacheKeyBelongsToHost(stored, 'other.test')).toBe(false)
     })
   })
 })
