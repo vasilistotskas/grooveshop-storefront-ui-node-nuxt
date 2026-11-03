@@ -1,3 +1,15 @@
+# [3.310.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.309.0...v3.310.0) (2026-11-03)
+
+
+### Bug Fixes
+
+* **settings:** read the typed scalar public settings instead of parsing strings ([#365](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/365)) ([a1a7355](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a1a7355490ae671f9902518292b5eb479d233132))
+
+
+### Features
+
+* **builder:** move the product rails onto the data settings ([#366](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/366)) ([9ccc306](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9ccc30638208682532ed2e369c1950a7f8a764ff))
+
 # [3.309.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.308.0...v3.309.0) (2026-11-03)
 
 
