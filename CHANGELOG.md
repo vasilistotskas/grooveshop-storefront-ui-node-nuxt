@@ -1,3 +1,10 @@
+# [3.321.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.320.0...v3.321.0) (2026-11-03)
+
+
+### Features
+
+* **seo:** product specs, variants and FAQ in the structured data ([#379](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/379)) ([a349789](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a349789a1900d97eb38d59fae6c194409816559a)), closes [unjs/unhead#1034](https://github.com/unjs/unhead/issues/1034)
+
 # [3.320.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.3...v3.320.0) (2026-11-03)
 
 
