@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
@@ -9,7 +9,7 @@ import { failWith } from '~~/test/helpers/api'
 import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { resetBuilderEditorStores } from '~~/test/helpers/builderEditor'
 import { useBuilderLibraryStore } from '~/stores/builderLibrary'
-import { setTenantFeatures } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import Sortable from 'sortablejs'
 import type { SortableEvent } from 'sortablejs'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
@@ -737,6 +737,76 @@ describe('editing the structure of a page', () => {
       await flushPromises()
 
       expect(announced(wrapper)).toBe('Ενέργεια για όλη τη μέρα: μετακινήθηκε στη θέση 2 από 3')
+    })
+  })
+
+  describe('in another language of the store', () => {
+    const HERO_EN = '/_builder?locale=en&node=template:home/hero'
+
+    beforeEach(() => {
+      setTenant({ defaultLocale: 'el', availableLocales: ['el', 'en'] })
+    })
+    afterEach(() => {
+      setTenant()
+    })
+
+    /** The control a field's label names. */
+    const field = (wrapper: Awaited<ReturnType<typeof open>>, label: string) => {
+      const named = wrapper.findAll('label').find(item => item.text().trim() === label)!
+      return { control: wrapper.get(`[id="${named.attributes('for')}"]`), row: named.element.closest('[data-slot="root"]')! }
+    }
+
+    it('writes a translation of a translatable setting, with the draft text as its placeholder until then', async () => {
+      const wrapper = await open(HERO_EN)
+      const heading = field(wrapper, 'Επικεφαλίδα')
+
+      expect((heading.control.element as HTMLInputElement).value).toBe('')
+      expect(heading.control.attributes('placeholder')).toBe('Ενέργεια για όλη τη μέρα')
+      expect(heading.row.textContent).toContain('Χωρίς μετάφραση')
+      expect(wrapper.text()).toContain('Μετάφραση: English')
+
+      await heading.control.setValue('Energy all day')
+      await saveNow()
+
+      const { draft, i18n } = api.callsTo(DRAFT_URL)[0]!.options.body
+      expect(draft.sections.hero.settings.heading).toBe('Ενέργεια για όλη τη μέρα')
+      expect(i18n).toEqual({ en: { hero: { '/heading': 'Energy all day' } } })
+      expect(field(wrapper, 'Επικεφαλίδα').row.textContent).not.toContain('Χωρίς μετάφραση')
+    })
+
+    it('shows a setting that is the same in every language, and changes nothing of it', async () => {
+      const wrapper = await open('/_builder?locale=en&node=template:home/news')
+      const surface = wrapper.findAll('label').find(item => item.text().trim() === 'Φόντο')!.element.closest('[data-slot="root"]')!
+
+      expect(surface.textContent).toContain('Ίδιο σε κάθε γλώσσα')
+      const radios = [...surface.querySelectorAll('[role="radio"]')]
+      expect(radios).toHaveLength(3)
+      expect(radios.every(radio => radio.hasAttribute('disabled') || radio.getAttribute('data-disabled') === '')).toBe(true)
+    })
+
+    it('draws the preview in the language being edited', async () => {
+      const wrapper = await open(HERO_EN)
+
+      expect(wrapper.get('iframe').attributes('src')).toBe('/en?builder-canvas')
+    })
+
+    it('says how many settings of the page still need translating into each language', async () => {
+      const wrapper = await open(HERO_EN)
+
+      await wrapper.get('[aria-label="Γλώσσα επεξεργασίας"]').trigger('keydown', { key: 'Enter' })
+      await flushPromises()
+
+      // The hero's heading, and its stat's value and label.
+      const english = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(option => option.textContent?.includes('English'))!
+      expect(english.textContent).toContain('3 χωρίς μετάφραση')
+    })
+
+    it('offers no language of its own to a store that serves one', async () => {
+      setTenant()
+      const wrapper = await open(HERO_EN)
+
+      expect(wrapper.find('[aria-label="Γλώσσα επεξεργασίας"]').exists()).toBe(false)
+      expect((field(wrapper, 'Επικεφαλίδα').control.element as HTMLInputElement).value).toBe('Ενέργεια για όλη τη μέρα')
     })
   })
 

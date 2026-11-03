@@ -110,3 +110,13 @@ export const ZodBuilderShareParams = z.object({
 export const ZodBuilderShareQuery = z.object({
   page: z.string().regex(/^[-\w]{1,64}$/),
 })
+
+/** `/api/builder/documents/<key>/versions/<number>`: a version of a document, by the number Django gave it. */
+export const ZodBuilderVersionParams = ZodBuilderDocumentParams.extend({
+  number: z.string().regex(/^\d{1,10}$/),
+})
+
+/** `GET /api/builder/documents/<key>/versions`: the page of the history to read, the newest version first. */
+export const ZodBuilderVersionsQuery = z.object({
+  page: z.string().regex(/^\d{1,6}$/).optional(),
+})

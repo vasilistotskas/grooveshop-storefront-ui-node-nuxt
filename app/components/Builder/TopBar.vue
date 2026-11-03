@@ -50,6 +50,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       @click="() => emit('openOutline')"
     />
     <BuilderDocumentSwitcher class="w-44 min-w-0 sm:w-64" />
+    <BuilderLocaleSwitcher />
 
     <UPopover v-if="!store.canEdit">
       <UButton
@@ -69,6 +70,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
     <div class="ms-auto flex items-center gap-1">
       <BuilderHistory />
       <BuilderShareDialog v-if="store.status === 'ready' && store.canEdit" />
+      <BuilderVersionHistory v-if="store.status === 'ready'" />
 
       <UButton
         icon="i-lucide-sliders-horizontal"

@@ -86,6 +86,21 @@ describe('builderSettingsFields', () => {
 
 describe('builderProblemSettingPath', () => {
   it.each([
+    ['/i18n/en/hero/~1heading', 'heading'],
+    ['/i18n/en/hero/heading', 'heading'],
+    ['/i18n/en/s1/~1prompt~1title', 'prompt.title'],
+  ])('reads the translated setting of %j in the language being edited', (pointer, path) => {
+    const nodeId = pointer.split('/')[3]!
+    expect(builderProblemSettingPath(pointer, nodeId, 'en')).toBe(path)
+  })
+
+  it('reads no translated setting of another language, or of another node', () => {
+    expect(builderProblemSettingPath('/i18n/en/hero/~1heading', 'hero', 'fr')).toBeUndefined()
+    expect(builderProblemSettingPath('/i18n/en/hero/~1heading', 's1', 'en')).toBeUndefined()
+    expect(builderProblemSettingPath('/i18n/en/hero', 'hero', 'en')).toBeUndefined()
+  })
+
+  it.each([
     ['/sections/hero/settings/heading', 'hero', 'heading'],
     ['/sections/hero/blocks/s1/settings/prompt/title', 's1', 'prompt.title'],
     ['/sections/hero/blocks/s1/settings/images/2', 's1', 'images.2'],

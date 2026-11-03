@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
+
 const props = defineProps<{
   documentKey: string
   nodeId: string
@@ -7,6 +9,7 @@ const props = defineProps<{
 const { t } = useStoreI18n('components/Builder/SettingsForm')
 const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
+const { locale } = useBuilderEditorView()
 
 const node = computed(() => {
   const document = store.opened[props.documentKey]
@@ -14,6 +17,20 @@ const node = computed(() => {
 })
 const definition = computed(() => node.value ? builderEditorBlocks.get(builderBlockType(node.value)) : undefined)
 const fields = computed(() => definition.value ? builderSettingsFields(definition.value) : [])
+
+/** The node's translations into the language being edited, when it is not the draft's. */
+const translations = computed(() => {
+  const document = store.opened[props.documentKey]
+  return locale.value === DEFAULT_LOCALE || !document ? undefined : document.copy.i18n[locale.value]?.[props.nodeId] ?? {}
+})
+
+/** What the fields read while a language other than the draft's is edited (`BuilderSettingsTranslation`). */
+const translation = computed<BuilderSettingsTranslation | undefined>(() => node.value && definition.value && translations.value
+  ? { fallback: node.value.settings, translatable: new Set(definition.value.translatable) }
+  : undefined)
+
+/** The values the fields show: the draft's, or the translations as settings (each at its own place). */
+const values = computed(() => translations.value ? builderTranslatedSettings({}, translations.value) : node.value?.settings ?? {})
 
 /**
  * What is wrong with the settings, by field path: the block's own schema,
@@ -26,10 +43,12 @@ const errors = computed(() => {
     const field = fieldForSettingPath(fields.value, path)
     if (field && !byField.has(field.path)) byField.set(field.path, message)
   }
-  const parsed = node.value && definition.value ? definition.value.schema.safeParse(node.value.settings) : undefined
+  // A language is checked as it reads: the draft with its translations in place.
+  const read = node.value ? builderTranslatedSettings(node.value.settings, translations.value) : undefined
+  const parsed = read && definition.value ? definition.value.schema.safeParse(read) : undefined
   for (const issue of parsed?.error?.issues ?? []) add(issue.path.map(String).join('.'), t(`issue.${issueKind(issue.code)}`))
   for (const problem of autosave.saves[props.documentKey]?.problems ?? []) {
-    const path = builderProblemSettingPath(problem.path, props.nodeId)
+    const path = builderProblemSettingPath(problem.path, props.nodeId, translations.value ? locale.value : undefined)
     if (path) add(path, problem.message)
   }
   return byField
@@ -45,12 +64,14 @@ function issueKind(code: string): 'tooLong' | 'tooShort' | 'missing' | 'invalid'
   }
 }
 
+/** A setting changed: in the draft, or as a translation into the language being edited. */
 function update(path: string, value: unknown): void {
   const document = store.opened[props.documentKey]
   if (!document) return
-  store.change(props.documentKey, setNodeSetting(document.copy, props.nodeId, path, value), {
-    coalesce: `${props.nodeId}/${path}`,
-  })
+  const next = translations.value
+    ? setNodeTranslation(document.copy, locale.value, props.nodeId, `/${path.split('.').join('/')}`, value)
+    : setNodeSetting(document.copy, props.nodeId, path, value)
+  store.change(props.documentKey, next, { coalesce: `${locale.value}/${props.nodeId}/${path}` })
 }
 </script>
 
@@ -71,9 +92,10 @@ function update(path: string, value: unknown): void {
       v-for="field in fields"
       :key="field.path"
       :field="field"
-      :settings="node.settings"
+      :settings="values"
       :errors="errors"
       :disabled="!store.canEdit"
+      :translation="translation"
       @update="update"
     />
   </form>

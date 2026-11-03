@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
+
 const { t } = useStoreI18n('components/Builder/Inspector')
 const { groupLabel, featureLabel } = useBuilderLabels()
 const { selection, remove } = useBuilderSelection()
@@ -49,6 +51,11 @@ const context = computed(() => {
   const group = BUILDER_EDITOR_GROUPS.find(name => key === builderDocumentKey('group', name))
   return group ? groupLabel(group) : t('page')
 })
+
+// While another language is edited, the pane says which, so a change is
+// never taken for the page's own text.
+const { locale } = useBuilderEditorView()
+const translating = computed(() => locale.value === DEFAULT_LOCALE ? undefined : toUiLocales([locale.value])[0]?.name)
 </script>
 
 <template>
@@ -58,9 +65,19 @@ const context = computed(() => {
     aria-labelledby="builder-inspector-title"
   >
     <header>
-      <p class="text-xs text-muted">
-        {{ context }}
-      </p>
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-xs text-muted">
+          {{ context }}
+        </p>
+        <UBadge
+          v-if="translating"
+          color="info"
+          variant="subtle"
+          size="sm"
+          icon="i-lucide-languages"
+          :label="t('translating', { language: translating })"
+        />
+      </div>
       <h2
         id="builder-inspector-title"
         tabindex="-1"
@@ -96,6 +113,7 @@ const context = computed(() => {
 <i18n lang="yaml">
 el:
   page: Αυτή η σελίδα
+  translating: "Μετάφραση: {language}"
   featureOff:
     title: "Χρειάζεται {feature}, που είναι κλειστό σε αυτό το κατάστημα"
     description: Η σελίδα δεν αποθηκεύεται όσο υπάρχει. Αφαιρέστε το, ή ζητήστε να ανοίξει η λειτουργία.
@@ -107,6 +125,7 @@ el:
     description: Διαλέξτε μια ενότητα ή ένα στοιχείο στη δομή της σελίδας για να αλλάξετε τις ρυθμίσεις του.
 en:
   page: This page
+  translating: "Translating: {language}"
   featureOff:
     title: "Needs {feature}, which is off for this store"
     description: The page can't be saved while it's here. Remove it, or have the feature turned on.

@@ -8,6 +8,11 @@ const props = defineProps<{
   /** What is wrong, by field path. */
   errors: ReadonlyMap<string, string>
   disabled: boolean
+  /**
+   * Set while a language other than the draft's is edited: `settings` then
+   * holds the node's translations, and `fallback` the draft's settings.
+   */
+  translation?: BuilderSettingsTranslation
 }>()
 
 const emit = defineEmits<{
@@ -21,7 +26,18 @@ const { settingLabel, settingHelp, optionLabel, routeLabel } = useBuilderLabels(
 /** The value a choice offers for "leave it to the section": never one of a setting's own values. */
 const UNSET = '@unset'
 
-const value = computed(() => settingAt(props.settings, props.field.path))
+/** Whether the field is edited in the language being edited: always in the draft's, a translatable one in another. */
+const translatable = computed(() => !props.translation || props.translation.translatable.has(props.field.pointer))
+/** The draft's value of a translatable field while it is translated: what the page shows until it is. */
+const fallback = computed(() => props.translation && translatable.value ? settingAt(props.translation.fallback, props.field.path) : undefined)
+const fallbackText = computed(() => typeof fallback.value === 'string' && fallback.value !== '' ? fallback.value : undefined)
+const value = computed(() => props.translation && !translatable.value
+  ? settingAt(props.translation.fallback, props.field.path)
+  : settingAt(props.settings, props.field.path))
+/** A field the language being edited cannot change: the same in every language. */
+const locked = computed(() => props.disabled || !translatable.value)
+/** A translatable field with text in the draft and none in the language being edited. */
+const untranslated = computed(() => props.translation !== undefined && translatable.value && fallback.value !== undefined && fallback.value !== '' && (value.value === undefined || value.value === ''))
 const label = computed(() => settingLabel(props.field.path))
 const help = computed(() => settingHelp(props.field.path))
 const error = computed(() => props.errors.get(props.field.path))
@@ -111,6 +127,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       :settings="settings"
       :errors="errors"
       :disabled="disabled"
+      :translation="translation"
       @update="(path, next) => emit('update', path, next)"
     />
   </fieldset>
@@ -123,21 +140,38 @@ function moveListItem(index: number, delta: -1 | 1): void {
     :required="field.required"
     :name="field.path"
   >
+    <template
+      v-if="translation"
+      #hint
+    >
+      <UBadge
+        v-if="untranslated"
+        color="warning"
+        variant="subtle"
+        size="sm"
+        :label="t('untranslated')"
+      />
+      <span
+        v-else-if="!translatable"
+        class="text-xs text-muted"
+      >{{ t('sameEverywhere') }}</span>
+    </template>
     <UInput
       v-if="field.kind === 'text' || field.kind === 'url'"
       :model-value="text"
       :type="field.kind === 'url' ? 'url' : 'text'"
       :maxlength="field.kind === 'text' ? field.maxLength : undefined"
-      :placeholder="field.kind === 'url' ? t('urlPlaceholder') : undefined"
-      :disabled="disabled"
+      :placeholder="field.kind === 'url' ? t('urlPlaceholder') : fallbackText"
+      :disabled="locked"
       class="w-full"
       @update:model-value="set"
     />
     <UTextarea
       v-else-if="field.kind === 'textarea'"
       :model-value="text"
+      :placeholder="fallbackText"
       :maxlength="field.maxLength"
-      :disabled="disabled"
+      :disabled="locked"
       autoresize
       :rows="3"
       class="w-full"
@@ -151,21 +185,21 @@ function moveListItem(index: number, delta: -1 | 1): void {
       variant="table"
       indicator="hidden"
       size="sm"
-      :disabled="disabled"
+      :disabled="locked"
       @update:model-value="setChoice"
     />
     <USelect
       v-else-if="field.kind === 'choice' || field.kind === 'route'"
       :model-value="choice"
       :items="(choiceItems as SelectItem[])"
-      :disabled="disabled"
+      :disabled="locked"
       class="w-full"
       @update:model-value="setChoice"
     />
     <USwitch
       v-else-if="field.kind === 'boolean' && field.required"
       :model-value="value === true"
-      :disabled="disabled"
+      :disabled="locked"
       @update:model-value="set"
     />
     <URadioGroup
@@ -176,7 +210,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       variant="table"
       indicator="hidden"
       size="sm"
-      :disabled="disabled"
+      :disabled="locked"
       @update:model-value="setToggle"
     />
     <BuilderRecordPicker
@@ -185,7 +219,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       :value="record"
       :label="label"
       :clearable="!field.required"
-      :disabled="disabled"
+      :disabled="locked"
       @update="(next: BuilderLinkRef | undefined) => set(next?.id)"
     />
     <UInputNumber
@@ -194,7 +228,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       :min="field.kind === 'number' ? field.min : 1"
       :max="field.kind === 'number' ? field.max : undefined"
       :step="field.kind === 'number' ? step : 1"
-      :disabled="disabled"
+      :disabled="locked"
       class="w-full"
       @update:model-value="(next: number | null | undefined) => set(next ?? undefined)"
     />
@@ -202,12 +236,12 @@ function moveListItem(index: number, delta: -1 | 1): void {
       v-else-if="field.kind === 'color'"
       class="flex items-center gap-2"
     >
-      <UPopover :disabled="disabled">
+      <UPopover :disabled="locked">
         <UButton
           color="neutral"
           variant="outline"
           :aria-label="t('pickColour', { name: label })"
-          :disabled="disabled"
+          :disabled="locked"
         >
           <span
             class="size-5 rounded-sm ring ring-default"
@@ -226,7 +260,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       <UInput
         :model-value="text"
         :placeholder="t('hexPlaceholder')"
-        :disabled="disabled"
+        :disabled="locked"
         class="min-w-0 flex-1"
         @update:model-value="set"
       />
@@ -235,7 +269,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       v-else-if="field.kind === 'icon'"
       :model-value="text"
       :placeholder="t('iconPlaceholder')"
-      :disabled="disabled"
+      :disabled="locked"
       :leading-icon="text || undefined"
       class="w-full"
       @update:model-value="set"
@@ -244,7 +278,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       v-else-if="field.kind === 'link'"
       :label="label"
       :value="value"
-      :disabled="disabled"
+      :disabled="locked"
       @update="set"
     />
     <div
@@ -259,7 +293,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
         <UInput
           :model-value="item"
           :aria-label="t('item', { name: label, number: index + 1 })"
-          :disabled="disabled"
+          :disabled="locked"
           class="min-w-0 flex-1"
           @update:model-value="(next: string) => setListItem(index, next)"
         />
@@ -269,7 +303,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
           variant="ghost"
           size="sm"
           :aria-label="t('itemUp', { number: index + 1 })"
-          :disabled="disabled || index === 0"
+          :disabled="locked || index === 0"
           @click="() => moveListItem(index, -1)"
         />
         <UButton
@@ -278,7 +312,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
           variant="ghost"
           size="sm"
           :aria-label="t('itemDown', { number: index + 1 })"
-          :disabled="disabled || index === list.length - 1"
+          :disabled="locked || index === list.length - 1"
           @click="() => moveListItem(index, 1)"
         />
         <UButton
@@ -287,7 +321,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
           variant="ghost"
           size="sm"
           :aria-label="t('itemRemove', { number: index + 1 })"
-          :disabled="disabled"
+          :disabled="locked"
           @click="() => set(list.filter((_, at) => at !== index))"
         />
       </div>
@@ -298,7 +332,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
         size="sm"
         class="self-start"
         :label="t('itemAdd')"
-        :disabled="disabled || (field.maxItems !== undefined && list.length >= field.maxItems)"
+        :disabled="locked || (field.maxItems !== undefined && list.length >= field.maxItems)"
         @click="() => set([...list, ''])"
       />
     </div>
@@ -306,7 +340,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
       v-else-if="field.kind === 'richText'"
       :value="text"
       :label="label"
-      :disabled="disabled"
+      :disabled="locked"
       @update="set"
     />
   </UFormField>
@@ -326,6 +360,8 @@ el:
   itemDown: "Μετακίνηση κάτω: {number}"
   itemRemove: "Αφαίρεση: {number}"
   itemAdd: Προσθήκη
+  untranslated: Χωρίς μετάφραση
+  sameEverywhere: Ίδιο σε κάθε γλώσσα
 en:
   default: Default
   "on": "On"
@@ -339,4 +375,6 @@ en:
   itemDown: "Move {number} down"
   itemRemove: "Remove {number}"
   itemAdd: Add
+  untranslated: Not translated
+  sameEverywhere: Same in every language
 </i18n>
