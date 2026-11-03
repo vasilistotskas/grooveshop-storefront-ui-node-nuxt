@@ -1,3 +1,10 @@
+## [3.303.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.303.0...v3.303.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **builder:** gate the search bar on the catalogue; correct the webside registry comment ([#354](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/354)) ([054ac35](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/054ac350176484605528bff114f08d961bd98e9d))
+
 # [3.303.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.302.0...v3.303.0) (2026-11-03)
 
 
