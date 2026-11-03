@@ -187,6 +187,19 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
     await save(key, { force: true })
   }
 
+  /**
+   * Someone else saved the document since this editor read it, learned from
+   * another request made against the revision it holds (a version restored):
+   * the same state a refused save puts the document in, so the same dialog
+   * asks which copy to keep. Answers whether `body` was Django's conflict.
+   */
+  function reportConflict(key: string, body: unknown): boolean {
+    const conflict = ZodConflict.safeParse(body)
+    if (!conflict.success) return false
+    set(key, { state: 'conflict', conflict: conflict.data })
+    return true
+  }
+
   /** The conflict is settled by taking their copy: nothing of ours is left to save. */
   function settled(key: string): void {
     clearTimeout(timers.get(key))
@@ -240,5 +253,5 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
     return keys.every(key => stateOf(key) === 'saved')
   }
 
-  return { saves, overall, conflict, stateOf, schedule, save, keepMine, settled, retry, flush, settle }
+  return { saves, overall, conflict, stateOf, schedule, save, keepMine, reportConflict, settled, retry, flush, settle }
 })

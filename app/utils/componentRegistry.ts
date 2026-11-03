@@ -106,11 +106,11 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'what_is_microlearning@webside': lazySection(() => import('~/components/variants/webside/PageSection/WhatIsMicrolearning.vue')),
   'why_microlearning@webside': lazySection(() => import('~/components/variants/webside/PageSection/WhyMicrolearning.vue')),
 
-  // webside's own copies of the four base sections its layouts use
-  // (home: blog_categories → hero_carousel → recently_viewed →
-  // blog_posts_list). The base entries above are the platform default
-  // and get redesigned; these keep rendering today's markup for the one
-  // tenant that must not change — see app/components/variants/webside/.
+  // webside's own designs of base sections. The base entries above are the
+  // platform default; webside draws these instead, in its own look. A design
+  // owns its look, not its behaviour: what a section does follows the
+  // platform, so a fix lands in both entries — see
+  // app/components/variants/webside/ and `.claude/rules/ui-and-pages.md`.
   'blog_categories@webside': lazySection(() => import('~/components/variants/webside/PageSection/BlogCategories.vue')),
   'hero_carousel@webside': eagerSection(() => import('~/components/variants/webside/PageSection/HeroCarousel.vue')),
   'recently_viewed@webside': idleSection(() => import('~/components/variants/webside/PageSection/RecentlyViewed.vue')),

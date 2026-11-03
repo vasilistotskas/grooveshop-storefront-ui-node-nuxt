@@ -1,3 +1,10 @@
+# [3.303.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.302.0...v3.303.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** a restore conflict opens the conflict dialog; show which version a restore put back ([#353](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/353)) ([12266df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12266df8e29cf82561cd9d46d1e6ad0f893038e5))
+
 # [3.302.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.301.1...v3.302.0) (2026-11-03)
 
 

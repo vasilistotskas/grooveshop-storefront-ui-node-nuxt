@@ -1,5 +1,5 @@
 {
-  "hash": "1530b588e5da1401",
+  "hash": "10957126239d8456",
   "blocks": [
     {
       "type": "about_content",
@@ -5606,6 +5606,7 @@
       "kinds": [
         "section"
       ],
+      "feature": "catalogue",
       "presets": [
         {
           "id": "default"

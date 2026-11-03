@@ -9,6 +9,8 @@ export interface BuilderHistoryRow {
   kind: 'draft' | BuilderVersionKindEnum
   /** The version's number; absent for the draft. */
   number?: number
+  /** The number of the version a `restore` put back; `null` for any other row. */
+  restoredFrom: number | null
   at: string
   by: Staff | null
   note: string
@@ -28,7 +30,7 @@ export function builderHistoryRows(
   versions: readonly VersionList[],
 ): BuilderHistoryRow[] {
   const draft: BuilderHistoryRow[] = document?.hasUnpublishedChanges
-    ? [{ id: 'draft', kind: 'draft', at: document.updatedAt, by: document.updatedBy, note: '', live: false }]
+    ? [{ id: 'draft', kind: 'draft', restoredFrom: null, at: document.updatedAt, by: document.updatedBy, note: '', live: false }]
     : []
   return [
     ...draft,
@@ -36,6 +38,7 @@ export function builderHistoryRows(
       id: `version-${version.number}`,
       kind: version.kind,
       number: version.number,
+      restoredFrom: version.restoredFrom ?? null,
       at: version.createdAt,
       by: version.createdBy,
       note: version.note,

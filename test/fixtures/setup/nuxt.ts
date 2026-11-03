@@ -1,4 +1,4 @@
-import { afterEach, beforeAll } from 'vitest'
+import { afterEach, beforeAll, vi } from 'vitest'
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils'
 
 /**
@@ -7,6 +7,19 @@ import { enableAutoUnmount, flushPromises } from '@vue/test-utils'
  * `beforeAll` — `withSetupFileAfterNuxt` in vitest.config.mts appends this
  * file behind it.
  */
+
+/**
+ * The default layout is stubbed for every spec: the first navigation of a file
+ * loads it (`layouts/default.vue`: the header, the funding banner,
+ * `ImgWithFallback`, and through Nuxt UI the whole reka-ui barrel, ~600
+ * modules transformed cold), which cost ~700 ms inside the first test of any
+ * spec that navigates (a form's `router.replace`, `mountSuspended` with a
+ * `route`) and, with the machine busy, ran over a `vi.waitFor`'s 1 s: the
+ * login form spec failed 2 runs in 4 under load. A component spec does not
+ * test the layout. A spec that does (`design-render.spec.ts`) calls
+ * `vi.unmock('~/layouts/default.vue')`.
+ */
+vi.mock('~/layouts/default.vue', () => ({ default: { render: () => null } }))
 
 /**
  * Unmount every wrapper after each test (@vue/test-utils
