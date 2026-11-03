@@ -56,7 +56,7 @@ export async function useProductAssurances() {
   const { cart } = storeToRefs(useCartStore())
   const cartHasProgress = computed(() => Boolean(cart.value?.freeShippingProgress))
 
-  const returnWindowSetting = useSettingValue('RETURN_WINDOW_DAYS')
+  const { values } = useStoreSettings()
   const { published } = useFooterContentPages()
 
   // Every request starts before any is awaited: a composable keeps its
@@ -112,7 +112,7 @@ export async function useProductAssurances() {
   })
 
   const returns = computed<ProductAssuranceRow | null>(() => {
-    const days = returnWindowDays(returnWindowSetting.value)
+    const days = returnWindowDays(values.value?.returnWindowDays)
     if (days === null) return null
     return {
       kind: 'returns',

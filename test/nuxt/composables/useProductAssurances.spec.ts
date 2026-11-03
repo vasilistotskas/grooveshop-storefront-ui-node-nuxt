@@ -3,6 +3,7 @@ import { computed, defineComponent, h, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart, makeFreeShippingProgress } from '~~/test/fixtures/cart'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
@@ -16,7 +17,7 @@ const data = vi.hoisted(() => ({
   freeShipping: { minThreshold: 40 as number | null, countryCode: 'GR' as string | null },
   policy: [] as Array<{ countryCode: string, deliveryDaysMin: number | null, deliveryDaysMax: number | null }>,
   payWays: [] as Array<{ settlement?: string }>,
-  returnWindow: '14',
+  returnWindow: 14 as number | undefined,
   published: new Set<string>(),
   requested: 0,
 }))
@@ -33,7 +34,7 @@ mockNuxtImport('useStorePayWays', () => () => {
   data.requested++
   return Promise.resolve({ data: ref({ results: data.payWays }) })
 })
-mockNuxtImport('useSettingValue', () => () => computed(() => data.returnWindow))
+mockNuxtImport('useStoreSettings', () => () => ({ values: computed(() => data.returnWindow === undefined ? null : makePublicValues({ returnWindowDays: data.returnWindow })) }))
 mockNuxtImport('useFooterContentPages', () => () => ({ published: computed(() => data.published), links: computed(() => []) }))
 
 type Assurances = Awaited<ReturnType<typeof useProductAssurances>>
@@ -61,7 +62,7 @@ beforeEach(() => {
     { countryCode: 'CY', deliveryDaysMin: 5, deliveryDaysMax: 9 },
   ]
   data.payWays = [{ settlement: 'online' }, { settlement: 'courier_cash' }]
-  data.returnWindow = '14'
+  data.returnWindow = 14
   data.published = new Set()
   data.requested = 0
 })
@@ -150,14 +151,14 @@ describe('useProductAssurances', () => {
     expect((await load()).rows.value.map(row => row.kind)).toEqual(['delivery', 'returns'])
   })
 
-  it.each(['', '0', 'abc', '1.5'])('hides the returns row when the window is %j', async (raw) => {
-    data.returnWindow = raw
+  it.each([undefined, 0])('hides the returns row when the window is %j', async (days) => {
+    data.returnWindow = days
 
     expect((await load()).rows.value.map(row => row.kind)).toEqual(['delivery', 'payment'])
   })
 
   it('says a one-day return window in the singular', async () => {
-    data.returnWindow = '1'
+    data.returnWindow = 1
 
     expect(text(await load())[2]).toBe('Επιστροφή εντός 1 ημέρας')
   })

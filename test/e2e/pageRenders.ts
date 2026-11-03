@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { makeProductPoints } from '../fixtures/loyalty'
 import { makeProduct, makeProductCard } from '../fixtures/product'
 import { makeProductSearchResponse } from '../fixtures/productFilters'
+import { makePublicValues } from '../fixtures/publicValues'
 import { validTenantConfig } from '../fixtures/tenantConfig'
 import { BROWSER_ACCEPT, requestWithHost, sendJson, waitUntilServing } from '../helpers/e2e'
 
@@ -245,8 +246,8 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
   }
 
   if (reqUrl.pathname.endsWith('/settings/public')) {
-    // No rows at all: every flag resolves to its caller's fallback, and
-    // none of the structured settings is configured.
+    // Every flag resolves to its caller's fallback, none of the structured
+    // settings is configured, and the scalars are the platform's declared ones.
     sendJson(res, {
       settings: {},
       announcementBar: null,
@@ -255,6 +256,7 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       storeOffices: [],
       businessHours: null,
       contactAttachmentsTypes: [],
+      values: makePublicValues(),
     })
     return
   }

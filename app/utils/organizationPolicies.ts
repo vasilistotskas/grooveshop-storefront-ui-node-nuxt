@@ -74,16 +74,14 @@ const RETURN_FEES = {
 
 export type ReturnFees = keyof typeof RETURN_FEES
 
-/** `RETURN_WINDOW_DAYS` as days; `null` when unset, 0 (not stated) or not a whole number. */
-export function returnWindowDays(raw: string): number | null {
-  const value = Number(raw)
-  if (!raw.trim() || !Number.isInteger(value) || value <= 0) return null
-  return value
+/** `RETURN_WINDOW_DAYS` as days; `null` when unreadable or 0 (not stated). */
+export function returnWindowDays(days: number | undefined): number | null {
+  return days !== undefined && days > 0 ? days : null
 }
 
-/** `RETURN_FEES`; `null` when the store has not said. */
-export function returnFees(raw: string): ReturnFees | null {
-  return raw === 'free' || raw === 'customer' ? raw : null
+/** `RETURN_FEES` (`''` when the store has not said); `null` when unreadable or unsaid. */
+export function returnFees(fees: ReturnFeesEnum | BlankEnum | undefined): ReturnFees | null {
+  return fees || null
 }
 
 /**

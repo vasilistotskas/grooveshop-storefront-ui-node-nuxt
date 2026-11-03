@@ -8,15 +8,15 @@ import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { defineComponent } from 'vue'
-import { makeLoyaltyPublicSettings } from '~~/test/fixtures/loyalty'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 
 let calls = 0
 let fail = false
-let settings: Record<string, string> = {}
+let values = makePublicValues()
 registerEndpoint('/api/settings/public', () => {
   calls++
   if (fail) throw createError({ statusCode: 503 })
-  return { settings }
+  return { settings: {}, values }
 })
 
 /**
@@ -41,10 +41,10 @@ describe('useLoyaltySettings', () => {
     clearNuxtData(STORE_SETTINGS_KEY)
     calls = 0
     fail = false
-    settings = makeLoyaltyPublicSettings({ LOYALTY_POINTS_FACTOR: '1.5', LOYALTY_XP_PER_LEVEL: '2500' })
+    values = makePublicValues({ loyaltyPointsFactor: 1.5, loyaltyXpPerLevel: 2500 })
   })
 
-  it('parses the store\'s figures from the settings payload', async () => {
+  it('reads the store\'s figures off the settings payload', async () => {
     const loyalty = await read()
 
     expect(loyalty.value).toEqual({
@@ -67,13 +67,6 @@ describe('useLoyaltySettings', () => {
 
   it('answers null when the settings lookup failed', async () => {
     fail = true
-
-    expect((await read()).value).toBeNull()
-  })
-
-  it('answers null when a loyalty key is missing from the payload', async () => {
-    const { LOYALTY_XP_PER_LEVEL: _missing, ...rest } = settings
-    settings = rest
 
     expect((await read()).value).toBeNull()
   })

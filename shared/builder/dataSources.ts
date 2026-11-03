@@ -49,6 +49,9 @@ export const DATA_DESCRIPTORS = {
   promotion: (maxLimit: number) => z.strictObject({ limit: limit(maxLimit) }),
 } as const satisfies Record<DataSource, (maxLimit: number) => z.ZodType>
 
+/** A descriptor of `Source`, as a document stores it. */
+export type DataDescriptor<Source extends DataSource> = z.input<ReturnType<(typeof DATA_DESCRIPTORS)[Source]>>
+
 /** The record kind a source lists, for the sources whose records are read by id too (a hand-picked list); a promotion has none. */
 export const QUERY_RECORD_KIND: Partial<Record<DataSource, DataRecordKind>> = {
   product: 'product',

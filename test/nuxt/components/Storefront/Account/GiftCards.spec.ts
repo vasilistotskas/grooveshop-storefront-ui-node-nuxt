@@ -6,10 +6,11 @@ import { createError, setResponseStatus } from 'h3'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import GiftCards from '~/components/Storefront/Account/GiftCards.vue'
-import type { GiftCard } from '~~/shared/openapi/types.gen'
+import type { GiftCard, PublicValues } from '~~/shared/openapi/types.gen'
 import { makeGiftCard } from '~~/test/fixtures/giftCard'
 import { FIXTURE_TIMESTAMP } from '~~/test/fixtures/product'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 
 /**
  * The gift cards on the account: a card each — code, what is left of
@@ -22,7 +23,7 @@ const messages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Storefront/Account/GiftCards.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
-const answer = vi.hoisted(() => ({ cards: [] as GiftCard[], status: 200, data: undefined as Record<string, unknown> | undefined, settings: {} as Record<string, string> }))
+const answer = vi.hoisted(() => ({ cards: [] as GiftCard[], status: 200, data: undefined as Record<string, unknown> | undefined, values: undefined as PublicValues | undefined }))
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
@@ -30,7 +31,7 @@ beforeEach(() => {
   answer.cards = [makeGiftCard()]
   answer.status = 200
   answer.data = undefined
-  answer.settings = {}
+  answer.values = undefined
   clearNuxtData(['account-gift-cards', 'store-settings'])
   registerEndpoint('/api/giftcard/mine', (event) => {
     // A Django refusal arrives as the app's route forwards it: its body verbatim.
@@ -41,7 +42,7 @@ beforeEach(() => {
     if (answer.status !== 200) throw createError({ statusCode: answer.status })
     return { count: answer.cards.length, next: null, previous: null, results: answer.cards }
   })
-  registerEndpoint('/api/settings/public', () => ({ settings: answer.settings }))
+  registerEndpoint('/api/settings/public', () => ({ settings: {}, values: answer.values }))
 })
 
 afterEach(() => {
@@ -133,7 +134,7 @@ describe('Storefront/Account/GiftCards', () => {
   })
 
   it('names the amounts the store sells when it states both', async () => {
-    answer.settings = { GIFT_CARD_MIN_AMOUNT: '10', GIFT_CARD_MAX_AMOUNT: '500' }
+    answer.values = makePublicValues({ giftCardMinAmount: 10, giftCardMaxAmount: 500 })
 
     const wrapper = await mountPage()
 

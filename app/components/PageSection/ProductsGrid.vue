@@ -2,11 +2,14 @@
 /**
  * Products as a grid rather than a rail.
  *
- * The same query as `products_slider` — a band the operator wants read
- * in one glance instead of swiped. It used to mount the full `/products`
- * listing component, toolbar, filters, pagination and all, which fetched
- * a second product page mid-homepage and put a sort control on a page
- * that had nothing to sort.
+ * The same list as `products_slider` — a band the operator wants read
+ * in one glance instead of swiped. The products arrive read (`products`,
+ * a data setting the page route resolved), so the band fetches nothing and
+ * draws the same on the server and in the browser.
+ *
+ * The whole band disappears when the list comes back empty: its block
+ * declares that, and a heading over nothing is what a brand-new store used
+ * to show.
  */
 const props = withDefaults(defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
@@ -15,34 +18,25 @@ const props = withDefaults(defineProps<{
   subheading?: string
   ctaText?: string
   ctaLink?: string
-  ordering?: ProductRailOrdering
-  categoryId?: number
   showAddToCart?: boolean
-  pageSize?: number
   surface?: 'default' | 'muted'
+  /** What the band lists: the products, and the rule or hand-picked list they came from. */
+  products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
-  ordering: 'featured',
-  pageSize: 8,
   showAddToCart: true,
 })
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
 
-const { products, hasProducts } = await useProductRail({
-  pageSize: () => props.pageSize,
-  ordering: () => props.ordering,
-  categoryId: () => props.categoryId,
-})
-
 const label = computed(
-  () => props.heading || props.title || t(`heading.${props.ordering}`),
+  () => props.heading || props.title || t(`heading.${productRailKind(props.products.descriptor)}`),
 )
 </script>
 
 <template>
   <PageSectionBand
-    v-if="hasProducts"
+    v-if="products.items.length"
     :heading="label"
     :subheading="subheading"
     :cta-text="ctaText || t('all_products')"
@@ -57,7 +51,7 @@ const label = computed(
       "
     >
       <ProductCard
-        v-for="product in products"
+        v-for="product in products.items"
         :key="product.id"
         :product="product"
         :show-add-to-cart-button="showAddToCart"
@@ -70,17 +64,23 @@ const label = computed(
 el:
   all_products: Όλα τα προϊόντα
   heading:
-    featured: Επιλεγμένα προϊόντα
+    picked: Επιλεγμένα προϊόντα
     newest: Νέες αφίξεις
-    popular: Δημοφιλή
+    mostViewed: Δημοφιλή
+    mostLiked: Αγαπημένα
+    topRated: Κορυφαίες αξιολογήσεις
     discounted: Σε προσφορά
-    rating: Κορυφαίες αξιολογήσεις
+    priceAsc: Οι καλύτερες τιμές
+    priceDesc: Premium επιλογές
 en:
   all_products: All products
   heading:
-    featured: Featured products
+    picked: Selected products
     newest: New arrivals
-    popular: Most popular
+    mostViewed: Most popular
+    mostLiked: Customer favourites
+    topRated: Top rated
     discounted: On offer
-    rating: Top rated
+    priceAsc: Best prices
+    priceDesc: Premium picks
 </i18n>
