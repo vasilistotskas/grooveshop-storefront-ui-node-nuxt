@@ -134,3 +134,33 @@ describe('builderRouteLabelKey', () => {
     expect(builderRouteLabelKey(route)).toBe(key)
   })
 })
+
+describe('builderSettingsFields, data settings', () => {
+  const rail = defineBlock({
+    type: 'data_rail',
+    version: 1,
+    kinds: ['section'],
+    schema: z.object({
+      heading: builderField.text(40).optional(),
+      products: builderField.query('product', { onEmpty: 'hide', maxLimit: 12 }),
+      posts: builderField.query('blogPost', { onEmpty: 'empty' }).optional(),
+      spotlight: builderField.ref('product', { onMissing: 'empty' }).optional(),
+      hero: builderField.ref('media', { onMissing: 'empty' }).optional(),
+    }),
+  })
+  const fields = new Map(builderSettingsFields(rail).map(field => [field.path, field]))
+
+  it('gives a list its source and the most it may list, the control of a descriptor', () => {
+    expect(fields.get('products')).toEqual({ kind: 'query', path: 'products', pointer: '/products', required: true, source: 'product', maxLimit: 12 })
+    expect(fields.get('posts')).toMatchObject({ kind: 'query', source: 'blogPost', maxLimit: 24, required: false })
+  })
+
+  it('gives a ref the record picker of its kind, like the refs map did', () => {
+    expect(fields.get('spotlight')).toMatchObject({ kind: 'record', refKind: 'product' })
+    expect(fields.get('hero')).toMatchObject({ kind: 'record', refKind: 'media' })
+  })
+
+  it('finds the field a problem under a descriptor falls under', () => {
+    expect(fieldForSettingPath([...fields.values()], 'products.ids')?.path).toBe('products')
+  })
+})
