@@ -235,7 +235,7 @@ describe('the autosave', () => {
     })
 
     it('answers that a document is not saved when Django refuses it', async () => {
-      api.routes({ [LIST]: [row], [DETAIL]: envelope(3), [DRAFT]: failWith(400, { code: 'invalid_document', detail: 'x', errors: [{ path: '/sections/hero', code: 'invalid', message: 'Bad.' }] }) })
+      api.routes({ [LIST]: [row], [DETAIL]: envelope(3), [DRAFT]: failWith(400, { code: 'invalid_document', detail: 'x', errors: [{ document: null, path: '/sections/hero', code: 'invalid', message: 'Bad.' }] }) })
       const editor = await openHome()
       const autosave = useBuilderAutosaveStore()
       changeOnce(editor)

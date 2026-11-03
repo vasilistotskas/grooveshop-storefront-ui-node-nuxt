@@ -11,6 +11,7 @@ const ICONS = {
   draft: 'i-lucide-pencil-line',
   checkpoint: 'i-lucide-bookmark',
   publish: 'i-lucide-globe',
+  restore: 'i-lucide-history',
 } as const satisfies Record<BuilderHistoryRow['kind'], string>
 
 const open = ref(false)
@@ -347,6 +348,7 @@ el:
   kind:
     checkpoint: "Αποθηκευμένη έκδοση {number}"
     publish: "Δημοσιευμένη έκδοση {number}"
+    restore: "Επαναφορά, έκδοση {number}"
   by: "από {name}"
   loading: Φόρτωση του ιστορικού…
   more: Παλαιότερες εκδόσεις
@@ -404,6 +406,7 @@ en:
   kind:
     checkpoint: "Saved version {number}"
     publish: "Published version {number}"
+    restore: "Restore, version {number}"
   by: "by {name}"
   loading: Loading the history…
   more: Older versions

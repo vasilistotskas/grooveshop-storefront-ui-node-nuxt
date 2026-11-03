@@ -21,19 +21,12 @@ export interface BuilderSaveConflict {
   updatedAt: string
 }
 
-/** One problem of a refused document: a JSON pointer into what was sent, and Django's code for it. */
-export interface BuilderSaveProblem {
-  path: string
-  code: string
-  message: string
-}
-
 interface DocumentSave {
   state: BuilderSaveState
   /** Failed attempts in a row, which set the next wait (`BUILDER_AUTOSAVE_RETRY_MS`). */
   attempt: number
   conflict?: BuilderSaveConflict
-  problems?: readonly BuilderSaveProblem[]
+  problems?: readonly PublishProblem[]
 }
 
 const ZodConflict = z.object({
@@ -157,7 +150,7 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
   function failed(key: string, error: unknown, attempt: number): void {
     const status = statusOf(error)
     const conflict = ZodConflict.safeParse(dataOf(error))
-    const invalid = ZodBuilderDocumentRefusal.safeParse(dataOf(error))
+    const invalid = zBuilderDocumentInvalidError.safeParse(dataOf(error))
     const document = useBuilderEditorStore().opened[key]
     if (status === 409 && conflict.success) {
       set(key, { state: 'conflict', conflict: conflict.data })

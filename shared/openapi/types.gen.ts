@@ -2054,6 +2054,21 @@ export type Brand = {
 }
 
 /**
+ * * `invalid_document` - invalid_document
+ */
+export type BuilderDocumentInvalidCodeEnum = 'invalid_document'
+
+/**
+ * The 400 of an operation that checks a document (``invalid_document``):
+ * the refusal and everything wrong, each with the document it is in.
+ */
+export type BuilderDocumentInvalidError = {
+  detail: string
+  code: BuilderDocumentInvalidCodeEnum
+  errors: Array<PublishProblem>
+}
+
+/**
  * * `theme` - Θέμα
  * * `group` - Ομάδα ενοτήτων
  * * `template` - Πρότυπο
@@ -2074,8 +2089,9 @@ export type BuilderPageKindEnum = 'page' | 'template'
 /**
  * * `checkpoint` - Ονομασμένη αποθήκευση
  * * `publish` - Δημοσίευση
+ * * `restore` - Επαναφορά
  */
-export type BuilderVersionKindEnum = 'checkpoint' | 'publish'
+export type BuilderVersionKindEnum = 'checkpoint' | 'publish' | 'restore'
 
 export type BulkSubscriptionFailure = {
   readonly topic: string
@@ -8859,12 +8875,7 @@ export type Schedule = {
      * Αριθμός
      */
   readonly release: number | null
-  /**
-     * Αποτυχία
-     *
-     * Γιατί δεν μπόρεσε να δημοσιευτεί: [{path, code, message}]
-     */
-  readonly failure: unknown
+  readonly failure: Array<PublishProblem> | null
   /**
      * Επιβεβαιώθηκε στις
      *
@@ -10405,6 +10416,12 @@ export type VersionDetail = {
   readonly number: number
   kind: BuilderVersionKindEnum
   /**
+     * Επαναφορά από
+     *
+     * Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά).
+     */
+  readonly restoredFrom: number | null
+  /**
      * Σημείωση
      */
   readonly note: string
@@ -10444,6 +10461,12 @@ export type VersionList = {
      */
   readonly number: number
   kind: BuilderVersionKindEnum
+  /**
+     * Επαναφορά από
+     *
+     * Ο αριθμός της έκδοσης που επαναφέρει αυτή (είδος επαναφορά).
+     */
+  readonly restoredFrom: number | null
   /**
      * Σημείωση
      */
@@ -17076,7 +17099,7 @@ export type ApiV1BuilderDocumentsDestroyData = {
 }
 
 export type ApiV1BuilderDocumentsDestroyErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17116,7 +17139,7 @@ export type ApiV1BuilderDocumentsCheckpointCreateData = {
 }
 
 export type ApiV1BuilderDocumentsCheckpointCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17172,7 +17195,7 @@ export type ApiV1BuilderDocumentsDraftUpdateData = {
 }
 
 export type ApiV1BuilderDocumentsDraftUpdateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17239,7 +17262,7 @@ export type ApiV1BuilderDocumentsVersionsPublishCreateData = {
 }
 
 export type ApiV1BuilderDocumentsVersionsPublishCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17621,7 +17644,7 @@ export type ApiV1BuilderPresenceCreateData = {
 }
 
 export type ApiV1BuilderPresenceCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
 }
 
 export type ApiV1BuilderPresenceCreateError = ApiV1BuilderPresenceCreateErrors[keyof ApiV1BuilderPresenceCreateErrors]
@@ -17653,7 +17676,7 @@ export type ApiV1BuilderPreviewLinksCreateData = {
 }
 
 export type ApiV1BuilderPreviewLinksCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17755,7 +17778,7 @@ export type ApiV1BuilderPreviewResolveCreateData = {
 }
 
 export type ApiV1BuilderPreviewResolveCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   404: ErrorResponse
   503: ErrorResponse
 }
@@ -17776,7 +17799,7 @@ export type ApiV1BuilderPublishCreateData = {
 }
 
 export type ApiV1BuilderPublishCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17886,7 +17909,7 @@ export type ApiV1BuilderRollbackCreateData = {
 }
 
 export type ApiV1BuilderRollbackCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17941,7 +17964,7 @@ export type ApiV1BuilderSchedulesCreateData = {
 }
 
 export type ApiV1BuilderSchedulesCreateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
@@ -17963,7 +17986,7 @@ export type ApiV1BuilderSchedulesDestroyData = {
 }
 
 export type ApiV1BuilderSchedulesDestroyErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
   409: ErrorResponse
 }
 
