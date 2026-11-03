@@ -27,6 +27,7 @@ import { makeAllAuthConfig, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
 import PageNavbar from '~/components/variants/webside/Page/Navbar.vue'
+import AnnouncementBar from '~/components/variants/webside/Chrome/AnnouncementBar.vue'
 import FooterDesktop from '~/components/variants/webside/Footer/Desktop.vue'
 import FooterMobile from '~/components/variants/webside/Footer/Mobile.vue'
 import MobileBottomNav from '~/components/variants/webside/MobileBottomNav.vue'
@@ -324,6 +325,27 @@ describe('webside design render', () => {
 
   it('navbar', async () => {
     await expectSnapshot(PageNavbar)
+  })
+
+  it('announcement bar with a promo code', async () => {
+    api.routes({
+      '/api/settings/public': {
+        settings: {},
+        announcementBar: {
+          enabled: true,
+          id: 'spring',
+          text: 'Δωρεάν αποστολή από 50 €',
+          shortText: 'Δωρεάν αποστολή 50 €',
+          code: 'WELCOME10',
+          link: '/offers',
+          i18n: {},
+        },
+      },
+    })
+
+    await expectSnapshot(AnnouncementBar, {}, (html) => {
+      expect(html).toContain('WELCOME10')
+    })
   })
 
   it('mobile navbar keeps only the flag of the language switcher', async () => {
