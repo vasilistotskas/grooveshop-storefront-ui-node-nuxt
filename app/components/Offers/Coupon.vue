@@ -14,7 +14,7 @@
 const emit = defineEmits<{ copy: [code: string] }>()
 
 defineProps<{
-  offer: PublicPromotion
+  offer: PublicPromotion | DataItems['promotion']
   clipboardSupported: boolean
 }>()
 

@@ -8,6 +8,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 const categories = (ids: number[]) => ({
   status: ids.length ? 'ok' : 'empty',
   items: ids.map(id => makeBlogCategory({ id, translations: { el: { name: `Νέα ${id}` } } as BlogCategory['translations'] })),
+  total: ids.length,
   descriptor: { limit: 10 },
 }) as ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 

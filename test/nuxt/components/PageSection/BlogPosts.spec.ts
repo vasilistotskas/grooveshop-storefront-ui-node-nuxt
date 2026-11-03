@@ -29,6 +29,7 @@ const RailStub = defineComponent({
 const posts = (items: BlogPost[]) => ({
   status: items.length ? 'ok' : 'empty',
   items,
+  total: items.length,
   descriptor: { mode: 'filter', ordering: 'newest', limit: 3 },
 }) as ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
 
