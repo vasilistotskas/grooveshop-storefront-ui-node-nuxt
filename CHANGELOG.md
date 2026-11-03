@@ -1,3 +1,10 @@
+# [3.307.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.306.0...v3.307.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** read a page's data on every request, apart from its cached document ([#361](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/361)) ([8a06364](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8a063641c90b8aba645617a64b6683937f6a2860))
+
 # [3.306.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.305.0...v3.306.0) (2026-11-03)
 
 
