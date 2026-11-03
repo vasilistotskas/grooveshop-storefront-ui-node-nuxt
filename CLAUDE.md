@@ -48,6 +48,7 @@ directly.
 - **Run a single test file:** `pnpm vitest run test/unit/app/utils/str.spec.ts`
 - **Run a single test project:** `pnpm vitest run --project=unit` or `--project=nuxt`
 - **Generate OpenAPI types:** `pnpm openapi-ts` (requires `openapi/schema.json` — fetch with `pnpm generate:schema`), then **`pnpm sync:schema`, which is required, not optional** — it regenerates the derived `.yml` files and CI fails on any diff. See `.claude/rules/server-routes.md`.
+- **The API contract check** (`.github/workflows/api-contract.yml`, required on `main`): a PR whose `openapi/schema.yml` or `openapi/allauth-schema.yml` requires something the Django that production or staging runs does not serve fails, naming the live release. Regenerating from a Django schema that is ahead of production is therefore a trap: ship Django first, or regenerate from a schema without the new requirement (a field made optional, an enum value kept), then require it in a later PR once Django serves it. The rule, the script and how to split a change are in `grooveshop-django-api/api-contract/README.md`.
 - **Prepare Nuxt types:** `pnpm prepare`
 - **Build + start production:** `pnpm build && pnpm start`
 - **Docker build:** `docker build -f docker/Dockerfile .`
