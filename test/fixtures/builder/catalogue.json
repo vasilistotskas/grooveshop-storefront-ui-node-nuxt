@@ -1,5 +1,5 @@
 {
-  "hash": "2edd34365362935a",
+  "hash": "f2f3405061fe1176",
   "blocks": [
     {
       "type": "about_content",
@@ -6531,6 +6531,447 @@
         "/seoKeywords"
       ],
       "linkRefs": []
+    },
+    "theme": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "colors": {
+            "type": "object",
+            "properties": {
+              "primary": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "scale": {
+                    "type": "object",
+                    "properties": {
+                      "50": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "100": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "200": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "300": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "400": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "500": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "600": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "700": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "800": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "900": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "950": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      }
+                    },
+                    "required": [
+                      "50",
+                      "100",
+                      "200",
+                      "300",
+                      "400",
+                      "500",
+                      "600",
+                      "700",
+                      "800",
+                      "900",
+                      "950"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "source",
+                  "scale"
+                ],
+                "additionalProperties": false
+              },
+              "secondary": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "scale": {
+                    "type": "object",
+                    "properties": {
+                      "50": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "100": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "200": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "300": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "400": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "500": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "600": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "700": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "800": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "900": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "950": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      }
+                    },
+                    "required": [
+                      "50",
+                      "100",
+                      "200",
+                      "300",
+                      "400",
+                      "500",
+                      "600",
+                      "700",
+                      "800",
+                      "900",
+                      "950"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "source",
+                  "scale"
+                ],
+                "additionalProperties": false
+              },
+              "neutral": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "scale": {
+                    "type": "object",
+                    "properties": {
+                      "50": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "100": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "200": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "300": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "400": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "500": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "600": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "700": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "800": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "900": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "950": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      }
+                    },
+                    "required": [
+                      "50",
+                      "100",
+                      "200",
+                      "300",
+                      "400",
+                      "500",
+                      "600",
+                      "700",
+                      "800",
+                      "900",
+                      "950"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "source",
+                  "scale"
+                ],
+                "additionalProperties": false
+              },
+              "success": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "warning": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "error": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "info": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "liked": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              }
+            },
+            "required": [
+              "primary",
+              "secondary",
+              "neutral",
+              "success",
+              "warning",
+              "error",
+              "info",
+              "liked"
+            ],
+            "additionalProperties": false
+          },
+          "radius": {
+            "type": "string",
+            "enum": [
+              "0",
+              "0.125rem",
+              "0.25rem",
+              "0.375rem",
+              "0.5rem",
+              "0.625rem"
+            ]
+          },
+          "fonts": {
+            "type": "object",
+            "properties": {
+              "sans": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "inter",
+                  "roboto",
+                  "open-sans",
+                  "lato",
+                  "poppins",
+                  "montserrat",
+                  "noto-sans",
+                  "raleway",
+                  "nunito-sans",
+                  "manrope",
+                  "playfair-display",
+                  "source-serif-4",
+                  "ibm-plex-sans",
+                  "jetbrains-mono",
+                  "geologica",
+                  "vollkorn",
+                  "commissioner"
+                ]
+              },
+              "display": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "inter",
+                  "roboto",
+                  "open-sans",
+                  "lato",
+                  "poppins",
+                  "montserrat",
+                  "noto-sans",
+                  "raleway",
+                  "nunito-sans",
+                  "manrope",
+                  "playfair-display",
+                  "source-serif-4",
+                  "ibm-plex-sans",
+                  "jetbrains-mono",
+                  "geologica",
+                  "vollkorn",
+                  "commissioner"
+                ]
+              },
+              "mono": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "inter",
+                  "roboto",
+                  "open-sans",
+                  "lato",
+                  "poppins",
+                  "montserrat",
+                  "noto-sans",
+                  "raleway",
+                  "nunito-sans",
+                  "manrope",
+                  "playfair-display",
+                  "source-serif-4",
+                  "ibm-plex-sans",
+                  "jetbrains-mono",
+                  "geologica",
+                  "vollkorn",
+                  "commissioner"
+                ]
+              }
+            },
+            "required": [
+              "sans",
+              "display",
+              "mono"
+            ],
+            "additionalProperties": false
+          },
+          "container": {
+            "type": "string",
+            "enum": [
+              "narrow",
+              "default",
+              "wide"
+            ]
+          }
+        },
+        "required": [
+          "colors",
+          "radius",
+          "fonts",
+          "container"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [],
+      "linkRefs": [],
+      "contrast": [
+        {
+          "id": "body-text-light",
+          "foreground": "/colors/neutral/scale/700",
+          "background": "#ffffff",
+          "min": 4.5,
+          "severity": "error"
+        },
+        {
+          "id": "body-text-dark",
+          "foreground": "/colors/neutral/scale/200",
+          "background": "/colors/neutral/scale/900",
+          "min": 4.5,
+          "severity": "error"
+        },
+        {
+          "id": "muted-text-light",
+          "foreground": "/colors/neutral/scale/500",
+          "background": "#ffffff",
+          "min": 4.5,
+          "severity": "warning"
+        },
+        {
+          "id": "muted-text-dark",
+          "foreground": "/colors/neutral/scale/400",
+          "background": "/colors/neutral/scale/900",
+          "min": 4.5,
+          "severity": "warning"
+        },
+        {
+          "id": "primary-light",
+          "foreground": "/colors/primary/scale/500",
+          "background": "#ffffff",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "primary-dark",
+          "foreground": "/colors/primary/scale/400",
+          "background": "/colors/neutral/scale/900",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "secondary-light",
+          "foreground": "/colors/secondary/scale/500",
+          "background": "#ffffff",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "secondary-dark",
+          "foreground": "/colors/secondary/scale/400",
+          "background": "/colors/neutral/scale/900",
+          "min": 3,
+          "severity": "warning"
+        }
+      ]
     }
   },
   "templates": [

@@ -1,4 +1,4 @@
-// Values (CONTAINER_MAP, DESIGN_FONTS, HEX_COLOR_RE, RADIUS_ALLOWLIST,
+// Values (CONTAINER_MAP, DESIGN_FONTS, HEX_COLOR_RE, RADIUS_ALLOWLIST, THEME_SHADES,
 // THEME_PRESETS, fontStackValue, resolveDesign, zThemeMetadata,
 // readableTextOn) come from shared/
 // auto-imports — a relative runtime import into shared/ breaks Nitro's
@@ -42,11 +42,6 @@ export interface CompiledTenantTheme {
   /** Set when themeMetadata failed validation (caller logs it). */
   metadataError?: string
 }
-
-const SHADES = [
-  '50', '100', '200', '300', '400',
-  '500', '600', '700', '800', '900', '950',
-] as const
 
 /**
  * The tenant's ``theme_metadata`` validated, or ``{}`` with the reason
@@ -234,7 +229,7 @@ export function buildTenantThemeCss(
   for (const [scaleKey, uiName] of SCALE_TOKENS) {
     const scale = metadata.colors?.[scaleKey]
     if (!scale) continue
-    for (const shade of SHADES) {
+    for (const shade of THEME_SHADES) {
       const value = scale[shade]
       if (value && HEX_COLOR_RE.test(value)) {
         shared.push(`--ui-color-${uiName}-${shade}: ${value}`)
@@ -244,7 +239,7 @@ export function buildTenantThemeCss(
   for (const [scaleKey, uiName] of SCALE_TOKENS) {
     const scale = metadata.darkColors?.[scaleKey]
     if (!scale) continue
-    for (const shade of SHADES) {
+    for (const shade of THEME_SHADES) {
       const value = scale[shade]
       if (value && HEX_COLOR_RE.test(value)) {
         darkOnly.push(`--ui-color-${uiName}-${shade}: ${value}`)

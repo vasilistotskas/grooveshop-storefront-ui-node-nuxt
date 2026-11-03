@@ -11,6 +11,9 @@
 
 export const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/
 
+/** The shades of a Nuxt UI colour scale (`--ui-color-<name>-<shade>`), lightest first. */
+export const THEME_SHADES = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'] as const
+
 /**
  * Mirror of Django's ``tenant.models.TailwindColor`` choices — the only
  * values accepted for ``primaryColor`` / ``neutralColor``. Nuxt UI
