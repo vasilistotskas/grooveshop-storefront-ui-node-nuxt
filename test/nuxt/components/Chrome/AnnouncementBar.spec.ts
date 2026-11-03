@@ -5,14 +5,15 @@ import ChromeAnnouncementBar from '~/components/Chrome/AnnouncementBar.vue'
 
 /**
  * The operator's strip above the header: rendered from the
- * `ANNOUNCEMENT_BAR` setting, ink unless the operator picked a colour,
- * and nothing at all when the setting is missing, off or malformed.
+ * `announcementBar` Django serves typed on `/settings/public`, ink unless
+ * the operator picked a colour, and nothing at all when there is none or it
+ * is switched off.
  */
-const { setting } = vi.hoisted(() => ({ setting: { value: '' as string } }))
+const { setting } = vi.hoisted(() => ({ setting: { value: null as AnnouncementBar | null } }))
 
-mockNuxtImport('useSettingValue', () => () => computed(() => setting.value))
+mockNuxtImport('useStoreSettings', () => () => ({ announcementBar: computed(() => setting.value) }))
 
-const bar = (value: Record<string, unknown>) => JSON.stringify({
+const bar = (value: Partial<AnnouncementBar>): AnnouncementBar => ({
   enabled: true,
   id: 'v1',
   text: 'Δωρεάν αποστολή από 50 €',
@@ -24,7 +25,7 @@ const mountBar = () => mountSuspended(ChromeAnnouncementBar, { route: false })
 
 describe('Chrome/AnnouncementBar', () => {
   beforeEach(() => {
-    setting.value = ''
+    setting.value = null
   })
 
   it('shows the operator\'s text in ink by default', async () => {
@@ -110,9 +111,8 @@ describe('Chrome/AnnouncementBar', () => {
   })
 
   it.each([
-    { name: 'missing', value: '' },
+    { name: 'missing', value: null },
     { name: 'switched off', value: bar({ enabled: false }) },
-    { name: 'malformed', value: '{"text": 1}' },
   ])('renders nothing when the setting is $name', async ({ value }) => {
     setting.value = value
 

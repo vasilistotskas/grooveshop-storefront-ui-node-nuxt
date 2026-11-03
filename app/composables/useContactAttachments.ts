@@ -122,7 +122,7 @@ export function useContactAttachments() {
 
   const countSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_COUNT')
   const sizeSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_MB')
-  const typesSetting = useSettingValue('CONTACT_ATTACHMENTS_TYPES')
+  const { contactAttachmentsTypes: allowedTypes } = useStoreSettings()
 
   // Django sends every public setting, the store's value or the declared
   // one, so a limit is unreadable only when the settings could not be
@@ -141,12 +141,6 @@ export function useContactAttachments() {
   const maxMegabytes = computed(() => settingCount(sizeSetting.value))
   const maxBytes = computed(() =>
     maxMegabytes.value === null ? null : maxMegabytes.value * 1024 * 1024)
-  const allowedTypes = computed(() =>
-    typesSetting.value
-      .split(',')
-      .map(part => part.trim().toLowerCase())
-      .filter(Boolean),
-  )
   /**
    * The file picker's filter. MIME types straight from the setting: a
    * type the browser does not recognise simply widens the picker,

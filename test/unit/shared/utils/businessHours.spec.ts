@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { groupBusinessHours, isBusinessHoursTimezoneKnown, parseBusinessHoursValue, resolveBusinessHoursState } from '~~/shared/utils/businessHours'
+import { groupBusinessHours, isBusinessHoursTimezoneKnown, resolveBusinessHoursState } from '~~/shared/utils/businessHours'
 
 const HOURS = {
   timezone: 'Europe/Athens',
@@ -13,42 +13,6 @@ const HOURS = {
     sun: null,
   },
 }
-
-describe('parseBusinessHoursValue', () => {
-  it('parses a valid payload', () => {
-    const parsed = parseBusinessHoursValue(JSON.stringify(HOURS))
-    expect(parsed).not.toBeNull()
-    expect(parsed?.timezone).toBe('Europe/Athens')
-    expect(parsed?.schedule.sat).toBeNull()
-  })
-
-  it('treats empty/unset payloads as feature-off', () => {
-    expect(parseBusinessHoursValue('')).toBeNull()
-    expect(parseBusinessHoursValue(null)).toBeNull()
-    expect(parseBusinessHoursValue(undefined)).toBeNull()
-    expect(parseBusinessHoursValue('{}')).toBeNull()
-  })
-
-  it('rejects non-JSON and shape-invalid payloads without throwing', () => {
-    expect(parseBusinessHoursValue('Mon-Fri 10-19')).toBeNull()
-    expect(
-      parseBusinessHoursValue(JSON.stringify({ timezone: 'Europe/Athens' })),
-    ).toBeNull()
-    const missingDay = {
-      timezone: 'Europe/Athens',
-      schedule: { ...HOURS.schedule, sun: undefined },
-    }
-    expect(parseBusinessHoursValue(JSON.stringify(missingDay))).toBeNull()
-    const inverted = {
-      timezone: 'Europe/Athens',
-      schedule: {
-        ...HOURS.schedule,
-        mon: { opens: '19:00', closes: '10:00' },
-      },
-    }
-    expect(parseBusinessHoursValue(JSON.stringify(inverted))).toBeNull()
-  })
-})
 
 describe('isBusinessHoursTimezoneKnown', () => {
   it('is true for an Intl-known timezone and false for an unknown one', () => {

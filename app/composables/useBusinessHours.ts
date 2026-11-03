@@ -2,8 +2,7 @@
  * THE reader for the ``BUSINESS_HOURS`` extra_setting — weekly
  * schedule plus a live, timezone-correct open/closed state.
  *
- * Fail-open chrome: no setting, an empty ``{}`` payload, a shape the
- * ``isBusinessHours`` rejects, or an ``Intl``-unknown timezone all
+ * Fail-open chrome: no setting, or an ``Intl``-unknown timezone, all
  * resolve to ``hasData === false`` and every consumer renders nothing —
  * a data hiccup never breaks the page.
  *
@@ -21,20 +20,7 @@
  * stay in the server HTML.
  */
 export function useBusinessHours() {
-  const value = useSettingValue('BUSINESS_HOURS')
-
-  const hours = computed<BusinessHours | null>(() => {
-    const raw = value.value
-    if (!raw) return null
-    const parsed = parseBusinessHoursValue(raw)
-    if (parsed === null && raw !== '{}') {
-      log.warn({
-        tag: 'business-hours',
-        message: 'BUSINESS_HOURS setting failed shape validation',
-      })
-    }
-    return parsed
-  })
+  const { businessHours: hours } = useStoreSettings()
 
   const now = useNow({ scheduler: update => useIntervalFn(update, 60_000) })
 

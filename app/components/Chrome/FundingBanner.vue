@@ -39,22 +39,12 @@ const { t, locale } = useStoreI18n('components/Chrome/FundingBanner')
 const localePath = useLocalePath()
 const { floating, track } = useFundingBannerVisibility()
 
-const raw = useSettingValue('FUNDING_BANNER')
+const { fundingBanner } = useStoreSettings()
 
 const banner = computed(() => {
-  const value = raw.value
-  if (!value || value === '{}') return null
-  const parsed = parseFundingBannerValue(value)
-  if (!parsed) {
-    log.warn({
-      tag: 'funding-banner',
-      message: 'FUNDING_BANNER setting failed shape validation',
-    })
-    return null
-  }
   // The locale's own artwork and words: the programme publishes the
   // strip per language.
-  const localized = localizedFundingBanner(parsed, locale.value)
+  const localized = localizedFundingBanner(fundingBanner.value, locale.value)
   // A strip with neither artwork nor words is a blank band.
   if (!localized.enabled || (!localized.image && !localized.label)) return null
   return localized

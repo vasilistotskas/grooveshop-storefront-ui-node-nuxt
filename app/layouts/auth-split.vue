@@ -17,22 +17,9 @@ const router = useRouter()
 
 const storeName = computed(() => tenantStore.storeName || '')
 
-// The panel's photo and line come from the AUTH_PANEL setting. Without one,
-// or with one that fails the shape guard, the panel keeps its plain ink look
-// and the store's own description.
-const rawPanel = useSettingValue('AUTH_PANEL')
-const panel = computed(() => {
-  const value = rawPanel.value
-  if (!value || value === '{}') return null
-  const parsed = parseAuthPanelValue(value)
-  if (!parsed) {
-    log.warn({
-      tag: 'auth-panel',
-      message: 'AUTH_PANEL setting failed shape validation',
-    })
-  }
-  return parsed
-})
+// The panel's photo and line come from the AUTH_PANEL setting. Without one
+// the panel keeps its plain ink look and the store's own description.
+const { authPanel: panel } = useStoreSettings()
 const photo = computed(() => panel.value?.imageUrl || '')
 const tagline = computed(() =>
   (panel.value && authPanelTagline(panel.value, locale.value))

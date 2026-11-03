@@ -18,15 +18,28 @@
  * options agree).
  *
  * Every public key arrives, with the store's value or the one Django
- * declares, so no reader keeps a default of its own. Fail-soft: a fetch
- * problem yields an empty map. Never a per-key
+ * declares, so no reader keeps a default of its own. The structured ones
+ * (announcement bar, auth panel, funding banner, offices, opening hours,
+ * contact attachment types) arrive typed beside the string map: Django
+ * validated them when they were written, so no reader parses a setting.
+ * Fail-soft: a fetch problem yields an empty map and none of them. Never a per-key
  * ``server: false`` any more — with a single shared request there is
  * no per-flag cost to keep off the SSR path, and rendering the real
  * value on the server beats a client-side pop-in.
  */
 export const STORE_SETTINGS_KEY = 'store-settings'
 
-const EMPTY: PublicSettings = { settings: {} }
+// The fail-soft payload: nothing configured. A disabled funding banner is
+// how Django itself spells "none".
+const EMPTY: PublicSettings = {
+  settings: {},
+  announcementBar: null,
+  authPanel: null,
+  fundingBanner: { enabled: false },
+  storeOffices: [],
+  businessHours: null,
+  contactAttachmentsTypes: [],
+}
 
 /** Every reader, component or middleware, registers the SAME entry. */
 function useStoreSettingsFetch() {
@@ -49,11 +62,28 @@ export function useStoreSettings() {
   const settings = computed<Readonly<Record<string, string>>>(
     () => data.value?.settings ?? EMPTY.settings,
   )
+  const announcementBar = computed(() => data.value?.announcementBar ?? EMPTY.announcementBar)
+  const authPanel = computed(() => data.value?.authPanel ?? EMPTY.authPanel)
+  const fundingBanner = computed(() => data.value?.fundingBanner ?? EMPTY.fundingBanner)
+  const storeOffices = computed(() => data.value?.storeOffices ?? EMPTY.storeOffices)
+  const businessHours = computed(() => data.value?.businessHours ?? EMPTY.businessHours)
+  const contactAttachmentsTypes = computed(
+    () => data.value?.contactAttachmentsTypes ?? EMPTY.contactAttachmentsTypes,
+  )
 
   // Django sends every public key, so an empty map means the lookup
   // failed. Callers that must tell that apart (a route gate renders on
   // it; a menu that hid links would disagree with the pages it links)
   // read `unavailable`.
   const unavailable = computed(() => !!error.value)
-  return { settings, unavailable }
+  return {
+    settings,
+    announcementBar,
+    authPanel,
+    fundingBanner,
+    storeOffices,
+    businessHours,
+    contactAttachmentsTypes,
+    unavailable,
+  }
 }

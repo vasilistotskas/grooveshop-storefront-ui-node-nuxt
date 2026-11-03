@@ -120,9 +120,13 @@ describe('useContactAttachments', () => {
     settings = {
       CONTACT_ATTACHMENTS_MAX_COUNT: '2',
       CONTACT_ATTACHMENTS_MAX_MB: '1',
-      CONTACT_ATTACHMENTS_TYPES: 'application/pdf,application/zip',
     }
-    api.routes({ '/api/settings/public': () => ({ settings: { ...settings } }) })
+    api.routes({
+      '/api/settings/public': () => ({
+        settings: { ...settings },
+        contactAttachmentsTypes: ['application/pdf', 'application/zip'],
+      }),
+    })
     setTenant()
     setTenantFeatures({ contactAttachments: true })
   })

@@ -107,6 +107,14 @@ export const zAgentProtocolEnum = z.enum([
   'mcp',
 ])
 
+/**
+ * A serializer that refuses a key it does not declare.
+ */
+export const zAnnouncementBarOverride = z.object({
+  text: z.string().max(200).optional(),
+  shortText: z.string().max(80).optional(),
+})
+
 export const zAssetImportRequest = z.object({
   url: z.string().min(1).max(1000),
   focalX: z.number().nullish(),
@@ -164,6 +172,26 @@ export const zAttributeValue = z.object({
   usageCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
+ * A serializer that refuses a key it does not declare.
+ */
+export const zAuthPanelOverride = z.object({
+  tagline: z.string().max(200),
+})
+
+/**
+ * The photo and the line on the ink panel beside the sign-in pages.
+ *
+ * ``image_url`` is a stored media path, the same bare string every
+ * page-section image prop holds. ``tagline`` is the DEFAULT locale's
+ * wording. The image is not translatable, so it is not an override key.
+ */
+export const zAuthPanel = z.object({
+  imageUrl: z.string().max(1000).optional(),
+  tagline: z.string().max(200).optional(),
+  i18n: z.record(z.string(), zAuthPanelOverride).optional(),
 })
 
 export const zB2bErrorResponse = z.object({
@@ -696,6 +724,11 @@ export const zBrand = z.object({
 })
 
 /**
+ * * `invalid_document` - invalid_document
+ */
+export const zBuilderDocumentInvalidCodeEnum = z.enum(['invalid_document'])
+
+/**
  * * `theme` - Θέμα
  * * `group` - Ομάδα ενοτήτων
  * * `template` - Πρότυπο
@@ -717,8 +750,13 @@ export const zBuilderPageKindEnum = z.enum(['page', 'template'])
 /**
  * * `checkpoint` - Ονομασμένη αποθήκευση
  * * `publish` - Δημοσίευση
+ * * `restore` - Επαναφορά
  */
-export const zBuilderVersionKindEnum = z.enum(['checkpoint', 'publish'])
+export const zBuilderVersionKindEnum = z.enum([
+  'checkpoint',
+  'publish',
+  'restore',
+])
 
 export const zBulkSubscriptionFailure = z.object({
   topic: z.string().readonly(),
@@ -854,6 +892,53 @@ export const zClickIdsEnum = z.enum([
   'epik',
   'fbclid',
 ])
+
+/**
+ * * `primary` - primary
+ * * `secondary` - secondary
+ * * `neutral` - neutral
+ * * `info` - info
+ * * `success` - success
+ * * `warning` - warning
+ * * `error` - error
+ */
+export const zColorEnum = z.enum([
+  'primary',
+  'secondary',
+  'neutral',
+  'info',
+  'success',
+  'warning',
+  'error',
+])
+
+/**
+ * The strip above the storefront header.
+ *
+ * ``text`` is the DEFAULT locale's wording, ``i18n`` overrides it per
+ * locale. ``short_text`` is the phone's copy and falls back to ``text``.
+ * ``code`` is a promo code, one token, the same in every language, so it
+ * is not an override key. ``id`` is what a dismissal is remembered
+ * against in the visitor's browser: changing it re-shows the bar.
+ */
+export const zAnnouncementBar = z.object({
+  enabled: z.boolean(),
+  text: z.string().max(200),
+  shortText: z.string().max(80).optional(),
+  code: z.string().max(40).regex(/^\S+$/).optional(),
+  link: z.union([
+    z.string().max(1000).regex(/^(\/|https:\/\/)/),
+    z.string().max(0),
+  ]).optional(),
+  icon: z.union([
+    z.string().max(100).regex(/^i-[a-z0-9:-]+$/),
+    z.string().max(0),
+  ]).optional(),
+  color: zColorEnum.optional(),
+  dismissible: z.boolean().optional(),
+  id: z.string().max(64).optional(),
+  i18n: z.record(z.string(), zAnnouncementBarOverride).optional(),
+})
 
 /**
  * * `1` - Μικρό
@@ -1089,6 +1174,14 @@ export const zDateRange = z.object({
 })
 
 /**
+ * A serializer that refuses a key it does not declare.
+ */
+export const zDayHours = z.object({
+  opens: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  closes: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+})
+
+/**
  * Body for ``POST user/account/{id}/delete_account``.
  *
  * Requires the user to re-type ``DELETE`` as a guardrail. The allauth
@@ -1224,6 +1317,38 @@ export const zFloorEnum = z.enum([
   'FIFTH_FLOOR',
   'SIXTH_FLOOR_PLUS',
 ])
+
+/**
+ * What a locale may replace: the artwork (the official strip exists
+ * per language) and the words. ``link`` and ``enabled`` are one decision
+ * for every language.
+ */
+export const zFundingBannerOverride = z.object({
+  image: z.string().max(1000).optional(),
+  width: z.int().gte(1).lte(10000).optional(),
+  height: z.int().gte(1).lte(10000).optional(),
+  alt: z.string().max(300).optional(),
+  label: z.string().max(120).optional(),
+})
+
+/**
+ * The EU/ESPA co-funding strip at the very top of every page.
+ *
+ * ``image`` and ``link`` are a site-relative path or an ``https://`` URL.
+ * ``width`` and ``height`` are the artwork's intrinsic size, so the
+ * storefront reserves its box before it loads. ``image``, ``alt`` and
+ * ``link`` are required when ``enabled``.
+ */
+export const zFundingBanner = z.object({
+  image: z.string().max(1000).optional(),
+  width: z.int().gte(1).lte(10000).optional(),
+  height: z.int().gte(1).lte(10000).optional(),
+  alt: z.string().max(300).optional(),
+  label: z.string().max(120).optional(),
+  enabled: z.boolean(),
+  link: z.string().max(1000).optional(),
+  i18n: z.record(z.string(), zFundingBannerOverride).optional(),
+})
 
 export const zGiftCardCheckRequestRequest = z.object({
   code: z.string().min(1).max(32),
@@ -3712,23 +3837,22 @@ export const zPaginatedCartList = z.object({
   results: z.array(zCart),
 })
 
-/**
- * Every public store setting, keyed by name.
- *
- * Values are strings in the same encoding ``SettingDetailSerializer``
- * uses (json-typed settings JSON-encoded, everything else ``str()``),
- * so a consumer parses one shape whichever endpoint it reads.
- */
-export const zPublicSettings = z.object({
-  settings: z.record(z.string(), z.string()),
-})
-
 export const zPublishProblem = z.object({
   document: z.string().nullable(),
   path: z.string(),
   code: z.string(),
   message: z.string(),
   params: z.record(z.string(), z.string()).nullish(),
+})
+
+/**
+ * The 400 of an operation that checks a document (``invalid_document``):
+ * the refusal and everything wrong, each with the document it is in.
+ */
+export const zBuilderDocumentInvalidError = z.object({
+  detail: z.string(),
+  code: zBuilderDocumentInvalidCodeEnum,
+  errors: z.array(zPublishProblem),
 })
 
 export const zPublishCheck = z.object({
@@ -4847,7 +4971,7 @@ export const zSchedule = z.object({
   scheduledBy: zStaff.nullable(),
   executedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   release: z.int().gte(0).lte(2147483647).readonly().nullable(),
-  failure: z.unknown(),
+  failure: z.array(zPublishProblem).readonly().nullable(),
   acknowledgedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
 })
 
@@ -4934,6 +5058,36 @@ export const zStoreFeatures = z.object({
   chatWidget: z.boolean().readonly(),
   catalogue: z.boolean().readonly(),
   cart: z.boolean().readonly(),
+})
+
+/**
+ * A serializer that refuses a key it does not declare.
+ */
+export const zStoreOfficeOverride = z.object({
+  label: z.string().optional(),
+  street: z.string().optional(),
+  area: z.string().optional(),
+  city: z.string().optional(),
+  role: z.string().optional(),
+})
+
+/**
+ * A public office or branch address.
+ *
+ * ``role`` is the short word a design prints beside an office (``Head
+ * office``, ``Branch``). ``i18n`` is a PARTIAL per-locale override of the
+ * text keys only: a postcode and a phone number are the same in every
+ * language, so duplicating them per locale would only invite drift.
+ */
+export const zStoreOffice = z.object({
+  label: z.string(),
+  street: z.string(),
+  area: z.string().optional(),
+  postal: z.string().optional(),
+  city: z.string().optional(),
+  role: z.string().optional(),
+  phones: z.array(z.string()).max(6).optional(),
+  i18n: z.record(z.string(), zStoreOfficeOverride).optional(),
 })
 
 /**
@@ -6331,6 +6485,7 @@ export const zVersionDetail = z.object({
   id: z.int().readonly(),
   number: z.int().readonly(),
   kind: zBuilderVersionKindEnum,
+  restoredFrom: z.int().readonly().nullable(),
   note: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   createdBy: zStaff.nullable(),
@@ -6346,6 +6501,7 @@ export const zVersionList = z.object({
   id: z.int().readonly(),
   number: z.int().readonly(),
   kind: zBuilderVersionKindEnum,
+  restoredFrom: z.int().readonly().nullable(),
   note: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   createdBy: zStaff.nullable(),
@@ -6401,32 +6557,83 @@ export const zBusinessProfile = z.object({
 })
 
 /**
- * * `order` - order
  * * `gift_card_purchase` - gift_card_purchase
  */
-export const zVivaReturnLookupResponseKindEnum = z.enum(['order', 'gift_card_purchase'])
+export const zVivaReturnGiftCardPurchaseResponseKindEnum = z.enum(['gift_card_purchase'])
 
 /**
- * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ * A Smart Checkout return that resolved to a gift-card PURCHASE.
  *
- * ``kind`` discriminates the two things a Smart Checkout return can
- * resolve to: an order, or a gift-card PURCHASE (which shares the
- * same static return URL but is not an order). Order fields are
- * absent for purchases and vice versa.
+ * Purchases share the static return URL with orders but are not orders.
  */
-export const zVivaReturnLookupResponse = z.object({
-  kind: zVivaReturnLookupResponseKindEnum.optional(),
-  id: z.int().optional(),
-  uuid: z.uuid().optional(),
-  status: z.string().optional(),
-  paymentStatus: z.string().optional(),
-  purchaseUuid: z.uuid().optional(),
-  purchaseStatus: z.string().optional(),
+export const zVivaReturnGiftCardPurchaseResponse = z.object({
+  kind: zVivaReturnGiftCardPurchaseResponseKindEnum,
+  purchaseUuid: z.uuid(),
+  purchaseStatus: z.string(),
 })
+
+/**
+ * * `order` - order
+ */
+export const zVivaReturnOrderResponseKindEnum = z.enum(['order'])
+
+/**
+ * A Smart Checkout return that resolved to an order (PII-free).
+ */
+export const zVivaReturnOrderResponse = z.object({
+  kind: zVivaReturnOrderResponseKindEnum,
+  id: z.int(),
+  uuid: z.uuid(),
+  status: z.string(),
+  paymentStatus: z.string(),
+})
+
+export const zVivaReturnLookupResponse = z.discriminatedUnion('kind', [
+  zVivaReturnOrderResponse.extend({ kind: z.literal('order') }),
+  zVivaReturnGiftCardPurchaseResponse.extend({ kind: z.literal('gift_card_purchase') }),
+])
 
 export const zWebSocketTicketResponse = z.object({
   ticket: z.string(),
   expiresIn: z.int(),
+})
+
+/**
+ * One entry per weekday; ``null`` is closed that day.
+ */
+export const zWeekSchedule = z.object({
+  mon: zDayHours.nullable(),
+  tue: zDayHours.nullable(),
+  wed: zDayHours.nullable(),
+  thu: zDayHours.nullable(),
+  fri: zDayHours.nullable(),
+  sat: zDayHours.nullable(),
+  sun: zDayHours.nullable(),
+})
+
+/**
+ * Weekly opening hours in an IANA time zone.
+ */
+export const zBusinessHours = z.object({
+  timezone: z.string().max(64),
+  schedule: zWeekSchedule,
+})
+
+/**
+ * Every public store setting, keyed by name.
+ *
+ * Values are strings in the same encoding ``SettingDetailSerializer``
+ * uses (json-typed settings JSON-encoded, everything else ``str()``),
+ * so a consumer parses one shape whichever endpoint it reads.
+ */
+export const zPublicSettings = z.object({
+  settings: z.record(z.string(), z.string()),
+  announcementBar: zAnnouncementBar.nullable(),
+  authPanel: zAuthPanel.nullable(),
+  fundingBanner: zFundingBanner,
+  storeOffices: z.array(zStoreOffice),
+  businessHours: zBusinessHours.nullable(),
+  contactAttachmentsTypes: z.array(z.string()),
 })
 
 /**

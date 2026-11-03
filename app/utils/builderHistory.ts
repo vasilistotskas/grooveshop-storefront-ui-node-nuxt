@@ -1,12 +1,12 @@
 /**
  * One line of a document's history as the panel lists it: the draft being
- * edited (`draft`, when it differs from what is live), or a stored version, a
- * named save (`checkpoint`) or a publish (`publish`). `live` marks the version
- * the store serves now.
+ * edited (`draft`, when it differs from what is live), or a stored version
+ * of Django's kinds (a named save `checkpoint`, a `publish`, a `restore`).
+ * `live` marks the version the store serves now.
  */
 export interface BuilderHistoryRow {
   id: string
-  kind: 'draft' | 'checkpoint' | 'publish'
+  kind: 'draft' | BuilderVersionKindEnum
   /** The version's number; absent for the draft. */
   number?: number
   at: string

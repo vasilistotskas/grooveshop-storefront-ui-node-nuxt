@@ -1,34 +1,18 @@
 /**
- * Pure helpers behind ``useBusinessHours`` — kept out of the composable
+ * Pure helpers behind `useBusinessHours` — kept out of the composable
  * so the timezone/boundary logic is unit-testable without a Nuxt
- * context.
+ * context. The hours themselves are Django's typed `BusinessHours`
+ * (`GET /settings/public`, generated): all seven day keys are present and
+ * `null` means closed that day.
  */
 
-/**
- * Parse the raw ``/api/settings/get`` value for ``BUSINESS_HOURS``.
- * Empty, non-JSON, ``{}`` or shape-invalid payloads all resolve to
- * ``null`` (feature unset) — never a throw.
- */
-export function parseBusinessHoursValue(
-  raw: string | null | undefined,
-): BusinessHours | null {
-  if (!raw) return null
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  }
-  catch {
-    return null
-  }
-  if (
-    !parsed
-    || typeof parsed !== 'object'
-    || Object.keys(parsed).length === 0
-  ) {
-    return null
-  }
-  return isBusinessHours(parsed) ? parsed : null
-}
+export type WeekDayKey = keyof WeekSchedule
+
+export const WEEK_DAY_KEYS = [
+  'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun',
+] as const satisfies readonly WeekDayKey[]
+
+export type BusinessHoursDayEntry = WeekSchedule[WeekDayKey]
 
 export interface BusinessHoursState {
   day: WeekDayKey
