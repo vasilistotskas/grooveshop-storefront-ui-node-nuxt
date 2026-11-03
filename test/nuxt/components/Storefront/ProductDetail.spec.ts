@@ -322,26 +322,6 @@ describe('default ProductDetail', () => {
     return wrapper
   }
 
-  it('promises same-business-day dispatch before the store\'s cutoff', async () => {
-    serve(makeProduct({ id: 123, stock: 20 }), () => empty, [], { dispatchCutoff: '15:00' })
-
-    const wrapper = await mountPage()
-
-    expect(wrapper.text()).toContain('Παράγγειλε πριν τις 15:00 (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη')
-  })
-
-  it.each([
-    ['sets no cutoff', { dispatchCutoff: '' }, 20],
-    ['writes a cutoff that is no clock time', { dispatchCutoff: 'before lunch' }, 20],
-    ['has the product sold out', { dispatchCutoff: '15:00' }, 0],
-  ])('promises no dispatch when the store %s', async (_name, values, stock) => {
-    serve(makeProduct({ id: 123, stock }), () => empty, [], values)
-
-    const wrapper = await mountPage()
-
-    expect(wrapper.text()).not.toContain('αποστέλλεται την ίδια εργάσιμη')
-  })
-
   it('places the product under its category trail', async () => {
     serve(makeProduct({ id: 123, category: 2 }))
     const wrapper = await mountPage()
@@ -935,5 +915,55 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail p
 
     expect(wrapper.findComponent({ name: NOTICE }).exists()).toBe(true)
     wrapper.unmount()
+  })
+})
+
+/**
+ * "Order before 15:00, it ships the same business day": the store's cutoff
+ * from the typed settings, in both designs, only for a product that has
+ * stock to dispatch.
+ */
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail dispatch cutoff', ({ C }) => {
+  const PROMISE = 'αποστέλλεται την ίδια εργάσιμη'
+
+  function serve(stock: number, values: Partial<PublicValues>) {
+    clearNuxtData()
+    setTenant()
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': { ...makeProduct({ id: 123, stock }), ratingDistribution: [] },
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/settings/public': { settings: {}, values: makePublicValues(values) },
+      '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
+      '/api/*': empty,
+    })
+  }
+
+  const mountPage = async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('promises same-business-day dispatch before the cutoff the store set', async () => {
+    serve(20, { dispatchCutoff: '15:00' })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Παράγγειλε πριν τις 15:00 (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη')
+  })
+
+  it.each([
+    ['sets no cutoff', { dispatchCutoff: '' }, 20],
+    ['writes a cutoff that is no clock time', { dispatchCutoff: 'before lunch' }, 20],
+    ['has the product sold out', { dispatchCutoff: '15:00' }, 0],
+  ])('promises no dispatch when the store %s', async (_name, values, stock) => {
+    serve(stock, values)
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).not.toContain(PROMISE)
   })
 })
