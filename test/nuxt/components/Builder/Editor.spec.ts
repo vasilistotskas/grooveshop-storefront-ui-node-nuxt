@@ -56,6 +56,9 @@ const HEADER = detail('group:header', 'group', { sections: { menu: { type: 'head
 const FOOTER = detail('group:footer', 'group', { sections: { menu: { type: 'footer_menu@1', settings: {} } }, order: ['menu'] })
 const ABOUT = detail('page:summer-sale', 'page', { sections: {}, order: [] })
 
+/** The heartbeat's answer while nobody else has the page open. */
+const NOBODY_ELSE = { documents: {} }
+
 const LIST = [row('group:footer', 'group'), row('group:header', 'group'), row('page:summer-sale', 'page'), row('template:home', 'template')]
 
 const documentUrl = (key: string) => `/api/builder/documents/${encodeURIComponent(key)}`
@@ -64,6 +67,7 @@ beforeEach(() => {
   resetBuilderEditorStores()
   api.routes({
     '/api/builder/documents': LIST,
+    '/api/builder/presence': NOBODY_ELSE,
     [documentUrl('template:home')]: HOME,
     [documentUrl('group:header')]: HEADER,
     [documentUrl('group:footer')]: FOOTER,
@@ -140,6 +144,7 @@ describe('the page editor', () => {
   it('does not open a working copy this build cannot read, and says so', async () => {
     api.routes({
       '/api/builder/documents': LIST,
+      '/api/builder/presence': NOBODY_ELSE,
       [documentUrl('template:home')]: detail('template:home', 'template', { sections: { a: { type: 'x@1', settings: {} } }, order: [] }),
       [documentUrl('group:header')]: HEADER,
       [documentUrl('group:footer')]: FOOTER,
@@ -152,12 +157,13 @@ describe('the page editor', () => {
   })
 
   it('says the store could not be reached, and tries again on request', async () => {
-    api.routes({ '/api/builder/documents': failWith(502) })
+    api.routes({ '/api/builder/documents': failWith(502), '/api/builder/presence': NOBODY_ELSE })
     const wrapper = await open()
     expect(wrapper.text()).toContain('Η σελίδα δεν φορτώθηκε')
 
     api.routes({
       '/api/builder/documents': LIST,
+      '/api/builder/presence': NOBODY_ELSE,
       [documentUrl('template:home')]: HOME,
       [documentUrl('group:header')]: HEADER,
       [documentUrl('group:footer')]: FOOTER,
@@ -441,6 +447,7 @@ describe('editing the structure of a page', () => {
   beforeEach(() => {
     api.routes({
       '/api/builder/documents': LIST,
+      '/api/builder/presence': NOBODY_ELSE,
       [documentUrl('template:home')]: HOME,
       [documentUrl('group:header')]: HEADER,
       [documentUrl('group:footer')]: FOOTER,
@@ -601,6 +608,7 @@ describe('editing the structure of a page', () => {
     beforeEach(() => {
       api.routes({
         '/api/builder/documents': LIST,
+        '/api/builder/presence': NOBODY_ELSE,
         [documentUrl('template:home')]: HOME,
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
@@ -640,6 +648,7 @@ describe('editing the structure of a page', () => {
     it('offers no way to turn it on when the store answers none (the plan keeps it off, or the role may not)', async () => {
       api.routes({
         '/api/builder/documents': LIST,
+        '/api/builder/presence': NOBODY_ELSE,
         [documentUrl('template:home')]: HOME,
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
@@ -909,6 +918,7 @@ describe('editing the structure of a page', () => {
     it('shows the store\'s refusal of a save on the setting it names', async () => {
       api.routes({
         '/api/builder/documents': LIST,
+        '/api/builder/presence': NOBODY_ELSE,
         [documentUrl('template:home')]: HOME,
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
@@ -942,6 +952,7 @@ describe('editing the structure of a page', () => {
       const wrapper = await open(HERO)
       api.routes({
         '/api/builder/documents': LIST,
+        '/api/builder/presence': NOBODY_ELSE,
         [documentUrl('template:home')]: THEIRS,
         [documentUrl('group:header')]: HEADER,
         [documentUrl('group:footer')]: FOOTER,
