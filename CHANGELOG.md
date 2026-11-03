@@ -1,3 +1,10 @@
+# [3.315.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.314.0...v3.315.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** state the caps of the data settings in the catalogue, and read the lists at once ([#373](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/373)) ([eaeb116](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eaeb11618931abc5df2ebbd67648ff7bd8944c0d))
+
 # [3.314.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.313.0...v3.314.0) (2026-11-03)
 
 
