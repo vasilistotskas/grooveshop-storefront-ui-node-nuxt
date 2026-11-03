@@ -1,3 +1,10 @@
+## [3.301.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.301.0...v3.301.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **webside:** stop the page scrolling sideways on a phone when a section scrolls a rail ([#346](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/346)) ([9dbc421](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9dbc42176d21d2006ec1fba775b73bce8cf9acd0))
+
 # [3.301.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.300.1...v3.301.0) (2026-11-03)
 
 
