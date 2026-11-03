@@ -1,7 +1,10 @@
 import * as z from 'zod'
 
-import { CONTAINER_MAP, FONT_ALLOWLIST, HEX_COLOR_RE, RADIUS_ALLOWLIST, THEME_SHADES } from '../theme/constants'
-import type { BuilderDocumentKind, ContrastRule, DocumentRoot } from '../types/builder'
+import { themeDefaultsFor } from '../theme/defaults'
+import { zThemeSettings } from '../theme/settings'
+import { resolveDesign } from '../theme/design'
+import type { StorefrontDesign } from '../theme/design'
+import type { BuilderDocumentKind, ContrastRule, ContrastSide, DocumentRoot } from '../types/builder'
 
 /**
  * A page's search-engine copy, written per language: the length limits are
@@ -17,82 +20,67 @@ const SEO_ROOT: DocumentRoot = {
   translatable: ['/seoTitle', '/seoDescription', '/seoKeywords'],
 }
 
-const zHex = z.string().regex(HEX_COLOR_RE)
+/** The design whose CSS sits under its rules: `null` for a store with its own templates (webside), drawn by Nuxt UI's defaults. */
+type ThemeDesign = StorefrontDesign | null
 
 /**
- * A colour the store picks, with the scale the editor makes of it: the
- * eleven Nuxt UI shades, computed in OKLCH from `source` and stored, so
- * the server render only writes what is there and Django checks contrast
- * on the colours themselves.
+ * The contrast the theme's colours must keep, per design: each rule names
+ * the tokens that design really paints with, and only what a store can
+ * change.
+ *
+ * - **A store with its own templates (webside)** paints text from the
+ *   neutral scale, as Nuxt UI's defaults do: `--ui-text` is neutral 700, and
+ *   200 in the dark, muted text 500 and 400, on `main.css`'s background of
+ *   neutral 50, and 950 in the dark. Body text below 4.5:1 stops a publish
+ *   (SC 1.4.3); muted text warns.
+ * - **Groove Volt** paints its surfaces and text with its own fixed colours
+ *   (`[data-design="volt"]` in `main.css`): design tokens, not the store's,
+ *   so no rule guards them, and they are the literal backgrounds below.
+ * - **Both**: `action` (`--ui-primary`) and `accent` (`--ui-secondary`),
+ *   which fill buttons, links and focus rings, warn against 3:1 on the
+ *   background (SC 1.4.11). The text ON them is `--ui-on-*`, picked per
+ *   colour (`readableTextOn`), so it needs no rule.
+ *
+ * `test/unit/shared/builder/documentRoots.spec.ts` holds every token a rule
+ * names to the stylesheet of its design, so a design that changes its
+ * surfaces cannot leave a rule checking what it no longer paints.
  */
-const zColorScale = z.object({
-  source: zHex,
-  scale: z.object(Object.fromEntries(THEME_SHADES.map(shade => [shade, zHex])) as Record<(typeof THEME_SHADES)[number], typeof zHex>),
-})
+export function themeContrastRulesFor(design: ThemeDesign): readonly ContrastRule[] {
+  const brand = (light: ContrastSide, dark: ContrastSide): ContrastRule[] => [
+    { id: 'action-light', foreground: '/colors/light/action', background: light, min: 3, severity: 'warning' },
+    { id: 'action-dark', foreground: '/colors/dark/action', background: dark, min: 3, severity: 'warning' },
+    { id: 'accent-light', foreground: '/colors/light/accent', background: light, min: 3, severity: 'warning' },
+    { id: 'accent-dark', foreground: '/colors/dark/accent', background: dark, min: 3, severity: 'warning' },
+  ]
+  if (design === 'volt') return brand(VOLT_BACKGROUND.light, VOLT_BACKGROUND.dark)
+  const light = '/colors/light/neutral/scale/50'
+  const dark = '/colors/dark/neutral/scale/950'
+  return [
+    { id: 'body-text-light', foreground: '/colors/light/neutral/scale/700', background: light, min: 4.5, severity: 'error' },
+    { id: 'body-text-dark', foreground: '/colors/dark/neutral/scale/200', background: dark, min: 4.5, severity: 'error' },
+    { id: 'muted-text-light', foreground: '/colors/light/neutral/scale/500', background: light, min: 4.5, severity: 'warning' },
+    { id: 'muted-text-dark', foreground: '/colors/dark/neutral/scale/400', background: dark, min: 4.5, severity: 'warning' },
+    ...brand(light, dark),
+  ]
+}
 
-const zFont = z.enum(Object.keys(FONT_ALLOWLIST) as [string, ...string[]])
+/** Groove Volt's page background, light and dark: `--ui-bg` of `[data-design="volt"]`, a design token the theme does not hold. */
+export const VOLT_BACKGROUND = { light: '#ffffff', dark: '#17171a' } as const
 
-/**
- * The contrast the theme's colours must keep, per scheme, by Nuxt UI's own
- * pairings: `--ui-text` is neutral 700 on white, and neutral 200 on neutral
- * 900 in the dark; muted text is 500 and 400; `--ui-primary` is 500, and 400
- * in the dark; `--ui-secondary` is the scheme's accent. Body text below
- * 4.5:1 stops a publish; the rest warn in the editor: muted text against
- * 4.5:1 (SC 1.4.3), the brand colours, which draw outlines, links and focus
- * rings, against 3:1 (SC 1.4.11).
- */
-export const THEME_CONTRAST_RULES: readonly ContrastRule[] = [
-  { id: 'body-text-light', foreground: '/colors/light/neutral/scale/700', background: '#ffffff', min: 4.5, severity: 'error' },
-  { id: 'body-text-dark', foreground: '/colors/dark/neutral/scale/200', background: '/colors/dark/neutral/scale/900', min: 4.5, severity: 'error' },
-  { id: 'muted-text-light', foreground: '/colors/light/neutral/scale/500', background: '#ffffff', min: 4.5, severity: 'warning' },
-  { id: 'muted-text-dark', foreground: '/colors/dark/neutral/scale/400', background: '/colors/dark/neutral/scale/900', min: 4.5, severity: 'warning' },
-  { id: 'primary-light', foreground: '/colors/light/primary/scale/500', background: '#ffffff', min: 3, severity: 'warning' },
-  { id: 'primary-dark', foreground: '/colors/dark/primary/scale/400', background: '/colors/dark/neutral/scale/900', min: 3, severity: 'warning' },
-  { id: 'accent-light', foreground: '/colors/light/accent', background: '#ffffff', min: 3, severity: 'warning' },
-  { id: 'accent-dark', foreground: '/colors/dark/accent', background: '/colors/dark/neutral/scale/900', min: 3, severity: 'warning' },
-]
-
-/**
- * One colour scheme of the theme, light or dark: three colours with their
- * scale, the accent (`--ui-secondary`), the semantic colours and the
- * "liked" heart.
- */
-const zColorScheme = z.object({
-  primary: zColorScale,
-  secondary: zColorScale,
-  neutral: zColorScale,
-  accent: zHex,
-  success: zHex,
-  warning: zHex,
-  error: zHex,
-  info: zHex,
-  liked: zHex,
-})
-
-/**
- * The store's theme: both colour schemes, the one radius every corner takes,
- * its three faces (every one with Greek) and the page width. Every key is
- * required, the dark scheme too: each store's theme is seeded from what it
- * renders today (a store that never set dark colours gets its light ones),
- * so nothing is read as "absent means the default" or "derive the dark".
- */
-const THEME_ROOT: DocumentRoot = {
-  schema: z.object({
-    colors: z.object({ light: zColorScheme, dark: zColorScheme }),
-    radius: z.enum([...RADIUS_ALLOWLIST] as [string, ...string[]]),
-    fonts: z.object({ sans: zFont, display: zFont, mono: zFont }),
-    container: z.enum(Object.keys(CONTAINER_MAP) as [string, ...string[]]),
-  }),
-  translatable: [],
-  contrast: THEME_CONTRAST_RULES,
+/** The theme's root for a design: the one schema, that design's contrast rules and the theme a new store of it starts with. */
+export function themeRootFor(design: ThemeDesign): DocumentRoot {
+  return { schema: zThemeSettings, translatable: [], contrast: themeContrastRulesFor(design), defaults: themeDefaultsFor(design) }
 }
 
 /**
- * What each kind of document carries at its root. A kind not listed has no
+ * What each kind of document carries at its root, for the store whose
+ * schema is `schema` (its design sets the theme's rules and defaults;
+ * without one, the platform's own templates). A kind not listed has no
  * root settings, and Django refuses a `settings` key on it.
  */
-export const BUILDER_DOCUMENT_ROOTS: Partial<Record<BuilderDocumentKind, DocumentRoot>> = {
-  page: SEO_ROOT,
-  template: SEO_ROOT,
-  theme: THEME_ROOT,
+export function builderDocumentRootsFor(schema?: string): Partial<Record<BuilderDocumentKind, DocumentRoot>> {
+  return { page: SEO_ROOT, template: SEO_ROOT, theme: themeRootFor(resolveDesign(schema)) }
 }
+
+/** The roots as the document pipeline reads them: the schema of every kind, which no design changes. */
+export const BUILDER_DOCUMENT_ROOTS: Partial<Record<BuilderDocumentKind, DocumentRoot>> = builderDocumentRootsFor()

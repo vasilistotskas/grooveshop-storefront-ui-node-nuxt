@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { TAILWIND_PALETTES_FILE, installedTailwindTheme, tailwindPaletteHexes, tailwindPalettesFile } from '~~/scripts/generate-tailwind-palettes.mjs'
+import { TAILWIND_PALETTES_FILE, installedTailwindTheme, tailwindPaletteHexes, tailwindPalettesModule } from '~~/scripts/generate-tailwind-palettes.mjs'
 
 describe('generate-tailwind-palettes', () => {
   it('gives every palette of the installed Tailwind its eleven shades in sRGB, greys and colours alike, names sorted', () => {
@@ -15,7 +15,7 @@ describe('generate-tailwind-palettes', () => {
     expect(palettes.zinc!['50']).toBe('#fafafa')
   })
 
-  it('has written the committed file from the installed Tailwind (run `pnpm generate:palettes` if not)', () => {
-    expect(readFileSync(TAILWIND_PALETTES_FILE, 'utf8').replaceAll('\r\n', '\n')).toBe(tailwindPalettesFile())
+  it('has written the committed module from the installed Tailwind (run `pnpm generate:palettes` if not)', () => {
+    expect(readFileSync(TAILWIND_PALETTES_FILE, 'utf8').replaceAll('\r\n', '\n')).toBe(tailwindPalettesModule())
   })
 })

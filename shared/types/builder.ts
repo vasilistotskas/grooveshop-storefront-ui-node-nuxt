@@ -199,6 +199,8 @@ export interface CatalogueDocumentKind {
   linkRefs: string[]
   /** The contrast its colours must keep; only the theme has any. Django enforces the `error` rules on publish. */
   contrast?: ContrastRule[]
+  /** The root settings a new document of this kind starts with: the theme a new store of the design gets. */
+  defaults?: Record<string, unknown>
 }
 
 export interface BlockCatalogue {
@@ -236,6 +238,8 @@ export interface DocumentRoot {
   schema: ZodObject
   translatable: readonly SettingsPointer[]
   contrast?: readonly ContrastRule[]
+  /** The root settings a new document of this kind starts with; only the theme has them. */
+  defaults?: Record<string, unknown>
 }
 
 // ── Reading a document ─────────────────────────────────────────────
