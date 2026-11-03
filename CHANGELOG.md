@@ -1,3 +1,10 @@
+## [3.319.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.0...v3.319.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **product:** render the specifications in the page HTML ([#375](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/375)) ([58bdd35](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/58bdd35d9566e5b87848098b49881da2ed90c263))
+
 # [3.319.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.318.1...v3.319.0) (2026-11-03)
 
 
