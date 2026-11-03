@@ -65,8 +65,8 @@ const serverAlias = [
  * are reset (`vi.fn(impl)` goes back to `impl`, not to an empty function),
  * spies are restored, and `vi.stubGlobal` / `vi.stubEnv` are undone.
  *
- * Inline projects inherit nothing from the root `test` block unless they
- * set `extends: true`, so this is spread into each project explicitly.
+ * No project inherits the root `test` block (each sets `extends: false`,
+ * see `projects`), so this is spread into each project explicitly.
  * A test that needs state from an earlier test is order-dependent and
  * wrong; a stub a whole file needs belongs in `beforeEach`.
  */
@@ -184,6 +184,17 @@ export default defineConfig({
     },
     projects: [
       {
+        // No inline project extends this file (`extends: false`; the `nuxt`
+        // project gets it from `defineVitestProject`). Since Vitest 5 an
+        // inline project extends its declaring config file by default, and
+        // Vitest RE-EXECUTES the file for each such project: every
+        // evaluation boots Nuxt again through `defineVitestProject` above.
+        // Two of those boots ran at once, and each one's @nuxt/fonts wipes
+        // `<buildDir>/cache/fonts` (nuxt/fonts#962), so on Windows a run
+        // died before any test with EPERM on that rmdir. Nothing here is
+        // meant to be inherited: the root `test` block holds only
+        // `coverage`, which is a root option.
+        extends: false,
         resolve: { alias: serverAlias },
         plugins: [nitroAutoImports, appUtilsAutoImports],
         test: {
@@ -217,6 +228,15 @@ export default defineConfig({
                 indexedDb: true,
               },
               overrides: {
+                // The test Nuxt builds in a folder of its own. Without one,
+                // Nuxt's kit puts every non-dev load into
+                // `node_modules/.cache/nuxt/.nuxt` (`@nuxt/kit` `loadNuxt`),
+                // which `nuxt build` uses as well, and @nuxt/fonts clears its
+                // `cache/fonts` on every such load (nuxt/fonts#962): a test
+                // run beside a build, or another agent's run, died on Windows
+                // with EPERM on that rmdir. `pnpm cleanup` (`nuxt cleanup`)
+                // removes the whole `node_modules/.cache`, this folder with it.
+                buildDir: 'node_modules/.cache/nuxt-test/.nuxt',
                 // Disable manifest fetching during tests to prevent timeout errors
                 experimental: {
                   appManifest: false,
@@ -259,6 +279,7 @@ export default defineConfig({
       }).then(withSetupFileAfterNuxt('./test/fixtures/setup/nuxt.ts')),
 
       {
+        extends: false,
         resolve: { alias },
         test: {
           name: 'e2e',
