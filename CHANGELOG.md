@@ -1,3 +1,10 @@
+## [3.319.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.2...v3.319.3) (2026-11-03)
+
+
+### Bug Fixes
+
+* **seo:** one Organization node with every social profile ([#378](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/378)) ([cd8babe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cd8babe68e19d2c6433ad3f6d90d254265b4c6b9)), closes [unjs/unhead#1034](https://github.com/unjs/unhead/issues/1034)
+
 ## [3.319.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.1...v3.319.2) (2026-11-03)
 
 
