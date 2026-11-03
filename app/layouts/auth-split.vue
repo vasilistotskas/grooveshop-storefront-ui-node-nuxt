@@ -17,13 +17,12 @@ const router = useRouter()
 
 const storeName = computed(() => tenantStore.storeName || '')
 
-// The panel's photo and line come from the AUTH_PANEL setting. Without one
-// the panel keeps its plain ink look and the store's own description.
+// The panel's photo and line come from the AUTH_PANEL setting, and nothing
+// else: without a line it shows none, without a photo it keeps its plain ink.
 const { authPanel: panel } = useStoreSettings()
 const photo = computed(() => panel.value?.imageUrl || '')
 const tagline = computed(() =>
-  (panel.value && authPanelTagline(panel.value, locale.value))
-  || (tenantStore.config ? localizedStoreDescription(tenantStore.config, locale.value) : ''),
+  panel.value ? authPanelTagline(panel.value, locale.value) : '',
 )
 
 /** Back to where the shopper came from, or to the shop when they came from outside it. */
