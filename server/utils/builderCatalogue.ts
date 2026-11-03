@@ -47,8 +47,8 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
  * definitions give the same bytes.
  *
  * `documentKinds` states what each kind of document carries at its root
- * (`BUILDER_DOCUMENT_ROOTS`; the theme's with the `contrast` its colours
- * must keep), and `templates` the page types the storefront's
+ * (`builderDocumentRootsFor(design)`: the theme's with that design's
+ * `contrast` rules and the `defaults` a new store of it starts with), and `templates` the page types the storefront's
  * static routes render (`STATIC_LAYOUT_ROUTES`): a layout of one is the
  * document `template:<pageType>`, any other the custom page
  * `page:<pageType>`, and a block's `templates` names these. Both are part of
@@ -83,7 +83,7 @@ export function buildBlockCatalogue(
     BUILDER_DOCUMENT_KINDS.flatMap((kind) => {
       const root = roots[kind]
       return root
-        ? [[kind, { schema: blockSettingsJsonSchema(root.schema), translatable: [...root.translatable], linkRefs: linkPointers(root.schema), ...(root.contrast && { contrast: [...root.contrast] }) }]]
+        ? [[kind, { schema: blockSettingsJsonSchema(root.schema), translatable: [...root.translatable], linkRefs: linkPointers(root.schema), ...(root.contrast && { contrast: [...root.contrast] }), ...(root.defaults && { defaults: root.defaults }) }]]
         : []
     }),
   )
@@ -111,7 +111,7 @@ export function definitionsForDesign(definitions: readonly BlockDefinition[], de
 export const builderBlocks: ReadonlyMap<string, BlockDefinition> = new Map(blockList.map(definition => [definition.type, definition]))
 
 function catalogueDocument(design?: string): BuilderCatalogueDocument {
-  const { hash, blocks, documentKinds, templates } = buildBlockCatalogue(definitionsForDesign(blockList, design), undefined, staticLayoutPageTypesFor(design))
+  const { hash, blocks, documentKinds, templates } = buildBlockCatalogue(definitionsForDesign(blockList, design), builderDocumentRootsFor(design), staticLayoutPageTypesFor(design))
   return { hash, json: JSON.stringify({ hash, blocks, documentKinds, templates }) }
 }
 

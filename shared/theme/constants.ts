@@ -43,6 +43,9 @@ export const TAILWIND_COLOR_ALLOWLIST = new Set([
  */
 export const FONT_ALLOWLIST: Record<string, string> = {
   'system': 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+  // The platform's own monospace face: Tailwind's stack, which main.css
+  // gives --font-mono. A store that never picked a mono face renders it.
+  'system-mono': 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
   'inter': '"Inter", ui-sans-serif, system-ui, sans-serif',
   'roboto': '"Roboto", ui-sans-serif, system-ui, sans-serif',
   'open-sans': '"Open Sans", ui-sans-serif, system-ui, sans-serif',
@@ -71,6 +74,9 @@ export const FONT_ALLOWLIST: Record<string, string> = {
   'vollkorn': '"Vollkorn", ui-serif, Georgia, serif',
   'commissioner': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
 }
+
+/** The faces that are the system's own, with no web font to ship. */
+export const SYSTEM_FONTS = new Set(['system', 'system-mono'])
 
 /**
  * The custom property holding the compiled stack of a pre-bundled family
@@ -163,6 +169,8 @@ export const RADIUS_ALLOWLIST = new Set([
   '0.375rem',
   '0.5rem',
   '0.625rem',
+  // The Groove Volt design's corners.
+  '0.75rem',
 ])
 
 /**
@@ -173,6 +181,8 @@ export const RADIUS_ALLOWLIST = new Set([
 export const CONTAINER_MAP: Record<string, string> = {
   narrow: '64rem',
   default: '80rem',
+  // The Groove Volt design's page width.
+  comfortable: '82rem',
   wide: 'var(--container-8xl)',
 }
 
