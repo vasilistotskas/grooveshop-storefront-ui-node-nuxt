@@ -58,6 +58,9 @@ import NewsletterConfirm from '~/components/variants/webside/Storefront/Newslett
 import ProductAlertConfirm from '~/components/variants/webside/Storefront/ProductAlertConfirm.vue'
 import EmailUnsubscribe from '~/components/variants/webside/Storefront/EmailUnsubscribe.vue'
 
+// The shared setup stubs the default layout; its render is pinned here.
+vi.unmock('~/layouts/default.vue')
+
 /**
  * Every request — `$api`, and the `$fetch` that `useApi` / `useLazyApi`
  * transport through — lands on one mock that answers `{}`: the chrome

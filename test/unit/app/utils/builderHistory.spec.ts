@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { builderHistoryRows, groupBuilderHistoryByDay } from '~/utils/builderHistory'
 
-const version = (number: number, kind: BuilderVersionKindEnum, createdAt: string) => ({
+const version = (number: number, kind: BuilderVersionKindEnum, createdAt: string, restoredFrom: number | null = null) => ({
   id: number,
   number,
   kind,
@@ -11,7 +11,7 @@ const version = (number: number, kind: BuilderVersionKindEnum, createdAt: string
   sizeBytes: 100,
   blockTypes: [],
   catalogueHash: 'h',
-  restoredFrom: null,
+  restoredFrom,
 })
 
 const document = { updatedAt: '2026-11-03T12:00:00', updatedBy: { id: 9, name: 'Nikos' }, publishedVersion: 2, hasUnpublishedChanges: true }
@@ -28,6 +28,12 @@ describe('builderHistoryRows', () => {
     const rows = builderHistoryRows(document, [version(3, 'checkpoint', '2026-11-03T10:00:00'), version(2, 'publish', '2026-11-02T10:00:00')])
 
     expect(rows.filter(row => row.live).map(row => row.number)).toEqual([2])
+  })
+
+  it('says which version a restore put back, and nothing for any other row', () => {
+    const rows = builderHistoryRows({ ...document, hasUnpublishedChanges: false }, [version(5, 'restore', '2026-11-03T11:00:00', 2), version(4, 'checkpoint', '2026-11-03T10:00:00')])
+
+    expect(rows.map(row => [row.kind, row.restoredFrom])).toEqual([['restore', 2], ['checkpoint', null]])
   })
 
   it('has no draft row when nothing is unpublished', () => {
