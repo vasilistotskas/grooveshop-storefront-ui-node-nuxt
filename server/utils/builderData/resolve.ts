@@ -23,7 +23,7 @@ export async function readData(context: LoaderContext, plan: DataPlan): Promise<
       return [kind, 'failed']
     }
   }))
-  const queries = await Promise.all([...plan.queries.values()].map(async ({ key, source, descriptor }): Promise<[string, readonly unknown[] | 'failed']> => {
+  const queries = await Promise.all([...plan.queries.values()].map(async ({ key, source, descriptor }): Promise<[string, QueryAnswer<unknown> | 'failed']> => {
     try {
       return [key, await QUERY_LOADERS[source](context, descriptor)]
     }

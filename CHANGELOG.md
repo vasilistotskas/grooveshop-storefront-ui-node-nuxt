@@ -1,3 +1,45 @@
+# [3.313.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.312.0...v3.313.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** move the hero's product chips onto the data settings ([#372](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/372)) ([e59afa9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e59afa99b044ab59437e9a8ee6c36bec78cdac78))
+* **builder:** move the product categories and the offers onto the data settings ([#368](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/368)) ([fc27345](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fc2734573d0f43c5572d8c15146fd4eb2e5d5ea8))
+* **webside:** show the store's contact details and opening hours on its contact page ([#359](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/359)) ([db2d1f0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db2d1f01149eea351d7e3565befe4eb4d485cb43))
+
+# [3.312.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.311.0...v3.312.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** move the blog bands onto the data settings ([#367](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/367)) ([b851661](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b851661950bee76f5407a8cc1b3bb3ff1b7a762c))
+
+# [3.311.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.310.0...v3.311.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** draw the announcement bar in webside's own header ([#358](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/358)) ([6facbfd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6facbfd1ab8638f4d9cb53ef65f4090706a878db))
+
+# [3.310.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.309.0...v3.310.0) (2026-11-03)
+
+
+### Bug Fixes
+
+* **settings:** read the typed scalar public settings instead of parsing strings ([#365](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/365)) ([a1a7355](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a1a7355490ae671f9902518292b5eb479d233132))
+
+
+### Features
+
+* **builder:** move the product rails onto the data settings ([#366](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/366)) ([9ccc306](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9ccc30638208682532ed2e369c1950a7f8a764ff))
+
+# [3.309.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.308.0...v3.309.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** edit the list and record settings of a block in the editor ([#364](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/364)) ([b10325c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b10325c58e58b6b17e71d35b7c25dc4b53e55027))
+
 # [3.308.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.307.1...v3.308.0) (2026-11-03)
 
 

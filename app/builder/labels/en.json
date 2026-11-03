@@ -219,8 +219,8 @@
     "caption": {
       "label": "Caption"
     },
-    "categoryId": {
-      "label": "Category"
+    "categories": {
+      "label": "What it lists"
     },
     "columns": {
       "label": "Columns"
@@ -230,9 +230,6 @@
     },
     "contentPage": {
       "label": "Content page"
-    },
-    "count": {
-      "label": "How many"
     },
     "ctaLink": {
       "label": "Button link"
@@ -296,9 +293,6 @@
     "layout": {
       "label": "Layout"
     },
-    "limit": {
-      "label": "Most to show"
-    },
     "link": {
       "label": "Link"
     },
@@ -320,8 +314,8 @@
     "note": {
       "label": "Note"
     },
-    "ordering": {
-      "label": "Order"
+    "offers": {
+      "label": "What it lists"
     },
     "overlayOpacity": {
       "label": "Image shade"
@@ -329,19 +323,18 @@
     "page": {
       "label": "Page"
     },
-    "pageSize": {
-      "label": "How many"
-    },
-    "parentId": {
-      "label": "Parent category",
-      "help": "Shows its subcategories. Empty for the top ones."
-    },
     "placeholder": {
       "label": "Placeholder"
     },
-    "productId": {
+    "posts": {
+      "label": "What it lists"
+    },
+    "product": {
       "label": "Product",
       "help": "The product the slide shows, with its price."
+    },
+    "products": {
+      "label": "What it lists"
     },
     "prompt": {
       "label": "Closing card",
@@ -422,13 +415,6 @@
     "variant": {
       "line": "Line",
       "thread": "Woven strip"
-    },
-    "ordering": {
-      "featured": "Featured",
-      "newest": "Newest",
-      "popular": "Popular",
-      "discounted": "On sale",
-      "rating": "Top rated"
     },
     "decor": {
       "none": "None",

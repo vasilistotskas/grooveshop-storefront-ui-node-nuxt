@@ -4,48 +4,31 @@
  * each offer as a coupon whose code copies in one tap, and a link to
  * the rest that says how many there are.
  *
- * Gated on BOTH tiers of the promotions gate and on there being an
- * offer to show, so an operator can leave the band published between
- * campaigns and a store that switched promotions off does not keep
- * advertising them. The request itself is gated, not just the render.
+ * The offers arrive read (`offers`, a data setting the page route
+ * resolved: the first few, and how many are running in all). The block is
+ * gated on the store's promotions feature, so a store that switched them
+ * off does not keep advertising them, and the band draws nothing between
+ * campaigns, so an operator can leave it published.
  */
 const props = withDefaults(defineProps<{
   title?: string
   eyebrow?: string
   heading?: string
   subheading?: string
-  limit?: number
   ctaText?: string
   ctaLink?: string
   /** The design sets the offers on ink; a layout may ask for a lighter ground. */
   surface?: 'default' | 'muted' | 'ink'
+  /** What the band shows: the first offers, and how many are running in all. */
+  offers: ResolvedQuery<DataItems['promotion'], DataDescriptor<'promotion'>>
 }>(), {
   surface: 'ink',
 })
 
-const { t, locale } = useStoreI18n('components/PageSection/OffersPreview')
+const { t } = useStoreI18n('components/PageSection/OffersPreview')
 const localePath = useLocalePath()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 const toast = useToast()
-
-const enabled = useStoreFeature('promotions')
-
-// `languageCode` and a locale-keyed cache entry, for the same reason as
-// the `/offers` page: Django resolves an offer's name and description
-// server-side, so without it this band renders the store's default
-// language on every locale. It was the last Greek left on `/en`.
-const { data } = await useApi('/api/promotions', {
-  key: () => `offers-preview-${locale.value}`,
-  dedupe: 'defer',
-  query: { languageCode: locale },
-  enabled,
-  // The band hydrates when it scrolls into view, after the app has
-  // finished hydrating — see app/utils/payloadCachedData.ts.
-  getCachedData: payloadCachedData,
-})
-
-const live = computed<PublicPromotion[]>(() => (enabled.value ? data.value ?? [] : []))
-const offers = computed(() => live.value.slice(0, props.limit ?? 3))
 
 // Same affordance as the /offers page: a code is copied in one tap
 // rather than selected by hand on a phone.
@@ -57,11 +40,11 @@ function onCopy(code: string) {
 
 <template>
   <PageSectionBand
-    v-if="offers.length"
+    v-if="offers.items.length"
     :eyebrow="eyebrow || t('eyebrow')"
     :heading="heading || title || t('heading')"
     :subheading="subheading"
-    :cta-text="ctaText || t('all_offers', { count: live.length }, live.length)"
+    :cta-text="ctaText || t('all_offers', { count: offers.total }, offers.total)"
     :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('offers')"
     :surface="props.surface === 'ink' ? 'inverted' : props.surface"
     heading-size="lg"
@@ -73,7 +56,7 @@ function onCopy(code: string) {
       "
     >
       <li
-        v-for="offer in offers"
+        v-for="offer in offers.items"
         :key="offer.id"
         class="flex"
       >

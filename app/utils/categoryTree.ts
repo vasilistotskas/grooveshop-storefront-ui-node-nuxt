@@ -76,6 +76,19 @@ export function buildCategoryForest(
   return prune((byParent.get(null) ?? []).map(build))
 }
 
+/** A category as a tile or a menu entry draws it, in `locale`; `children` are its entries one level down. */
+export function categoryMenuEntry(category: ProductCategory, locale: string, children: CategoryMenuEntry[] = []): CategoryMenuEntry {
+  return {
+    id: category.id,
+    slug: category.slug,
+    label: extractTranslated(category, 'name', locale) ?? category.slug,
+    to: categoryUrl(category.id, category.slug),
+    imagePath: category.mainImagePath,
+    productCount: category.recursiveProductCount,
+    children,
+  }
+}
+
 /** A category's listing page, before the locale prefix. */
 export function categoryUrl(id: number, slug: string) {
   return categoryPath(id, slug)

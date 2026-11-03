@@ -17,8 +17,9 @@ const loadError = computed(() => describeApiError(error.value, { fallback: t('lo
 
 const cards = computed(() => data.value?.results ?? [])
 
-const minAmount = useSettingValue('GIFT_CARD_MIN_AMOUNT')
-const maxAmount = useSettingValue('GIFT_CARD_MAX_AMOUNT')
+const { values } = useStoreSettings()
+const minAmount = computed(() => giftCardAmountBound(values.value?.giftCardMinAmount))
+const maxAmount = computed(() => giftCardAmountBound(values.value?.giftCardMaxAmount))
 
 type CardState = 'usable' | 'used_up' | 'expired' | 'disabled'
 
@@ -141,7 +142,7 @@ function stateOf(card: GiftCard): CardState {
         </p>
         <p class="text-sm text-toned">
           {{ minAmount && maxAmount
-            ? t('send.range', { min: n(Number(minAmount), 'currency'), max: n(Number(maxAmount), 'currency') })
+            ? t('send.range', { min: n(minAmount, 'currency'), max: n(maxAmount, 'currency') })
             : t('send.lead') }}
         </p>
       </div>

@@ -3,6 +3,7 @@ import {
   HEADING_SECTION_TYPES,
   sectionsHeadingText,
   sectionsProvideForm,
+  sectionsProvideHours,
   sectionsProvideHeading,
 } from '~~/shared/pageSections'
 
@@ -51,6 +52,12 @@ describe('pageSections', () => {
   it('reports a form only for the section that carries one', () => {
     expect(sectionsProvideForm([{ componentType: 'contact_panel' }])).toBe(true)
     expect(sectionsProvideForm([{ componentType: 'hero_banner' }])).toBe(false)
+  })
+
+  it('reports opening hours only for the business_hours band', () => {
+    expect(sectionsProvideHours([{ componentType: 'business_hours' }])).toBe(true)
+    expect(sectionsProvideHours([{ componentType: 'contact_panel' }])).toBe(false)
+    expect(sectionsProvideHours(undefined)).toBe(false)
   })
 
   it('takes the page title from the section that owns the heading', () => {

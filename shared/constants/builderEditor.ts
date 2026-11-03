@@ -151,3 +151,6 @@ export const BUILDER_PRESENCE_HEARTBEAT_MS = 15_000
 
 /** How many versions one page of a document's history holds (Django's `max_page_size` is the ceiling). */
 export const BUILDER_VERSIONS_PAGE_SIZE = 30
+
+/** How many records a new rule lists until the merchant sets it (capped by the setting's own largest). */
+export const BUILDER_QUERY_DEFAULT_LIMIT = 8
