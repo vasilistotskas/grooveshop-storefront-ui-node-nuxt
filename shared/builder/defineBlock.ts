@@ -6,7 +6,8 @@ import {
   BLOCK_TYPE_PATTERN,
   BUILDER_MAX_NODE_DEPTH,
 } from '../constants/builder'
-import type { BlockConfig, BlockDefinition } from '../types/builder'
+import type { BlockConfig, BlockDefinition, SettingsPointer } from '../types/builder'
+import { dataPointers } from './dataPointers'
 import { linkPointers } from './linkPointers'
 
 /**
@@ -57,6 +58,15 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
       fail(`${pointer} names no setting of the schema`)
     }
   }
+  const data = dataPointers(config.schema)
+  for (const pointer of Object.keys(data)) {
+    if ((config.refs ?? {})[pointer as SettingsPointer] !== undefined) {
+      fail(`${pointer} is both a data setting and in refs`)
+    }
+    if ((config.translatable ?? []).some(translatable => translatable === pointer || translatable.startsWith(`${pointer}/`))) {
+      fail(`${pointer} is a data setting, which is the same in every language`)
+    }
+  }
   for (const kind of Object.values(config.refs ?? {})) {
     if (!isOneOf(BLOCK_REF_KINDS, kind)) {
       fail(`a ref must be one of ${BLOCK_REF_KINDS.join(', ')}`)
@@ -95,6 +105,7 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     translatable: config.translatable ?? [],
     refs: config.refs ?? {},
     linkRefs: linkPointers(config.schema),
+    data,
     limits: config.limits ?? {},
     children: config.children ?? { allowed: [] },
     childList: config.childList ?? {},
