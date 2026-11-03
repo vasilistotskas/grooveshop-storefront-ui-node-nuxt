@@ -85,8 +85,9 @@ describe('GET /api/builder/catalogue', () => {
       expect(types(fyteia)).toEqual(['partner_strip', 'promo_banner', 'promo_item'])
       expect(types(unknown)).toEqual(['promo_banner', 'promo_item'])
       expect(plain.body.blocks[0]).toMatchObject({ type: 'about_content', designs: ['webside'] })
-      expect(webside.body.templates).toContain('about')
-      expect(fyteia.body.templates).not.toContain('about')
+      expect(webside.body.templates).toContain('why-microlearning')
+      expect(fyteia.body.templates).not.toContain('why-microlearning')
+      expect(fyteia.body.templates).toContain('about')
       expect(new Set([plain, webside, fyteia, unknown].map(response => response.headers.get('etag'))).size).toBe(4)
     })
 

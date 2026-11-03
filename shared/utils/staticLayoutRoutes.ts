@@ -41,8 +41,8 @@ export const STATIC_LAYOUT_ROUTES = {
   'blog-post': { path: '/blog', requiresLayout: false },
   'contact': { path: '/contact', requiresLayout: false },
   'feedback': { path: '/feedback', requiresLayout: false },
-  'about': { path: '/about', requiresLayout: true, designs: ['webside'] },
-  'vision': { path: '/vision', requiresLayout: true, designs: ['webside'] },
+  'about': { path: '/about', requiresLayout: true },
+  'vision': { path: '/vision', requiresLayout: true },
   'what-is-microlearning': { path: '/what-is-microlearning', requiresLayout: true, designs: ['webside'] },
   'why-microlearning': { path: '/why-microlearning', requiresLayout: true, designs: ['webside'] },
 } as const satisfies Readonly<Record<string, StaticLayoutRoute>>

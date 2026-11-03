@@ -11,6 +11,6 @@ describe('staticLayoutPageTypesFor', () => {
   })
 
   it('leaves the page types of another design out', () => {
-    expect(staticLayoutPageTypesFor('ekfyseosfyteias')).toEqual(['home', 'products', 'blog', 'blog-post', 'contact', 'feedback'])
+    expect(staticLayoutPageTypesFor('ekfyseosfyteias')).toEqual(['home', 'products', 'blog', 'blog-post', 'contact', 'feedback', 'about', 'vision'])
   })
 })
