@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { PublicValues } from '~~/shared/openapi/types.gen'
+import type { ProductAttribute, PublicValues } from '~~/shared/openapi/types.gen'
 import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { el as uiLocale } from '@nuxt/ui/locale'
@@ -27,6 +27,11 @@ const { windowScrollY } = await vi.hoisted(async () => {
   return { windowScrollY: ref(0) }
 })
 mockNuxtImport('useWindowScroll', () => () => ({ y: windowScrollY }))
+
+// A phone renders the product sections as an accordion, a desktop
+// (default) design as tabs; the device is the request's User-Agent.
+const { device } = vi.hoisted(() => ({ device: { mobileOrTablet: false } }))
+mockNuxtImport('useDevice', () => () => ({ isMobileOrTablet: device.mobileOrTablet }))
 
 // The product's own requests, by key: a request still in flight survives
 // a bare clearNuxtData(), and the next mount would join it.
@@ -965,5 +970,63 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail d
     const wrapper = await mountPage()
 
     expect(wrapper.text()).not.toContain(PROMISE)
+  })
+})
+
+/**
+ * The specifications are part of the page's HTML on every device, closed
+ * tab or not: search engines and the page's .md twin read them from it.
+ * Webside opens both sections by default (the store's request, 2026-11-03).
+ */
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail specifications (%s tree)', (tree, Component) => {
+  const empty = { count: 0, next: null, previous: null, results: [] }
+  const capacity: ProductAttribute = {
+    id: 1,
+    attributeId: 7,
+    attributeName: 'Χωρητικότητα',
+    isVariant: false,
+    attributeValueId: 70,
+    value: '5000 mAh',
+    createdAt: '2026-01-01T00:00:00Z',
+  }
+
+  beforeEach(() => {
+    clearNuxtData()
+    setTenant()
+    api.routes({
+      '/api/products/123': makeProduct({ id: 123, attributes: [capacity] }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
+      '/api/*': empty,
+    })
+  })
+
+  it.each([
+    ['desktop', false],
+    ['phone', true],
+  ])('renders the specifications on a %s', async (_device, mobileOrTablet) => {
+    device.mobileOrTablet = mobileOrTablet
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    // The default design draws a table row (th + td), webside a dl (dt + dd).
+    const spec = wrapper.findAll('th, dt').find(term => term.text() === capacity.attributeName)
+    expect(spec?.element.nextElementSibling?.textContent?.trim()).toBe(capacity.value)
+  })
+
+  it.runIf(tree === 'webside')('opens the description and the specifications', async () => {
+    device.mobileOrTablet = false
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    // Webside's own labels (its Greek-only <i18n> block).
+    const sections = ['Περιγραφή', 'Προδιαγραφές'].map(label =>
+      wrapper.findAll('button[aria-expanded]').find(button => button.text() === label)?.attributes('aria-expanded'))
+    expect(sections).toEqual(['true', 'true'])
   })
 })

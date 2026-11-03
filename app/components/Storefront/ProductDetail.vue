@@ -543,6 +543,7 @@ useSchemaOrg([
         :items="productAccordionItems"
         default-value="description"
         type="single"
+        :unmount-on-hide="false"
         :ui="{
           root: 'border-t border-default',
           item: 'border-b border-default',
