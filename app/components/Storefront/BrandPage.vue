@@ -85,7 +85,9 @@ if (error.value || !page.value) {
 el:
   page:
     about: Σχετικά με εμάς
+    vision: Όραμα
 en:
   page:
     about: About us
+    vision: Vision
 </i18n>
