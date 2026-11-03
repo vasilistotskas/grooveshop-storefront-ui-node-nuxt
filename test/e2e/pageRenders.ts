@@ -105,6 +105,8 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       // The whole point of the /en assertions below.
       availableLocales: domain.startsWith('el-only') ? ['el'] : ['el', 'en'],
       isPlatformStorefront: domain === PLATFORM_STORE_HOST,
+      socialsYoutube: domain === PLATFORM_STORE_HOST ? 'https://www.youtube.com/@store' : '',
+      socialsDiscord: domain === PLATFORM_STORE_HOST ? 'https://discord.gg/invite' : '',
       blogEnabled: true,
       features: { ...validTenantConfig(domain).features, blog: true },
       // ...and of the chrome-variant assertions at the end.
@@ -515,6 +517,25 @@ export function describePageRenders(): void {
       expect(decided.statusCode, decided.body.slice(0, 900)).toBe(200)
       expect(decided.body).not.toContain(BANNER)
     })
+
+    // One store, one Organization: the identity (an OnlineStore) carries
+    // its own logo. The schema module used to move the logo onto a second,
+    // compact "#organization" node for any identity typed other than the
+    // bare "Organization" (patches/nuxt-schema-org@7.0.0.patch).
+    it('describes the store as one Organization node that carries its logo', async () => {
+      // The platform store always has a logo; without one nothing above runs.
+      const { statusCode, body } = await request('/', PLATFORM_STORE_HOST)
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+
+      const json = body.match(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)?.[1]
+      const graph = (JSON.parse(json ?? '{}') as { '@graph'?: Array<Record<string, unknown>> })['@graph'] ?? []
+      const organizations = graph.filter(node => [node['@type']].flat().includes('Organization'))
+
+      expect(organizations.map(node => node['@id'])).toEqual([`https://${PLATFORM_STORE_HOST}/#identity`])
+      expect(organizations[0]?.logo).toEqual({ '@id': `https://${PLATFORM_STORE_HOST}/#logo` })
+      // Every public profile the store filled in; an invite link is not one.
+      expect(organizations[0]?.sameAs).toEqual(['https://www.youtube.com/@store'])
+    }, 60000)
 
     // A legal document the merchant wrote in one language is still the
     // store's document in every language it serves. Before this it was a
