@@ -5,6 +5,7 @@ import {
   buildMediaStreamUrl,
   decodeHtmlEntities,
   defaultHtmlImageConfig,
+  faqFromHtml,
   htmlToPlainText,
   PAGE_CONTENT_MAX_WIDTH,
   sanitizeRichHtml,
@@ -106,6 +107,29 @@ describe('decodeHtmlEntities', () => {
   it('handles empty input', () => {
     expect(decodeHtmlEntities('')).toBe('')
     expect(decodeHtmlEntities('no entities here')).toBe('no entities here')
+  })
+})
+
+describe('faqFromHtml', () => {
+  const block = (summary: string, body: string) => `<details class="mce-accordion">\n<summary>${summary}</summary>\n${body}\n</details>`
+
+  it('reads each question and its answer as plain text', () => {
+    const html = `<h2>Συχνές Ερωτήσεις</h2>${block('<span style="font-size: 14pt;">Πόσο κρατάει;</span>', '<p><span>Δύο μέρες.</span></p><p>Περίπου.</p>')}`
+
+    expect(faqFromHtml(html)).toEqual([{ question: 'Πόσο κρατάει;', answer: 'Δύο μέρες. Περίπου.' }])
+  })
+
+  it.each(['How long?', 'Πόσο κρατάει;', 'Πόσο κρατάει\u037E'])('takes %s for a question', (question) => {
+    expect(faqFromHtml(block(question, '<p>Α</p>')).map(item => item.question)).toEqual([question])
+  })
+
+  it('leaves out a collapsed section that is no question, and a question with no answer', () => {
+    expect(faqFromHtml(block('Σημειώσεις', '<p>Κάτι</p>') + block('Πόσο;', '<p>&nbsp;</p>'))).toEqual([])
+  })
+
+  it('answers nothing for a text without any', () => {
+    expect(faqFromHtml('<p>Κείμενο</p>')).toEqual([])
+    expect(faqFromHtml(null)).toEqual([])
   })
 })
 

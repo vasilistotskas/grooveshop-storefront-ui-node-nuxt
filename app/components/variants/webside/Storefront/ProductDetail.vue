@@ -242,6 +242,7 @@ useSchemaOrg([
     ],
   }))),
 ])
+useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 </script>
 
 <template>

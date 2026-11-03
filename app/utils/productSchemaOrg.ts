@@ -2,6 +2,7 @@ type SchemaProduct = Pick<
   ProductRetrieve,
   'id' | 'stock' | 'finalPrice' | 'effectivePrice' | 'priorPrice'
   | 'announcedDiscountPercent' | 'reductionStartedAt' | 'reviewCount' | 'reviewAverage'
+  | 'brandName' | 'weight' | 'attributes'
 >
 
 interface ProductSchemaInput {
@@ -28,6 +29,22 @@ const SCHEMA_REVIEW_LIMIT = 5
 
 /** Fewer units than this in stock read as limited availability. */
 const LIMITED_STOCK = 5
+
+/** Django's weight units as UN/CEFACT codes, what `unitCode` takes. */
+const WEIGHT_UNIT_CODES: Record<string, string> = {
+  g: 'GRM',
+  kg: 'KGM',
+  lb: 'LBR',
+  oz: 'ONZ',
+  tonne: 'TNE',
+}
+
+/** The product's weight, when the store has set one. */
+function weightOf(weight: SchemaProduct['weight']) {
+  const unitCode = weight?.unit ? WEIGHT_UNIT_CODES[weight.unit] : undefined
+  if (!weight?.value || !unitCode) return undefined
+  return { '@type': 'QuantitativeValue' as const, 'value': weight.value, unitCode }
+}
 
 function availability(stock: number): string {
   if (stock === 0) return 'https://schema.org/OutOfStock'
@@ -59,8 +76,19 @@ export function productSchemaOrg(input: ProductSchemaInput) {
     category: input.category || undefined,
     brand: {
       '@type': 'Brand' as const,
-      'name': input.storeName,
+      // A store that sells its own products names no brand on them.
+      'name': product.brandName || input.storeName,
     },
+    weight: weightOf(product.weight),
+    // The specifications the page shows, so a search engine or a shopping
+    // agent reads them as data rather than from the description.
+    additionalProperty: product.attributes.length > 0
+      ? product.attributes.map(attribute => ({
+          '@type': 'PropertyValue' as const,
+          'name': attribute.attributeName,
+          'value': attribute.value,
+        }))
+      : undefined,
     offers: {
       '@type': 'Offer' as const,
       'price': productCurrentPrice(product).toFixed(2),

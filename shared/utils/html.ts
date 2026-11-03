@@ -961,6 +961,21 @@ export function htmlToPlainText(html: string): string {
 }
 
 /**
+ * The questions a rich text answers: the editor's accordion blocks
+ * (`<details><summary>`) whose title is a question, in Latin or Greek
+ * punctuation. An accordion titled anything else is only a collapsed
+ * section, so it is left out.
+ */
+export function faqFromHtml(html: string | null | undefined): Array<{ question: string, answer: string }> {
+  if (!html) return []
+
+  const blocks = html.matchAll(/<details\b[^>]*>\s*<summary\b[^>]*>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/gi)
+  return [...blocks]
+    .map(([, summary = '', body = '']) => ({ question: htmlToPlainText(summary), answer: htmlToPlainText(body) }))
+    .filter(({ question, answer }) => answer && /[?;\u037E]$/.test(question))
+}
+
+/**
  * Extract all image sources from HTML content
  * Useful for preloading or prefetching
  */

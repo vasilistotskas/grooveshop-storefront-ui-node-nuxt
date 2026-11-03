@@ -191,6 +191,7 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
   })
 
   itemListNode(baseUrl, () => categoryName.value || t('title'), seoProducts, offset)
+  useFaqSchema(extractTranslated(category.value, 'description', locale.value))
 
   return { category, categoryName, categoryDescription }
 }

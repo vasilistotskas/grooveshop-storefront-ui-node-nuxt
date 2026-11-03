@@ -227,6 +227,7 @@ export async function useBlogPostPage(options: {
       articleSection: blogPostCategoryName.value ? [blogPostCategoryName.value] : undefined,
     }),
   ])
+  useFaqSchema(extractTranslated(blogPost.value, 'body', locale.value))
 
   return {
     blogPostId,

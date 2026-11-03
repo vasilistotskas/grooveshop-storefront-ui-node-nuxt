@@ -82,4 +82,27 @@ describe('productSchemaOrg', () => {
     expect(node.image).toBeUndefined()
     expect(node.category).toBeUndefined()
   })
+
+  it('states the weight in the unit code of its unit, and no weight for none', () => {
+    const weighed = productSchemaOrg({ ...base, product: makeProduct({ weight: { unit: 'g', value: 105 } }) })
+    const zero = productSchemaOrg({ ...base, product: makeProduct({ weight: { unit: 'kg', value: 0 } }) })
+    const unset = productSchemaOrg({ ...base, product: makeProduct({ weight: null }) })
+
+    expect(weighed.weight).toEqual({ '@type': 'QuantitativeValue', 'value': 105, 'unitCode': 'GRM' })
+    expect(zero.weight).toBeUndefined()
+    expect(unset.weight).toBeUndefined()
+  })
+
+  it('lists the specifications the page shows', () => {
+    const attributes = [{ id: 1, attributeId: 1, attributeName: 'Χωρητικότητα', isVariant: false, attributeValueId: 1, value: '5000 mAh', createdAt: '2026-01-01T00:00:00Z' }]
+
+    expect(productSchemaOrg({ ...base, product: makeProduct({ attributes }) }).additionalProperty)
+      .toEqual([{ '@type': 'PropertyValue', 'name': 'Χωρητικότητα', 'value': '5000 mAh' }])
+    expect(productSchemaOrg({ ...base, product: makeProduct({ attributes: [] }) }).additionalProperty).toBeUndefined()
+  })
+
+  it('names the product\'s own brand, else the store', () => {
+    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: 'Anker' }) }).brand.name).toBe('Anker')
+    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: null }) }).brand.name).toBe('Store')
+  })
 })
