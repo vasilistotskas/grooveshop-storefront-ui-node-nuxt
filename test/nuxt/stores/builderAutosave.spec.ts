@@ -114,6 +114,19 @@ describe('the autosave', () => {
     expect(autosave.stateOf(HOME)).toBe('saved')
   })
 
+  it('takes a conflict learned from another request as the conflict of the document, and refuses a body that is not one', async () => {
+    await openHome()
+    const autosave = useBuilderAutosaveStore()
+
+    expect(autosave.reportConflict(HOME, { code: 'revision_conflict', currentRevision: 7 })).toBe(false)
+    expect(autosave.stateOf(HOME)).toBe('saved')
+
+    const body = { code: 'revision_conflict', currentRevision: 7, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }
+    expect(autosave.reportConflict(HOME, body)).toBe(true)
+    expect(autosave.stateOf(HOME)).toBe('conflict')
+    expect(autosave.conflict).toMatchObject({ key: HOME, currentRevision: 7, updatedBy: { name: 'Nikos' } })
+  })
+
   it('says which problems Django found when it refuses the document', async () => {
     const editor = await openHome()
     const autosave = useBuilderAutosaveStore()
