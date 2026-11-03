@@ -143,7 +143,6 @@ export async function useBlogCategoryPage(options: {
     ogImage: ogImage.value,
     ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
     ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
-    twitterImage: ogImage.value,
   })
 
   useHead({

@@ -10,13 +10,13 @@ provideListingScope({ categoryId: categoryId ? Number(categoryId) : undefined })
 // Ref to control the sidebar drawer
 const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 
-await useProductCategoryPage(categoryId, t)
+const { categoryName } = await useProductCategoryPage(categoryId, t)
 </script>
 
 <template>
   <WebsidePageWrapper class="flex flex-col">
     <WebsidePageTitle
-      :text="t('title')"
+      :text="categoryName || t('title')"
       class="mb-4 capitalize"
     />
     <div
