@@ -135,15 +135,31 @@ describe('restoring a version', () => {
     expect(api.callsTo(`${url}/versions/2/restore`)).toHaveLength(0)
   })
 
-  it('reports a revision conflict instead of overwriting the draft of someone else', async () => {
+  it('hands a revision conflict to the conflict dialog instead of overwriting the draft of someone else', async () => {
     await openEditor(false)
+    const body = { code: 'revision_conflict', detail: 'Someone else changed this document.', currentRevision: 5, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-03T10:05:00+02:00' }
     api.routes({
       [url]: envelope(3, DRAFT, false),
-      [`${url}/versions/2/restore`]: failWith(409, { code: 'revision_conflict', currentRevision: 5 }),
+      [`${url}/versions/2/restore`]: failWith(409, body),
     })
 
     const result = await useBuilderHistoryStore().restore(HOME, 2, 'x')
 
     expect(result).toBe('conflict')
+    expect(useBuilderAutosaveStore().conflict).toMatchObject({ key: HOME, currentRevision: 5, updatedBy: { name: 'Nikos' } })
+    expect(useBuilderEditorStore().opened[HOME]!.copy.draft).toEqual(DRAFT)
+  })
+
+  it('reports a conflict it cannot read as a failure, with no dialog to open', async () => {
+    await openEditor(false)
+    api.routes({
+      [url]: envelope(3, DRAFT, false),
+      [`${url}/versions/2/restore`]: failWith(409, { code: 'revision_conflict' }),
+    })
+
+    const result = await useBuilderHistoryStore().restore(HOME, 2, 'x')
+
+    expect(result).toBe('failed')
+    expect(useBuilderAutosaveStore().conflict).toBeUndefined()
   })
 })

@@ -1,3 +1,24 @@
+# [3.303.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.302.0...v3.303.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** a restore conflict opens the conflict dialog; show which version a restore put back ([#353](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/353)) ([12266df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12266df8e29cf82561cd9d46d1e6ad0f893038e5))
+
+# [3.302.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.301.1...v3.302.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** the theme document and its contrast rules in the catalogue ([#349](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/349)) ([c1dde62](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c1dde62ac0005db1d3b839a0356f5675b9356753))
+
+## [3.301.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.301.0...v3.301.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **webside:** stop the page scrolling sideways on a phone when a section scrolls a rail ([#346](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/346)) ([9dbc421](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9dbc42176d21d2006ec1fba775b73bce8cf9acd0))
+
 # [3.301.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.300.1...v3.301.0) (2026-11-03)
 
 
