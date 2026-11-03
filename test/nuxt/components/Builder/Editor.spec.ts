@@ -1217,4 +1217,113 @@ describe('editing the structure of a page', () => {
       expect(localStorage.getItem(KEPT_KEY())).toBeNull()
     })
   })
+
+  describe('the store theme', () => {
+    const THEME_URL = documentUrl(BUILDER_THEME_DOCUMENT)
+    const THEME_DRAFT_URL = `${THEME_URL}/draft`
+    const themeDocument = (settings: ThemeSettings) => detail(BUILDER_THEME_DOCUMENT, 'theme', { settings, sections: {}, order: [] })
+
+    function routes(settings: ThemeSettings) {
+      api.routes({
+        '/api/builder/documents': [...LIST, row(BUILDER_THEME_DOCUMENT, 'theme')],
+        '/api/builder/presence': NOBODY_ELSE,
+        [documentUrl('template:home')]: HOME,
+        [documentUrl('group:header')]: HEADER,
+        [documentUrl('group:footer')]: FOOTER,
+        [THEME_URL]: themeDocument(settings),
+        [THEME_DRAFT_URL]: (_url: string, options: { body: { draft: unknown, i18n: unknown } }) => ({ ...themeDocument(settings), draftRevision: 3, draft: options.body.draft, i18n: options.body.i18n }),
+      })
+    }
+
+    type Wrapper = Awaited<ReturnType<typeof open>>
+
+    /** The text input of a theme colour, by its label. */
+    function colourInput(wrapper: Wrapper, label: string) {
+      const field = wrapper.findAll('label').find(element => element.text().trim() === label)!
+      return wrapper.get<HTMLInputElement>(`#${CSS.escape(field.attributes('for')!)}`)
+    }
+
+    const savedTheme = () => api.callsTo(THEME_DRAFT_URL).at(-1)!.options.body.draft.settings as ThemeSettings
+    const button = (wrapper: Wrapper, name: string) => wrapper.findAll('button').find(element => element.text().trim() === name)
+
+    it('is opened with the page and offered under the outline, its panel in place of the selection', async () => {
+      setTenant({ schemaName: 'webside' })
+      routes(themeDefaultsFor(null))
+      const wrapper = await open()
+
+      expect(api.callsTo(THEME_URL)).toHaveLength(1)
+      await wrapper.findAll('button').find(item => item.text() === 'Θέμα: χρώματα, γωνίες, γραμματοσειρές')!.trigger('click')
+      await vi.waitFor(() => expect(useRoute().query.panel).toBe('theme'))
+      await flushPromises()
+
+      expect(wrapper.text()).toContain('Θέμα του καταστήματος')
+      expect(wrapper.text()).toContain('Κείμενα, φόντα και περιγράμματα.')
+    })
+
+    it('makes the scale of a primary colour picked on webside, and the button colour that follows it, then saves the theme', async () => {
+      setTenant({ schemaName: 'webside' })
+      routes(themeDefaultsFor(null))
+      const wrapper = await open('/_builder?panel=theme')
+
+      await colourInput(wrapper, 'Κύριο χρώμα').setValue('#16a34a')
+      await saveNow()
+
+      const scale = themeScaleFrom('#16a34a')
+      expect(savedTheme().colors.light.primary).toEqual({ source: '#16a34a', scale })
+      expect(savedTheme().colors.light.action).toBe(scale['500'])
+      expect(savedTheme().colors.dark).toEqual(themeDefaultsFor(null).colors.dark)
+    })
+
+    it('keeps Volt\'s button ink when a primary colour is picked, until the button colour is linked to it', async () => {
+      setTenant({ schemaName: 'demo' })
+      routes(themeDefaultsFor('volt'))
+      const wrapper = await open('/_builder?panel=theme')
+
+      await colourInput(wrapper, 'Κύριο χρώμα').setValue('#16a34a')
+      await flushPromises()
+      expect(colourInput(wrapper, 'Χρώμα κουμπιών').element.value).toBe('#17171a')
+
+      await wrapper.get('[role="switch"]').trigger('click')
+      await flushPromises()
+      expect(colourInput(wrapper, 'Χρώμα κουμπιών').element.value).toBe(themeScaleFrom('#16a34a')['900'])
+    })
+
+    it('says which contrast fails, whether it blocks publishing, and fixes it just enough', async () => {
+      setTenant({ schemaName: 'webside' })
+      const pale = themeDefaultsFor(null)
+      pale.colors.light.neutral.scale['700'] = '#b9a8e6'
+      routes(pale)
+      const wrapper = await open('/_builder?panel=theme')
+
+      expect(wrapper.text()).toContain('Εμποδίζει τη δημοσίευση')
+      await button(wrapper, 'Διόρθωση')!.trigger('click')
+      await saveNow()
+
+      expect(wrapper.text()).not.toContain('Εμποδίζει τη δημοσίευση')
+      expect(evaluateContrastRules(savedTheme(), themeContrastRulesFor(null)).filter(({ rule, pass }) => rule.severity === 'error' && !pass)).toEqual([])
+    })
+
+    it('copies the light colours into the dark scheme, as one step that is undone', async () => {
+      const theme = themeDefaultsFor('volt')
+      routes(theme)
+      const wrapper = await open('/_builder?panel=theme')
+
+      await wrapper.findAll('[role="tab"]').find(tab => tab.text() === 'Σκούρο')!.trigger('mousedown')
+      await flushPromises()
+      await button(wrapper, 'Ίδια χρώματα με το φωτεινό')!.trigger('click')
+      await flushPromises()
+      expect(useBuilderEditorStore().theme!.copy.draft.settings).toMatchObject({ colors: { dark: theme.colors.light } })
+
+      useBuilderEditorStore().undo()
+      expect(useBuilderEditorStore().theme!.copy.draft.settings).toMatchObject({ colors: { dark: theme.colors.dark } })
+    })
+
+    it('shows STAFF the theme, but lets them change none of it', async () => {
+      routes(themeDefaultsFor('volt'))
+      const wrapper = await open('/_builder?panel=theme', { ...session, staff: { ...session.staff, role: 'staff' } })
+
+      expect(colourInput(wrapper, 'Κύριο χρώμα').element.disabled).toBe(true)
+      expect(wrapper.get<HTMLButtonElement>('[role="switch"]').element.disabled).toBe(true)
+    })
+  })
 })

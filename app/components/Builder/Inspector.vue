@@ -54,13 +54,29 @@ const context = computed(() => {
 
 // While another language is edited, the pane says which, so a change is
 // never taken for the page's own text.
-const { locale } = useBuilderEditorView()
+const { locale, panel } = useBuilderEditorView()
 const translating = computed(() => locale.value === DEFAULT_LOCALE ? undefined : toUiLocales([locale.value])[0]?.name)
 </script>
 
 <template>
   <section
-    v-if="selection"
+    v-if="panel === 'theme'"
+    class="flex flex-col gap-4"
+    aria-labelledby="builder-inspector-title"
+  >
+    <header>
+      <h2
+        id="builder-inspector-title"
+        tabindex="-1"
+        class="truncate text-base font-semibold"
+      >
+        {{ t('theme') }}
+      </h2>
+    </header>
+    <BuilderThemePanel />
+  </section>
+  <section
+    v-else-if="selection"
     class="flex flex-col gap-4"
     aria-labelledby="builder-inspector-title"
   >
@@ -113,6 +129,7 @@ const translating = computed(() => locale.value === DEFAULT_LOCALE ? undefined :
 <i18n lang="yaml">
 el:
   page: Αυτή η σελίδα
+  theme: Θέμα του καταστήματος
   translating: "Μετάφραση: {language}"
   featureOff:
     title: "Χρειάζεται {feature}, που είναι κλειστό σε αυτό το κατάστημα"
@@ -125,6 +142,7 @@ el:
     description: Διαλέξτε μια ενότητα ή ένα στοιχείο στη δομή της σελίδας για να αλλάξετε τις ρυθμίσεις του.
 en:
   page: This page
+  theme: Store theme
   translating: "Translating: {language}"
   featureOff:
     title: "Needs {feature}, which is off for this store"

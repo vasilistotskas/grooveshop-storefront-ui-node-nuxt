@@ -4,7 +4,7 @@ import {
   HEX_COLOR_RE,
   RADIUS_ALLOWLIST,
   CONTAINER_MAP,
-} from './constants'
+} from './constants.ts'
 
 /**
  * Validated shape of ``Tenant.theme_metadata`` — per-token overrides on

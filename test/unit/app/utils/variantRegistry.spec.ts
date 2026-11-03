@@ -46,6 +46,7 @@ const CHROME_KEYS = Object.keys({
   mobile_nav: true,
   checkout_header: true,
   account_shell: true,
+  auth_frame: true,
   cookie_consent: true,
   assistant: true,
 } satisfies Record<ChromeKey, true>) as ChromeKey[]

@@ -293,9 +293,6 @@
     "layout": {
       "label": "Layout"
     },
-    "limit": {
-      "label": "Most to show"
-    },
     "link": {
       "label": "Link"
     },
@@ -317,15 +314,14 @@
     "note": {
       "label": "Note"
     },
+    "offers": {
+      "label": "What it lists"
+    },
     "overlayOpacity": {
       "label": "Image shade"
     },
     "page": {
       "label": "Page"
-    },
-    "parentId": {
-      "label": "Parent category",
-      "help": "Shows its subcategories. Empty for the top ones."
     },
     "placeholder": {
       "label": "Placeholder"
@@ -333,7 +329,7 @@
     "posts": {
       "label": "What it lists"
     },
-    "productId": {
+    "product": {
       "label": "Product",
       "help": "The product the slide shows, with its price."
     },

@@ -27,10 +27,11 @@
  * artwork, one link for the whole thing — and draws the photograph
  * alone at the chosen `aspect`.
  *
- * A slide that names a `productId` carries a chip on its photograph —
+ * A slide that names a `product` carries a chip on its photograph —
  * the product's picture, name and price, linking to it — as the design
- * draws the home hero. A product that cannot be read leaves that slide
- * without one.
+ * draws the home hero. The product arrives read (a data setting the page
+ * route resolved, all the slides' in one request); a product that cannot
+ * be read leaves that slide without a chip.
  *
  * This is the page's LCP, so the FIRST slide's artwork loads eagerly at
  * high priority and the rest do not.
@@ -46,7 +47,7 @@ interface HeroSlide {
   ctaLink?: string
   secondaryCtaText?: string
   secondaryCtaLink?: string
-  productId?: number
+  product?: ResolvedRef<ProductCard>
 }
 
 const props = withDefaults(defineProps<{
@@ -96,13 +97,9 @@ const items = computed<HeroSlide[]>(() => {
 
 const several = computed(() => items.value.length > 1)
 
-const chipProducts = await useHeroProductChips(
-  () => items.value.flatMap(slide => (slide.productId ? [slide.productId] : [])),
-)
-
 /** Each slide's chip, or `undefined` where it names no readable product. */
 const chips = computed(() => items.value.map((slide) => {
-  const product = slide.productId ? chipProducts.value[slide.productId] : undefined
+  const product = slide.product?.status === 'ok' ? slide.product.value : undefined
   if (!product) return undefined
   const prior = productAnnouncement(product)?.priorPrice
   return {

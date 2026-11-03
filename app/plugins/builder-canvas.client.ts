@@ -11,9 +11,10 @@ export default defineNuxtPlugin({
   setup(nuxtApp) {
     if (useBuilderSurface() !== 'canvas' || window.parent === window) return
     const preview = useBuilderCanvasPreview()
+    const design = resolveDesign(useTenant().value?.schemaName)
     onNuxtReady(async () => {
       const { startBuilderCanvas } = await import('~/builder/canvas/bridge')
-      startBuilderCanvas(nuxtApp, preview)
+      startBuilderCanvas(nuxtApp, preview, design)
     })
   },
 })
