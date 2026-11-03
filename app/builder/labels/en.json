@@ -333,7 +333,7 @@
     "posts": {
       "label": "What it lists"
     },
-    "productId": {
+    "product": {
       "label": "Product",
       "help": "The product the slide shows, with its price."
     },

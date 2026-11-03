@@ -1,5 +1,5 @@
 {
-  "hash": "1c85fb8e0f1f25a3",
+  "hash": "871400a3811db76a",
   "blocks": [
     {
       "type": "about_content",
@@ -3281,9 +3281,9 @@
     },
     {
       "type": "hero_slide",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3664,10 +3664,15 @@
             ],
             "x-builder-link": true
           },
-          "productId": {
+          "product": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 2147483647
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "product",
+              "onMissing": "empty"
+            }
           }
         },
         "required": [
@@ -3683,13 +3688,18 @@
         "/ctaText",
         "/secondaryCtaText"
       ],
-      "refs": {
-        "/productId": "product"
-      },
+      "refs": {},
       "linkRefs": [
         "/ctaLink",
         "/secondaryCtaLink"
       ],
+      "data": {
+        "/product": {
+          "field": "ref",
+          "kind": "product",
+          "onMissing": "empty"
+        }
+      },
       "limits": {},
       "children": {
         "allowed": []
