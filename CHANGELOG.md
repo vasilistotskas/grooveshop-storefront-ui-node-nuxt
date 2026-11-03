@@ -1,3 +1,10 @@
+# [3.302.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.301.1...v3.302.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** the theme document and its contrast rules in the catalogue ([#349](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/349)) ([c1dde62](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c1dde62ac0005db1d3b839a0356f5675b9356753))
+
 ## [3.301.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.301.0...v3.301.1) (2026-11-03)
 
 
