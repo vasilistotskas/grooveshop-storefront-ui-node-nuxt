@@ -25,7 +25,7 @@ import type { NuxtApp } from '#app'
  *
  * Answers the function that stops it.
  */
-export function startBuilderCanvas(nuxtApp: NuxtApp, preview: Ref<BuilderPreviewResponse | null>): () => void {
+export function startBuilderCanvas(nuxtApp: NuxtApp, preview: Ref<BuilderPreviewResponse | null>, design: StorefrontDesign | null): () => void {
   const origin = window.location.origin
   const listening = new AbortController()
   const { signal } = listening
@@ -124,12 +124,24 @@ export function startBuilderCanvas(nuxtApp: NuxtApp, preview: Ref<BuilderPreview
     }
   }
 
+  // The theme being edited, drawn over the store's published one: a stylesheet
+  // compiled here from settings the schema has checked, never CSS sent in.
+  const themeStyle = document.createElement('style')
+  themeStyle.setAttribute('data-builder-theme', '')
+
   window.addEventListener('message', (event) => {
     if (event.source !== window.parent || event.origin !== origin) return
     const command = ZodBuilderCanvasCommand.safeParse(event.data)
     if (!command.success) return
     if (command.data.type === 'select') {
       select(command.data.node)
+      return
+    }
+    if (command.data.type === 'theme') {
+      themeStyle.textContent = themeCss(command.data.settings, design)
+      // Last in the head: same specificity as the store's own theme block, so it wins.
+      document.head.append(themeStyle)
+      measure()
       return
     }
     const { documents } = command.data
@@ -172,6 +184,7 @@ export function startBuilderCanvas(nuxtApp: NuxtApp, preview: Ref<BuilderPreview
   tell({ channel: BUILDER_CANVAS_CHANNEL, type: 'ready' })
 
   return () => {
+    themeStyle.remove()
     listening.abort()
     resizing.disconnect()
     cancelAnimationFrame(measuring)

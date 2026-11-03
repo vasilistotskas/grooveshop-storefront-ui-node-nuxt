@@ -86,8 +86,11 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     opened.value = { ...opened.value, [key]: document }
   }
 
+  /** The store's theme document, once opened: every page draws with it. */
+  const theme = computed(() => opened.value[BUILDER_THEME_DOCUMENT])
+
   /**
-   * Opens the document `key` and the store's section groups. The list is
+   * Opens the document `key`, the store's section groups and its theme. The list is
    * read again each time, so a page another editor made appears; a working
    * copy already open is kept as it is.
    */
@@ -99,7 +102,8 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
         status.value = 'notFound'
         return
       }
-      const wanted = [key, ...groups.value.map(group => group.key)].filter(wantedKey => !opened.value[wantedKey])
+      const themeKeys = documents.value.some(document => document.key === BUILDER_THEME_DOCUMENT) ? [BUILDER_THEME_DOCUMENT] : []
+      const wanted = [key, ...groups.value.map(group => group.key), ...themeKeys].filter(wantedKey => !opened.value[wantedKey])
       const fetched = await Promise.all(wanted.map(async wantedKey => [wantedKey, await read(wantedKey)] as const))
       const readable = fetched.filter((entry): entry is readonly [string, BuilderEditorDocument] => entry[1] !== undefined)
       if (readable.length < fetched.length) {
@@ -230,6 +234,7 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     status,
     pages,
     groups,
+    theme,
     canUndo,
     canRedo,
     open,

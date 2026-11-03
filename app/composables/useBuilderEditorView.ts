@@ -4,8 +4,9 @@ import type { SupportedLocale } from '~~/i18n/locales'
 /**
  * What the page editor shows, kept in the address (`BUILDER_EDITOR_QUERY`)
  * so a reload, a shared link or Back restores it: the document being
- * edited, the selected section or block, the language it is edited in,
- * and the width the preview is drawn at.
+ * edited, the selected section or block (or the panel shown in its place:
+ * the theme), the language it is edited in, and the width the preview is
+ * drawn at.
  *
  * Opening another document is a step in the history (Back returns to the
  * previous page); selecting a node replaces the current entry, so Back does
@@ -43,6 +44,12 @@ export function useBuilderEditorView() {
     return tenantStore.availableLocales.find(served => served === value && served !== DEFAULT_LOCALE) ?? DEFAULT_LOCALE
   })
 
+  /** The panel the settings pane shows instead of a node's settings (the theme), when one is open. */
+  const panel = computed<BuilderEditorPanel | undefined>(() => {
+    const value = queryValue(BUILDER_EDITOR_QUERY.panel)
+    return BUILDER_EDITOR_PANELS.find(name => name === value)
+  })
+
   /** The width the preview is drawn at (`BUILDER_PREVIEW_DEVICES`); `full` fills the pane. */
   const device = computed<BuilderPreviewDevice>(() => {
     const value = queryValue(BUILDER_EDITOR_QUERY.device)
@@ -55,8 +62,14 @@ export function useBuilderEditorView() {
   }
 
   async function select(ref: string | undefined): Promise<void> {
-    const { [BUILDER_EDITOR_QUERY.node]: _, ...query } = route.query
+    const { [BUILDER_EDITOR_QUERY.node]: _, [BUILDER_EDITOR_QUERY.panel]: __, ...query } = route.query
     await router.replace({ query: ref === undefined ? query : { ...query, [BUILDER_EDITOR_QUERY.node]: ref } })
+  }
+
+  /** Opens a panel in the settings pane in place of the selection, or closes it; like a selection, it replaces the current entry. */
+  async function openPanel(next: BuilderEditorPanel | undefined): Promise<void> {
+    const { [BUILDER_EDITOR_QUERY.node]: _, [BUILDER_EDITOR_QUERY.panel]: __, ...query } = route.query
+    await router.replace({ query: next === undefined ? query : { ...query, [BUILDER_EDITOR_QUERY.panel]: next } })
   }
 
   /** Draws the preview at another width; like a selection, it replaces the current entry. */
@@ -71,5 +84,5 @@ export function useBuilderEditorView() {
     await router.replace({ query: next === DEFAULT_LOCALE ? query : { ...query, [BUILDER_EDITOR_QUERY.locale]: next } })
   }
 
-  return { documentKey, selected, locale, device, openDocument, select, setLocale, setDevice }
+  return { documentKey, selected, panel, locale, device, openDocument, select, openPanel, setLocale, setDevice }
 }

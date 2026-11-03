@@ -2,7 +2,7 @@
 const { t } = useStoreI18n('components/Builder/Outline')
 const { groupLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
-const { documentKey } = useBuilderEditorView()
+const { documentKey, panel, openPanel } = useBuilderEditorView()
 
 /** The trees, top to bottom as the storefront draws them: the groups above the page, the page, the groups below it. */
 const trees = computed(() => {
@@ -59,6 +59,16 @@ function addSection(key: string): void {
         :label="tree.label"
       />
     </section>
+    <UButton
+      v-if="store.theme"
+      icon="i-lucide-palette"
+      color="neutral"
+      :variant="panel === 'theme' ? 'soft' : 'ghost'"
+      :aria-pressed="panel === 'theme'"
+      :label="t('theme')"
+      class="justify-start"
+      @click="() => openPanel(panel === 'theme' ? undefined : 'theme')"
+    />
   </nav>
 </template>
 
@@ -67,8 +77,10 @@ el:
   label: Δομή σελίδας
   page: Αυτή η σελίδα
   add: "Προσθήκη ενότητας: {name}"
+  theme: "Θέμα: χρώματα, γωνίες, γραμματοσειρές"
 en:
   label: Page outline
   page: This page
   add: "Add a section to {name}"
+  theme: "Theme: colours, corners, fonts"
 </i18n>
