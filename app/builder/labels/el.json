@@ -222,9 +222,6 @@
     "categories": {
       "label": "Τι εμφανίζει"
     },
-    "categoryId": {
-      "label": "Κατηγορία"
-    },
     "columns": {
       "label": "Στήλες"
     },
@@ -233,9 +230,6 @@
     },
     "contentPage": {
       "label": "Σελίδα περιεχομένου"
-    },
-    "count": {
-      "label": "Πλήθος"
     },
     "ctaLink": {
       "label": "Σύνδεσμος κουμπιού"
@@ -329,11 +323,11 @@
     "page": {
       "label": "Σελίδα"
     },
-    "pageSize": {
-      "label": "Πλήθος"
-    },
     "placeholder": {
       "label": "Κείμενο στο κενό πεδίο"
+    },
+    "posts": {
+      "label": "Τι εμφανίζει"
     },
     "productId": {
       "label": "Προϊόν",

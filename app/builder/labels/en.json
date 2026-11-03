@@ -222,9 +222,6 @@
     "categories": {
       "label": "What it lists"
     },
-    "categoryId": {
-      "label": "Category"
-    },
     "columns": {
       "label": "Columns"
     },
@@ -233,9 +230,6 @@
     },
     "contentPage": {
       "label": "Content page"
-    },
-    "count": {
-      "label": "How many"
     },
     "ctaLink": {
       "label": "Button link"
@@ -329,11 +323,11 @@
     "page": {
       "label": "Page"
     },
-    "pageSize": {
-      "label": "How many"
-    },
     "placeholder": {
       "label": "Placeholder"
+    },
+    "posts": {
+      "label": "What it lists"
     },
     "productId": {
       "label": "Product",

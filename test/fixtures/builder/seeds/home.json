@@ -67,9 +67,14 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000009": {
-        "type": "blog_posts_grid@1",
+        "type": "blog_posts_grid@2",
         "settings": {
-          "surface": "muted"
+          "surface": "muted",
+          "posts": {
+            "mode": "filter",
+            "ordering": "newest",
+            "limit": 3
+          }
         }
       },
       "00000000-0000-4000-8000-5eed00000010": {

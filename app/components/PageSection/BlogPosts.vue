@@ -3,51 +3,40 @@
  * The store's writing, as a band on another page.
  *
  * Serves both `blog_posts_grid` and `blog_posts_list`: on a page of
- * stacked bands the two are the same thing drawn from the same query,
- * and they differ only in how many posts the operator asks for. The
- * paginated, ordering-aware list lives at `/blog`, where the route
- * query it reads actually belongs — mounted mid-homepage it bound the
- * page's `?page=` to a rail nobody was paging.
+ * stacked bands the two are the same thing drawn from the same list. The
+ * paginated, ordering-aware list lives at `/blog`, where the route query it
+ * reads actually belongs — mounted mid-homepage it bound the page's `?page=`
+ * to a rail nobody was paging.
  *
- * Renders nothing when the tenant's blog is off OR when nothing is
- * published: a homepage must not carry a heading over an empty state.
- * That is what the previous section did — its own `<h2>` above a list
- * that answered "no articles yet" — and it was the first thing a
- * brand-new store showed.
+ * The posts arrive read (`posts`, a data setting the page route resolved).
+ * Renders nothing when nothing is published: a homepage must not carry a
+ * heading over an empty state. That is what the previous section did — its
+ * own `<h2>` above a list that answered "no articles yet" — and it was the
+ * first thing a brand-new store showed.
  */
-const props = withDefaults(defineProps<{
+defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
   title?: string
   heading?: string
   subheading?: string
   ctaText?: string
   ctaLink?: string
-  categoryId?: number
-  /** `blog_posts_grid`'s count. */
-  count?: number
-  /** `blog_posts_list`'s, spelled the way that section type spells it. */
-  pageSize?: number
   surface?: 'default' | 'muted'
-}>(), {
-  count: 3,
-})
+  /** What the band lists: the posts, and the rule or hand-picked list they came from. */
+  posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
+}>()
 
 const { t } = useStoreI18n('components/PageSection/BlogPosts')
 const localePath = useLocalePath()
 
-// In parallel: each composable registers its fetch before it awaits.
-const [{ posts, hasPosts }, categoryName] = await Promise.all([
-  useBlogRail({
-    count: () => props.pageSize ?? props.count,
-    categoryId: () => props.categoryId,
-  }),
-  useBlogCategoryNames(),
-])
+// The name of each post's category is the store's own list of categories:
+// one shared read for every band and page that shows one.
+const categoryName = await useBlogCategoryNames()
 </script>
 
 <template>
   <PageSectionBand
-    v-if="hasPosts"
+    v-if="posts.items.length"
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
@@ -55,7 +44,7 @@ const [{ posts, hasPosts }, categoryName] = await Promise.all([
     :surface="surface"
   >
     <BlogRail
-      :posts="posts"
+      :posts="[...posts.items]"
       :category-name="categoryName"
     />
   </PageSectionBand>

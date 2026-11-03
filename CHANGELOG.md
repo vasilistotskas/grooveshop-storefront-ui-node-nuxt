@@ -1,3 +1,10 @@
+# [3.311.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.310.0...v3.311.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** draw the announcement bar in webside's own header ([#358](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/358)) ([6facbfd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6facbfd1ab8638f4d9cb53ef65f4090706a878db))
+
 # [3.310.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.309.0...v3.310.0) (2026-11-03)
 
 
