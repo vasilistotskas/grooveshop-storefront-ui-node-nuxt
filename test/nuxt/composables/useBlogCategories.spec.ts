@@ -39,15 +39,16 @@ describe('useBlogCategories', () => {
     api.routes({ [CATEGORIES_URL]: CATEGORIES, [POSTS_URL]: POSTS })
   })
 
-  it('is asked for once by the rail and the names of a band of posts together', async () => {
-    let rail!: Awaited<ReturnType<typeof useBlogCategoryRail>>
+  it('is asked for once by the list and the names of a band of posts together', async () => {
+    let list!: ReturnType<typeof useBlogCategories>
     let name!: Awaited<ReturnType<typeof useBlogCategoryNames>>
     await mountAll(async () => {
-      [rail, name] = await Promise.all([useBlogCategoryRail({ pageSize: 10 }), useBlogCategoryNames()])
+      list = useBlogCategories()
+      name = await useBlogCategoryNames()
     })
 
     expect(api.callsTo(CATEGORIES_URL)).toHaveLength(1)
-    expect(rail.categories.value).toHaveLength(10)
+    expect(list.categories.value).toHaveLength(10)
     expect(name(12)).toBe('Κατηγορία 12')
   })
 
@@ -69,7 +70,7 @@ describe('useBlogCategories', () => {
   it('asks for nothing when the store has no blog', async () => {
     setTenantFeatures({ blog: false })
 
-    await mountAll(() => useBlogCategoryRail({ pageSize: 10 }))
+    await mountAll(() => useBlogCategoryNames())
 
     expect(api.callsTo(CATEGORIES_URL)).toEqual([])
   })

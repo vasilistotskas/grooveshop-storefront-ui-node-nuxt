@@ -97,15 +97,15 @@ function productRail(maxPageSize: number) {
   }
 }
 
-/** The settings of a band of blog posts, whatever its count is called. */
-function blogRail() {
+/** The settings of a band of blog posts: what it lists is its `posts`, a rule (a category, featured or not, how many) or a hand-picked list. */
+function blogRail(maxLimit: number) {
   return {
     surface: z.enum(['default', 'muted']).optional(),
     heading: text(200).optional(),
     subheading: text(500).optional(),
     ctaText: text(100).optional(),
     ctaLink: link().optional(),
-    categoryId: z.number().int().min(1).max(2_147_483_647).optional(),
+    posts: query('blogPost', { onEmpty: 'hide', maxLimit }),
   }
 }
 

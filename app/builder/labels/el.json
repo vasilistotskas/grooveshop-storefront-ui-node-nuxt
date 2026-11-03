@@ -219,6 +219,9 @@
     "caption": {
       "label": "Λεζάντα"
     },
+    "categories": {
+      "label": "Τι εμφανίζει"
+    },
     "categoryId": {
       "label": "Κατηγορία"
     },
@@ -230,9 +233,6 @@
     },
     "contentPage": {
       "label": "Σελίδα περιεχομένου"
-    },
-    "count": {
-      "label": "Πλήθος"
     },
     "ctaLink": {
       "label": "Σύνδεσμος κουμπιού"
@@ -338,6 +338,9 @@
     },
     "placeholder": {
       "label": "Κείμενο στο κενό πεδίο"
+    },
+    "posts": {
+      "label": "Τι εμφανίζει"
     },
     "productId": {
       "label": "Προϊόν",
