@@ -3,15 +3,12 @@ import * as z from 'zod'
 /** The latest blog posts as a carousel. */
 export default defineBlock({
   type: 'blog_posts_carousel',
-  version: 1,
+  version: 2,
   kinds: ['section'],
   feature: 'blog',
-  schema: z.object({
-    ...builderField.blogRail(),
-    count: builderField.integer(1, 12).optional(),
-  }),
+  schema: z.object(builderField.blogRail(12)),
   translatable: ['/heading', '/subheading', '/ctaText'],
-  refs: { '/categoryId': 'blogCategory' },
-  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  upgrade: { 1: upgradeBlogRail(6, 12) },
+  presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { posts: { mode: 'filter', ordering: 'newest', limit: 6 } } }],
   editor: { category: 'blog' },
 })

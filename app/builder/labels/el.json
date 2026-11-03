@@ -219,8 +219,8 @@
     "caption": {
       "label": "Λεζάντα"
     },
-    "categoryId": {
-      "label": "Κατηγορία"
+    "categories": {
+      "label": "Τι εμφανίζει"
     },
     "columns": {
       "label": "Στήλες"
@@ -230,9 +230,6 @@
     },
     "contentPage": {
       "label": "Σελίδα περιεχομένου"
-    },
-    "count": {
-      "label": "Πλήθος"
     },
     "ctaLink": {
       "label": "Σύνδεσμος κουμπιού"
@@ -326,15 +323,15 @@
     "page": {
       "label": "Σελίδα"
     },
-    "pageSize": {
-      "label": "Πλήθος"
-    },
     "parentId": {
       "label": "Γονική κατηγορία",
       "help": "Δείχνει τις υποκατηγορίες της. Κενό για τις βασικές."
     },
     "placeholder": {
       "label": "Κείμενο στο κενό πεδίο"
+    },
+    "posts": {
+      "label": "Τι εμφανίζει"
     },
     "productId": {
       "label": "Προϊόν",

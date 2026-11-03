@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 /**
  * A few posts, for a band on a page that is not `/blog`. Presentational
- * — the band above owns the fetch (`useBlogRail`), because it has to
- * know whether to render its heading at all.
+ * — the band above gets the posts read (a data setting the page route
+ * resolved), because it has to know whether to render its heading at all.
  *
  * Each post is the photograph on a sunken tile, its category and date,
  * and its title — what a reader decides on; the likes, comments and
