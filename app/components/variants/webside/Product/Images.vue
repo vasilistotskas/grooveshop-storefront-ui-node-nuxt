@@ -6,12 +6,18 @@ const props = defineProps({
     type: Object as PropType<Product>,
     required: true,
   },
+  /** The name the page shows, which each photograph's alt text falls back to. */
+  productName: {
+    type: String,
+    required: true,
+  },
 })
 
 const { product } = toRefs(props)
 const { t } = useStoreI18n('components/variants/webside/Product/Images')
 
 const { data: images } = await useProductImages(product.value.id)
+const altOf = useProductImageAlt(images, () => props.productName)
 
 const selectedImage = ref(images.value?.find(image => image.isMain || image.id === images.value?.[0]?.id))
 const selectedImageId = ref(selectedImage.value?.id)
@@ -90,6 +96,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
           -->
           <WebsideProductImage
             :image="selectedImage"
+            :alt="altOf(selectedImage)"
             img-loading="eager"
             fetchpriority="high"
             class="w-full rounded-md transition-transform duration-300"
@@ -169,6 +176,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
         <WebsideProductImage
           :key="item.id"
           :image="item"
+          :alt="altOf(item)"
           :width="132"
           :height="132"
           img-loading="lazy"
@@ -201,6 +209,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
       v-model="isModalOpen"
       :images="images"
       :initial-index="modalInitialIndex"
+      :product-name="productName"
     />
   </div>
 </template>

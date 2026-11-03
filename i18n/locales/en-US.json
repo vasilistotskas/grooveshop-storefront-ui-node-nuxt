@@ -214,6 +214,9 @@
       "try_any_availability": "Try removing the In stock or On offer filter."
     }
   },
+  "product_image": {
+    "alt": "{name} – photo {number}"
+  },
   "categories": "Categories",
   "load": {
     "more": "More"

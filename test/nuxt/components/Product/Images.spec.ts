@@ -74,3 +74,36 @@ describe.each(trees(ProductImages, WebsideProductImages))('$tree Product/Images 
     expect(wrapper.findAllComponents({ name: 'ImgWithFallback' }).length).toBeGreaterThanOrEqual(2)
   })
 })
+
+/**
+ * Each photograph's alt text: the store's own where it wrote one (Django's
+ * `altText`: the alt text, else the title), else the product's name and
+ * the photograph's place in the gallery, never a generic "Product image"
+ * (the store's request, 2026-11-03).
+ */
+describe.each(trees(ProductImages, WebsideProductImages))('$tree Product/Images alt text', ({ C }) => {
+  beforeEach(() => {
+    clearNuxtData()
+    api.routes({
+      '/api/products/5/images': [
+        { id: 1, isMain: true, altText: 'Μαύρο power bank κουμπωμένο σε κινητό', mainImagePath: 'media/uploads/products/a.png' },
+        { id: 2, isMain: false, altText: '', mainImagePath: 'media/uploads/products/b.png' },
+      ],
+    })
+  })
+
+  it('uses the store\'s alt text, else names the product and the photograph\'s number', async () => {
+    const wrapper = await mountSuspended(C, {
+      props: { product: { ...makeProduct({ id: 5 }), priceDropAlertsEnabled: false }, productName: 'Mini Power Bank' },
+      global: { stubs: { ImgWithFallback: true } },
+      route: false,
+    })
+    await flushPromises()
+
+    const alts = new Set(wrapper.findAllComponents({ name: 'ImgWithFallback' }).map(img => img.attributes('alt')))
+    expect(alts).toEqual(new Set([
+      'Μαύρο power bank κουμπωμένο σε κινητό',
+      useNuxtApp().$i18n.t('product_image.alt', { name: 'Mini Power Bank', number: 2 }),
+    ]))
+  })
+})
