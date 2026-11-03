@@ -13,23 +13,12 @@ import { WEBSIDE_DESIGN, REPO, readSource, withoutComments } from '../../helpers
  *
  * What this forbids, in both designs (a design is presentation only, so
  * its look is its own but its behaviour follows the platform): reading either the old way
- * — a `*_ENABLED` setting key out of the settings payload — or a tenant
+ * — a `*_ENABLED` setting key — or a tenant
  * plan flag (`loyaltyEnabled` and friends). Each one is a second answer
  * that can disagree with Django's, as webside's copies did when they
  * read the raw setting and ignored the plan.
  */
 const PLAN_FLAGS = ['loyaltyEnabled', 'blogEnabled', 'promotionsEnabled', 'giftCardsEnabled', 'b2bEnabled', 'recommendationsEnabled']
-
-/**
- * The `*_ENABLED` settings still read from the settings payload, and the
- * only ones that may be. Each is a setting that is not a store feature or
- * preference in Django (`tenant/features.py`); a key added here must be
- * one too.
- */
-const PLAIN_BOOLEAN_SETTINGS: Record<string, string> = {
-  LOYALTY_TIER_MULTIPLIER_ENABLED: 'a loyalty programme rule (app/utils/loyalty.ts)',
-  LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: 'a loyalty programme rule (app/utils/loyalty.ts)',
-}
 
 /** A `*_ENABLED` key in any string literal: single, double or template quotes. */
 const SETTING_KEY = /['"`]([A-Z0-9_]+_ENABLED)['"`]/g
@@ -46,12 +35,9 @@ const text = (file: string) => withoutComments(readSource(file))
 const label = (file: string) => file.replace(`${REPO}\\`, '').replace(`${REPO}/`, '').replaceAll('\\', '/')
 
 describe('store features and preferences are read from the tenant payload alone', () => {
-  it('reads no setting key that is not a plain boolean setting', () => {
+  it('reads no `*_ENABLED` setting key', () => {
     const offenders = files.flatMap(file =>
-      [...text(file).matchAll(SETTING_KEY)]
-        .map(match => match[1]!)
-        .filter(key => !(key in PLAIN_BOOLEAN_SETTINGS))
-        .map(key => `${label(file)}: ${key}`))
+      [...text(file).matchAll(SETTING_KEY)].map(match => `${label(file)}: ${match[1]}`))
 
     expect(offenders).toEqual([])
   })
@@ -88,11 +74,5 @@ describe('store features and preferences are read from the tenant payload alone'
     const offenders = files.filter(file => pattern.test(text(file)))
 
     expect(offenders.map(label)).toEqual([])
-  })
-
-  it('still finds the plain boolean settings it allows (a canary for the key pattern)', () => {
-    const found = new Set(files.flatMap(file => [...text(file).matchAll(SETTING_KEY)].map(match => match[1]!)))
-
-    expect([...found].sort()).toEqual(Object.keys(PLAIN_BOOLEAN_SETTINGS).sort())
   })
 })

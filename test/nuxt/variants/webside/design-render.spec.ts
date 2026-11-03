@@ -22,7 +22,8 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { makeUserDetails } from '~~/test/fixtures/user'
 import { makeOrderListItem } from '~~/test/fixtures/order'
 import { makeProduct, makeProductCard } from '~~/test/fixtures/product'
-import { makeLoyaltyPublicSettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import { makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { makeAllAuthConfig, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
@@ -528,7 +529,7 @@ describe('webside design render', () => {
       const tenant = useTenantStore()
       tenant.setConfig({ ...tenant.config!, features: { ...tenant.config!.features, loyalty: true } })
       api.routes({
-        '/api/settings/public': { settings: makeLoyaltyPublicSettings() },
+        '/api/settings/public': { settings: {}, values: makePublicValues() },
         '/api/loyalty/summary': makeSummary(),
         '/api/loyalty/tiers': [makeTier()],
       })

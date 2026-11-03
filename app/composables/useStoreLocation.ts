@@ -1,6 +1,7 @@
 /**
  * The store's own location: `STORE_GEO_LAT` / `STORE_GEO_LNG`, decimal
- * degrees.
+ * degrees, as Django serves them (`values.storeGeoLat` / `storeGeoLng`,
+ * validated in range when written).
  *
  * One reading for both places that show it: the LocalBusiness
  * structured data (`app.vue`) and the location map band. The band used
@@ -8,16 +9,13 @@
  * showed the owner's pin while the location it gave search engines was
  * about 750 m away.
  *
- * `undefined` until both settings are decimal degrees in range
- * (`parseDegrees`): a malformed or impossible value is no location rather
- * than a wrong one. `0` is a coordinate, not a missing one.
+ * `undefined` until both are set. `0` is a coordinate, not a missing one.
  */
 export function useStoreLocation() {
-  const latitude = useSettingValue('STORE_GEO_LAT')
-  const longitude = useSettingValue('STORE_GEO_LNG')
+  const { values } = useStoreSettings()
   return computed(() => {
-    const lat = parseDegrees(latitude.value, LATITUDE_LIMIT)
-    const lng = parseDegrees(longitude.value, LONGITUDE_LIMIT)
-    return lat !== undefined && lng !== undefined ? { lat, lng } : undefined
+    const lat = values.value?.storeGeoLat
+    const lng = values.value?.storeGeoLng
+    return typeof lat === 'number' && typeof lng === 'number' ? { lat, lng } : undefined
   })
 }
