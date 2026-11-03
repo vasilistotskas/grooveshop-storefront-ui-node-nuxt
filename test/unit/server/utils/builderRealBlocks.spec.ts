@@ -58,6 +58,14 @@ describe('the real blocks', () => {
     expect(parseDocument({ sections: { s1: bare }, order: ['s1'] }, 'page', registry, { featureOn: () => true }).sections.s1).not.toHaveProperty('blocks')
   })
 
+  it('leave a search bar out of a store without the catalogue, as every block that reads it', () => {
+    const page = { sections: { s1: { type: 'search_bar@1', settings: {} } }, order: ['s1'] }
+    const parse = (catalogueOn: boolean) => parseDocument(page, 'page', registry, { featureOn: feature => feature !== 'catalogue' || catalogueOn })
+
+    expect(parse(true).order).toEqual(['s1'])
+    expect(parse(false).order).toEqual([])
+  })
+
   it('are closed: a key the schema does not name is refused, by Django and by the parse', () => {
     for (const block of buildBlockCatalogue(definitions).blocks) {
       expect(block.schema.additionalProperties, block.type).toBe(false)
