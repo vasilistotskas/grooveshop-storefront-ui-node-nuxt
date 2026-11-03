@@ -181,6 +181,12 @@ export function setupPageHeader() {
             content: tenantStore.pinterestDomainVerify,
           }]
         : []),
+      ...(tenantStore.bingSiteVerification
+        ? [{
+            name: 'msvalidate.01',
+            content: tenantStore.bingSiteVerification,
+          }]
+        : []),
     ],
   }))
 }

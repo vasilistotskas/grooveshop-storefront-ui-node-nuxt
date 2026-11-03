@@ -2383,6 +2383,7 @@ export const zPatchedProductCategoryWriteRequest = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
@@ -2390,6 +2391,7 @@ export const zPatchedProductCategoryWriteRequest = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
@@ -2431,6 +2433,7 @@ export const zPatchedProductWriteRequest = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -2438,6 +2441,7 @@ export const zPatchedProductWriteRequest = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
@@ -2452,6 +2456,8 @@ export const zPatchedProductWriteRequest = z.object({
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   active: z.boolean().optional(),
+  gtin: z.string().max(14).optional(),
+  mpn: z.string().max(70).optional(),
 })
 
 /**
@@ -2953,6 +2959,7 @@ export const zProductCategory = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
@@ -2960,6 +2967,7 @@ export const zProductCategory = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -2999,6 +3007,7 @@ export const zProductCategoryDetail = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
@@ -3006,6 +3015,7 @@ export const zProductCategoryDetail = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3125,6 +3135,7 @@ export const zProductCategoryWriteRequest = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
@@ -3132,6 +3143,7 @@ export const zProductCategoryWriteRequest = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3307,6 +3319,7 @@ export const zProductWriteRequest = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -3314,6 +3327,7 @@ export const zProductWriteRequest = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3328,6 +3342,8 @@ export const zProductWriteRequest = z.object({
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   active: z.boolean().optional(),
+  gtin: z.string().max(14).optional(),
+  mpn: z.string().max(70).optional(),
 })
 
 /**
@@ -3817,6 +3833,7 @@ export const zProduct = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -3824,6 +3841,7 @@ export const zProduct = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3862,6 +3880,8 @@ export const zProduct = z.object({
     zNullEnum,
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
 })
 
 export const zCartItem = z.object({
@@ -4070,6 +4090,7 @@ export const zProductDetail = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -4077,6 +4098,7 @@ export const zProductDetail = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -4116,6 +4138,8 @@ export const zProductDetail = z.object({
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
 })
 
 /**
@@ -4130,6 +4154,7 @@ export const zProductDetailResponse = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -4137,6 +4162,7 @@ export const zProductDetailResponse = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -4176,6 +4202,8 @@ export const zProductDetailResponse = z.object({
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
 })
 
 export const zProductFavourite = z.object({
@@ -4265,6 +4293,7 @@ export const zProductRetrieve = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -4272,6 +4301,7 @@ export const zProductRetrieve = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -4312,6 +4342,8 @@ export const zProductRetrieve = z.object({
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
   ratingDistribution: z.array(zRatingDistribution).readonly(),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
 })
 
 /**
@@ -4330,6 +4362,7 @@ export const zProductVariant = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -4337,6 +4370,7 @@ export const zProductVariant = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
@@ -5463,6 +5497,7 @@ export const zTenantConfig = z.object({
   socialsTwitter: z.string().readonly(),
   socialsYoutube: z.string().readonly(),
   boxNowPartnerId: z.string().readonly(),
+  bingSiteVerification: z.string().optional(),
 })
 
 /**
@@ -7728,6 +7763,7 @@ export const zProductWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -7735,6 +7771,7 @@ export const zProductWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -7843,6 +7880,7 @@ export const zProductCategoryWritable = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
@@ -7850,6 +7888,7 @@ export const zProductCategoryWritable = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -7881,6 +7920,7 @@ export const zProductCategoryDetailWritable = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
@@ -7888,6 +7928,7 @@ export const zProductCategoryDetailWritable = z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
+      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -7959,6 +8000,7 @@ export const zProductDetailWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -7966,6 +8008,7 @@ export const zProductDetailWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -7992,6 +8035,7 @@ export const zProductDetailResponseWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -7999,6 +8043,7 @@ export const zProductDetailResponseWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -8099,6 +8144,7 @@ export const zProductRetrieveWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -8106,6 +8152,7 @@ export const zProductRetrieveWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -8183,6 +8230,7 @@ export const zProductVariantWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
     en: z.object({
       seoTitle: z.string().optional(),
@@ -8190,6 +8238,7 @@ export const zProductVariantWritable = z.object({
       seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
+      feedTitle: z.string().optional(),
     }).optional(),
   }),
 })
@@ -8446,6 +8495,7 @@ export const zTenantConfigWritable = z.object({
   codeResendCooldownSeconds: z.int().optional(),
   openaiPixelId: z.string().optional(),
   googleAdsAddPaymentInfoLabel: z.string().optional(),
+  bingSiteVerification: z.string().optional(),
 })
 
 export const zUserAddressWritable = z.object({

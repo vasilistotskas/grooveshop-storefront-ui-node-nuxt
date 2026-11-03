@@ -97,6 +97,8 @@ export function makeProduct(overrides: ProductOverrides = {}): Product {
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(1, id),
+    gtin: '',
+    mpn: '',
     attributes: [],
     variantGroupTitle: null,
     ...fields,

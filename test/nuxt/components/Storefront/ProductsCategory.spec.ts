@@ -137,6 +137,19 @@ describe.each(trees(ProductsCategory, WebsideProductsCategory))('$tree Storefron
     expect(seo.value.description()).toBe('Όλοι οι φορτιστές.')
   })
 
+  it('draws the store\'s text below the products, as rich text', async () => {
+    serve({ ...CATEGORY, translations: { el: { ...CATEGORY.translations.el, footerText: '<h2>Οδηγός</h2><p>Κείμενο</p>' } } })
+    const wrapper = await mount()
+
+    expect(wrapper.find('.article h2').text()).toBe('Οδηγός')
+  })
+
+  it.runIf(tree === 'webside')('draws the store\'s description above the products', async () => {
+    const wrapper = await mount()
+
+    expect(wrapper.find('.article strong').text()).toBe('φορτιστές')
+  })
+
   // The h1 is the category, not the word "Category" (webside's said
   // «Κατηγορία» on every category until 2026-11-03).
   it('titles the page with the category\'s name', async () => {
