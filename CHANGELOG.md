@@ -1,3 +1,10 @@
+# [3.308.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.307.1...v3.308.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** each design's theme defaults, and contrast rules for what it paints ([#362](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/362)) ([a10398c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a10398c5fbf97d0d40785be2d091c637df0839a4))
+
 ## [3.307.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.307.0...v3.307.1) (2026-11-03)
 
 
