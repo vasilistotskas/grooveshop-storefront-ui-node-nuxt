@@ -29,6 +29,10 @@ const assistant = computed(() =>
 const accountShell = computed(() =>
   resolveChrome('account_shell', tenantStore.schemaName),
 )
+// What a design draws around the sign-in, sign-up and re-authentication pages.
+const authFrame = computed(() =>
+  resolveChrome('auth_frame', tenantStore.schemaName),
+)
 const { $routeBaseName } = useNuxtApp()
 const route = useRoute()
 const { user, loggedIn } = useUserSession()
@@ -54,6 +58,11 @@ const isAccountRoute = computed(() => {
 const onAuthFlowRoute = computed(() => {
   const name = routeName.value
   return typeof name === 'string' && isAuthFlowRoute(name)
+})
+
+const onAuthPageRoute = computed(() => {
+  const name = routeName.value
+  return typeof name === 'string' && isAuthPageRoute(name)
 })
 
 const showUserChrome = computed(
@@ -112,7 +121,13 @@ const footerClass = computed(() =>
         v-else
         class="flex w-full flex-1 flex-col"
       >
-        <slot />
+        <component
+          :is="authFrame"
+          v-if="onAuthPageRoute"
+        >
+          <slot />
+        </component>
+        <slot v-else />
       </section>
     </UMain>
     <slot name="footer">

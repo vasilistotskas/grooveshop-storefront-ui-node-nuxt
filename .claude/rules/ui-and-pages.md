@@ -66,9 +66,12 @@ a tenant that keeps or specifies its own design registers `page:<key>@<schema>`
 pointing at `app/components/variants/<schema>/…`. Four-of-a-kind pages share one
 body and pass the constant that told them apart as a prop (`Legal.vue` takes
 `route`, `BrandPage.vue` takes `pageType`). Chrome resolves the same way:
-`resolveChrome('navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell', schema)`
+`resolveChrome('navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell' | 'auth_frame', schema)`
 in the layouts (`account_shell` is the signed-in account pages' frame: banner +
-sidebar). Never put `definePageMeta`/`defineRouteRules` in a body (they are
+sidebar; `auth_frame` is what `layouts/default.vue` draws around the sign-in,
+sign-up and re-authentication pages of a store that keeps the default layout:
+nothing on the platform, whose Volt sign-in frame is the `auth-split` layout,
+and webside's `AUTH_PANEL` photo beside the page). Never put `definePageMeta`/`defineRouteRules` in a body (they are
 inert outside `pages/`), and never put visitor-facing markup in a shell.
 ESLint enforces both across bodies and pages (`eslint.config.mjs`: page macros are banned under `app/components/**`, and an un-awaited `useBuilderPage` anywhere in `app/**`).
 

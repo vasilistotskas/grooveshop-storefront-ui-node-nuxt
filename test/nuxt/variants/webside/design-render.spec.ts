@@ -27,6 +27,7 @@ import { makeAllAuthConfig, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
 import PageNavbar from '~/components/variants/webside/Page/Navbar.vue'
+import AuthFrame from '~/components/variants/webside/Chrome/AuthFrame.vue'
 import FooterDesktop from '~/components/variants/webside/Footer/Desktop.vue'
 import FooterMobile from '~/components/variants/webside/Footer/Mobile.vue'
 import MobileBottomNav from '~/components/variants/webside/MobileBottomNav.vue'
@@ -488,6 +489,33 @@ describe('webside design render', () => {
 
     await expectSnapshot(RecentlyViewed, {}, (html) => {
       expect(html).toContain('Mini Power Bank 5000mAh')
+    })
+  })
+
+  describe('auth frame', () => {
+    const AUTH_PANEL = {
+      settings: {},
+      authPanel: { imageUrl: 'media/webside/uploads/hero.jpg', tagline: 'Ό,τι χρειάζεσαι, σε ένα μέρος.', i18n: {} },
+    }
+
+    it('shows the photo and line the store set beside the page', async () => {
+      api.routes({ '/api/settings/public': AUTH_PANEL })
+
+      await expectSnapshot(AuthFrame, { slots: { default: () => h('p', 'page') } }, (html) => {
+        expect(html).toContain('Ό,τι χρειάζεσαι')
+      })
+    })
+
+    it('leaves the page alone for a store with no photo', async () => {
+      await expectSnapshot(AuthFrame, { slots: { default: () => h('p', 'page') } })
+    })
+
+    it('is what the default layout draws around a sign-in page', async () => {
+      api.routes({ '/api/settings/public': AUTH_PANEL })
+
+      await expectSnapshot(DefaultLayout, { route: '/account/login', slots: { default: () => h('p', 'page') } }, (html) => {
+        expect(html).toContain('Ό,τι χρειάζεσαι')
+      })
     })
   })
 
