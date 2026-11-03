@@ -70,6 +70,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
     <div class="ms-auto flex items-center gap-1">
       <BuilderHistory />
       <BuilderVersionHistory v-if="store.status === 'ready'" />
+      <BuilderPublish />
 
       <UButton
         icon="i-lucide-sliders-horizontal"

@@ -115,6 +115,23 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     }
   }
 
+  /**
+   * Reads again what Django holds about the named documents, after a publish:
+   * the list (what is published, what has changes) and each one's envelope.
+   * The working copies are the editor's own and stay as they are.
+   */
+  async function refresh(keys: readonly string[]): Promise<void> {
+    const [list, metas] = await Promise.all([
+      $api('/api/builder/documents'),
+      Promise.all(keys.map(async key => [key, await $api(`/api/builder/documents/${encodeURIComponent(key)}`)] as const)),
+    ])
+    documents.value = list
+    for (const [key, meta] of metas) {
+      const document = opened.value[key]
+      if (document) put(key, { ...document, meta })
+    }
+  }
+
   function setCopy(key: string, copy: BuilderWorkingCopy): void {
     const document = opened.value[key]
     if (!document) return
@@ -216,6 +233,7 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     canUndo,
     canRedo,
     open,
+    refresh,
     change,
     moved,
     move,

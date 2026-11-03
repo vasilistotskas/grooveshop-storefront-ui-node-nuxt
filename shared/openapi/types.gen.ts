@@ -517,6 +517,74 @@ export type Asset = {
   readonly updatedAt: string
 }
 
+export type AssetImportRequest = {
+  /**
+     * A path of this store: `/img/x.png` (served by the storefront) or `media/<store>/uploads/x.png` (already uploaded).
+     */
+  url: string
+  focalX?: number | null
+  focalY?: number | null
+  /**
+     * {language: text}; a language not named keeps its text.
+     */
+  alt?: unknown
+}
+
+/**
+ * The answer to an upload or an import: the asset, and whether it was
+ * already in the library.
+ */
+export type AssetStored = {
+  readonly id: number
+  readonly path: string
+  /**
+     * Πλάτος
+     *
+     * Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+     */
+  readonly width: number
+  /**
+     * Ύψος
+     *
+     * Όπως το εμφανίζει ο φυλλομετρητής, σε px.
+     */
+  readonly height: number
+  /**
+     * Τύπος
+     */
+  readonly mime: string
+  /**
+     * Μέγεθος (bytes)
+     */
+  readonly sizeBytes: number
+  /**
+     * Σημείο εστίασης X
+     *
+     * Το 0 είναι η αριστερή άκρη, το 1 η δεξιά.
+     */
+  readonly focalX: number
+  /**
+     * Σημείο εστίασης Y
+     *
+     * Το 0 είναι η πάνω άκρη, το 1 η κάτω.
+     */
+  readonly focalY: number
+  readonly alt: {
+    [key: string]: string
+  }
+  uploadedBy: Staff | null
+  readonly usedBy: Array<string>
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  readonly duplicate: boolean
+}
+
 export type AssetUploadRequest = {
   file: Blob | File
   focalX?: number | null
@@ -8324,6 +8392,22 @@ export type PublicSettings = {
   }
 }
 
+export type PublishCheck = {
+  ok: boolean
+  changed: Array<string>
+  problems: Array<PublishProblem>
+}
+
+export type PublishProblem = {
+  document: string | null
+  path: string
+  code: string
+  message: string
+  params?: {
+    [key: string]: string
+  } | null
+}
+
 export type PublishVersionWriteRequest = {
   note?: string
 }
@@ -8600,6 +8684,16 @@ export type Release = {
      */
   readonly rolledBackFrom: number
   versions: unknown
+  readonly documents: Array<ReleaseDocument>
+}
+
+export type ReleaseDocument = {
+  key: string
+  versionNumber: number
+  /**
+     * Differs from the release before it.
+     */
+  changed: boolean
 }
 
 /**
@@ -10499,6 +10593,14 @@ export type AgentFavouriteWritable = {
 }
 
 export type AssetWritable = {
+  [key: string]: unknown
+}
+
+/**
+ * The answer to an upload or an import: the asset, and whether it was
+ * already in the library.
+ */
+export type AssetStoredWritable = {
   [key: string]: unknown
 }
 
@@ -17352,7 +17454,7 @@ export type ApiV1BuilderMediaCreateErrors = {
 export type ApiV1BuilderMediaCreateError = ApiV1BuilderMediaCreateErrors[keyof ApiV1BuilderMediaCreateErrors]
 
 export type ApiV1BuilderMediaCreateResponses = {
-  201: Asset
+  201: AssetStored
 }
 
 export type ApiV1BuilderMediaCreateResponse = ApiV1BuilderMediaCreateResponses[keyof ApiV1BuilderMediaCreateResponses]
@@ -17419,6 +17521,26 @@ export type ApiV1BuilderMediaPartialUpdateResponses = {
 
 export type ApiV1BuilderMediaPartialUpdateResponse = ApiV1BuilderMediaPartialUpdateResponses[keyof ApiV1BuilderMediaPartialUpdateResponses]
 
+export type ApiV1BuilderMediaImportCreateData = {
+  body: AssetImportRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/media/import'
+}
+
+export type ApiV1BuilderMediaImportCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderMediaImportCreateError = ApiV1BuilderMediaImportCreateErrors[keyof ApiV1BuilderMediaImportCreateErrors]
+
+export type ApiV1BuilderMediaImportCreateResponses = {
+  201: AssetStored
+}
+
+export type ApiV1BuilderMediaImportCreateResponse = ApiV1BuilderMediaImportCreateResponses[keyof ApiV1BuilderMediaImportCreateResponses]
+
 export type ApiV1BuilderMediaResolveRetrieveData = {
   body?: never
   path?: never
@@ -17446,6 +17568,34 @@ export type ApiV1BuilderMediaResolveRetrieveResponses = {
 }
 
 export type ApiV1BuilderMediaResolveRetrieveResponse = ApiV1BuilderMediaResolveRetrieveResponses[keyof ApiV1BuilderMediaResolveRetrieveResponses]
+
+export type ApiV1BuilderMediaStaffResolveRetrieveData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+         * Comma-separated asset ids (`media` references).
+         */
+    ids: string
+    /**
+         * Language of the alt text; default if unknown.
+         */
+    locale?: string
+  }
+  url: '/api/v1/builder/media/staff-resolve'
+}
+
+export type ApiV1BuilderMediaStaffResolveRetrieveErrors = {
+  400: ApiValidationError | ApiError
+}
+
+export type ApiV1BuilderMediaStaffResolveRetrieveError = ApiV1BuilderMediaStaffResolveRetrieveErrors[keyof ApiV1BuilderMediaStaffResolveRetrieveErrors]
+
+export type ApiV1BuilderMediaStaffResolveRetrieveResponses = {
+  200: ResolvedMedia
+}
+
+export type ApiV1BuilderMediaStaffResolveRetrieveResponse = ApiV1BuilderMediaStaffResolveRetrieveResponses[keyof ApiV1BuilderMediaStaffResolveRetrieveResponses]
 
 export type ApiV1BuilderPresenceDestroyData = {
   body?: never
@@ -17539,6 +17689,37 @@ export type ApiV1BuilderPreviewLinksDestroyResponses = {
 
 export type ApiV1BuilderPreviewLinksDestroyResponse = ApiV1BuilderPreviewLinksDestroyResponses[keyof ApiV1BuilderPreviewLinksDestroyResponses]
 
+export type ApiV1BuilderPreviewMediaRetrieveData = {
+  body?: never
+  path: {
+    token: string
+  }
+  query: {
+    /**
+         * Comma-separated asset ids (`media` references).
+         */
+    ids: string
+    /**
+         * Language of the alt text; default if unknown.
+         */
+    locale?: string
+  }
+  url: '/api/v1/builder/preview-media/{token}'
+}
+
+export type ApiV1BuilderPreviewMediaRetrieveErrors = {
+  400: ApiValidationError | ApiError
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderPreviewMediaRetrieveError = ApiV1BuilderPreviewMediaRetrieveErrors[keyof ApiV1BuilderPreviewMediaRetrieveErrors]
+
+export type ApiV1BuilderPreviewMediaRetrieveResponses = {
+  200: ResolvedMedia
+}
+
+export type ApiV1BuilderPreviewMediaRetrieveResponse = ApiV1BuilderPreviewMediaRetrieveResponses[keyof ApiV1BuilderPreviewMediaRetrieveResponses]
+
 export type ApiV1BuilderPreviewRetrieveData = {
   body?: never
   path: {
@@ -17606,6 +17787,26 @@ export type ApiV1BuilderPublishCreateResponses = {
 }
 
 export type ApiV1BuilderPublishCreateResponse = ApiV1BuilderPublishCreateResponses[keyof ApiV1BuilderPublishCreateResponses]
+
+export type ApiV1BuilderPublishCheckCreateData = {
+  body: PublishWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/builder/publish/check'
+}
+
+export type ApiV1BuilderPublishCheckCreateErrors = {
+  400: ApiValidationError | ApiError
+  409: ErrorResponse
+}
+
+export type ApiV1BuilderPublishCheckCreateError = ApiV1BuilderPublishCheckCreateErrors[keyof ApiV1BuilderPublishCheckCreateErrors]
+
+export type ApiV1BuilderPublishCheckCreateResponses = {
+  200: PublishCheck
+}
+
+export type ApiV1BuilderPublishCheckCreateResponse = ApiV1BuilderPublishCheckCreateResponses[keyof ApiV1BuilderPublishCheckCreateResponses]
 
 export type BuilderPublishedIndexData = {
   body?: never

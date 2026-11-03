@@ -95,3 +95,15 @@ export const ZodBuilderVersionParams = ZodBuilderDocumentParams.extend({
 export const ZodBuilderVersionsQuery = z.object({
   page: z.string().regex(/^\d{1,6}$/).optional(),
 })
+
+/**
+ * Django's refusal of documents (`400 invalid_document`): every problem, by
+ * a JSON pointer into what was sent, with its code and a sentence; `document`
+ * names the document when one request held several (a publish). Django's
+ * OpenAPI schema types this answer only as an error with a `detail`, so the
+ * editor reads it with this one schema, for a save and a publish alike.
+ */
+export const ZodBuilderDocumentRefusal = z.object({
+  code: z.literal('invalid_document'),
+  errors: z.array(z.object({ path: z.string(), code: z.string(), message: z.string(), document: z.string().optional() })),
+})
