@@ -8,6 +8,7 @@ export type BuilderHistoryStatus = 'idle' | 'loading' | 'ready' | 'error'
  *   them), so nothing was touched: a restore would put a version over
  *   changes nobody has stored;
  * - `conflict`: someone else saved the document since this editor opened it;
+ *   the editor's conflict dialog (`Builder/ConflictDialog`) is open on it;
  * - `unreadable`: the restored draft is in a format this editor cannot open;
  *   the document is restored at Django's, and opens again with the page;
  * - `failed`: Django could not be asked, or refused.
@@ -124,7 +125,8 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
       return 'restored'
     }
     catch (error) {
-      if (apiErrorBodyOf(error)?.code === 'revision_conflict') return 'conflict'
+      // Someone saved the document in between: the editor's own conflict dialog decides.
+      if (apiErrorBodyOf(error)?.code === 'revision_conflict' && autosave.reportConflict(key, apiErrorBodyOf(error))) return 'conflict'
       log.error({ action: 'builder:restore', document: key, version: number, error })
       return 'failed'
     }

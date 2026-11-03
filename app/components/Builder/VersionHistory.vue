@@ -24,7 +24,10 @@ watch([open, documentKey], ([isOpen, key]) => {
 })
 
 function rowTitle(row: BuilderHistoryRow): string {
-  return row.kind === 'draft' ? t('draft') : t(`kind.${row.kind}`, { number: row.number })
+  if (row.kind === 'draft') return t('draft')
+  // A restore says which version it put back.
+  if (row.kind === 'restore' && row.restoredFrom !== null) return t('kind.restoreFrom', { number: row.number, from: row.restoredFrom })
+  return t(`kind.${row.kind}`, { number: row.number })
 }
 
 /** Looking at a version: what it holds is read when it is asked for, and drawn in a canvas of its own. */
@@ -73,6 +76,12 @@ async function restore(): Promise<void> {
       toast.add({ title: t('restored', { title: rowTitle(row) }), icon: 'i-lucide-undo-2', color: 'success' })
       restoring.value = undefined
       previewOpen.value = false
+    }
+    else if (result === 'conflict') {
+      // The conflict dialog takes over: nothing else is left open over it.
+      restoring.value = undefined
+      previewOpen.value = false
+      open.value = false
     }
     else {
       toast.add({ title: t(`restoreFailed.${result}.title`), description: t(`restoreFailed.${result}.description`), color: 'error', icon: 'i-lucide-circle-alert' })
@@ -349,6 +358,7 @@ el:
     checkpoint: "Αποθηκευμένη έκδοση {number}"
     publish: "Δημοσιευμένη έκδοση {number}"
     restore: "Επαναφορά, έκδοση {number}"
+    restoreFrom: "Έκδοση {number}: επαναφορά από την έκδοση {from}"
   by: "από {name}"
   loading: Φόρτωση του ιστορικού…
   more: Παλαιότερες εκδόσεις
@@ -388,9 +398,6 @@ el:
     unsaved:
       title: Οι αλλαγές σας δεν έχουν αποθηκευτεί ακόμη
       description: Περιμένετε να ολοκληρωθεί η αποθήκευση και δοκιμάστε ξανά.
-    conflict:
-      title: Κάποιος άλλος αποθήκευσε αυτή τη σελίδα
-      description: Ανοίξτε ξανά τη σελίδα για να δείτε τις αλλαγές του και δοκιμάστε ξανά.
     unreadable:
       title: Η έκδοση επαναφέρθηκε, αλλά η σελίδα δεν ανοίγει
       description: Γράφτηκε σε μορφή που αυτή η έκδοση του επεξεργαστή δεν διαβάζει.
@@ -407,6 +414,7 @@ en:
     checkpoint: "Saved version {number}"
     publish: "Published version {number}"
     restore: "Restore, version {number}"
+    restoreFrom: "Version {number}: restored from version {from}"
   by: "by {name}"
   loading: Loading the history…
   more: Older versions
@@ -446,9 +454,6 @@ en:
     unsaved:
       title: Your changes aren't saved yet
       description: Wait for saving to finish and try again.
-    conflict:
-      title: Someone else saved this page
-      description: Open the page again to see their changes, then try again.
     unreadable:
       title: Restored, but the page can't be opened
       description: It was written in a format this version of the editor can't read.
