@@ -1,30 +1,47 @@
 <script lang="ts" setup>
+/**
+ * The blog's posts as a band on another page, in webside's own cards.
+ *
+ * The posts arrive read (`posts`, a data setting the page route resolved):
+ * the band draws the ones its block asks for, however many and from
+ * whichever category, and not the paginated `/blog` list, which reads the
+ * page's own query string and answers to nobody's settings.
+ *
+ * Below the fold of the page it sits on, so every card lazy-loads at the
+ * default priority and keeps the real LCP's bandwidth.
+ */
 const props = defineProps<{
   title?: string
-  pageSize?: number
+  posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
 }>()
 
-const blogEnabled = useStoreFeature('blog')
 const { isMobileOrTablet } = useDevice()
 
-// Mobile shows 6 articles up front (2 columns of 3 cards on tablet,
-// single column on phone) and a Load more button. Desktop ships 9 (a
-// clean 3x3 grid at xl) so the rail looks balanced before the user has
-// to ask for more.
-const effectivePageSize = computed(
-  () => props.pageSize ?? (isMobileOrTablet.value ? 6 : 9),
+// The shopper's likes among the posts on screen, for each card's button.
+useLikedBlogPosts(() => props.posts.items.map(post => post.id))
+
+const BlogPostCard = computed(() =>
+  isMobileOrTablet.value ? resolveComponent('WebsideBlogPostCardMobile') : resolveComponent('WebsideBlogPostCardDesktop'),
 )
 </script>
 
 <template>
-  <LazyWebsideBlogPostsList
-    v-if="blogEnabled"
-    :page-size="effectivePageSize"
-    :show-ordering="false"
-    :eager-first-images="false"
-    class="w-full md:p-0!"
-    pagination-type="cursor"
-    pagination-strategy="button"
-    hydrate-on-visible
-  />
+  <ol
+    v-if="posts.items.length"
+    class="
+      grid w-full grid-cols-1 items-center justify-center gap-8
+      sm:grid-cols-1
+      md:grid-cols-2 md:p-0!
+      lg:grid-cols-2
+      xl:grid-cols-3
+    "
+  >
+    <Component
+      :is="BlogPostCard"
+      v-for="post in posts.items"
+      :key="post.id"
+      img-loading="lazy"
+      :post="post"
+    />
+  </ol>
 </template>

@@ -219,8 +219,8 @@
     "caption": {
       "label": "Caption"
     },
-    "categoryId": {
-      "label": "Category"
+    "categories": {
+      "label": "What it lists"
     },
     "columns": {
       "label": "Columns"
@@ -230,9 +230,6 @@
     },
     "contentPage": {
       "label": "Content page"
-    },
-    "count": {
-      "label": "How many"
     },
     "ctaLink": {
       "label": "Button link"
@@ -326,15 +323,15 @@
     "page": {
       "label": "Page"
     },
-    "pageSize": {
-      "label": "How many"
-    },
     "parentId": {
       "label": "Parent category",
       "help": "Shows its subcategories. Empty for the top ones."
     },
     "placeholder": {
       "label": "Placeholder"
+    },
+    "posts": {
+      "label": "What it lists"
     },
     "productId": {
       "label": "Product",

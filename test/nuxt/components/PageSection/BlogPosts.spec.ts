@@ -4,13 +4,12 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import BlogPosts from '~/components/PageSection/BlogPosts.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
-import { makeBlogCategory } from '~~/test/fixtures/blog'
+import { makeBlogCategory, makeBlogPost } from '~~/test/fixtures/blog'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const POSTS_URL = '/api/blog/posts'
 const CATEGORIES_URL = '/api/blog/categories'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
@@ -26,24 +25,29 @@ const RailStub = defineComponent({
     h('li', { 'data-post': p.id, 'data-category': props.categoryName?.(p.category) }))),
 })
 
-const post = (id: number, category = 1) => ({ id, category, slug: `post-${id}`, translations: { el: { title: `Άρθρο ${id}` } } })
+/** The `posts` data setting as the page route hands it over. */
+const posts = (items: BlogPost[]) => ({
+  status: items.length ? 'ok' : 'empty',
+  items,
+  descriptor: { mode: 'filter', ordering: 'newest', limit: 3 },
+}) as ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
 
-const mountPosts = (props: Record<string, unknown> = {}) =>
-  mountSuspended(BlogPosts, { route: false, props, global: { stubs: { BlogRail: RailStub } } })
+const mountPosts = (props: Record<string, unknown> = {}, items: BlogPost[] = [makeBlogPost({ id: 1, category: 1 }), makeBlogPost({ id: 2, category: 2 })]) =>
+  mountSuspended(BlogPosts, { route: false, props: { posts: posts(items), ...props }, global: { stubs: { BlogRail: RailStub } } })
 
 /**
  * The store's writing as a band on another page. A band with nothing to
  * show renders NOTHING — not a heading over an empty state, which is
- * what a brand-new store used to open on.
+ * what a brand-new store used to open on. The posts arrive read (the page
+ * route resolved them); what the band still asks for is the name of each
+ * post's category, the store's one shared list.
  */
 describe('PageSection/BlogPosts', () => {
   beforeEach(() => {
-    // `useBlogRail` serves a cached payload for its key.
     clearNuxtData()
     setTenant()
     setTenantFeatures({ blog: true })
     api.routes({
-      [POSTS_URL]: { results: [post(1), post(2, 2)], count: 2 },
       [CATEGORIES_URL]: { results: [makeBlogCategory({ id: 1 }), makeBlogCategory({ id: 2 })], count: 2 },
     })
   })
@@ -65,54 +69,10 @@ describe('PageSection/BlogPosts', () => {
   })
 
   it('renders nothing at all when the store has published nothing', async () => {
-    api.routes({ [POSTS_URL]: { results: [], count: 0 } })
+    const wrapper = await mountPosts({}, [])
 
-    const wrapper = await mountPosts()
-
-    expect(api.callsTo(POSTS_URL)).toHaveLength(1)
     expect(wrapper.find('section').exists()).toBe(false)
     expect(wrapper.text()).toBe('')
-  })
-
-  it('asks for nothing and renders nothing when the tenant has no blog', async () => {
-    setTenantFeatures({ blog: false })
-
-    const wrapper = await mountPosts()
-
-    expect(api.callsTo(POSTS_URL)).toEqual([])
-    expect(api.callsTo(CATEGORIES_URL)).toEqual([])
-    expect(wrapper.find('section').exists()).toBe(false)
-  })
-
-  it('renders nothing for a tenant without the blog, even with posts already in the payload', async () => {
-    useNuxtApp().payload.data['blog-rail-3-all-el'] = { results: [post(1)], count: 1 }
-    setTenantFeatures({ blog: false })
-
-    const wrapper = await mountPosts()
-
-    expect(wrapper.find('section').exists()).toBe(false)
-  })
-
-  it.each([
-    // `blog_posts_grid` spells the size `count`, `blog_posts_list` spells
-    // it `pageSize`; one component serves both keys.
-    { props: {}, pageSize: 3 },
-    { props: { count: 6 }, pageSize: 6 },
-    { props: { pageSize: 9, count: 6 }, pageSize: 9 },
-  ])('asks for $pageSize newest posts given $props', async ({ props, pageSize }) => {
-    await mountPosts(props)
-
-    expect(api.callsTo(POSTS_URL)[0]!.options.query).toEqual({
-      pageSize,
-      languageCode: 'el',
-      ordering: '-publishedAt',
-    })
-  })
-
-  it('narrows the rail to one category', async () => {
-    await mountPosts({ categoryId: 5 })
-
-    expect(api.callsTo(POSTS_URL)[0]!.options.query).toMatchObject({ category: '5' })
   })
 
   it('uses the operator\'s heading and link over the defaults', async () => {

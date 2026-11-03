@@ -7,29 +7,22 @@ import { makeBlogCategory } from '~~/test/fixtures/blog'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
- * The categories rail. The default rail renders the categories its band
- * hands it — the band is the one fetcher of them. The webside rail
- * still fetches its own, inside a band hydrated when it scrolls into
- * view: after the app finished hydrating, when Nuxt's default
- * `getCachedData` no longer reads the server payload, so without
- * `payloadCachedData` it refetched what the server had rendered.
+ * The categories rail, in both designs. It renders the categories its band
+ * hands it: the page route read them (the `blog_categories` data setting), so
+ * neither rail asks for anything.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const KEY = 'blog-categories-el'
 // Short names: the rail cuts a name at 10 characters (6 on a phone).
 const named = (id: number, name: string) => makeBlogCategory({ id, translations: { el: { name, description: '' } } })
 const CATEGORIES = [named(1, 'Νέα'), named(2, 'Συνταγές')]
-const PAGE = { count: 2, next: null, previous: null, results: CATEGORIES }
 const stubs = { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } }
 
 beforeEach(() => {
   setTenant()
   setTenantFeatures({ blog: true })
-  clearNuxtData(KEY)
-  api.routes({ '/api/blog/categories': PAGE })
 })
 
 describe('Blog/Categories/Slider', () => {
@@ -44,37 +37,21 @@ describe('Blog/Categories/Slider', () => {
 })
 
 describe('webside Blog/Categories/Slider', () => {
-  it('asks for the whole list in the page language', async () => {
-    await mountSuspended(WebsideBlogCategoriesSlider, { route: false, props: { max: 5 }, global: { stubs } })
+  it('renders the categories it is handed, and asks for nothing', async () => {
+    const wrapper = await mountSuspended(WebsideBlogCategoriesSlider, { route: false, props: { categories: CATEGORIES }, global: { stubs } })
     await flushPromises()
 
-    expect(api.callsTo('/api/blog/categories').map(call => call.options.query)).toEqual([{ pageSize: 100, languageCode: 'el' }])
-  })
-
-  it('asks for nothing when the store has no blog', async () => {
-    setTenantFeatures({ blog: false })
-
-    const wrapper = await mountSuspended(WebsideBlogCategoriesSlider, { route: false, global: { stubs } })
-    await flushPromises()
-
+    expect(wrapper.text()).toContain('Νέα')
+    expect(wrapper.text()).toContain('Συνταγές')
     expect(api.callsTo('/api/blog/categories')).toHaveLength(0)
-    expect(wrapper.text()).toBe('')
   })
 
-  it('reads the server payload when it is set up after hydration, without asking again', async () => {
-    const nuxtApp = useNuxtApp()
-    nuxtApp.payload.data[KEY] = PAGE
-    const wasHydrating = nuxtApp.isHydrating
-    nuxtApp.isHydrating = false
-    try {
-      const wrapper = await mountSuspended(WebsideBlogCategoriesSlider, { route: false, global: { stubs } })
-      await flushPromises()
+  it('shows no more than its own width allows, however many it is handed', async () => {
+    const many = Array.from({ length: 12 }, (_, index) => named(index + 1, `Κ${index + 1}`))
 
-      expect(api.callsTo('/api/blog/categories')).toHaveLength(0)
-      expect(wrapper.text()).toContain('Συνταγές')
-    }
-    finally {
-      nuxtApp.isHydrating = wasHydrating
-    }
+    const wrapper = await mountSuspended(WebsideBlogCategoriesSlider, { route: false, props: { categories: many, max: 5 }, global: { stubs } })
+    await flushPromises()
+
+    expect(wrapper.findAll('a')).toHaveLength(5)
   })
 })

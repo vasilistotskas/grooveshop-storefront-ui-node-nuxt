@@ -1,15 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { clearNuxtData } from '#app'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogPosts from '~/components/PageSection/variants/ekfyseosfyteias/BlogPosts.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBlogPost } from '~~/test/fixtures/blog'
-
-const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-mockNuxtImport('$api', () => api)
-mockNuxtImport('$fetch', () => api)
-
-const POSTS_URL = '/api/blog/posts'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
 const COPY = { heading: 'Ένας χρόνος στη Φυτειά', allPosts: 'Όλα τα άρθρα', read: 'Διαβάστε' }
@@ -29,25 +22,30 @@ const POSTS = [
   post(4, 'Γλυκά και παραμύθια', '2024-12-15T10:00:00+02:00'),
 ]
 
-const mountPosts = (props: Record<string, unknown> = {}) =>
-  mountSuspended(BlogPosts, { route: false, props })
+/** The `posts` data setting as the page route hands it over. */
+const posts = (items: BlogPost[]) => ({
+  status: items.length ? 'ok' : 'empty',
+  items,
+  descriptor: { mode: 'filter', ordering: 'newest', limit: 4 },
+}) as ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
+
+const mountPosts = (props: Record<string, unknown> = {}, items: BlogPost[] = POSTS) =>
+  mountSuspended(BlogPosts, { route: false, props: { posts: posts(items), ...props } })
 
 /**
- * The season cards. The data path is the base band's, so what is worth
- * pinning is what this variant adds: the season and month read off the
- * publish date, the title as an h3, the optional subtitle, and a link
- * whose accessible name carries the post.
+ * The season cards. The data path is the base band's (the posts arrive
+ * read), so what is worth pinning is what this variant adds: the season and
+ * month read off the publish date, the title as an h3, the optional
+ * subtitle, and a link whose accessible name carries the post.
  */
 describe('ekfyseosfyteias blog_posts_grid', () => {
   beforeEach(() => {
-    clearNuxtData()
     setTenant()
     setTenantFeatures({ blog: true })
-    api.routes({ [POSTS_URL]: { results: POSTS, count: POSTS.length } })
   })
 
   it('names the season and the month of every post, in the page\'s language', async () => {
-    const wrapper = await mountPosts({ count: 4 })
+    const wrapper = await mountPosts()
 
     const stamps = wrapper.findAll('ol > li').map(li => li.find('p').text())
     expect(stamps).toEqual([
@@ -59,7 +57,7 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
   })
 
   it('makes each title an h3 and prints the subtitle only where there is one', async () => {
-    const wrapper = await mountPosts({ count: 4 })
+    const wrapper = await mountPosts()
 
     expect(wrapper.findAll('h3').map(h => h.text())).toEqual(POSTS.map(p => p.translations.el!.title))
     expect(wrapper.text()).toContain('Ανθισμένες ροδακινιές.')
@@ -67,7 +65,7 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
   })
 
   it('links each card to its post with the title in the link\'s name', async () => {
-    const wrapper = await mountPosts({ count: 1 })
+    const wrapper = await mountPosts({}, POSTS.slice(0, 1))
 
     const link = wrapper.find('ol a')
     expect(link.attributes('href')).toBe('/blog/post/1/post-1')
@@ -75,7 +73,7 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
   })
 
   it('clips the off-screen cards\' screen-reader text inside the swiped row', async () => {
-    const wrapper = await mountPosts({ count: 4 })
+    const wrapper = await mountPosts()
 
     // The class pair is the contract: an overflow clips an absolute box
     // only when it is that box's containing block. Without `relative`
@@ -87,15 +85,9 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
   })
 
   it('treats the photo as decoration, since the title sits beside it', async () => {
-    const wrapper = await mountPosts({ count: 1 })
+    const wrapper = await mountPosts({}, POSTS.slice(0, 1))
 
     expect(wrapper.find('ol img').attributes('alt')).toBe('')
-  })
-
-  it('asks for as many posts as the section says, and for the newest first', async () => {
-    await mountPosts({ count: 2 })
-
-    expect(api.callsTo(POSTS_URL)[0]!.options.query).toMatchObject({ pageSize: 2, ordering: '-publishedAt' })
   })
 
   it('heads the band with its own copy and link, else the blog\'s', async () => {
@@ -104,26 +96,14 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
     expect(custom.text()).toContain('Όλο τον χρόνο.')
     expect(custom.find('a').attributes('href')).toBe('/info')
 
-    clearNuxtData()
     const fallback = await mountPosts()
     expect(fallback.find('h2').text()).toBe(COPY.heading)
     const link = fallback.find('a')
     expect([link.text(), link.attributes('href')]).toEqual([COPY.allPosts, '/blog'])
   })
 
-  it('asks for nothing and draws nothing when the store has its blog off', async () => {
-    setTenantFeatures({ blog: false })
-
-    const wrapper = await mountPosts()
-
-    expect(wrapper.find('section').exists()).toBe(false)
-    expect(api.callsTo(POSTS_URL)).toHaveLength(0)
-  })
-
   it('draws nothing when nothing is published', async () => {
-    api.routes({ [POSTS_URL]: { results: [], count: 0 } })
-
-    const wrapper = await mountPosts()
+    const wrapper = await mountPosts({}, [])
 
     expect(wrapper.find('section').exists()).toBe(false)
   })

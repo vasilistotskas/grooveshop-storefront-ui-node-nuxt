@@ -4,8 +4,8 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 /**
  * «Ένας χρόνος στη Φυτειά»: the store's writing as season cards.
  *
- * The data is the base band's, unchanged (`useBlogRail`: the same
- * request, key and blog-flag gate), so only the drawing differs. Each
+ * The data is the base band's, unchanged (`posts`, a data setting the page
+ * route resolved), so only the drawing differs. Each
  * card names the season its post was published in and the month and year
  * beside it, then the title, the subtitle when the post has one, and a
  * "read" link that carries the title for screen readers. Serves both
@@ -18,21 +18,16 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 // band does not read must not fall through onto it as DOM attributes.
 defineOptions({ inheritAttrs: false })
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
   title?: string
   heading?: string
   subheading?: string
   ctaText?: string
   ctaLink?: string
-  categoryId?: number
-  /** `blog_posts_grid`'s count. */
-  count?: number
-  /** `blog_posts_list`'s, spelled the way that section type spells it. */
-  pageSize?: number
-}>(), {
-  count: 3,
-})
+  /** What the band lists: the posts, read by the page route. */
+  posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
+}>()
 
 const BLOG_PATH = '/blog'
 
@@ -54,12 +49,7 @@ const SEASON_BY_MONTH = [
 const { t, locale } = useStoreI18n('components/PageSection/variants/ekfyseosfyteias/BlogPosts')
 const { blogPostUrl } = useUrls()
 
-const { posts, hasPosts } = await useBlogRail({
-  count: () => props.pageSize ?? props.count,
-  categoryId: () => props.categoryId,
-})
-
-const cards = computed(() => posts.value.map(post => ({
+const cards = computed(() => props.posts.items.map(post => ({
   id: post.id,
   image: post.mainImagePath,
   title: extractTranslated(post, 'title', locale.value) ?? '',
@@ -74,7 +64,7 @@ const cards = computed(() => posts.value.map(post => ({
 
 <template>
   <section
-    v-if="hasPosts"
+    v-if="posts.items.length"
     class="bg-(--fy-ground)"
     data-fy-surface="ground"
   >

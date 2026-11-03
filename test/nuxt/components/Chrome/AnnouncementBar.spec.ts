@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ChromeAnnouncementBar from '~/components/Chrome/AnnouncementBar.vue'
+import WebsideAnnouncementBar from '~/components/variants/webside/Chrome/AnnouncementBar.vue'
+import { trees } from '~~/test/helpers/trees'
 
 /**
- * The operator's strip above the header: rendered from the
+ * The operator's strip above the header, in both designs: rendered from the
  * `announcementBar` Django serves typed on `/settings/public`, ink unless
  * the operator picked a colour, and nothing at all when there is none or it
  * is switched off.
@@ -21,9 +23,9 @@ const bar = (value: Partial<AnnouncementBar>): AnnouncementBar => ({
   ...value,
 })
 
-const mountBar = () => mountSuspended(ChromeAnnouncementBar, { route: false })
+describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrome/AnnouncementBar', ({ tree, C }) => {
+  const mountBar = () => mountSuspended(C, { route: false })
 
-describe('Chrome/AnnouncementBar', () => {
   beforeEach(() => {
     setting.value = null
   })
@@ -83,14 +85,16 @@ describe('Chrome/AnnouncementBar', () => {
       expect(spans).toHaveLength(1)
     })
 
-    it('prints the code as a mono chip on the volt fill', async () => {
+    it('prints the code as a mono chip on a fill', async () => {
       setting.value = bar({ code: 'WELCOME10' })
 
       const chip = (await mountBar()).find('[data-slot="title"] .font-mono')
 
       expect(chip.text()).toBe('WELCOME10')
-      // The fill pairing is the contract: volt text would fail contrast.
-      expect(chip.classes()).toEqual(expect.arrayContaining(['bg-volt', 'text-on-volt']))
+      // The fill pairing is the contract: coloured text would fail contrast.
+      expect(chip.classes()).toEqual(expect.arrayContaining(
+        tree === 'webside' ? ['bg-default', 'text-highlighted'] : ['bg-volt', 'text-on-volt'],
+      ))
     })
 
     it('keeps a long sentence on the one fixed-height line at every width', async () => {

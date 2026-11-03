@@ -1,34 +1,34 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { clearNuxtData } from '#app'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogCategories from '~/components/PageSection/BlogCategories.vue'
+import { makeBlogCategory } from '~~/test/fixtures/blog'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
-const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-mockNuxtImport('$api', () => api)
-mockNuxtImport('$fetch', () => api)
+/** The `categories` data setting as the page route hands it over. */
+const categories = (ids: number[]) => ({
+  status: ids.length ? 'ok' : 'empty',
+  items: ids.map(id => makeBlogCategory({ id, translations: { el: { name: `Νέα ${id}` } } as BlogCategory['translations'] })),
+  descriptor: { limit: 10 },
+}) as ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 
-const CATEGORIES_URL = '/api/blog/categories'
-
-const mountBand = () => mountSuspended(BlogCategories, {
-  route: false,
-  props: { title: 'Κατηγορίες' },
-  global: { stubs: { BlogCategoriesSlider: { template: '<div data-test="slider" />' } } },
-})
+const mountBand = (props: Record<string, unknown> = {}, stubs: Record<string, object> = { BlogCategoriesSlider: { template: '<div data-test="slider" />' } }) =>
+  mountSuspended(BlogCategories, {
+    route: false,
+    props: { title: 'Κατηγορίες', categories: categories([1]), ...props },
+    global: { stubs },
+  })
 
 /**
  * The blog's categories as a band. It shipped with a `v-if` that checked
  * only the tenant flag, which is true on a store that has a blog and
  * nothing in it yet; on the demo store this section is FIRST, so a shop
- * with no posts opened on 80px of blank page.
+ * with no posts opened on 80px of blank page. The categories arrive read
+ * (the page route resolved them), so the band fetches nothing.
  */
 describe('PageSection/BlogCategories', () => {
   beforeEach(() => {
-    // Cached under one key per language (`blog-categories-el`).
-    clearNuxtData()
     setTenant()
     setTenantFeatures({ blog: true })
-    api.routes({ [CATEGORIES_URL]: { results: [{ id: 1, slug: 'news', translations: { el: { name: 'Νέα' } } }], count: 1 } })
   })
 
   it('draws the band once the blog has categories', async () => {
@@ -36,37 +36,17 @@ describe('PageSection/BlogCategories', () => {
 
     expect(wrapper.find('h2').text()).toBe('Κατηγορίες')
     expect(wrapper.find('[data-test="slider"]').exists()).toBe(true)
-    expect(api.callsTo(CATEGORIES_URL)[0]!.options.query).toEqual({ pageSize: 100, languageCode: 'el' })
   })
 
-  // One fetch feeds the band and its rail: they used to read the same key
-  // with different page sizes and options.
-  it('hands the rail the categories it fetched, in one request', async () => {
-    const wrapper = await mountSuspended(BlogCategories, {
-      route: false,
-      props: { title: 'Κατηγορίες' },
-      global: { stubs: { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } } },
-    })
+  it('hands the rail the categories it was given', async () => {
+    const wrapper = await mountBand({}, { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } })
 
-    expect(wrapper.text()).toContain('Νέα')
-    expect(api.callsTo(CATEGORIES_URL)).toHaveLength(1)
+    expect(wrapper.text()).toContain('Νέα 1')
   })
 
   it('draws no band when the blog has no categories', async () => {
-    api.routes({ [CATEGORIES_URL]: { results: [], count: 0 } })
+    const wrapper = await mountBand({ categories: categories([]) })
 
-    const wrapper = await mountBand()
-
-    expect(api.callsTo(CATEGORIES_URL)).toHaveLength(1)
-    expect(wrapper.find('section').exists()).toBe(false)
-  })
-
-  it('asks for nothing and draws nothing when the tenant has no blog', async () => {
-    setTenantFeatures({ blog: false })
-
-    const wrapper = await mountBand()
-
-    expect(api.callsTo(CATEGORIES_URL)).toEqual([])
     expect(wrapper.find('section').exists()).toBe(false)
   })
 })
