@@ -1,3 +1,10 @@
+# [3.309.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.308.0...v3.309.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** edit the list and record settings of a block in the editor ([#364](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/364)) ([b10325c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b10325c58e58b6b17e71d35b7c25dc4b53e55027))
+
 # [3.308.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.307.1...v3.308.0) (2026-11-03)
 
 
