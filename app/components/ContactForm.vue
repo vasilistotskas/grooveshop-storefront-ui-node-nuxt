@@ -14,9 +14,17 @@ import type { FormSubmitEvent } from '#ui/types'
  * and the enquiry only carries their ids.
  */
 const { t, locale } = useStoreI18n('components/ContactForm')
-const toast = useToast()
 const localePath = useLocalePath()
-const attachments = useContactAttachments()
+const {
+  attachments,
+  filePicker,
+  isDropTarget,
+  attachmentMessage,
+  onFilesPicked,
+  onDrop,
+  readyToSend,
+  attachmentIds,
+} = useContactAttachmentsControl({ t })
 const { fields, isSubmitting, send } = useContactEnquiry({ t })
 
 const TOPICS = ['order', 'product', 'delivery', 'account', 'other'] as const
@@ -45,65 +53,15 @@ const state = reactive<{
   consent: undefined,
 })
 
-// ── Attachments ─────────────────────────────────────────────────────
-const filePicker = useTemplateRef<HTMLInputElement>('filePicker')
-const isDropTarget = ref(false)
-
-/**
- * The composable reports a CODE; what it means is said here, in the
- * visitor's language. A rejection carries Django's own wording.
- */
-function attachmentMessage(error: AttachmentError): string {
-  if (error.code === 'too-large') {
-    // Django's own refusal can arrive while the store's limit is unreadable.
-    const mb = attachments.maxMegabytes.value
-    return mb === null ? t('files.too_large_unknown') : t('files.too_large', { mb })
-  }
-  if (error.code === 'too-many') return t('files.too_many', { count: attachments.maxCount.value })
-  if (error.code === 'throttled') return t('files.throttled')
-  if (error.code === 'busy') return t('files.busy')
-  if (error.code === 'network') return t('files.network')
-  return isDrfFieldErrorMap(error.data)
-    ? formatDrfFieldErrors(error.data, t)
-    : t('files.rejected')
-}
-
-function onFilesPicked(files: FileList | null) {
-  if (!files?.length) return
-  for (const refusal of attachments.add(Array.from(files))) {
-    toast.add({
-      title: t('files.not_added'),
-      description: attachmentMessage(refusal),
-      color: 'error',
-    })
-  }
-  // So picking the same file again after removing it still fires `change`.
-  if (filePicker.value) filePicker.value.value = ''
-}
-
-function onDrop(event: DragEvent) {
-  isDropTarget.value = false
-  onFilesPicked(event.dataTransfer?.files ?? null)
-}
-
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  // An upload still in flight has no id yet, and submitting would
-  // silently drop it.
-  if (attachments.isUploading.value) {
-    toast.add({ title: t('files.uploading'), color: 'warning' })
-    return
-  }
+  if (!readyToSend()) return
   const sent = await send({
     name: event.data.name,
     email: event.data.email,
     message: event.data.message,
     subject: event.data.topic ? t(`topics.${event.data.topic}`) : undefined,
-    // Ids of files already uploaded and not yet claimed; omitted
-    // when there are none, so a store with attachments off never
-    // sends the field.
-    attachmentIds: attachments.attachmentIds.value.length
-      ? attachments.attachmentIds.value
-      : undefined,
+    // Ids of files already uploaded and not yet claimed.
+    attachmentIds: attachmentIds.value,
   })
   if (!sent) return
 
