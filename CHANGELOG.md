@@ -1,3 +1,10 @@
+# [3.297.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.296.0...v3.297.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** translate a page into every language the store serves ([#342](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/342)) ([edf5fdd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/edf5fdde2e44f5d32ffd5a4e139df8ca7393c132))
+
 # [3.296.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.295.0...v3.296.0) (2026-11-03)
 
 
