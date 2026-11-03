@@ -1,3 +1,10 @@
+## [3.319.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.1...v3.319.2) (2026-11-03)
+
+
+### Bug Fixes
+
+* **seo:** category trail, primary image, X cards and page headings ([#376](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/376)) ([d887703](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d887703c550cc72d877735283601939bb32a1518))
+
 ## [3.319.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.0...v3.319.1) (2026-11-03)
 
 
