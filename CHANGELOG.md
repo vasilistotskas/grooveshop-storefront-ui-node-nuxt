@@ -1,3 +1,10 @@
+# [3.312.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.311.0...v3.312.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** move the blog bands onto the data settings ([#367](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/367)) ([b851661](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b851661950bee76f5407a8cc1b3bb3ff1b7a762c))
+
 # [3.311.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.310.0...v3.311.0) (2026-11-03)
 
 
