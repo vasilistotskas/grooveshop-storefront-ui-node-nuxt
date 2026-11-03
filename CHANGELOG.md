@@ -1,3 +1,10 @@
+# [3.305.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.304.0...v3.305.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** OKLCH colour maths and the theme scales ([#356](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/356)) ([57457c9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/57457c92248dac5373723f9051b65af39643a2fd))
+
 # [3.304.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.303.1...v3.304.0) (2026-11-03)
 
 
