@@ -1,3 +1,10 @@
+## [3.307.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.307.0...v3.307.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **test:** boot Nuxt once per run, in a build folder of its own ([#357](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/357)) ([25654d3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/25654d3d0bce216e76e337b4cf4f9298b1237c28)), closes [nuxt/fonts#962](https://github.com/nuxt/fonts/issues/962)
+
 # [3.307.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.306.0...v3.307.0) (2026-11-03)
 
 
