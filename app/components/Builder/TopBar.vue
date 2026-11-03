@@ -50,6 +50,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       @click="() => emit('openOutline')"
     />
     <BuilderDocumentSwitcher class="w-44 min-w-0 sm:w-64" />
+    <BuilderLocaleSwitcher />
 
     <UPopover v-if="!store.canEdit">
       <UButton

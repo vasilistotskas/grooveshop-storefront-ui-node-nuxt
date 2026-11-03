@@ -12,7 +12,8 @@ const props = defineProps<{
 const { t } = useStoreI18n('components/Builder/Canvas')
 const { documentLabel, nodeLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
-const { device, selected, openDocument, select, setDevice } = useBuilderEditorView()
+const { device, selected, locale, openDocument, select, setDevice } = useBuilderEditorView()
+const localePath = useLocalePath()
 const toast = useToast()
 
 const frame = useTemplateRef<HTMLIFrameElement>('frame')
@@ -22,10 +23,14 @@ const { width: paneWidth, height: paneHeight } = useElementSize(pane)
 /** Where the canvas stands: drawing the copies it was sent, showing them, or showing the last it could. */
 const state = ref<'loading' | 'drawn' | 'failed'>('loading')
 
-/** The store page that draws the document, asked for as the preview (`BUILDER_CANVAS_QUERY`). */
+/**
+ * The store page that draws the document, asked for as the preview
+ * (`BUILDER_CANVAS_QUERY`), in the language being edited: the page then
+ * asks for the preview in it (`X-Language`), and draws its own texts in it.
+ */
 const src = computed(() => {
   const path = builderDocumentPath(props.documentKey)
-  return path === undefined ? undefined : `${path}?${BUILDER_CANVAS_QUERY}`
+  return path === undefined ? undefined : `${localePath(pathLocation(path), locale.value)}?${BUILDER_CANVAS_QUERY}`
 })
 watch(src, () => {
   state.value = 'loading'
