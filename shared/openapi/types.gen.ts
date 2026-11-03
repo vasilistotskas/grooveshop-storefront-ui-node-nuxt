@@ -5219,9 +5219,11 @@ export type PatchedProductImageWriteRequest = {
   translations?: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }
@@ -5898,6 +5900,7 @@ export type ProductAttribute = {
      */
   readonly value: string
   readonly createdAt: string
+  schemaProperty: SchemaPropertyEnum | BlankEnum
 }
 
 /**
@@ -6349,9 +6352,11 @@ export type ProductImage = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
   readonly mainImagePath: string
@@ -6375,9 +6380,11 @@ export type ProductImageDetail = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
   readonly mainImagePath: string
@@ -6410,9 +6417,11 @@ export type ProductImageWriteRequest = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }
@@ -7427,6 +7436,16 @@ export type ScheduleWriteRequest = {
   scheduledFor: string
   note?: string
 }
+
+/**
+ * * `color` - Χρώμα
+ * * `size` - Μέγεθος
+ * * `material` - Υλικό
+ * * `pattern` - Σχέδιο
+ * * `suggestedAge` - Προτεινόμενη ηλικία
+ * * `suggestedGender` - Προτεινόμενο φύλο
+ */
+export type SchemaPropertyEnum = 'color' | 'size' | 'material' | 'pattern' | 'suggestedAge' | 'suggestedGender'
 
 /**
  * Serializer for search analytics response.
@@ -8673,6 +8692,7 @@ export type VariantAxis = {
   id: number
   name: string
   values: Array<VariantAxisValue>
+  schemaProperty: SchemaPropertyEnum | BlankEnum
 }
 
 /**
@@ -10537,9 +10557,11 @@ export type ProductImageWritable = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }
@@ -10556,9 +10578,11 @@ export type ProductImageDetailWritable = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }

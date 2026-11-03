@@ -44378,10 +44378,14 @@ components:
               properties:
                 title:
                   type: string
+                altText:
+                  type: string
             en:
               type: object
               properties:
                 title:
+                  type: string
+                altText:
                   type: string
     PatchedProductReviewWriteRequest:
       type: object
@@ -45656,6 +45660,11 @@ components:
           type: string
           format: date-time
           readOnly: true
+        schemaProperty:
+          readOnly: true
+          oneOf:
+            - $ref: '#/components/schemas/SchemaPropertyEnum'
+            - $ref: '#/components/schemas/BlankEnum'
       required:
         - attributeId
         - attributeName
@@ -45663,6 +45672,7 @@ components:
         - createdAt
         - id
         - isVariant
+        - schemaProperty
         - value
     ProductBrief:
       type: object
@@ -46812,10 +46822,14 @@ components:
               properties:
                 title:
                   type: string
+                altText:
+                  type: string
             en:
               type: object
               properties:
                 title:
+                  type: string
+                altText:
                   type: string
         mainImagePath:
           type: string
@@ -46870,10 +46884,14 @@ components:
               properties:
                 title:
                   type: string
+                altText:
+                  type: string
             en:
               type: object
               properties:
                 title:
+                  type: string
+                altText:
                   type: string
         mainImagePath:
           type: string
@@ -46945,10 +46963,14 @@ components:
               properties:
                 title:
                   type: string
+                altText:
+                  type: string
             en:
               type: object
               properties:
                 title:
+                  type: string
+                altText:
                   type: string
       required:
         - image
@@ -49099,6 +49121,22 @@ components:
       required:
         - documents
         - scheduledFor
+    SchemaPropertyEnum:
+      enum:
+        - color
+        - size
+        - material
+        - pattern
+        - suggestedAge
+        - suggestedGender
+      type: string
+      description: |-
+        * `color` - Χρώμα
+        * `size` - Μέγεθος
+        * `material` - Υλικό
+        * `pattern` - Σχέδιο
+        * `suggestedAge` - Προτεινόμενη ηλικία
+        * `suggestedGender` - Προτεινόμενο φύλο
     SearchAnalyticsResponse:
       type: object
       description: Serializer for search analytics response.
@@ -51447,9 +51485,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/VariantAxisValue'
+        schemaProperty:
+          oneOf:
+            - $ref: '#/components/schemas/SchemaPropertyEnum'
+            - $ref: '#/components/schemas/BlankEnum'
       required:
         - id
         - name
+        - schemaProperty
         - values
     VariantAxisValue:
       type: object

@@ -1036,6 +1036,7 @@ describe.each([
     attributeId: 7,
     attributeName: 'Χωρητικότητα',
     isVariant: false,
+    schemaProperty: '',
     attributeValueId: 70,
     value: '5000 mAh',
     createdAt: '2026-01-01T00:00:00Z',

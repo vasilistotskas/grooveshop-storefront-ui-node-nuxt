@@ -2411,9 +2411,11 @@ export const zPatchedProductImageWriteRequest = z.object({
   translations: z.object({
     el: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
     en: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
   }).optional(),
 })
@@ -2878,148 +2880,6 @@ export const zProductAlertRequest = z.object({
 })
 
 /**
- * Serializer for ProductAttribute with nested attribute and value info.
- */
-export const zProductAttribute = z.object({
-  id: z.int().readonly(),
-  attributeId: z.int().readonly(),
-  attributeName: z.string().readonly(),
-  isVariant: z.boolean().readonly(),
-  attributeValueId: z.int(),
-  value: z.string().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProduct = z.object({
-  id: z.int().readonly(),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-  }),
-  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int().readonly().nullable(),
-  variantGroup: z.int().readonly().nullable(),
-  brand: z.int().readonly().nullable(),
-  brandName: z.string().readonly().nullable(),
-  price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
-  viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).readonly(),
-  lowStockThreshold: z.int().readonly(),
-  active: z.boolean().readonly(),
-  weight: z.object({
-    unit: z.string().optional(),
-    value: z.number().optional(),
-  }).nullish(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  announcedDiscountPercent: z.int().readonly().nullable(),
-  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  imagePaths: z.array(z.string()).readonly(),
-  reviewAverage: z.number().readonly(),
-  reviewCount: z.int().readonly(),
-  likesCount: z.int().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  attributes: z.array(zProductAttribute).readonly(),
-  offerKind: z.union([
-    zOfferKindEnum,
-    zNullEnum,
-  ]).nullish(),
-  variantGroupTitle: z.string().readonly().nullable(),
-})
-
-export const zCartItem = z.object({
-  id: z.int().readonly(),
-  cartId: z.string().readonly(),
-  product: zProduct,
-  quantity: z.int().gte(0).lte(2147483647).optional(),
-  weightInfo: z.object({
-    unitWeight: z.number(),
-    totalWeight: z.number(),
-    weightUnit: z.string(),
-  }).readonly(),
-  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
-  discountPercent: z.number().readonly(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-})
-
-export const zOrderItemDetail = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  order: z.int(),
-  product: zProduct,
-  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  quantity: z.int().gte(-2147483648).lte(2147483647).optional(),
-  isRefunded: z.boolean().readonly(),
-  refundedQuantity: z.int().readonly(),
-  netQuantity: z.int().readonly(),
-  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  originalQuantity: z.int().readonly().nullable(),
-  refundedAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  netPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  sortOrder: z.int().readonly().nullable(),
-  notes: z.string().optional(),
-})
-
-export const zPaginatedCartItemList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zCartItem),
-})
-
-export const zPaginatedProductList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zProduct),
-})
-
-/**
  * Minimal product representation for use in list-level review serializer.
  */
 export const zProductBrief = z.object({
@@ -3279,148 +3139,6 @@ export const zProductCategoryWriteRequest = z.object({
   parent: z.int().nullish(),
 })
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductDetail = z.object({
-  id: z.int().readonly(),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-  }),
-  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int().readonly().nullable(),
-  variantGroup: z.int().readonly().nullable(),
-  brand: z.int().readonly().nullable(),
-  brandName: z.string().readonly().nullable(),
-  price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
-  viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).readonly(),
-  lowStockThreshold: z.int().readonly(),
-  active: z.boolean().readonly(),
-  weight: z.object({
-    unit: z.string().optional(),
-    value: z.number().optional(),
-  }).nullish(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  announcedDiscountPercent: z.int().readonly().nullable(),
-  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  imagePaths: z.array(z.string()).readonly(),
-  reviewAverage: z.number().readonly(),
-  reviewCount: z.int().readonly(),
-  likesCount: z.int().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  attributes: z.array(zProductAttribute).readonly(),
-  offerKind: z.union([
-    zOfferKindEnum,
-    zNullEnum,
-  ]).nullish(),
-  variantGroupTitle: z.string().readonly().nullable(),
-  priceDropAlertsEnabled: z.boolean().readonly(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductDetailResponse = z.object({
-  id: z.int().readonly(),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-  }),
-  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int().readonly().nullable(),
-  variantGroup: z.int().readonly().nullable(),
-  brand: z.int().readonly().nullable(),
-  brandName: z.string().readonly().nullable(),
-  price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
-  viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).readonly(),
-  lowStockThreshold: z.int().readonly(),
-  active: z.boolean().readonly(),
-  weight: z.object({
-    unit: z.string().optional(),
-    value: z.number().optional(),
-  }).nullish(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  announcedDiscountPercent: z.int().readonly().nullable(),
-  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  imagePaths: z.array(z.string()).readonly(),
-  reviewAverage: z.number().readonly(),
-  reviewCount: z.int().readonly(),
-  likesCount: z.int().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  attributes: z.array(zProductAttribute).readonly(),
-  offerKind: z.union([
-    zOfferKindEnum,
-    zNullEnum,
-  ]).nullish(),
-  variantGroupTitle: z.string().readonly().nullable(),
-  priceDropAlertsEnabled: z.boolean().readonly(),
-})
-
-export const zProductFavourite = z.object({
-  id: z.int().readonly(),
-  userId: z.int().readonly(),
-  userUsername: z.string().readonly().nullable(),
-  product: zProductDetail,
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-})
-
-export const zPaginatedProductFavouriteList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zProductFavourite),
-})
-
 export const zProductFavouriteByProductsRequestRequest = z.object({
   productIds: z.array(z.int()).max(100),
 })
@@ -3430,17 +3148,6 @@ export const zProductFavouriteByProductsResponse = z.object({
   userId: z.int(),
   productId: z.int(),
   createdAt: z.iso.datetime({ offset: true }),
-})
-
-export const zProductFavouriteDetail = z.object({
-  id: z.int().readonly(),
-  userId: z.int().readonly(),
-  userUsername: z.string().readonly().nullable(),
-  product: zProductDetail,
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  user: z.string().readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
 })
 
 export const zProductFavouriteWrite = z.object({
@@ -3466,9 +3173,11 @@ export const zProductImage = z.object({
   translations: z.object({
     el: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
     en: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
   }),
   mainImagePath: z.string().readonly(),
@@ -3491,42 +3200,6 @@ export const zPaginatedProductImageList = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zProductImageDetail = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  product: zProduct,
-  image: z.url(),
-  altText: z.string().readonly(),
-  isMain: z.boolean().optional(),
-  sortOrder: z.int().readonly().nullable(),
-  translations: z.object({
-    el: z.object({
-      title: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      title: z.string().optional(),
-    }).optional(),
-  }),
-  mainImagePath: z.string().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  imageDimensions: z.object({
-    width: z.number().optional(),
-    height: z.number().optional(),
-    aspectRatio: z.number().optional(),
-  }).readonly(),
-  imageFormat: z.string().readonly(),
-  usageContext: z.object({
-    isMain: z.boolean().optional(),
-    positionInGallery: z.number().optional(),
-    totalProductImages: z.number().optional(),
-    recommendedFor: z.string().optional(),
-  }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zProductImageWriteRequest = z.object({
   product: z.int(),
   image: z.string(),
@@ -3534,9 +3207,11 @@ export const zProductImageWriteRequest = z.object({
   translations: z.object({
     el: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
     en: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
   }),
 })
@@ -3622,45 +3297,6 @@ export const zProductPriceHistory = z.object({
 })
 
 /**
- * A single sibling product within a variant group, trimmed to what a
- * storefront swatch card needs: identity, image, price and its
- * variant-axis attribute values (Colour, Memory, …). Its price fields
- * are the product's, so a variant shows what a shopper pays and the
- * Omnibus-lawful announcement exactly as the product card does.
- */
-export const zProductVariant = z.object({
-  id: z.int().readonly(),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-  }),
-  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
-  active: z.boolean().readonly(),
-  stock: z.int().readonly(),
-  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  announcedDiscountPercent: z.int().readonly().nullable(),
-  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  attributeValues: z.array(zProductAttribute).readonly(),
-})
-
-/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductWriteRequest = z.object({
@@ -3711,130 +3347,6 @@ export const zPromotionProductRef = z.object({
   name: z.string().readonly(),
   slug: z.string().readonly(),
   mainImagePath: z.string().readonly(),
-})
-
-export const zCart = z.object({
-  id: z.int().readonly(),
-  user: z.int().nullish(),
-  uuid: z.uuid().readonly(),
-  items: z.array(zCartItem).readonly(),
-  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalVatValue: z.number().readonly(),
-  totalItems: z.union([
-    z.int(),
-    z.literal(0),
-  ]),
-  totalItemsUnique: z.int().readonly(),
-  totalWeightGrams: z.int().readonly(),
-  currency: z.string().readonly(),
-  promotionDiscount: z.number().readonly(),
-  freeThresholdValue: z.number().readonly(),
-  appliedPromotions: z.array(z.object({
-    promotionId: z.int().optional(),
-    name: z.string().optional(),
-    code: z.string().nullish(),
-    amount: z.number().optional(),
-  })).readonly(),
-  promotionFreeShipping: z.boolean().readonly(),
-  freeShippingProgress: z.object({
-    free: z.boolean(),
-    source: z.enum(['threshold', 'promotion']),
-    remainingAmount: z.number().nullable(),
-    remainingQuantity: z.int().nullable(),
-    threshold: z.number().nullable(),
-    countryCode: z.string().nullable(),
-  }).readonly().nullable(),
-  appliedCouponCodes: z.array(z.string()).readonly(),
-  appliedCoupons: z.array(z.object({
-    code: z.string(),
-    amount: z.number(),
-    freeShipping: z.boolean(),
-    gift: z.boolean(),
-    rejection: z.enum([
-      'discount_code_invalid',
-      'discount_code_expired',
-      'discount_code_not_started',
-      'discount_code_minimum_not_met',
-      'discount_code_usage_limit_reached',
-      'discount_code_combination_disallowed',
-      'discount_code_user_ineligible',
-      'discount_code_not_applicable',
-      'discount_code_gift_unavailable',
-    ]).nullable(),
-  })).readonly(),
-  promotionGiftItems: z.array(z.object({
-    promotionId: z.int().optional(),
-    name: z.string().optional(),
-    productId: z.int().optional(),
-    productName: z.string().optional(),
-    productImagePath: z.string().optional(),
-    quantity: z.int().optional(),
-  })).readonly(),
-  promotionNearMiss: z.array(z.object({
-    promotionId: z.int(),
-    name: z.string(),
-    remainingAmount: z.number().nullable(),
-    remainingQuantity: z.int().nullable(),
-    rewardProducts: z.array(zPromotionProductRef),
-    freeShipping: z.boolean(),
-  })).readonly(),
-  b2bPricing: z.object({
-    applied: z.boolean().optional(),
-    groupName: z.string().optional(),
-    allowPromotions: z.boolean().optional(),
-    allowLoyalty: z.boolean().optional(),
-    minOrderValue: z.string().optional(),
-    belowMinimum: z.boolean().optional(),
-  }).readonly().nullable(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  lastActivity: z.iso.datetime({ offset: true }).readonly(),
-})
-
-/**
- * The line an add or a quantity change wrote, plus the whole cart it
- * now sits in, so a client shows the new state without a second ``GET``.
- *
- * ``cart`` is the same body as ``GET /cart``, read from the cart the
- * request resolved (``context["cart"]``) after the write.
- */
-export const zCartItemMutationResponse = z.object({
-  id: z.int().readonly(),
-  cartId: z.string().readonly(),
-  product: zProduct,
-  quantity: z.int().gte(0).lte(2147483647).optional(),
-  weightInfo: z.object({
-    unitWeight: z.number(),
-    totalWeight: z.number(),
-    weightUnit: z.string(),
-  }).readonly(),
-  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
-  discountPercent: z.number().readonly(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  cart: zCart,
-})
-
-export const zPaginatedCartList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zCart),
 })
 
 export const zPublishProblem = z.object({
@@ -3936,71 +3448,6 @@ export const zProductReviewWriteRequest = z.object({
 export const zRatingDistribution = z.object({
   rate: z.int(),
   count: z.int(),
-})
-
-/**
- * The product page's own payload.
- *
- * ``ProductDetailSerializer`` is also nested in list payloads
- * (favourites), where the distribution query would run once per row,
- * so the extra field lives on this single-object subclass.
- */
-export const zProductRetrieve = z.object({
-  id: z.int().readonly(),
-  translations: z.object({
-    el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-  }),
-  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int().readonly().nullable(),
-  variantGroup: z.int().readonly().nullable(),
-  brand: z.int().readonly().nullable(),
-  brandName: z.string().readonly().nullable(),
-  price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
-  viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).readonly(),
-  lowStockThreshold: z.int().readonly(),
-  active: z.boolean().readonly(),
-  weight: z.object({
-    unit: z.string().optional(),
-    value: z.number().optional(),
-  }).nullish(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
-  announcedDiscountPercent: z.int().readonly().nullable(),
-  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  imagePaths: z.array(z.string()).readonly(),
-  reviewAverage: z.number().readonly(),
-  reviewCount: z.int().readonly(),
-  likesCount: z.int().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  attributes: z.array(zProductAttribute).readonly(),
-  offerKind: z.union([
-    zOfferKindEnum,
-    zNullEnum,
-  ]).nullish(),
-  variantGroupTitle: z.string().readonly().nullable(),
-  priceDropAlertsEnabled: z.boolean().readonly(),
-  ratingDistribution: z.array(zRatingDistribution).readonly(),
 })
 
 /**
@@ -4322,6 +3769,588 @@ export const zScheduleWriteRequest = z.object({
   documents: z.array(z.string().min(1).max(80)),
   scheduledFor: z.iso.datetime({ offset: true }),
   note: z.string().max(255).optional().default(''),
+})
+
+/**
+ * * `color` - Χρώμα
+ * * `size` - Μέγεθος
+ * * `material` - Υλικό
+ * * `pattern` - Σχέδιο
+ * * `suggestedAge` - Προτεινόμενη ηλικία
+ * * `suggestedGender` - Προτεινόμενο φύλο
+ */
+export const zSchemaPropertyEnum = z.enum([
+  'color',
+  'size',
+  'material',
+  'pattern',
+  'suggestedAge',
+  'suggestedGender',
+])
+
+/**
+ * Serializer for ProductAttribute with nested attribute and value info.
+ */
+export const zProductAttribute = z.object({
+  id: z.int().readonly(),
+  attributeId: z.int().readonly(),
+  attributeName: z.string().readonly(),
+  isVariant: z.boolean().readonly(),
+  attributeValueId: z.int(),
+  value: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  schemaProperty: z.union([
+    zSchemaPropertyEnum,
+    zBlankEnum,
+  ]),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProduct = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int().readonly().nullable(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  viewCount: z.int().readonly(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
+  lowStockThreshold: z.int().readonly(),
+  active: z.boolean().readonly(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  likesCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
+})
+
+export const zCartItem = z.object({
+  id: z.int().readonly(),
+  cartId: z.string().readonly(),
+  product: zProduct,
+  quantity: z.int().gte(0).lte(2147483647).optional(),
+  weightInfo: z.object({
+    unitWeight: z.number(),
+    totalWeight: z.number(),
+    weightUnit: z.string(),
+  }).readonly(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  priceSavePercent: z.number().readonly(),
+  discountPercent: z.number().readonly(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+})
+
+export const zCart = z.object({
+  id: z.int().readonly(),
+  user: z.int().nullish(),
+  uuid: z.uuid().readonly(),
+  items: z.array(zCartItem).readonly(),
+  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalVatValue: z.number().readonly(),
+  totalItems: z.union([
+    z.int(),
+    z.literal(0),
+  ]),
+  totalItemsUnique: z.int().readonly(),
+  totalWeightGrams: z.int().readonly(),
+  currency: z.string().readonly(),
+  promotionDiscount: z.number().readonly(),
+  freeThresholdValue: z.number().readonly(),
+  appliedPromotions: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    code: z.string().nullish(),
+    amount: z.number().optional(),
+  })).readonly(),
+  promotionFreeShipping: z.boolean().readonly(),
+  freeShippingProgress: z.object({
+    free: z.boolean(),
+    source: z.enum(['threshold', 'promotion']),
+    remainingAmount: z.number().nullable(),
+    remainingQuantity: z.int().nullable(),
+    threshold: z.number().nullable(),
+    countryCode: z.string().nullable(),
+  }).readonly().nullable(),
+  appliedCouponCodes: z.array(z.string()).readonly(),
+  appliedCoupons: z.array(z.object({
+    code: z.string(),
+    amount: z.number(),
+    freeShipping: z.boolean(),
+    gift: z.boolean(),
+    rejection: z.enum([
+      'discount_code_invalid',
+      'discount_code_expired',
+      'discount_code_not_started',
+      'discount_code_minimum_not_met',
+      'discount_code_usage_limit_reached',
+      'discount_code_combination_disallowed',
+      'discount_code_user_ineligible',
+      'discount_code_not_applicable',
+      'discount_code_gift_unavailable',
+    ]).nullable(),
+  })).readonly(),
+  promotionGiftItems: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    productId: z.int().optional(),
+    productName: z.string().optional(),
+    productImagePath: z.string().optional(),
+    quantity: z.int().optional(),
+  })).readonly(),
+  promotionNearMiss: z.array(z.object({
+    promotionId: z.int(),
+    name: z.string(),
+    remainingAmount: z.number().nullable(),
+    remainingQuantity: z.int().nullable(),
+    rewardProducts: z.array(zPromotionProductRef),
+    freeShipping: z.boolean(),
+  })).readonly(),
+  b2bPricing: z.object({
+    applied: z.boolean().optional(),
+    groupName: z.string().optional(),
+    allowPromotions: z.boolean().optional(),
+    allowLoyalty: z.boolean().optional(),
+    minOrderValue: z.string().optional(),
+    belowMinimum: z.boolean().optional(),
+  }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  lastActivity: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export const zCartItemMutationResponse = z.object({
+  id: z.int().readonly(),
+  cartId: z.string().readonly(),
+  product: zProduct,
+  quantity: z.int().gte(0).lte(2147483647).optional(),
+  weightInfo: z.object({
+    unitWeight: z.number(),
+    totalWeight: z.number(),
+    weightUnit: z.string(),
+  }).readonly(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  priceSavePercent: z.number().readonly(),
+  discountPercent: z.number().readonly(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  cart: zCart,
+})
+
+export const zOrderItemDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  order: z.int(),
+  product: zProduct,
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  quantity: z.int().gte(-2147483648).lte(2147483647).optional(),
+  isRefunded: z.boolean().readonly(),
+  refundedQuantity: z.int().readonly(),
+  netQuantity: z.int().readonly(),
+  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  originalQuantity: z.int().readonly().nullable(),
+  refundedAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  netPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  sortOrder: z.int().readonly().nullable(),
+  notes: z.string().optional(),
+})
+
+export const zPaginatedCartItemList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zCartItem),
+})
+
+export const zPaginatedCartList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zCart),
+})
+
+export const zPaginatedProductList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zProduct),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductDetail = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int().readonly().nullable(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  viewCount: z.int().readonly(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
+  lowStockThreshold: z.int().readonly(),
+  active: z.boolean().readonly(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  likesCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
+  priceDropAlertsEnabled: z.boolean().readonly(),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductDetailResponse = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int().readonly().nullable(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  viewCount: z.int().readonly(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
+  lowStockThreshold: z.int().readonly(),
+  active: z.boolean().readonly(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  likesCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
+  priceDropAlertsEnabled: z.boolean().readonly(),
+})
+
+export const zProductFavourite = z.object({
+  id: z.int().readonly(),
+  userId: z.int().readonly(),
+  userUsername: z.string().readonly().nullable(),
+  product: zProductDetail,
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+})
+
+export const zPaginatedProductFavouriteList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zProductFavourite),
+})
+
+export const zProductFavouriteDetail = z.object({
+  id: z.int().readonly(),
+  userId: z.int().readonly(),
+  userUsername: z.string().readonly().nullable(),
+  product: zProductDetail,
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  user: z.string().readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductImageDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  product: zProduct,
+  image: z.url(),
+  altText: z.string().readonly(),
+  isMain: z.boolean().optional(),
+  sortOrder: z.int().readonly().nullable(),
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      altText: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      altText: z.string().optional(),
+    }).optional(),
+  }),
+  mainImagePath: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  imageDimensions: z.object({
+    width: z.number().optional(),
+    height: z.number().optional(),
+    aspectRatio: z.number().optional(),
+  }).readonly(),
+  imageFormat: z.string().readonly(),
+  usageContext: z.object({
+    isMain: z.boolean().optional(),
+    positionInGallery: z.number().optional(),
+    totalProductImages: z.number().optional(),
+    recommendedFor: z.string().optional(),
+  }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
+ * The product page's own payload.
+ *
+ * ``ProductDetailSerializer`` is also nested in list payloads
+ * (favourites), where the distribution query would run once per row,
+ * so the extra field lives on this single-object subclass.
+ */
+export const zProductRetrieve = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int().readonly().nullable(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  viewCount: z.int().readonly(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
+  lowStockThreshold: z.int().readonly(),
+  active: z.boolean().readonly(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  likesCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
+  priceDropAlertsEnabled: z.boolean().readonly(),
+  ratingDistribution: z.array(zRatingDistribution).readonly(),
+})
+
+/**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …). Its price fields
+ * are the product's, so a variant shows what a shopper pays and the
+ * Omnibus-lawful announcement exactly as the product card does.
+ */
+export const zProductVariant = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
+  active: z.boolean().readonly(),
+  stock: z.int().readonly(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountPercent: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  attributeValues: z.array(zProductAttribute).readonly(),
 })
 
 /**
@@ -6504,6 +6533,10 @@ export const zVariantAxis = z.object({
   id: z.int(),
   name: z.string(),
   values: z.array(zVariantAxisValue),
+  schemaProperty: z.union([
+    zSchemaPropertyEnum,
+    zBlankEnum,
+  ]),
 })
 
 /**
@@ -8011,9 +8044,11 @@ export const zProductImageWritable = z.object({
   translations: z.object({
     el: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
     en: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
   }),
 })
@@ -8040,9 +8075,11 @@ export const zProductImageDetailWritable = z.object({
   translations: z.object({
     el: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
     en: z.object({
       title: z.string().optional(),
+      altText: z.string().optional(),
     }).optional(),
   }),
 })

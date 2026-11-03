@@ -82,4 +82,59 @@ describe('productSchemaOrg', () => {
     expect(node.image).toBeUndefined()
     expect(node.category).toBeUndefined()
   })
+
+  it('states the weight in the unit code of its unit, and no weight for none', () => {
+    const weighed = productSchemaOrg({ ...base, product: makeProduct({ weight: { unit: 'g', value: 105 } }) })
+    const zero = productSchemaOrg({ ...base, product: makeProduct({ weight: { unit: 'kg', value: 0 } }) })
+    const unset = productSchemaOrg({ ...base, product: makeProduct({ weight: null }) })
+
+    expect(weighed.weight).toEqual({ '@type': 'QuantitativeValue', 'value': 105, 'unitCode': 'GRM' })
+    expect(zero.weight).toBeUndefined()
+    expect(unset.weight).toBeUndefined()
+  })
+
+  it('lists the specifications the page shows', () => {
+    const attributes = [{ id: 1, attributeId: 1, attributeName: 'Χωρητικότητα', isVariant: false, schemaProperty: '' as const, attributeValueId: 1, value: '5000 mAh', createdAt: '2026-01-01T00:00:00Z' }]
+
+    expect(productSchemaOrg({ ...base, product: makeProduct({ attributes }) }).additionalProperty)
+      .toEqual([{ '@type': 'PropertyValue', 'name': 'Χωρητικότητα', 'value': '5000 mAh' }])
+    expect(productSchemaOrg({ ...base, product: makeProduct({ attributes: [] }) }).additionalProperty).toBeUndefined()
+  })
+
+  it('states a standard property as the Product\'s own, not as a specification', () => {
+    const attribute = { id: 1, attributeId: 1, isVariant: true, attributeValueId: 1, createdAt: '2026-01-01T00:00:00Z' }
+    const node = productSchemaOrg({ ...base, product: makeProduct({ attributes: [
+      { ...attribute, attributeName: 'Χρώμα', schemaProperty: 'color', value: 'Μαύρο' },
+      { ...attribute, attributeName: 'Ηλικία', schemaProperty: 'suggestedAge', value: '3+' },
+    ] }) })
+
+    expect(node).toMatchObject({ color: 'Μαύρο' })
+    expect(node.additionalProperty).toEqual([{ '@type': 'PropertyValue', 'name': 'Ηλικία', 'value': '3+' }])
+  })
+
+  it('links a variant to its group and the other variants\' pages', () => {
+    const node = productSchemaOrg({
+      ...base,
+      product: makeProduct({ brandName: 'Anker' }),
+      variantGroup: { id: 4, name: 'Mini Power Bank', variesBy: ['color'], variantPaths: ['/products/3/white'] },
+    })
+
+    expect(node.isVariantOf).toEqual({
+      '@type': 'ProductGroup',
+      'name': 'Mini Power Bank',
+      'productGroupID': '4',
+      'brand': { '@type': 'Brand', 'name': 'Anker' },
+      'variesBy': ['color'],
+      'hasVariant': [{ url: '/products/3/white' }],
+    })
+  })
+
+  it('names no group for a product without one', () => {
+    expect(productSchemaOrg({ ...base, product: makeProduct() }).isVariantOf).toBeUndefined()
+  })
+
+  it('names the product\'s own brand, else the store', () => {
+    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: 'Anker' }) }).brand.name).toBe('Anker')
+    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: null }) }).brand.name).toBe('Store')
+  })
 })
