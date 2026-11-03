@@ -7,6 +7,11 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
+  /** The photograph's alt text, from `useProductImageAlt`. */
+  alt: {
+    type: String,
+    required: true,
+  },
   width: {
     type: [Number, String],
     default: 680,
@@ -28,13 +33,6 @@ const props = defineProps({
 })
 
 const { image } = toRefs(props)
-const { t, locale } = useStoreI18n('components/variants/webside/Product/Image')
-
-const alt = computed(() => {
-  return (
-    extractTranslated(props.image, 'title', locale.value) || t('image.product_fallback')
-  )
-})
 </script>
 
 <template>
@@ -49,12 +47,3 @@ const alt = computed(() => {
     :alt="alt"
   />
 </template>
-
-<i18n lang="yaml">
-el:
-  image:
-    product_fallback: Εικόνα προϊόντος
-en:
-  image:
-    product_fallback: Product image
-</i18n>

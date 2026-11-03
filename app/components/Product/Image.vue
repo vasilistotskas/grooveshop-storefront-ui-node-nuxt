@@ -8,11 +8,16 @@ import type { PropType } from 'vue'
  * `x1 x2` densities: the frames are fixed sizes, so a 2x screen gets a
  * photograph twice the frame's width instead of an upscaled one.
  */
-const props = defineProps({
+defineProps({
   image: {
     type: Object as PropType<ProductImage>,
     required: false,
     default: undefined,
+  },
+  /** The photograph's alt text, from `useProductImageAlt`. */
+  alt: {
+    type: String,
+    required: true,
   },
   width: {
     type: [Number, String],
@@ -33,15 +38,6 @@ const props = defineProps({
     required: false,
   },
 })
-
-const { t, locale } = useStoreI18n('components/Product/Image')
-
-// The merchant's alt text describes the photograph; the title names it.
-const alt = computed(() =>
-  props.image?.altText
-  || extractTranslated(props.image, 'title', locale.value)
-  || t('image.product_fallback'),
-)
 </script>
 
 <template>
@@ -56,12 +52,3 @@ const alt = computed(() =>
     :alt="alt"
   />
 </template>
-
-<i18n lang="yaml">
-el:
-  image:
-    product_fallback: Εικόνα προϊόντος
-en:
-  image:
-    product_fallback: Product image
-</i18n>
