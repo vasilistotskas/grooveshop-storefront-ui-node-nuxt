@@ -159,6 +159,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#3b82f6",
+            "actionLinked": true,
             "accent": "#003DFF",
             "success": "#16a34a",
             "warning": "#d97706",
@@ -215,6 +217,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#60a5fa",
+            "actionLinked": true,
             "accent": "#3364FF",
             "success": "#16a34a",
             "warning": "#d97706",
@@ -317,6 +321,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#3b82f6",
+            "actionLinked": true,
             "accent": "#003DFF",
             "success": "#16a34a",
             "warning": "#d97706",
@@ -373,6 +379,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#60a5fa",
+            "actionLinked": true,
             "accent": "#3364FF",
             "success": "#16a34a",
             "warning": "#d97706",
@@ -475,6 +483,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#3b82f6",
+            "actionLinked": true,
             "accent": "#003DFF",
             "success": "#16a34a",
             "warning": "#d97706",
@@ -531,6 +541,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#60a5fa",
+            "actionLinked": true,
             "accent": "#3364FF",
             "success": "#16a34a",
             "warning": "#d97706",
@@ -633,6 +645,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#eab308",
+            "actionLinked": true,
             "accent": "#003DFF",
             "success": "#16a34a",
             "warning": "#d97706",
@@ -689,6 +703,8 @@
                 "950": "#09090b"
               }
             },
+            "action": "#60a5fa",
+            "actionLinked": true,
             "accent": "#3364FF",
             "success": "#16a34a",
             "warning": "#d97706",

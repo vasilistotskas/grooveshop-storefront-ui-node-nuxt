@@ -21,7 +21,7 @@ describe('GET /api/builder/catalogue', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toContain('application/json')
     expect(response.body.hash).toMatch(/^[0-9a-f]{16}$/)
-    expect(response.body.blocks.map((block: { type: string }) => block.type)).toEqual(['promo_banner', 'promo_item'])
+    expect(response.body.blocks.map((block: { type: string }) => block.type)).toEqual(['promo_banner', 'promo_item', 'promo_rail'])
     expect(response.body.blocks[0]).toMatchObject({
       type: 'promo_banner',
       version: 2,
@@ -65,7 +65,7 @@ describe('GET /api/builder/catalogue', () => {
     const response = await get({ 'if-none-match': '"0000000000000000"' })
 
     expect(response.status).toBe(200)
-    expect(response.body.blocks).toHaveLength(2)
+    expect(response.body.blocks).toHaveLength(3)
   })
 
   describe('?schema', () => {
@@ -113,7 +113,7 @@ describe('GET /api/builder/catalogue', () => {
     const response = await get({}, undefined, emptyHandler)
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
+    expect(response.body).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], dataLimits: { maxPickedIds: 24, maxFilterIds: 5, maxQueryLimit: 24, maxQueriesPerDocument: 12 }, documentKinds: expect.any(Object), templates: expect.any(Array) })
     expect(response.headers.get('etag')).toBe(`"${response.body.hash}"`)
   })
 })

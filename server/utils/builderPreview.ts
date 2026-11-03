@@ -11,17 +11,22 @@ import type { RequestEvent } from 'nuxt/server'
  * not depend on the drafts, so it is read while Django resolves them.
  *
  * The editor's preview and a share link both answer through this one function.
+ * The editor's keeps (`keepHidden`) a node the page would leave out for lack
+ * of data, so the merchant sees why it is empty; a share link shows what
+ * visitors will see.
  */
 export async function builderPreviewOf(
   event: RequestEvent,
   documentKey: string,
   resolving: Promise<Pick<PublishedPage, 'page' | 'groups'>>,
+  options: { keepHidden?: boolean } = {},
 ): Promise<BuilderPreviewResponse> {
+  const tenantHost = requestTenantHost(event)
   const [resolved, targets] = await Promise.all([
     resolving,
-    readPublishedSummary(event).then(summary => publishedTargets(event, summary)),
+    readPublishedSummary(tenantHost, requestLocale(event)).then(summary => publishedTargets(tenantHost, summary)),
   ])
-  const page = await builderPageOf(event, resolved.page)
+  const page = await builderPageOf(event, resolved.page, options)
   const navigation = builderNavigationOf(event, resolved.groups, targets)
   return { pages: { [documentKey]: page }, navigation }
 }

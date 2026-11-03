@@ -358,3 +358,94 @@ describe('POST /api/admin/cache/purge', () => {
     expect((await remainingKeys()).some(key => key.startsWith('nitro:handlers:pageConfigNavigation:'))).toBe(true)
   })
 })
+
+/**
+ * A change to builder documents purges the pages that draw them. Django
+ * names the documents; the storefront turns them into keys, because it owns
+ * the routes (`builderDocumentMatchers`). The keys are the production shapes.
+ */
+describe('POST /api/admin/cache/purge, builderDocuments', () => {
+  const VARIES = 'host.L7PoZKHFRT:xdeviceclass.aGk9AqtPuy.json'
+  const pageKey = (segment: string) => `nitro:routes:_:${segment}.l5vdxKjKr9:${VARIES}`
+  const HOME = pageKey('index')
+  const HOME_EN = pageKey('en')
+  const ABOUT = pageKey('about')
+  const SUMMER_SALE = pageKey('summersale')
+  const SUMMER_SALE_EN = pageKey('ensummersale')
+  const DEMO_HOME = 'nitro:routes:_:index.il7asoJjJE:host.uGk9nD1HSf:xdeviceclass.aGk9AqtPuy.json'
+  const CHROME = () => handlerKey('builderChrome', WEBSIDE, 'builder:chrome')
+  const DEMO_CHROME = () => handlerKey('builderChrome', DEMO, 'builder:chrome')
+
+  let chrome: string
+
+  beforeEach(async () => {
+    setRuntimeConfig({ cachePurgeToken: TOKEN })
+    chrome = CHROME()
+    const cache = useStorage('cache')
+    for (const key of [HOME, HOME_EN, ABOUT, SUMMER_SALE, SUMMER_SALE_EN, DEMO_HOME, chrome, DEMO_CHROME()]) {
+      await cache.setItem(key, { value: 1 })
+    }
+  })
+
+  const purgedBy = async (builderDocuments: string[]) => {
+    const before = new Set(await remainingKeys())
+    const response = await purge({ builderDocuments, host: WEBSIDE })
+    const after = new Set(await remainingKeys())
+    return { response, purged: [...before].filter(key => !after.has(key)).sort() }
+  }
+
+  it('purges the page of a template in every language, and no other page', async () => {
+    const { response, purged } = await purgedBy(['template:home'])
+
+    expect(response.status).toBe(200)
+    expect(purged).toEqual([HOME, HOME_EN].sort())
+  })
+
+  it('purges a page the store made at its own address, in every language', async () => {
+    const { purged } = await purgedBy(['page:summer-sale'])
+
+    expect(purged).toEqual([SUMMER_SALE, SUMMER_SALE_EN].sort())
+  })
+
+  it('purges the pages of several documents at once', async () => {
+    const { purged } = await purgedBy(['template:about', 'page:summer-sale'])
+
+    expect(purged).toEqual([ABOUT, SUMMER_SALE, SUMMER_SALE_EN].sort())
+  })
+
+  it('purges every page, and the menus, for a section group: every page draws the chrome', async () => {
+    const { purged } = await purgedBy(['group:header'])
+
+    expect(purged).toEqual([HOME, HOME_EN, ABOUT, SUMMER_SALE, SUMMER_SALE_EN, chrome].sort())
+  })
+
+  it('purges every page, but not the menus, for the theme', async () => {
+    const { purged } = await purgedBy(['theme'])
+
+    expect(purged).toEqual([HOME, HOME_EN, ABOUT, SUMMER_SALE, SUMMER_SALE_EN].sort())
+  })
+
+  it('purges every page for a template no route draws, instead of none', async () => {
+    const { purged } = await purgedBy(['template:no-such-page-type'])
+
+    expect(purged).toEqual([HOME, HOME_EN, ABOUT, SUMMER_SALE, SUMMER_SALE_EN].sort())
+  })
+
+  it('never reaches another store', async () => {
+    await purgedBy(['group:header'])
+
+    const left = await remainingKeys()
+    expect(left).toContain(DEMO_HOME)
+    expect(left).toContain(DEMO_CHROME())
+  })
+
+  it('takes patterns and documents together', async () => {
+    const response = await purge({ patterns: ['cache:nitro:routes:_:*about*'], builderDocuments: ['page:summer-sale'], host: WEBSIDE })
+
+    expect(response.body).toMatchObject({ matched: 3 })
+  })
+
+  it('rejects a body that names neither', async () => {
+    expect((await purge({ host: WEBSIDE })).status).toBe(400)
+  })
+})

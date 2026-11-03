@@ -11,7 +11,8 @@ import type { LoaderContext } from './loaders'
  * and is never taken for "nothing to show".
  */
 export async function readData(context: LoaderContext, plan: DataPlan): Promise<DataResolution> {
-  const records = await Promise.all(DATA_RECORD_KINDS.map(async (kind): Promise<[DataRecordKind, ReadonlyMap<number, unknown> | 'failed']> => {
+  // Every read starts at once: the records of each kind and each list wait on nobody.
+  const reading = Promise.all(DATA_RECORD_KINDS.map(async (kind): Promise<[DataRecordKind, ReadonlyMap<number, unknown> | 'failed']> => {
     const ids = plan.ids[kind]
     if (ids.length === 0) return [kind, new Map()]
     try {
@@ -23,7 +24,14 @@ export async function readData(context: LoaderContext, plan: DataPlan): Promise<
       return [kind, 'failed']
     }
   }))
-  const queries = await Promise.all([...plan.queries.values()].map(async ({ key, source, descriptor }): Promise<[string, readonly unknown[] | 'failed']> => {
+  // A document may read only so many lists (Django holds a document to it on
+  // save, but a stored one is never trusted): the rest are not read, and say so.
+  const demands = [...plan.queries.values()]
+  if (demands.length > DATA_LIMITS.maxQueriesPerDocument) {
+    log.warn({ tag: 'builder-data', message: 'too many lists, the rest are not read', lists: demands.length, max: DATA_LIMITS.maxQueriesPerDocument })
+  }
+  const listing = Promise.all(demands.map(async ({ key, source, descriptor }, index): Promise<[string, QueryAnswer<unknown> | 'failed']> => {
+    if (index >= DATA_LIMITS.maxQueriesPerDocument) return [key, 'failed']
     try {
       return [key, await QUERY_LOADERS[source](context, descriptor)]
     }
@@ -32,6 +40,7 @@ export async function readData(context: LoaderContext, plan: DataPlan): Promise<
       return [key, 'failed']
     }
   }))
+  const [records, queries] = await Promise.all([reading, listing])
   return {
     records: Object.fromEntries(records) as DataResolution['records'],
     queries: new Map(queries),

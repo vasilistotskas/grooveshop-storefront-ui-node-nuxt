@@ -26,6 +26,13 @@ source of truth; each helper documents itself in its own JSDoc.
   the e2e fake Django (the handler in `test/e2e/pageRenders.ts`). Without one
   every e2e page takes the route's failure path, and the cache-header
   assertions fail far from the cause (`/texts/overrides`, 2026-10-28).
+- **Nuxt boots once per run, in its own build folder.** Every project sets
+  `extends: false` (`defineVitestProject` does it for `nuxt`): since Vitest 5
+  an inline project re-executes the config file it extends, and each
+  execution booted Nuxt again. The test Nuxt builds in
+  `node_modules/.cache/nuxt-test/.nuxt`, apart from `nuxt build`'s, because
+  @nuxt/fonts clears `<buildDir>/cache/fonts` on every boot (nuxt/fonts#962):
+  two boots on one folder died on Windows with EPERM before any test ran.
 - Files run **in parallel** in `unit` and `nuxt`, with **no retries** and the
   default 5s test timeout. A test that needs a retry or a longer budget is
   wrong; find the race or the real sleep.

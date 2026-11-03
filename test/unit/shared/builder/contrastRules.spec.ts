@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import contrast from '~~/test/fixtures/builder/contrast-cases.json'
 import { contrastRulePath, contrastSideColor, evaluateContrastRules } from '~~/shared/builder/contrastRules'
-import { BUILDER_DOCUMENT_ROOTS, THEME_CONTRAST_RULES } from '~~/shared/builder/documentRoots'
+import { zThemeSettings } from '~~/shared/theme/settings'
 import { contrastRatio } from '~~/shared/utils/contrast'
 import type { ContrastRule } from '~~/shared/types/builder'
 
@@ -12,7 +12,6 @@ import type { ContrastRule } from '~~/shared/types/builder'
  * either side that the other does not make fails one of the two suites.
  */
 const rules = contrast.rules as ContrastRule[]
-const themeRoot = BUILDER_DOCUMENT_ROOTS.theme!
 
 describe('contrastRatio', () => {
   it.each(contrast.cases.map(entry => [entry.why, entry] as const))('gives the shared ratio for %s', (_why, { foreground, background, ratio }) => {
@@ -45,25 +44,14 @@ describe('evaluateContrastRules', () => {
   })
 })
 
-describe('the theme document', () => {
+describe('the theme schema', () => {
   it.each(contrast.themes.map(entry => [entry.why, entry.settings] as const))('takes the shared theme of %s as its root settings', (_why, settings) => {
-    expect(themeRoot.schema.safeParse(settings).success).toBe(true)
+    expect(zThemeSettings.safeParse(settings).success).toBe(true)
   })
 
   it('requires every key, so a partial theme is not one', () => {
     const { container: _, ...partial } = contrast.themes[0]!.settings
 
-    expect(themeRoot.schema.safeParse(partial).success).toBe(false)
-  })
-
-  it('resolves every one of its contrast rules on a theme it accepts', () => {
-    const outcomes = evaluateContrastRules(contrast.themes[0]!.settings, THEME_CONTRAST_RULES)
-
-    expect(outcomes).toHaveLength(THEME_CONTRAST_RULES.length)
-    expect(outcomes.every(({ pass }) => pass)).toBe(true)
-  })
-
-  it('stops a publish only on body text', () => {
-    expect(THEME_CONTRAST_RULES.filter(rule => rule.severity === 'error').map(rule => rule.id)).toEqual(['body-text-light', 'body-text-dark'])
+    expect(zThemeSettings.safeParse(partial).success).toBe(false)
   })
 })

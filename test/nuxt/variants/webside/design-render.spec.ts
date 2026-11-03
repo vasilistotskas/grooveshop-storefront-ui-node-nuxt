@@ -22,12 +22,14 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { makeUserDetails } from '~~/test/fixtures/user'
 import { makeOrderListItem } from '~~/test/fixtures/order'
 import { makeProduct, makeProductCard } from '~~/test/fixtures/product'
-import { makeLoyaltyPublicSettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import { makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { makeAllAuthConfig, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
 import PageNavbar from '~/components/variants/webside/Page/Navbar.vue'
 import AuthFrame from '~/components/variants/webside/Chrome/AuthFrame.vue'
+import AnnouncementBar from '~/components/variants/webside/Chrome/AnnouncementBar.vue'
 import FooterDesktop from '~/components/variants/webside/Footer/Desktop.vue'
 import FooterMobile from '~/components/variants/webside/Footer/Mobile.vue'
 import MobileBottomNav from '~/components/variants/webside/MobileBottomNav.vue'
@@ -327,6 +329,27 @@ describe('webside design render', () => {
     await expectSnapshot(PageNavbar)
   })
 
+  it('announcement bar with a promo code', async () => {
+    api.routes({
+      '/api/settings/public': {
+        settings: {},
+        announcementBar: {
+          enabled: true,
+          id: 'spring',
+          text: 'Δωρεάν αποστολή από 50 €',
+          shortText: 'Δωρεάν αποστολή 50 €',
+          code: 'WELCOME10',
+          link: '/offers',
+          i18n: {},
+        },
+      },
+    })
+
+    await expectSnapshot(AnnouncementBar, {}, (html) => {
+      expect(html).toContain('WELCOME10')
+    })
+  })
+
   it('mobile navbar keeps only the flag of the language switcher', async () => {
     // Issue 168: the select (flag, language name, chevron) measured ~152px
     // and, beside a signed-in shopper's bell, pushed the header past a
@@ -468,17 +491,17 @@ describe('webside design render', () => {
   })
 
   it('section blog_categories', async () => {
-    api.routes({ '/api/blog/categories': page([BLOG_CATEGORY], 100) })
+    const categories = { status: 'ok', items: [BLOG_CATEGORY], descriptor: { limit: 10 } }
 
-    await expectSnapshot(BlogCategories, {}, (html) => {
+    await expectSnapshot(BlogCategories, { props: { categories } }, (html) => {
       expect(html).toContain('Ασφάλεια')
     })
   })
 
   it('section blog_posts_list', async () => {
-    api.routes({ '/api/blog/posts': page([POST], 9) })
+    const posts = { status: 'ok', items: [POST], descriptor: { mode: 'filter', ordering: 'newest', limit: 9 } }
 
-    await expectSnapshot(BlogPostsList, {}, (html) => {
+    await expectSnapshot(BlogPostsList, { props: { posts } }, (html) => {
       expect(html).toContain('Τι είναι τα mAh')
     })
   })
@@ -556,7 +579,7 @@ describe('webside design render', () => {
       const tenant = useTenantStore()
       tenant.setConfig({ ...tenant.config!, features: { ...tenant.config!.features, loyalty: true } })
       api.routes({
-        '/api/settings/public': { settings: makeLoyaltyPublicSettings() },
+        '/api/settings/public': { settings: {}, values: makePublicValues() },
         '/api/loyalty/summary': makeSummary(),
         '/api/loyalty/tiers': [makeTier()],
       })

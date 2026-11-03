@@ -12,6 +12,9 @@ import { defineEventHandler, readValidatedBody } from 'nuxt/server'
  * Body:
  *   {
  *     patterns: string[]  // glob patterns; trailing `*` is implicit when stripped
+ *     builderDocuments?: string[] // page builder documents that changed (`template:home`,
+ *                         // `page:summer-sale`, `group:header`, `theme`): the pages that
+ *                         // draw them are purged, see `builderDocumentMatchers`
  *     dryRun?: boolean    // default false
  *     host?: string       // scope to one tenant's keys (see bodySchema)
  *     tenantConfig?: boolean // default false: the purge follows a change to the
@@ -47,7 +50,10 @@ const PROTECTED_FRAGMENTS = [
 ] as const
 
 const bodySchema = z.object({
-  patterns: z.array(z.string().min(1)).min(1).max(64),
+  patterns: z.array(z.string().min(1)).max(64).default([]),
+  // The builder documents whose pages must be re-rendered. Django names the
+  // documents; which keys draw them is the storefront's to know.
+  builderDocuments: z.array(z.string().min(1).max(100)).max(64).default([]),
   dryRun: z.boolean().optional().default(false),
   // The purging tenant's storefront host. When present, only keys
   // belonging to that tenant are purged, so a merchant's purge cannot
@@ -65,19 +71,22 @@ const bodySchema = z.object({
   // ordinary purge (a product edit, a nightly task) must never do that.
   tenantConfig: z.boolean().optional().default(false),
 })
+  .refine(body => body.patterns.length > 0 || body.builderDocuments.length > 0, {
+    message: 'A purge names patterns or builder documents',
+  })
 
 function isProtected(key: string): boolean {
   return PROTECTED_FRAGMENTS.some(f => key.includes(f))
 }
 
-function patternToMatcher(pattern: string): { prefix: string, regex: RegExp | null } {
+function patternToMatcher(pattern: string): PurgeMatcher {
   const stripped = pattern.startsWith('cache:') ? pattern.slice('cache:'.length) : pattern
   const star = stripped.indexOf('*')
   if (star === -1) {
-    return { prefix: stripped, regex: null }
+    return { prefix: stripped }
   }
   if (star === stripped.length - 1) {
-    return { prefix: stripped.slice(0, -1), regex: null }
+    return { prefix: stripped.slice(0, -1) }
   }
   // Mid-pattern glob — fall back to regex post-filter against the
   // shortest deterministic prefix.
@@ -86,7 +95,8 @@ function patternToMatcher(pattern: string): { prefix: string, regex: RegExp | nu
     .split('*')
     .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('.*')
-  return { prefix, regex: new RegExp(`^${escaped}$`) }
+  const regex = new RegExp(`^${escaped}$`)
+  return { prefix, accepts: key => regex.test(key) }
 }
 
 export default defineEventHandler(async (event) => {
@@ -110,8 +120,8 @@ export default defineEventHandler(async (event) => {
   let skippedForeignTenant = 0
   const visited = new Set<string>()
 
-  for (const pattern of body.patterns) {
-    const { prefix, regex } = patternToMatcher(pattern)
+  const matchers = [...body.patterns.map(patternToMatcher), ...builderDocumentMatchers(body.builderDocuments)]
+  for (const { prefix, accepts } of matchers) {
     let keys: string[]
     try {
       keys = await storage.getKeys(prefix)
@@ -128,8 +138,8 @@ export default defineEventHandler(async (event) => {
 
     for (const key of keys) {
       if (visited.has(key)) continue
-      if (regex && !regex.test(key)) continue
-      // Only a key this pattern actually claims is "seen": patterns
+      if (accepts && !accepts(key)) continue
+      // Only a key this matcher actually claims is "seen": matchers
       // sharing a prefix (`routes:_:*index*`, `routes:_:*about*`) each
       // list the whole family, and marking a rejected key here would let
       // the first pattern hide it from every later one.
@@ -164,6 +174,7 @@ export default defineEventHandler(async (event) => {
     tag: 'cache-purge',
     message: 'Completed',
     patterns: body.patterns,
+    builderDocuments: body.builderDocuments,
     host: host ?? null,
     matched,
     deleted,

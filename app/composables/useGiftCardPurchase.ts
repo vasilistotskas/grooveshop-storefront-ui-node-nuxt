@@ -45,12 +45,10 @@ export function useGiftCardPurchase({ form, deliverAt, onPaid, t }: GiftCardPurc
   // Purchase bounds are the store's settings, as Django resolves them. A
   // bound that could not be read is left to Django, which validates the
   // amount anyway.
-  const minSetting = useSettingValue('GIFT_CARD_MIN_AMOUNT')
-  const maxSetting = useSettingValue('GIFT_CARD_MAX_AMOUNT')
-  const minAmount = computed(() => giftCardAmountBound(minSetting.value))
-  const maxAmount = computed(() => giftCardAmountBound(maxSetting.value))
-  const validitySetting = useSettingValue('GIFT_CARD_VALIDITY_DAYS')
-  const validityDays = computed(() => giftCardValidityDays(validitySetting.value))
+  const { values } = useStoreSettings()
+  const minAmount = computed(() => giftCardAmountBound(values.value?.giftCardMinAmount))
+  const maxAmount = computed(() => giftCardAmountBound(values.value?.giftCardMaxAmount))
+  const validityDays = computed(() => giftCardValidityDays(values.value?.giftCardValidityDays))
 
   // Which processors the store offers comes from its pay-way list, so a
   // merchant who disables a provider hides it here too.

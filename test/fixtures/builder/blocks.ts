@@ -42,4 +42,21 @@ export const promoBanner = defineBlock({
   },
 })
 
-export const fixtureBlocks = [promoBanner, promoItem]
+/**
+ * A band that lists products by a rule, with a spotlight on one, to run the data
+ * settings on: `products` is declared `hide` (a band with nothing to list is
+ * left out), `spotlight` `empty` (its component draws the absence).
+ */
+export const promoRail = defineBlock({
+  type: 'promo_rail',
+  version: 1,
+  kinds: ['section'],
+  schema: z.object({
+    heading: z.string().max(80).optional(),
+    products: builderField.query('product', { onEmpty: 'hide', maxLimit: 12 }),
+    spotlight: builderField.ref('product', { onMissing: 'empty' }).optional(),
+  }),
+  translatable: ['/heading'],
+})
+
+export const fixtureBlocks = [promoBanner, promoItem, promoRail]

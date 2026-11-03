@@ -199,11 +199,22 @@ export interface CatalogueDocumentKind {
   linkRefs: string[]
   /** The contrast its colours must keep; only the theme has any. Django enforces the `error` rules on publish. */
   contrast?: ContrastRule[]
+  /** The root settings a new document of this kind starts with: the theme a new store of the design gets. */
+  defaults?: Record<string, unknown>
+}
+
+/** The caps a data setting lives under (`DATA_LIMITS`), stated to Django so it holds a document to the numbers the storefront reads with. */
+export interface CatalogueDataLimits {
+  maxPickedIds: number
+  maxFilterIds: number
+  maxQueryLimit: number
+  maxQueriesPerDocument: number
 }
 
 export interface BlockCatalogue {
   hash: string
   blocks: CatalogueBlock[]
+  dataLimits: CatalogueDataLimits
   /** Only the kinds that have root settings; any other accepts none. */
   documentKinds: Partial<Record<BuilderDocumentKind, CatalogueDocumentKind>>
   /**
@@ -236,6 +247,8 @@ export interface DocumentRoot {
   schema: ZodObject
   translatable: readonly SettingsPointer[]
   contrast?: readonly ContrastRule[]
+  /** The root settings a new document of this kind starts with; only the theme has them. */
+  defaults?: Record<string, unknown>
 }
 
 // ── Reading a document ─────────────────────────────────────────────

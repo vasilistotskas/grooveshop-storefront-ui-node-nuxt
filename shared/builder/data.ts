@@ -1,6 +1,6 @@
 import { DATA_RECORD_KINDS } from '../constants/builder'
 import type { BlockDefinition, BuilderDocument, BuilderNode, DataDeclaration, DataRecordKind, DataSource } from '../types/builder'
-import type { DataIssue, DataPlan, DataResolution, DataSite, QueryDemand, ResolvedQuery, ResolvedRef } from '../types/builderData'
+import type { DataIssue, DataPlan, DataResolution, DataSite, QueryAnswer, QueryDemand, ResolvedQuery, ResolvedRef } from '../types/builderData'
 import { QUERY_RECORD_KIND } from './dataSources'
 import { parseVersionedType } from './upgrade'
 
@@ -138,16 +138,17 @@ function resolveRef(kind: string, id: unknown, resolution: DataResolution): Reso
 function resolveQuery(source: DataSource, value: unknown, resolution: DataResolution): ResolvedQuery<unknown> {
   const picked = pickedIds(value)
   const kind = QUERY_RECORD_KIND[source]
-  let items: readonly unknown[] | 'failed'
+  let answer: QueryAnswer<unknown> | 'failed'
   if (picked && kind) {
     const records = resolution.records[kind]
-    items = records === 'failed' ? 'failed' : picked.flatMap(id => records.has(id) ? [records.get(id)] : [])
+    const items = records === 'failed' ? undefined : picked.flatMap(id => records.has(id) ? [records.get(id)] : [])
+    answer = items ? { items, total: items.length } : 'failed'
   }
   else {
-    items = resolution.queries.get(canonicalQuery(source, value)) ?? 'failed'
+    answer = resolution.queries.get(canonicalQuery(source, value)) ?? 'failed'
   }
-  if (items === 'failed') return { status: 'failed', items: [] }
-  return { status: items.length > 0 ? 'ok' : 'empty', items }
+  if (answer === 'failed') return { status: 'failed', items: [], total: 0, descriptor: value }
+  return { status: answer.items.length > 0 ? 'ok' : 'empty', items: answer.items, total: answer.total, descriptor: value }
 }
 
 interface Applying {

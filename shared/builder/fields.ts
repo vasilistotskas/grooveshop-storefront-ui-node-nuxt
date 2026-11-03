@@ -82,30 +82,32 @@ function query(source: DataSource, { onEmpty, maxLimit = DATA_LIMITS.maxQueryLim
   return DATA_DESCRIPTORS[source](maxLimit).meta({ [DATA_SCHEMA_MARKER]: declaration })
 }
 
-/** The settings a rail of products shares, the three bands of `products_*` over: `ordering` is what makes two rails on one page different. */
-function productRail(maxPageSize: number) {
+/**
+ * The settings a rail of products shares, the three bands of `products_*` over.
+ * What it lists is its `products` (a rule or a hand-picked list), and the rule's
+ * order is what makes two rails on one page different.
+ */
+function productRail(maxLimit: number) {
   return {
     surface: z.enum(['default', 'muted']).optional(),
     heading: text(200).optional(),
     subheading: text(500).optional(),
     ctaText: text(100).optional(),
     ctaLink: link().optional(),
-    ordering: z.enum(['featured', 'newest', 'popular', 'discounted', 'rating']).optional(),
-    categoryId: z.number().int().min(1).max(2_147_483_647).optional(),
     showAddToCart: z.boolean().optional(),
-    pageSize: z.number().int().min(1).max(maxPageSize).optional(),
+    products: query('product', { onEmpty: 'hide', maxLimit }),
   }
 }
 
-/** The settings of a band of blog posts, whatever its count is called. */
-function blogRail() {
+/** The settings of a band of blog posts: what it lists is its `posts`, a rule (a category, featured or not, how many) or a hand-picked list. */
+function blogRail(maxLimit: number) {
   return {
     surface: z.enum(['default', 'muted']).optional(),
     heading: text(200).optional(),
     subheading: text(500).optional(),
     ctaText: text(100).optional(),
     ctaLink: link().optional(),
-    categoryId: z.number().int().min(1).max(2_147_483_647).optional(),
+    posts: query('blogPost', { onEmpty: 'hide', maxLimit }),
   }
 }
 

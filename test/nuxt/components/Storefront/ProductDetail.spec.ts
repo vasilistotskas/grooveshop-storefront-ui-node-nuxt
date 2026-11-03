@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { PublicValues } from '~~/shared/openapi/types.gen'
 import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { el as uiLocale } from '@nuxt/ui/locale'
@@ -6,6 +7,7 @@ import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
 import PriorPrice from '~/components/Product/PriorPrice.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
@@ -298,7 +300,7 @@ describe('default ProductDetail', () => {
     product: ReturnType<typeof makeProduct>,
     reviews: (page: number) => unknown = () => empty,
     ratingDistribution: RatingDistribution[] = [],
-    settings: Record<string, string> = {},
+    values: Partial<PublicValues> = {},
   ) {
     clearNuxtData()
     setTenant()
@@ -306,7 +308,7 @@ describe('default ProductDetail', () => {
       '/api/products/123': { ...product, ratingDistribution },
       '/api/products/123/images': [],
       '/api/products/categories/all': CATEGORIES,
-      '/api/settings/public': { settings },
+      '/api/settings/public': { settings: {}, values: makePublicValues(values) },
       '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
       '/api/products/123/*': empty,
       '/api/shipping/policy': [],
@@ -321,7 +323,7 @@ describe('default ProductDetail', () => {
   }
 
   it('promises same-business-day dispatch before the store\'s cutoff', async () => {
-    serve(makeProduct({ id: 123, stock: 20 }), () => empty, [], { DISPATCH_CUTOFF: '15:00' })
+    serve(makeProduct({ id: 123, stock: 20 }), () => empty, [], { dispatchCutoff: '15:00' })
 
     const wrapper = await mountPage()
 
@@ -329,11 +331,11 @@ describe('default ProductDetail', () => {
   })
 
   it.each([
-    ['sets no cutoff', { DISPATCH_CUTOFF: '' }, 20],
-    ['writes a cutoff that is no clock time', { DISPATCH_CUTOFF: 'before lunch' }, 20],
-    ['has the product sold out', { DISPATCH_CUTOFF: '15:00' }, 0],
-  ])('promises no dispatch when the store %s', async (_name, settings, stock) => {
-    serve(makeProduct({ id: 123, stock }), () => empty, [], settings)
+    ['sets no cutoff', { dispatchCutoff: '' }, 20],
+    ['writes a cutoff that is no clock time', { dispatchCutoff: 'before lunch' }, 20],
+    ['has the product sold out', { dispatchCutoff: '15:00' }, 0],
+  ])('promises no dispatch when the store %s', async (_name, values, stock) => {
+    serve(makeProduct({ id: 123, stock }), () => empty, [], values)
 
     const wrapper = await mountPage()
 
@@ -444,14 +446,14 @@ describe.each([
     results: Array.from({ length: page === 1 ? 12 : 2 }, (_, i) => makeProductReview({ id: (page - 1) * 12 + i + 1 })),
   })
 
-  function serve(settings: Record<string, string> = {}) {
+  function serve(values: Partial<PublicValues> = {}) {
     clearNuxtData()
     setTenant()
     api.routes({
       '/api/products/123': { ...makeProduct({ id: 123, reviewAverage: 8.6, reviewCount: 14 }), ratingDistribution: [{ rate: 10, count: 14 }] },
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
-      '/api/settings/public': { settings },
+      '/api/settings/public': { settings: {}, values: makePublicValues(values) },
       '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
       '/api/products/123/*': empty,
       '/api/shipping/policy': [],
@@ -514,9 +516,7 @@ describe.each([
   })
 
   it('asks for no reviews, and shows no rating or section, when the store has reviews off', async () => {
-    // Django's feature for the default tree (and the shared review parts
-    // webside mounts); the setting is what the webside page itself reads.
-    serve({ PRODUCT_REVIEWS_ENABLED: 'False' })
+    serve()
     setTenantFeatures({ productReviews: false })
 
     const wrapper = await mountPage()
@@ -545,7 +545,7 @@ describe.each([
       '/api/products/123': { ...makeProduct({ id: 123 }), ratingDistribution: [] },
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
-      '/api/settings/public': { settings: {} },
+      '/api/settings/public': { settings: {}, values: makePublicValues() },
       '/api/products/123/*': empty,
       '/api/shipping/policy': [],
       '/api/*': empty,
@@ -883,7 +883,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail p
       ],
       '/api/shipping/free-shipping-info': { providers: [], minThreshold: 40, maxThreshold: 40, currency: 'EUR', countryCode: 'GR' },
       '/api/pay-way': { ...empty, results: [{ settlement: 'online' }, { settlement: 'courier_cash' }] },
-      '/api/settings/public': { settings: { RETURN_WINDOW_DAYS: '14' } },
+      '/api/settings/public': { settings: {}, values: makePublicValues({ returnWindowDays: 14 }) },
       '/api/*': empty,
     })
   }

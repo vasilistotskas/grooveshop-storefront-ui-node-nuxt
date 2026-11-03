@@ -30,8 +30,14 @@ export interface DataItems extends DataRecords {
  */
 export type ResolvedRef<T> = { status: 'ok', value: T } | { status: 'missing' | 'failed' }
 
-/** What a section component receives for a `query` setting: what the descriptor lists now. `empty` matched nothing; `failed` is a read that did not work. */
-export type ResolvedQuery<T> = { status: 'ok' | 'empty' | 'failed', items: readonly T[] }
+/**
+ * What a section component receives for a `query` setting: what the descriptor
+ * lists now, how many there are in all (`total`, which can be more than the
+ * band shows: "see all 7 offers"), and the descriptor itself (a band names
+ * itself and its "see all" link by the order it lists in). `empty` matched
+ * nothing; `failed` is a read that did not work.
+ */
+export type ResolvedQuery<T, Descriptor = unknown> = { status: 'ok' | 'empty' | 'failed', items: readonly T[], total: number, descriptor: Descriptor }
 
 /** Why a data setting has nothing to show. */
 export type DataIssueStatus = 'missing' | 'empty' | 'failed'
@@ -70,5 +76,11 @@ export interface DataPlan {
 /** What the reads answered. `failed` marks a read that threw: its settings resolve to `failed`, never to an absence. */
 export interface DataResolution {
   records: Readonly<Record<DataRecordKind, ReadonlyMap<number, unknown> | 'failed'>>
-  queries: ReadonlyMap<string, readonly unknown[] | 'failed'>
+  queries: ReadonlyMap<string, QueryAnswer<unknown> | 'failed'>
+}
+
+/** What a list answers: the items it shows, and how many match in all. */
+export interface QueryAnswer<Item> {
+  items: readonly Item[]
+  total: number
 }
