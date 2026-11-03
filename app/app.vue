@@ -145,8 +145,7 @@ const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true
 // them (RETURN_WINDOW_DAYS, RETURN_FEES).
 const { published: publishedContentPages } = useFooterContentPages()
 const { data: shippingPolicy } = useShippingPolicy()
-const returnWindowSetting = useSettingValue('RETURN_WINDOW_DAYS')
-const returnFeesSetting = useSettingValue('RETURN_FEES')
+const { values: storeValues } = useStoreSettings()
 const shippingServices = computed(() => {
   const services = shippingServicesSchema(shippingPolicy.value ?? [])
   return services.length > 0 ? services : undefined
@@ -155,8 +154,8 @@ const merchantReturnPolicy = computed(() => merchantReturnPolicySchema({
   link: publishedContentPages.value.has(LEGAL_ROUTE_SLUGS['return-policy'])
     ? resolveSitePath(localePath('return-policy')).value
     : undefined,
-  windowDays: returnWindowDays(returnWindowSetting.value),
-  fees: returnFees(returnFeesSetting.value),
+  windowDays: returnWindowDays(storeValues.value?.returnWindowDays),
+  fees: returnFees(storeValues.value?.returnFees),
   countries: [...new Set((shippingPolicy.value ?? []).map(entry => entry.countryCode))],
 }))
 

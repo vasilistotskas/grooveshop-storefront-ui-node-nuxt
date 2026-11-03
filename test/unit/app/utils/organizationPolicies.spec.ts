@@ -121,12 +121,12 @@ describe('merchantReturnPolicySchema', () => {
 })
 
 describe('returnWindowDays', () => {
-  it('reads a whole number of days', () => {
-    expect(returnWindowDays('14')).toBe(14)
+  it('reads the days the store states', () => {
+    expect(returnWindowDays(14)).toBe(14)
   })
 
-  it('is null for not stated (0), empty, or anything but a whole positive number', () => {
-    expect(['0', '', ' ', '-3', '14.5', 'abc'].map(returnWindowDays)).toEqual([null, null, null, null, null, null])
+  it('is null for not stated (0) or unreadable', () => {
+    expect([0, -3, undefined].map(returnWindowDays)).toEqual([null, null, null])
   })
 })
 
@@ -138,6 +138,6 @@ describe('returnFees', () => {
 
   it('is null when the store has not said', () => {
     expect(returnFees('')).toBeNull()
-    expect(returnFees('Free')).toBeNull()
+    expect(returnFees(undefined)).toBeNull()
   })
 })

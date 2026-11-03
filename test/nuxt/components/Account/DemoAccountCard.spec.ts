@@ -3,6 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
 import DemoAccountCard from '~/components/Account/DemoAccountCard.vue'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
@@ -13,26 +14,26 @@ import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
  * hands up the pair it stands for, and that the password is masked and
  * copyable, never printed.
  */
-const settings = ref<Record<string, string>>({})
-mockNuxtImport('useStoreSettings', () => () => ({ settings }))
+const values = ref(makePublicValues())
+mockNuxtImport('useStoreSettings', () => () => ({ values }))
 
 const copied = ref(false)
 const { copy } = vi.hoisted(() => ({ copy: vi.fn((_text: string) => Promise.resolve()) }))
 mockNuxtImport('useClipboard', () => () => ({ copy, copied }))
 
 const ARMED = {
-  DEMO_ACCOUNT_EMAIL: 'demo@grooveshop.space',
-  DEMO_ACCOUNT_PASSWORD: 'GrooveDemo-2026',
+  demoAccountEmail: 'demo@grooveshop.space',
+  demoAccountPassword: 'GrooveDemo-2026',
 }
 const WHOLESALE = {
-  DEMO_ACCOUNT_B2B_EMAIL: 'demo-wholesale@grooveshop.space',
-  DEMO_ACCOUNT_B2B_PASSWORD: 'GrooveWholesale-2026',
+  demoAccountB2bEmail: 'demo-wholesale@grooveshop.space',
+  demoAccountB2bPassword: 'GrooveWholesale-2026',
 }
 
 beforeEach(() => {
   setTenant()
   setTenantPreferences({ demoAccount: true })
-  settings.value = { ...ARMED }
+  values.value = makePublicValues({ ...ARMED })
   copied.value = false
   copy.mockImplementation(() => {
     copied.value = true
@@ -56,10 +57,10 @@ describe('Account/DemoAccountCard', () => {
   it.each([
     // Half-configured is not configured: the button would sign in with an
     // empty address and promise an account that is not there.
-    ['the email is missing', { DEMO_ACCOUNT_EMAIL: '' }],
-    ['the password is missing', { DEMO_ACCOUNT_PASSWORD: '' }],
+    ['the email is missing', { demoAccountEmail: '' }],
+    ['the password is missing', { demoAccountPassword: '' }],
   ])('renders nothing when %s', async (_case, override) => {
-    settings.value = { ...ARMED, ...override }
+    values.value = makePublicValues({ ...ARMED, ...override })
 
     const wrapper = await mountStrip()
 
@@ -67,7 +68,7 @@ describe('Account/DemoAccountCard', () => {
   })
 
   it('offers each configured account as a row with its email, its password masked', async () => {
-    settings.value = { ...ARMED, ...WHOLESALE }
+    values.value = makePublicValues({ ...ARMED, ...WHOLESALE })
 
     const wrapper = await mountStrip()
 
@@ -83,7 +84,7 @@ describe('Account/DemoAccountCard', () => {
   })
 
   it('ignores a half-configured wholesale account', async () => {
-    settings.value = { ...ARMED, ...WHOLESALE, DEMO_ACCOUNT_B2B_PASSWORD: '' }
+    values.value = makePublicValues({ ...ARMED, ...WHOLESALE, demoAccountB2bPassword: '' })
 
     const wrapper = await mountStrip()
 
@@ -92,7 +93,7 @@ describe('Account/DemoAccountCard', () => {
   })
 
   it('offers a wholesale-only store its wholesale row', async () => {
-    settings.value = { ...WHOLESALE }
+    values.value = makePublicValues({ ...WHOLESALE })
 
     const wrapper = await mountStrip()
 
@@ -105,7 +106,7 @@ describe('Account/DemoAccountCard', () => {
   ])('hands up the pair of row %i rather than signing in itself', async (index, credentials) => {
     // One login path: the form owns the pending two-factor flow, the
     // cart refresh and the `next` bookkeeping.
-    settings.value = { ...ARMED, ...WHOLESALE }
+    values.value = makePublicValues({ ...ARMED, ...WHOLESALE })
     const wrapper = await mountStrip()
 
     await signInButtons(wrapper)[index]!.trigger('click')
@@ -114,7 +115,7 @@ describe('Account/DemoAccountCard', () => {
   })
 
   it('copies the row\'s password and marks only that row as copied', async () => {
-    settings.value = { ...ARMED, ...WHOLESALE }
+    values.value = makePublicValues({ ...ARMED, ...WHOLESALE })
     const wrapper = await mountStrip()
     const shopperCopy = wrapper.get('button[aria-label="Αντιγραφή του κωδικού πελάτη"]')
     const wholesaleCopy = wrapper.get('button[aria-label="Αντιγραφή του κωδικού χονδρικής"]')

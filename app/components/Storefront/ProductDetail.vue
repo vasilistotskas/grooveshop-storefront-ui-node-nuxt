@@ -17,8 +17,8 @@ const priceHistoryEnabled = useStoreFeature('priceHistory')
 // is one cached public setting, so it renders on the server like the
 // rest of the page. No "today"/"tomorrow": that needs the visitor's
 // clock and Django's holiday calendar, and this page is cached.
-const dispatchCutoffSetting = useSettingValue('DISPATCH_CUTOFF')
-const dispatchCutoff = computed(() => parseDispatchCutoff(dispatchCutoffSetting.value))
+const { values: storeValues } = useStoreSettings()
+const dispatchCutoff = computed(() => parseDispatchCutoff(storeValues.value?.dispatchCutoff ?? ''))
 const tenantStore = useTenantStore()
 
 const { user } = useUserSession()

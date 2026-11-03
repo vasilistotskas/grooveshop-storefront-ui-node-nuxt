@@ -108,8 +108,7 @@ export function makeProductPoints(overrides: Partial<ProductPoints> = {}): Produ
  * The storefront's own `LoyaltySettings` (`shared/types/LoyaltySettings.ts`),
  * which `useLoyaltySettings` parses from the public settings payload, so
  * there is no generated schema to parse it against; the interface is the
- * contract. `makeLoyaltyPublicSettings` is the same figures as that
- * payload carries them.
+ * contract. `makePublicValues` carries the same figures in the payload.
  *
  * Defaults: 100 points per euro, 1 point per euro earned, no expiry, no
  * bonus, no tier multipliers, 1000 XP per level.
@@ -123,26 +122,6 @@ export function makeLoyaltySettings(overrides: Partial<LoyaltySettings> = {}): L
     newCustomerBonusEnabled: false,
     newCustomerBonusPoints: 0,
     xpPerLevel: 1000,
-    ...overrides,
-  }
-}
-
-/**
- * The loyalty keys of Django's `/settings/public` map, as it sends them
- * (every value a string): the figures `makeLoyaltySettings` has, plus the
- * programme switch `LOYALTY_ENABLED`, which is a store feature and never
- * read from here.
- */
-export function makeLoyaltyPublicSettings(overrides: Record<string, string> = {}): Record<string, string> {
-  return {
-    LOYALTY_ENABLED: 'true',
-    LOYALTY_REDEMPTION_RATIO_EUR: '100',
-    LOYALTY_POINTS_FACTOR: '1.0',
-    LOYALTY_TIER_MULTIPLIER_ENABLED: 'False',
-    LOYALTY_POINTS_EXPIRATION_DAYS: '0',
-    LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: 'False',
-    LOYALTY_NEW_CUSTOMER_BONUS_POINTS: '0',
-    LOYALTY_XP_PER_LEVEL: '1000',
     ...overrides,
   }
 }

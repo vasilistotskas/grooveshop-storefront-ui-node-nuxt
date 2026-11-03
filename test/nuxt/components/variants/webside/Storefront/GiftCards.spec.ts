@@ -3,7 +3,9 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import WebsideGiftCards from '~/components/variants/webside/Storefront/GiftCards.vue'
+import type { PublicValues } from '~~/shared/openapi/types.gen'
 import { makePayWay } from '~~/test/fixtures/payWay'
+import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { failWith } from '~~/test/helpers/api'
 import { setTenant } from '~~/test/helpers/tenant'
 
@@ -23,9 +25,9 @@ mockNuxtImport('useScriptStripe', () => () => ({ onLoaded: () => {} }))
 
 const VIVA = makePayWay({ id: 1, providerCode: 'viva_wallet', settlement: 'online' })
 
-async function mountWith(payWays: ReturnType<typeof makePayWay>[], settings: Record<string, string> = {}) {
+async function mountWith(payWays: ReturnType<typeof makePayWay>[], values?: Partial<PublicValues>) {
   api.routes({
-    '/api/settings/public': () => ({ settings }),
+    '/api/settings/public': () => ({ settings: {}, values: values && makePublicValues(values) }),
     '/api/pay-way': { count: payWays.length, results: payWays },
     '/api/giftcard/purchase': {
       purchaseUuid: 'a1b2c3d4-0000-4000-8000-000000000001',
@@ -85,7 +87,7 @@ describe('webside gift cards: the amount and the purchase', () => {
   const text = (wrapper: VueWrapper) => wrapper.text().replace(/\u00A0/g, ' ')
 
   it('states the store\'s range, beside the amount and among the benefits', async () => {
-    const wrapper = await mountWith([VIVA], { GIFT_CARD_MIN_AMOUNT: '10.00', GIFT_CARD_MAX_AMOUNT: '500.00' })
+    const wrapper = await mountWith([VIVA], { giftCardMinAmount: 10, giftCardMaxAmount: 500 })
 
     const range = `Από ${money(10)} έως ${money(500)}`.replace(/\u00A0/g, ' ')
     expect(text(wrapper)).toContain(range)
@@ -106,7 +108,7 @@ describe('webside gift cards: the amount and the purchase', () => {
   })
 
   it('does not start a purchase over the store\'s maximum', async () => {
-    const wrapper = await mountWith([VIVA], { GIFT_CARD_MAX_AMOUNT: '40' })
+    const wrapper = await mountWith([VIVA], { giftCardMaxAmount: 40 })
 
     expect(await purchase(wrapper)).toBeUndefined()
     expect(text(wrapper)).toContain('Μέγιστο ποσό 40 €')
