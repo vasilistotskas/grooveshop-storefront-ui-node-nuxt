@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import type { AccordionItem, TabsItem, ButtonProps } from '#ui/types'
+import type { AccordionItem, ButtonProps } from '#ui/types'
 
 const { t, locale, n } = useStoreI18n('components/variants/webside/Storefront/ProductDetail')
 const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
-const { isMobileOrTablet } = useDevice()
 // A browse-only store takes no orders: no quantity, no add-to-cart, no
 // sticky buy bar. Prices and product info stay.
 const cartEnabled = useStoreFeature('cart')
@@ -143,22 +142,10 @@ const stockStatus = computed(() => {
   return { label: t('in_stock'), color: 'success', icon: 'i-heroicons-check-circle' } as { label: string, color: ButtonProps['color'], icon: string }
 })
 
-const productTabs = computed<TabsItem[]>(() => [
-  {
-    label: t('description'),
-    icon: 'i-heroicons-document-text',
-    slot: 'description',
-  },
-  {
-    label: t('specifications'),
-    icon: 'i-heroicons-cpu-chip',
-    slot: 'specifications',
-  },
-])
-
-// AccordionItem requires value to be a string (TabsItem allows
-// number too); mirror the tabs list into a dedicated typed array for
-// the mobile accordion path.
+// Both sections open, and both in the HTML: the specifications are what
+// search engines and the page's .md twin read, so a closed or unmounted
+// panel hid them (the store's request, 2026-11-03).
+const PRODUCT_SECTIONS_OPEN = ['description', 'specifications']
 const productAccordionItems = computed<AccordionItem[]>(() => [
   {
     label: t('description'),
@@ -555,32 +542,11 @@ useSchemaOrg([
 
             <USeparator class="my-2" />
 
-            <!--
-              Description + specs render as tabs on desktop (more
-              content above the fold) but collapse to an accordion on
-              mobile so the two sections don't push reviews / related
-              rails off a narrow viewport. useDevice() reads the UA
-              server-side so SSR picks the right shell and avoids a
-              hydration re-render.
-            -->
-            <UTabs
-              v-if="!isMobileOrTablet"
-              :items="productTabs"
-              class="w-full"
-              color="neutral"
-            >
-              <template #description>
-                <WebsideProductDescriptionPanel :html="sanitizedDescription" />
-              </template>
-              <template #specifications>
-                <WebsideProductSpecificationsPanel :specifications="productSpecifications" />
-              </template>
-            </UTabs>
             <UAccordion
-              v-else
               :items="productAccordionItems"
-              default-value="description"
-              type="single"
+              :default-value="PRODUCT_SECTIONS_OPEN"
+              type="multiple"
+              :unmount-on-hide="false"
               class="w-full"
             >
               <template #body="{ item }">
