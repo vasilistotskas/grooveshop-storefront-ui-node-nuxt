@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { BUILDER_NODE_ID_PATTERN } from '../constants/builder'
 import { BUILDER_CANVAS_CHANNEL } from '../constants/builderEditor'
+import { zThemeSettings } from '../theme/settings'
 import { ZodBuilderPreviewRequest } from './builderEditor'
 
 /**
@@ -29,6 +30,8 @@ export const ZodBuilderCanvasCommand = z.discriminatedUnion('type', [
   message({ type: z.literal('documents'), documents: ZodBuilderPreviewRequest.shape.documents }),
   /** The section selected in the editor, or none: the canvas brings it into view and says where it is. */
   message({ type: z.literal('select'), node: zNodeId.nullable() }),
+  /** The theme being edited: the canvas draws the page with it, as the published theme will. */
+  message({ type: z.literal('theme'), settings: zThemeSettings }),
 ])
 
 /** What the canvas tells the editor. */

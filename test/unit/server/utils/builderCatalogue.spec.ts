@@ -132,7 +132,11 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('is that of an empty catalogue when no block is defined', () => {
-      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
+      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], dataLimits: expect.any(Object), documentKinds: expect.any(Object), templates: expect.any(Array) })
+    })
+
+    it('states the caps data settings live under, the numbers the storefront reads with', () => {
+      expect(buildBlockCatalogue([]).dataLimits).toEqual({ maxPickedIds: 24, maxFilterIds: 5, maxQueryLimit: 24, maxQueriesPerDocument: 12 })
     })
 
     it('changes when what a document carries at its root does', () => {
@@ -227,8 +231,8 @@ describe('this build\'s catalogue', () => {
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    const { blocks, documentKinds, templates } = buildBlockCatalogue(fixtureBlocks)
+    const { blocks, dataLimits, documentKinds, templates } = buildBlockCatalogue(fixtureBlocks)
 
-    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds, templates })
+    expect(JSON.parse(json)).toEqual({ hash, blocks, dataLimits, documentKinds, templates })
   })
 })

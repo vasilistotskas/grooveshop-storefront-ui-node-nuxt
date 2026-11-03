@@ -1,6 +1,6 @@
 {
   "name": "grooveshop-storefront-ui-node-nuxt",
-  "version": "3.311.0",
+  "version": "3.317.0",
   "description": "Grooveshop Storefront UI Node Nuxt",
   "type": "module",
   "repository": {
@@ -36,6 +36,7 @@
     "generate:schema": "node scripts/fetch-schema.mjs",
     "sync:schema": "node scripts/sync-schema-yml.mjs",
     "generate:palettes": "node scripts/generate-tailwind-palettes.mjs",
+    "theme:seed": "node scripts/theme-seed.mjs",
     "check:deps": "node scripts/check-lockstep-deps.mjs",
     "check:build": "node scripts/check-build-output.mjs",
     "trivy-scan": "trivy fs . --severity HIGH,CRITICAL --skip-dirs node_modules,dist,.output,.nuxt --exit-code 1"

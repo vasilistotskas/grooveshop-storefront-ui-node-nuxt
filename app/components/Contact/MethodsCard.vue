@@ -6,23 +6,12 @@
  * renders no card rather than an empty one.
  */
 const { t } = useStoreI18n('components/Contact/MethodsCard')
-const { identity } = useMerchantIdentity()
-const { offices } = useStoreOffices()
-const { hasData, todayHours } = useBusinessHours()
-
-const phone = computed(() => identity.value?.phone?.trim() ?? '')
-const email = computed(() => identity.value?.email?.trim() ?? '')
-
-const places = computed(() => offices.value.map(office => ({
-  key: `${office.label}:${office.street}`,
-  title: [office.street, office.area].filter(Boolean).join(', ') || office.addressLine,
-  detail: [office.postal, office.city].filter(Boolean).join(' '),
-})))
+const { phone, email, places, todayHours, hasAny } = useContactMethods()
 </script>
 
 <template>
   <section
-    v-if="phone || email || places.length"
+    v-if="hasAny"
     :aria-label="t('title')"
     class="
       rounded-[1.25rem] bg-default p-5 ring ring-default
@@ -50,7 +39,7 @@ const places = computed(() => offices.value.map(office => ({
             "
           >{{ phone }}</a>
           <span
-            v-if="hasData && todayHours"
+            v-if="todayHours"
             class="text-sm text-toned"
           >
             {{ t('today', { opens: todayHours.opens, closes: todayHours.closes }) }}

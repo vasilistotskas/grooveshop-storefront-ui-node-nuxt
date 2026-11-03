@@ -2,26 +2,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ref } from 'vue'
 import type { DOMWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { clearNuxtData } from '#app'
 import HeroCarousel from '~/components/PageSection/HeroCarousel.vue'
-import { failWith } from '~~/test/helpers/api'
 import { makeProductCard } from '~~/test/fixtures/product'
-import type { ProductCard } from '~~/shared/openapi/types.gen'
 import { setTenant } from '~~/test/helpers/tenant'
-
-const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-mockNuxtImport('useRequestApi', () => () => api)
 
 /** The browser's media-query answers, per query; a missing one is `false`. */
 const media = vi.hoisted(() => ({ matches: {} as Record<string, boolean> }))
 mockNuxtImport('useMediaQuery', () => (query: string) => ref(media.matches[query] ?? false))
-
-/** The product list as Django filters it by `id_In`: the cards it still serves. */
-const listServing = (...served: ProductCard[]) => (_url: string, options: { query: { id_In: string } }) => {
-  const wanted = options.query.id_In.split(',').map(Number)
-  const results = served.filter(card => wanted.includes(card.id))
-  return { count: results.length, links: {}, results }
-}
 
 const HOVER = '(hover: hover) and (pointer: fine)'
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
@@ -83,18 +70,17 @@ describe('PageSectionHeroCarousel', () => {
   beforeEach(() => {
     setTenant()
     media.matches = {}
-    clearNuxtData()
   })
 
   describe('a slide that names a product', () => {
     const powerBank = makeProductCard({ id: 7, discountPercent: 10, slug: 'power-bank' })
 
-    const withChip = (productId: number) => [{ ...SLIDES[0]!, productId }, SLIDES[1]!]
+    /** The slide's `product` data setting as the page route hands it over. */
+    const read = (product: ProductCard): ResolvedRef<ProductCard> => ({ status: 'ok', value: product })
+    const withChip = (product: ProductCard) => [{ ...SLIDES[0]!, product: read(product) }, SLIDES[1]!]
 
     it('draws a chip with its name and price, linking to the product', async () => {
-      api.routes({ '/api/products': listServing(powerBank) })
-
-      const wrapper = await mountHero({ slides: withChip(7) })
+      const wrapper = await mountHero({ slides: withChip(powerBank) })
 
       const chip = wrapper.get('a[href="/products/7/power-bank"]')
       expect(chip.text()).toContain('Προϊόν 7')
@@ -103,9 +89,8 @@ describe('PageSectionHeroCarousel', () => {
 
     it('prices the chip at the effective price and strikes the prior price of an announced reduction', async () => {
       const announced = makeProductCard({ id: 7, slug: 'power-bank', effectivePrice: 44, priorPrice: 60, announcedDiscountPercent: 26 })
-      api.routes({ '/api/products': listServing(announced) })
 
-      const wrapper = await mountHero({ slides: withChip(7) })
+      const wrapper = await mountHero({ slides: withChip(announced) })
 
       const { n } = useNuxtApp().$i18n
       const chip = wrapper.get('a[href="/products/7/power-bank"]')
@@ -115,45 +100,29 @@ describe('PageSectionHeroCarousel', () => {
     })
 
     it('strikes nothing on a markdown that has no prior price', async () => {
-      api.routes({ '/api/products': listServing(powerBank) })
-
-      const wrapper = await mountHero({ slides: withChip(7) })
+      const wrapper = await mountHero({ slides: withChip(powerBank) })
 
       expect(wrapper.get('a[href="/products/7/power-bank"]').find('s').exists()).toBe(false)
     })
 
-    it('fetches the products of every chip in one request', async () => {
-      api.routes({ '/api/products': listServing(makeProductCard({ id: 7 }), makeProductCard({ id: 9 })) })
-
-      await mountHero({ slides: [{ ...SLIDES[0]!, productId: 7 }, { ...SLIDES[1]!, productId: 9 }, { ...SLIDES[1]!, productId: 7 }] })
-
-      expect(api.callsTo('/api/products*')).toEqual([
-        { url: '/api/products', options: { query: { id_In: '7,9', pageSize: 2 } } },
-      ])
-    })
-
-    it('keeps the chips in slide order, and the slide of a product the list no longer serves without one', async () => {
-      api.routes({ '/api/products': listServing(makeProductCard({ id: 7, slug: 'seven' }), makeProductCard({ id: 3, slug: 'three' })) })
-
-      const wrapper = await mountHero({ slides: [{ ...SLIDES[0]!, productId: 7 }, { ...SLIDES[1]!, productId: 9 }, { ...SLIDES[1]!, productId: 3 }] })
+    it('keeps the chips in slide order, and the slide whose product is gone without one', async () => {
+      const wrapper = await mountHero({
+        slides: [
+          { ...SLIDES[0]!, product: read(makeProductCard({ id: 7, slug: 'seven' })) },
+          { ...SLIDES[1]!, product: { status: 'missing' } },
+          { ...SLIDES[1]!, product: read(makeProductCard({ id: 3, slug: 'three' })) },
+        ],
+      })
 
       expect(wrapper.findAll('a[href^="/products/"]').map(chip => chip.attributes('href')))
         .toEqual(['/products/7/seven', '/products/3/three'])
     })
 
-    it('renders the slide without a chip when its product cannot be read', async () => {
-      api.routes({ '/api/products': failWith(503) })
-
-      const wrapper = await mountHero({ slides: withChip(7) })
+    it.each(['missing', 'failed'] as const)('renders the slide without a chip when its product is %s', async (status) => {
+      const wrapper = await mountHero({ slides: [{ ...SLIDES[0]!, product: { status } }, SLIDES[1]!] })
 
       expect(wrapper.find('a[href^="/products/"]').exists()).toBe(false)
       expect(wrapper.find('h1').text()).toBe('Charge fast, once a day')
-    })
-
-    it('asks for no product where no slide names one', async () => {
-      await mountHero({ slides: SLIDES })
-
-      expect(api.callsTo('/api/products*')).toEqual([])
     })
   })
 

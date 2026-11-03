@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** One editorial slide of the hero carousel: artwork, its copy and its destination. */
 export default defineBlock({
   type: 'hero_slide',
-  version: 1,
+  version: 2,
   kinds: ['block'],
   schema: z.object({
     imageUrl: builderField.requiredText(1000),
@@ -16,9 +16,10 @@ export default defineBlock({
     ctaLink: builderField.link().optional(),
     secondaryCtaText: builderField.text(100).optional(),
     secondaryCtaLink: builderField.link().optional(),
-    productId: builderField.id().optional(),
+    // The product its chip shows; a slide whose product is gone is drawn without a chip.
+    product: builderField.ref('product', { onMissing: 'empty' }).optional(),
   }),
   translatable: ['/alt', '/eyebrow', '/heading', '/subheading', '/ctaText', '/secondaryCtaText'],
-  refs: { '/productId': 'product' },
+  upgrade: { 1: upgradeHeroSlide },
   editor: { title: ['heading'] },
 })

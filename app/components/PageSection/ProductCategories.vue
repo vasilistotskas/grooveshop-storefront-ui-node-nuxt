@@ -4,49 +4,32 @@
  * tiles in a grid (`tiles` and `grid` draw the same one — the design
  * has one) or a swipeable rail.
  *
- * Renders NOTHING when the store has no categories (or the catalogue is
- * switched off, in which case nothing is fetched at all). A section on
- * a fresh store's homepage must be absent, not an empty card — which is
- * what the previous default did, and why a brand-new store opened on a
- * row of placeholders.
+ * The categories arrive read (`categories`, a data setting the page
+ * route resolved: the main categories, or the children of one the
+ * operator chose, up to the size they set). A catalogue hung under ONE
+ * root offers no choice at its top level, so the read draws that root's
+ * children instead (`server/utils/builderData/loaders.ts`).
+ *
+ * Renders NOTHING when there are none. A section on a fresh store's
+ * homepage must be absent, not an empty card — which is what the previous
+ * default did, and why a brand-new store opened on a row of placeholders.
  */
 const props = withDefaults(defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
   title?: string
   heading?: string
   layout?: 'slider' | 'grid' | 'tiles'
-  /** Draw the children of one category instead of the tree's roots. */
-  parentId?: number
-  limit?: number
   surface?: 'default' | 'muted'
+  /** What the band lists: the categories, and the rule they came from. */
+  categories: ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
 }>(), {
   layout: 'tiles',
-  limit: 8,
 })
 
-const { t } = useStoreI18n('components/PageSection/ProductCategories')
+const { t, locale } = useStoreI18n('components/PageSection/ProductCategories')
 const localePath = useLocalePath()
-const { categories } = useCategoryMenu()
 
-const entries = computed(() => {
-  const all = categories.value
-
-  if (props.parentId) {
-    const parent = all.find(entry => entry.id === props.parentId)
-    return (parent?.children ?? []).slice(0, props.limit)
-  }
-
-  // A catalogue hung under ONE root ("Accessories", "Shop") offers no
-  // choice at its top level: the band would draw a single tile whose
-  // only job is to open the tree. Draw that root's CHILDREN instead —
-  // they are what the merchant means by "shop by category". With two
-  // or more roots the roots ARE the choice.
-  if (all.length === 1 && all[0]?.children?.length) {
-    return all[0].children.slice(0, props.limit)
-  }
-
-  return all.slice(0, props.limit)
-})
+const entries = computed(() => props.categories.items.map(category => categoryMenuEntry(category, locale.value)))
 
 const label = computed(() => props.heading || props.title || t('heading'))
 

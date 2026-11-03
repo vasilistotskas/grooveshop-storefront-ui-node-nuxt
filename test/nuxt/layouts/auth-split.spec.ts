@@ -5,10 +5,11 @@ import AuthSplit from '~/layouts/auth-split.vue'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
- * The Volt sign-in frame's ink panel: the store's description until the
- * `authPanel` Django serves typed on `/settings/public` supplies a photo
- * and a line, which then show in the page's locale. A missing one changes
- * nothing.
+ * The Volt sign-in frame's ink panel: the photo and the line of the
+ * `authPanel` Django serves typed on `/settings/public`, the line in the
+ * page's locale, and exactly that. A store that set no line shows none (the
+ * panel never invents one from the store's description), and one that set no
+ * photo keeps the plain ink panel.
  */
 const { setting } = vi.hoisted(() => ({ setting: { value: null as AuthPanel | null } }))
 
@@ -42,19 +43,11 @@ describe('layouts/auth-split', () => {
   })
 
   describe('without an AUTH_PANEL setting', () => {
-    it('keeps the plain ink panel with the store\'s description', async () => {
+    it('keeps the plain ink panel and says nothing the store did not write', async () => {
       const wrapper = await mountLayout()
 
-      expect(aside(wrapper).text()).toContain(DESCRIPTION)
       expect(aside(wrapper).find('img').exists()).toBe(false)
-    })
-
-    it('shows the store\'s description in the page\'s locale', async () => {
-      setTenant({ storeDescription: DESCRIPTION, storeDescriptionI18n: { en: 'The store\'s description' }, availableLocales: ['el', 'en'] })
-
-      const wrapper = await mountLayout('/en/account/login')
-
-      expect(aside(wrapper).text()).toContain('The store\'s description')
+      expect(aside(wrapper).find('p').exists()).toBe(false)
       expect(aside(wrapper).text()).not.toContain(DESCRIPTION)
     })
   })
@@ -78,13 +71,14 @@ describe('layouts/auth-split', () => {
       expect(aside(wrapper).text()).toContain('Earbuds that actually fit.')
     })
 
-    it('shows the photo with the store\'s description when the setting carries no line', async () => {
+    it('shows the photo alone when the setting carries no line, never the store description', async () => {
       setting.value = { imageUrl: 'media/demo/uploads/hero-audio.jpg' }
 
       const wrapper = await mountLayout()
 
       expect(aside(wrapper).findComponent({ name: 'ImgWithFallback' }).exists()).toBe(true)
-      expect(aside(wrapper).text()).toContain(DESCRIPTION)
+      expect(aside(wrapper).find('p').exists()).toBe(false)
+      expect(aside(wrapper).text()).not.toContain(DESCRIPTION)
     })
 
     it('shows the line over the plain panel when the setting carries no photo', async () => {

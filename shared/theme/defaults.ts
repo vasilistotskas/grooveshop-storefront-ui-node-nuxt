@@ -1,6 +1,16 @@
-import type { StorefrontDesign } from './design'
-import type { ThemeColorScale, ThemeSettings } from './settings'
-import { TAILWIND_PALETTES } from './tailwindPalettes'
+import type { StorefrontDesign } from './design.ts'
+import type { ThemeColorScale, ThemeSettings } from './settings.ts'
+import { TAILWIND_PALETTES } from './tailwindPalettes.ts'
+
+/**
+ * The shade of the primary scale a design paints its CTAs with, per scheme,
+ * when the action colour follows the primary (`actionLinked`): Nuxt UI's 500,
+ * and `main.css`'s 100 in the dark; on Groove Volt, whose CTAs are its near-black
+ * ink, the darkest shade but one in light and 100 in the dark.
+ */
+export function themeActionShadesFor(design: StorefrontDesign | null): { light: '500' | '900', dark: '100' } {
+  return design === 'volt' ? { light: '900', dark: '100' } : { light: '500', dark: '100' }
+}
 
 const palette = (name: keyof typeof TAILWIND_PALETTES): ThemeColorScale => ({
   source: TAILWIND_PALETTES[name]['500'],

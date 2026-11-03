@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-import { CONTAINER_MAP, FONT_ALLOWLIST, HEX_COLOR_RE, RADIUS_ALLOWLIST, THEME_SHADES } from './constants'
+import { CONTAINER_MAP, FONT_ALLOWLIST, HEX_COLOR_RE, RADIUS_ALLOWLIST, THEME_SHADES } from './constants.ts'
 
 const zHex = z.string().regex(HEX_COLOR_RE)
 

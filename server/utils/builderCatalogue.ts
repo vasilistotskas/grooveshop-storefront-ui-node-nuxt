@@ -88,8 +88,9 @@ export function buildBlockCatalogue(
     }),
   )
   const names = [...templates].sort()
-  const hash = createHash('sha256').update(JSON.stringify({ blocks, documentKinds, templates: names })).digest('hex').slice(0, 16)
-  return { hash, blocks, documentKinds, templates: names }
+  const dataLimits = { ...DATA_LIMITS }
+  const hash = createHash('sha256').update(JSON.stringify({ blocks, dataLimits, documentKinds, templates: names })).digest('hex').slice(0, 16)
+  return { hash, blocks, dataLimits, documentKinds, templates: names }
 }
 
 /**
@@ -111,8 +112,8 @@ export function definitionsForDesign(definitions: readonly BlockDefinition[], de
 export const builderBlocks: ReadonlyMap<string, BlockDefinition> = new Map(blockList.map(definition => [definition.type, definition]))
 
 function catalogueDocument(design?: string): BuilderCatalogueDocument {
-  const { hash, blocks, documentKinds, templates } = buildBlockCatalogue(definitionsForDesign(blockList, design), builderDocumentRootsFor(design), staticLayoutPageTypesFor(design))
-  return { hash, json: JSON.stringify({ hash, blocks, documentKinds, templates }) }
+  const { hash, blocks, dataLimits, documentKinds, templates } = buildBlockCatalogue(definitionsForDesign(blockList, design), builderDocumentRootsFor(design), staticLayoutPageTypesFor(design))
+  return { hash, json: JSON.stringify({ hash, blocks, dataLimits, documentKinds, templates }) }
 }
 
 /** The catalogue of the whole build, without a design: every block and every page type. */
