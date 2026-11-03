@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { buildTenantThemeCss } from '~~/server/utils/themeTokens'
+import { evaluateContrastRules } from '~~/shared/builder/contrastRules'
+import { themeContrastRulesFor } from '~~/shared/builder/documentRoots'
 import { themeCss } from '~~/shared/theme/compile'
 import { resolveDesign } from '~~/shared/theme/design'
 import { seedThemeSettings } from '~~/shared/theme/seed'
 import type { TenantThemeFields } from '~~/shared/theme/seed'
 import { zThemeSettings } from '~~/shared/theme/settings'
+import production from '~~/test/fixtures/builder/theme-export.json'
 import { renderedTokens } from '~~/test/helpers/themeRender'
 
 /**
@@ -78,5 +81,18 @@ describe('seedThemeSettings', () => {
 
     expect([settings.colors.light.action, settings.colors.dark.action]).toEqual(['#17171a', '#f7f7f5'])
     expect(settings.colors.light.actionLinked).toBe(false)
+  })
+
+  // The three production stores, as Django's export_theme_fields read them
+  // (2026-11-03, read-only): the move onto the theme document changes nothing
+  // any of them paints, fyteia's partial dark scales and Volt's CTAs included.
+  it.each(production.stores.map(({ schema, fields }) => [schema, fields as TenantThemeFields] as const))('moves the production store %s onto its theme with every token as it renders today', (_schema, fields) => {
+    for (const scheme of ['light', 'dark'] as const) {
+      expect(afterTheMove(fields, scheme)).toEqual(today(fields, scheme))
+    }
+    // Its theme publishes: no rule that stops a publish fails on what it renders today.
+    const blocking = evaluateContrastRules(seedThemeSettings(fields), themeContrastRulesFor(resolveDesign(fields.schemaName)))
+      .filter(({ rule, pass }) => rule.severity === 'error' && !pass)
+    expect(blocking).toEqual([])
   })
 })
