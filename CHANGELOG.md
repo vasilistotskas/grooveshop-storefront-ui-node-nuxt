@@ -1,3 +1,17 @@
+# [3.301.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.300.1...v3.301.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** add ref and query data settings to the block catalogue ([#348](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/348)) ([4d231b2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4d231b2c5492c0c4755a895ffced18009c975539))
+
+## [3.300.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.300.0...v3.300.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **builder:** accept the restore version kind, read problems with the generated schemas ([#347](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/347)) ([acedadf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/acedadff8925c24b09806a63666a581271d3f3b3)), closes [#442](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/442)
+
 # [3.300.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.299.0...v3.300.0) (2026-11-03)
 
 

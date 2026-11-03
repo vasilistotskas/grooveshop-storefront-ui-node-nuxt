@@ -42,6 +42,7 @@ const version = (number: number) => ({
   sizeBytes: 10,
   blockTypes: [],
   catalogueHash: 'h',
+  restoredFrom: null,
 })
 
 async function openEditor(hasUnpublishedChanges: boolean) {
