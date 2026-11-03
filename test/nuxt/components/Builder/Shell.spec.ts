@@ -42,7 +42,7 @@ async function signOutFrom(wrapper: Awaited<ReturnType<typeof open>>) {
 }
 
 beforeEach(() => {
-  api.routes({ [SESSION_URL]: info, '/api/builder/documents': [] })
+  api.routes({ [SESSION_URL]: info, '/api/builder/documents': [], '/api/builder/presence': { documents: {} } })
 })
 
 describe('the builder shell', () => {
