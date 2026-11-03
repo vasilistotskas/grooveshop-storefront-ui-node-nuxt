@@ -156,7 +156,14 @@ of hand-building a payload in a second spec.
   route's lazy component before the navigation settles, so a spec that
   `router.replace`s onto a heavy page pays that page's whole transform —
   enough to blow the 5s budget under the full parallel run. When only the
-  route matters, `vi.mock` the page module with an empty component.
+  route matters, `vi.mock` the page module with an empty component. The first
+  navigation of a file also loads the page's LAYOUT (`layouts/default.vue`: the
+  header, the funding banner, `ImgWithFallback`, and through Nuxt UI the whole
+  reka-ui barrel, ~600 modules transformed cold, 0.7 to 1.8 s): the shared setup
+  (`test/fixtures/setup/nuxt.ts`) stubs the default layout for every spec, so a
+  `vi.waitFor` (default 1 s) on a navigation no longer fails whenever the machine
+  is busy (`Account/Login/Form.spec.ts`, 2026-11-03). A spec that tests the
+  layout calls `vi.unmock('~/layouts/default.vue')` (`design-render.spec.ts`).
 - **Answer `$api` the way ofetch does**: resolve with the body, or reject
   through `failWith(status, data)`. Never call `options.onResponse*` from a
   route handler — components, pages and composables take no response hooks
