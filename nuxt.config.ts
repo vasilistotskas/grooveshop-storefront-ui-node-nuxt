@@ -1343,6 +1343,7 @@ export default defineNuxtConfig({
       '/account/reauthenticate',
       // The page builder's staff shell: `robots: false` on the page too.
       '/_builder',
+      '/_builder/preview/**',
       '/cart',
       '/checkout',
       '/feedback',

@@ -1,3 +1,10 @@
+# [3.300.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.299.0...v3.300.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** share a preview of unsaved page changes by link ([#343](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/343)) ([2dbd3c8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2dbd3c83c356c5cd2e5129d4a194f94d920c5c84))
+
 # [3.299.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.298.0...v3.299.0) (2026-11-03)
 
 
