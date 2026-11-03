@@ -21,10 +21,12 @@ const land = (query: string, headers?: Record<string, string>) =>
   callRoute(handler, { route, url: `${route}${query}`, headers })
 
 const LOOKUP_FAILED = '/cart?paymentError=lookup'
+const ORDER_ANSWER = { kind: 'order', id: 7, uuid: ORDER_UUID, status: 'PENDING', paymentStatus: 'COMPLETED' }
+const PURCHASE_ANSWER = { kind: 'gift_card_purchase', purchaseUuid: PURCHASE_UUID, purchaseStatus: 'PENDING' }
 
 describe('GET /checkout/viva-return', () => {
   it('asks Django about the payment as the caller\'s store', async () => {
-    backend.reply({ kind: 'order', id: 7, uuid: ORDER_UUID, paymentStatus: 'COMPLETED' })
+    backend.reply(ORDER_ANSWER)
 
     await land(`?t=${TRANSACTION}&s=${ORDER_CODE}`, { 'x-forwarded-host': 'evil.example' })
 
@@ -39,7 +41,7 @@ describe('GET /checkout/viva-return', () => {
     ['only the order code (the webhook has not landed)', `?s=${ORDER_CODE}`, `/checkout/success/${ORDER_UUID}?s=${ORDER_CODE}`],
     ['only the transaction', `?t=${TRANSACTION}`, `/checkout/success/${ORDER_UUID}?t=${TRANSACTION}`],
   ])('redirects an order payment with %s to its success page', async (_label, query, location) => {
-    backend.reply({ kind: 'order', id: 7, uuid: ORDER_UUID })
+    backend.reply(ORDER_ANSWER)
 
     const response = await land(query)
 
@@ -48,7 +50,7 @@ describe('GET /checkout/viva-return', () => {
   })
 
   it('sends a gift-card purchase to the gift-card result page', async () => {
-    backend.reply({ kind: 'gift_card_purchase', purchaseUuid: PURCHASE_UUID, purchaseStatus: 'PENDING' })
+    backend.reply(PURCHASE_ANSWER)
 
     const response = await land(`?t=${TRANSACTION}&s=${ORDER_CODE}`)
 
@@ -84,10 +86,12 @@ describe('GET /checkout/viva-return', () => {
   it.each([
     ['an order with no uuid', { kind: 'order', id: 7 }],
     ['a gift-card purchase with no purchase uuid', { kind: 'gift_card_purchase', purchaseStatus: 'PENDING' }],
+    ['an order with no payment status', { kind: 'order', id: 7, uuid: ORDER_UUID, status: 'PENDING' }],
+    ['a kind the contract does not publish', { kind: 'refund', uuid: ORDER_UUID }],
+    ['no kind at all', { id: 7, uuid: ORDER_UUID, status: 'PENDING', paymentStatus: 'COMPLETED' }],
   ])('sends the shopper to the cart when Django answers %s', async (_label, answer) => {
-    // Django publishes the answer as one object with every field
-    // optional, so the shape the redirect needs is not guaranteed by the
-    // contract — a missing id must never become /checkout/success/undefined.
+    // The contract is a oneOf on `kind`: an answer that fits neither
+    // branch must never become /checkout/success/undefined.
     backend.reply(answer)
 
     const response = await land(`?s=${ORDER_CODE}`)

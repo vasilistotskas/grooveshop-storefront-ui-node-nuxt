@@ -1,4 +1,5 @@
-export interface StoreOffice {
+/** An office as the active locale renders it: the locale overlay is applied. */
+export interface ResolvedStoreOffice {
   label: string
   street: string
   area?: string
@@ -20,31 +21,20 @@ export interface StoreOffice {
  * where a customer visits, and a merchant often has several that are
  * none of them the seat.
  *
- * Fail-open chrome, matching `useBusinessHours`: an absent setting, the
- * empty default, or a shape that fails the contract all resolve to an
- * empty list and every consumer renders nothing.
+ * Fail-open chrome, matching `useBusinessHours`: an absent setting or
+ * the empty default resolves to an empty list and every consumer renders
+ * nothing.
  *
- * The locale overlay is a PARTIAL merge — see `#shared/schemas/
- * storeOffices` for why the numbers are not part of it.
+ * The locale overlay is a PARTIAL merge: a postcode and a phone
+ * number read the same in every language, so the overlay carries the text
+ * keys only.
  */
 export function useStoreOffices() {
   const { locale } = useI18n({ useScope: 'global' })
-  const value = useSettingValue('STORE_OFFICES')
+  const { storeOffices } = useStoreSettings()
 
-  const parsed = computed(() => {
-    const raw = value.value
-    const offices = parseStoreOfficesValue(raw)
-    if (offices === null && raw && raw !== '[]') {
-      log.warn({
-        tag: 'store-offices',
-        message: 'STORE_OFFICES setting failed shape validation',
-      })
-    }
-    return offices ?? []
-  })
-
-  const offices = computed<StoreOffice[]>(() =>
-    parsed.value.map((office) => {
+  const offices = computed<ResolvedStoreOffice[]>(() =>
+    storeOffices.value.map((office) => {
       const merged = { ...office, ...(office.i18n?.[locale.value] ?? {}) }
       return {
         label: merged.label,

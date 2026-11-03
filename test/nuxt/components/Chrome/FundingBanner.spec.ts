@@ -4,17 +4,17 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ChromeFundingBanner from '~/components/Chrome/FundingBanner.vue'
 
 /**
- * The EU co-funding strip: rendered from the `FUNDING_BANNER` setting as
- * ONE link around the artwork and the optional label, and nothing at all
- * when the setting is missing, off or malformed.
+ * The EU co-funding strip: rendered from the `fundingBanner` Django serves
+ * typed on `/settings/public` as ONE link around the artwork and the
+ * optional label, and nothing at all when it is off or has nothing to show.
  */
 const { setting, observed } = vi.hoisted(() => ({
-  setting: { value: '' as string },
+  setting: { value: { enabled: false } as FundingBanner },
   // Every in-page copy's IntersectionObserver callback, in mount order.
   observed: [] as Array<(entries: Array<{ isIntersecting: boolean }>) => void>,
 }))
 
-mockNuxtImport('useSettingValue', () => () => computed(() => setting.value))
+mockNuxtImport('useStoreSettings', () => () => ({ fundingBanner: computed(() => setting.value) }))
 mockNuxtImport('useIntersectionObserver', () => (_target: unknown, callback: (entries: Array<{ isIntersecting: boolean }>) => void) => {
   observed.push(callback)
   return { stop: () => {}, pause: () => {}, resume: () => {}, isSupported: true, isActive: true }
@@ -22,7 +22,7 @@ mockNuxtImport('useIntersectionObserver', () => (_target: unknown, callback: (en
 
 const ALT = 'Με τη συγχρηματοδότηση της Ευρωπαϊκής Ένωσης — ΕΣΠΑ 2021-2027'
 
-const banner = (value: Record<string, unknown> = {}) => JSON.stringify({
+const banner = (value: Partial<FundingBanner> = {}): FundingBanner => ({
   enabled: true,
   image: '/img/espa.png',
   width: 1800,
@@ -37,7 +37,7 @@ const mountBanner = (props: { framed?: boolean } = {}) =>
 
 describe('Chrome/FundingBanner', () => {
   beforeEach(() => {
-    setting.value = ''
+    setting.value = { enabled: false }
     observed.length = 0
     clearNuxtState('funding-banner-visibility')
   })
@@ -229,13 +229,9 @@ describe('Chrome/FundingBanner', () => {
 
   describe('renders nothing', () => {
     it.each([
-      ['no setting', ''],
-      ['an empty object', '{}'],
-      ['malformed JSON', '{"enabled":'],
-      ['a disabled banner', JSON.stringify({ enabled: false, alt: ALT, image: '/img/espa.png', width: 1800, height: 197 })],
-      ['an enabled banner without alt', JSON.stringify({ enabled: true, image: '/img/espa.png', width: 1800, height: 197 })],
-      ['an image over http', banner({ image: 'http://example.com/espa.png' })],
-      ['neither artwork nor label', JSON.stringify({ enabled: true, alt: ALT })],
+      ['no banner', { enabled: false }],
+      ['a disabled banner', banner({ enabled: false })],
+      ['neither artwork nor label', { enabled: true, alt: ALT }],
     ])('for %s', async (_name, value) => {
       setting.value = value
 

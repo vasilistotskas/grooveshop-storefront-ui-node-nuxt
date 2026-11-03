@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: Django
+  title: GrooveShop API
   version: 1.0.0
-  description: Django
+  description: GrooveShop API
 paths:
   /api/v1/agent/me:
     get:
@@ -34957,6 +34957,68 @@ components:
         * `ucp` - ucp
         * `acp` - acp
         * `mcp` - mcp
+    AnnouncementBar:
+      type: object
+      description: |-
+        The strip above the storefront header.
+
+        ``text`` is the DEFAULT locale's wording, ``i18n`` overrides it per
+        locale. ``short_text`` is the phone's copy and falls back to ``text``.
+        ``code`` is a promo code, one token, the same in every language, so it
+        is not an override key. ``id`` is what a dismissal is remembered
+        against in the visitor's browser: changing it re-shows the bar.
+      properties:
+        enabled:
+          type: boolean
+        text:
+          type: string
+          maxLength: 200
+        shortText:
+          type: string
+          maxLength: 80
+        code:
+          type: string
+          pattern: ^\S+$
+          maxLength: 40
+        link:
+          oneOf:
+            - type: string
+              pattern: ^(/|https://)
+              maxLength: 1000
+            - type: string
+              maxLength: 0
+        icon:
+          oneOf:
+            - type: string
+              pattern: ^i-[a-z0-9:-]+$
+              maxLength: 100
+            - type: string
+              maxLength: 0
+        color:
+          $ref: '#/components/schemas/ColorEnum'
+        dismissible:
+          type: boolean
+        id:
+          type: string
+          maxLength: 64
+        i18n:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AnnouncementBarOverride'
+          description: Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+      required:
+        - enabled
+        - text
+    AnnouncementBarOverride:
+      type: object
+      description: A serializer that refuses a key it does not declare.
+      properties:
+        text:
+          type: string
+          maxLength: 200
+        shortText:
+          type: string
+          maxLength: 80
     Asset:
       type: object
       properties:
@@ -35276,6 +35338,35 @@ components:
         - updatedAt
         - usageCount
         - uuid
+    AuthPanel:
+      type: object
+      description: |-
+        The photo and the line on the ink panel beside the sign-in pages.
+
+        ``image_url`` is a stored media path, the same bare string every
+        page-section image prop holds. ``tagline`` is the DEFAULT locale's
+        wording. The image is not translatable, so it is not an override key.
+      properties:
+        imageUrl:
+          type: string
+          maxLength: 1000
+        tagline:
+          type: string
+          maxLength: 200
+        i18n:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AuthPanelOverride'
+          description: Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+    AuthPanelOverride:
+      type: object
+      description: A serializer that refuses a key it does not declare.
+      properties:
+        tagline:
+          type: string
+          maxLength: 200
+      required:
+        - tagline
     B2BErrorResponse:
       type: object
       properties:
@@ -37527,6 +37618,18 @@ components:
         - alreadyProcessed
         - failed
         - success
+    BusinessHours:
+      type: object
+      description: Weekly opening hours in an IANA time zone.
+      properties:
+        timezone:
+          type: string
+          maxLength: 64
+        schedule:
+          $ref: '#/components/schemas/WeekSchedule'
+      required:
+        - schedule
+        - timezone
     BusinessProfile:
       type: object
       properties:
@@ -38478,6 +38581,24 @@ components:
         * `li_fat_id` - li_fat_id
         * `epik` - epik
         * `fbclid` - fbclid
+    ColorEnum:
+      enum:
+        - primary
+        - secondary
+        - neutral
+        - info
+        - success
+        - warning
+        - error
+      type: string
+      description: |-
+        * `primary` - primary
+        * `secondary` - secondary
+        * `neutral` - neutral
+        * `info` - info
+        * `success` - success
+        * `warning` - warning
+        * `error` - error
     CompartmentSizeEnum:
       enum:
         - 1
@@ -39286,6 +39407,19 @@ components:
       required:
         - end
         - start
+    DayHours:
+      type: object
+      description: A serializer that refuses a key it does not declare.
+      properties:
+        opens:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+        closes:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+      required:
+        - closes
+        - opens
     DeleteAccountRequestRequest:
       type: object
       description: |-
@@ -39681,6 +39815,69 @@ components:
         - providerCode
         - providerName
         - threshold
+    FundingBanner:
+      type: object
+      description: |-
+        The EU/ESPA co-funding strip at the very top of every page.
+
+        ``image`` and ``link`` are a site-relative path or an ``https://`` URL.
+        ``width`` and ``height`` are the artwork's intrinsic size, so the
+        storefront reserves its box before it loads. ``image``, ``alt`` and
+        ``link`` are required when ``enabled``.
+      properties:
+        image:
+          type: string
+          maxLength: 1000
+        width:
+          type: integer
+          maximum: 10000
+          minimum: 1
+        height:
+          type: integer
+          maximum: 10000
+          minimum: 1
+        alt:
+          type: string
+          maxLength: 300
+        label:
+          type: string
+          maxLength: 120
+        enabled:
+          type: boolean
+        link:
+          type: string
+          maxLength: 1000
+        i18n:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FundingBannerOverride'
+          description: Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+      required:
+        - enabled
+    FundingBannerOverride:
+      type: object
+      description: |-
+        What a locale may replace: the artwork (the official strip exists
+        per language) and the words. ``link`` and ``enabled`` are one decision
+        for every language.
+      properties:
+        image:
+          type: string
+          maxLength: 1000
+        width:
+          type: integer
+          maximum: 10000
+          minimum: 1
+        height:
+          type: integer
+          maximum: 10000
+          minimum: 1
+        alt:
+          type: string
+          maxLength: 300
+        label:
+          type: string
+          maxLength: 120
     GiftCard:
       type: object
       properties:
@@ -48514,8 +48711,37 @@ components:
           additionalProperties:
             type: string
           description: Τιμές ρυθμίσεων με κλειδί το όνομα της ρύθμισης.
+        announcementBar:
+          allOf:
+            - $ref: '#/components/schemas/AnnouncementBar'
+          nullable: true
+        authPanel:
+          allOf:
+            - $ref: '#/components/schemas/AuthPanel'
+          nullable: true
+        fundingBanner:
+          $ref: '#/components/schemas/FundingBanner'
+        storeOffices:
+          type: array
+          items:
+            $ref: '#/components/schemas/StoreOffice'
+        businessHours:
+          allOf:
+            - $ref: '#/components/schemas/BusinessHours'
+          nullable: true
+        contactAttachmentsTypes:
+          type: array
+          items:
+            type: string
+          description: The MIME types the contact form accepts.
       required:
+        - announcementBar
+        - authPanel
+        - businessHours
+        - contactAttachmentsTypes
+        - fundingBanner
         - settings
+        - storeOffices
     PublishCheck:
       type: object
       properties:
@@ -50011,6 +50237,55 @@ components:
         - productSuggestions
         - promotions
         - wholesale
+    StoreOffice:
+      type: object
+      description: |-
+        A public office or branch address.
+
+        ``role`` is the short word a design prints beside an office (``Head
+        office``, ``Branch``). ``i18n`` is a PARTIAL per-locale override of the
+        text keys only: a postcode and a phone number are the same in every
+        language, so duplicating them per locale would only invite drift.
+      properties:
+        label:
+          type: string
+        street:
+          type: string
+        area:
+          type: string
+        postal:
+          type: string
+        city:
+          type: string
+        role:
+          type: string
+        phones:
+          type: array
+          items:
+            type: string
+          maxItems: 6
+        i18n:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/StoreOfficeOverride'
+          description: Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+      required:
+        - label
+        - street
+    StoreOfficeOverride:
+      type: object
+      description: A serializer that refuses a key it does not declare.
+      properties:
+        label:
+          type: string
+        street:
+          type: string
+        area:
+          type: string
+        city:
+          type: string
+        role:
+          type: string
     StorePreferences:
       type: object
       description: |-
@@ -51907,20 +52182,44 @@ components:
         * `VALID` - Έγκυρο
         * `INVALID` - Μη έγκυρο
         * `UNAVAILABLE` - Υπηρεσία μη διαθέσιμη
-    VivaReturnLookupResponse:
+    VivaReturnGiftCardPurchaseResponse:
       type: object
       description: |-
-        Minimal, PII-free payload for the Viva post-payment redirect hop.
+        A Smart Checkout return that resolved to a gift-card PURCHASE.
 
-        ``kind`` discriminates the two things a Smart Checkout return can
-        resolve to: an order, or a gift-card PURCHASE (which shares the
-        same static return URL but is not an order). Order fields are
-        absent for purchases and vice versa.
+        Purchases share the static return URL with orders but are not orders.
       properties:
         kind:
-          allOf:
-            - $ref: '#/components/schemas/VivaReturnLookupResponseKindEnum'
-          default: order
+          $ref: '#/components/schemas/VivaReturnGiftCardPurchaseResponseKindEnum'
+        purchaseUuid:
+          type: string
+          format: uuid
+        purchaseStatus:
+          type: string
+      required:
+        - kind
+        - purchaseStatus
+        - purchaseUuid
+    VivaReturnGiftCardPurchaseResponseKindEnum:
+      enum:
+        - gift_card_purchase
+      type: string
+      description: '* `gift_card_purchase` - gift_card_purchase'
+    VivaReturnLookupResponse:
+      oneOf:
+        - $ref: '#/components/schemas/VivaReturnOrderResponse'
+        - $ref: '#/components/schemas/VivaReturnGiftCardPurchaseResponse'
+      discriminator:
+        propertyName: kind
+        mapping:
+          order: '#/components/schemas/VivaReturnOrderResponse'
+          gift_card_purchase: '#/components/schemas/VivaReturnGiftCardPurchaseResponse'
+    VivaReturnOrderResponse:
+      type: object
+      description: A Smart Checkout return that resolved to an order (PII-free).
+      properties:
+        kind:
+          $ref: '#/components/schemas/VivaReturnOrderResponseKindEnum'
         id:
           type: integer
         uuid:
@@ -51930,19 +52229,17 @@ components:
           type: string
         paymentStatus:
           type: string
-        purchaseUuid:
-          type: string
-          format: uuid
-        purchaseStatus:
-          type: string
-    VivaReturnLookupResponseKindEnum:
+      required:
+        - id
+        - kind
+        - paymentStatus
+        - status
+        - uuid
+    VivaReturnOrderResponseKindEnum:
       enum:
         - order
-        - gift_card_purchase
       type: string
-      description: |-
-        * `order` - order
-        * `gift_card_purchase` - gift_card_purchase
+      description: '* `order` - order'
     WebSocketTicketResponse:
       type: object
       properties:
@@ -51953,6 +52250,46 @@ components:
       required:
         - expiresIn
         - ticket
+    WeekSchedule:
+      type: object
+      description: One entry per weekday; ``null`` is closed that day.
+      properties:
+        mon:
+          allOf:
+            - $ref: '#/components/schemas/DayHours'
+          nullable: true
+        tue:
+          allOf:
+            - $ref: '#/components/schemas/DayHours'
+          nullable: true
+        wed:
+          allOf:
+            - $ref: '#/components/schemas/DayHours'
+          nullable: true
+        thu:
+          allOf:
+            - $ref: '#/components/schemas/DayHours'
+          nullable: true
+        fri:
+          allOf:
+            - $ref: '#/components/schemas/DayHours'
+          nullable: true
+        sat:
+          allOf:
+            - $ref: '#/components/schemas/DayHours'
+          nullable: true
+        sun:
+          allOf:
+            - $ref: '#/components/schemas/DayHours'
+          nullable: true
+      required:
+        - fri
+        - mon
+        - sat
+        - sun
+        - thu
+        - tue
+        - wed
     ZeroResultQuery:
       type: object
       description: Serializer for zero-result query analytics.

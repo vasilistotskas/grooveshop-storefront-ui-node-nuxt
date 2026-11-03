@@ -9,25 +9,13 @@
  * by writing the id to localStorage and hiding the bar through a class
  * on `<html>` before paint. Nothing here reads a cookie or the session.
  *
- * Fails silent: no setting, malformed JSON, or a shape the guard
- * rejects all render nothing. A bar is chrome, not content.
+ * Fails silent: no bar, or a disabled one, renders nothing. A bar is
+ * chrome, not content.
  */
 const { locale } = useI18n()
-const raw = useSettingValue('ANNOUNCEMENT_BAR')
+const { announcementBar } = useStoreSettings()
 
-const bar = computed(() => {
-  const value = raw.value
-  if (!value || value === '{}') return null
-  const parsed = parseAnnouncementBarValue(value)
-  if (!parsed) {
-    log.warn({
-      tag: 'announcement-bar',
-      message: 'ANNOUNCEMENT_BAR setting failed shape validation',
-    })
-    return null
-  }
-  return parsed.enabled ? parsed : null
-})
+const bar = computed(() => announcementBar.value?.enabled ? announcementBar.value : null)
 
 const text = computed(() =>
   bar.value ? announcementText(bar.value, locale.value) : '',

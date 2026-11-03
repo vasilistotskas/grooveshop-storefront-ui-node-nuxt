@@ -6,16 +6,17 @@ import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The Volt sign-in frame's ink panel: the store's description until the
- * `AUTH_PANEL` setting supplies a photo and a line, which then show in
- * the page's locale. A missing or malformed setting changes nothing.
+ * `authPanel` Django serves typed on `/settings/public` supplies a photo
+ * and a line, which then show in the page's locale. A missing one changes
+ * nothing.
  */
-const { setting } = vi.hoisted(() => ({ setting: { value: '' as string } }))
+const { setting } = vi.hoisted(() => ({ setting: { value: null as AuthPanel | null } }))
 
-mockNuxtImport('useSettingValue', () => () => computed(() => setting.value))
+mockNuxtImport('useStoreSettings', () => () => ({ authPanel: computed(() => setting.value) }))
 
 const DESCRIPTION = 'Η περιγραφή του καταστήματος'
 
-const panel = (value: Record<string, unknown> = {}) => JSON.stringify({
+const panel = (value: Partial<AuthPanel> = {}): AuthPanel => ({
   imageUrl: 'media/demo/uploads/hero-audio.jpg',
   tagline: 'Ακουστικά που κάθονται σωστά.',
   i18n: { en: { tagline: 'Earbuds that actually fit.' } },
@@ -27,7 +28,7 @@ const mountLayout = (route = '/account/login') => mountSuspended(AuthSplit, { ro
 const aside = (wrapper: Awaited<ReturnType<typeof mountLayout>>) => wrapper.get('aside')
 
 beforeEach(() => {
-  setting.value = ''
+  setting.value = null
   setTenant({ storeDescription: DESCRIPTION, availableLocales: ['el', 'en'] })
 })
 
@@ -56,15 +57,6 @@ describe('layouts/auth-split', () => {
       expect(aside(wrapper).text()).toContain('The store\'s description')
       expect(aside(wrapper).text()).not.toContain(DESCRIPTION)
     })
-
-    it('ignores a setting that fails its shape guard', async () => {
-      setting.value = panel({ nope: true })
-
-      const wrapper = await mountLayout()
-
-      expect(aside(wrapper).text()).toContain(DESCRIPTION)
-      expect(aside(wrapper).find('img').exists()).toBe(false)
-    })
   })
 
   describe('with an AUTH_PANEL setting', () => {
@@ -87,7 +79,7 @@ describe('layouts/auth-split', () => {
     })
 
     it('shows the photo with the store\'s description when the setting carries no line', async () => {
-      setting.value = JSON.stringify({ imageUrl: 'media/demo/uploads/hero-audio.jpg' })
+      setting.value = { imageUrl: 'media/demo/uploads/hero-audio.jpg' }
 
       const wrapper = await mountLayout()
 
@@ -96,7 +88,7 @@ describe('layouts/auth-split', () => {
     })
 
     it('shows the line over the plain panel when the setting carries no photo', async () => {
-      setting.value = JSON.stringify({ tagline: 'Μόνο λόγια' })
+      setting.value = { tagline: 'Μόνο λόγια' }
 
       const wrapper = await mountLayout()
 

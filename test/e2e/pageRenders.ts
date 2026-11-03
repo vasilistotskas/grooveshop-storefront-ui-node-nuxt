@@ -245,8 +245,17 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
   }
 
   if (reqUrl.pathname.endsWith('/settings/public')) {
-    // No rows at all: every flag resolves to its caller's fallback.
-    sendJson(res, { settings: {} })
+    // No rows at all: every flag resolves to its caller's fallback, and
+    // none of the structured settings is configured.
+    sendJson(res, {
+      settings: {},
+      announcementBar: null,
+      authPanel: null,
+      fundingBanner: { enabled: false },
+      storeOffices: [],
+      businessHours: null,
+      contactAttachmentsTypes: [],
+    })
     return
   }
 

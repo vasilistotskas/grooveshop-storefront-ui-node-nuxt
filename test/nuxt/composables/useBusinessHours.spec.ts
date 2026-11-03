@@ -7,11 +7,11 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
  * clock-dependent fields must not be read off the server's clock: they
  * are unknown until the page has mounted in the visitor's browser.
  */
-const setting = vi.hoisted(() => ({ value: '' }))
+const setting = vi.hoisted(() => ({ value: null as BusinessHours | null }))
 
-mockNuxtImport('useSettingValue', () => () => computed(() => setting.value))
+mockNuxtImport('useStoreSettings', () => () => ({ businessHours: computed(() => setting.value) }))
 
-const HOURS = {
+const HOURS: BusinessHours = {
   timezone: 'Europe/Athens',
   schedule: {
     mon: { opens: '10:00', closes: '19:00' },
@@ -46,7 +46,7 @@ function mountReader() {
 }
 
 beforeEach(() => {
-  setting.value = JSON.stringify(HOURS)
+  setting.value = HOURS
   vi.useFakeTimers({ toFake: ['Date'] })
 })
 
@@ -94,12 +94,12 @@ describe('useBusinessHours', () => {
   })
 
   it('has no data for an unset setting or an Intl-unknown timezone, whatever the clock says', async () => {
-    setting.value = ''
+    setting.value = null
     const unset = mountReader()
     await unset.mount()
     expect(unset.atSetup.hasData).toBe(false)
 
-    setting.value = JSON.stringify({ ...HOURS, timezone: 'Mars/Olympus' })
+    setting.value = { ...HOURS, timezone: 'Mars/Olympus' }
     const unknown = mountReader()
     await unknown.mount()
     expect(unknown.atSetup.hasData).toBe(false)

@@ -467,6 +467,41 @@ export type AgentProfile = {
  */
 export type AgentProtocolEnum = 'ucp' | 'acp' | 'mcp'
 
+/**
+ * The strip above the storefront header.
+ *
+ * ``text`` is the DEFAULT locale's wording, ``i18n`` overrides it per
+ * locale. ``short_text`` is the phone's copy and falls back to ``text``.
+ * ``code`` is a promo code, one token, the same in every language, so it
+ * is not an override key. ``id`` is what a dismissal is remembered
+ * against in the visitor's browser: changing it re-shows the bar.
+ */
+export type AnnouncementBar = {
+  enabled: boolean
+  text: string
+  shortText?: string
+  code?: string
+  link?: string | string
+  icon?: string | string
+  color?: ColorEnum
+  dismissible?: boolean
+  id?: string
+  /**
+     * Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+     */
+  i18n?: {
+    [key: string]: AnnouncementBarOverride
+  }
+}
+
+/**
+ * A serializer that refuses a key it does not declare.
+ */
+export type AnnouncementBarOverride = {
+  text?: string
+  shortText?: string
+}
+
 export type Asset = {
   readonly id: number
   readonly path: string
@@ -665,6 +700,31 @@ export type AttributeValue = {
      * Ενημερώθηκε στις
      */
   readonly updatedAt: string
+}
+
+/**
+ * The photo and the line on the ink panel beside the sign-in pages.
+ *
+ * ``image_url`` is a stored media path, the same bare string every
+ * page-section image prop holds. ``tagline`` is the DEFAULT locale's
+ * wording. The image is not translatable, so it is not an override key.
+ */
+export type AuthPanel = {
+  imageUrl?: string
+  tagline?: string
+  /**
+     * Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+     */
+  i18n?: {
+    [key: string]: AuthPanelOverride
+  }
+}
+
+/**
+ * A serializer that refuses a key it does not declare.
+ */
+export type AuthPanelOverride = {
+  tagline: string
 }
 
 export type B2bErrorResponse = {
@@ -2118,6 +2178,14 @@ export type BulkSubscriptionResult = {
   readonly alreadyProcessed: Array<string>
 }
 
+/**
+ * Weekly opening hours in an IANA time zone.
+ */
+export type BusinessHours = {
+  timezone: string
+  schedule: WeekSchedule
+}
+
 export type BusinessProfile = {
   readonly uuid: string
   /**
@@ -2654,6 +2722,17 @@ export type CheckpointWriteRequest = {
  * * `fbclid` - fbclid
  */
 export type ClickIdsEnum = 'gclid' | 'gbraid' | 'wbraid' | 'msclkid' | 'ttclid' | 'twclid' | 'li_fat_id' | 'epik' | 'fbclid'
+
+/**
+ * * `primary` - primary
+ * * `secondary` - secondary
+ * * `neutral` - neutral
+ * * `info` - info
+ * * `success` - success
+ * * `warning` - warning
+ * * `error` - error
+ */
+export type ColorEnum = 'primary' | 'secondary' | 'neutral' | 'info' | 'success' | 'warning' | 'error'
 
 /**
  * * `1` - Μικρό
@@ -3218,6 +3297,14 @@ export type DateRange = {
 }
 
 /**
+ * A serializer that refuses a key it does not declare.
+ */
+export type DayHours = {
+  opens: string
+  closes: string
+}
+
+/**
  * Body for ``POST user/account/{id}/delete_account``.
  *
  * Requires the user to re-type ``DELETE`` as a guardrail. The allauth
@@ -3459,6 +3546,43 @@ export type FreeShippingProviderEntry = {
      */
   threshold: number
   priority: number
+}
+
+/**
+ * The EU/ESPA co-funding strip at the very top of every page.
+ *
+ * ``image`` and ``link`` are a site-relative path or an ``https://`` URL.
+ * ``width`` and ``height`` are the artwork's intrinsic size, so the
+ * storefront reserves its box before it loads. ``image``, ``alt`` and
+ * ``link`` are required when ``enabled``.
+ */
+export type FundingBanner = {
+  image?: string
+  width?: number
+  height?: number
+  alt?: string
+  label?: string
+  enabled: boolean
+  link?: string
+  /**
+     * Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+     */
+  i18n?: {
+    [key: string]: FundingBannerOverride
+  }
+}
+
+/**
+ * What a locale may replace: the artwork (the official strip exists
+ * per language) and the words. ``link`` and ``enabled`` are one decision
+ * for every language.
+ */
+export type FundingBannerOverride = {
+  image?: string
+  width?: number
+  height?: number
+  alt?: string
+  label?: string
 }
 
 export type GiftCard = {
@@ -8406,6 +8530,15 @@ export type PublicSettings = {
   settings: {
     [key: string]: string
   }
+  announcementBar: AnnouncementBar | null
+  authPanel: AuthPanel | null
+  fundingBanner: FundingBanner
+  storeOffices: Array<StoreOffice>
+  businessHours: BusinessHours | null
+  /**
+     * The MIME types the contact form accepts.
+     */
+  contactAttachmentsTypes: Array<string>
 }
 
 export type PublishCheck = {
@@ -9280,6 +9413,41 @@ export type StoreFeatures = {
   readonly chatWidget: boolean
   readonly catalogue: boolean
   readonly cart: boolean
+}
+
+/**
+ * A public office or branch address.
+ *
+ * ``role`` is the short word a design prints beside an office (``Head
+ * office``, ``Branch``). ``i18n`` is a PARTIAL per-locale override of the
+ * text keys only: a postcode and a phone number are the same in every
+ * language, so duplicating them per locale would only invite drift.
+ */
+export type StoreOffice = {
+  label: string
+  street: string
+  area?: string
+  postal?: string
+  city?: string
+  role?: string
+  phones?: Array<string>
+  /**
+     * Per-locale overrides keyed by locale code. The default locale is the setting's own values and is not a key.
+     */
+  i18n?: {
+    [key: string]: StoreOfficeOverride
+  }
+}
+
+/**
+ * A serializer that refuses a key it does not declare.
+ */
+export type StoreOfficeOverride = {
+  label?: string
+  street?: string
+  area?: string
+  city?: string
+  role?: string
 }
 
 /**
@@ -10501,32 +10669,59 @@ export type VersionList = {
 export type ViesStatusEnum = 'UNCHECKED' | 'VALID' | 'INVALID' | 'UNAVAILABLE'
 
 /**
- * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ * A Smart Checkout return that resolved to a gift-card PURCHASE.
  *
- * ``kind`` discriminates the two things a Smart Checkout return can
- * resolve to: an order, or a gift-card PURCHASE (which shares the
- * same static return URL but is not an order). Order fields are
- * absent for purchases and vice versa.
+ * Purchases share the static return URL with orders but are not orders.
  */
-export type VivaReturnLookupResponse = {
-  kind?: VivaReturnLookupResponseKindEnum
-  id?: number
-  uuid?: string
-  status?: string
-  paymentStatus?: string
-  purchaseUuid?: string
-  purchaseStatus?: string
+export type VivaReturnGiftCardPurchaseResponse = {
+  kind: VivaReturnGiftCardPurchaseResponseKindEnum
+  purchaseUuid: string
+  purchaseStatus: string
+}
+
+/**
+ * * `gift_card_purchase` - gift_card_purchase
+ */
+export type VivaReturnGiftCardPurchaseResponseKindEnum = 'gift_card_purchase'
+
+export type VivaReturnLookupResponse = ({
+  kind: 'order'
+} & VivaReturnOrderResponse) | ({
+  kind: 'gift_card_purchase'
+} & VivaReturnGiftCardPurchaseResponse)
+
+/**
+ * A Smart Checkout return that resolved to an order (PII-free).
+ */
+export type VivaReturnOrderResponse = {
+  kind: VivaReturnOrderResponseKindEnum
+  id: number
+  uuid: string
+  status: string
+  paymentStatus: string
 }
 
 /**
  * * `order` - order
- * * `gift_card_purchase` - gift_card_purchase
  */
-export type VivaReturnLookupResponseKindEnum = 'order' | 'gift_card_purchase'
+export type VivaReturnOrderResponseKindEnum = 'order'
 
 export type WebSocketTicketResponse = {
   ticket: string
   expiresIn: number
+}
+
+/**
+ * One entry per weekday; ``null`` is closed that day.
+ */
+export type WeekSchedule = {
+  mon: DayHours | null
+  tue: DayHours | null
+  wed: DayHours | null
+  thu: DayHours | null
+  fri: DayHours | null
+  sat: DayHours | null
+  sun: DayHours | null
 }
 
 /**
