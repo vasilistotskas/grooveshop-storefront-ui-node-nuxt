@@ -27,7 +27,7 @@ export default defineEventHandler(async (event): Promise<BuilderPreviewResponse>
       headers,
       body: { pageKey: parseBuilderDocumentKey(pageKey).name, locale: requestLocale(event), documents },
     }).then(response => parseDataAs(response, zApiV1BuilderPreviewResolveCreateResponse))
-    const preview = await builderPreviewOf(event, pageKey, resolving)
+    const preview = await builderPreviewOf(event, pageKey, resolving, { keepHidden: true })
     event.res.headers.set('Cache-Control', 'private, no-store')
     return preview
   }

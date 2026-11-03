@@ -1,60 +1,32 @@
-import { FetchError } from 'ofetch'
-import { getRouterParam, useRuntimeConfig } from 'nuxt/server'
+import { defineEventHandler } from 'nuxt/server'
 
 /**
- * A published page of the store, ready to render: the page document of the
- * current release, resolved for the page's language by Django (the overlay
- * merged, disabled nodes dropped) and then made safe here (`builderPageOf`:
- * every node brought to its block's current version, validated, rebuilt from
- * the parse, an unusable one left out with a warning). Each section is
- * answered as its block type and the props its component gets
+ * A published page of the store, ready to render: its document from the
+ * current release (`readPublishedPage`: resolved for the page's language by
+ * Django, then made safe here, cached), then everything that depends on the
+ * store as it is NOW (`renderBuilderPage`): the data its sections show
+ * (products, posts, categories, offers: read in as few calls as the page
+ * allows, each cached briefly on its own), the addresses its links have, and
+ * each section as its block type and the props its component gets
  * (`sectionProps`), so the client never holds a block definition or Zod.
  *
- * A link setting is stored as WHERE it goes (an external URL, a fixed route or
- * a record) and answered as the address it has now (`resolveLinks`): a record
- * renamed after the page was written is linked at its new slug, and a link to
- * something gone is left out of the props. The slugs come from one call to
- * Django, inside this cache, so a rename shows within the cache's lifetime.
+ * The document and the data are cached apart on purpose: a release is
+ * immutable and lives minutes, while a price or a name changes any time, and
+ * the page must never freeze one inside the other. This route is not cached
+ * itself, and `edge-cache.ts` marks it `private, no-store` like every `/api`
+ * GET that states no caching of its own.
  *
  * `{ page: null }` is Django's `page_not_published`, the normal state of a
- * page type the store has not built: data, so it is cached (a thrown error
- * is never cached, and each render would pay a round-trip). Every other
- * failure, a 5xx or a network error included, propagates: the pages that
- * answer 404 for an unbuilt page must be able to tell it from an outage.
- *
- * Cached as the handler named `builderPage`: Django's purge after a release
- * names it (`core/cache/surfaces.py`, the `builder` surface), so renaming it
- * stops a publish reaching visitors until the TTL runs out. The release is
- * immutable and the key carries the store, the language and the store's
- * epoch, which a release moves.
+ * page type the store has not built (see `readPublishedPage`).
  */
-export default defineCachedRoute(async (event): Promise<BuilderPageResponse> => {
-  const config = useRuntimeConfig()
+export default defineEventHandler(async (event): Promise<BuilderPageResponse> => {
   try {
     const { pageKey } = await parseRouterParams(event, ZodBuilderPageParams)
     // The page's language, clamped to the store's by `server/middleware/1.locale.ts`.
-    const response = await useBackendFetch(event)(
-      `${config.apiBaseUrl}/builder/published/${pageKey}`,
-      { method: 'GET', query: { locale: requestLocale(event) } },
-    )
-    const published = await parseDataAs(response, zApiV1BuilderPublishedRetrieveResponse)
-    return { page: await builderPageOf(event, published.page) }
+    const document = await readPublishedPage(requestTenantHost(event), requestLocale(event), pageKey, storeFeatureOf(event))
+    return { page: document ? await renderBuilderPage(event, document) : null }
   }
   catch (error) {
-    if (error instanceof FetchError && error.statusCode === 404 && isNotPublished(error.data)) {
-      return { page: null }
-    }
     return handleError(event, error)
   }
-}, {
-  name: 'builderPage',
-  maxAge: 60 * 5,
-  staleMaxAge: 60 * 60,
-  swr: true,
-  getKey: event => tenantCacheKey(event, `builder:${getRouterParam(event, 'pageKey', { decode: true })}`),
 })
-
-/** Django's own 404 for an unbuilt page, not any other not-found. */
-function isNotPublished(body: unknown): boolean {
-  return typeof body === 'object' && body !== null && 'code' in body && body.code === 'page_not_published'
-}
