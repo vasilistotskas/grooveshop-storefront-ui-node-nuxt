@@ -117,7 +117,7 @@ describe('the autosave', () => {
   it('says which problems Django found when it refuses the document', async () => {
     const editor = await openHome()
     const autosave = useBuilderAutosaveStore()
-    const errors = [{ path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Too long.' }]
+    const errors = [{ path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Too long.', document: null, params: null }]
     api.routes({ [DRAFT]: failWith(400, { code: 'invalid_document', detail: 'x', errors }) })
 
     changeOnce(editor)
@@ -212,6 +212,37 @@ describe('the autosave', () => {
 
     expect(saves()).toHaveLength(1)
     expect(saves()[0]!.options.keepalive).toBe(true)
+  })
+
+  describe('settling before a publish', () => {
+    it('saves what waits now, without waiting out the delay, and answers that it is saved', async () => {
+      const editor = await openHome()
+      const autosave = useBuilderAutosaveStore()
+      changeOnce(editor)
+
+      const settled = await autosave.settle([HOME])
+
+      expect(settled).toBe(true)
+      expect(saves()).toHaveLength(1)
+      expect(autosave.stateOf(HOME)).toBe('saved')
+    })
+
+    it('answers at once for documents with nothing to save', async () => {
+      await openHome()
+
+      expect(await useBuilderAutosaveStore().settle([HOME])).toBe(true)
+      expect(saves()).toHaveLength(0)
+    })
+
+    it('answers that a document is not saved when Django refuses it', async () => {
+      api.routes({ [LIST]: [row], [DETAIL]: envelope(3), [DRAFT]: failWith(400, { code: 'invalid_document', detail: 'x', errors: [{ path: '/sections/hero', code: 'invalid', message: 'Bad.' }] }) })
+      const editor = await openHome()
+      const autosave = useBuilderAutosaveStore()
+      changeOnce(editor)
+
+      expect(await autosave.settle([HOME])).toBe(false)
+      expect(autosave.stateOf(HOME)).toBe('invalid')
+    })
   })
 
   it('reports the most urgent state of all documents', async () => {

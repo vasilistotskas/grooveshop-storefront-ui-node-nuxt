@@ -1,3 +1,24 @@
+# [3.299.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.298.0...v3.299.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** publish and schedule from the editor ([#345](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/345)) ([6c8dfdf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6c8dfdf2132ce54175b7749af4aecc6698d8f1f5)), closes [#446](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/446)
+
+# [3.298.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.297.0...v3.298.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** presence notice when someone else edits the same page ([#344](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/344)) ([daba5a5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/daba5a53c5ac8d4fceb25acdca58b20117cb2249))
+
+# [3.297.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.296.0...v3.297.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** translate a page into every language the store serves ([#342](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/342)) ([edf5fdd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/edf5fdde2e44f5d32ffd5a4e139df8ca7393c132))
+
 # [3.296.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.295.0...v3.296.0) (2026-11-03)
 
 

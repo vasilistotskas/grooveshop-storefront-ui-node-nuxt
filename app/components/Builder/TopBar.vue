@@ -22,7 +22,8 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
 </script>
 
 <template>
-  <header class="flex h-14 shrink-0 items-center gap-2 border-b border-default px-3">
+  <!-- Two rows below `lg`: one row of every control is wider than a phone or a tablet. -->
+  <header class="flex shrink-0 flex-wrap items-center gap-2 border-b border-default px-3 py-2 lg:h-14 lg:flex-nowrap lg:py-0">
     <UTooltip :text="t('exit')">
       <!-- A full page load: the storefront gets its own palette back. -->
       <UButton
@@ -49,7 +50,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       :aria-label="t('outline')"
       @click="() => emit('openOutline')"
     />
-    <BuilderDocumentSwitcher class="w-44 min-w-0 sm:w-64" />
+    <BuilderDocumentSwitcher class="min-w-0 flex-1 lg:w-64 lg:flex-none" />
     <BuilderLocaleSwitcher />
 
     <UPopover v-if="!store.canEdit">
@@ -67,10 +68,11 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       </template>
     </UPopover>
 
-    <div class="ms-auto flex items-center gap-1">
+    <div class="ms-auto flex items-center gap-1 max-lg:w-full max-lg:justify-end">
       <BuilderHistory />
       <BuilderShareDialog v-if="store.status === 'ready' && store.canEdit" />
       <BuilderVersionHistory v-if="store.status === 'ready'" />
+      <BuilderPublish />
 
       <UButton
         icon="i-lucide-sliders-horizontal"

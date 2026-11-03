@@ -43,11 +43,6 @@ const ZodConflict = z.object({
   updatedAt: z.string(),
 })
 
-const ZodInvalidDocument = z.object({
-  code: z.literal('invalid_document'),
-  errors: z.array(z.object({ path: z.string(), code: z.string(), message: z.string() })),
-})
-
 const statusOf = (error: unknown): number | undefined =>
   typeof error === 'object' && error !== null && 'statusCode' in error && typeof error.statusCode === 'number'
     ? error.statusCode
@@ -162,7 +157,7 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
   function failed(key: string, error: unknown, attempt: number): void {
     const status = statusOf(error)
     const conflict = ZodConflict.safeParse(dataOf(error))
-    const invalid = ZodInvalidDocument.safeParse(dataOf(error))
+    const invalid = ZodBuilderDocumentRefusal.safeParse(dataOf(error))
     const document = useBuilderEditorStore().opened[key]
     if (status === 409 && conflict.success) {
       set(key, { state: 'conflict', conflict: conflict.data })
@@ -226,5 +221,31 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
     }
   }
 
-  return { saves, overall, conflict, stateOf, schedule, save, keepMine, settled, retry, flush }
+  /**
+   * Saves the named documents now, and waits for those saves to end: what a
+   * publish needs first, since Django releases the drafts it holds. Answers
+   * whether every one of them is saved; one that is retrying, refused, in
+   * conflict or signed out is not, and is left as it is.
+   */
+  async function settle(keys: readonly string[]): Promise<boolean> {
+    for (const key of keys) {
+      if (!timers.has(key)) continue
+      clearTimeout(timers.get(key))
+      timers.delete(key)
+      void save(key)
+    }
+    const busy = () => keys.some(key => stateOf(key) === 'pending' || stateOf(key) === 'saving')
+    if (busy()) {
+      await new Promise<void>((resolve) => {
+        const stop = watch(busy, (still) => {
+          if (still) return
+          stop()
+          resolve()
+        })
+      })
+    }
+    return keys.every(key => stateOf(key) === 'saved')
+  }
+
+  return { saves, overall, conflict, stateOf, schedule, save, keepMine, settled, retry, flush, settle }
 })
