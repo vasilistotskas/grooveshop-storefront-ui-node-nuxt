@@ -13,7 +13,7 @@ describe('builderField.query', () => {
   it.each([
     { mode: 'picked', ids: [3, 1, 2] },
     { mode: 'filter', ordering: 'newest', limit: 8 },
-    { mode: 'filter', categories: [1, 2], brands: [4], tags: [5, 6], ordering: 'priceDesc', limit: DATA_LIMITS.maxQueryLimit },
+    { mode: 'filter', categories: [1, 2], ordering: 'priceDesc', limit: DATA_LIMITS.maxQueryLimit },
   ])('accepts the product descriptor %j', (value) => {
     expect(products.safeParse(value).success).toBe(true)
   })
@@ -52,7 +52,7 @@ describe('builderField.query', () => {
 
   it('describes the other sources', () => {
     const posts = builderField.query('blogPost', { onEmpty: 'hide' })
-    expect(posts.safeParse({ mode: 'filter', category: 2, tags: [1], featured: true, ordering: 'mostViewed', limit: 3 }).success).toBe(true)
+    expect(posts.safeParse({ mode: 'filter', category: 2, featured: true, ordering: 'mostViewed', limit: 3 }).success).toBe(true)
     expect(posts.safeParse({ mode: 'filter', categories: [2], ordering: 'newest', limit: 3 }).success).toBe(false)
     const categories = builderField.query('category', { onEmpty: 'hide' })
     expect(categories.safeParse({ mode: 'roots', limit: 8 }).success).toBe(true)

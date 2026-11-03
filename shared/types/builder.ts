@@ -1,6 +1,6 @@
 import type { ZodObject } from 'zod'
 
-import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING, DATA_SOURCES, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
+import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING, DATA_RECORD_KINDS, DATA_SOURCES, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
 import type { BlockUpgradeFailure } from '../builder/upgrade'
 import type { StoreFeatureName } from '../utils/storeFeature'
 import type { BUILDER_BLOCK_CATEGORIES } from '../constants/builderEditor'
@@ -10,6 +10,7 @@ export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
 export type BuilderDocumentKind = (typeof BUILDER_DOCUMENT_KINDS)[number]
 export type LinkRefKind = (typeof LINK_REF_KINDS)[number]
 export type DataSource = (typeof DATA_SOURCES)[number]
+export type DataRecordKind = (typeof DATA_RECORD_KINDS)[number]
 export type DataMissing = (typeof DATA_MISSING)[number]
 
 /**
