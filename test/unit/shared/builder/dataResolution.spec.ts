@@ -110,7 +110,7 @@ describe('applyData', () => {
     ))
 
     expect(out.sections.home!.settings).toEqual({
-      products: { status: 'ok', items: [{ id: 1 }, { id: 2 }] },
+      products: { status: 'ok', items: [{ id: 1 }, { id: 2 }], descriptor: newest },
       top: { status: 'ok', value: { id: 5 } },
     })
     expect(issues).toEqual([])
@@ -120,7 +120,7 @@ describe('applyData', () => {
     const document = documentOf({ home: node('rail@1', { products: { mode: 'picked', ids: [3, 1, 2] } }) })
     const { document: out } = run(document, resolution({ product: new Map([[1, { id: 1 }], [3, { id: 3 }]]) }))
 
-    expect(out.sections.home!.settings.products).toEqual({ status: 'ok', items: [{ id: 3 }, { id: 1 }] })
+    expect(out.sections.home!.settings.products).toEqual({ status: 'ok', items: [{ id: 3 }, { id: 1 }], descriptor: { mode: 'picked', ids: [3, 1, 2] } })
   })
 
   it('takes out a section whose query matched nothing when it is declared `hide`, and reports it', () => {
@@ -140,7 +140,7 @@ describe('applyData', () => {
     const { document: out, issues } = run(document, resolution({}, { [canonicalQuery('product', newest)]: [] }), { keepHidden: true })
 
     expect(out.order).toEqual(['a'])
-    expect(out.sections.a!.settings.products).toEqual({ status: 'empty', items: [] })
+    expect(out.sections.a!.settings.products).toEqual({ status: 'empty', items: [], descriptor: newest })
     expect(issues).toHaveLength(1)
   })
 
@@ -152,7 +152,7 @@ describe('applyData', () => {
     }))
 
     expect(out.order).toEqual(['a'])
-    expect(out.sections.a!.settings.posts).toEqual({ status: 'empty', items: [] })
+    expect(out.sections.a!.settings.posts).toEqual({ status: 'empty', items: [], descriptor: { mode: 'filter', ordering: 'newest', limit: 3 } })
   })
 
   it('takes a missing ref declared `hide` out of its section, and one declared `empty` leaves the block', () => {
@@ -207,7 +207,7 @@ describe('applyData', () => {
     const { document: out, issues } = run(document, resolution({ category: 'failed' }, { [canonicalQuery('product', newest)]: 'failed' }))
 
     expect(out.order).toEqual(['home'])
-    expect(out.sections.home!.settings).toEqual({ products: { status: 'failed', items: [] }, top: { status: 'failed' } })
+    expect(out.sections.home!.settings).toEqual({ products: { status: 'failed', items: [], descriptor: newest }, top: { status: 'failed' } })
     expect(issues.map(({ status }) => status)).toEqual(['failed', 'failed'])
   })
 

@@ -31,7 +31,7 @@ const envelope = (key: string, draft: unknown, i18n: unknown = {}): DocumentDeta
 const row = (key: string) => ({ key, kind: key.split(':')[0], draftRevision: 3, updatedAt: '2026-11-02T10:00:00+02:00', updatedBy: null, publishedVersion: 1, hasUnpublishedChanges: false })
 
 const HOME_DRAFT = {
-  sections: { a: { type: 'hero_banner@1', settings: {} }, b: { type: 'products_grid@1', settings: {} } },
+  sections: { a: { type: 'hero_banner@1', settings: {} }, b: { type: 'products_grid@2', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } } },
   order: ['a', 'b'],
 }
 const HEADER_DRAFT = { sections: { menu: { type: 'header_menu@1', settings: {} } }, order: ['menu'] }

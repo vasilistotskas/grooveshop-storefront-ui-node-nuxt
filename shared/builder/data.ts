@@ -146,8 +146,8 @@ function resolveQuery(source: DataSource, value: unknown, resolution: DataResolu
   else {
     items = resolution.queries.get(canonicalQuery(source, value)) ?? 'failed'
   }
-  if (items === 'failed') return { status: 'failed', items: [] }
-  return { status: items.length > 0 ? 'ok' : 'empty', items }
+  if (items === 'failed') return { status: 'failed', items: [], descriptor: value }
+  return { status: items.length > 0 ? 'ok' : 'empty', items, descriptor: value }
 }
 
 interface Applying {
