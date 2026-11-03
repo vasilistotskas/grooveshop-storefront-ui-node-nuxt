@@ -1,3 +1,10 @@
+# [3.316.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.315.0...v3.316.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** draw the store's sign-in photo beside webside's sign-in pages ([#360](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/360)) ([e5d01e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e5d01e47d17b7fa78029c8ec2a9ce2a3729c4d34))
+
 # [3.315.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.314.0...v3.315.0) (2026-11-03)
 
 
