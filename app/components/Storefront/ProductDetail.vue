@@ -13,12 +13,6 @@ const stickyAddToCartEnabled = computed(() => cartEnabled.value && stickyAddToCa
 const productAlertsEnabled = useStoreFeature('productAlerts')
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 const priceHistoryEnabled = useStoreFeature('priceHistory')
-// "Order before 15:00, ships the same business day": the store's cutoff
-// is one cached public setting, so it renders on the server like the
-// rest of the page. No "today"/"tomorrow": that needs the visitor's
-// clock and Django's holiday calendar, and this page is cached.
-const { values: storeValues } = useStoreSettings()
-const dispatchCutoff = computed(() => parseDispatchCutoff(storeValues.value?.dispatchCutoff ?? ''))
 const tenantStore = useTenantStore()
 
 const { user } = useUserSession()
@@ -67,6 +61,7 @@ const {
 } = await useProductDetail(productId, t)
 const { data: allCategories } = await categoriesRequest
 const assurances = await useProductAssurances()
+const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -399,7 +394,7 @@ useSchemaOrg([
               {{ stockLine.label }}
             </p>
             <p
-              v-if="dispatchCutoff && productStock > 0"
+              v-if="dispatchCutoff"
               class="text-sm text-toned"
             >
               {{ t('dispatch_before', { time: dispatchCutoff }) }}
