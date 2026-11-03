@@ -1,3 +1,10 @@
+## [3.318.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.318.0...v3.318.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **webside:** honour tier multipliers and the welcome bonus on webside's loyalty surfaces ([#371](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/371)) ([df62acf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/df62acf9891803b9bed7f17f183472b46eb80017))
+
 # [3.318.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.317.0...v3.318.0) (2026-11-03)
 
 
