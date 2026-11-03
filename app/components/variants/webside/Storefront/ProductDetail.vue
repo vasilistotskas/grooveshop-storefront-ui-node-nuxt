@@ -57,6 +57,7 @@ const {
   ogImage,
 } = await useProductDetail(productId, t)
 const assurances = await useProductAssurances()
+const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -351,6 +352,24 @@ useSchemaOrg([
                   -{{ announcement.percent }}%
                 </UBadge>
               </div>
+
+              <!-- The store's dispatch cutoff, under the stock badge it
+                   follows from. Renders nothing without one, or when the
+                   product has no stock to dispatch. -->
+              <p
+                v-if="dispatchCutoff"
+                class="
+                  mt-2 flex items-center gap-2 text-sm text-primary-700
+                  dark:text-primary-300
+                "
+              >
+                <UIcon
+                  name="i-heroicons-truck"
+                  class="size-5 shrink-0"
+                  aria-hidden="true"
+                />
+                {{ t('dispatch_before', { time: dispatchCutoff }) }}
+              </p>
             </div>
 
             <USeparator />
@@ -717,6 +736,7 @@ el:
   out_of_stock: Μη διαθέσιμο
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
+  dispatch_before: "Παράγγειλε πριν τις {time} (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη"
   vat_included: Περιλαμβάνει ΦΠΑ
   price_trend: Εξέλιξη τιμής
 en:
@@ -739,6 +759,7 @@ en:
   out_of_stock: Unavailable
   low_stock: Low stock ({count})
   in_stock: In stock
+  dispatch_before: "Order before {time} Greek time and it ships the same business day"
   vat_included: VAT included
   price_trend: Price history
 </i18n>
