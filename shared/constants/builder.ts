@@ -49,3 +49,32 @@ export const LINK_TARGETS_MAX_IDS = 100
 
 /** The JSON Schema keyword that marks a link setting in a block's schema; `defineBlock` lists the marked ones as `linkRefs`. */
 export const LINK_SCHEMA_MARKER = 'x-builder-link'
+
+/**
+ * The JSON Schema keyword that marks a data setting (`builderField.ref`,
+ * `builderField.query`) in a block's schema. Its value is the declaration
+ * (`DataDeclaration`); `defineBlock` lists the marked settings as `data`.
+ */
+export const DATA_SCHEMA_MARKER = 'x-builder-data'
+
+/** What a `query` data setting reads: the record lists the storefront can resolve for a page. */
+export const DATA_SOURCES = ['product', 'blogPost', 'category', 'blogCategory', 'promotion'] as const
+
+/** What a data setting does when the page has nothing to show for it: leave its node out, or hand the component an empty status. */
+export const DATA_MISSING = ['hide', 'empty'] as const
+
+/** The caps a descriptor lives under. Django enforces the same numbers from the catalogue's JSON Schema. */
+export const DATA_LIMITS = {
+  /** Most records one hand-picked list names. */
+  maxPickedIds: 24,
+  /** Most ids one filter (categories, brands, tags) names. */
+  maxFilterIds: 5,
+  /** Most records one query returns. */
+  maxQueryLimit: 24,
+} as const
+
+/** How a list of products may be ordered: each is a field the product list's `ordering_fields` declares. */
+export const PRODUCT_ORDERINGS = ['newest', 'mostViewed', 'mostLiked', 'topRated', 'discounted', 'priceAsc', 'priceDesc'] as const
+
+/** How a list of blog posts may be ordered. */
+export const BLOG_POST_ORDERINGS = ['newest', 'mostViewed'] as const

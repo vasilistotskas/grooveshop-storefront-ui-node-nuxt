@@ -1,6 +1,9 @@
 import * as z from 'zod'
 
-import { LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
+import { BLOCK_REF_KINDS, DATA_LIMITS, DATA_SCHEMA_MARKER, LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
+import type { BlockRefKind, DataDeclaration, DataMissing, DataSource } from '../types/builder'
+import { DATA_DESCRIPTORS } from './dataSources'
+import { recordId } from './recordId'
 
 /**
  * The setting shapes the builder's blocks share: a length, a link
@@ -24,7 +27,6 @@ export const BUILDER_FIELD_PATTERNS = {
 } as const
 
 const httpsUrl = () => z.string().max(1000).regex(BUILDER_FIELD_PATTERNS.httpsUrl)
-const recordId = () => z.number().int().min(1).max(2_147_483_647)
 
 /**
  * A link names WHERE it goes and never a typed internal path, so it cannot go
@@ -47,6 +49,38 @@ const link = () => z.union([
     ]),
   }),
 ]).meta({ [LINK_SCHEMA_MARKER]: true })
+
+/**
+ * A setting that names ONE record by id (`ref`) and what the page does when
+ * the record is gone: `hide` leaves the node that holds it out, `empty` hands
+ * its component a `missing` status to draw its own empty state. A page and a
+ * content page are named by their key; every other kind by a numeric id.
+ * The marker lets `defineBlock` list every data setting of a block (`data`),
+ * so Django checks the record exists and the storefront resolves it.
+ */
+function ref(kind: BlockRefKind, { onMissing }: { onMissing: DataMissing }) {
+  if (!BLOCK_REF_KINDS.includes(kind)) {
+    throw new Error(`builderField.ref: "${kind}" is not a record kind`)
+  }
+  const value = kind === 'page' || kind === 'contentPage' ? z.string().min(1).max(64) : recordId()
+  const declaration: DataDeclaration = { field: 'ref', kind, onMissing }
+  return value.meta({ [DATA_SCHEMA_MARKER]: declaration })
+}
+
+/**
+ * A setting that stores a DESCRIPTOR: what to list from `source` (`DATA_DESCRIPTORS`),
+ * never the records, which the storefront resolves when the page is read.
+ * `maxLimit` narrows how many records the list may return (at most the
+ * source's cap); `onEmpty` is what the page does with a list that matches
+ * nothing, as `ref`'s `onMissing`.
+ */
+function query(source: DataSource, { onEmpty, maxLimit = DATA_LIMITS.maxQueryLimit }: { onEmpty: DataMissing, maxLimit?: number }) {
+  if (!Number.isInteger(maxLimit) || maxLimit < 1 || maxLimit > DATA_LIMITS.maxQueryLimit) {
+    throw new Error(`builderField.query: maxLimit must be an integer from 1 to ${DATA_LIMITS.maxQueryLimit}`)
+  }
+  const declaration: DataDeclaration = { field: 'query', source, onEmpty, maxLimit }
+  return DATA_DESCRIPTORS[source](maxLimit).meta({ [DATA_SCHEMA_MARKER]: declaration })
+}
 
 /** The settings a rail of products shares, the three bands of `products_*` over: `ordering` is what makes two rails on one page different. */
 function productRail(maxPageSize: number) {
@@ -76,6 +110,8 @@ function blogRail() {
 }
 
 export const builderField = {
+  ref,
+  query,
   productRail,
   blogRail,
   text,

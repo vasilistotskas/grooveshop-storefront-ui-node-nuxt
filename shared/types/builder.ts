@@ -1,6 +1,6 @@
 import type { ZodObject } from 'zod'
 
-import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
+import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING, DATA_SOURCES, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
 import type { BlockUpgradeFailure } from '../builder/upgrade'
 import type { StoreFeatureName } from '../utils/storeFeature'
 import type { BUILDER_BLOCK_CATEGORIES } from '../constants/builderEditor'
@@ -9,6 +9,17 @@ export type BlockKind = (typeof BLOCK_KINDS)[number]
 export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
 export type BuilderDocumentKind = (typeof BUILDER_DOCUMENT_KINDS)[number]
 export type LinkRefKind = (typeof LINK_REF_KINDS)[number]
+export type DataSource = (typeof DATA_SOURCES)[number]
+export type DataMissing = (typeof DATA_MISSING)[number]
+
+/**
+ * What a data setting is and what the page does without its data: a record
+ * by id (`ref`) or a list described by a descriptor (`query`). The
+ * catalogue states it per setting pointer (`data`).
+ */
+export type DataDeclaration
+  = | { field: 'ref', kind: BlockRefKind, onMissing: DataMissing }
+    | { field: 'query', source: DataSource, onEmpty: DataMissing, maxLimit: number }
 
 /** A record a link points at: a numeric id for a product, category, blog post or blog category, a page type or a slug for a page or a content page. */
 export type BuilderLinkRef
@@ -135,6 +146,8 @@ export interface BlockDefinition<Schema extends ZodObject = ZodObject> extends B
   refs: Readonly<Partial<Record<SettingsPointer, BlockRefKind>>>
   /** The link settings of the schema (`builderField.link()`), derived by `defineBlock`: Django checks the records they name. */
   linkRefs: readonly SettingsPointer[]
+  /** The data settings of the schema (`builderField.ref`, `builderField.query`), derived by `defineBlock`. */
+  data: Readonly<Record<SettingsPointer, DataDeclaration>>
   limits: BlockLimits
   children: BlockChildren
   childList: Readonly<Record<string, string>>
@@ -155,6 +168,8 @@ export interface CatalogueBlock {
   refs: Record<string, BlockRefKind>
   /** Pointers of the link settings: each value is a `{ href }`, a `{ route }` or a `{ ref: { kind, id } }` whose record Django checks. */
   linkRefs: string[]
+  /** The data settings, by pointer, when the block has any: a `ref` names one record, a `query` stores a descriptor that Django validates against the schema. */
+  data?: Record<string, DataDeclaration>
   limits: BlockLimits
   children: { allowed: string[], maxDepth?: number }
   kinds: BlockKind[]
