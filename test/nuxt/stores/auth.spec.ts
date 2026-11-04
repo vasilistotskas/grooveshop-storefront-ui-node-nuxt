@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
-import { makeAllAuthConfig, makeSessionResponse } from '~~/test/fixtures/allauth'
+import { makeAllAuthConfig, makeAuthenticator, makeSessionResponse } from '~~/test/fixtures/allauth'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 /**
@@ -34,7 +34,7 @@ mockNuxtImport('useAllAuthSessions', () => () => ({ getSessions: allauth.getSess
 mockNuxtImport('useAllAuthAccount', () => () => ({ getAuthenticators: allauth.getAuthenticators }))
 
 const CONFIG = makeAllAuthConfig({
-  mfa: { supported_types: ['totp', 'webauthn', 'recovery_codes'] },
+  mfa: { supported_types: ['totp', 'webauthn', 'recovery_codes'], passkey_login_enabled: false },
   usersessions: { track_activity: true },
 })
 
@@ -51,9 +51,9 @@ const SESSIONS: GetAllauthAppV1AuthSessionsResponse = {
 const AUTHENTICATORS: GetAllauthAppV1AccountAuthenticatorsResponse = {
   status: 200,
   data: [
-    { id: 1, type: 'totp', created_at: 1_700_000_000, last_used_at: null },
-    { id: 2, type: 'webauthn', created_at: 1_700_000_000, last_used_at: null },
-    { id: 3, type: 'recovery_codes', created_at: 1_700_000_000, last_used_at: null },
+    makeAuthenticator('totp'),
+    makeAuthenticator('webauthn'),
+    makeAuthenticator('recovery_codes'),
   ],
 }
 
@@ -102,9 +102,9 @@ describe('useAuthStore', () => {
     it('finds each authenticator by its type', () => {
       store.authenticators = [...AUTHENTICATORS.data].reverse()
 
-      expect(store.totpAuthenticator?.id).toBe(1)
-      expect(store.webauthnAuthenticator?.id).toBe(2)
-      expect(store.recoveryCodesAuthenticator?.id).toBe(3)
+      expect(store.totpAuthenticator?.type).toBe('totp')
+      expect(store.webauthnAuthenticator?.type).toBe('webauthn')
+      expect(store.recoveryCodesAuthenticator?.type).toBe('recovery_codes')
     })
 
     it('has no authenticator of a type the user has not set up', () => {

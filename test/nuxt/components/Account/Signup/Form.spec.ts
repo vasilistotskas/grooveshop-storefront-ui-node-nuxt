@@ -296,7 +296,7 @@ describe.each(trees(SignupForm, WebsideSignupForm))('$tree Account/Signup/Form',
 
     it('offers no passkey where allauth does not support one', async () => {
       const auth = useAuthStore()
-      auth.config = makeAllAuthConfig({ mfa: { supported_types: ['totp', 'recovery_codes'] } }).data
+      auth.config = makeAllAuthConfig({ mfa: { supported_types: ['totp', 'recovery_codes'], passkey_login_enabled: false } }).data
       auth.status.config = 'success'
       const wrapper = await mountForm()
 

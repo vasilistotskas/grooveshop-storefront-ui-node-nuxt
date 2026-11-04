@@ -53,7 +53,7 @@ describe('allauth fixtures', () => {
 
   it('merges user overrides into the default user and signs them in by password', () => {
     expect(makeSessionResponse({ user: { id: 1 } }).data).toEqual({
-      user: { id: 1, email: 'shopper@example.com', has_usable_password: true },
+      user: { id: 1, display: 'Shopper', email: 'shopper@example.com', has_usable_password: true },
       methods: [{ method: 'password', at: 1_767_225_600, email: 'shopper@example.com' }],
     })
   })

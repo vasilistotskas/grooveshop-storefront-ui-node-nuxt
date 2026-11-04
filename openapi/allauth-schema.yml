@@ -230,6 +230,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Configuration'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/login:
     post:
       tags:
@@ -276,6 +282,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/signup:
     post:
       tags:
@@ -335,6 +347,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/email/verify:
     get:
       tags:
@@ -370,6 +388,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Authentication: Account'
@@ -422,6 +446,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/email/verify/resend:
     post:
       tags:
@@ -485,6 +515,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/phone/verify/resend:
     post:
       tags:
@@ -545,6 +581,12 @@ paths:
               examples:
                 invalid_email:
                   $ref: '#/components/examples/IncorrectPassword'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/password/request:
     post:
       summary: Request password
@@ -590,6 +632,12 @@ paths:
                   $ref: '#/components/examples/InvalidEmail'
         '401':
           $ref: '#/components/responses/Authentication'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/password/reset:
     get:
       summary: Get password reset information
@@ -632,6 +680,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       summary: Reset password
       description: 'Perform the password reset, by handing over the password reset
@@ -674,6 +728,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/provider/token:
     post:
       tags:
@@ -728,6 +788,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/provider/signup:
     get:
       tags:
@@ -758,6 +824,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Authentication: Providers'
@@ -811,6 +883,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/2fa/authenticate:
     post:
       tags:
@@ -843,6 +921,12 @@ paths:
                   $ref: '#/components/examples/InvalidAuthenticatorCode'
         '401':
           $ref: '#/components/responses/Authentication'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/2fa/reauthenticate:
     post:
       tags:
@@ -880,6 +964,12 @@ paths:
               examples:
                 invalid_code:
                   $ref: '#/components/examples/InvalidAuthenticatorCode'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/webauthn/authenticate:
     get:
       tags:
@@ -895,6 +985,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/WebAuthnRequestOptionsResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Authentication: WebAuthn: Login'
@@ -915,6 +1011,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/webauthn/reauthenticate:
     get:
       tags:
@@ -930,6 +1032,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/WebAuthnRequestOptionsResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Authentication: WebAuthn: Login'
@@ -950,6 +1058,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/webauthn/login:
     get:
       tags:
@@ -965,6 +1079,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/WebAuthnRequestOptionsResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Authentication: WebAuthn: Login'
@@ -1003,6 +1123,12 @@ paths:
               examples:
                 pending_email:
                   $ref: '#/components/examples/UnauthenticatedPendingEmailVerification'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/webauthn/signup:
     post:
       tags:
@@ -1065,6 +1191,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     get:
       tags:
       - 'Authentication: WebAuthn: Signup'
@@ -1088,6 +1220,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     put:
       tags:
       - 'Authentication: WebAuthn: Signup'
@@ -1129,6 +1267,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/code/request:
     post:
       tags:
@@ -1160,6 +1304,12 @@ paths:
               examples:
                 pending_login_by_code:
                   $ref: '#/components/examples/UnauthenticatedPendingLoginByCode'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/code/confirm:
     post:
       tags:
@@ -1201,6 +1351,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/code/resend:
     post:
       tags:
@@ -1236,6 +1392,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ProviderAccounts'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     delete:
       tags:
       - 'Account: Providers'
@@ -1269,6 +1431,12 @@ paths:
                   $ref: '#/components/examples/DisconnectNotAllowedNoPassword'
                 no_email:
                   $ref: '#/components/examples/DisconnectNotAllowedNoVerifiedEmail'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/account/email:
     get:
       tags:
@@ -1284,6 +1452,12 @@ paths:
           $ref: '#/components/responses/EmailAddresses'
         '401':
           $ref: '#/components/responses/Authentication'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Account: Email'
@@ -1324,6 +1498,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     put:
       tags:
       - 'Account: Email'
@@ -1360,6 +1540,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     patch:
       tags:
       - 'Account: Email'
@@ -1386,6 +1572,12 @@ paths:
               examples:
                 invalid_code:
                   $ref: '#/components/examples/InvalidEmail'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     delete:
       tags:
       - 'Account: Email'
@@ -1409,6 +1601,12 @@ paths:
               examples:
                 invalid_code:
                   $ref: '#/components/examples/InvalidEmail'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/account/phone:
     get:
       tags:
@@ -1427,6 +1625,12 @@ paths:
           $ref: '#/components/responses/PhoneNumbers'
         '401':
           $ref: '#/components/responses/Authentication'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Account: Phone'
@@ -1468,6 +1672,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConflictResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/account/authenticators:
     get:
       tags:
@@ -1482,6 +1692,12 @@ paths:
           $ref: '#/components/responses/Authentication'
         '410':
           $ref: '#/components/responses/SessionGone'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/account/authenticators/totp:
     get:
       tags:
@@ -1500,6 +1716,12 @@ paths:
           $ref: '#/components/responses/TOTPAuthenticator'
         '409':
           $ref: '#/components/responses/AddAuthenticatorConflict'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Account: 2FA'
@@ -1531,6 +1753,12 @@ paths:
           $ref: '#/components/responses/ReauthenticationRequired'
         '409':
           $ref: '#/components/responses/AddAuthenticatorConflict'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     delete:
       tags:
       - 'Account: 2FA'
@@ -1548,6 +1776,12 @@ paths:
           $ref: '#/components/responses/StatusOK'
         '401':
           $ref: '#/components/responses/ReauthenticationRequired'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/account/authenticators/recovery-codes:
     get:
       tags:
@@ -1565,6 +1799,12 @@ paths:
           $ref: '#/components/responses/ReauthenticationRequired'
         '404':
           $ref: '#/components/responses/NotFound'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Account: 2FA'
@@ -1572,6 +1812,8 @@ paths:
       parameters:
       - $ref: '#/components/parameters/SessionToken'
       responses:
+        '200':
+          $ref: '#/components/responses/RecoveryCodes'
         '400':
           description: An input error occurred.
           content:
@@ -1583,6 +1825,12 @@ paths:
                   $ref: '#/components/examples/CannotGenerateRecoveryCodes'
         '401':
           $ref: '#/components/responses/ReauthenticationRequired'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/account/authenticators/webauthn:
     get:
       tags:
@@ -1605,6 +1853,12 @@ paths:
           $ref: '#/components/responses/ReauthenticationRequired'
         '409':
           $ref: '#/components/responses/AddAuthenticatorConflict'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     put:
       tags:
       - 'Account: WebAuthn'
@@ -1628,6 +1882,12 @@ paths:
           $ref: '#/components/responses/WebAuthnAuthenticator'
         '401':
           $ref: '#/components/responses/ReauthenticationRequired'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     delete:
       tags:
       - 'Account: WebAuthn'
@@ -1643,6 +1903,12 @@ paths:
           $ref: '#/components/responses/StatusOK'
         '401':
           $ref: '#/components/responses/ReauthenticationRequired'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     post:
       tags:
       - 'Account: WebAuthn'
@@ -1660,6 +1926,12 @@ paths:
           $ref: '#/components/responses/ReauthenticationRequired'
         '409':
           $ref: '#/components/responses/AddAuthenticatorConflict'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/session:
     get:
       tags:
@@ -1681,6 +1953,12 @@ paths:
           $ref: '#/components/responses/Authentication'
         '410':
           $ref: '#/components/responses/SessionGone'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     delete:
       tags:
       - 'Authentication: Current Session'
@@ -1693,6 +1971,12 @@ paths:
       responses:
         '401':
           $ref: '#/components/responses/Unauthenticated'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/tokens/refresh:
     post:
       tags:
@@ -1716,6 +2000,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/account/password/change:
     post:
       tags:
@@ -1740,6 +2030,12 @@ paths:
           $ref: '#/components/responses/Error'
         '401':
           $ref: '#/components/responses/Authentication'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
   /_allauth/app/v1/auth/sessions:
     get:
       tags:
@@ -1750,6 +2046,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Sessions'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
     delete:
       tags:
       - Sessions
@@ -1763,6 +2065,36 @@ paths:
           $ref: '#/components/responses/Sessions'
         '401':
           $ref: '#/components/responses/Authentication'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
+  /_allauth/app/v1/account/authenticators/totp/svg:
+    get:
+      tags:
+      - 'Account: 2FA'
+      summary: Get the TOTP authenticator, or a secret to enrol
+      description: Like the TOTP status endpoint, but the 404 for a user without an
+        authenticator carries the secret, its otpauth URL and the QR code.
+      parameters:
+      - $ref: '#/components/parameters/SessionToken'
+      responses:
+        '200':
+          $ref: '#/components/responses/TOTPAuthenticator'
+        '404':
+          description: 'No authenticator: the secret to enrol.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TOTPSvgNotFoundResponse'
+        '429':
+          description: Too many requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
 components:
   examples:
     User:
@@ -2367,6 +2699,14 @@ components:
           type: boolean
         password_reset_by_code_enabled:
           type: boolean
+        authentication_method:
+          type: string
+          enum:
+          - email
+          - username
+          - username_email
+          deprecated: true
+          description: Derived from `login_methods`.
       required:
       - authentication_method
       - email_verification_by_code_enabled
@@ -2404,6 +2744,8 @@ components:
           type: integer
           enum:
           - 403
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
       required:
       - status
     ConflictResponse:
@@ -2413,6 +2755,8 @@ components:
           type: integer
           enum:
           - 409
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
       required:
       - status
     EndSessions:
@@ -2451,6 +2795,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PhoneNumber'
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
       required:
       - status
       - data
@@ -2463,6 +2809,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PhoneNumber'
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
       required:
       - status
       - data
@@ -2532,6 +2880,7 @@ components:
         properties:
           is_authenticated:
             type: boolean
+            nullable: true
         required:
         - is_authenticated
     AuthenticatedMeta:
@@ -2580,6 +2929,11 @@ components:
           description: Matches `settings.MFA_SUPPORTED_TYPES`.
           items:
             $ref: '#/components/schemas/AuthenticatorType'
+        providers:
+          type: array
+          description: The ids of the providers the flow offers.
+          items:
+            type: string
       required:
       - id
     Authenticated:
@@ -3000,7 +3354,11 @@ components:
             '
           items:
             $ref: '#/components/schemas/AuthenticatorType'
+        passkey_login_enabled:
+          type: boolean
+          description: Matches `settings.MFA_PASSKEY_LOGIN_ENABLED`.
       required:
+      - passkey_login_enabled
       - supported_types
     UserSessionsConfiguration:
       type: object
@@ -3033,6 +3391,8 @@ components:
           - account
         status:
           $ref: '#/components/schemas/StatusOK'
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
       required:
       - status
       - data
@@ -3087,8 +3447,12 @@ components:
       required:
       - code
     OptionalTimestamp:
+      type: number
+      description: 'An epoch based timestamp (trivial to parse using: `new Date(value)*1000`)
+
+        '
+      example: 1711555057.065702
       nullable: true
-      $ref: '#/components/schemas/Timestamp'
     Timestamp:
       type: number
       description: 'An epoch based timestamp (trivial to parse using: `new Date(value)*1000`)
@@ -3156,6 +3520,8 @@ components:
             required:
             - code
             - message
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
     Process:
       type: string
       description: 'The process to be executed when the user successfully
@@ -3457,6 +3823,72 @@ components:
             signature: MEUCIE-7sqILygPqGbrRZ4j2nqeqUU...
             userHandle: Mg...
           clientExtensionResults: {}
+    TOTPSvgNotFoundResponse:
+      type: object
+      description: 'No TOTP authenticator yet: the secret to enrol and its QR code.'
+      properties:
+        status:
+          type: integer
+          enum:
+          - 404
+        meta:
+          type: object
+          properties:
+            secret:
+              type: string
+            totp_url:
+              type: string
+            totp_svg:
+              type: string
+              description: The QR code, as SVG markup.
+          required:
+          - secret
+          - totp_url
+          - totp_svg
+      required:
+      - status
+      - meta
+    TOTPNotFoundResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          enum:
+          - 404
+        meta:
+          type: object
+          properties:
+            secret:
+              type: string
+              description: 'A TOTP secret that can be used to setup a new authenticator.
+
+                '
+              example: J4ZKKXTK7NOVU7EPUVY23LCDV4T2QZYM
+            totp_url:
+              type: string
+              description: 'otpauth URI from which a QR code can be generated and
+                scanned by OTP clients.
+
+                '
+              example: otpauth://totp/Example:alice@fsf.org?secret=JBSWY3DPEHPK3PXP&issuer=Example
+          required:
+          - secret
+          - totp_url
+      required:
+      - status
+      - meta
+    RateLimitResponse:
+      type: object
+      description: 'Too many requests: the call is rate limited.'
+      properties:
+        status:
+          type: integer
+          enum:
+          - 429
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
+      required:
+      - status
   parameters:
     EmailVerificationKey:
       in: header
@@ -3535,6 +3967,8 @@ components:
                 $ref: '#/components/schemas/StatusOK'
               data:
                 $ref: '#/components/schemas/AuthenticatorList'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3605,6 +4039,8 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/EmailAddress'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3641,6 +4077,8 @@ components:
                 type: integer
                 enum:
                 - 404
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
     PasswordResetInfo:
@@ -3657,6 +4095,8 @@ components:
                 properties:
                   user:
                     $ref: '#/components/schemas/User'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3683,6 +4123,8 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/ProviderAccount'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3712,6 +4154,8 @@ components:
                 - email
                 - account
                 - user
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3758,6 +4202,8 @@ components:
                 $ref: '#/components/schemas/StatusOK'
               data:
                 $ref: '#/components/schemas/SensitiveRecoveryCodesAuthenticator'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3779,6 +4225,8 @@ components:
                     $ref: '#/components/schemas/RefreshToken'
                 required:
                 - access_token
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - data
             - status
@@ -3797,6 +4245,8 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/Session'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3822,6 +4272,8 @@ components:
             properties:
               status:
                 $ref: '#/components/schemas/StatusOK'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
     TooManyRequests:
@@ -3837,6 +4289,8 @@ components:
                 type: integer
                 enum:
                 - 429
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
     TOTPAuthenticator:
@@ -3868,34 +4322,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: integer
-                enum:
-                - 404
-              meta:
-                type: object
-                properties:
-                  secret:
-                    type: string
-                    description: 'A TOTP secret that can be used to setup a new authenticator.
-
-                      '
-                    example: J4ZKKXTK7NOVU7EPUVY23LCDV4T2QZYM
-                  totp_url:
-                    type: string
-                    description: 'otpauth URI from which a QR code can be generated
-                      and scanned by OTP clients.
-
-                      '
-                    example: otpauth://totp/Example:alice@fsf.org?secret=JBSWY3DPEHPK3PXP&issuer=Example
-                required:
-                - secret
-                - totp_url
-            required:
-            - status
-            - meta
+            $ref: '#/components/schemas/TOTPNotFoundResponse'
     Unauthenticated:
       description: 'There is no authenticated session.
 
@@ -3924,6 +4351,8 @@ components:
                 $ref: '#/components/schemas/StatusOK'
               data:
                 $ref: '#/components/schemas/WebAuthnCredentialRequestOptions'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3938,6 +4367,8 @@ components:
                 $ref: '#/components/schemas/StatusOK'
               data:
                 $ref: '#/components/schemas/WebAuthnCredentialCreationOptions'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data
@@ -3952,6 +4383,8 @@ components:
                 $ref: '#/components/schemas/StatusOK'
               data:
                 $ref: '#/components/schemas/WebAuthnAuthenticator'
+              meta:
+                $ref: '#/components/schemas/BaseAuthenticationMeta'
             required:
             - status
             - data

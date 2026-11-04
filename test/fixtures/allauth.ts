@@ -82,7 +82,7 @@ export function makeAllAuthConfig(overrides: Partial<GetAllauthAppV1ConfigRespon
   return {
     status: 200,
     data: {
-      account: { is_open_for_signup: true, email_verification_by_code_enabled: true, login_by_code_enabled: true },
+      account: { authentication_method: 'email', is_open_for_signup: true, email_verification_by_code_enabled: true, login_by_code_enabled: true },
       socialaccount: { providers: [{ id: 'google', name: 'Google', flows: ['provider_redirect'] }] },
       mfa: { supported_types: ['totp', 'recovery_codes', 'webauthn'], passkey_login_enabled: true },
       usersessions: { track_activity: false },

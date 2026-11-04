@@ -111,7 +111,7 @@ describe('Utils - Auth', () => {
     it('should return pending flows from response', () => {
       const pendingFlow1: AllAuthFlow = { id: 'login_by_code', is_pending: true }
       const pendingFlow2: AllAuthFlow = { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }
-      const completedFlow: AllAuthFlow = { id: 'login', is_pending: false }
+      const completedFlow: AllAuthFlow = { id: 'login' }
 
       const result = getPendingFlows(withFlows([pendingFlow1, completedFlow, pendingFlow2]))
 
@@ -136,7 +136,7 @@ describe('Utils - Auth', () => {
     })
 
     it('should return null when no pending flows exist', () => {
-      expect(getPendingFlow(withFlows([{ id: 'login', is_pending: false }]))).toBeNull()
+      expect(getPendingFlow(withFlows([{ id: 'login' }]))).toBeNull()
     })
 
     it('should return null when no flows exist', () => {
@@ -210,7 +210,7 @@ describe('Utils - Auth', () => {
     it('returns null when the 401 carries no pending flow (a genuine error)', () => {
       const error = wrapAllAuthError({
         status: 401,
-        data: { flows: [{ id: 'login', is_pending: false }] },
+        data: { flows: [{ id: 'login' }] },
         meta: { is_authenticated: false },
       })
 
@@ -272,7 +272,7 @@ describe('Utils - Auth', () => {
   describe('determineAuthChangeEvent', () => {
     const user = (id: number) => ({ id, email: `u${id}@shop.test`, username: `u${id}` })
     /** Signed in as user `id` with `methods` authentication methods behind the session. */
-    const signedIn = (id = 1, meta: AllAuthAuthenticatedResponse['meta'] = {}, methods = 1): AllAuthAuthenticatedResponse => {
+    const signedIn = (id = 1, meta: Partial<AllAuthAuthenticatedResponse['meta']> = {}, methods = 1): AllAuthAuthenticatedResponse => {
       const response = makeSessionResponse({
         user: user(id),
         methods: Array.from({ length: methods }, (_, i) => ({ method: 'password' as const, at: FIXTURE_EPOCH + i })),
@@ -364,7 +364,7 @@ describe('Utils - Auth', () => {
 
     it('routes the pending flow of a response, and nothing without one', () => {
       expect(pathForPendingFlow(withFlows([{ id: 'verify_email', is_pending: true }]))).toBe('account-verify-email')
-      expect(pathForPendingFlow(withFlows([{ id: 'verify_email', is_pending: false }]))).toBeNull()
+      expect(pathForPendingFlow(withFlows([{ id: 'verify_email' }]))).toBeNull()
     })
   })
 })

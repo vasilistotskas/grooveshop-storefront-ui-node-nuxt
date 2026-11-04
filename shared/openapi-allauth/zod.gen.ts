@@ -12,14 +12,11 @@ export const zAllAuthAccountConfiguration = z.object({
   email_verification_by_code_enabled: z.boolean(),
   login_by_code_enabled: z.boolean(),
   password_reset_by_code_enabled: z.boolean().optional(),
-})
-
-export const zAllAuthForbiddenResponse = z.object({
-  status: z.literal(403),
-})
-
-export const zAllAuthConflictResponse = z.object({
-  status: z.literal(409),
+  authentication_method: z.enum([
+    'email',
+    'username',
+    'username_email',
+  ]),
 })
 
 export const zAllAuthEndSessions = z.object({
@@ -40,8 +37,18 @@ export const zAllAuthBaseAuthenticationMeta = z.object({
   access_token: z.string().optional(),
 })
 
+export const zAllAuthForbiddenResponse = z.object({
+  status: z.literal(403),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
+})
+
+export const zAllAuthConflictResponse = z.object({
+  status: z.literal(409),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
+})
+
 export const zAllAuthAuthenticationMeta = zAllAuthBaseAuthenticationMeta.and(z.object({
-  is_authenticated: z.boolean(),
+  is_authenticated: z.boolean().nullable(),
 }))
 
 /**
@@ -124,6 +131,7 @@ export const zAllAuthStatusOk = z.literal(200)
 export const zAllAuthPhoneNumbersResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthPhoneNumber),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zAllAuthStatusAccepted = z.literal(202)
@@ -131,6 +139,7 @@ export const zAllAuthStatusAccepted = z.literal(202)
 export const zAllAuthPhoneNumberChangeResponse = z.object({
   status: zAllAuthStatusAccepted,
   data: z.array(zAllAuthPhoneNumber),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -159,6 +168,12 @@ export const zAllAuthVerifyPhone = z.object({
  * An epoch based timestamp (trivial to parse using: `new Date(value)*1000`)
  *
  */
+export const zAllAuthOptionalTimestamp = z.number().nullable()
+
+/**
+ * An epoch based timestamp (trivial to parse using: `new Date(value)*1000`)
+ *
+ */
 export const zAllAuthTimestamp = z.number()
 
 export const zAllAuthSession = z.object({
@@ -169,8 +184,6 @@ export const zAllAuthSession = z.object({
   id: z.int(),
   last_seen_at: zAllAuthTimestamp.optional(),
 })
-
-export const zAllAuthOptionalTimestamp = zAllAuthTimestamp
 
 /**
  * An authenticator code.
@@ -208,6 +221,7 @@ export const zAllAuthAuthenticatorType = z.enum([
  */
 export const zAllAuthMfaConfiguration = z.object({
   supported_types: z.array(zAllAuthAuthenticatorType),
+  passkey_login_enabled: z.boolean(),
 })
 
 /**
@@ -250,6 +264,7 @@ export const zAllAuthErrorResponse = z.object({
     param: z.string().optional(),
     message: z.string(),
   })).optional(),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -418,6 +433,7 @@ export const zAllAuthFlow = z.object({
   provider: zAllAuthProvider.optional(),
   is_pending: z.literal(true).optional(),
   types: z.array(zAllAuthAuthenticatorType).optional(),
+  providers: z.array(z.string()).optional(),
 })
 
 /**
@@ -466,6 +482,7 @@ export const zAllAuthConfigurationResponse = z.object({
     usersessions: zAllAuthUserSessionsConfiguration.optional(),
   }),
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zAllAuthProviderAccount = z.object({
@@ -494,6 +511,34 @@ export const zAllAuthWebAuthnCredentialCreationOptions = z.object({
 })
 
 export const zAllAuthWebAuthnCredential = z.record(z.string(), z.unknown())
+
+/**
+ * No TOTP authenticator yet: the secret to enrol and its QR code.
+ */
+export const zAllAuthTotpSvgNotFoundResponse = z.object({
+  status: z.literal(404),
+  meta: z.object({
+    secret: z.string(),
+    totp_url: z.string(),
+    totp_svg: z.string(),
+  }),
+})
+
+export const zAllAuthTotpNotFoundResponse = z.object({
+  status: z.literal(404),
+  meta: z.object({
+    secret: z.string(),
+    totp_url: z.string(),
+  }),
+})
+
+/**
+ * Too many requests: the call is rate limited.
+ */
+export const zAllAuthRateLimitResponse = z.object({
+  status: z.literal(429),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
+})
 
 /**
  * The email verification key
@@ -674,6 +719,7 @@ export const zPostAllauthAppV1AuthEmailVerifyResendHeaders = z.object({
  */
 export const zPostAllauthAppV1AuthEmailVerifyResendResponse = z.object({
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPostAllauthAppV1AuthPhoneVerifyBody = zAllAuthRequestVerifyPhone
@@ -697,6 +743,7 @@ export const zPostAllauthAppV1AuthPhoneVerifyResendHeaders = z.object({
  */
 export const zPostAllauthAppV1AuthPhoneVerifyResendResponse = z.object({
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -725,6 +772,7 @@ export const zPostAllauthAppV1AuthPasswordRequestBody = zAllAuthRequestRequestPa
  */
 export const zPostAllauthAppV1AuthPasswordRequestResponse = z.object({
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zGetAllauthAppV1AuthPasswordResetHeaders = z.object({
@@ -739,6 +787,7 @@ export const zGetAllauthAppV1AuthPasswordResetResponse = z.object({
   data: z.object({
     user: zAllAuthUser.optional(),
   }),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPostAllauthAppV1AuthPasswordResetBody = zAllAuthRequestResetPassword
@@ -771,6 +820,7 @@ export const zGetAllauthAppV1AuthProviderSignupResponse = z.object({
     account: zAllAuthProviderAccount,
     user: zAllAuthUser,
   }),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -817,6 +867,7 @@ export const zGetAllauthAppV1AuthWebauthnAuthenticateHeaders = z.object({
 export const zGetAllauthAppV1AuthWebauthnAuthenticateResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthWebAuthnCredentialRequestOptions,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -843,6 +894,7 @@ export const zGetAllauthAppV1AuthWebauthnReauthenticateHeaders = z.object({
 export const zGetAllauthAppV1AuthWebauthnReauthenticateResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthWebAuthnCredentialRequestOptions,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -869,6 +921,7 @@ export const zGetAllauthAppV1AuthWebauthnLoginHeaders = z.object({
 export const zGetAllauthAppV1AuthWebauthnLoginResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthWebAuthnCredentialRequestOptions,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -895,6 +948,7 @@ export const zGetAllauthAppV1AuthWebauthnSignupHeaders = z.object({
 export const zGetAllauthAppV1AuthWebauthnSignupResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthWebAuthnCredentialRequestOptions,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 /**
@@ -940,6 +994,7 @@ export const zPostAllauthAppV1AuthCodeResendHeaders = z.object({
  */
 export const zPostAllauthAppV1AuthCodeResendResponse = z.object({
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zDeleteAllauthAppV1AccountProvidersBody = zAllAuthRequestProviderAccount
@@ -955,6 +1010,7 @@ export const zDeleteAllauthAppV1AccountProvidersHeaders = z.object({
 export const zDeleteAllauthAppV1AccountProvidersResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthProviderAccount),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zGetAllauthAppV1AccountProvidersHeaders = z.object({
@@ -968,6 +1024,7 @@ export const zGetAllauthAppV1AccountProvidersHeaders = z.object({
 export const zGetAllauthAppV1AccountProvidersResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthProviderAccount),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zDeleteAllauthAppV1AccountEmailBody = zAllAuthRequestEmail
@@ -983,6 +1040,7 @@ export const zDeleteAllauthAppV1AccountEmailHeaders = z.object({
 export const zDeleteAllauthAppV1AccountEmailResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthEmailAddress),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zGetAllauthAppV1AccountEmailHeaders = z.object({
@@ -996,6 +1054,7 @@ export const zGetAllauthAppV1AccountEmailHeaders = z.object({
 export const zGetAllauthAppV1AccountEmailResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthEmailAddress),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPatchAllauthAppV1AccountEmailBody = zAllAuthRequestMarkPrimaryEmail
@@ -1011,6 +1070,7 @@ export const zPatchAllauthAppV1AccountEmailHeaders = z.object({
 export const zPatchAllauthAppV1AccountEmailResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthEmailAddress),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPostAllauthAppV1AccountEmailBody = zAllAuthRequestEmail
@@ -1026,6 +1086,7 @@ export const zPostAllauthAppV1AccountEmailHeaders = z.object({
 export const zPostAllauthAppV1AccountEmailResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthEmailAddress),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPutAllauthAppV1AccountEmailBody = zAllAuthRequestEmail
@@ -1040,6 +1101,7 @@ export const zPutAllauthAppV1AccountEmailHeaders = z.object({
  */
 export const zPutAllauthAppV1AccountEmailResponse = z.object({
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zGetAllauthAppV1AccountPhoneHeaders = z.object({
@@ -1074,6 +1136,7 @@ export const zGetAllauthAppV1AccountAuthenticatorsHeaders = z.object({
 export const zGetAllauthAppV1AccountAuthenticatorsResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthAuthenticatorList,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zDeleteAllauthAppV1AccountAuthenticatorsTotpHeaders = z.object({
@@ -1086,6 +1149,7 @@ export const zDeleteAllauthAppV1AccountAuthenticatorsTotpHeaders = z.object({
  */
 export const zDeleteAllauthAppV1AccountAuthenticatorsTotpResponse = z.object({
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zGetAllauthAppV1AccountAuthenticatorsTotpHeaders = z.object({
@@ -1133,10 +1197,21 @@ export const zGetAllauthAppV1AccountAuthenticatorsRecoveryCodesHeaders = z.objec
 export const zGetAllauthAppV1AccountAuthenticatorsRecoveryCodesResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthSensitiveRecoveryCodesAuthenticator,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPostAllauthAppV1AccountAuthenticatorsRecoveryCodesHeaders = z.object({
   'X-Session-Token': z.string().optional(),
+})
+
+/**
+ * Information on the recovery codes.
+ *
+ */
+export const zPostAllauthAppV1AccountAuthenticatorsRecoveryCodesResponse = z.object({
+  status: zAllAuthStatusOk,
+  data: zAllAuthSensitiveRecoveryCodesAuthenticator,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zDeleteAllauthAppV1AccountAuthenticatorsWebauthnBody = zAllAuthRequestDeleteWebAuthn
@@ -1151,6 +1226,7 @@ export const zDeleteAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object(
  */
 export const zDeleteAllauthAppV1AccountAuthenticatorsWebauthnResponse = z.object({
   status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zGetAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object({
@@ -1167,6 +1243,7 @@ export const zGetAllauthAppV1AccountAuthenticatorsWebauthnQuery = z.object({
 export const zGetAllauthAppV1AccountAuthenticatorsWebauthnResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthWebAuthnCredentialCreationOptions,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPostAllauthAppV1AccountAuthenticatorsWebauthnBody = zAllAuthRequestAddWebAuthnAuthenticator
@@ -1198,6 +1275,7 @@ export const zPutAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object({
 export const zPutAllauthAppV1AccountAuthenticatorsWebauthnResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthWebAuthnAuthenticator,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zDeleteAllauthAppV1AuthSessionHeaders = z.object({
@@ -1224,6 +1302,7 @@ export const zPostAllauthAppV1TokensRefreshResponse = z.object({
     access_token: zAllAuthAccessToken,
     refresh_token: zAllAuthRefreshToken.optional(),
   }),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zPostAllauthAppV1AccountPasswordChangeBody = zAllAuthRequestChangePassword
@@ -1245,6 +1324,7 @@ export const zDeleteAllauthAppV1AuthSessionsHeaders = z.object({
 export const zDeleteAllauthAppV1AuthSessionsResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthSession),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
 export const zGetAllauthAppV1AuthSessionsHeaders = z.object({
@@ -1258,4 +1338,21 @@ export const zGetAllauthAppV1AuthSessionsHeaders = z.object({
 export const zGetAllauthAppV1AuthSessionsResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthSession),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
+})
+
+export const zGetAllauthAppV1AccountAuthenticatorsTotpSvgHeaders = z.object({
+  'X-Session-Token': z.string().optional(),
+})
+
+/**
+ * Information on the TOTP authenticator.
+ *
+ */
+export const zGetAllauthAppV1AccountAuthenticatorsTotpSvgResponse = z.object({
+  status: zAllAuthStatusOk,
+  meta: z.object({
+    recovery_codes_generated: z.boolean().optional(),
+  }).optional(),
+  data: zAllAuthTotpAuthenticator,
 })
