@@ -1,3 +1,10 @@
+## [3.323.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.0...v3.323.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* correct the Google sign-in CSP and webside's blank email icon ([#386](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/386)) ([12f5458](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12f54589a3b82b2256a7f7433224d8d35ee4b6c6))
+
 # [3.323.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.2...v3.323.0) (2026-11-04)
 
 
