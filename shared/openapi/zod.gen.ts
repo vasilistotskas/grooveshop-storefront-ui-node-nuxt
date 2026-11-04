@@ -4065,19 +4065,6 @@ export const zPaginatedCartList = z.object({
   results: z.array(zCart),
 })
 
-export const zPaginatedProductList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zProduct),
-})
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -4237,6 +4224,83 @@ export const zProductFavouriteDetail = z.object({
   uuid: z.uuid().readonly(),
   user: z.string().readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductFeed = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+      feedTitle: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+      feedTitle: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int().readonly().nullable(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  viewCount: z.int().readonly(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
+  lowStockThreshold: z.int().readonly(),
+  active: z.boolean().readonly(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  likesCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
+  highlights: z.array(z.string()).readonly(),
+})
+
+export const zPaginatedProductFeedList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zProductFeed),
 })
 
 /**
@@ -7788,19 +7852,6 @@ export const zProductWritable = z.object({
   ]).nullish(),
 })
 
-export const zPaginatedProductListWritable = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zProductWritable),
-})
-
 export const zProductAlertWritable = z.object({
   kind: zProductAlertKindEnum,
   product: z.int(),
@@ -8079,6 +8130,54 @@ export const zProductFavouriteDetailWritable = z.record(z.string(), z.unknown())
 
 export const zProductFavouriteWriteWritable = z.object({
   product: z.int(),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductFeedWritable = z.object({
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+      feedTitle: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+      feedTitle: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
+})
+
+export const zPaginatedProductFeedListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zProductFeedWritable),
 })
 
 /**
@@ -15567,7 +15666,7 @@ export const zListProductFeedQuery = z.object({
   ]).optional(),
 })
 
-export const zListProductFeedResponse = zPaginatedProductList
+export const zListProductFeedResponse = zPaginatedProductFeedList
 
 export const zListProductImageQuery = z.object({
   createdAt: z.iso.datetime({ offset: true }).optional(),
