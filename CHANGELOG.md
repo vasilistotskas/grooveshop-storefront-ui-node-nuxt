@@ -1,3 +1,10 @@
+## [3.323.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.1...v3.323.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* **builder:** keep a change no save took, whatever stopped the save ([#388](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/388)) ([c3a7b40](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c3a7b408bb0872bbc80a7a63eb74afdbf8484552))
+
 ## [3.323.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.0...v3.323.1) (2026-11-04)
 
 
