@@ -139,6 +139,60 @@ describe('the autosave', () => {
     expect(autosave.saves[HOME]).toMatchObject({ state: 'invalid', problems: errors })
   })
 
+  describe('keeping a change that no save took', () => {
+    const conflict = { code: 'revision_conflict', detail: 'x', currentRevision: 7, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }
+    const kept = () => readBuilderRecovery(useRequestURL().host, HOME)
+
+    it.each([
+      ['someone else saved first', 'conflict', () => failWith(409, conflict)],
+      ['Django refuses the document', 'invalid', () => failWith(400, { code: 'invalid_document', detail: 'x', errors: [] })],
+    ])('keeps it in this browser when %s', async (_name, state, answer) => {
+      const editor = await openHome()
+      api.routes({ [DRAFT]: answer() })
+
+      changeOnce(editor)
+      await vi.advanceTimersByTimeAsync(BUILDER_AUTOSAVE_DELAY_MS)
+
+      expect(useBuilderAutosaveStore().stateOf(HOME)).toBe(state)
+      expect(kept()?.copy).toEqual(editor.opened[HOME]!.copy)
+    })
+
+    it('keeps it when another request learned of the conflict', async () => {
+      const editor = await openHome()
+      changeOnce(editor)
+
+      useBuilderAutosaveStore().reportConflict(HOME, conflict)
+
+      expect(kept()?.copy).toEqual(editor.opened[HOME]!.copy)
+    })
+
+    it.each([
+      ['a conflict', () => failWith(409, conflict)],
+      ['a session that has ended', () => failWith(401)],
+    ])('keeps what is changed while saving waits on %s', async (_name, answer) => {
+      const editor = await openHome()
+      api.routes({ [DRAFT]: answer() })
+      changeOnce(editor)
+      await vi.advanceTimersByTimeAsync(BUILDER_AUTOSAVE_DELAY_MS)
+
+      changeOnce(editor, false)
+
+      expect(kept()?.copy).toEqual(editor.opened[HOME]!.copy)
+      expect(saves()).toHaveLength(1)
+    })
+
+    it('forgets it when the staff member takes the other copy', async () => {
+      const editor = await openHome()
+      api.routes({ [DRAFT]: failWith(409, conflict) })
+      changeOnce(editor)
+      await vi.advanceTimersByTimeAsync(BUILDER_AUTOSAVE_DELAY_MS)
+
+      useBuilderAutosaveStore().settled(HOME)
+
+      expect(kept()).toBeUndefined()
+    })
+  })
+
   it('keeps the changes in this browser when the session has ended', async () => {
     const editor = await openHome()
     const autosave = useBuilderAutosaveStore()
