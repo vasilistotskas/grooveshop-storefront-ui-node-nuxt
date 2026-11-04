@@ -56,9 +56,9 @@ const URGENCY: readonly BuilderSaveState[] = ['conflict', 'signedOut', 'invalid'
  *   unable to check it: 503) is tried again after each of
  *   `BUILDER_AUTOSAVE_RETRY_MS`, then waits for `retry` or the next change;
  * - a 409 stops saving that document until the staff member chooses
- *   (`keepMine` / the editor's `takeTheirs`);
- * - a 401 keeps the changes in this browser (`keepBuilderRecovery`) for the
- *   next session;
+ *   (`keepMine` / the editor's `takeTheirs`), and a 401 until they sign in;
+ * - a change no save took stays in this browser (`keepBuilderRecovery`) for
+ *   the next session, also one made while saving is stopped;
  * - leaving the page saves what is pending, with `keepalive` so the request
  *   outlives it.
  */
@@ -95,12 +95,18 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
   /** A document changed: save it once the editor has been still for the autosave delay. */
   function schedule(key: string): void {
     const state = stateOf(key)
-    if (state === 'conflict' || state === 'signedOut') return
+    if (state === 'conflict' || state === 'signedOut') {
+      keep(key)
+      return
+    }
     set(key, { state: inFlight.has(key) ? 'saving' : 'pending' })
     wait(key, BUILDER_AUTOSAVE_DELAY_MS)
   }
 
-  function keep(key: string, document: BuilderEditorDocument): void {
+  /** Writes the document's working copy to this browser, for the next session. */
+  function keep(key: string): void {
+    const document = useBuilderEditorStore().opened[key]
+    if (!document) return
     keepBuilderRecovery(host, key, {
       revision: document.meta.draftRevision,
       copy: document.copy,
@@ -151,7 +157,7 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
     const status = statusOf(error)
     const conflict = ZodConflict.safeParse(dataOf(error))
     const invalid = zBuilderDocumentInvalidError.safeParse(dataOf(error))
-    const document = useBuilderEditorStore().opened[key]
+    keep(key)
     if (status === 409 && conflict.success) {
       set(key, { state: 'conflict', conflict: conflict.data })
     }
@@ -159,20 +165,17 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
       set(key, { state: 'invalid', problems: invalid.data.errors })
     }
     else if (status === 401) {
-      if (document) keep(key, document)
       set(key, { state: 'signedOut' })
     }
     else if ((status === undefined || status >= 500) && attempt < BUILDER_AUTOSAVE_RETRY_MS.length) {
       // No answer, or a server that could not take the save (Django unreachable,
       // or unable to check it: 503): nothing was saved, so try again after a wait.
-      if (document) keep(key, document)
       set(key, { state: 'retrying', attempt: attempt + 1 })
       wait(key, BUILDER_AUTOSAVE_RETRY_MS[attempt]!)
     }
     else {
       // A refusal no retry changes, or a server still failing after every wait:
       // the changes stay (in the editor and in this browser) until the next try.
-      if (document) keep(key, document)
       log.error({ action: 'builder:save', document: key, status, error })
       set(key, { state: 'failed' })
     }
@@ -196,6 +199,7 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
   function reportConflict(key: string, body: unknown): boolean {
     const conflict = ZodConflict.safeParse(body)
     if (!conflict.success) return false
+    keep(key)
     set(key, { state: 'conflict', conflict: conflict.data })
     return true
   }
