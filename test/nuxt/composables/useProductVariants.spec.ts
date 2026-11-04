@@ -41,6 +41,7 @@ function variant(id: number, values: Record<number, number>, finalPrice: number,
       attributeId: Number(attributeId),
       attributeName: '',
       isVariant: true,
+      schemaProperty: '',
       attributeValueId,
       value: '',
       createdAt: FIXTURE_TIMESTAMP,
@@ -51,8 +52,8 @@ function variant(id: number, values: Record<number, number>, finalPrice: number,
 /** Red in 64/128 GB, blue in 64 GB only — blue/128 does not exist. */
 const PHONES: ProductVariantsResponse = {
   axes: [
-    { id: COLOUR, name: 'Χρώμα', values: [{ id: RED, value: 'Κόκκινο' }, { id: BLUE, value: 'Μπλε' }] },
-    { id: MEMORY, name: 'Μνήμη', values: [{ id: GB64, value: '64GB' }, { id: GB128, value: '128GB' }] },
+    { id: COLOUR, name: 'Χρώμα', schemaProperty: 'color', values: [{ id: RED, value: 'Κόκκινο' }, { id: BLUE, value: 'Μπλε' }] },
+    { id: MEMORY, name: 'Μνήμη', schemaProperty: '', values: [{ id: GB64, value: '64GB' }, { id: GB128, value: '128GB' }] },
   ],
   // Blue/64 is listed before red/64 so a "first candidate" shortcut
   // would pick the wrong colour.

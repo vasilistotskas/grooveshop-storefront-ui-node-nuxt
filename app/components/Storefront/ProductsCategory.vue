@@ -8,7 +8,7 @@ const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : unde
 provideListingScope(scope)
 const { trail } = useCategoryForest(scope)
 
-const { categoryName, categoryDescription } = await useProductCategoryPage(categoryId, t)
+const { categoryName, categoryDescription, categoryFooter } = await useProductCategoryPage(categoryId, t)
 
 /**
  * Home → Products → each parent → this category. The tree's own trail
@@ -37,6 +37,11 @@ const breadcrumb = computed(() => [
     <UContainer class="flex flex-col gap-4.5 pb-12 lg:gap-7 lg:pb-22">
       <ProductsCategoryChips />
       <ProductsBrowse />
+      <div
+        v-if="categoryFooter"
+        class="article max-w-none"
+        v-html="categoryFooter"
+      />
     </UContainer>
   </div>
 </template>

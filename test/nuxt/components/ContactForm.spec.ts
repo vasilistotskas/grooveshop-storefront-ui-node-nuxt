@@ -16,7 +16,7 @@ import { trees } from '~~/test/helpers/trees'
  * consent tick is checked here and never sent; the spam filter's
  * five-word rule is mirrored as an inline hint; files already uploaded
  * ride along as `attachmentIds`; and a refusal from Django is shown. The
- * webside copy asks the three fields only (no topic, consent or files); its
+ * webside copy asks the three fields and the files only (no topic or consent); its
  * rules, its request and its answers are the shop's, from one
  * `useContactEnquiry`.
  */
@@ -248,7 +248,7 @@ describe.each(trees(ContactForm, WebsideContactForm))('$tree ContactForm', ({ tr
     })
   })
 
-  describe.runIf(defaultOnly)('files', () => {
+  describe('files', () => {
     it('draws no attachment control when the store does not accept files', async () => {
       const wrapper = await mount(C)
 

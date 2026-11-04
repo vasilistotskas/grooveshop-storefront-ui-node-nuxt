@@ -29,7 +29,7 @@ beforeEach(() => {
   Object.defineProperty(window, 'parent', { value: parent, configurable: true })
   api.routes({ '/api/builder/preview': ANSWER })
   preview = ref(null)
-  stop = startBuilderCanvas(useNuxtApp(), preview)
+  stop = startBuilderCanvas(useNuxtApp(), preview, 'volt')
 })
 
 afterEach(() => {
@@ -54,6 +54,27 @@ async function settle() {
 }
 
 describe('the canvas bridge', () => {
+  it('draws the page with the theme being edited, compiled from settings the schema takes, over the store theme', () => {
+    const theme = themeDefaultsFor('volt')
+    theme.colors.light.accent = '#b3694b'
+
+    send({ channel: BUILDER_CANVAS_CHANNEL, type: 'theme', settings: theme })
+
+    const style = document.head.querySelector('style[data-builder-theme]')
+    expect(style?.textContent).toBe(themeCss(theme, 'volt'))
+    expect(document.head.lastElementChild).toBe(style)
+  })
+
+  it('takes no theme the schema refuses, and leaves no stylesheet behind when it stops', () => {
+    send({ channel: BUILDER_CANVAS_CHANNEL, type: 'theme', settings: { colors: '} body { display: none' } })
+    expect(document.head.querySelector('style[data-builder-theme]')).toBeNull()
+
+    send({ channel: BUILDER_CANVAS_CHANNEL, type: 'theme', settings: themeDefaultsFor('volt') })
+    stop()
+    expect(document.head.querySelector('style[data-builder-theme]')).toBeNull()
+    stop = startBuilderCanvas(useNuxtApp(), preview, 'volt')
+  })
+
   it('tells its parent it listens, on its own origin', () => {
     expect(tells).toHaveBeenCalledWith({ channel: BUILDER_CANVAS_CHANNEL, type: 'ready' }, window.location.origin)
   })

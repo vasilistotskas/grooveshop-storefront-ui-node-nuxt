@@ -4699,7 +4699,7 @@ export type PaginatedProductImageList = {
   results: Array<ProductImage>
 }
 
-export type PaginatedProductList = {
+export type PaginatedProductFeedList = {
   links?: {
     next?: string | null
     previous?: string | null
@@ -4709,7 +4709,7 @@ export type PaginatedProductList = {
   pageSize?: number
   pageTotalResults?: number
   page?: number
-  results: Array<Product>
+  results: Array<ProductFeed>
 }
 
 export type PaginatedProductReviewList = {
@@ -5188,6 +5188,7 @@ export type PatchedProductCategoryWriteRequest = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
     en?: {
       name?: string
@@ -5195,6 +5196,7 @@ export type PatchedProductCategoryWriteRequest = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
   }
   slug?: string
@@ -5219,9 +5221,11 @@ export type PatchedProductImageWriteRequest = {
   translations?: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }
@@ -5253,6 +5257,7 @@ export type PatchedProductWriteRequest = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -5260,6 +5265,7 @@ export type PatchedProductWriteRequest = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug?: string
@@ -5274,6 +5280,14 @@ export type PatchedProductWriteRequest = {
   } | null
   discountPercent?: number
   active?: boolean
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  gtin?: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  mpn?: string
 }
 
 /**
@@ -5792,6 +5806,7 @@ export type Product = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -5799,6 +5814,7 @@ export type Product = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -5849,6 +5865,14 @@ export type Product = {
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
   readonly variantGroupTitle: string | null
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly gtin: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly mpn: string
 }
 
 export type ProductAlert = {
@@ -5898,6 +5922,7 @@ export type ProductAttribute = {
      */
   readonly value: string
   readonly createdAt: string
+  schemaProperty: SchemaPropertyEnum | BlankEnum
 }
 
 /**
@@ -5970,6 +5995,7 @@ export type ProductCategory = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
     en?: {
       name?: string
@@ -5977,6 +6003,7 @@ export type ProductCategory = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
   }
   slug: string
@@ -6003,6 +6030,7 @@ export type ProductCategoryDetail = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
     en?: {
       name?: string
@@ -6010,6 +6038,7 @@ export type ProductCategoryDetail = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
   }
   slug: string
@@ -6125,6 +6154,7 @@ export type ProductCategoryWriteRequest = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
     en?: {
       name?: string
@@ -6132,6 +6162,7 @@ export type ProductCategoryWriteRequest = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
   }
   slug: string
@@ -6151,6 +6182,7 @@ export type ProductDetail = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -6158,6 +6190,7 @@ export type ProductDetail = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -6212,6 +6245,14 @@ export type ProductDetail = {
      * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
      */
   readonly priceDropAlertsEnabled: boolean
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly gtin: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly mpn: string
 }
 
 /**
@@ -6226,6 +6267,7 @@ export type ProductDetailResponse = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -6233,6 +6275,7 @@ export type ProductDetailResponse = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -6287,6 +6330,14 @@ export type ProductDetailResponse = {
      * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
      */
   readonly priceDropAlertsEnabled: boolean
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly gtin: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly mpn: string
 }
 
 export type ProductFavourite = {
@@ -6335,6 +6386,88 @@ export type ProductFavouriteWriteRequest = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export type ProductFeed = {
+  readonly id: number
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+  }
+  slug: string
+  readonly category: number | null
+  /**
+     * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+     */
+  readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
+  price: number
+  vat?: number | null
+  readonly viewCount: number
+  readonly stock: number
+  /**
+     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     */
+  readonly lowStockThreshold: number
+  readonly active: boolean
+  weight?: {
+    unit?: string
+    value?: number
+  } | null
+  readonly vatPercent: number
+  readonly vatValue: number
+  readonly finalPrice: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
+  readonly mainImagePath: string
+  readonly imagePaths: Array<string>
+  /**
+     * Return the average review rating for this product.
+     */
+  readonly reviewAverage: number
+  /**
+     * Return the number of approved reviews for this product.
+     */
+  readonly reviewCount: number
+  /**
+     * Return the number of likes/favourites for this product.
+     */
+  readonly likesCount: number
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly uuid: string
+  readonly attributes: Array<ProductAttribute>
+  offerKind?: OfferKindEnum | NullEnum | null
+  readonly variantGroupTitle: string | null
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly gtin: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly mpn: string
+  readonly highlights: Array<string>
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export type ProductImage = {
   readonly id: number
   readonly uuid: string
@@ -6349,9 +6482,11 @@ export type ProductImage = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
   readonly mainImagePath: string
@@ -6375,9 +6510,11 @@ export type ProductImageDetail = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
   readonly mainImagePath: string
@@ -6410,9 +6547,11 @@ export type ProductImageWriteRequest = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }
@@ -6624,6 +6763,7 @@ export type ProductRetrieve = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -6631,6 +6771,7 @@ export type ProductRetrieve = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -6686,6 +6827,14 @@ export type ProductRetrieve = {
      */
   readonly priceDropAlertsEnabled: boolean
   readonly ratingDistribution: Array<RatingDistribution>
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly gtin: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly mpn: string
 }
 
 /**
@@ -6770,6 +6919,7 @@ export type ProductVariant = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -6777,6 +6927,7 @@ export type ProductVariant = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   readonly slug: string
@@ -6813,6 +6964,7 @@ export type ProductWriteRequest = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -6820,6 +6972,7 @@ export type ProductWriteRequest = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -6834,6 +6987,14 @@ export type ProductWriteRequest = {
   } | null
   discountPercent?: number
   active?: boolean
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  gtin?: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  mpn?: string
 }
 
 /**
@@ -7427,6 +7588,16 @@ export type ScheduleWriteRequest = {
   scheduledFor: string
   note?: string
 }
+
+/**
+ * * `color` - Χρώμα
+ * * `size` - Μέγεθος
+ * * `material` - Υλικό
+ * * `pattern` - Σχέδιο
+ * * `suggestedAge` - Προτεινόμενη ηλικία
+ * * `suggestedGender` - Προτεινόμενο φύλο
+ */
+export type SchemaPropertyEnum = 'color' | 'size' | 'material' | 'pattern' | 'suggestedAge' | 'suggestedGender'
 
 /**
  * Serializer for search analytics response.
@@ -8224,6 +8395,8 @@ export type TenantConfig = {
   readonly socialsTwitter: string
   readonly socialsYoutube: string
   readonly boxNowPartnerId: string
+  bingSiteVerification?: string
+  indexnowKey?: string
 }
 
 /**
@@ -8673,6 +8846,7 @@ export type VariantAxis = {
   id: number
   name: string
   values: Array<VariantAxisValue>
+  schemaProperty: SchemaPropertyEnum | BlankEnum
 }
 
 /**
@@ -10049,7 +10223,7 @@ export type PaginatedProductImageListWritable = {
   results: Array<ProductImageWritable>
 }
 
-export type PaginatedProductListWritable = {
+export type PaginatedProductFeedListWritable = {
   links?: {
     next?: string | null
     previous?: string | null
@@ -10059,7 +10233,7 @@ export type PaginatedProductListWritable = {
   pageSize?: number
   pageTotalResults?: number
   page?: number
-  results: Array<ProductWritable>
+  results: Array<ProductFeedWritable>
 }
 
 export type PaginatedProductReviewListWritable = {
@@ -10295,6 +10469,7 @@ export type ProductWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -10302,6 +10477,7 @@ export type ProductWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -10368,6 +10544,7 @@ export type ProductCategoryWritable = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
     en?: {
       name?: string
@@ -10375,6 +10552,7 @@ export type ProductCategoryWritable = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
   }
   slug: string
@@ -10393,6 +10571,7 @@ export type ProductCategoryDetailWritable = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
     en?: {
       name?: string
@@ -10400,6 +10579,7 @@ export type ProductCategoryDetailWritable = {
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
+      footerText?: string
     }
   }
   slug: string
@@ -10464,6 +10644,7 @@ export type ProductDetailWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -10471,6 +10652,7 @@ export type ProductDetailWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -10494,6 +10676,7 @@ export type ProductDetailResponseWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -10501,6 +10684,7 @@ export type ProductDetailResponseWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -10528,6 +10712,38 @@ export type ProductFavouriteWriteWritable = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export type ProductFeedWritable = {
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+  }
+  slug: string
+  price: number
+  vat?: number | null
+  weight?: {
+    unit?: string
+    value?: number
+  } | null
+  offerKind?: OfferKindEnum | NullEnum | null
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export type ProductImageWritable = {
   /**
      * Εικόνα
@@ -10537,9 +10753,11 @@ export type ProductImageWritable = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }
@@ -10556,9 +10774,11 @@ export type ProductImageDetailWritable = {
   translations: {
     el?: {
       title?: string
+      altText?: string
     }
     en?: {
       title?: string
+      altText?: string
     }
   }
 }
@@ -10578,6 +10798,7 @@ export type ProductRetrieveWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -10585,6 +10806,7 @@ export type ProductRetrieveWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
   slug: string
@@ -10646,6 +10868,7 @@ export type ProductVariantWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
     en?: {
       seoTitle?: string
@@ -10653,6 +10876,7 @@ export type ProductVariantWritable = {
       seoKeywords?: string
       name?: string
       description?: string
+      feedTitle?: string
     }
   }
 }
@@ -10907,6 +11131,8 @@ export type TenantConfigWritable = {
   codeResendCooldownSeconds?: number
   openaiPixelId?: string
   googleAdsAddPaymentInfoLabel?: string
+  bingSiteVerification?: string
+  indexnowKey?: string
 }
 
 export type UserAddressWritable = {
@@ -23003,7 +23229,7 @@ export type ListProductFeedErrors = {
 export type ListProductFeedError = ListProductFeedErrors[keyof ListProductFeedErrors]
 
 export type ListProductFeedResponses = {
-  200: PaginatedProductList
+  200: PaginatedProductFeedList
 }
 
 export type ListProductFeedResponse = ListProductFeedResponses[keyof ListProductFeedResponses]

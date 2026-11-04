@@ -68,6 +68,20 @@ function send(): void {
 }
 watch(documents, send, { deep: true })
 
+/** The theme being edited, when the store has one: the canvas draws the page with it. */
+const theme = computed(() => {
+  const parsed = zThemeSettings.safeParse(store.theme?.copy.draft.settings)
+  return parsed.success ? parsed.data : undefined
+})
+
+function sendTheme(): void {
+  const target = frame.value?.contentWindow
+  if (!target || !theme.value) return
+  const command: BuilderCanvasCommand = { channel: BUILDER_CANVAS_CHANNEL, type: 'theme', settings: JSON.parse(JSON.stringify(theme.value)) }
+  target.postMessage(command, window.location.origin)
+}
+watch(theme, sendTheme, { deep: true })
+
 useEventListener(window, 'message', (event: MessageEvent) => {
   if (!frame.value || event.source !== frame.value.contentWindow || event.origin !== window.location.origin) return
   const message = ZodBuilderCanvasEvent.safeParse(event.data)
@@ -75,6 +89,7 @@ useEventListener(window, 'message', (event: MessageEvent) => {
   switch (message.data.type) {
     case 'ready':
       send()
+      sendTheme()
       tellSelection()
       break
     case 'pick':

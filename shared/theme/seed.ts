@@ -1,5 +1,5 @@
 import { HEX_COLOR_RE, PLATFORM_COLORS, TAILWIND_COLOR_ALLOWLIST, THEME_SHADES } from './constants.ts'
-import { themeDefaultsFor } from './defaults.ts'
+import { themeActionShadesFor, themeDefaultsFor } from './defaults.ts'
 import { DESIGN_FONTS, resolveDesign } from './design.ts'
 import { zThemeMetadata } from './metadataSchema.ts'
 import type { ThemeMetadata } from './metadataSchema.ts'
@@ -11,9 +11,6 @@ import type { TailwindPaletteName } from './tailwindPalettes.ts'
 
 /** A store's theme as its Tenant fields hold it today, before it has a theme document. */
 export type TenantThemeFields = Pick<TenantConfig, 'schemaName' | 'themePreset' | 'primaryColor' | 'neutralColor' | 'accentHex' | 'successHex' | 'warningHex' | 'errorHex' | 'infoHex' | 'themeMetadata'>
-
-/** Nuxt UI's shade of a scale that `--ui-primary` points at, per scheme, on a design that paints it from the scale. */
-const SCALE_ACTION_SHADE = { light: '500', dark: '100' } as const
 
 const hex = (value: string | null | undefined): string | null => (value && HEX_COLOR_RE.test(value) ? value.toLowerCase() : null)
 
@@ -87,7 +84,7 @@ export function seedThemeSettings(fields: TenantThemeFields): ThemeSettings {
       ...scales,
       // A design that paints --ui-primary from the scale (Nuxt UI's 500, and
       // main.css's 100 in the dark) follows the store's scale; Volt's ink is its own.
-      action: base.actionLinked ? scales.primary.scale[SCALE_ACTION_SHADE[name]] : base.action,
+      action: base.actionLinked ? scales.primary.scale[themeActionShadesFor(design)[name]] : base.action,
       actionLinked: base.actionLinked,
       accent: (name === 'light' ? sharedAccent : darkAccent) ?? base.accent,
       success: success ?? base.success,

@@ -2,7 +2,18 @@ type SchemaProduct = Pick<
   ProductRetrieve,
   'id' | 'stock' | 'finalPrice' | 'effectivePrice' | 'priorPrice'
   | 'announcedDiscountPercent' | 'reductionStartedAt' | 'reviewCount' | 'reviewAverage'
+  | 'brandName' | 'weight' | 'attributes' | 'gtin' | 'mpn'
 >
+
+/** The product's variant group: the other variants, each on its own page. */
+export interface ProductGroupSchema {
+  id: number
+  name: string
+  /** The Schema.org properties the variants differ by. */
+  variesBy: string[]
+  /** The other variants' page paths. */
+  variantPaths: string[]
+}
 
 interface ProductSchemaInput {
   product: SchemaProduct
@@ -15,6 +26,7 @@ interface ProductSchemaInput {
   currency: string
   /** The category trail by name ("Φόρτιση > Power banks"), when known. */
   category?: string
+  variantGroup?: ProductGroupSchema
   /** `null` with the store's reviews off: no rating leaves the page. */
   reviews: ProductReview[] | null
   /** How a reviewer without a name is called, in the page's language. */
@@ -26,8 +38,46 @@ interface ProductSchemaInput {
 /** The most reviews a page's structured data lists. */
 const SCHEMA_REVIEW_LIMIT = 5
 
+/** The attributes a Product states as properties of its own. */
+const PRODUCT_PROPERTIES = new Set(['color', 'size', 'material', 'pattern'])
+
 /** Fewer units than this in stock read as limited availability. */
 const LIMITED_STOCK = 5
+
+/** Django's weight units as UN/CEFACT codes, what `unitCode` takes. */
+const WEIGHT_UNIT_CODES: Record<string, string> = {
+  g: 'GRM',
+  kg: 'KGM',
+  lb: 'LBR',
+  oz: 'ONZ',
+  tonne: 'TNE',
+}
+
+/** The product's weight, when the store has set one. */
+function partition<T>(items: readonly T[], test: (item: T) => boolean): [T[], T[]] {
+  return [items.filter(test), items.filter(item => !test(item))]
+}
+
+function weightOf(weight: SchemaProduct['weight']) {
+  const unitCode = weight?.unit ? WEIGHT_UNIT_CODES[weight.unit] : undefined
+  if (!weight?.value || !unitCode) return undefined
+  return { '@type': 'QuantitativeValue' as const, 'value': weight.value, unitCode }
+}
+
+/**
+ * A variant's group, as Google's multi-page pattern has it: every variant
+ * page repeats the group, and the variants on other pages are their URLs.
+ */
+function productGroup(group: ProductGroupSchema, brand: string) {
+  return {
+    '@type': 'ProductGroup' as const,
+    'name': group.name,
+    'productGroupID': String(group.id),
+    'brand': { '@type': 'Brand' as const, 'name': brand },
+    'variesBy': group.variesBy.length > 0 ? group.variesBy : undefined,
+    'hasVariant': group.variantPaths.map(url => ({ url })),
+  }
+}
 
 function availability(stock: number): string {
   if (stock === 0) return 'https://schema.org/OutOfStock'
@@ -48,19 +98,40 @@ export function productSchemaOrg(input: ProductSchemaInput) {
   const { product, reviews } = input
   const announcement = productAnnouncement(product)
   const id = String(product.id)
+  // A store that sells its own products names no brand on them.
+  const brand = product.brandName || input.storeName
+  const [properties, specifications] = partition(
+    product.attributes,
+    attribute => PRODUCT_PROPERTIES.has(attribute.schemaProperty),
+  )
 
   return {
     name: input.name,
     description: input.description,
     sku: id,
     productID: id,
+    // Only what the store entered: never the sku, which is the feeds' id.
+    gtin: product.gtin || undefined,
+    mpn: product.mpn || undefined,
     image: input.imageUrls.length > 0 ? input.imageUrls : undefined,
     url: input.url,
     category: input.category || undefined,
     brand: {
       '@type': 'Brand' as const,
-      'name': input.storeName,
+      'name': brand,
     },
+    ...Object.fromEntries(properties.map(attribute => [attribute.schemaProperty, attribute.value])),
+    isVariantOf: input.variantGroup ? productGroup(input.variantGroup, brand) : undefined,
+    weight: weightOf(product.weight),
+    // The specifications the page shows, so a search engine or a shopping
+    // agent reads them as data rather than from the description.
+    additionalProperty: specifications.length > 0
+      ? specifications.map(attribute => ({
+          '@type': 'PropertyValue' as const,
+          'name': attribute.attributeName,
+          'value': attribute.value,
+        }))
+      : undefined,
     offers: {
       '@type': 'Offer' as const,
       'price': productCurrentPrice(product).toFixed(2),

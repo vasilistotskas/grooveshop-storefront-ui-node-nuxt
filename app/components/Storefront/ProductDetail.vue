@@ -13,12 +13,6 @@ const stickyAddToCartEnabled = computed(() => cartEnabled.value && stickyAddToCa
 const productAlertsEnabled = useStoreFeature('productAlerts')
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 const priceHistoryEnabled = useStoreFeature('priceHistory')
-// "Order before 15:00, ships the same business day": the store's cutoff
-// is one cached public setting, so it renders on the server like the
-// rest of the page. No "today"/"tomorrow": that needs the visitor's
-// clock and Django's holiday calendar, and this page is cached.
-const { values: storeValues } = useStoreSettings()
-const dispatchCutoff = computed(() => parseDispatchCutoff(storeValues.value?.dispatchCutoff ?? ''))
 const tenantStore = useTenantStore()
 
 const { user } = useUserSession()
@@ -26,7 +20,6 @@ const { user } = useUserSession()
 const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
-const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 const { productUrl } = useUrls()
 const { declare, canonicalUrl } = useDocumentLocales()
 const cartStore = useCartStore()
@@ -42,10 +35,13 @@ const buyRow = useTemplateRef<HTMLElement>('buyRow')
 const { bottom: buyRowBottom } = useElementBounding(buyRow)
 const showStickyAddToCart = computed(() => buyRowBottom.value < 0)
 
-// The category list is the header menu's, already fetched; it draws the
-// breadcrumb and names the category in the structured data. Started
-// beside the product's own requests.
-const categoriesRequest = useAllCategories()
+// Where the product sits in the catalogue (Home › Charging › Power banks
+// › the product): the breadcrumb and the structured data's category.
+// Started beside the product's own requests.
+const { categoryPath, parentCrumbs, ready: categoriesReady } = useProductCategoryPath(
+  () => product.value?.category,
+  () => t('breadcrumb.items.products.label'),
+)
 
 const {
   product,
@@ -64,9 +60,12 @@ const {
   announcement,
   favouriteId,
   ogImage,
+  catalogueImageUrls,
+  variantGroupSchema,
 } = await useProductDetail(productId, t)
-const { data: allCategories } = await categoriesRequest
+await categoriesReady
 const assurances = await useProductAssurances()
+const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -80,21 +79,6 @@ declare(
   productUrl(product.value!.id, product.value!.slug),
 )
 
-/**
- * Where the product sits in the catalogue: its category's trail from the
- * root, as the design draws it (Home › Charging › Power banks › the
- * product). A product without a category sits under the full listing.
- */
-const categoryPath = computed(() => {
-  const id = product.value?.category
-  if (!id) return []
-  return categoryTrail(buildCategoryForest(allCategories.value ?? [], translatorFor(locale.value), undefined), id)
-})
-const parentCrumbs = computed(() =>
-  categoryPath.value.length
-    ? categoryPath.value.map(node => ({ label: node.label, to: node.to }))
-    : [{ label: t('breadcrumb.items.products.label'), to: '/products' }],
-)
 const breadcrumb = computed(() => [...parentCrumbs.value, { label: productName.value }])
 
 const shareOptions = reactive({
@@ -185,9 +169,6 @@ useSeoMeta({
   ogLocale: () => dateLocale.value,
 
   twitterCard: 'summary_large_image',
-  twitterTitle: () => productTitle.value,
-  twitterDescription: () => productDescription.value,
-  twitterImage: () => ogImage.value,
   twitterImageAlt: () => productTitle.value,
 })
 // 'product' is a valid OG type per the OpenGraph spec for product detail pages;
@@ -209,6 +190,9 @@ useHead({
 })
 
 useSchemaOrg([
+  // The product's first photograph, not the store's logo, which the
+  // schema module puts there when the page names nothing.
+  defineWebPage(computed(() => ({ primaryImageOfPage: catalogueImageUrls.value[0] }))),
   // Object-valued schema properties (image, offers, aggregateRating,
   // review) may no longer be per-property getters since the
   // @unhead/schema-org v3 definer-type rewrite — reactive nodes must be
@@ -218,16 +202,12 @@ useSchemaOrg([
     name: productName.value,
     description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
     url: canonicalUrl.value,
-    // The catalogue feeds' variant (SEARCH_IMAGE_VARIANT): one URL per image
-    // across the structured data, the sitemap and the Google / Meta feeds.
-    imageUrls: (productImages.value ?? [])
-      .map(img => img.mainImagePath)
-      .filter((path): path is string => Boolean(path))
-      .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT)),
+    imageUrls: catalogueImageUrls.value,
     storeName: siteConfig.name,
     currency: tenantStore.defaultCurrency,
     // The category's trail by name, the form Google reads.
     category: categoryPath.value.map(node => node.label).join(' > '),
+    variantGroup: variantGroupSchema.value,
     reviews: productReviewsEnabled.value ? (productReviews.value?.results ?? []) : null,
     anonymousReviewer: t('reviews.anonymous'),
     reviewComment: review => extractTranslated(review, 'comment', locale.value),
@@ -251,6 +231,7 @@ useSchemaOrg([
     ],
   }))),
 ])
+useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 </script>
 
 <template>
@@ -399,7 +380,7 @@ useSchemaOrg([
               {{ stockLine.label }}
             </p>
             <p
-              v-if="dispatchCutoff && productStock > 0"
+              v-if="dispatchCutoff"
               class="text-sm text-toned"
             >
               {{ t('dispatch_before', { time: dispatchCutoff }) }}
@@ -548,6 +529,7 @@ useSchemaOrg([
         :items="productAccordionItems"
         default-value="description"
         type="single"
+        :unmount-on-hide="false"
         :ui="{
           root: 'border-t border-default',
           item: 'border-b border-default',
@@ -641,6 +623,7 @@ useSchemaOrg([
             <ProductImage
               v-if="productImages?.[0]"
               :image="productImages[0]"
+              alt=""
               :width="44"
               :height="44"
               class="size-full object-cover"

@@ -44558,7 +44558,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedProductList"
+                                    "$ref": "#/components/schemas/PaginatedProductFeedList"
                                 }
                             }
                         },
@@ -70327,7 +70327,7 @@
                     }
                 }
             },
-            "PaginatedProductList": {
+            "PaginatedProductFeedList": {
                 "type": "object",
                 "required": [
                     "count",
@@ -70374,7 +70374,7 @@
                     "results": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Product"
+                            "$ref": "#/components/schemas/ProductFeed"
                         }
                     }
                 }
@@ -71694,6 +71694,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -71713,6 +71716,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -71765,6 +71771,9 @@
                                 "properties": {
                                     "title": {
                                         "type": "string"
+                                    },
+                                    "altText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -71772,6 +71781,9 @@
                                 "type": "object",
                                 "properties": {
                                     "title": {
+                                        "type": "string"
+                                    },
+                                    "altText": {
                                         "type": "string"
                                     }
                                 }
@@ -71843,6 +71855,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -71862,6 +71877,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -71911,7 +71929,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -71925,6 +71943,16 @@
                     },
                     "active": {
                         "type": "boolean"
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 14
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 70
                     }
                 }
             },
@@ -73023,6 +73051,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -73042,6 +73073,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -73117,7 +73151,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -73239,6 +73273,16 @@
                         "type": "string",
                         "nullable": true,
                         "readOnly": true
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -73251,11 +73295,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priorPrice",
                     "reductionStartedAt",
@@ -73417,6 +73463,17 @@
                         "type": "string",
                         "format": "date-time",
                         "readOnly": true
+                    },
+                    "schemaProperty": {
+                        "readOnly": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SchemaPropertyEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -73426,6 +73483,7 @@
                     "createdAt",
                     "id",
                     "isVariant",
+                    "schemaProperty",
                     "value"
                 ]
             },
@@ -73636,6 +73694,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -73655,6 +73716,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -73746,6 +73810,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -73765,6 +73832,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -74128,6 +74198,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -74147,6 +74220,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -74200,6 +74276,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -74219,6 +74298,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -74294,7 +74376,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -74421,6 +74503,16 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU."
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -74433,11 +74525,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -74484,6 +74578,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -74503,6 +74600,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -74578,7 +74678,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -74705,6 +74805,16 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU."
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -74717,11 +74827,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -74906,6 +75018,310 @@
                     "product"
                 ]
             },
+            "ProductFeed": {
+                "type": "object",
+                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "slug": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "category": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "variantGroup": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "description": "Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront."
+                    },
+                    "brand": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "brandName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "vat": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "viewCount": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0,
+                        "readOnly": true
+                    },
+                    "lowStockThreshold": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product."
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "weight": {
+                        "type": "object",
+                        "properties": {
+                            "unit": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        },
+                        "example": {
+                            "unit": "kg",
+                            "value": 1
+                        },
+                        "nullable": true
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "format": "double",
+                        "readOnly": true
+                    },
+                    "vatValue": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    },
+                    "finalPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    },
+                    "effectivePrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "priorPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "announcedDiscountPercent": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "reductionStartedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "imagePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "reviewAverage": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Return the average review rating for this product.",
+                        "readOnly": true
+                    },
+                    "reviewCount": {
+                        "type": "integer",
+                        "description": "Return the number of approved reviews for this product.",
+                        "readOnly": true
+                    },
+                    "likesCount": {
+                        "type": "integer",
+                        "description": "Return the number of likes/favourites for this product.",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "attributes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductAttribute"
+                        },
+                        "readOnly": true
+                    },
+                    "offerKind": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OfferKindEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
+                    },
+                    "variantGroupTitle": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "highlights": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "active",
+                    "announcedDiscountPercent",
+                    "attributes",
+                    "brand",
+                    "brandName",
+                    "category",
+                    "createdAt",
+                    "effectivePrice",
+                    "finalPrice",
+                    "gtin",
+                    "highlights",
+                    "id",
+                    "imagePaths",
+                    "likesCount",
+                    "lowStockThreshold",
+                    "mainImagePath",
+                    "mpn",
+                    "price",
+                    "priorPrice",
+                    "reductionStartedAt",
+                    "reviewAverage",
+                    "reviewCount",
+                    "slug",
+                    "stock",
+                    "translations",
+                    "updatedAt",
+                    "uuid",
+                    "variantGroup",
+                    "variantGroupTitle",
+                    "vatPercent",
+                    "vatValue",
+                    "viewCount"
+                ]
+            },
             "ProductImage": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -74949,6 +75365,9 @@
                                 "properties": {
                                     "title": {
                                         "type": "string"
+                                    },
+                                    "altText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -74956,6 +75375,9 @@
                                 "type": "object",
                                 "properties": {
                                     "title": {
+                                        "type": "string"
+                                    },
+                                    "altText": {
                                         "type": "string"
                                     }
                                 }
@@ -75030,6 +75452,9 @@
                                 "properties": {
                                     "title": {
                                         "type": "string"
+                                    },
+                                    "altText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -75037,6 +75462,9 @@
                                 "type": "object",
                                 "properties": {
                                     "title": {
+                                        "type": "string"
+                                    },
+                                    "altText": {
                                         "type": "string"
                                     }
                                 }
@@ -75134,6 +75562,9 @@
                                 "properties": {
                                     "title": {
                                         "type": "string"
+                                    },
+                                    "altText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -75141,6 +75572,9 @@
                                 "type": "object",
                                 "properties": {
                                     "title": {
+                                        "type": "string"
+                                    },
+                                    "altText": {
                                         "type": "string"
                                     }
                                 }
@@ -75647,6 +76081,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -75666,6 +76103,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -75741,7 +76181,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -75875,6 +76315,16 @@
                             "$ref": "#/components/schemas/RatingDistribution"
                         },
                         "readOnly": true
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -75887,11 +76337,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -76181,6 +76633,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -76200,6 +76655,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -76352,6 +76810,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -76371,6 +76832,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -76420,7 +76884,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -76434,6 +76898,16 @@
                     },
                     "active": {
                         "type": "boolean"
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 14
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 70
                     }
                 },
                 "required": [
@@ -77934,6 +78408,18 @@
                     "documents",
                     "scheduledFor"
                 ]
+            },
+            "SchemaPropertyEnum": {
+                "enum": [
+                    "color",
+                    "size",
+                    "material",
+                    "pattern",
+                    "suggestedAge",
+                    "suggestedGender"
+                ],
+                "type": "string",
+                "description": "* `color` - Χρώμα\n* `size` - Μέγεθος\n* `material` - Υλικό\n* `pattern` - Σχέδιο\n* `suggestedAge` - Προτεινόμενη ηλικία\n* `suggestedGender` - Προτεινόμενο φύλο"
             },
             "SearchAnalyticsResponse": {
                 "type": "object",
@@ -79807,6 +80293,12 @@
                     "boxNowPartnerId": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "bingSiteVerification": {
+                        "type": "string"
+                    },
+                    "indexnowKey": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -80976,11 +81468,22 @@
                         "items": {
                             "$ref": "#/components/schemas/VariantAxisValue"
                         }
+                    },
+                    "schemaProperty": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SchemaPropertyEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
                     }
                 },
                 "required": [
                     "id",
                     "name",
+                    "schemaProperty",
                     "values"
                 ]
             },

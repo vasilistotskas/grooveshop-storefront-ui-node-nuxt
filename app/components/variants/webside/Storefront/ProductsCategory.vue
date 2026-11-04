@@ -10,14 +10,19 @@ provideListingScope({ categoryId: categoryId ? Number(categoryId) : undefined })
 // Ref to control the sidebar drawer
 const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 
-await useProductCategoryPage(categoryId, t)
+const { categoryName, categoryIntro, categoryFooter } = await useProductCategoryPage(categoryId, t)
 </script>
 
 <template>
   <WebsidePageWrapper class="flex flex-col">
     <WebsidePageTitle
-      :text="t('title')"
+      :text="categoryName || t('title')"
       class="mb-4 capitalize"
+    />
+    <div
+      v-if="categoryIntro"
+      class="article mb-6 max-w-none"
+      v-html="categoryIntro"
     />
     <div
       class="flex gap-6"
@@ -33,6 +38,11 @@ await useProductCategoryPage(categoryId, t)
         @toggle-filters="sidebarRef?.toggleDrawer()"
       />
     </div>
+    <div
+      v-if="categoryFooter"
+      class="article mt-10 max-w-none"
+      v-html="categoryFooter"
+    />
   </WebsidePageWrapper>
 </template>
 

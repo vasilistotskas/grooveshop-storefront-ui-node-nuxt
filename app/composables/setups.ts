@@ -103,9 +103,10 @@ export function setupPageHeader() {
     ogType: 'website',
     ogSiteName: () => siteConfig.name,
     ogImage: () => logo.value,
-    twitterTitle: () => title.value,
-    twitterDescription: () => siteConfig.description,
-    twitterImage: () => logo.value,
+    // No twitter:title / description / image: X reads the og: tags when
+    // they are absent, so a page states its card once, in og:. Defaults
+    // here outlived every page that set og: but not twitter: (the
+    // category and products pages showed the store's name and logo).
     twitterCard: 'summary',
     applicationName: () => title.value,
     // author/creator/publisher and the site-verification tokens are
@@ -178,6 +179,12 @@ export function setupPageHeader() {
         ? [{
             name: 'p:domain_verify',
             content: tenantStore.pinterestDomainVerify,
+          }]
+        : []),
+      ...(tenantStore.bingSiteVerification
+        ? [{
+            name: 'msvalidate.01',
+            content: tenantStore.bingSiteVerification,
           }]
         : []),
     ],

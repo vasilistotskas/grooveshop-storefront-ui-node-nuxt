@@ -27,7 +27,7 @@ import { defineAsyncComponent } from 'vue'
  * hop costs nothing on first paint.
  */
 
-export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell' | 'cookie_consent' | 'assistant'
+export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell' | 'auth_frame' | 'cookie_consent' | 'assistant'
 
 export type PageKey
   = | 'home'
@@ -115,6 +115,7 @@ const chromeDefaults: Record<ChromeKey, Component> = {
   mobile_nav: lazy(() => import('~/components/MobileBottomNav.vue')),
   checkout_header: lazy(() => import('~/components/Chrome/CheckoutHeader.vue')),
   account_shell: lazy(() => import('~/components/Chrome/AccountShell.vue')),
+  auth_frame: lazy(() => import('~/components/Chrome/AuthFrame.vue')),
   cookie_consent: lazy(() => import('~/components/Chrome/CookieConsent.vue')),
   assistant: lazy(() => import('~/components/Chrome/Assistant.vue')),
 }
@@ -227,6 +228,7 @@ const variants: Record<string, Component> = {
   'chrome:mobile_nav@webside': lazy(() => import('~/components/variants/webside/MobileBottomNav.vue')),
   'chrome:checkout_header@webside': lazy(() => import('~/components/variants/webside/Chrome/CheckoutHeader.vue')),
   'chrome:account_shell@webside': lazy(() => import('~/components/variants/webside/Chrome/AccountShell.vue')),
+  'chrome:auth_frame@webside': lazy(() => import('~/components/variants/webside/Chrome/AuthFrame.vue')),
   // The consent banner webside has always shown, at its old path: it is
   // shared chrome that predates webside's own design (`Cookie/*`).
   'chrome:cookie_consent@webside': lazy(() => import('~/components/Cookie/Control.vue')),

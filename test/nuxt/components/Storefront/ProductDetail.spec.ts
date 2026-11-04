@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { PublicValues } from '~~/shared/openapi/types.gen'
+import type { ProductAttribute, PublicValues } from '~~/shared/openapi/types.gen'
 import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { el as uiLocale } from '@nuxt/ui/locale'
@@ -27,6 +27,11 @@ const { windowScrollY } = await vi.hoisted(async () => {
   return { windowScrollY: ref(0) }
 })
 mockNuxtImport('useWindowScroll', () => () => ({ y: windowScrollY }))
+
+// A phone renders the product sections as an accordion, a desktop
+// (default) design as tabs; the device is the request's User-Agent.
+const { device } = vi.hoisted(() => ({ device: { mobileOrTablet: false } }))
+mockNuxtImport('useDevice', () => () => ({ isMobileOrTablet: device.mobileOrTablet }))
 
 // The product's own requests, by key: a request still in flight survives
 // a bare clearNuxtData(), and the next mount would join it.
@@ -214,6 +219,8 @@ mockNuxtImport('useSchemaOrg', () => (nodes: unknown[]) => {
   schemaNodes.push(...nodes)
 })
 mockNuxtImport('defineProduct', () => (input: unknown) => ({ product: input }))
+mockNuxtImport('defineBreadcrumb', () => (input: unknown) => ({ breadcrumb: input }))
+mockNuxtImport('defineWebPage', () => (input: unknown) => ({ webPage: input }))
 
 describe.each([
   ['default', ProductDetail],
@@ -288,6 +295,90 @@ describe.each([
   })
 })
 
+/**
+ * Where the product sits, in every design: the breadcrumb a shopper sees,
+ * the BreadcrumbList and the Product's category are one trail, Home ›
+ * the category's ancestors › the category › the product's NAME (never
+ * its SEO title, which carries the store's suffix). The page's primary
+ * image is the product's first photograph, not the store's logo.
+ */
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail category trail (%s tree)', (_tree, Component) => {
+  const empty = { count: 0, next: null, previous: null, results: [] }
+  const CATEGORIES = [
+    makeCategory({ id: 1, name: { el: 'Φόρτιση', en: 'Charging' } }),
+    makeCategory({ id: 2, name: { el: 'Power banks', en: 'Power banks' }, parent: 1, level: 1 }),
+  ]
+
+  function serve(product: ReturnType<typeof makeProduct>, images: unknown[] = []) {
+    clearNuxtData(['product123', 'productImages123', 'productReviewsSchema123', 'all-categories'])
+    setTenant({ assetsDomain: 'assets.shop.test' })
+    schemaNodes.length = 0
+    api.routes({
+      '/api/products/123': product,
+      '/api/products/123/images': images,
+      '/api/products/categories/all': CATEGORIES,
+      '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
+      '/api/*': empty,
+    })
+  }
+
+  const mountPage = async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+  const crumbsOf = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
+    wrapper.get(`nav[aria-label="${uiLocale.messages.breadcrumb.label}"]`).findAll('li').map(li => li.text()).filter(Boolean)
+  const schemaTrail = () => (schemaNodes.find(n => (n as { breadcrumb?: unknown }).breadcrumb) as { breadcrumb: { value: { itemListElement: { name: string }[] } } })
+    .breadcrumb.value.itemListElement.map(item => item.name)
+  const schemaCategory = () => (schemaNodes.find(n => (n as { product?: unknown }).product) as { product: { value: { category?: string } } }).product.value.category
+
+  // A store's SEO title carries its suffix; the trail names the product.
+  const product = (category: number | null) => makeProduct({
+    id: 123,
+    category,
+    translations: { el: { name: 'Προϊόν 123', description: '', seoTitle: 'Προϊόν 123 | Κατάστημα', seoDescription: '', seoKeywords: '' } },
+  })
+
+  it('places the product under its category trail, on the page and in the structured data', async () => {
+    serve(product(2))
+    const wrapper = await mountPage()
+
+    expect(crumbsOf(wrapper)).toEqual(['Αρχική', 'Φόρτιση', 'Power banks', 'Προϊόν 123'])
+    expect(schemaTrail()).toEqual(['Αρχική', 'Φόρτιση', 'Power banks', 'Προϊόν 123'])
+    // Google reads a category as its trail by name; the id said nothing.
+    expect(schemaCategory()).toBe('Φόρτιση > Power banks')
+  })
+
+  it.each([
+    ['without a category', null],
+    ['outside the catalogue tree', 99],
+  ])('places a product %s under the full listing', async (_case, category) => {
+    serve(product(category))
+    const wrapper = await mountPage()
+
+    expect(crumbsOf(wrapper)).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
+    expect(schemaTrail()).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
+    expect(schemaCategory()).toBeUndefined()
+  })
+
+  it('names the first photograph as the primary image of the page', async () => {
+    serve(product(2), [
+      { id: 1, mainImagePath: 'media/acme/uploads/products/a.jpg', image: 'https://static.platform.test/media/acme/uploads/products/a.jpg' },
+      { id: 2, mainImagePath: 'media/acme/uploads/products/b.png', image: 'https://static.platform.test/media/acme/uploads/products/b.png' },
+    ])
+    await mountPage()
+
+    const page = schemaNodes.find(n => (n as { webPage?: unknown }).webPage) as { webPage: { value: { primaryImageOfPage?: string } } }
+    expect(page.webPage.value.primaryImageOfPage)
+      .toBe('https://assets.shop.test/media_stream-image/media/acme/uploads/products/a.jpg/1000/1000/contain/center/FFFFFF/5/85.jpeg')
+  })
+})
+
 describe('default ProductDetail', () => {
   const empty = { count: 0, next: null, previous: null, results: [] }
   const CATEGORIES = [
@@ -321,65 +412,6 @@ describe('default ProductDetail', () => {
     await flushPromises()
     return wrapper
   }
-
-  it('promises same-business-day dispatch before the store\'s cutoff', async () => {
-    serve(makeProduct({ id: 123, stock: 20 }), () => empty, [], { dispatchCutoff: '15:00' })
-
-    const wrapper = await mountPage()
-
-    expect(wrapper.text()).toContain('Παράγγειλε πριν τις 15:00 (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη')
-  })
-
-  it.each([
-    ['sets no cutoff', { dispatchCutoff: '' }, 20],
-    ['writes a cutoff that is no clock time', { dispatchCutoff: 'before lunch' }, 20],
-    ['has the product sold out', { dispatchCutoff: '15:00' }, 0],
-  ])('promises no dispatch when the store %s', async (_name, values, stock) => {
-    serve(makeProduct({ id: 123, stock }), () => empty, [], values)
-
-    const wrapper = await mountPage()
-
-    expect(wrapper.text()).not.toContain('αποστέλλεται την ίδια εργάσιμη')
-  })
-
-  it('places the product under its category trail', async () => {
-    serve(makeProduct({ id: 123, category: 2 }))
-    const wrapper = await mountPage()
-
-    const crumbs = wrapper.get(`nav[aria-label="${uiLocale.messages.breadcrumb.label}"]`).findAll('li').map(li => li.text()).filter(Boolean)
-    expect(crumbs).toEqual(['Αρχική', 'Φόρτιση', 'Power banks', 'Προϊόν 123'])
-  })
-
-  it('places a product without a category under the full listing', async () => {
-    serve(makeProduct({ id: 123, category: null }))
-    const wrapper = await mountPage()
-
-    const crumbs = wrapper.get(`nav[aria-label="${uiLocale.messages.breadcrumb.label}"]`).findAll('li').map(li => li.text()).filter(Boolean)
-    expect(crumbs).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
-  })
-
-  it('places a product outside the catalogue tree under the full listing', async () => {
-    serve(makeProduct({ id: 123, category: 99 }))
-    const wrapper = await mountPage()
-
-    const crumbs = wrapper.get(`nav[aria-label="${uiLocale.messages.breadcrumb.label}"]`).findAll('li').map(li => li.text()).filter(Boolean)
-    expect(crumbs).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
-  })
-
-  // Google reads a category as its trail by name; the id said nothing.
-  it('names the category trail in the structured data, and no category outside the tree', async () => {
-    const category = () => (schemaNodes.find(n => (n as { product?: unknown }).product) as { product: { value: { category?: string } } }).product.value.category
-
-    schemaNodes.length = 0
-    serve(makeProduct({ id: 123, category: 2 }))
-    await mountPage()
-    expect(category()).toBe('Φόρτιση > Power banks')
-
-    schemaNodes.length = 0
-    serve(makeProduct({ id: 123, category: 99 }))
-    await mountPage()
-    expect(category()).toBeUndefined()
-  })
 
   it.each([
     { stock: 40, line: 'Διαθέσιμο' },
@@ -754,6 +786,7 @@ describe('webside ProductDetail sticky bar', () => {
     api.routes({
       '/api/products/123': product,
       '/api/products/123/images': [],
+      '/api/products/categories/all': [],
       '/api/products/123/*': empty,
       '/api/shipping/policy': [],
       '/api/*': empty,
@@ -935,5 +968,114 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail p
 
     expect(wrapper.findComponent({ name: NOTICE }).exists()).toBe(true)
     wrapper.unmount()
+  })
+})
+
+/**
+ * "Order before 15:00, it ships the same business day": the store's cutoff
+ * from the typed settings, in both designs, only for a product that has
+ * stock to dispatch.
+ */
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail dispatch cutoff', ({ C }) => {
+  const PROMISE = 'αποστέλλεται την ίδια εργάσιμη'
+
+  function serve(stock: number, values: Partial<PublicValues>) {
+    clearNuxtData()
+    setTenant()
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': { ...makeProduct({ id: 123, stock }), ratingDistribution: [] },
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/settings/public': { settings: {}, values: makePublicValues(values) },
+      '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
+      '/api/*': empty,
+    })
+  }
+
+  const mountPage = async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('promises same-business-day dispatch before the cutoff the store set', async () => {
+    serve(20, { dispatchCutoff: '15:00' })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Παράγγειλε πριν τις 15:00 (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη')
+  })
+
+  it.each([
+    ['sets no cutoff', { dispatchCutoff: '' }, 20],
+    ['writes a cutoff that is no clock time', { dispatchCutoff: 'before lunch' }, 20],
+    ['has the product sold out', { dispatchCutoff: '15:00' }, 0],
+  ])('promises no dispatch when the store %s', async (_name, values, stock) => {
+    serve(stock, values)
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).not.toContain(PROMISE)
+  })
+})
+
+/**
+ * The specifications are part of the page's HTML on every device, closed
+ * tab or not: search engines and the page's .md twin read them from it.
+ * Webside opens both sections by default (the store's request, 2026-11-03).
+ */
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail specifications (%s tree)', (tree, Component) => {
+  const empty = { count: 0, next: null, previous: null, results: [] }
+  const capacity: ProductAttribute = {
+    id: 1,
+    attributeId: 7,
+    attributeName: 'Χωρητικότητα',
+    isVariant: false,
+    schemaProperty: '',
+    attributeValueId: 70,
+    value: '5000 mAh',
+    createdAt: '2026-01-01T00:00:00Z',
+  }
+
+  beforeEach(() => {
+    clearNuxtData()
+    setTenant()
+    api.routes({
+      '/api/products/123': makeProduct({ id: 123, attributes: [capacity] }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
+      '/api/*': empty,
+    })
+  })
+
+  it.each([
+    ['desktop', false],
+    ['phone', true],
+  ])('renders the specifications on a %s', async (_device, mobileOrTablet) => {
+    device.mobileOrTablet = mobileOrTablet
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    // The default design draws a table row (th + td), webside a dl (dt + dd).
+    const spec = wrapper.findAll('th, dt').find(term => term.text() === capacity.attributeName)
+    expect(spec?.element.nextElementSibling?.textContent?.trim()).toBe(capacity.value)
+  })
+
+  it.runIf(tree === 'webside')('opens the description and the specifications', async () => {
+    device.mobileOrTablet = false
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    // Webside's own labels (its Greek-only <i18n> block).
+    const sections = ['Περιγραφή', 'Προδιαγραφές'].map(label =>
+      wrapper.findAll('button[aria-expanded]').find(button => button.text() === label)?.attributes('aria-expanded'))
+    expect(sections).toEqual(['true', 'true'])
   })
 })

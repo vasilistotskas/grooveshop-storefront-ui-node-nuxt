@@ -206,9 +206,6 @@ export async function useBlogPostPage(options: {
     ogImage: () => ogImage.value,
     ogType: 'article',
     ogUrl: () => canonicalUrl.value,
-    twitterTitle: () => blogPostSeoTitle.value,
-    twitterDescription: () => blogPostDescription.value,
-    twitterImage: () => ogImage.value,
     twitterCard: 'summary_large_image',
   })
 
@@ -230,6 +227,7 @@ export async function useBlogPostPage(options: {
       articleSection: blogPostCategoryName.value ? [blogPostCategoryName.value] : undefined,
     }),
   ])
+  useFaqSchema(extractTranslated(blogPost.value, 'body', locale.value))
 
   return {
     blogPostId,

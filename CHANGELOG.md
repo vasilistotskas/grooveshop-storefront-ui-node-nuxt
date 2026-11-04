@@ -1,3 +1,94 @@
+## [3.322.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.0...v3.322.1) (2026-11-04)
+
+
+### Performance Improvements
+
+* **build:** load the route's boot modules and shared lazy code as two chunks ([264b7ca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/264b7cad1c8b5d3fff5e907e495a8f7988582cda))
+
+# [3.322.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.321.0...v3.322.0) (2026-11-04)
+
+
+### Features
+
+* **seo:** identifiers, Bing verification, category text and IndexNow key ([#380](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/380)) ([b782b75](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b782b75b1e88316f52b51bdda7784267bd69ae46))
+
+# [3.321.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.320.0...v3.321.0) (2026-11-03)
+
+
+### Features
+
+* **seo:** product specs, variants and FAQ in the structured data ([#379](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/379)) ([a349789](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a349789a1900d97eb38d59fae6c194409816559a)), closes [unjs/unhead#1034](https://github.com/unjs/unhead/issues/1034)
+
+# [3.320.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.3...v3.320.0) (2026-11-03)
+
+
+### Features
+
+* **product:** alt text per product photograph ([#377](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/377)) ([91be5a6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91be5a6d5814d313282e5153f6a70d3266bb51ab))
+
+## [3.319.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.2...v3.319.3) (2026-11-03)
+
+
+### Bug Fixes
+
+* **seo:** one Organization node with every social profile ([#378](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/378)) ([cd8babe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cd8babe68e19d2c6433ad3f6d90d254265b4c6b9)), closes [unjs/unhead#1034](https://github.com/unjs/unhead/issues/1034)
+
+## [3.319.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.1...v3.319.2) (2026-11-03)
+
+
+### Bug Fixes
+
+* **seo:** category trail, primary image, X cards and page headings ([#376](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/376)) ([d887703](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d887703c550cc72d877735283601939bb32a1518))
+
+## [3.319.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.319.0...v3.319.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **product:** render the specifications in the page HTML ([#375](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/375)) ([58bdd35](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/58bdd35d9566e5b87848098b49881da2ed90c263))
+
+# [3.319.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.318.1...v3.319.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** let visitors attach files to webside's contact form ([#370](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/370)) ([1e75be5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1e75be513b67bfaaec0e3b455e162c48b3e33380))
+
+## [3.318.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.318.0...v3.318.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **webside:** honour tier multipliers and the welcome bonus on webside's loyalty surfaces ([#371](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/371)) ([df62acf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/df62acf9891803b9bed7f17f183472b46eb80017))
+
+# [3.318.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.317.0...v3.318.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** edit the store theme in the editor ([#374](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/374)) ([5ce446f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ce446f5d7596f3da9ba33a47ec65c08282cd979))
+
+# [3.317.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.316.0...v3.317.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** promise same-day dispatch on webside's product page ([#369](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/369)) ([ec19e1e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ec19e1e743a0b6db92a1358e0f2e2399d318a156))
+
+# [3.316.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.315.0...v3.316.0) (2026-11-03)
+
+
+### Features
+
+* **webside:** draw the store's sign-in photo beside webside's sign-in pages ([#360](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/360)) ([e5d01e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e5d01e47d17b7fa78029c8ec2a9ce2a3729c4d34))
+
+# [3.315.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.314.0...v3.315.0) (2026-11-03)
+
+
+### Features
+
+* **builder:** state the caps of the data settings in the catalogue, and read the lists at once ([#373](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/373)) ([eaeb116](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eaeb11618931abc5df2ebbd67648ff7bd8944c0d))
+
 # [3.314.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.313.0...v3.314.0) (2026-11-03)
 
 
