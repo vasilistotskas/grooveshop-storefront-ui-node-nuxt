@@ -265,9 +265,6 @@ importers:
       isomorphic-dompurify:
         specifier: 4.6.0
         version: 4.6.0(@noble/hashes@2.4.0)
-      lottie-web:
-        specifier: 5.13.0
-        version: 5.13.0
       magic-string:
         specifier: 1.4.5
         version: 1.4.5
@@ -6995,9 +6992,6 @@ packages:
 
   lodash@4.18.1:
     resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
-
-  lottie-web@5.13.0:
-    resolution: {integrity: sha512-+gfBXl6sxXMPe8tKQm7qzLnUy5DUPJPKIyRHwtpCpyUEYjHYRJC/5gjUvdkuO2c3JllrPtHXH5UJJK8LRYl5yQ==}
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -16344,8 +16338,6 @@ snapshots:
   lodash.uniqby@4.7.0: {}
 
   lodash@4.18.1: {}
-
-  lottie-web@5.13.0: {}
 
   lru-cache@10.4.3: {}
 
