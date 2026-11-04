@@ -4699,7 +4699,7 @@ export type PaginatedProductImageList = {
   results: Array<ProductImage>
 }
 
-export type PaginatedProductList = {
+export type PaginatedProductFeedList = {
   links?: {
     next?: string | null
     previous?: string | null
@@ -4709,7 +4709,7 @@ export type PaginatedProductList = {
   pageSize?: number
   pageTotalResults?: number
   page?: number
-  results: Array<Product>
+  results: Array<ProductFeed>
 }
 
 export type PaginatedProductReviewList = {
@@ -6381,6 +6381,88 @@ export type ProductFavouriteWrite = {
 
 export type ProductFavouriteWriteRequest = {
   product: number
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export type ProductFeed = {
+  readonly id: number
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+  }
+  slug: string
+  readonly category: number | null
+  /**
+     * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+     */
+  readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
+  price: number
+  vat?: number | null
+  readonly viewCount: number
+  readonly stock: number
+  /**
+     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     */
+  readonly lowStockThreshold: number
+  readonly active: boolean
+  weight?: {
+    unit?: string
+    value?: number
+  } | null
+  readonly vatPercent: number
+  readonly vatValue: number
+  readonly finalPrice: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
+  readonly mainImagePath: string
+  readonly imagePaths: Array<string>
+  /**
+     * Return the average review rating for this product.
+     */
+  readonly reviewAverage: number
+  /**
+     * Return the number of approved reviews for this product.
+     */
+  readonly reviewCount: number
+  /**
+     * Return the number of likes/favourites for this product.
+     */
+  readonly likesCount: number
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly uuid: string
+  readonly attributes: Array<ProductAttribute>
+  offerKind?: OfferKindEnum | NullEnum | null
+  readonly variantGroupTitle: string | null
+  /**
+     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly gtin: string
+  /**
+     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
+     */
+  readonly mpn: string
+  readonly highlights: Array<string>
 }
 
 /**
@@ -10141,7 +10223,7 @@ export type PaginatedProductImageListWritable = {
   results: Array<ProductImageWritable>
 }
 
-export type PaginatedProductListWritable = {
+export type PaginatedProductFeedListWritable = {
   links?: {
     next?: string | null
     previous?: string | null
@@ -10151,7 +10233,7 @@ export type PaginatedProductListWritable = {
   pageSize?: number
   pageTotalResults?: number
   page?: number
-  results: Array<ProductWritable>
+  results: Array<ProductFeedWritable>
 }
 
 export type PaginatedProductReviewListWritable = {
@@ -10625,6 +10707,38 @@ export type ProductFavouriteDetailWritable = {
 
 export type ProductFavouriteWriteWritable = {
   product: number
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export type ProductFeedWritable = {
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+      feedTitle?: string
+    }
+  }
+  slug: string
+  price: number
+  vat?: number | null
+  weight?: {
+    unit?: string
+    value?: number
+  } | null
+  offerKind?: OfferKindEnum | NullEnum | null
 }
 
 /**
@@ -23115,7 +23229,7 @@ export type ListProductFeedErrors = {
 export type ListProductFeedError = ListProductFeedErrors[keyof ListProductFeedErrors]
 
 export type ListProductFeedResponses = {
-  200: PaginatedProductList
+  200: PaginatedProductFeedList
 }
 
 export type ListProductFeedResponse = ListProductFeedResponses[keyof ListProductFeedResponses]
