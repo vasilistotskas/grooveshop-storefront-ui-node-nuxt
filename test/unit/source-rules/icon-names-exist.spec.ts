@@ -48,13 +48,14 @@ interface Site { label: string, icon: string, known: boolean }
 function sitesIn(file: string): Site[] {
   const sites: Site[] = []
   for (const [icon, head, afterColon] of readSource(file).matchAll(ICON_NAME)) {
+    // A collection alone: the name is built at runtime (`i-fa6-solid:${base}`).
+    if (!afterColon && COLLECTIONS.has(head!)) continue
     // The longest match decides: `heroicons-solid-x` is not `heroicons`'s `solid-x`.
     const prefix = afterColon ? head : LONGEST_PREFIX_FIRST.find(candidate => head!.startsWith(`${candidate}-`))
-    const set = prefix ? COLLECTIONS.get(prefix) : undefined
-    // `i-18n`, `i-th`: the shape of an icon, in no collection.
-    if (!set) continue
-    const name = afterColon ?? head!.slice(prefix!.length + 1)
-    sites.push({ label: relativeLabel(REPO, file), icon, known: set.has(name) })
+    const name = afterColon ?? head!.slice((prefix?.length ?? -1) + 1)
+    // No collection at all is a wrong name too: `i-herocons-envelope`.
+    const known = prefix !== undefined && COLLECTIONS.get(prefix)?.has(name) === true
+    sites.push({ label: relativeLabel(REPO, file), icon, known })
   }
   return sites
 }
