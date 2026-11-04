@@ -71647,9 +71647,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -71658,9 +71655,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -71769,9 +71763,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -71780,9 +71771,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -73948,9 +73936,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -73959,9 +73944,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74063,9 +74045,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74074,9 +74053,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74146,9 +74122,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74157,9 +74130,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75363,9 +75333,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75374,9 +75341,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75450,9 +75414,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75461,9 +75422,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75560,9 +75518,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75571,9 +75526,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }

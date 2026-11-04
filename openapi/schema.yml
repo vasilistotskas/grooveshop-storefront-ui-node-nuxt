@@ -44299,15 +44299,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
     PatchedProductCategoryWriteRequest:
@@ -44380,15 +44376,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
     PatchedProductReviewWriteRequest:
@@ -46059,15 +46051,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         imagePath:
@@ -46141,15 +46129,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         imagePath:
@@ -46200,15 +46184,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
       required:
@@ -47127,15 +47107,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         mainImagePath:
@@ -47189,15 +47165,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         mainImagePath:
@@ -47268,15 +47240,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
       required:

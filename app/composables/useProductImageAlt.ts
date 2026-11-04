@@ -1,14 +1,13 @@
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
- * The alt text of each photograph in a product's gallery: the store's own
- * (`altText`: the alt text the merchant wrote, else the image's title),
- * else "{product name} – photo {number}", numbered by the photograph's place
- * in the gallery as the store ordered it (`useProductImages`). A generic
- * "Product image" told a screen reader and a search engine nothing.
+ * The alt text of each photograph in a product's gallery: the one the store
+ * wrote (`altText`), else "{product name} – photo {number}", numbered by the
+ * photograph's place in the gallery as it is drawn. A generic "Product image"
+ * told a screen reader and a search engine nothing.
  *
- * Every design's gallery, zoom viewer and buy bar read it, so a
- * photograph has one alt text wherever it is drawn.
+ * Every design's gallery and zoom viewer read it, so a photograph has one alt
+ * text wherever it shows the photograph itself.
  */
 export function useProductImageAlt(
   images: MaybeRefOrGetter<readonly ProductImage[] | null | undefined>,
