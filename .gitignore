@@ -53,3 +53,6 @@ public/.well-known
 .unlighthouse
 
 audit/
+
+# playwright-cli sessions (snapshots, console logs)
+.playwright-cli/
