@@ -71694,6 +71694,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -71713,6 +71716,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -71849,6 +71855,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -71868,6 +71877,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -71917,7 +71929,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -71931,6 +71943,16 @@
                     },
                     "active": {
                         "type": "boolean"
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 14
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 70
                     }
                 }
             },
@@ -73029,6 +73051,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -73048,6 +73073,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -73123,7 +73151,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -73245,6 +73273,16 @@
                         "type": "string",
                         "nullable": true,
                         "readOnly": true
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -73257,11 +73295,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priorPrice",
                     "reductionStartedAt",
@@ -73654,6 +73694,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -73673,6 +73716,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -73764,6 +73810,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -73783,6 +73832,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -74146,6 +74198,9 @@
                                     },
                                     "seoKeywords": {
                                         "type": "string"
+                                    },
+                                    "footerText": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -74165,6 +74220,9 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -74218,6 +74276,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -74237,6 +74298,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -74312,7 +74376,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -74439,6 +74503,16 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU."
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -74451,11 +74525,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -74502,6 +74578,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -74521,6 +74600,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -74596,7 +74678,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -74723,6 +74805,16 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU."
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -74735,11 +74827,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -75683,6 +75777,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -75702,6 +75799,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -75777,7 +75877,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -75911,6 +76011,16 @@
                             "$ref": "#/components/schemas/RatingDistribution"
                         },
                         "readOnly": true
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -75923,11 +76033,13 @@
                     "createdAt",
                     "effectivePrice",
                     "finalPrice",
+                    "gtin",
                     "id",
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "mpn",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -76217,6 +76329,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -76236,6 +76351,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -76388,6 +76506,9 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "feedTitle": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -76407,6 +76528,9 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "feedTitle": {
                                         "type": "string"
                                     }
                                 }
@@ -76456,7 +76580,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -76470,6 +76594,16 @@
                     },
                     "active": {
                         "type": "boolean"
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 14
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.",
+                        "maxLength": 70
                     }
                 },
                 "required": [
@@ -79855,6 +79989,12 @@
                     "boxNowPartnerId": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "bingSiteVerification": {
+                        "type": "string"
+                    },
+                    "indexnowKey": {
+                        "type": "string"
                     }
                 },
                 "required": [

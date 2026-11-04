@@ -82,6 +82,7 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
   // Before the first await, like every composable here: it reads Pinia
   // stores (see useBlogPostPage).
   const { declare, canonicalUrl } = useDocumentLocales()
+  const { sanitize } = useHtmlContent()
 
   // Started before the category is awaited: it needs only the id, and a
   // request a composable starts after an await has no component instance,
@@ -191,7 +192,17 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
   })
 
   itemListNode(baseUrl, () => categoryName.value || t('title'), seoProducts, offset)
-  useFaqSchema(extractTranslated(category.value, 'description', locale.value))
 
-  return { category, categoryName, categoryDescription }
+  // The store's own text above and below the products, as the rich text
+  // it wrote; `categoryDescription` is the plain text of the head.
+  // An editor saves an emptied field as `<p></p>`, which draws nothing.
+  const richText = (field: 'description' | 'footerText') => {
+    const html = sanitize(extractTranslated(category.value, field, locale.value))
+    return hasVisibleContent(html) ? html : ''
+  }
+  const categoryIntro = computed(() => richText('description'))
+  const categoryFooter = computed(() => richText('footerText'))
+  useFaqSchema(`${categoryIntro.value}${categoryFooter.value}`)
+
+  return { category, categoryName, categoryDescription, categoryIntro, categoryFooter }
 }

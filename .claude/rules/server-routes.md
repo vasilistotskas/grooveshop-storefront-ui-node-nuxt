@@ -80,6 +80,7 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 - `2.evlog-ingest-rate-limit.ts` — rate limit, per client IP and store, on evlog's browser-log ingest, `POST /api/_evlog/ingest`
 - `3.csp.ts` — per-tenant Content-Security-Policy (extends src lists with the tenant's `allowedCspSources`)
 - `5.tenant-canonical.ts` — canonical host enforcement for the tenant's primary domain
+- `6.indexnow-key.ts` — serves the store's IndexNow key file, `/<key>.txt`, while `TenantConfig.indexnowKey` is set
 - `6.tenant-favicon.ts` — serves the tenant's favicon
 
 ## Server Plugins

@@ -2,7 +2,7 @@ type SchemaProduct = Pick<
   ProductRetrieve,
   'id' | 'stock' | 'finalPrice' | 'effectivePrice' | 'priorPrice'
   | 'announcedDiscountPercent' | 'reductionStartedAt' | 'reviewCount' | 'reviewAverage'
-  | 'brandName' | 'weight' | 'attributes'
+  | 'brandName' | 'weight' | 'attributes' | 'gtin' | 'mpn'
 >
 
 /** The product's variant group: the other variants, each on its own page. */
@@ -110,6 +110,9 @@ export function productSchemaOrg(input: ProductSchemaInput) {
     description: input.description,
     sku: id,
     productID: id,
+    // Only what the store entered: never the sku, which is the feeds' id.
+    gtin: product.gtin || undefined,
+    mpn: product.mpn || undefined,
     image: input.imageUrls.length > 0 ? input.imageUrls : undefined,
     url: input.url,
     category: input.category || undefined,

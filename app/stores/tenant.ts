@@ -116,6 +116,7 @@ export const useTenantStore = defineStore('tenant', () => {
   const seoAuthor = computed(() => config.value?.seoAuthor ?? '')
   const googleSiteVerification = computed(() => config.value?.googleSiteVerification ?? '')
   const pinterestDomainVerify = computed(() => config.value?.pinterestDomainVerify ?? '')
+  const bingSiteVerification = computed(() => config.value?.bingSiteVerification ?? '')
 
   function setConfig(tenantConfig: TenantConfig | null) {
     config.value = tenantConfig
@@ -127,6 +128,7 @@ export const useTenantStore = defineStore('tenant', () => {
     seoAuthor,
     googleSiteVerification,
     pinterestDomainVerify,
+    bingSiteVerification,
     schemaName,
     storeName,
     primaryDomain,

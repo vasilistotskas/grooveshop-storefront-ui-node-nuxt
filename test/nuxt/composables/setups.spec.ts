@@ -321,6 +321,33 @@ describe('setupPageHeader connection hints', () => {
     expect(twitter).toEqual(['twitter:card'])
   })
 
+  it('verifies the store with Bing only when it has a token', async () => {
+    const verification = async () => {
+      const head = injectHead()
+      const before = new Set(head.entries.keys())
+      await mountSuspended(HeaderHarness, { route: false })
+      await flushPromises()
+      vi.useFakeTimers({ toFake: ['setTimeout'] })
+      try {
+        head.render()
+        vi.runOnlyPendingTimers()
+      }
+      finally {
+        vi.useRealTimers()
+      }
+      const content = document.querySelector('meta[name="msvalidate.01"]')?.getAttribute('content')
+      for (const key of head.entries.keys()) {
+        if (!before.has(key)) head.entries.delete(key)
+      }
+      return content
+    }
+
+    setTenant({ bingSiteVerification: 'token' })
+    expect(await verification()).toBe('token')
+    setTenant({ bingSiteVerification: '' })
+    expect(await verification()).toBeUndefined()
+  })
+
   it('preconnects to the store\'s media origin only, without CORS mode', async () => {
     setTenant({ assetsDomain: 'assets.shop.test', staticDomain: 'static.shop.test' })
 

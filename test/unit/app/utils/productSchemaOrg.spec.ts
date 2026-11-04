@@ -129,6 +129,15 @@ describe('productSchemaOrg', () => {
     })
   })
 
+  it('states the identifiers the store entered, and none it did not', () => {
+    const entered = productSchemaOrg({ ...base, product: makeProduct({ gtin: '5901234123457', mpn: 'WS-20' }) })
+    const none = productSchemaOrg({ ...base, product: makeProduct({ gtin: '', mpn: '' }) })
+
+    expect(entered).toMatchObject({ gtin: '5901234123457', mpn: 'WS-20' })
+    expect(none.gtin).toBeUndefined()
+    expect(none.mpn).toBeUndefined()
+  })
+
   it('names no group for a product without one', () => {
     expect(productSchemaOrg({ ...base, product: makeProduct() }).isVariantOf).toBeUndefined()
   })
