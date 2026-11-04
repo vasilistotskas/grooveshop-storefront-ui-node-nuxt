@@ -6012,6 +6012,7 @@ export type ProductCategory = {
   readonly createdAt: string
   readonly updatedAt: string
   readonly uuid: string
+  readonly mainImageAlt: string
 }
 
 /**
@@ -6048,6 +6049,7 @@ export type ProductCategoryDetail = {
   readonly updatedAt: string
   readonly uuid: string
   readonly children: Array<ProductCategory>
+  readonly mainImageAlt: string
 }
 
 /**

@@ -180,7 +180,7 @@ describe('Chrome/Navbar', () => {
   })
 
   it('keeps the catalogue on the operator\'s entry for the listing', async () => {
-    categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', productCount: 0, children: [] }]
+    categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', imageAlt: '', productCount: 0, children: [] }]
     state.header = [
       { label: 'Σχετικά', to: '/about' },
       { label: 'Κατάστημα', to: '/products', icon: 'i-heroicons-shopping-bag' },
@@ -226,7 +226,7 @@ describe('Chrome/Navbar', () => {
   })
 
   it('opens the catalogue panel from Shop, and dims the page under it', async () => {
-    categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', productCount: 0, children: [] }]
+    categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', imageAlt: '', productCount: 0, children: [] }]
 
     const wrapper = await mountNavbar()
     const nav = wrapper.findComponent({ name: 'UNavigationMenu' })

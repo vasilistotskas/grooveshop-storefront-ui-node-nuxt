@@ -116,6 +116,7 @@ export function makeCategory(
     level: 0,
     treeId: id,
     mainImagePath: '',
+    mainImageAlt: '',
     recursiveProductCount: 0,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,

@@ -45918,10 +45918,14 @@ components:
           type: string
           format: uuid
           readOnly: true
+        mainImageAlt:
+          type: string
+          readOnly: true
       required:
         - createdAt
         - id
         - level
+        - mainImageAlt
         - mainImagePath
         - recursiveProductCount
         - slug
@@ -46007,11 +46011,15 @@ components:
           items:
             $ref: '#/components/schemas/ProductCategory'
           readOnly: true
+        mainImageAlt:
+          type: string
+          readOnly: true
       required:
         - children
         - createdAt
         - id
         - level
+        - mainImageAlt
         - mainImagePath
         - recursiveProductCount
         - slug

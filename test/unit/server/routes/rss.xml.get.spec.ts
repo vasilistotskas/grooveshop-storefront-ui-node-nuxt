@@ -58,6 +58,7 @@ const productCategory = {
   level: 0,
   treeId: 1,
   mainImagePath: '',
+  mainImageAlt: '',
   createdAt: TIMESTAMP,
   updatedAt: TIMESTAMP,
   uuid: '0b4f4c8e-7f2d-4d0a-9c1e-5b6a7d8e9f00',
