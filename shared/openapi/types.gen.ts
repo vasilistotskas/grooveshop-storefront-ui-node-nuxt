@@ -5167,11 +5167,9 @@ export type PatchedProductCategoryImageWriteRequest = {
   active?: boolean
   translations?: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -5220,11 +5218,9 @@ export type PatchedProductImageWriteRequest = {
   isMain?: boolean
   translations?: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -6070,11 +6066,9 @@ export type ProductCategoryImage = {
   readonly sortOrder: number | null
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -6106,11 +6100,9 @@ export type ProductCategoryImageDetail = {
   readonly sortOrder: number | null
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -6133,11 +6125,9 @@ export type ProductCategoryImageWriteRequest = {
   active?: boolean
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -6481,11 +6471,9 @@ export type ProductImage = {
   readonly sortOrder: number | null
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -6509,11 +6497,9 @@ export type ProductImageDetail = {
   readonly sortOrder: number | null
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -6546,11 +6532,9 @@ export type ProductImageWriteRequest = {
   isMain?: boolean
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -10600,11 +10584,9 @@ export type ProductCategoryImageWritable = {
   active?: boolean
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -10623,11 +10605,9 @@ export type ProductCategoryImageDetailWritable = {
   active?: boolean
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -10752,11 +10732,9 @@ export type ProductImageWritable = {
   isMain?: boolean
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }
@@ -10773,11 +10751,9 @@ export type ProductImageDetailWritable = {
   isMain?: boolean
   translations: {
     el?: {
-      title?: string
       altText?: string
     }
     en?: {
-      title?: string
       altText?: string
     }
   }

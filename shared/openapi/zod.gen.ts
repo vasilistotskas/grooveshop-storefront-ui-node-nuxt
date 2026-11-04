@@ -2362,11 +2362,9 @@ export const zPatchedProductCategoryImageWriteRequest = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -2412,11 +2410,9 @@ export const zPatchedProductImageWriteRequest = z.object({
   isMain: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -3044,11 +3040,9 @@ export const zProductCategoryImage = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3090,11 +3084,9 @@ export const zProductCategoryImageDetail = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3114,11 +3106,9 @@ export const zProductCategoryImageWriteRequest = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3184,11 +3174,9 @@ export const zProductImage = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3218,11 +3206,9 @@ export const zProductImageWriteRequest = z.object({
   isMain: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -4316,11 +4302,9 @@ export const zProductImageDetail = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -7998,11 +7982,9 @@ export const zProductCategoryImageWritable = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -8031,11 +8013,9 @@ export const zProductCategoryImageDetailWritable = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -8188,11 +8168,9 @@ export const zProductImageWritable = z.object({
   isMain: z.boolean().optional().default(false),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -8219,11 +8197,9 @@ export const zProductImageDetailWritable = z.object({
   isMain: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
