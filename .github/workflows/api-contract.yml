@@ -1,0 +1,34 @@
+# Hold a pull request to the API contract: openapi/schema.yml and openapi/allauth-schema.yml must not
+# require anything the Django that production and staging run does not serve.
+#
+# The check is shared by the Django API, the storefront and the agent
+# gateway (grooveshop-django-api/api-contract/README.md): the same script
+# and rules the deploy gate in grooveshop-infrastructure runs, fetched from
+# the Django release that is live in each environment. What is live comes
+# from GitHub Deployments, recorded from the running pods; the job needs no
+# secret and runs the same on a fork's pull request. A pull request that
+# touches no contract document passes at once, so it can be a required
+# status check.
+#
+# A reusable workflow's ref cannot be an expression, so it is fixed at
+# main; the script and the rules it runs are taken from the live Django
+# release, not from main.
+name: API contract
+
+on:
+  pull_request:
+    branches: ['main']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: API contract
+    uses: vasilistotskas/grooveshop-django-api/.github/workflows/api-contract-check.yml@main
+    with:
+      kind: storefront
