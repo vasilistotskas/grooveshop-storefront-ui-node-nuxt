@@ -1,3 +1,10 @@
+# [3.322.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.321.0...v3.322.0) (2026-11-04)
+
+
+### Features
+
+* **seo:** identifiers, Bing verification, category text and IndexNow key ([#380](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/380)) ([b782b75](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b782b75b1e88316f52b51bdda7784267bd69ae46))
+
 # [3.321.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.320.0...v3.321.0) (2026-11-03)
 
 
