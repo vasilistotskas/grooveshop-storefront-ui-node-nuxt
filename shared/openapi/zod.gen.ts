@@ -2976,6 +2976,7 @@ export const zProductCategory = z.object({
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
+  mainImageAlt: z.string().readonly(),
 })
 
 export const zPaginatedProductCategoryList = z.object({
@@ -3025,6 +3026,7 @@ export const zProductCategoryDetail = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   children: z.array(zProductCategory).readonly(),
+  mainImageAlt: z.string().readonly(),
 })
 
 /**

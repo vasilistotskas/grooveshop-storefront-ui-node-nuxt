@@ -164,6 +164,7 @@ export function makeProductCategory(overrides: Partial<ProductCategory> = {}): P
     level: 0,
     treeId: id,
     mainImagePath: `media/uploads/category-${id}.jpg`,
+    mainImageAlt: '',
     recursiveProductCount: 3,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
