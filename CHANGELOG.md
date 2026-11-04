@@ -1,3 +1,10 @@
+## [3.322.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.1...v3.322.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* **openapi:** stop declaring the image title ([#384](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/384)) ([85251d8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/85251d83c4b7337c90f53d879d58146a1ef0c6f4))
+
 ## [3.322.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.0...v3.322.1) (2026-11-04)
 
 
