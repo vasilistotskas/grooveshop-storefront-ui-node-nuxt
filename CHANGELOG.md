@@ -1,3 +1,10 @@
+# [3.323.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.2...v3.323.0) (2026-11-04)
+
+
+### Features
+
+* **categories:** the home tile uses the store's image alt text ([#387](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/387)) ([2900eda](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2900edab4a7803afb6a9d0e6f06b30f2bce85042))
+
 ## [3.322.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.1...v3.322.2) (2026-11-04)
 
 
