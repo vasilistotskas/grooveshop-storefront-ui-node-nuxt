@@ -1,3 +1,10 @@
+## [3.322.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.0...v3.322.1) (2026-11-04)
+
+
+### Performance Improvements
+
+* **build:** load the route's boot modules and shared lazy code as two chunks ([264b7ca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/264b7cad1c8b5d3fff5e907e495a8f7988582cda))
+
 # [3.322.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.321.0...v3.322.0) (2026-11-04)
 
 
