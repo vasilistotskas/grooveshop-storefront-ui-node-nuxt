@@ -47,8 +47,10 @@ const nextTierName = computed(() => {
   return extractTranslated(nextTier.value, 'name', locale.value)
 })
 
+// Quoted only while the store has tier multipliers on: a store without them
+// must not advertise one.
 const nextTierMultiplierBonus = computed(() => {
-  if (!nextTier.value) return null
+  if (!nextTier.value || !settings.value?.tierMultiplierEnabled) return null
   const multiplier = Number.parseFloat(String(nextTier.value.pointsMultiplier ?? '1'))
   if (!Number.isFinite(multiplier) || multiplier <= 1) return null
   return `+${Math.round((multiplier - 1) * 100)}%`

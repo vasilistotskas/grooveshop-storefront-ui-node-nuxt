@@ -1,5 +1,13 @@
 <script lang="ts" setup>
+import type { PropType } from 'vue'
+
 const props = defineProps({
+  /** The categories to draw: the blog's, read by the page route. */
+  categories: {
+    type: Array as PropType<BlogCategory[]>,
+    required: true,
+  },
+  /** Most of them the slider shows: its own width, not the band's setting. */
   max: {
     type: Number,
     default: 8,
@@ -10,13 +18,12 @@ const props = defineProps({
   },
 })
 
-const { max } = toRefs(props)
 const { locale, t } = useStoreI18n('components/variants/webside/Blog/Categories/Slider')
 const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { categories: categoryResults } = await useBlogCategoryRail({ pageSize: max })
+const categoryResults = computed(() => props.categories.slice(0, props.max))
 </script>
 
 <template>

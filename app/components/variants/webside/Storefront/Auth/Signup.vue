@@ -2,6 +2,8 @@
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/Signup')
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
+// The welcome bonus is promised only where the store gives one.
+const welcomeBonus = useWelcomeBonus()
 
 const items = computed(() => [
   {
@@ -69,6 +71,14 @@ useHead({
         `,
       }"
     >
+      <UAlert
+        v-if="welcomeBonus"
+        color="success"
+        variant="soft"
+        icon="i-heroicons-gift"
+        :description="t('welcome_bonus')"
+        class="mb-4"
+      />
       <WebsideAccountSignupForm />
     </UCard>
   </WebsidePageWrapper>
@@ -77,9 +87,12 @@ useHead({
 <i18n lang="yaml">
 el:
   title: Εγγραφή
+  welcome_bonus: Η πρώτη σου παραγγελία κερδίζει μπόνους καλωσορίσματος.
   breadcrumb:
     items:
       account-signup:
         label: Εγγραφή
         icon: i-heroicons-arrow-right-on-rectangle
+en:
+  welcome_bonus: Your first order earns a welcome bonus.
 </i18n>

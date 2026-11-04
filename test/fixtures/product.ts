@@ -1,4 +1,4 @@
-import type { Product, ProductReview } from '~~/shared/openapi/types.gen'
+import type { Product, ProductCategory, ProductReview } from '~~/shared/openapi/types.gen'
 
 /** The timestamp every fixture carries; fixed so snapshots never drift. */
 export const FIXTURE_TIMESTAMP = '2026-01-01T00:00:00Z'
@@ -97,6 +97,8 @@ export function makeProduct(overrides: ProductOverrides = {}): Product {
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(1, id),
+    gtin: '',
+    mpn: '',
     attributes: [],
     variantGroupTitle: null,
     ...fields,
@@ -140,6 +142,33 @@ export function makeProductCard(overrides: Partial<ProductCard> & { discountPerc
     updatedAt: product.updatedAt,
     uuid: product.uuid,
     ...fields,
+  }
+}
+
+/**
+ * A `ProductCategory` as the category list serialises it, valid against the
+ * generated `zProductCategory` (proved by `test/unit/fixtures/product.spec.ts`).
+ *
+ * Defaults: id 1, a root named «Κατηγορία 1», active, with a photograph and
+ * 3 products. `slug` and `uuid` follow `id`.
+ */
+export function makeProductCategory(overrides: Partial<ProductCategory> = {}): ProductCategory {
+  const id = overrides.id ?? 1
+
+  return {
+    id,
+    translations: { el: { name: `Κατηγορία ${id}` }, en: { name: `Category ${id}` } },
+    slug: `category-${id}`,
+    active: true,
+    parent: null,
+    level: 0,
+    treeId: id,
+    mainImagePath: `media/uploads/category-${id}.jpg`,
+    recursiveProductCount: 3,
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
+    uuid: fixtureUuid(31, id),
+    ...overrides,
   }
 }
 

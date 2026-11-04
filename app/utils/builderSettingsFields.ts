@@ -11,7 +11,9 @@
  * - `number`, `boolean`;
  * - `color`, `icon`, `url`: the shared formats (`BUILDER_FIELD_PATTERNS`);
  * - `link`: a link setting (`linkRefs`), `{ href } | { route } | { ref }`;
- * - `record`: an id of another record (`refs`);
+ * - `record`: an id of another record (`refs`, or a `builderField.ref` data setting);
+ * - `query`: a descriptor of a list to read (`builderField.query`), which the
+ *   storefront resolves when the page is read;
  * - `list`: a list of strings;
  * - `group`: an object, with fields of its own;
  * - `richText`: HTML (`contentMediaType: text/html`).
@@ -22,6 +24,7 @@ export type BuilderSettingField
     | { kind: 'number', path: string, pointer: SettingsPointer, required: boolean, integer: boolean, min?: number, max?: number }
     | { kind: 'boolean' | 'color' | 'icon' | 'url' | 'link' | 'richText', path: string, pointer: SettingsPointer, required: boolean }
     | { kind: 'record', path: string, pointer: SettingsPointer, required: boolean, refKind: BlockRefKind }
+    | { kind: 'query', path: string, pointer: SettingsPointer, required: boolean, source: DataSource, maxLimit: number }
     | { kind: 'list', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
     | { kind: 'group', path: string, pointer: SettingsPointer, required: boolean, fields: BuilderSettingField[] }
 
@@ -50,12 +53,14 @@ function fieldOf(
   schema: JsonSchema,
   path: string[],
   required: boolean,
-  definition: Pick<BlockDefinition, 'refs' | 'linkRefs'>,
+  definition: Pick<BlockDefinition, 'refs' | 'linkRefs' | 'data'>,
 ): BuilderSettingField {
   const pointer = `/${path.join('/')}` as SettingsPointer
   const base = { path: path.join('.'), pointer, required }
-  const refKind = definition.refs[pointer]
+  const data = definition.data[pointer]
+  const refKind = data?.field === 'ref' ? data.kind : definition.refs[pointer]
   if (definition.linkRefs.includes(pointer)) return { ...base, kind: 'link' }
+  if (data?.field === 'query') return { ...base, kind: 'query', source: data.source, maxLimit: data.maxLimit }
   if (refKind) return { ...base, kind: 'record', refKind }
   if (schema.contentMediaType === 'text/html') return { ...base, kind: 'richText' }
   if (Array.isArray(schema.enum)) {

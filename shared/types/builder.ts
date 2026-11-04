@@ -1,6 +1,6 @@
 import type { ZodObject } from 'zod'
 
-import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING, DATA_SOURCES, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
+import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING, DATA_RECORD_KINDS, DATA_SOURCES, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
 import type { BlockUpgradeFailure } from '../builder/upgrade'
 import type { StoreFeatureName } from '../utils/storeFeature'
 import type { BUILDER_BLOCK_CATEGORIES } from '../constants/builderEditor'
@@ -10,6 +10,7 @@ export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
 export type BuilderDocumentKind = (typeof BUILDER_DOCUMENT_KINDS)[number]
 export type LinkRefKind = (typeof LINK_REF_KINDS)[number]
 export type DataSource = (typeof DATA_SOURCES)[number]
+export type DataRecordKind = (typeof DATA_RECORD_KINDS)[number]
 export type DataMissing = (typeof DATA_MISSING)[number]
 
 /**
@@ -198,11 +199,22 @@ export interface CatalogueDocumentKind {
   linkRefs: string[]
   /** The contrast its colours must keep; only the theme has any. Django enforces the `error` rules on publish. */
   contrast?: ContrastRule[]
+  /** The root settings a new document of this kind starts with: the theme a new store of the design gets. */
+  defaults?: Record<string, unknown>
+}
+
+/** The caps a data setting lives under (`DATA_LIMITS`), stated to Django so it holds a document to the numbers the storefront reads with. */
+export interface CatalogueDataLimits {
+  maxPickedIds: number
+  maxFilterIds: number
+  maxQueryLimit: number
+  maxQueriesPerDocument: number
 }
 
 export interface BlockCatalogue {
   hash: string
   blocks: CatalogueBlock[]
+  dataLimits: CatalogueDataLimits
   /** Only the kinds that have root settings; any other accepts none. */
   documentKinds: Partial<Record<BuilderDocumentKind, CatalogueDocumentKind>>
   /**
@@ -235,6 +247,8 @@ export interface DocumentRoot {
   schema: ZodObject
   translatable: readonly SettingsPointer[]
   contrast?: readonly ContrastRule[]
+  /** The root settings a new document of this kind starts with; only the theme has them. */
+  defaults?: Record<string, unknown>
 }
 
 // ── Reading a document ─────────────────────────────────────────────

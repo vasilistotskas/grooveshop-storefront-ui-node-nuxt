@@ -3,20 +3,10 @@ import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE, LOCALE_FILES } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
+import { CLIENT_CHUNK_BUDGET_BYTES, ROUTE_BOOT_CHUNK_NAME, SHARED_CHUNK_MAX_MODULE_BYTES, SHARED_CHUNK_MIN_ENTRIES, SHARED_CHUNK_NAME, isRouteBootModule, isStyleModuleId } from './shared/constants/clientChunks.ts'
 import { CACHED_PAGE_VARIES, CUSTOM_PAGE_ROUTES, PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
 import { FONT_FAMILY_NAMES, FONT_STYLES, FONT_WEIGHTS } from './shared/theme/constants.ts'
 import { STATIC_LAYOUT_ROUTES } from './shared/utils/staticLayoutRoutes.ts'
-
-// Style-ish module ids must never be captured by a codeSplitting group:
-// folding them into a named JS chunk makes Nuxt emit that chunk's CSS as
-// a render-blocking <link> on every page (this exact mistake once shipped
-// the map library's stylesheet site-wide, before the old manualChunks grew
-// its ``.css`` guard) and disturbs vite's CSS emit ordering. Covers plain
-// stylesheets, preprocessor sources, and Vue SFC <style> virtuals.
-function isStyleModuleId(id: string): boolean {
-  return /\.(?:css|scss|sass|less|styl|pcss)(?:\?|$)/.test(id)
-    || id.includes('type=style')
-}
 
 /**
  * One tag per build, in every client JS file name.
@@ -480,6 +470,22 @@ export default defineNuxtConfig({
           return null
         },
       },
+      // See CLIENT_CHUNK_BUDGET_BYTES. Fails the build, so a heavy import
+      // never reaches every visitor unnoticed.
+      {
+        name: 'client-chunk-budgets',
+        apply: 'build',
+        generateBundle(_options, bundle) {
+          for (const output of Object.values(bundle)) {
+            if (output.type !== 'chunk') continue
+            const budget = CLIENT_CHUNK_BUDGET_BYTES[output.name]
+            const size = Buffer.byteLength(output.code)
+            if (budget !== undefined && size > budget) {
+              this.error(`client chunk "${output.name}" is ${size} bytes, over its ${budget} byte budget: see shared/constants/clientChunks.ts`)
+            }
+          }
+        },
+      },
     ],
     vue: {
       features: {
@@ -491,24 +497,7 @@ export default defineNuxtConfig({
         '@internationalized/date',
         'zod',
         'isomorphic-dompurify',
-        'lottie-web',
       ],
-    },
-    build: {
-      rollupOptions: {
-        // Silence rolldown's ``[EVAL]`` check for lottie-web only. The
-        // full ``lottie-web`` build's expressions engine genuinely needs
-        // direct ``eval``, so the eval path cannot be dropped by
-        // switching to ``lottie_light`` without also proving no current
-        // or future animation JSON relies on expressions. EVAL warnings
-        // from any other module still surface.
-        onwarn(warning, defaultHandler) {
-          if (warning.code === 'EVAL' && warning.id?.includes('lottie-web')) {
-            return
-          }
-          defaultHandler(warning)
-        },
-      },
     },
     // Worker bundles (MapLibre's, `?worker&url` in useMapLibre) are named
     // like every other client JS file: see CLIENT_BUILD_TAG.
@@ -527,40 +516,52 @@ export default defineNuxtConfig({
     // manualChunks alongside this.
     $client: {
       build: {
-        rollupOptions: {
+        rolldownOptions: {
           output: {
             // See CLIENT_BUILD_TAG. Nuxt fills these in only when unset.
             chunkFileNames: clientJsFileNames,
             entryFileNames: clientJsFileNames,
             codeSplitting: {
               groups: [
-                // Merge the ENTRY's static-import closure into two
-                // chunks. Lighthouse's lantern simulation charges every
+                // Merge the ENTRY's static-import closure into the entry
+                // chunk. Lighthouse's lantern simulation charges every
                 // pre-LCP request against a 1.6Mbps link, and the
                 // homepage was shipping its eager graph as ~85 separate
                 // modulepreloads (2026-08-29 audit; simulated LCP ~5s vs
                 // 1.3s observed). ``tags: ['$initial']`` is rolldown's
                 // built-in marker for "statically imported by an entry
                 // or its dependency chain" — it is what keeps LAZY
-                // modules out of these chunks: dynamic-only modules
+                // modules out of this chunk: dynamic-only modules
                 // (route chunks, page sections, the zod chunk shared by
-                // 27 account/checkout chunks) never carry the tag, so
-                // automatic chunking still applies to them. Styles are
-                // excluded (``isStyleModuleId``): folding CSS module ids
-                // into a named JS group breaks vite's CSS extraction
+                // 27 account/checkout chunks) never carry the tag. Styles
+                // are excluded (``isStyleModuleId``): folding CSS module
+                // ids into a named JS group breaks vite's CSS extraction
                 // ordering.
                 {
-                  name: 'eager-vendor',
-                  tags: ['$initial'],
-                  test: (id: string) =>
-                    !isStyleModuleId(id) && id.includes('node_modules'),
-                  priority: 20,
-                },
-                {
-                  name: 'eager-app',
+                  name: 'eager',
                   tags: ['$initial'],
                   test: (id: string) => !isStyleModuleId(id),
-                  priority: 10,
+                  priority: 3,
+                },
+                // The lazy graph, see shared/constants/clientChunks.ts.
+                // Never ``entriesAware``: its merge picks the closest
+                // neighbour whatever that neighbour weighs, and put the
+                // Zod chunk on every page (2026-11-04). Nor
+                // ``experimentalInlineCommonChunks``: no faster than
+                // these groups, with 4-8% more JS per page, and it
+                // requires strict execution order, which wraps every
+                // module of the app.
+                {
+                  name: SHARED_CHUNK_NAME,
+                  minShareCount: SHARED_CHUNK_MIN_ENTRIES,
+                  maxModuleSize: SHARED_CHUNK_MAX_MODULE_BYTES,
+                  test: (id: string) => !isStyleModuleId(id),
+                  priority: 2,
+                },
+                {
+                  name: ROUTE_BOOT_CHUNK_NAME,
+                  test: isRouteBootModule,
+                  priority: 1,
                 },
               ],
             },
@@ -607,6 +608,10 @@ export default defineNuxtConfig({
     // NEUTRAL-to-worse. The hint knob only redistributes the cost of
     // executing the eager graph; shrinking that graph is the only real
     // lever (see the mobile-perf memory for the decomposition).
+    // MEASURED AND REJECTED (2026-11-04, throttled phone, both designs):
+    // adding hints for only the route-boot and shared chunks. Hydration
+    // finished 2-5% sooner, but they compete with the first paint's own
+    // downloads: FCP +13-22% on every page.
     'build:manifest': (manifest) => {
       // Emit modulepreload hints ONLY for the entry and its
       // static-import closure (the consolidated eager chunk +
@@ -1210,6 +1215,11 @@ export default defineNuxtConfig({
   // training/search/RAG. Account/cart/checkout/api are off-limits to
   // every crawler — they're behind auth and have no value to indexers.
   robots: {
+    // Nothing here reads `useBotDetection`, and it runs `useStorage` when
+    // its module loads, which put a second VueUse in the client entry and
+    // a localStorage watcher on every page. `clientFacts.ts` is what flags
+    // a bot, and `nuxt-ai-ready` calls the package's own `getBotInfo`.
+    botDetection: false,
     disallow: ['/account/', '/cart', '/checkout', '/api/'],
     groups: [
       {

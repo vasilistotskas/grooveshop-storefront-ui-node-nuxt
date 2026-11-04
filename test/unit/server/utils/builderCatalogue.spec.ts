@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
-import { THEME_CONTRAST_RULES } from '~~/shared/builder/documentRoots'
+import { builderDocumentRootsFor, themeContrastRulesFor } from '~~/shared/builder/documentRoots'
+import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { builderField } from '~~/shared/builder/fields'
 import { builderBlocks, builderCatalogueDocument, buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
-import { promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
+import { fixtureBlocks, promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 
 const blockOf = (type: string) => buildBlockCatalogue([promoBanner, promoItem]).blocks.find(block => block.type === type)!
 
@@ -131,7 +132,11 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('is that of an empty catalogue when no block is defined', () => {
-      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
+      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], dataLimits: expect.any(Object), documentKinds: expect.any(Object), templates: expect.any(Array) })
+    })
+
+    it('states the caps data settings live under, the numbers the storefront reads with', () => {
+      expect(buildBlockCatalogue([]).dataLimits).toEqual({ maxPickedIds: 24, maxFilterIds: 5, maxQueryLimit: 24, maxQueriesPerDocument: 12 })
     })
 
     it('changes when what a document carries at its root does', () => {
@@ -168,8 +173,15 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('states the root of the theme: nothing in it translatable, with the contrast its colours must keep', () => {
-      expect(documentKinds.theme).toMatchObject({ translatable: [], linkRefs: [], contrast: [...THEME_CONTRAST_RULES] })
+      expect(documentKinds.theme).toMatchObject({ translatable: [], linkRefs: [], contrast: [...themeContrastRulesFor(null)], defaults: themeDefaultsFor(null) })
       expect(documentKinds.theme?.schema).toMatchObject({ type: 'object', required: ['colors', 'radius', 'fonts', 'container'], additionalProperties: false })
+    })
+
+    it('states, for a design, its own contrast rules and the theme a new store of it starts with', () => {
+      const volt = buildBlockCatalogue([], builderDocumentRootsFor('demo')).documentKinds.theme
+
+      expect(volt).toMatchObject({ contrast: [...themeContrastRulesFor('volt')], defaults: themeDefaultsFor('volt') })
+      expect(buildBlockCatalogue([], builderDocumentRootsFor('demo')).hash).not.toBe(buildBlockCatalogue([], builderDocumentRootsFor('webside')).hash)
     })
 
     it('states contrast only for a root that has rules: a page has none', () => {
@@ -213,14 +225,14 @@ describe('buildBlockCatalogue', () => {
 
 describe('this build\'s catalogue', () => {
   it('registers the blocks of the build by type', () => {
-    expect([...builderBlocks.keys()]).toEqual(['promo_banner', 'promo_item'])
+    expect([...builderBlocks.keys()]).toEqual(['promo_banner', 'promo_item', 'promo_rail'])
   })
 
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    const { blocks, documentKinds, templates } = buildBlockCatalogue([promoBanner, promoItem])
+    const { blocks, dataLimits, documentKinds, templates } = buildBlockCatalogue(fixtureBlocks)
 
-    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds, templates })
+    expect(JSON.parse(json)).toEqual({ hash, blocks, dataLimits, documentKinds, templates })
   })
 })

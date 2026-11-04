@@ -12,6 +12,16 @@ useHead({
 // from the published 'contact' builder page. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
 const { sections: brandSections } = await useBuilderPage('contact')
+
+// The side cards (phone, email, offices, opening hours) are the merchant's
+// own data. With none to show the form keeps the page to itself, centred;
+// with any it shares the row from `lg` up. A layout that already carries the
+// opening hours would show them twice.
+const { hasAny: hasMethods } = useContactMethods()
+const { hasData: hasHours } = useBusinessHours()
+const layoutHasHours = computed(() => sectionsProvideHours(brandSections.value))
+const showHours = computed(() => hasHours.value && !layoutHasHours.value)
+const hasSide = computed(() => hasMethods.value || showHours.value)
 </script>
 
 <template>
@@ -32,7 +42,8 @@ const { sections: brandSections } = await useBuilderPage('contact')
            subject and the offices the design asks for. -->
       <div
         v-if="!sectionsProvideForm(brandSections)"
-        class="mx-auto w-full max-w-2xl"
+        class="mx-auto w-full"
+        :class="hasSide ? 'max-w-5xl' : 'max-w-2xl'"
       >
         <WebsidePageTitle
           v-if="!sectionsProvideHeading(brandSections)"
@@ -40,7 +51,32 @@ const { sections: brandSections } = await useBuilderPage('contact')
           class="mb-4 text-center capitalize"
         />
 
-        <WebsideContactForm />
+        <div
+          class="grid grid-cols-1 gap-6"
+          :class="hasSide && `
+            lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start
+          `"
+        >
+          <WebsideContactForm />
+
+          <!-- The form's own frame (`container`, its `sm:px-6`, a card at most
+               `max-w-xl`), so below `lg` the cards line up with the form above
+               them; from `lg` they fill the column beside it, level with the
+               form card (which sits under its `sm:py-6`). -->
+          <div
+            v-if="hasSide"
+            class="
+              container mx-auto
+              sm:px-6
+              lg:px-0 lg:pt-6
+            "
+          >
+            <div class="mx-auto flex max-w-xl flex-col gap-6 lg:max-w-none">
+              <WebsideContactMethodsCard />
+              <WebsideContactHoursCard v-if="!layoutHasHours" />
+            </div>
+          </div>
+        </div>
       </div>
     </template>
   </WebsidePageSectionsShell>

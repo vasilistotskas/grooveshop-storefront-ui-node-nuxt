@@ -47,10 +47,13 @@ const getTierImageUrl = (lt: LoyaltyTier) => {
   return lt.mainImagePath || ''
 }
 
+// A tier's multiplier benefit, as "+50%": only while the store has tier
+// multipliers on, and only for a tier that adds one (above 1x).
 const getMultiplierBonus = (multiplier: string | number) => {
+  if (!settings.value?.tierMultiplierEnabled) return null
   const mult = typeof multiplier === 'string' ? Number.parseFloat(multiplier) : multiplier
   const bonus = (mult - 1) * 100
-  return bonus > 0 ? `+${bonus.toFixed(0)}%` : '0%'
+  return bonus > 0 ? `+${bonus.toFixed(0)}%` : null
 }
 
 const currentTierIndex = computed(() => {
@@ -253,8 +256,11 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
                   </div>
                 </div>
 
-                <!-- Benefits -->
-                <div class="rounded-lg bg-success-50 p-4 dark:bg-success-950">
+                <!-- Benefits: the tier's multiplier, while the store runs them. -->
+                <div
+                  v-if="getMultiplierBonus(item.tier.pointsMultiplier)"
+                  class="rounded-lg bg-success-50 p-4 dark:bg-success-950"
+                >
                   <h5 class="mb-3 flex items-center gap-2 text-sm font-semibold text-primary-950 dark:text-primary-50">
                     <UIcon name="i-heroicons-gift" class="size-4" />
                     {{ t('benefits') }}
@@ -266,7 +272,7 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
                         {{ t('points_multiplier', { bonus: getMultiplierBonus(item.tier.pointsMultiplier) }) }}
                       </span>
                     </div>
-                    <div v-if="Number(item.tier.pointsMultiplier) > 1" class="flex items-start gap-2 text-sm">
+                    <div class="flex items-start gap-2 text-sm">
                       <UIcon name="i-heroicons-check-circle" class="mt-0.5 size-4 shrink-0 text-success-600 dark:text-success-400" />
                       <span class="text-neutral-700 dark:text-neutral-300">
                         {{ t('faster_earning') }}

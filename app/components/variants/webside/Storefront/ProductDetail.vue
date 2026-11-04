@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import type { AccordionItem, TabsItem, ButtonProps } from '#ui/types'
+import type { AccordionItem, ButtonProps } from '#ui/types'
 
 const { t, locale, n } = useStoreI18n('components/variants/webside/Storefront/ProductDetail')
 const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
-const { isMobileOrTablet } = useDevice()
 // A browse-only store takes no orders: no quantity, no add-to-cart, no
 // sticky buy bar. Prices and product info stay.
 const cartEnabled = useStoreFeature('cart')
@@ -30,13 +29,20 @@ const toast = useToast()
 const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
-const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 const { productUrl } = useUrls()
 const { declare, canonicalUrl } = useDocumentLocales()
 
 const selectorQuantity = ref(1)
 
 const productId = String(route.params.id)
+
+// Where the product sits in the catalogue (Home › Power banks › the
+// product): the breadcrumb and the structured data's category. Started
+// beside the product's own requests.
+const { categoryPath, parentCrumbs, ready: categoriesReady } = useProductCategoryPath(
+  () => product.value?.category,
+  () => t('breadcrumb.items.products.label'),
+)
 
 const {
   product,
@@ -55,8 +61,12 @@ const {
   announcement,
   favouriteId,
   ogImage,
+  catalogueImageUrls,
+  variantGroupSchema,
 } = await useProductDetail(productId, t)
+await categoriesReady
 const assurances = await useProductAssurances()
+const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -96,16 +106,16 @@ const items = computed(() => [
     label: t('breadcrumb.items.index.label'),
     icon: t('breadcrumb.items.index.icon'),
   },
-  {
-    to: localePath('products'),
-    label: t('breadcrumb.items.products.label'),
-  },
+  ...parentCrumbs.value.map(crumb => ({
+    to: localePath(pathLocation(crumb.to)),
+    label: crumb.label,
+  })),
   {
     to: localePath({
       name: 'products-id-slug',
       params: { id: productId, slug: product.value?.slug ?? '' },
     }),
-    label: productTitle.value,
+    label: productName.value,
   },
 ])
 
@@ -142,22 +152,10 @@ const stockStatus = computed(() => {
   return { label: t('in_stock'), color: 'success', icon: 'i-heroicons-check-circle' } as { label: string, color: ButtonProps['color'], icon: string }
 })
 
-const productTabs = computed<TabsItem[]>(() => [
-  {
-    label: t('description'),
-    icon: 'i-heroicons-document-text',
-    slot: 'description',
-  },
-  {
-    label: t('specifications'),
-    icon: 'i-heroicons-cpu-chip',
-    slot: 'specifications',
-  },
-])
-
-// AccordionItem requires value to be a string (TabsItem allows
-// number too); mirror the tabs list into a dedicated typed array for
-// the mobile accordion path.
+// Both sections open, and both in the HTML: the specifications are what
+// search engines and the page's .md twin read, so a closed or unmounted
+// panel hid them (the store's request, 2026-11-03).
+const PRODUCT_SECTIONS_OPEN = ['description', 'specifications']
 const productAccordionItems = computed<AccordionItem[]>(() => [
   {
     label: t('description'),
@@ -186,9 +184,6 @@ useSeoMeta({
   ogLocale: () => dateLocale.value,
 
   twitterCard: 'summary_large_image',
-  twitterTitle: () => productTitle.value,
-  twitterDescription: () => productDescription.value,
-  twitterImage: () => ogImage.value,
   twitterImageAlt: () => productTitle.value,
 })
 // 'product' is a valid OG type per the OpenGraph spec for product detail pages;
@@ -209,6 +204,9 @@ useHead({
 })
 
 useSchemaOrg([
+  // The product's first photograph, not the store's logo, which the
+  // schema module puts there when the page names nothing.
+  defineWebPage(computed(() => ({ primaryImageOfPage: catalogueImageUrls.value[0] }))),
   // Object-valued schema properties (image, offers, aggregateRating,
   // review) may no longer be per-property getters since the
   // @unhead/schema-org v3 definer-type rewrite — reactive nodes must be
@@ -218,14 +216,12 @@ useSchemaOrg([
     name: productName.value,
     description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
     url: canonicalUrl.value,
-    // The catalogue feeds' variant (SEARCH_IMAGE_VARIANT): one URL per image
-    // across the structured data, the sitemap and the Google / Meta feeds.
-    imageUrls: (productImages.value ?? [])
-      .map(img => img.mainImagePath)
-      .filter((path): path is string => Boolean(path))
-      .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT)),
+    imageUrls: catalogueImageUrls.value,
     storeName: siteConfig.name,
     currency: tenantStore.defaultCurrency,
+    // The category's trail by name, the form Google reads.
+    category: categoryPath.value.map(node => node.label).join(' > '),
+    variantGroup: variantGroupSchema.value,
     reviews: productReviewsEnabled.value ? (productReviews.value?.results ?? []) : null,
     anonymousReviewer: t('reviews.anonymous'),
     reviewComment: review => extractTranslated(review, 'comment', locale.value),
@@ -237,17 +233,18 @@ useSchemaOrg([
         name: t('breadcrumb.items.index.label'),
         item: localePath('index'),
       },
+      ...parentCrumbs.value.map(crumb => ({
+        name: crumb.label,
+        item: localePath(pathLocation(crumb.to)),
+      })),
       {
-        name: t('breadcrumb.items.products.label'),
-        item: localePath('products'),
-      },
-      {
-        name: productTitle.value,
+        name: productName.value,
         item: canonicalUrl.value,
       },
     ],
   }))),
 ])
+useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 </script>
 
 <template>
@@ -286,7 +283,7 @@ useSchemaOrg([
             lg:grid-cols-2
           "
         >
-          <WebsideProductImages :product="product" />
+          <WebsideProductImages :product="product" :product-name="productName" />
 
           <!-- min-w-0: below lg this is a grid item in an implicit ``auto``
                track, whose min-width:auto otherwise inflates the track to the
@@ -351,6 +348,24 @@ useSchemaOrg([
                   -{{ announcement.percent }}%
                 </UBadge>
               </div>
+
+              <!-- The store's dispatch cutoff, under the stock badge it
+                   follows from. Renders nothing without one, or when the
+                   product has no stock to dispatch. -->
+              <p
+                v-if="dispatchCutoff"
+                class="
+                  mt-2 flex items-center gap-2 text-sm text-primary-700
+                  dark:text-primary-300
+                "
+              >
+                <UIcon
+                  name="i-heroicons-truck"
+                  class="size-5 shrink-0"
+                  aria-hidden="true"
+                />
+                {{ t('dispatch_before', { time: dispatchCutoff }) }}
+              </p>
             </div>
 
             <USeparator />
@@ -536,32 +551,11 @@ useSchemaOrg([
 
             <USeparator class="my-2" />
 
-            <!--
-              Description + specs render as tabs on desktop (more
-              content above the fold) but collapse to an accordion on
-              mobile so the two sections don't push reviews / related
-              rails off a narrow viewport. useDevice() reads the UA
-              server-side so SSR picks the right shell and avoids a
-              hydration re-render.
-            -->
-            <UTabs
-              v-if="!isMobileOrTablet"
-              :items="productTabs"
-              class="w-full"
-              color="neutral"
-            >
-              <template #description>
-                <WebsideProductDescriptionPanel :html="sanitizedDescription" />
-              </template>
-              <template #specifications>
-                <WebsideProductSpecificationsPanel :specifications="productSpecifications" />
-              </template>
-            </UTabs>
             <UAccordion
-              v-else
               :items="productAccordionItems"
-              default-value="description"
-              type="single"
+              :default-value="PRODUCT_SECTIONS_OPEN"
+              type="multiple"
+              :unmount-on-hide="false"
               class="w-full"
             >
               <template #body="{ item }">
@@ -616,6 +610,7 @@ useSchemaOrg([
               v-if="productImages && productImages[0]"
               :key="product?.id"
               :image="productImages[0]"
+              alt=""
               :width="64"
               :height="64"
               class="
@@ -717,6 +712,7 @@ el:
   out_of_stock: Μη διαθέσιμο
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
+  dispatch_before: "Παράγγειλε πριν τις {time} (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη"
   vat_included: Περιλαμβάνει ΦΠΑ
   price_trend: Εξέλιξη τιμής
 en:
@@ -739,6 +735,7 @@ en:
   out_of_stock: Unavailable
   low_stock: Low stock ({count})
   in_stock: In stock
+  dispatch_before: "Order before {time} Greek time and it ships the same business day"
   vat_included: VAT included
   price_trend: Price history
 </i18n>

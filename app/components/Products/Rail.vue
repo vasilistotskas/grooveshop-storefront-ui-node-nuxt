@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 /**
- * Products as a swipeable rail. Presentational — the band above owns
- * the fetch (`useProductRail`), because it has to know whether to
- * render its heading at all.
+ * Products as a swipeable rail. Presentational — the band above gets
+ * them read (a data setting the page route resolved), because it has to
+ * know whether to render its heading at all.
  */
 withDefaults(defineProps<{
   products: ProductCard[]

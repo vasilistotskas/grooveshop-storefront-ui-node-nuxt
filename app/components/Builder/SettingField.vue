@@ -222,6 +222,14 @@ function moveListItem(index: number, delta: -1 | 1): void {
       :disabled="locked"
       @update="(next: BuilderLinkRef | undefined) => set(next?.id)"
     />
+    <BuilderQueryField
+      v-else-if="field.kind === 'query'"
+      :field="field"
+      :value="value"
+      :label="label"
+      :disabled="locked"
+      @update="(next: BuilderQueryDescriptor) => set(next)"
+    />
     <UInputNumber
       v-else-if="field.kind === 'number' || field.kind === 'record'"
       :model-value="number"

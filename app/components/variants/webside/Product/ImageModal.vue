@@ -10,12 +10,18 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  /** The name the page shows, which each photograph's alt text falls back to. */
+  productName: {
+    type: String,
+    required: true,
+  },
 })
 
 const modelValue = defineModel<boolean>({ required: true })
 
-const { t, locale } = useStoreI18n('components/variants/webside/Product/ImageModal')
+const { t } = useStoreI18n('components/variants/webside/Product/ImageModal')
 const img = useMediaStreamImage()
+const altOf = useProductImageAlt(() => props.images, () => props.productName)
 
 const activeIndex = ref(props.initialIndex)
 const carousel = useTemplateRef('carousel')
@@ -107,7 +113,6 @@ function closeModal() {
 
 const hasMultipleImages = computed(() => props.images.length > 1)
 const currentImagePosition = computed(() => `${activeIndex.value + 1}/${props.images.length}`)
-const currentImage = computed(() => props.images[activeIndex.value])
 
 defineShortcuts({
   arrowleft: {
@@ -154,7 +159,7 @@ watch(modelValue, (isOpen) => {
 <template>
   <UModal
     v-model:open="modelValue"
-    :title="t('productImage', { product: currentImage?.product })"
+    :title="t('productImage', { product: productName })"
     :description="currentImagePosition"
     fullscreen
     :ui="{
@@ -284,7 +289,7 @@ watch(modelValue, (isOpen) => {
                     height="1000"
                     fit="contain"
                     :src="item?.mainImagePath"
-                    :alt="extractTranslated(item, 'title', locale)"
+                    :alt="altOf(item)"
                     @dragstart.prevent
                   />
 
@@ -316,7 +321,7 @@ watch(modelValue, (isOpen) => {
                     height="1000"
                     fit="contain"
                     :src="item?.mainImagePath"
-                    :alt="extractTranslated(item, 'title', locale)"
+                    :alt="altOf(item)"
                     @dragstart.prevent
                   />
                 </div>
@@ -343,7 +348,7 @@ watch(modelValue, (isOpen) => {
                   height="1000"
                   fit="contain"
                   :src="images[0]?.mainImagePath"
-                  :alt="extractTranslated(images[0], 'title', locale)"
+                  :alt="altOf(images[0])"
                   @dragstart.prevent
                 />
 
@@ -426,6 +431,7 @@ watch(modelValue, (isOpen) => {
             >
               <WebsideProductImage
                 :image="image"
+                :alt="altOf(image)"
                 :width="136"
                 :height="136"
                 img-loading="lazy"

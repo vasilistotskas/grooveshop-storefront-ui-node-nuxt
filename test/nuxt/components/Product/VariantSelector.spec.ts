@@ -24,6 +24,7 @@ const attr = (attributeId: number, attributeValueId: number) => ({
   attributeId,
   attributeName: attributeId === COLOUR ? 'Χρώμα' : 'Μνήμη',
   isVariant: true,
+  schemaProperty: '' as const,
   attributeValueId,
   value: valueName[attributeValueId]!,
   createdAt: FIXTURE_TIMESTAMP,
@@ -53,8 +54,8 @@ const variant = (id: number, slug: string, finalPrice: number, colour: number, m
  */
 const response = (): ProductVariantsResponse => ({
   axes: [
-    { id: COLOUR, name: 'Χρώμα', values: [{ id: WHITE, value: 'Λευκό' }, { id: BLACK, value: 'Μαύρο' }] },
-    { id: MEMORY, name: 'Μνήμη', values: [{ id: GB256, value: '256GB' }, { id: GB512, value: '512GB' }] },
+    { id: COLOUR, name: 'Χρώμα', schemaProperty: 'color', values: [{ id: WHITE, value: 'Λευκό' }, { id: BLACK, value: 'Μαύρο' }] },
+    { id: MEMORY, name: 'Μνήμη', schemaProperty: '', values: [{ id: GB256, value: '256GB' }, { id: GB512, value: '512GB' }] },
   ],
   variants: [
     variant(5, 'white-256', 10, WHITE, GB256),

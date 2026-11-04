@@ -1,12 +1,16 @@
 import { createError, useRuntimeConfig } from 'nuxt/server'
-import type { RequestEvent } from 'nuxt/server'
 
-/** The current release in outline: its section groups and the pages it holds (`GET builder/published`). */
-export async function readPublishedSummary(event: RequestEvent): Promise<PublishedIndex> {
+/**
+ * The current release in outline: its section groups and the pages it holds
+ * (`GET builder/published`), for the store and language named. The reads of
+ * the release take the store and language rather than a request, so a cached
+ * function can make them (a page's links are resolved from one).
+ */
+export async function readPublishedSummary(tenantHost: string, locale: string): Promise<PublishedIndex> {
   return parseDataAs(
-    await useBackendFetch(event)(`${useRuntimeConfig().apiBaseUrl}/builder/published`, {
+    await backendFetchFor({ tenantHost, locale })(`${useRuntimeConfig().apiBaseUrl}/builder/published`, {
       method: 'GET',
-      query: { locale: requestLocale(event) },
+      query: { locale },
     }),
     zBuilderPublishedIndexResponse,
   )
@@ -19,10 +23,10 @@ export async function readPublishedSummary(event: RequestEvent): Promise<Publish
  * empty answer: that would hide the wrong links, and a failure is not cached.
  */
 export async function publishedTargets(
-  event: RequestEvent,
+  tenantHost: string,
   summary: PublishedIndex,
 ): Promise<PublishedTargets> {
-  const contentPages = await publishedContentLocalesForHost(requestTenantHost(event), useRuntimeConfig().apiBaseUrl)
+  const contentPages = await publishedContentLocalesForHost(tenantHost, useRuntimeConfig().apiBaseUrl)
   if (!contentPages) {
     throw createError({ status: 502, statusText: 'The published content pages could not be read' })
   }

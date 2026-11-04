@@ -1,0 +1,272 @@
+[
+  {
+    "name": "a product ref",
+    "declaration": { "field": "ref", "kind": "product", "onMissing": "empty" },
+    "value": 7,
+    "valid": true,
+    "issues": [],
+    "refs": [["product", "7"]],
+    "deps": []
+  },
+  {
+    "name": "a page ref is named by its key",
+    "declaration": { "field": "ref", "kind": "page", "onMissing": "hide" },
+    "value": "about",
+    "valid": true,
+    "issues": [],
+    "refs": [["page", "about"]],
+    "deps": []
+  },
+  {
+    "name": "a media ref",
+    "declaration": { "field": "ref", "kind": "media", "onMissing": "empty" },
+    "value": 3,
+    "valid": true,
+    "issues": [],
+    "refs": [["media", "3"]],
+    "deps": []
+  },
+  {
+    "name": "a product ref is a number, not text",
+    "declaration": { "field": "ref", "kind": "product", "onMissing": "empty" },
+    "value": "7",
+    "valid": false,
+    "issues": [{ "path": "", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "a page ref is a key, not a number",
+    "declaration": { "field": "ref", "kind": "page", "onMissing": "hide" },
+    "value": 3,
+    "valid": false,
+    "issues": [{ "path": "", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "a hand-picked product list depends on exactly those products and on no query",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "picked", "ids": [3, 1, 2] },
+    "valid": true,
+    "issues": [],
+    "refs": [["product", "1"], ["product", "2"], ["product", "3"]],
+    "deps": []
+  },
+  {
+    "name": "a hand-picked list names each record once",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "picked", "ids": [1, 1, 2] },
+    "valid": true,
+    "issues": [],
+    "refs": [["product", "1"], ["product", "2"]],
+    "deps": []
+  },
+  {
+    "name": "a product rule with no filter depends on every product",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest", "limit": 8 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryProduct", "*"]]
+  },
+  {
+    "name": "a product rule by categories depends on those categories",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "categories": [4, 2], "ordering": "mostViewed", "limit": 6 },
+    "valid": true,
+    "issues": [],
+    "refs": [["category", "2"], ["category", "4"]],
+    "deps": [["queryProduct", "category:2"], ["queryProduct", "category:4"]]
+  },
+  {
+    "name": "a discounted rail",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "empty", "maxLimit": 12 },
+    "value": { "mode": "filter", "ordering": "discounted", "limit": 12 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryProduct", "*"]]
+  },
+  {
+    "name": "a limit over the field's own maxLimit",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 6 },
+    "value": { "mode": "filter", "ordering": "newest", "limit": 7 },
+    "valid": false,
+    "issues": [{ "path": "/limit", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "a limit over the cap",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest", "limit": 25 },
+    "valid": false,
+    "issues": [{ "path": "/limit", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "a filter the product list does not have",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest", "limit": 4, "minPrice": 10 },
+    "valid": false,
+    "issues": [{ "path": "/minPrice", "code": "unknown_filter" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "an ordering the product list does not have",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "featured", "limit": 4 },
+    "valid": false,
+    "issues": [{ "path": "/ordering", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "no limit",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest" },
+    "valid": false,
+    "issues": [{ "path": "/limit", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "an ordering on a hand-picked list",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "picked", "ids": [1], "ordering": "newest" },
+    "valid": false,
+    "issues": [{ "path": "/ordering", "code": "unknown_filter" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "more hand-picked ids than the cap",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "picked", "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] },
+    "valid": false,
+    "issues": [{ "path": "/ids", "code": "too_many_ids" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "more category ids than the filter cap",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "categories": [1, 2, 3, 4, 5, 6], "ordering": "newest", "limit": 4 },
+    "valid": false,
+    "issues": [{ "path": "/categories", "code": "too_many_ids" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "an empty hand-picked list",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "picked", "ids": [] },
+    "valid": false,
+    "issues": [{ "path": "/ids", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "no mode",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "ordering": "newest", "limit": 4 },
+    "valid": false,
+    "issues": [{ "path": "", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "a blog rule by category and featured",
+    "declaration": { "field": "query", "source": "blogPost", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "category": 3, "featured": true, "ordering": "newest", "limit": 3 },
+    "valid": true,
+    "issues": [],
+    "refs": [["blogCategory", "3"]],
+    "deps": [["queryBlogPost", "category:3"]]
+  },
+  {
+    "name": "a blog rule with no category depends on every post",
+    "declaration": { "field": "query", "source": "blogPost", "onEmpty": "empty", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "mostViewed", "limit": 3 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryBlogPost", "*"]]
+  },
+  {
+    "name": "a hand-picked blog list",
+    "declaration": { "field": "query", "source": "blogPost", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "picked", "ids": [9, 4] },
+    "valid": true,
+    "issues": [],
+    "refs": [["blogPost", "4"], ["blogPost", "9"]],
+    "deps": []
+  },
+  {
+    "name": "a blog rule takes one category, not a list",
+    "declaration": { "field": "query", "source": "blogPost", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "categories": [3], "ordering": "newest", "limit": 3 },
+    "valid": false,
+    "issues": [{ "path": "/categories", "code": "unknown_filter" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "the root categories",
+    "declaration": { "field": "query", "source": "category", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "roots", "limit": 8 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryCategory", "*"]]
+  },
+  {
+    "name": "the children of a category",
+    "declaration": { "field": "query", "source": "category", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "children", "parent": 5, "limit": 24 },
+    "valid": true,
+    "issues": [],
+    "refs": [["category", "5"]],
+    "deps": [["queryCategory", "parent:5"]]
+  },
+  {
+    "name": "the children of nothing",
+    "declaration": { "field": "query", "source": "category", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "children", "limit": 8 },
+    "valid": false,
+    "issues": [{ "path": "/parent", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "the blog categories",
+    "declaration": { "field": "query", "source": "blogCategory", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "limit": 10 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryBlogCategory", "*"]]
+  },
+  {
+    "name": "the offers",
+    "declaration": { "field": "query", "source": "promotion", "onEmpty": "hide", "maxLimit": 3 },
+    "value": { "limit": 3 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryPromotion", "*"]]
+  },
+  {
+    "name": "an offers list takes no filter",
+    "declaration": { "field": "query", "source": "promotion", "onEmpty": "hide", "maxLimit": 3 },
+    "value": { "limit": 3, "code": "WELCOME" },
+    "valid": false,
+    "issues": [{ "path": "/code", "code": "unknown_filter" }],
+    "refs": [],
+    "deps": []
+  }
+]

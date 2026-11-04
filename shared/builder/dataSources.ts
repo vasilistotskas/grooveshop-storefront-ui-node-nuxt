@@ -1,7 +1,7 @@
 import * as z from 'zod'
 
 import { BLOG_POST_ORDERINGS, DATA_LIMITS, PRODUCT_ORDERINGS } from '../constants/builder'
-import type { DataSource } from '../types/builder'
+import type { DataRecordKind, DataSource } from '../types/builder'
 import { recordId } from './recordId'
 
 /**
@@ -13,8 +13,9 @@ import { recordId } from './recordId'
  * adding one is one entry below plus a shared vector.
  *
  * - `picked`: the merchant's own list. Its order is the merchant's order.
- * - `filter`: a rule. A list key (`categories`, `brands`, `tags`) is OR within
- *   itself and AND with the other keys, as the API does it.
+ * - `filter`: a rule. A list key (`categories`) is OR within itself and AND with
+ *   the other keys, as the API does it. Product brands and tags, and blog tags,
+ *   join when their filters are verified against the running API.
  */
 const ids = (max: number) => z.array(recordId()).min(1).max(max)
 const limit = (max: number) => z.number().int().min(1).max(max)
@@ -26,8 +27,6 @@ export const DATA_DESCRIPTORS = {
     z.strictObject({
       mode: z.literal('filter'),
       categories: ids(DATA_LIMITS.maxFilterIds).optional(),
-      brands: ids(DATA_LIMITS.maxFilterIds).optional(),
-      tags: ids(DATA_LIMITS.maxFilterIds).optional(),
       ordering: z.enum(PRODUCT_ORDERINGS),
       limit: limit(maxLimit),
     }),
@@ -37,7 +36,6 @@ export const DATA_DESCRIPTORS = {
     z.strictObject({
       mode: z.literal('filter'),
       category: recordId().optional(),
-      tags: ids(DATA_LIMITS.maxFilterIds).optional(),
       featured: z.boolean().optional(),
       ordering: z.enum(BLOG_POST_ORDERINGS),
       limit: limit(maxLimit),
@@ -50,3 +48,14 @@ export const DATA_DESCRIPTORS = {
   blogCategory: (maxLimit: number) => z.strictObject({ limit: limit(maxLimit) }),
   promotion: (maxLimit: number) => z.strictObject({ limit: limit(maxLimit) }),
 } as const satisfies Record<DataSource, (maxLimit: number) => z.ZodType>
+
+/** A descriptor of `Source`, as a document stores it. */
+export type DataDescriptor<Source extends DataSource> = z.input<ReturnType<(typeof DATA_DESCRIPTORS)[Source]>>
+
+/** The record kind a source lists, for the sources whose records are read by id too (a hand-picked list); a promotion has none. */
+export const QUERY_RECORD_KIND: Partial<Record<DataSource, DataRecordKind>> = {
+  product: 'product',
+  blogPost: 'blogPost',
+  category: 'category',
+  blogCategory: 'blogCategory',
+}

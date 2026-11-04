@@ -1,13 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { clearNuxtData } from '#app'
 import OffersPreview from '~/components/PageSection/OffersPreview.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
-
-const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-mockNuxtImport('$api', () => api)
-mockNuxtImport('$fetch', () => api)
 
 const { toastAdd, copy } = vi.hoisted(() => ({
   toastAdd: vi.fn(),
@@ -15,8 +10,6 @@ const { toastAdd, copy } = vi.hoisted(() => ({
 }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 mockNuxtImport('useClipboard', () => () => ({ copy, isSupported: ref(true) }))
-
-const PROMOTIONS_URL = '/api/promotions'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
 const COPY = {
@@ -38,24 +31,29 @@ const CardStub = defineComponent({
 
 const offer = (id: number) => ({ id, code: `CODE${id}` })
 
+/** The `offers` data setting as the page route hands it over: the first offers, and how many are running in all. */
+const offers = (items: Array<{ id: number, code: string }>, total = items.length) => ({
+  status: items.length ? 'ok' : 'empty',
+  items,
+  total,
+  descriptor: { limit: 3 },
+}) as unknown as ResolvedQuery<DataItems['promotion'], DataDescriptor<'promotion'>>
+
 const mountBand = (props: Record<string, unknown> = {}) =>
-  mountSuspended(OffersPreview, { route: false, props, global: { stubs: { OffersCoupon: CardStub } } })
+  mountSuspended(OffersPreview, { route: false, props: { offers: offers([offer(1), offer(2), offer(3)], 4), ...props }, global: { stubs: { OffersCoupon: CardStub } } })
 
 const cards = (wrapper: Awaited<ReturnType<typeof mountBand>>) =>
   wrapper.findAll('[data-offer]').map(card => card.attributes('data-offer'))
 
 /**
- * The store's running offers as a band. Promotions are a two-tier
- * commercial feature — the plan flag AND the merchant's runtime setting
- * — and fail CLOSED: a missing setting row advertises nothing.
+ * The store's running offers as a band. The offers arrive read (the page
+ * route resolved the first few and counted the rest), so the band fetches
+ * nothing; whether a store advertises them at all is its block's feature gate.
  */
 describe('PageSection/OffersPreview', () => {
   beforeEach(() => {
-    // Cached under `offers-preview-<locale>`.
-    clearNuxtData()
     setTenant()
     setTenantFeatures({ promotions: true })
-    api.routes({ [PROMOTIONS_URL]: [offer(1), offer(2), offer(3), offer(4)] })
   })
 
   it('shows the first three offers under a heading and a link that counts them all', async () => {
@@ -66,14 +64,13 @@ describe('PageSection/OffersPreview', () => {
     expect(cards(wrapper)).toEqual(['1', '2', '3'])
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual([COPY.allOffers, '/offers'])
-    expect(api.callsTo(PROMOTIONS_URL)[0]!.options.query).toEqual({ languageCode: 'el' })
   })
 
-  it('shows as many offers as the operator asked for, and still counts them all', async () => {
-    const wrapper = await mountBand({ limit: 2 })
+  it('counts every running offer in its link, not only the ones it shows', async () => {
+    const wrapper = await mountBand({ offers: offers([offer(1), offer(2)], 7) })
 
     expect(cards(wrapper)).toEqual(['1', '2'])
-    expect(wrapper.find('a').text()).toBe(COPY.allOffers)
+    expect(wrapper.find('a').text()).toBe('Όλες οι 7 προσφορές')
   })
 
   it('lets the operator\'s own words and link win over the counted one', async () => {
@@ -103,28 +100,14 @@ describe('PageSection/OffersPreview', () => {
     expect(wrapper.text()).not.toContain(COPY.eyebrow)
   })
 
-  it('asks for nothing and renders nothing when the store lacks the promotions feature', async () => {
-    // The plan flag stays on: only the feature decides.
-    setTenant({ promotionsEnabled: true })
-    setTenantFeatures({ promotions: false })
-
-    const wrapper = await mountBand()
-
-    expect(api.callsTo(PROMOTIONS_URL)).toEqual([])
-    expect(wrapper.find('section').exists()).toBe(false)
-  })
-
   it('renders nothing while no offer is running', async () => {
-    api.routes({ [PROMOTIONS_URL]: [] })
-
-    const wrapper = await mountBand()
+    const wrapper = await mountBand({ offers: offers([]) })
 
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
   it('copies an offer\'s code and says so', async () => {
-    api.routes({ [PROMOTIONS_URL]: [{ id: 1, code: 'SAVE5' }] })
-    const wrapper = await mountBand()
+    const wrapper = await mountBand({ offers: offers([{ id: 1, code: 'SAVE5' }]) })
 
     await wrapper.find('[data-offer="1"]').trigger('click')
 

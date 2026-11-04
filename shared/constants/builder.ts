@@ -63,6 +63,9 @@ export const DATA_SCHEMA_MARKER = 'x-builder-data'
 /** What a `query` data setting reads: the record lists the storefront can resolve for a page. */
 export const DATA_SOURCES = ['product', 'blogPost', 'category', 'blogCategory', 'promotion'] as const
 
+/** The records a page can resolve by id: a `ref` of one of these, or a hand-picked list of its source, is read from the list endpoint of the same name. */
+export const DATA_RECORD_KINDS = ['product', 'blogPost', 'category', 'blogCategory'] as const
+
 /** What a data setting does when the page has nothing to show for it: leave its node out, or hand the component an empty status. */
 export const DATA_MISSING = ['hide', 'empty'] as const
 
@@ -74,6 +77,8 @@ export const DATA_LIMITS = {
   maxFilterIds: 5,
   /** Most records one query returns. */
   maxQueryLimit: 24,
+  /** Most distinct lists one document reads: each is a call to Django on every page render. */
+  maxQueriesPerDocument: 12,
 } as const
 
 /** How a list of products may be ordered: each is a field the product list's `ordering_fields` declares. */
@@ -81,3 +86,9 @@ export const PRODUCT_ORDERINGS = ['newest', 'mostViewed', 'mostLiked', 'topRated
 
 /** How a list of blog posts may be ordered. */
 export const BLOG_POST_ORDERINGS = ['newest', 'mostViewed'] as const
+
+/** Most records one list read of Django returns (`core/pagination/page_number.py: max_page_size`); a read of more ids is split. */
+export const DATA_MAX_PAGE_SIZE = 100
+
+/** How long a page's data (a list or a set of records) is served from the server's cache. Short on purpose: it holds prices. */
+export const DATA_CACHE_SECONDS = 60

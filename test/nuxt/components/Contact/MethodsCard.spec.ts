@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import MethodsCard from '~/components/Contact/MethodsCard.vue'
+import WebsideMethodsCard from '~/components/variants/webside/Contact/MethodsCard.vue'
+import { trees } from '~~/test/helpers/trees'
 
 /**
- * The contact page's "other ways to reach us": the merchant's own phone,
+ * The contact page's "other ways to reach us", in both designs: the merchant's own phone,
  * email and offices, and nothing when it has published none of them.
  */
 type Office = { label: string, street: string, area?: string, postal?: string, city?: string, phones: string[], addressLine: string }
@@ -38,11 +40,9 @@ beforeEach(() => {
   data.hours = { hasData: false, todayHours: null }
 })
 
-async function mount() {
-  return mountSuspended(MethodsCard, { route: false })
-}
+describe.each(trees(MethodsCard, WebsideMethodsCard))('$tree Contact/MethodsCard', ({ C }) => {
+  const mount = () => mountSuspended(C, { route: false })
 
-describe('Contact/MethodsCard', () => {
   it('links the phone and the email so they can be tapped', async () => {
     data.identity = { phone: '+30 2310 000000', email: 'hello@example.com' }
 

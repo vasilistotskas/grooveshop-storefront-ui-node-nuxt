@@ -17,8 +17,9 @@
  */
 export default defineCachedRoute(async (event): Promise<NavigationItems> => {
   try {
-    const published = await readPublishedSummary(event)
-    return builderNavigationOf(event, published.groups, await publishedTargets(event, published))
+    const tenantHost = requestTenantHost(event)
+    const published = await readPublishedSummary(tenantHost, requestLocale(event))
+    return builderNavigationOf(event, published.groups, await publishedTargets(tenantHost, published))
   }
   catch (error) {
     return handleError(event, error)

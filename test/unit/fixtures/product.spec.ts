@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zProduct, zProductCard, zProductReview } from '~~/shared/openapi/zod.gen'
-import { makeProduct, makeProductCard, makeProductReview } from '~~/test/fixtures/product'
+import { zProduct, zProductCard, zProductCategory, zProductReview } from '~~/shared/openapi/zod.gen'
+import { makeProduct, makeProductCard, makeProductCategory, makeProductReview } from '~~/test/fixtures/product'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -76,5 +76,20 @@ describe('makeProductReview', () => {
 
   it('keys uuid off the id so two reviews never collide', () => {
     expect(makeProductReview({ id: 2 }).uuid).not.toBe(makeProductReview().uuid)
+  })
+})
+
+describe('makeProductCategory', () => {
+  it('builds a default category that parses through zProductCategory', () => {
+    expect(problems(zProductCategory, makeProductCategory())).toEqual([])
+  })
+
+  it('keys slug and uuid off the id so two categories never collide', () => {
+    const first = makeProductCategory({ id: 1 })
+    const second = makeProductCategory({ id: 2 })
+
+    expect(problems(zProductCategory, second)).toEqual([])
+    expect(second.slug).not.toBe(first.slug)
+    expect(second.uuid).not.toBe(first.uuid)
   })
 })

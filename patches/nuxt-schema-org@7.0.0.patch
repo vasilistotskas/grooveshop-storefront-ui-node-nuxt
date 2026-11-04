@@ -1,0 +1,126 @@
+Local fix to nuxt-schema-org 7.0.0's vendored @unhead/schema-org (3.4.x).
+Drop it once nuxt-schema-org vendors an @unhead/schema-org release that
+carries unjs/unhead#1034 (merged 2026-10-31, unreleased on 2026-11-03).
+
+organizationResolver.resolveRootNode: an identity whose @type is not the
+bare string "Organization" (ours is ['Organization', 'OnlineStore']) lost
+its logo to a second, compact "#organization" node. Every page then
+carried two Organization nodes for one store (webside SEO review,
+2026-11-01). Every Organization subtype inherits `logo`, and Google's
+Organization guide puts it on the subtype's own node, so the identity now
+keeps it whatever its type. Same change in the three built copies.
+
+diff --git a/dist/schema.cjs b/dist/schema.cjs
+index ef208c39759b74109f20779b2e3634d3257c8dea..dd22d5d09381a8691d557922d572df50222fdd90 100644
+--- a/dist/schema.cjs
++++ b/dist/schema.cjs
+@@ -947,29 +947,10 @@ const organizationResolver = defineSchemaOrgResolver({
+       });
+       if (webPage && logoNode)
+         setIfEmpty(webPage, "primaryImageOfPage", idReference(logoNode));
+-      if (node["@type"] === "Organization") {
+-        node.logo = logoNode;
+-      } else if (!ctx.find("#organization")) {
+-        const resolvedLogo = logoNode && typeof logoNode === "object" && logoNode["@id"] ? ctx.find(logoNode["@id"], isImageObject) : null;
+-        ctx.nodes.push({
+-          // we want to make a simple node that has the essentials, this will allow parent nodes to inject
+-          // as well without inserting invalid data (i.e LocalBusiness operatingHours)
+-          "@type": "Organization",
+-          "name": node.name,
+-          "url": node.url,
+-          "sameAs": node.sameAs,
+-          // 'image': idReference(logoNode),
+-          "address": node.address,
+-          // needs to be a URL
+-          "logo": resolvedLogo?.url,
+-          "_priority": -1,
+-          // Distinct from #identity so the specialized identity node stays the linkable one;
+-          // the id is stable so repeat resolves dedupe on the ctx.find('#organization') guard.
+-          "@id": prefixId(ctx.meta.host, "#organization")
+-        });
+-      }
+-      if (node["@type"] !== "Organization")
+-        delete node.logo;
++      // Every Organization subtype inherits `logo`, and Google's Organization
++      // guide puts it on the subtype's own node (its OnlineStore example), so
++      // the identity keeps it whatever its type (unjs/unhead#1034).
++      node.logo = logoNode;
+     }
+     if (isIdentity && webPage && isHomePage(ctx.meta))
+       setIfEmpty(webPage, "about", idReference(node));
+diff --git a/dist/schema.mjs b/dist/schema.mjs
+index 7d7d5dc98eb4e64043c83ffca77896803970a6dd..fe20292e5fc3847534f83f14d82107eea8ca5b6e 100644
+--- a/dist/schema.mjs
++++ b/dist/schema.mjs
+@@ -945,29 +945,10 @@ const organizationResolver = defineSchemaOrgResolver({
+       });
+       if (webPage && logoNode)
+         setIfEmpty(webPage, "primaryImageOfPage", idReference(logoNode));
+-      if (node["@type"] === "Organization") {
+-        node.logo = logoNode;
+-      } else if (!ctx.find("#organization")) {
+-        const resolvedLogo = logoNode && typeof logoNode === "object" && logoNode["@id"] ? ctx.find(logoNode["@id"], isImageObject) : null;
+-        ctx.nodes.push({
+-          // we want to make a simple node that has the essentials, this will allow parent nodes to inject
+-          // as well without inserting invalid data (i.e LocalBusiness operatingHours)
+-          "@type": "Organization",
+-          "name": node.name,
+-          "url": node.url,
+-          "sameAs": node.sameAs,
+-          // 'image': idReference(logoNode),
+-          "address": node.address,
+-          // needs to be a URL
+-          "logo": resolvedLogo?.url,
+-          "_priority": -1,
+-          // Distinct from #identity so the specialized identity node stays the linkable one;
+-          // the id is stable so repeat resolves dedupe on the ctx.find('#organization') guard.
+-          "@id": prefixId(ctx.meta.host, "#organization")
+-        });
+-      }
+-      if (node["@type"] !== "Organization")
+-        delete node.logo;
++      // Every Organization subtype inherits `logo`, and Google's Organization
++      // guide puts it on the subtype's own node (its OnlineStore example), so
++      // the identity keeps it whatever its type (unjs/unhead#1034).
++      node.logo = logoNode;
+     }
+     if (isIdentity && webPage && isHomePage(ctx.meta))
+       setIfEmpty(webPage, "about", idReference(node));
+diff --git a/dist/vendor/schema-org-v3/shared/schema-org.B7dF02JN.mjs b/dist/vendor/schema-org-v3/shared/schema-org.B7dF02JN.mjs
+index ec61a381c664a5472f2d53a3f8d0dca610dcaeae..115f77d3f206572c77a5ca51b8150af2e65c7d8d 100644
+--- a/dist/vendor/schema-org-v3/shared/schema-org.B7dF02JN.mjs
++++ b/dist/vendor/schema-org-v3/shared/schema-org.B7dF02JN.mjs
+@@ -889,29 +889,10 @@ const organizationResolver = defineSchemaOrgResolver({
+       });
+       if (webPage && logoNode)
+         setIfEmpty(webPage, "primaryImageOfPage", idReference(logoNode));
+-      if (node["@type"] === "Organization") {
+-        node.logo = logoNode;
+-      } else if (!ctx.find("#organization")) {
+-        const resolvedLogo = logoNode && typeof logoNode === "object" && logoNode["@id"] ? ctx.find(logoNode["@id"], isImageObject) : null;
+-        ctx.nodes.push({
+-          // we want to make a simple node that has the essentials, this will allow parent nodes to inject
+-          // as well without inserting invalid data (i.e LocalBusiness operatingHours)
+-          "@type": "Organization",
+-          "name": node.name,
+-          "url": node.url,
+-          "sameAs": node.sameAs,
+-          // 'image': idReference(logoNode),
+-          "address": node.address,
+-          // needs to be a URL
+-          "logo": resolvedLogo?.url,
+-          "_priority": -1,
+-          // Distinct from #identity so the specialized identity node stays the linkable one;
+-          // the id is stable so repeat resolves dedupe on the ctx.find('#organization') guard.
+-          "@id": prefixId(ctx.meta.host, "#organization")
+-        });
+-      }
+-      if (node["@type"] !== "Organization")
+-        delete node.logo;
++      // Every Organization subtype inherits `logo`, and Google's Organization
++      // guide puts it on the subtype's own node (its OnlineStore example), so
++      // the identity keeps it whatever its type (unjs/unhead#1034).
++      node.logo = logoNode;
+     }
+     if (isIdentity && webPage && isHomePage(ctx.meta))
+       setIfEmpty(webPage, "about", idReference(node));

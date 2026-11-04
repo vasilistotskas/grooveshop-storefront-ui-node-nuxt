@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   FONT_ALLOWLIST,
+  SYSTEM_FONTS,
   FONT_FAMILY_NAMES,
   FONT_STYLES,
   FONT_WEIGHTS,
@@ -13,8 +14,8 @@ import {
  * stack names but the build never ships (or the reverse).
  */
 describe('font tables', () => {
-  it('declare a build family for every named stack except the system one', () => {
-    const stacks = Object.keys(FONT_ALLOWLIST).filter(key => key !== 'system')
+  it('declare a build family for every named stack except the system ones', () => {
+    const stacks = Object.keys(FONT_ALLOWLIST).filter(key => !SYSTEM_FONTS.has(key))
     expect(Object.keys(FONT_FAMILY_NAMES).sort()).toEqual(stacks.sort())
   })
 

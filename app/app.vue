@@ -55,10 +55,6 @@ watch([loggedIn, user], ([l, u]) => {
 
 // Tenant-only — no platform/env fallback (each tenant links its own
 // social accounts; a shared link would misattribute traffic).
-function orgSocialUrl(key: string): string | undefined {
-  return (tenantStore.socials as Record<string, string>)[key] || undefined
-}
-
 // Physical-store data (hours / geo / registered address) upgrades the
 // Organization node to LocalBusiness. Property-level reactivity only:
 // useSchemaOrg freezes the node ARRAY at setup on SSR, so the switch
@@ -145,8 +141,7 @@ const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true
 // them (RETURN_WINDOW_DAYS, RETURN_FEES).
 const { published: publishedContentPages } = useFooterContentPages()
 const { data: shippingPolicy } = useShippingPolicy()
-const returnWindowSetting = useSettingValue('RETURN_WINDOW_DAYS')
-const returnFeesSetting = useSettingValue('RETURN_FEES')
+const { values: storeValues } = useStoreSettings()
 const shippingServices = computed(() => {
   const services = shippingServicesSchema(shippingPolicy.value ?? [])
   return services.length > 0 ? services : undefined
@@ -155,8 +150,8 @@ const merchantReturnPolicy = computed(() => merchantReturnPolicySchema({
   link: publishedContentPages.value.has(LEGAL_ROUTE_SLUGS['return-policy'])
     ? resolveSitePath(localePath('return-policy')).value
     : undefined,
-  windowDays: returnWindowDays(returnWindowSetting.value),
-  fees: returnFees(returnFeesSetting.value),
+  windowDays: returnWindowDays(storeValues.value?.returnWindowDays),
+  fees: returnFees(storeValues.value?.returnFees),
   countries: [...new Set((shippingPolicy.value ?? []).map(entry => entry.countryCode))],
 }))
 
@@ -165,15 +160,17 @@ const merchantReturnPolicy = computed(() => merchantReturnPolicySchema({
 // render but the definer's input type only admits at leaf positions.
 // define* helpers just spread input + _resolver, so this is identical
 // to passing them in.
+// Every public profile the store has filled in. Its Discord link is an
+// invite, which can expire, not a page about the store.
+function sameAsProfiles({ discord: _invite, ...profiles }: typeof tenantStore.socials) {
+  return Object.values(profiles).filter(Boolean)
+}
+
 const organizationNode = {
   ...defineOrganization({
     name: siteName,
     logo: siteLogo,
-    sameAs: [
-      orgSocialUrl('facebook'),
-      orgSocialUrl('twitter'),
-      orgSocialUrl('instagram'),
-    ].filter(Boolean) as string[],
+    sameAs: sameAsProfiles(tenantStore.socials),
   }),
   '@type': organizationType,
   'address': postalAddress,

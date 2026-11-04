@@ -1,19 +1,12 @@
 <script lang="ts" setup>
 const { t } = useStoreI18n('components/Storefront/Auth/Signup')
-const loyaltyEnabled = useStoreFeature('loyalty')
-const loyaltySettings = useLoyaltySettings()
 
 useSeoMeta({
   title: t('seo_title'),
 })
 
-// The welcome bonus is promised only where the store gives one: loyalty
-// on (the feature) and the new-customer bonus on. Django awards it
-// with the first order's points.
-const welcomeBonus = computed(() =>
-  loyaltyEnabled.value
-  && !!loyaltySettings.value?.newCustomerBonusEnabled,
-)
+// The welcome bonus is promised only where the store gives one.
+const welcomeBonus = useWelcomeBonus()
 </script>
 
 <template>

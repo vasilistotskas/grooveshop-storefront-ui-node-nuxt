@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import HoursCard from '~/components/Contact/HoursCard.vue'
+import WebsideHoursCard from '~/components/variants/webside/Contact/HoursCard.vue'
+import { trees } from '~~/test/helpers/trees'
 
 /**
- * The week's opening hours beside the contact form: today marked, an
+ * The week's opening hours beside the contact form, in both designs: today marked, an
  * open/closed badge in words, a closed day said as closed, and nothing
  * for a store with no published hours.
  */
@@ -35,11 +37,9 @@ beforeEach(() => {
   })
 })
 
-async function mount() {
-  return mountSuspended(HoursCard, { route: false })
-}
+describe.each(trees(HoursCard, WebsideHoursCard))('$tree Contact/HoursCard', ({ C }) => {
+  const mount = () => mountSuspended(C, { route: false })
 
-describe('Contact/HoursCard', () => {
   it('lists the seven days with their hours, a closed day as closed', async () => {
     const wrapper = await mount()
 

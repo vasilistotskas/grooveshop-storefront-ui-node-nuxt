@@ -2,7 +2,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { makeProductPoints } from '../fixtures/loyalty'
 import { makeProduct, makeProductCard } from '../fixtures/product'
-import { makeProductSearchResponse } from '../fixtures/productFilters'
+import { makeCategory, makeProductSearchResponse } from '../fixtures/productFilters'
+import { makePublicValues } from '../fixtures/publicValues'
 import { validTenantConfig } from '../fixtures/tenantConfig'
 import { BROWSER_ACCEPT, requestWithHost, sendJson, waitUntilServing } from '../helpers/e2e'
 
@@ -64,7 +65,13 @@ const CUSTOM_PAGE_SLUG = 'our-story'
 // Content that fails upstream, for the 5xx → 503 mapping.
 const OUTAGE_CONTENT_SLUG = 'outage'
 /** The one product the stub serves by id, and the slug it answers to. */
+const FAQ_CATEGORY_ID = 77
+const FAQ_CATEGORY_SLUG = 'chargers'
 const SLUG_PRODUCT_ID = 321
+const SIBLING_PRODUCT_ID = 322
+// The editor's accordion: one question, one collapsed section that is not.
+const SLUG_PRODUCT_DESCRIPTION = '<details class="mce-accordion"><summary>Πόσο κρατάει;</summary><p>Δύο μέρες.</p></details>'
+  + '<details class="mce-accordion"><summary>Σημειώσεις</summary><p>Κάτι.</p></details>'
 const SLUG_PRODUCT_SLUG = 'bluetooth-speaker'
 const OUTAGE_LAYOUT_SLUG = 'outage-page'
 
@@ -104,6 +111,8 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       // The whole point of the /en assertions below.
       availableLocales: domain.startsWith('el-only') ? ['el'] : ['el', 'en'],
       isPlatformStorefront: domain === PLATFORM_STORE_HOST,
+      socialsYoutube: domain === PLATFORM_STORE_HOST ? 'https://www.youtube.com/@store' : '',
+      socialsDiscord: domain === PLATFORM_STORE_HOST ? 'https://discord.gg/invite' : '',
       blogEnabled: true,
       features: { ...validTenantConfig(domain).features, blog: true },
       // ...and of the chrome-variant assertions at the end.
@@ -185,9 +194,50 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
     return
   }
 
+  // The product's variant group: it and a sibling, differing by colour.
+  if (reqUrl.pathname.endsWith(`/product/${SLUG_PRODUCT_ID}/variants`)) {
+    const variant = (id: number, slug: string, valueId: number) => ({
+      ...makeProduct({ id }),
+      discountPercent: 0,
+      slug,
+      attributeValues: [{ id, attributeId: 5, attributeName: 'Χρώμα', isVariant: true, schemaProperty: 'color', attributeValueId: valueId, value: 'Χρώμα', createdAt: '2026-01-01T00:00:00Z' }],
+    })
+    sendJson(res, {
+      axes: [{ id: 5, name: 'Χρώμα', schemaProperty: 'color', values: [{ id: 1, value: 'Μαύρο' }, { id: 2, value: 'Άσπρο' }] }],
+      variants: [variant(SLUG_PRODUCT_ID, SLUG_PRODUCT_SLUG, 1), variant(SIBLING_PRODUCT_ID, 'white', 2)],
+    })
+    return
+  }
+
+  // One category, whose description answers a question.
+  if (reqUrl.pathname.endsWith(`/product/category/${FAQ_CATEGORY_ID}`)) {
+    sendJson(res, {
+      ...makeCategory({ id: FAQ_CATEGORY_ID, name: { el: 'Φορτιστές', en: 'Chargers' } }),
+      slug: FAQ_CATEGORY_SLUG,
+      children: [],
+      translations: { el: { name: 'Φορτιστές', description: SLUG_PRODUCT_DESCRIPTION, seoTitle: '', seoDescription: '', seoKeywords: '' } },
+    })
+    return
+  }
+
   // One product, by id: the page behind the stale-slug redirects below.
   if (reqUrl.pathname.endsWith(`/product/${SLUG_PRODUCT_ID}`)) {
-    sendJson(res, { ...makeProduct({ id: SLUG_PRODUCT_ID }), slug: SLUG_PRODUCT_SLUG, priceDropAlertsEnabled: false, ratingDistribution: [] })
+    sendJson(res, {
+      ...makeProduct({
+        id: SLUG_PRODUCT_ID,
+        translations: { el: { name: 'Προϊόν', description: SLUG_PRODUCT_DESCRIPTION, seoTitle: '', seoDescription: '', seoKeywords: '' } },
+      }),
+      slug: SLUG_PRODUCT_SLUG,
+      weight: { unit: 'g', value: 105 },
+      variantGroup: 9,
+      variantGroupTitle: 'Ομάδα',
+      attributes: [
+        { id: 1, attributeId: 1, attributeName: 'Χωρητικότητα', isVariant: false, schemaProperty: '', attributeValueId: 1, value: '5000 mAh', createdAt: '2026-01-01T00:00:00Z' },
+        { id: 2, attributeId: 5, attributeName: 'Χρώμα', isVariant: true, schemaProperty: 'color', attributeValueId: 1, value: 'Μαύρο', createdAt: '2026-01-01T00:00:00Z' },
+      ],
+      priceDropAlertsEnabled: false,
+      ratingDistribution: [],
+    })
     return
   }
 
@@ -245,8 +295,8 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
   }
 
   if (reqUrl.pathname.endsWith('/settings/public')) {
-    // No rows at all: every flag resolves to its caller's fallback, and
-    // none of the structured settings is configured.
+    // Every flag resolves to its caller's fallback, none of the structured
+    // settings is configured, and the scalars are the platform's declared ones.
     sendJson(res, {
       settings: {},
       announcementBar: null,
@@ -255,11 +305,18 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       storeOffices: [],
       businessHours: null,
       contactAttachmentsTypes: [],
+      values: makePublicValues(),
     })
     return
   }
 
   sendJson(res, { count: 0, results: [], links: {} })
+}
+
+/** The Schema.org nodes a page serves. */
+function jsonLdGraph(body: string): Array<Record<string, unknown>> {
+  const json = body.match(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)?.[1]
+  return (JSON.parse(json ?? '{}') as { '@graph'?: Array<Record<string, unknown>> })['@graph'] ?? []
 }
 
 export function describePageRenders(): void {
@@ -513,6 +570,62 @@ export function describePageRenders(): void {
       expect(decided.statusCode, decided.body.slice(0, 900)).toBe(200)
       expect(decided.body).not.toContain(BANNER)
     })
+
+    // What the structured data says, as the page serves it: the Vue specs
+    // mock the schema module, which merges nodes only here.
+    it.each([
+      ['default', TENANT_HOST],
+      ['webside', WEBSIDE_HOST],
+    ])('states the specifications, the weight and the questions of a product (%s design)', async (_design, host) => {
+      const { statusCode, body } = await request(`/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}`, host, BROWSER_ACCEPT)
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+
+      const graph = jsonLdGraph(body)
+      const product = graph.find(node => node['@type'] === 'Product')
+      expect(product?.additionalProperty).toEqual([{ '@type': 'PropertyValue', 'name': 'Χωρητικότητα', 'value': '5000 mAh' }])
+      expect(product?.weight).toEqual({ '@type': 'QuantitativeValue', 'value': 105, 'unitCode': 'GRM' })
+      expect(product?.color).toBe('Μαύρο')
+      expect(product?.isVariantOf).toMatchObject({
+        '@type': 'ProductGroup',
+        'name': 'Ομάδα',
+        'productGroupID': '9',
+        'variesBy': ['https://schema.org/color'],
+        'hasVariant': [{ '@type': 'Product', 'url': expect.stringMatching(new RegExp(`^https://${host}/products/${SIBLING_PRODUCT_ID}/white$`)) }],
+      })
+
+      const questions = graph.filter(node => node['@type'] === 'Question')
+      expect(questions.map(node => node.name)).toEqual(['Πόσο κρατάει;'])
+      const page = graph.find(node => [node['@type']].flat().includes('FAQPage'))
+      expect(page?.mainEntity).toEqual(questions.map(node => ({ '@id': node['@id'] })))
+    }, 60000)
+
+    // A listing stays a CollectionPage when its text also answers questions.
+    it('keeps a category a collection when its text answers questions', async () => {
+      const { statusCode, body } = await request(`/products/category/${FAQ_CATEGORY_ID}/${FAQ_CATEGORY_SLUG}`, TENANT_HOST, BROWSER_ACCEPT)
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+
+      const graph = jsonLdGraph(body)
+      const page = graph.find(node => [node['@type']].flat().includes('FAQPage'))
+      expect([page?.['@type']].flat()).toEqual(expect.arrayContaining(['CollectionPage', 'FAQPage']))
+      expect(graph.filter(node => node['@type'] === 'Question').map(node => node.name)).toEqual(['Πόσο κρατάει;'])
+    }, 60000)
+
+    // One store, one Organization: the identity (an OnlineStore) carries
+    // its own logo. The schema module used to move the logo onto a second,
+    // compact "#organization" node for any identity typed other than the
+    // bare "Organization" (patches/nuxt-schema-org@7.0.0.patch).
+    it('describes the store as one Organization node that carries its logo', async () => {
+      // The platform store always has a logo; without one nothing above runs.
+      const { statusCode, body } = await request('/', PLATFORM_STORE_HOST)
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+
+      const organizations = jsonLdGraph(body).filter(node => [node['@type']].flat().includes('Organization'))
+
+      expect(organizations.map(node => node['@id'])).toEqual([`https://${PLATFORM_STORE_HOST}/#identity`])
+      expect(organizations[0]?.logo).toEqual({ '@id': `https://${PLATFORM_STORE_HOST}/#logo` })
+      // Every public profile the store filled in; an invite link is not one.
+      expect(organizations[0]?.sameAs).toEqual(['https://www.youtube.com/@store'])
+    }, 60000)
 
     // A legal document the merchant wrote in one language is still the
     // store's document in every language it serves. Before this it was a
