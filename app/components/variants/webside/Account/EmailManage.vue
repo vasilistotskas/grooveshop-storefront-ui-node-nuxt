@@ -76,7 +76,7 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
   if (!row.verified) {
     items.push({
       label: t('email.request_verification'),
-      icon: 'i-heroicons-mail-20-solid',
+      icon: 'i-heroicons-envelope-20-solid',
       onSelect: () => emailVerificationRequest(row.email),
     })
   }

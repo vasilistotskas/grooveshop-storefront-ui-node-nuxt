@@ -23,6 +23,8 @@ export interface CategoryMenuEntry {
   label: string
   to: string
   imagePath: string
+  /** The alt text the store wrote; empty when the name beside it says it all. */
+  imageAlt: string
   /** Products in this category and every descendant. */
   productCount: number
   children: CategoryMenuEntry[]

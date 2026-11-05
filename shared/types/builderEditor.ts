@@ -1,5 +1,5 @@
 import type { BUILDER_EDITOR_GROUPS, BUILDER_PREVIEW_DEVICES } from '../constants/builderEditor'
-import type { BUILDER_STAFF_ROLES } from '../constants/builderSession'
+import type { StaffSessionRoleEnum } from '../openapi/types.gen'
 import type { BuilderDocument, BuilderPage } from './builder'
 import type { NavigationItems } from './navigation'
 
@@ -18,8 +18,8 @@ export type BuilderSurface = 'editor' | 'canvas' | 'share'
 /** A width the preview is drawn at. */
 export type BuilderPreviewDevice = keyof typeof BUILDER_PREVIEW_DEVICES
 
-/** What a signed-in staff member is in this store (`BUILDER_STAFF_ROLES`). */
-export type BuilderStaffRole = (typeof BUILDER_STAFF_ROLES)[number]
+/** What a signed-in staff member is in this store, as the staff session states it. */
+export type BuilderStaffRole = StaffSessionRoleEnum
 
 /** A working copy's per-language overlay: `overlay[locale][node id][JSON pointer]` (`ZodBuilderOverlay`). */
 export type BuilderOverlay = Record<string, Record<string, Record<string, unknown>>>

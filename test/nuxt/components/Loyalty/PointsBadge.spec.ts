@@ -5,18 +5,16 @@ import type { MaybeRefOrGetter } from 'vue'
 import LoyaltyPointsBadge from '~/components/Loyalty/PointsBadge.vue'
 import WebsideLoyaltyPointsBadge from '~/components/variants/webside/Loyalty/PointsBadge.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
-import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
-import { makeLoyaltySettings, makeProductPoints } from '~~/test/fixtures/loyalty'
+import { makeProductPoints } from '~~/test/fixtures/loyalty'
 import type { ProductPoints } from '~~/shared/openapi/types.gen'
 
 /**
  * The product page's "earn N points" badge, on a store with loyalty on.
  * The webside copy renders for a signed-in shopper only; the default
- * renders for everyone, a guest at the store's base rate.
+ * renders for everyone, a guest at the product's base rate.
  */
 const loggedIn = ref(false)
-const settings = createLoyaltySettingsMock()
 const points = createAsyncDataMock<ProductPoints | null>()
 const fetchProductPoints = vi.fn((_productId: number, _enabled: MaybeRefOrGetter<boolean>) => points)
 /** Whether the badge let the points request go out (its `enabled` gate). */
@@ -31,7 +29,6 @@ mockNuxtImport('useUserSession', () => () => ({
   fetch: () => Promise.resolve(),
   clear: () => Promise.resolve(),
 }))
-mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
   fetchProductPoints,
 }))
@@ -42,10 +39,8 @@ describe('webside Loyalty/PointsBadge', () => {
   beforeEach(() => {
     setTenant()
     setTenantFeatures({ loyalty: true })
-    settings.reset()
     points.reset()
     loggedIn.value = true
-    settings.data.value = makeLoyaltySettings()
     points.data.value = makeProductPoints({ productId: 7, potentialPoints: 24 })
     points.status.value = 'success'
   })
@@ -100,22 +95,20 @@ describe('webside Loyalty/PointsBadge', () => {
 /**
  * One "Earn N points" badge beside the price, for every shopper: the
  * points Django works out for a signed-in one (their tier included), the
- * store's base rate on the price for anyone else.
+ * product's `potentialPoints` for anyone else.
  */
 describe('default Loyalty/PointsBadge', () => {
   beforeEach(() => {
     setTenant({ loyaltyEnabled: true })
     setTenantFeatures({ loyalty: true })
-    settings.reset()
     points.reset()
     loggedIn.value = true
-    settings.data.value = makeLoyaltySettings({ pointsFactor: 1.5 })
     points.data.value = makeProductPoints({ productId: 7, potentialPoints: 36, tierMultiplierApplied: true })
     points.status.value = 'success'
   })
 
-  const mountBadge = (productPrice = 41.5) =>
-    mountSuspended(LoyaltyPointsBadge, { props: { productId: 7, productPrice }, route: false })
+  const mountBadge = (potentialPoints = 62) =>
+    mountSuspended(LoyaltyPointsBadge, { props: { productId: 7, potentialPoints }, route: false })
 
   it('offers a signed-in shopper the points Django works out for them', async () => {
     const wrapper = await mountBadge()
@@ -125,12 +118,11 @@ describe('default Loyalty/PointsBadge', () => {
     expect(wrapper.text()).toBe('Κέρδισε 36 πόντους')
   })
 
-  it('offers a guest the base rate on the price, without asking Django', async () => {
+  it('offers a guest the points the product earns, without asking Django', async () => {
     loggedIn.value = false
 
-    const wrapper = await mountBadge(41.5)
+    const wrapper = await mountBadge(62)
 
-    // floor(41.5 × 1.5) = 62
     expect(asksForPoints()).toBe(false)
     expect(wrapper.text()).toBe('Κέρδισε 62 πόντους')
   })
@@ -139,7 +131,7 @@ describe('default Loyalty/PointsBadge', () => {
     points.data.value = undefined
     points.status.value = 'pending'
 
-    const wrapper = await mountBadge(20)
+    const wrapper = await mountBadge(30)
 
     expect(wrapper.text()).toBe('Κέρδισε 30 πόντους')
   })
@@ -164,19 +156,10 @@ describe('default Loyalty/PointsBadge', () => {
     expect(wrapper.text()).toBe('Κέρδισε 36 πόντους')
   })
 
-  it('renders nothing when the price earns no points', async () => {
+  it('renders nothing when the product earns no points', async () => {
     loggedIn.value = false
 
-    const wrapper = await mountBadge(0.5)
-
-    expect(wrapper.text()).toBe('')
-  })
-
-  it('promises no base rate it cannot read, to a guest', async () => {
-    loggedIn.value = false
-    settings.data.value = null
-
-    const wrapper = await mountBadge(41.5)
+    const wrapper = await mountBadge(0)
 
     expect(wrapper.text()).toBe('')
   })

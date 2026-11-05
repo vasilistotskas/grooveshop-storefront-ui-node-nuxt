@@ -561,7 +561,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -1675,7 +1675,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -2329,7 +2329,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -4236,7 +4236,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -5369,7 +5369,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -6994,7 +6994,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -7960,7 +7960,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -9116,7 +9116,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -10024,7 +10024,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -11392,7 +11392,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -12155,7 +12155,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -12991,7 +12991,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -13625,7 +13625,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -14199,7 +14199,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -15368,6 +15368,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             },
@@ -15426,6 +15436,26 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuilderRevisionConflict"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "428": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -15509,6 +15539,26 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -15573,6 +15623,26 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuilderRevisionConflict"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "428": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -15658,6 +15728,36 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuilderRevisionConflict"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "428": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -15796,6 +15896,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -15887,6 +15997,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -15967,6 +16087,26 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuilderRevisionConflict"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "428": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -16434,6 +16574,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             },
@@ -16522,6 +16672,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             },
@@ -16576,6 +16736,16 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BuilderMediaInUse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -16639,6 +16809,16 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -16930,6 +17110,26 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -17271,6 +17471,26 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -17326,6 +17546,26 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -17562,6 +17802,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -17737,6 +17987,26 @@
                             }
                         },
                         "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -17777,6 +18047,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Schedule"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -17843,6 +18123,9 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -17851,6 +18134,16 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -17912,9 +18205,6 @@
                                         },
                                         {
                                             "$ref": "#/components/schemas/ApiError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/BuilderDocumentInvalidError"
                                         }
                                     ]
                                 }
@@ -17923,6 +18213,16 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -17994,6 +18294,16 @@
                         "description": ""
                     },
                     "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -19127,7 +19437,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -20413,7 +20723,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -22041,7 +22351,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -22085,7 +22395,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -22330,7 +22640,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -22544,7 +22854,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -24909,7 +25219,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -26739,7 +27049,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -27021,7 +27331,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -27238,7 +27548,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -27546,8 +27856,8 @@
             },
             "post": {
                 "operationId": "createOrder",
-                "description": "Create a new Ταξινόμηση. Requires authentication.",
-                "summary": "Create a Ταξινόμηση",
+                "description": "Create a new Order. Requires authentication.",
+                "summary": "Create a Order",
                 "parameters": [
                     {
                         "in": "query",
@@ -27837,7 +28147,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -29434,8 +29744,8 @@
         "/api/v1/order/{id}": {
             "get": {
                 "operationId": "retrieveOrder",
-                "description": "Get detailed information about a specific Ταξινόμηση.",
-                "summary": "Retrieve a Ταξινόμηση",
+                "description": "Get detailed information about a specific Order.",
+                "summary": "Retrieve a Order",
                 "parameters": [
                     {
                         "in": "path",
@@ -29530,8 +29840,8 @@
             },
             "put": {
                 "operationId": "updateOrder",
-                "description": "Update Ταξινόμηση information. Requires authentication.",
-                "summary": "Update a Ταξινόμηση",
+                "description": "Update Order information. Requires authentication.",
+                "summary": "Update a Order",
                 "parameters": [
                     {
                         "in": "path",
@@ -29663,8 +29973,8 @@
             },
             "patch": {
                 "operationId": "partialUpdateOrder",
-                "description": "Partially update Ταξινόμηση information. Requires authentication.",
-                "summary": "Partially update a Ταξινόμηση",
+                "description": "Partially update Order information. Requires authentication.",
+                "summary": "Partially update a Order",
                 "parameters": [
                     {
                         "in": "path",
@@ -29795,8 +30105,8 @@
             },
             "delete": {
                 "operationId": "destroyOrder",
-                "description": "Delete a Ταξινόμηση. Requires authentication.",
-                "summary": "Delete a Ταξινόμηση",
+                "description": "Delete a Order. Requires authentication.",
+                "summary": "Delete a Order",
                 "parameters": [
                     {
                         "in": "path",
@@ -32338,7 +32648,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -32619,7 +32929,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -32836,7 +33146,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -33524,7 +33834,6 @@
                         "name": "key",
                         "schema": {
                             "type": "string",
-                            "title": "Κλειδί",
                             "enum": [
                                 "APPLE_PAY",
                                 "BANK_TRANSFER",
@@ -50245,7 +50554,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -51316,7 +51625,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -54990,7 +55299,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -56261,7 +56570,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -57748,7 +58057,7 @@
                                 }
                             ]
                         },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "description": "Multiple values may be separated by commas.",
                         "explode": false,
                         "style": "form"
                     },
@@ -59534,8 +59843,7 @@
                     },
                     "phone": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Τηλέφωνο"
+                        "readOnly": true
                     }
                 },
                 "required": [
@@ -60533,8 +60841,7 @@
                         }
                     },
                     "user": {
-                        "type": "integer",
-                        "title": "Χρήστης"
+                        "type": "integer"
                     },
                     "website": {
                         "oneOf": [
@@ -60877,8 +61184,7 @@
                     "image": {
                         "type": "string",
                         "format": "binary",
-                        "nullable": true,
-                        "title": "Εικόνα"
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -62166,8 +62472,7 @@
                     },
                     "note": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Σημείωση"
+                        "readOnly": true
                     },
                     "isActive": {
                         "type": "boolean",
@@ -62292,8 +62597,7 @@
                     },
                     "note": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Σημείωση"
+                        "readOnly": true
                     },
                     "isActive": {
                         "type": "boolean",
@@ -62915,6 +63219,36 @@
                     "features"
                 ]
             },
+            "BuilderMediaInUse": {
+                "type": "object",
+                "description": "The 409 of deleting an image a published page uses: which documents.",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "$ref": "#/components/schemas/BuilderMediaInUseCodeEnum"
+                    },
+                    "usedBy": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "detail",
+                    "usedBy"
+                ]
+            },
+            "BuilderMediaInUseCodeEnum": {
+                "enum": [
+                    "media_in_use"
+                ],
+                "type": "string",
+                "description": "* `media_in_use` - media_in_use"
+            },
             "BuilderPageKindEnum": {
                 "enum": [
                     "page",
@@ -62922,6 +63256,47 @@
                 ],
                 "type": "string",
                 "description": "* `page` - Page\n* `template` - Template"
+            },
+            "BuilderRevisionConflict": {
+                "type": "object",
+                "description": "The 409 of a change made against a revision that is no longer the\ncurrent one: the revision to reload and who moved it.",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "$ref": "#/components/schemas/BuilderRevisionConflictCodeEnum"
+                    },
+                    "currentRevision": {
+                        "type": "integer"
+                    },
+                    "updatedBy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Staff"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "code",
+                    "currentRevision",
+                    "detail",
+                    "updatedAt",
+                    "updatedBy"
+                ]
+            },
+            "BuilderRevisionConflictCodeEnum": {
+                "enum": [
+                    "revision_conflict"
+                ],
+                "type": "string",
+                "description": "* `revision_conflict` - revision_conflict"
             },
             "BuilderVersionKindEnum": {
                 "enum": [
@@ -63217,8 +63592,7 @@
                     },
                     "user": {
                         "type": "integer",
-                        "nullable": true,
-                        "title": "Χρήστης"
+                        "nullable": true
                     },
                     "uuid": {
                         "type": "string",
@@ -64166,7 +64540,7 @@
                     3
                 ],
                 "type": "integer",
-                "description": "* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο"
+                "description": "* `1` - Small\n* `2` - Medium\n* `3` - Large"
             },
             "ConfirmAgentPaymentRequestRequest": {
                 "type": "object",
@@ -64313,7 +64687,6 @@
                     },
                     "phone": {
                         "type": "string",
-                        "title": "Τηλέφωνο",
                         "maxLength": 30
                     },
                     "subject": {
@@ -64370,7 +64743,6 @@
                     },
                     "phone": {
                         "type": "string",
-                        "title": "Τηλέφωνο",
                         "maxLength": 30
                     },
                     "subject": {
@@ -65218,8 +65590,7 @@
                 "properties": {
                     "key": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Κλειδί"
+                        "readOnly": true
                     },
                     "kind": {
                         "$ref": "#/components/schemas/BuilderDocumentKindEnum"
@@ -65279,8 +65650,7 @@
                 "properties": {
                     "key": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Κλειδί"
+                        "readOnly": true
                     },
                     "kind": {
                         "$ref": "#/components/schemas/BuilderDocumentKindEnum"
@@ -65751,7 +66121,6 @@
                     "code": {
                         "type": "string",
                         "readOnly": true,
-                        "title": "Κωδικός",
                         "description": "Crypto-random, uppercased; the bearer secret"
                     },
                     "initialValue": {
@@ -66072,8 +66441,7 @@
                     "order": {
                         "type": "integer",
                         "readOnly": true,
-                        "nullable": true,
-                        "title": "Ταξινόμηση"
+                        "nullable": true
                     },
                     "createdAt": {
                         "type": "string",
@@ -66354,7 +66722,7 @@
                     "OTHER"
                 ],
                 "type": "string",
-                "description": "* `HOME` - Αρχική\n* `OFFICE` - Office\n* `OTHER` - Other"
+                "description": "* `HOME` - Home\n* `OFFICE` - Office\n* `OTHER` - Other"
             },
             "LoyaltySummary": {
                 "type": "object",
@@ -66747,7 +67115,7 @@
                     "RECOMMENDATION"
                 ],
                 "type": "string",
-                "description": "* `ORDER` - Ταξινόμηση\n* `PAYMENT` - Payment\n* `SHIPPING` - Shipping\n* `CART` - Cart\n* `PRODUCT` - Product\n* `ACCOUNT` - Account\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation"
+                "description": "* `ORDER` - Order\n* `PAYMENT` - Payment\n* `SHIPPING` - Shipping\n* `CART` - Cart\n* `PRODUCT` - Product\n* `ACCOUNT` - Account\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation"
             },
             "NotificationCountResponse": {
                 "type": "object",
@@ -66784,7 +67152,7 @@
                     "DANGER"
                 ],
                 "type": "string",
-                "description": "* `ERROR` - Σφάλμα\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger"
+                "description": "* `ERROR` - Error\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger"
             },
             "NotificationSuccessResponse": {
                 "type": "object",
@@ -66967,8 +67335,7 @@
                     },
                     "user": {
                         "type": "integer",
-                        "nullable": true,
-                        "title": "Χρήστης"
+                        "nullable": true
                     },
                     "country": {
                         "type": "string",
@@ -67618,7 +67985,7 @@
                         ]
                     },
                     "locationType": {
-                        "description": "Location, as a LocationChoicesEnum member (e.g. HOME)\n\n* `HOME` - Αρχική\n* `OFFICE` - Office\n* `OTHER` - Other",
+                        "description": "Location, as a LocationChoicesEnum member (e.g. HOME)\n\n* `HOME` - Home\n* `OFFICE` - Office\n* `OTHER` - Other",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/LocationTypeEnum"
@@ -67811,8 +68178,7 @@
                     },
                     "user": {
                         "type": "integer",
-                        "nullable": true,
-                        "title": "Χρήστης"
+                        "nullable": true
                     },
                     "country": {
                         "type": "string",
@@ -68440,8 +68806,7 @@
                         "readOnly": true
                     },
                     "order": {
-                        "type": "integer",
-                        "title": "Ταξινόμηση"
+                        "type": "integer"
                     },
                     "product": {
                         "type": "integer"
@@ -68538,8 +68903,7 @@
                         "readOnly": true
                     },
                     "order": {
-                        "type": "integer",
-                        "title": "Ταξινόμηση"
+                        "type": "integer"
                     },
                     "product": {
                         "allOf": [
@@ -68678,8 +69042,7 @@
                 "type": "object",
                 "properties": {
                     "order": {
-                        "type": "integer",
-                        "title": "Ταξινόμηση"
+                        "type": "integer"
                     },
                     "product": {
                         "type": "integer"
@@ -70275,58 +70638,6 @@
                     }
                 }
             },
-            "PaginatedProductImageList": {
-                "type": "object",
-                "required": [
-                    "count",
-                    "results"
-                ],
-                "properties": {
-                    "links": {
-                        "type": "object",
-                        "properties": {
-                            "next": {
-                                "type": "string",
-                                "nullable": true,
-                                "format": "uri",
-                                "example": "http://api.example.org/accounts/?page=4"
-                            },
-                            "previous": {
-                                "type": "string",
-                                "nullable": true,
-                                "format": "uri",
-                                "example": "http://api.example.org/accounts/?page=2"
-                            }
-                        }
-                    },
-                    "count": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "totalPages": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "pageSize": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "pageTotalResults": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "page": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "results": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ProductImage"
-                        }
-                    }
-                }
-            },
             "PaginatedProductFeedList": {
                 "type": "object",
                 "required": [
@@ -70375,6 +70686,58 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ProductFeed"
+                        }
+                    }
+                }
+            },
+            "PaginatedProductImageList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductImage"
                         }
                     }
                 }
@@ -71047,8 +71410,7 @@
                         }
                     },
                     "user": {
-                        "type": "integer",
-                        "title": "Χρήστης"
+                        "type": "integer"
                     },
                     "website": {
                         "oneOf": [
@@ -71109,8 +71471,7 @@
                     "image": {
                         "type": "string",
                         "format": "binary",
-                        "nullable": true,
-                        "title": "Εικόνα"
+                        "nullable": true
                     }
                 }
             },
@@ -71422,8 +71783,7 @@
                 "type": "object",
                 "properties": {
                     "order": {
-                        "type": "integer",
-                        "title": "Ταξινόμηση"
+                        "type": "integer"
                     },
                     "product": {
                         "type": "integer"
@@ -71559,7 +71919,6 @@
                                 "$ref": "#/components/schemas/PayWayKeyEnum"
                             }
                         ],
-                        "title": "Κλειδί",
                         "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Credit Card\n* `PAY_ON_DELIVERY` - Pay On Delivery\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Pay On Store\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Bank Transfer\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
@@ -71627,8 +71986,7 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "binary",
-                        "title": "Εικόνα"
+                        "format": "binary"
                     },
                     "imageType": {
                         "allOf": [
@@ -71647,9 +72005,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -71658,9 +72013,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -71686,6 +72038,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -71693,9 +72048,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -71709,6 +72061,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -71716,9 +72071,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -71757,8 +72109,7 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "binary",
-                        "title": "Εικόνα"
+                        "format": "binary"
                     },
                     "isMain": {
                         "type": "boolean"
@@ -71769,9 +72120,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -71780,9 +72128,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -71892,6 +72237,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
+                    "gtin": {
+                        "type": "string",
+                        "description": "The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.",
+                        "maxLength": 14
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "description": "The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.",
+                        "maxLength": 70
+                    },
                     "category": {
                         "type": "integer",
                         "nullable": true
@@ -71929,7 +72284,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -71943,16 +72298,6 @@
                     },
                     "active": {
                         "type": "boolean"
-                    },
-                    "gtin": {
-                        "type": "string",
-                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.",
-                        "maxLength": 14
-                    },
-                    "mpn": {
-                        "type": "string",
-                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.",
-                        "maxLength": 70
                     }
                 }
             },
@@ -72221,7 +72566,6 @@
                     },
                     "username": {
                         "nullable": true,
-                        "title": "Όνομα χρήστη",
                         "description": "Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).",
                         "oneOf": [
                             {
@@ -72238,8 +72582,7 @@
                     "image": {
                         "type": "string",
                         "format": "binary",
-                        "nullable": true,
-                        "title": "Εικόνα"
+                        "nullable": true
                     },
                     "phone": {
                         "type": "string"
@@ -72429,7 +72772,6 @@
                             }
                         ],
                         "readOnly": true,
-                        "title": "Κλειδί",
                         "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Credit Card\n* `PAY_ON_DELIVERY` - Pay On Delivery\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Pay On Store\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Bank Transfer\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
@@ -72565,7 +72907,6 @@
                                 "$ref": "#/components/schemas/PayWayKeyEnum"
                             }
                         ],
-                        "title": "Κλειδί",
                         "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Credit Card\n* `PAY_ON_DELIVERY` - Pay On Delivery\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Pay On Store\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Bank Transfer\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
@@ -72887,7 +73228,6 @@
                     },
                     "note": {
                         "type": "string",
-                        "title": "Σημείωση",
                         "maxLength": 255
                     },
                     "createdBy": {
@@ -72937,7 +73277,6 @@
                     },
                     "note": {
                         "type": "string",
-                        "title": "Σημείωση",
                         "maxLength": 255
                     },
                     "createdBy": {
@@ -73087,6 +73426,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none."
+                    },
                     "category": {
                         "type": "integer",
                         "readOnly": true,
@@ -73151,7 +73500,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -73208,6 +73557,11 @@
                         "format": "date-time",
                         "readOnly": true,
                         "nullable": true
+                    },
+                    "potentialPoints": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "readOnly": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -73273,16 +73627,6 @@
                         "type": "string",
                         "nullable": true,
                         "readOnly": true
-                    },
-                    "gtin": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
-                    },
-                    "mpn": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -73302,6 +73646,7 @@
                     "lowStockThreshold",
                     "mainImagePath",
                     "mpn",
+                    "potentialPoints",
                     "price",
                     "priorPrice",
                     "reductionStartedAt",
@@ -73340,8 +73685,7 @@
                     "user": {
                         "type": "integer",
                         "readOnly": true,
-                        "nullable": true,
-                        "title": "Χρήστης"
+                        "nullable": true
                     },
                     "email": {
                         "type": "string",
@@ -73451,6 +73795,17 @@
                         "type": "boolean",
                         "readOnly": true
                     },
+                    "schemaProperty": {
+                        "readOnly": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SchemaPropertyEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
+                    },
                     "attributeValueId": {
                         "type": "integer"
                     },
@@ -73463,17 +73818,6 @@
                         "type": "string",
                         "format": "date-time",
                         "readOnly": true
-                    },
-                    "schemaProperty": {
-                        "readOnly": true,
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/SchemaPropertyEnum"
-                            },
-                            {
-                                "$ref": "#/components/schemas/BlankEnum"
-                            }
-                        ]
                     }
                 },
                 "required": [
@@ -73614,6 +73958,11 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "potentialPoints": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "readOnly": true
+                    },
                     "mainImagePath": {
                         "type": "string",
                         "readOnly": true
@@ -73656,6 +74005,7 @@
                     "id",
                     "lowStockThreshold",
                     "mainImagePath",
+                    "potentialPoints",
                     "priorPrice",
                     "reviewAverage",
                     "reviewCount",
@@ -73686,6 +74036,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -73693,9 +74046,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -73709,6 +74059,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -73716,9 +74069,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -73749,6 +74099,10 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageAlt": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "recursiveProductCount": {
                         "type": "integer",
                         "readOnly": true
@@ -73773,6 +74127,7 @@
                     "createdAt",
                     "id",
                     "level",
+                    "mainImageAlt",
                     "mainImagePath",
                     "recursiveProductCount",
                     "slug",
@@ -73802,6 +74157,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -73809,9 +74167,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -73825,6 +74180,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -73832,9 +74190,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -73862,6 +74217,10 @@
                         "readOnly": true
                     },
                     "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "mainImageAlt": {
                         "type": "string",
                         "readOnly": true
                     },
@@ -73897,6 +74256,7 @@
                     "createdAt",
                     "id",
                     "level",
+                    "mainImageAlt",
                     "mainImagePath",
                     "recursiveProductCount",
                     "slug",
@@ -73923,8 +74283,7 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "uri",
-                        "title": "Εικόνα"
+                        "format": "uri"
                     },
                     "imageType": {
                         "allOf": [
@@ -73948,9 +74307,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -73959,9 +74315,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74038,8 +74391,7 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "uri",
-                        "title": "Εικόνα"
+                        "format": "uri"
                     },
                     "imageType": {
                         "allOf": [
@@ -74063,9 +74415,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74074,9 +74423,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74126,8 +74472,7 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "binary",
-                        "title": "Εικόνα"
+                        "format": "binary"
                     },
                     "imageType": {
                         "allOf": [
@@ -74146,9 +74491,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74157,9 +74499,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -74190,6 +74529,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -74197,9 +74539,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -74213,6 +74552,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "footerText": {
+                                        "type": "string"
+                                    },
                                     "seoTitle": {
                                         "type": "string"
                                     },
@@ -74220,9 +74562,6 @@
                                         "type": "string"
                                     },
                                     "seoKeywords": {
-                                        "type": "string"
-                                    },
-                                    "footerText": {
                                         "type": "string"
                                     }
                                 }
@@ -74312,6 +74651,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none."
+                    },
                     "category": {
                         "type": "integer",
                         "readOnly": true,
@@ -74376,7 +74725,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -74433,6 +74782,11 @@
                         "format": "date-time",
                         "readOnly": true,
                         "nullable": true
+                    },
+                    "potentialPoints": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "readOnly": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -74503,16 +74857,6 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU."
-                    },
-                    "gtin": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
-                    },
-                    "mpn": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -74532,6 +74876,7 @@
                     "lowStockThreshold",
                     "mainImagePath",
                     "mpn",
+                    "potentialPoints",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -74614,6 +74959,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none."
+                    },
                     "category": {
                         "type": "integer",
                         "readOnly": true,
@@ -74678,7 +75033,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -74735,6 +75090,11 @@
                         "format": "date-time",
                         "readOnly": true,
                         "nullable": true
+                    },
+                    "potentialPoints": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "readOnly": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -74805,16 +75165,6 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU."
-                    },
-                    "gtin": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
-                    },
-                    "mpn": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -74834,6 +75184,7 @@
                     "lowStockThreshold",
                     "mainImagePath",
                     "mpn",
+                    "potentialPoints",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -75020,7 +75371,7 @@
             },
             "ProductFeed": {
                 "type": "object",
-                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
+                "description": "A product as the catalogue feed (``/product/feed``) publishes it:\n``ProductSerializer`` plus the Google Merchant ``product_highlight``\nlist. Only the feed prefetches the highlights\n(``ProductQuerySet.for_feed``), so only the feed renders them.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -75081,6 +75432,16 @@
                         "type": "string",
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none."
                     },
                     "category": {
                         "type": "integer",
@@ -75146,7 +75507,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -75203,6 +75564,11 @@
                         "format": "date-time",
                         "readOnly": true,
                         "nullable": true
+                    },
+                    "potentialPoints": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "readOnly": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -75269,16 +75635,6 @@
                         "nullable": true,
                         "readOnly": true
                     },
-                    "gtin": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
-                    },
-                    "mpn": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
-                    },
                     "highlights": {
                         "type": "array",
                         "items": {
@@ -75305,6 +75661,7 @@
                     "lowStockThreshold",
                     "mainImagePath",
                     "mpn",
+                    "potentialPoints",
                     "price",
                     "priorPrice",
                     "reductionStartedAt",
@@ -75341,11 +75698,11 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "uri",
-                        "title": "Εικόνα"
+                        "format": "uri"
                     },
                     "altText": {
                         "type": "string",
+                        "description": "The merchant's alt text, else empty.\n\nNo generated sentence: it would be in one language whatever the\nstore speaks, so the storefront builds its own localized fallback.",
                         "readOnly": true
                     },
                     "isMain": {
@@ -75363,9 +75720,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75374,9 +75728,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75429,11 +75780,11 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "uri",
-                        "title": "Εικόνα"
+                        "format": "uri"
                     },
                     "altText": {
                         "type": "string",
+                        "description": "The merchant's alt text, else empty.\n\nNo generated sentence: it would be in one language whatever the\nstore speaks, so the storefront builds its own localized fallback.",
                         "readOnly": true
                     },
                     "isMain": {
@@ -75450,9 +75801,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75461,9 +75809,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75548,8 +75893,7 @@
                     },
                     "image": {
                         "type": "string",
-                        "format": "binary",
-                        "title": "Εικόνα"
+                        "format": "binary"
                     },
                     "isMain": {
                         "type": "boolean"
@@ -75560,9 +75904,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -75571,9 +75912,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
                                     "altText": {
                                         "type": "string"
                                     }
@@ -76117,6 +76455,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
+                    "gtin": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none."
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none."
+                    },
                     "category": {
                         "type": "integer",
                         "readOnly": true,
@@ -76181,7 +76529,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -76238,6 +76586,11 @@
                         "format": "date-time",
                         "readOnly": true,
                         "nullable": true
+                    },
+                    "potentialPoints": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "readOnly": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -76315,16 +76668,6 @@
                             "$ref": "#/components/schemas/RatingDistribution"
                         },
                         "readOnly": true
-                    },
-                    "gtin": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει."
-                    },
-                    "mpn": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει."
                     }
                 },
                 "required": [
@@ -76344,6 +76687,7 @@
                     "lowStockThreshold",
                     "mainImagePath",
                     "mpn",
+                    "potentialPoints",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
@@ -76847,6 +77191,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
+                    "gtin": {
+                        "type": "string",
+                        "description": "The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.",
+                        "maxLength": 14
+                    },
+                    "mpn": {
+                        "type": "string",
+                        "description": "The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.",
+                        "maxLength": 70
+                    },
                     "category": {
                         "type": "integer",
                         "nullable": true
@@ -76884,7 +77238,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -76898,16 +77252,6 @@
                     },
                     "active": {
                         "type": "boolean"
-                    },
-                    "gtin": {
-                        "type": "string",
-                        "description": "Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.",
-                        "maxLength": 14
-                    },
-                    "mpn": {
-                        "type": "string",
-                        "description": "Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.",
-                        "maxLength": 70
                     }
                 },
                 "required": [
@@ -77972,8 +78316,7 @@
                     },
                     "note": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Σημείωση"
+                        "readOnly": true
                     },
                     "rolledBackFrom": {
                         "type": "integer",
@@ -78319,8 +78662,7 @@
                     },
                     "note": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Σημείωση"
+                        "readOnly": true
                     },
                     "scheduledBy": {
                         "allOf": [
@@ -78419,7 +78761,7 @@
                     "suggestedGender"
                 ],
                 "type": "string",
-                "description": "* `color` - Χρώμα\n* `size` - Μέγεθος\n* `material` - Υλικό\n* `pattern` - Σχέδιο\n* `suggestedAge` - Προτεινόμενη ηλικία\n* `suggestedGender` - Προτεινόμενο φύλο"
+                "description": "* `color` - Colour\n* `size` - Size\n* `material` - Material\n* `pattern` - Pattern\n* `suggestedAge` - Suggested age\n* `suggestedGender` - Suggested gender"
             },
             "SearchAnalyticsResponse": {
                 "type": "object",
@@ -78814,7 +79156,6 @@
                     "code": {
                         "type": "string",
                         "readOnly": true,
-                        "title": "Κωδικός",
                         "description": "Stable identifier matching the registered carrier adapter (e.g. 'acs', 'boxnow').",
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
@@ -78957,6 +79298,16 @@
                     "token"
                 ]
             },
+            "StaffSessionRoleEnum": {
+                "enum": [
+                    "staff",
+                    "admin",
+                    "owner",
+                    "superuser"
+                ],
+                "type": "string",
+                "description": "* `staff` - staff\n* `admin` - admin\n* `owner` - owner\n* `superuser` - superuser"
+            },
             "StaffSessionStaff": {
                 "type": "object",
                 "properties": {
@@ -78967,7 +79318,7 @@
                         "type": "string"
                     },
                     "role": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/StaffSessionRoleEnum"
                     }
                 },
                 "required": [
@@ -80062,6 +80413,9 @@
                     "googleSiteVerification": {
                         "type": "string"
                     },
+                    "bingSiteVerification": {
+                        "type": "string"
+                    },
                     "pinterestDomainVerify": {
                         "type": "string"
                     },
@@ -80250,6 +80604,9 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "indexnowKey": {
+                        "type": "string"
+                    },
                     "totpIssuer": {
                         "type": "string",
                         "readOnly": true
@@ -80293,12 +80650,6 @@
                     "boxNowPartnerId": {
                         "type": "string",
                         "readOnly": true
-                    },
-                    "bingSiteVerification": {
-                        "type": "string"
-                    },
-                    "indexnowKey": {
-                        "type": "string"
                     }
                 },
                 "required": [
@@ -80890,7 +81241,7 @@
                     "email": {
                         "type": "string",
                         "format": "email",
-                        "title": "Διεύθυνση ηλεκτρονικού ταχυδρομείου",
+                        "title": "Email Address",
                         "maxLength": 254
                     },
                     "firstName": {
@@ -80907,7 +81258,6 @@
                     },
                     "username": {
                         "nullable": true,
-                        "title": "Όνομα χρήστη",
                         "description": "Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).",
                         "oneOf": [
                             {
@@ -81027,8 +81377,8 @@
                     "isSuperuser": {
                         "type": "boolean",
                         "readOnly": true,
-                        "title": "Κατάσταση υπερχρήστη",
-                        "description": "Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά."
+                        "title": "Superuser status",
+                        "description": "Designates that this user has all permissions without explicitly assigning them."
                     },
                     "createdAt": {
                         "type": "string",
@@ -81082,7 +81432,6 @@
                         "type": "string",
                         "readOnly": true,
                         "nullable": true,
-                        "title": "Όνομα χρήστη",
                         "description": "Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces)."
                     },
                     "firstName": {
@@ -81117,8 +81466,7 @@
                     "user": {
                         "type": "integer",
                         "readOnly": true,
-                        "nullable": true,
-                        "title": "Χρήστης"
+                        "nullable": true
                     },
                     "topic": {
                         "type": "integer"
@@ -81180,8 +81528,7 @@
                     "user": {
                         "type": "integer",
                         "readOnly": true,
-                        "nullable": true,
-                        "title": "Χρήστης"
+                        "nullable": true
                     },
                     "topic": {
                         "type": "integer"
@@ -81260,7 +81607,6 @@
                     },
                     "username": {
                         "nullable": true,
-                        "title": "Όνομα χρήστη",
                         "description": "Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).",
                         "oneOf": [
                             {
@@ -81277,8 +81623,7 @@
                     "image": {
                         "type": "string",
                         "format": "binary",
-                        "nullable": true,
-                        "title": "Εικόνα"
+                        "nullable": true
                     },
                     "phone": {
                         "type": "string"
@@ -81463,12 +81808,6 @@
                     "name": {
                         "type": "string"
                     },
-                    "values": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/VariantAxisValue"
-                        }
-                    },
                     "schemaProperty": {
                         "oneOf": [
                             {
@@ -81478,6 +81817,12 @@
                                 "$ref": "#/components/schemas/BlankEnum"
                             }
                         ]
+                    },
+                    "values": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VariantAxisValue"
+                        }
                     }
                 },
                 "required": [
@@ -81525,8 +81870,7 @@
                     },
                     "note": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Σημείωση"
+                        "readOnly": true
                     },
                     "createdAt": {
                         "type": "string",
@@ -81606,8 +81950,7 @@
                     },
                     "note": {
                         "type": "string",
-                        "readOnly": true,
-                        "title": "Σημείωση"
+                        "readOnly": true
                     },
                     "createdAt": {
                         "type": "string",

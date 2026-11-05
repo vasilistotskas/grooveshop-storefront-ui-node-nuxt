@@ -742,10 +742,29 @@ export const zBuilderDocumentKindEnum = z.enum([
 ])
 
 /**
+ * * `media_in_use` - media_in_use
+ */
+export const zBuilderMediaInUseCodeEnum = z.enum(['media_in_use'])
+
+/**
+ * The 409 of deleting an image a published page uses: which documents.
+ */
+export const zBuilderMediaInUse = z.object({
+  detail: z.string(),
+  code: zBuilderMediaInUseCodeEnum,
+  usedBy: z.array(z.string()),
+})
+
+/**
  * * `page` - Page
  * * `template` - Template
  */
 export const zBuilderPageKindEnum = z.enum(['page', 'template'])
+
+/**
+ * * `revision_conflict` - revision_conflict
+ */
+export const zBuilderRevisionConflictCodeEnum = z.enum(['revision_conflict'])
 
 /**
  * * `checkpoint` - Named save
@@ -941,9 +960,9 @@ export const zAnnouncementBar = z.object({
 })
 
 /**
- * * `1` - Μικρό
- * * `2` - Μεσαίο
- * * `3` - Μεγάλο
+ * * `1` - Small
+ * * `2` - Medium
+ * * `3` - Large
  */
 export const zCompartmentSizeEnum = z.union([
   z.literal(1),
@@ -1540,7 +1559,7 @@ export const zLinkTargetsResponse = z.object({
 })
 
 /**
- * * `HOME` - Αρχική
+ * * `HOME` - Home
  * * `OFFICE` - Office
  * * `OTHER` - Other
  */
@@ -1644,7 +1663,7 @@ export const zNewsletterSubscribeResponse = z.object({
 })
 
 /**
- * * `ORDER` - Ταξινόμηση
+ * * `ORDER` - Order
  * * `PAYMENT` - Payment
  * * `SHIPPING` - Shipping
  * * `CART` - Cart
@@ -1685,7 +1704,7 @@ export const zNotificationIdsRequest = z.object({
 })
 
 /**
- * * `ERROR` - Σφάλμα
+ * * `ERROR` - Error
  * * `SUCCESS` - Success
  * * `INFO` - Info
  * * `WARNING` - Warning
@@ -2362,11 +2381,9 @@ export const zPatchedProductCategoryImageWriteRequest = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -2380,18 +2397,18 @@ export const zPatchedProductCategoryWriteRequest = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
@@ -2412,11 +2429,9 @@ export const zPatchedProductImageWriteRequest = z.object({
   isMain: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -2445,6 +2460,8 @@ export const zPatchedProductWriteRequest = z.object({
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+  gtin: z.string().max(14).optional(),
+  mpn: z.string().max(70).optional(),
   category: z.int().nullish(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000).optional(),
@@ -2456,8 +2473,6 @@ export const zPatchedProductWriteRequest = z.object({
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   active: z.boolean().optional(),
-  gtin: z.string().max(14).optional(),
-  mpn: z.string().max(70).optional(),
 })
 
 /**
@@ -2926,6 +2941,7 @@ export const zProductCard = z.object({
   effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
+  potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
@@ -2956,18 +2972,18 @@ export const zProductCategory = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -2976,6 +2992,7 @@ export const zProductCategory = z.object({
   level: z.int().readonly(),
   treeId: z.int().readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageAlt: z.string().readonly(),
   recursiveProductCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -3004,18 +3021,18 @@ export const zProductCategoryDetail = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3024,6 +3041,7 @@ export const zProductCategoryDetail = z.object({
   level: z.int().readonly(),
   treeId: z.int().readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageAlt: z.string().readonly(),
   recursiveProductCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -3044,11 +3062,9 @@ export const zProductCategoryImage = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3090,11 +3106,9 @@ export const zProductCategoryImageDetail = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3114,11 +3128,9 @@ export const zProductCategoryImageWriteRequest = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3132,18 +3144,18 @@ export const zProductCategoryWriteRequest = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3184,11 +3196,9 @@ export const zProductImage = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3218,11 +3228,9 @@ export const zProductImageWriteRequest = z.object({
   isMain: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -3331,6 +3339,8 @@ export const zProductWriteRequest = z.object({
     }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  gtin: z.string().max(14).optional(),
+  mpn: z.string().max(70).optional(),
   category: z.int().nullish(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000),
@@ -3342,8 +3352,6 @@ export const zProductWriteRequest = z.object({
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   active: z.boolean().optional(),
-  gtin: z.string().max(14).optional(),
-  mpn: z.string().max(70).optional(),
 })
 
 /**
@@ -3788,12 +3796,12 @@ export const zScheduleWriteRequest = z.object({
 })
 
 /**
- * * `color` - Χρώμα
- * * `size` - Μέγεθος
- * * `material` - Υλικό
- * * `pattern` - Σχέδιο
- * * `suggestedAge` - Προτεινόμενη ηλικία
- * * `suggestedGender` - Προτεινόμενο φύλο
+ * * `color` - Colour
+ * * `size` - Size
+ * * `material` - Material
+ * * `pattern` - Pattern
+ * * `suggestedAge` - Suggested age
+ * * `suggestedGender` - Suggested gender
  */
 export const zSchemaPropertyEnum = z.enum([
   'color',
@@ -3812,13 +3820,13 @@ export const zProductAttribute = z.object({
   attributeId: z.int().readonly(),
   attributeName: z.string().readonly(),
   isVariant: z.boolean().readonly(),
-  attributeValueId: z.int(),
-  value: z.string().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
   schemaProperty: z.union([
     zSchemaPropertyEnum,
     zBlankEnum,
   ]),
+  attributeValueId: z.int(),
+  value: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
 })
 
 /**
@@ -3845,6 +3853,8 @@ export const zProduct = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
   category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
@@ -3866,6 +3876,7 @@ export const zProduct = z.object({
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
@@ -3880,8 +3891,6 @@ export const zProduct = z.object({
     zNullEnum,
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
-  gtin: z.string().readonly(),
-  mpn: z.string().readonly(),
 })
 
 export const zCartItem = z.object({
@@ -4089,6 +4098,8 @@ export const zProductDetail = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
   category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
@@ -4110,6 +4121,7 @@ export const zProductDetail = z.object({
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
@@ -4125,8 +4137,6 @@ export const zProductDetail = z.object({
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
-  gtin: z.string().readonly(),
-  mpn: z.string().readonly(),
 })
 
 /**
@@ -4153,6 +4163,8 @@ export const zProductDetailResponse = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
   category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
@@ -4174,6 +4186,7 @@ export const zProductDetailResponse = z.object({
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
@@ -4189,8 +4202,6 @@ export const zProductDetailResponse = z.object({
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
-  gtin: z.string().readonly(),
-  mpn: z.string().readonly(),
 })
 
 export const zProductFavourite = z.object({
@@ -4227,7 +4238,10 @@ export const zProductFavouriteDetail = z.object({
 })
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * A product as the catalogue feed (``/product/feed``) publishes it:
+ * ``ProductSerializer`` plus the Google Merchant ``product_highlight``
+ * list. Only the feed prefetches the highlights
+ * (``ProductQuerySet.for_feed``), so only the feed renders them.
  */
 export const zProductFeed = z.object({
   id: z.int().readonly(),
@@ -4250,6 +4264,8 @@ export const zProductFeed = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
   category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
@@ -4271,6 +4287,7 @@ export const zProductFeed = z.object({
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
@@ -4285,8 +4302,6 @@ export const zProductFeed = z.object({
     zNullEnum,
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
-  gtin: z.string().readonly(),
-  mpn: z.string().readonly(),
   highlights: z.array(z.string()).readonly(),
 })
 
@@ -4316,11 +4331,9 @@ export const zProductImageDetail = z.object({
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -4369,6 +4382,8 @@ export const zProductRetrieve = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  gtin: z.string().readonly(),
+  mpn: z.string().readonly(),
   category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
@@ -4390,6 +4405,7 @@ export const zProductRetrieve = z.object({
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
@@ -4406,8 +4422,6 @@ export const zProductRetrieve = z.object({
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
   ratingDistribution: z.array(zRatingDistribution).readonly(),
-  gtin: z.string().readonly(),
-  mpn: z.string().readonly(),
 })
 
 /**
@@ -5024,6 +5038,18 @@ export const zAssetStored = z.object({
   duplicate: z.boolean().readonly(),
 })
 
+/**
+ * The 409 of a change made against a revision that is no longer the
+ * current one: the revision to reload and who moved it.
+ */
+export const zBuilderRevisionConflict = z.object({
+  detail: z.string(),
+  code: zBuilderRevisionConflictCodeEnum,
+  currentRevision: z.int(),
+  updatedBy: zStaff.nullable(),
+  updatedAt: z.iso.datetime({ offset: true }),
+})
+
 export const zDocumentDetail = z.object({
   key: z.string().readonly(),
   kind: zBuilderDocumentKindEnum,
@@ -5149,10 +5175,23 @@ export const zPaginatedScheduleList = z.object({
   results: z.array(zSchedule),
 })
 
+/**
+ * * `staff` - staff
+ * * `admin` - admin
+ * * `owner` - owner
+ * * `superuser` - superuser
+ */
+export const zStaffSessionRoleEnum = z.enum([
+  'staff',
+  'admin',
+  'owner',
+  'superuser',
+])
+
 export const zStaffSessionStaff = z.object({
   id: z.int(),
   name: z.string(),
-  role: z.string(),
+  role: zStaffSessionRoleEnum,
 })
 
 export const zStaffSessionResponse = z.object({
@@ -5506,6 +5545,7 @@ export const zTenantConfig = z.object({
   isPlatformStorefront: z.boolean().optional(),
   seoAuthor: z.string().optional(),
   googleSiteVerification: z.string().optional(),
+  bingSiteVerification: z.string().optional(),
   pinterestDomainVerify: z.string().optional(),
   primaryColor: z.string().readonly(),
   neutralColor: z.string().readonly(),
@@ -5550,6 +5590,7 @@ export const zTenantConfig = z.object({
   googleAdsBeginCheckoutLabel: z.string().readonly(),
   googleAdsAddPaymentInfoLabel: z.string().optional(),
   googleAdsPageViewLabel: z.string().readonly(),
+  indexnowKey: z.string().optional(),
   totpIssuer: z.string().readonly(),
   socialsDiscord: z.string().readonly(),
   socialsFacebook: z.string().readonly(),
@@ -5561,8 +5602,6 @@ export const zTenantConfig = z.object({
   socialsTwitter: z.string().readonly(),
   socialsYoutube: z.string().readonly(),
   boxNowPartnerId: z.string().readonly(),
-  bingSiteVerification: z.string().optional(),
-  indexnowKey: z.string().optional(),
 })
 
 /**
@@ -6632,11 +6671,11 @@ export const zVariantAxisValue = z.object({
 export const zVariantAxis = z.object({
   id: z.int(),
   name: z.string(),
-  values: z.array(zVariantAxisValue),
   schemaProperty: z.union([
     zSchemaPropertyEnum,
     zBlankEnum,
   ]),
+  values: z.array(zVariantAxisValue),
 })
 
 /**
@@ -7929,18 +7968,18 @@ export const zProductCategoryWritable = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -7969,18 +8008,18 @@ export const zProductCategoryDetailWritable = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      footerText: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
-      footerText: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -7998,11 +8037,9 @@ export const zProductCategoryImageWritable = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -8031,11 +8068,9 @@ export const zProductCategoryImageDetailWritable = z.object({
   active: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -8133,7 +8168,10 @@ export const zProductFavouriteWriteWritable = z.object({
 })
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * A product as the catalogue feed (``/product/feed``) publishes it:
+ * ``ProductSerializer`` plus the Google Merchant ``product_highlight``
+ * list. Only the feed prefetches the highlights
+ * (``ProductQuerySet.for_feed``), so only the feed renders them.
  */
 export const zProductFeedWritable = z.object({
   translations: z.object({
@@ -8188,11 +8226,9 @@ export const zProductImageWritable = z.object({
   isMain: z.boolean().optional().default(false),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -8219,11 +8255,9 @@ export const zProductImageDetailWritable = z.object({
   isMain: z.boolean().optional(),
   translations: z.object({
     el: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
   }),
@@ -8588,6 +8622,7 @@ export const zTenantConfigWritable = z.object({
   isPlatformStorefront: z.boolean().optional(),
   seoAuthor: z.string().optional(),
   googleSiteVerification: z.string().optional(),
+  bingSiteVerification: z.string().optional(),
   pinterestDomainVerify: z.string().optional(),
   availableLocales: z.array(z.string()).optional(),
   shippingCarriers: z.array(z.unknown()).optional(),
@@ -8595,7 +8630,6 @@ export const zTenantConfigWritable = z.object({
   codeResendCooldownSeconds: z.int().optional(),
   openaiPixelId: z.string().optional(),
   googleAdsAddPaymentInfoLabel: z.string().optional(),
-  bingSiteVerification: z.string().optional(),
   indexnowKey: z.string().optional(),
 })
 

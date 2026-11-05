@@ -337,7 +337,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -986,7 +986,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -1363,7 +1363,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -2454,7 +2454,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -3108,7 +3108,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -4023,7 +4023,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -4555,7 +4555,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -5196,7 +5196,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -5698,7 +5698,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -6489,7 +6489,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -6924,7 +6924,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -7405,7 +7405,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -7769,7 +7769,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -8097,7 +8097,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -8769,6 +8769,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/DocumentDetail'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
     delete:
       operationId: api_v1_builder_documents_destroy
       description: Delete a page. A released page leaves the store with a new release; a page another released document links to is refused (`page_in_use`).
@@ -8800,7 +8806,19 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuilderRevisionConflict'
+          description: ''
+        '428':
           content:
             application/json:
               schema:
@@ -8841,7 +8859,19 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -8882,7 +8912,19 @@ paths:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuilderRevisionConflict'
+          description: ''
+        '428':
           content:
             application/json:
               schema:
@@ -8930,7 +8972,25 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuilderRevisionConflict'
+          description: ''
+        '428':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -9009,6 +9069,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/VersionDetail'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/builder/documents/{key}/versions/{number}/publish:
     post:
       operationId: api_v1_builder_documents_versions_publish_create
@@ -9051,6 +9117,12 @@ paths:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
         '409':
           content:
@@ -9101,7 +9173,19 @@ paths:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuilderRevisionConflict'
+          description: ''
+        '428':
           content:
             application/json:
               schema:
@@ -9369,6 +9453,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Asset'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
     patch:
       operationId: api_v1_builder_media_partial_update
       description: Change the focal point and the alt text of the languages named; the file never changes. A used asset's change reaches the storefront at once.
@@ -9411,6 +9501,12 @@ paths:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
           content:
             application/json:
@@ -9444,11 +9540,17 @@ paths:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
           description: ''
-        '409':
+        '404':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuilderMediaInUse'
           description: ''
   /api/v1/builder/media/import:
     post:
@@ -9480,6 +9582,12 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
           description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -9642,7 +9750,19 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -9831,7 +9951,19 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -9866,7 +9998,19 @@ paths:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -9996,6 +10140,12 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
           content:
             application/json:
@@ -10098,7 +10248,19 @@ paths:
                   - $ref: '#/components/schemas/ApiError'
                   - $ref: '#/components/schemas/BuilderDocumentInvalidError'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -10127,6 +10289,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Schedule'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
     patch:
       operationId: api_v1_builder_schedules_partial_update
@@ -10163,6 +10331,13 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
         '409':
           content:
@@ -10200,7 +10375,12 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
-                  - $ref: '#/components/schemas/BuilderDocumentInvalidError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
         '409':
           content:
@@ -10239,6 +10419,12 @@ paths:
                 anyOf:
                   - $ref: '#/components/schemas/ApiValidationError'
                   - $ref: '#/components/schemas/ApiError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
         '409':
           content:
@@ -10910,7 +11096,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -11655,7 +11841,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -12614,7 +12800,7 @@ paths:
               - type: array
                 items:
                   type: string
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -12640,7 +12826,7 @@ paths:
               - type: array
                 items:
                   type: string
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -12793,7 +12979,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -12915,7 +13101,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -14302,7 +14488,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -15376,7 +15562,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -15555,7 +15741,7 @@ paths:
               - type: array
                 items:
                   type: string
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -15703,7 +15889,7 @@ paths:
               - type: array
                 items:
                   type: string
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -15888,8 +16074,8 @@ paths:
           description: ''
     post:
       operationId: createOrder
-      description: Create a new Ταξινόμηση. Requires authentication.
-      summary: Create a Ταξινόμηση
+      description: Create a new Order. Requires authentication.
+      summary: Create a Order
       parameters:
         - in: query
           name: languageCode
@@ -16061,7 +16247,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -16979,8 +17165,8 @@ paths:
   /api/v1/order/{id}:
     get:
       operationId: retrieveOrder
-      description: Get detailed information about a specific Ταξινόμηση.
-      summary: Retrieve a Ταξινόμηση
+      description: Get detailed information about a specific Order.
+      summary: Retrieve a Order
       parameters:
         - in: path
           name: id
@@ -17036,8 +17222,8 @@ paths:
           description: ''
     put:
       operationId: updateOrder
-      description: Update Ταξινόμηση information. Requires authentication.
-      summary: Update a Ταξινόμηση
+      description: Update Order information. Requires authentication.
+      summary: Update a Order
       parameters:
         - in: path
           name: id
@@ -17113,8 +17299,8 @@ paths:
           description: ''
     patch:
       operationId: partialUpdateOrder
-      description: Partially update Ταξινόμηση information. Requires authentication.
-      summary: Partially update a Ταξινόμηση
+      description: Partially update Order information. Requires authentication.
+      summary: Partially update a Order
       parameters:
         - in: path
           name: id
@@ -17189,8 +17375,8 @@ paths:
           description: ''
     delete:
       operationId: destroyOrder
-      description: Delete a Ταξινόμηση. Requires authentication.
-      summary: Delete a Ταξινόμηση
+      description: Delete a Order. Requires authentication.
+      summary: Delete a Order
       parameters:
         - in: path
           name: id
@@ -18632,7 +18818,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -18810,7 +18996,7 @@ paths:
               - type: array
                 items:
                   type: string
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -18958,7 +19144,7 @@ paths:
               - type: array
                 items:
                   type: string
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -19356,7 +19542,6 @@ paths:
           name: key
           schema:
             type: string
-            title: Κλειδί
             enum:
               - APPLE_PAY
               - BANK_TRANSFER
@@ -29109,7 +29294,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -29731,7 +29916,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -31905,7 +32090,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -32654,7 +32839,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -33577,7 +33762,7 @@ paths:
               - type: array
                 items:
                   type: integer
-          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          description: Multiple values may be separated by commas.
           explode: false
           style: form
         - in: query
@@ -34755,7 +34940,6 @@ components:
         phone:
           type: string
           readOnly: true
-          title: Τηλέφωνο
       required:
         - addressLine1
         - addressLine2
@@ -35535,7 +35719,6 @@ components:
                   type: string
         user:
           type: integer
-          title: Χρήστης
         website:
           oneOf:
             - type: string
@@ -35798,7 +35981,6 @@ components:
           type: string
           format: binary
           nullable: true
-          title: Εικόνα
       required:
         - slug
         - translations
@@ -36754,7 +36936,6 @@ components:
         note:
           type: string
           readOnly: true
-          title: Σημείωση
         isActive:
           type: boolean
           readOnly: true
@@ -36860,7 +37041,6 @@ components:
         note:
           type: string
           readOnly: true
-          title: Σημείωση
         isActive:
           type: boolean
           readOnly: true
@@ -37412,6 +37592,27 @@ components:
           $ref: '#/components/schemas/StoreFeatureStates'
       required:
         - features
+    BuilderMediaInUse:
+      type: object
+      description: 'The 409 of deleting an image a published page uses: which documents.'
+      properties:
+        detail:
+          type: string
+        code:
+          $ref: '#/components/schemas/BuilderMediaInUseCodeEnum'
+        usedBy:
+          type: array
+          items:
+            type: string
+      required:
+        - code
+        - detail
+        - usedBy
+    BuilderMediaInUseCodeEnum:
+      enum:
+        - media_in_use
+      type: string
+      description: '* `media_in_use` - media_in_use'
     BuilderPageKindEnum:
       enum:
         - page
@@ -37420,6 +37621,36 @@ components:
       description: |-
         * `page` - Page
         * `template` - Template
+    BuilderRevisionConflict:
+      type: object
+      description: |-
+        The 409 of a change made against a revision that is no longer the
+        current one: the revision to reload and who moved it.
+      properties:
+        detail:
+          type: string
+        code:
+          $ref: '#/components/schemas/BuilderRevisionConflictCodeEnum'
+        currentRevision:
+          type: integer
+        updatedBy:
+          allOf:
+            - $ref: '#/components/schemas/Staff'
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - code
+        - currentRevision
+        - detail
+        - updatedAt
+        - updatedBy
+    BuilderRevisionConflictCodeEnum:
+      enum:
+        - revision_conflict
+      type: string
+      description: '* `revision_conflict` - revision_conflict'
     BuilderVersionKindEnum:
       enum:
         - checkpoint
@@ -37652,7 +37883,6 @@ components:
         user:
           type: integer
           nullable: true
-          title: Χρήστης
         uuid:
           type: string
           format: uuid
@@ -38447,9 +38677,9 @@ components:
         - 3
       type: integer
       description: |-
-        * `1` - Μικρό
-        * `2` - Μεσαίο
-        * `3` - Μεγάλο
+        * `1` - Small
+        * `2` - Medium
+        * `3` - Large
     ConfirmAgentPaymentRequestRequest:
       type: object
       properties:
@@ -38556,7 +38786,6 @@ components:
           maxLength: 150
         phone:
           type: string
-          title: Τηλέφωνο
           maxLength: 30
         subject:
           type: string
@@ -38601,7 +38830,6 @@ components:
           maxLength: 150
         phone:
           type: string
-          title: Τηλέφωνο
           maxLength: 30
         subject:
           type: string
@@ -39260,7 +39488,6 @@ components:
         key:
           type: string
           readOnly: true
-          title: Κλειδί
         kind:
           $ref: '#/components/schemas/BuilderDocumentKindEnum'
         draftRevision:
@@ -39307,7 +39534,6 @@ components:
         key:
           type: string
           readOnly: true
-          title: Κλειδί
         kind:
           $ref: '#/components/schemas/BuilderDocumentKindEnum'
         draftRevision:
@@ -39677,7 +39903,6 @@ components:
         code:
           type: string
           readOnly: true
-          title: Κωδικός
           description: Crypto-random, uppercased; the bearer secret
         initialValue:
           type: number
@@ -39928,7 +40153,6 @@ components:
           type: integer
           readOnly: true
           nullable: true
-          title: Ταξινόμηση
         createdAt:
           type: string
           format: date-time
@@ -40161,7 +40385,7 @@ components:
         - OTHER
       type: string
       description: |-
-        * `HOME` - Αρχική
+        * `HOME` - Home
         * `OFFICE` - Office
         * `OTHER` - Other
     LoyaltySummary:
@@ -40497,7 +40721,7 @@ components:
         - RECOMMENDATION
       type: string
       description: |-
-        * `ORDER` - Ταξινόμηση
+        * `ORDER` - Order
         * `PAYMENT` - Payment
         * `SHIPPING` - Shipping
         * `CART` - Cart
@@ -40537,7 +40761,7 @@ components:
         - DANGER
       type: string
       description: |-
-        * `ERROR` - Σφάλμα
+        * `ERROR` - Error
         * `SUCCESS` - Success
         * `INFO` - Info
         * `WARNING` - Warning
@@ -40697,7 +40921,6 @@ components:
         user:
           type: integer
           nullable: true
-          title: Χρήστης
         country:
           type: string
           title: Country Code Alpha 2
@@ -41280,7 +41503,7 @@ components:
           description: |-
             Location, as a LocationChoicesEnum member (e.g. HOME)
 
-            * `HOME` - Αρχική
+            * `HOME` - Home
             * `OFFICE` - Office
             * `OTHER` - Other
           oneOf:
@@ -41432,7 +41655,6 @@ components:
         user:
           type: integer
           nullable: true
-          title: Χρήστης
         country:
           type: string
           title: Country Code Alpha 2
@@ -41929,7 +42151,6 @@ components:
           readOnly: true
         order:
           type: integer
-          title: Ταξινόμηση
         product:
           type: integer
         price:
@@ -42006,7 +42227,6 @@ components:
           readOnly: true
         order:
           type: integer
-          title: Ταξινόμηση
         product:
           allOf:
             - $ref: '#/components/schemas/Product'
@@ -42116,7 +42336,6 @@ components:
       properties:
         order:
           type: integer
-          title: Ταξινόμηση
         product:
           type: integer
         quantity:
@@ -43297,44 +43516,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductFavourite'
-    PaginatedProductImageList:
-      type: object
-      required:
-        - count
-        - results
-      properties:
-        links:
-          type: object
-          properties:
-            next:
-              type: string
-              nullable: true
-              format: uri
-              example: http://api.example.org/accounts/?page=4
-            previous:
-              type: string
-              nullable: true
-              format: uri
-              example: http://api.example.org/accounts/?page=2
-        count:
-          type: integer
-          example: 123
-        totalPages:
-          type: integer
-          example: 123
-        pageSize:
-          type: integer
-          example: 123
-        pageTotalResults:
-          type: integer
-          example: 123
-        page:
-          type: integer
-          example: 123
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductImage'
     PaginatedProductFeedList:
       type: object
       required:
@@ -43373,6 +43554,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductFeed'
+    PaginatedProductImageList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=4
+            previous:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=2
+        count:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 123
+        pageSize:
+          type: integer
+          example: 123
+        pageTotalResults:
+          type: integer
+          example: 123
+        page:
+          type: integer
+          example: 123
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductImage'
     PaginatedProductReviewList:
       type: object
       required:
@@ -43861,7 +44080,6 @@ components:
                   type: string
         user:
           type: integer
-          title: Χρήστης
         website:
           oneOf:
             - type: string
@@ -43902,7 +44120,6 @@ components:
           type: string
           format: binary
           nullable: true
-          title: Εικόνα
     PatchedBlogCommentWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -44127,7 +44344,6 @@ components:
       properties:
         order:
           type: integer
-          title: Ταξινόμηση
         product:
           type: integer
         quantity:
@@ -44218,7 +44434,6 @@ components:
         key:
           allOf:
             - $ref: '#/components/schemas/PayWayKeyEnum'
-          title: Κλειδί
           description: |-
             Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
 
@@ -44286,7 +44501,6 @@ components:
         image:
           type: string
           format: binary
-          title: Εικόνα
         imageType:
           allOf:
             - $ref: '#/components/schemas/ImageTypeEnum'
@@ -44299,15 +44513,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
     PatchedProductCategoryWriteRequest:
@@ -44324,13 +44534,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
             en:
               type: object
@@ -44339,13 +44549,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
         slug:
           type: string
@@ -44371,7 +44581,6 @@ components:
         image:
           type: string
           format: binary
-          title: Εικόνα
         isMain:
           type: boolean
         translations:
@@ -44380,15 +44589,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
     PatchedProductReviewWriteRequest:
@@ -44457,6 +44662,14 @@ components:
           minLength: 1
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+        gtin:
+          type: string
+          description: 'The number printed under the product''s barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.'
+          maxLength: 14
+        mpn:
+          type: string
+          description: The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+          maxLength: 70
         category:
           type: integer
           nullable: true
@@ -44497,14 +44710,6 @@ components:
           exclusiveMinimum: true
         active:
           type: boolean
-        gtin:
-          type: string
-          description: 'Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.'
-          maxLength: 14
-        mpn:
-          type: string
-          description: Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-          maxLength: 70
     PatchedRegionWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -44696,7 +44901,6 @@ components:
           maxLength: 255
         username:
           nullable: true
-          title: Όνομα χρήστη
           description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
           oneOf:
             - type: string
@@ -44708,7 +44912,6 @@ components:
           type: string
           format: binary
           nullable: true
-          title: Εικόνα
         phone:
           type: string
         city:
@@ -44829,7 +45032,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/PayWayKeyEnum'
           readOnly: true
-          title: Κλειδί
           description: |-
             Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
 
@@ -44959,7 +45161,6 @@ components:
         key:
           allOf:
             - $ref: '#/components/schemas/PayWayKeyEnum'
-          title: Κλειδί
           description: |-
             Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
 
@@ -45240,7 +45441,6 @@ components:
           readOnly: true
         note:
           type: string
-          title: Σημείωση
           maxLength: 255
         createdBy:
           allOf:
@@ -45276,7 +45476,6 @@ components:
           readOnly: true
         note:
           type: string
-          title: Σημείωση
           maxLength: 255
         createdBy:
           allOf:
@@ -45386,6 +45585,14 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+        gtin:
+          type: string
+          readOnly: true
+          description: 'The number printed under the product''s barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.'
+        mpn:
+          type: string
+          readOnly: true
+          description: The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
         category:
           type: integer
           readOnly: true
@@ -45486,6 +45693,10 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        potentialPoints:
+          type: integer
+          minimum: 0
+          readOnly: true
         mainImagePath:
           type: string
           readOnly: true
@@ -45533,14 +45744,6 @@ components:
           type: string
           nullable: true
           readOnly: true
-        gtin:
-          type: string
-          readOnly: true
-          description: 'Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.'
-        mpn:
-          type: string
-          readOnly: true
-          description: Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
       required:
         - active
         - announcedDiscountPercent
@@ -45558,6 +45761,7 @@ components:
         - lowStockThreshold
         - mainImagePath
         - mpn
+        - potentialPoints
         - price
         - priorPrice
         - reductionStartedAt
@@ -45591,7 +45795,6 @@ components:
           type: integer
           readOnly: true
           nullable: true
-          title: Χρήστης
         email:
           type: string
           format: email
@@ -45680,6 +45883,11 @@ components:
         isVariant:
           type: boolean
           readOnly: true
+        schemaProperty:
+          readOnly: true
+          oneOf:
+            - $ref: '#/components/schemas/SchemaPropertyEnum'
+            - $ref: '#/components/schemas/BlankEnum'
         attributeValueId:
           type: integer
         value:
@@ -45690,11 +45898,6 @@ components:
           type: string
           format: date-time
           readOnly: true
-        schemaProperty:
-          readOnly: true
-          oneOf:
-            - $ref: '#/components/schemas/SchemaPropertyEnum'
-            - $ref: '#/components/schemas/BlankEnum'
       required:
         - attributeId
         - attributeName
@@ -45810,6 +46013,10 @@ components:
           type: integer
           readOnly: true
           nullable: true
+        potentialPoints:
+          type: integer
+          minimum: 0
+          readOnly: true
         mainImagePath:
           type: string
           readOnly: true
@@ -45845,6 +46052,7 @@ components:
         - id
         - lowStockThreshold
         - mainImagePath
+        - potentialPoints
         - priorPrice
         - reviewAverage
         - reviewCount
@@ -45870,13 +46078,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
             en:
               type: object
@@ -45885,13 +46093,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
         slug:
           type: string
@@ -45909,6 +46117,9 @@ components:
           type: integer
           readOnly: true
         mainImagePath:
+          type: string
+          readOnly: true
+        mainImageAlt:
           type: string
           readOnly: true
         recursiveProductCount:
@@ -45930,6 +46141,7 @@ components:
         - createdAt
         - id
         - level
+        - mainImageAlt
         - mainImagePath
         - recursiveProductCount
         - slug
@@ -45954,13 +46166,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
             en:
               type: object
@@ -45969,13 +46181,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
         slug:
           type: string
@@ -45993,6 +46205,9 @@ components:
           type: integer
           readOnly: true
         mainImagePath:
+          type: string
+          readOnly: true
+        mainImageAlt:
           type: string
           readOnly: true
         recursiveProductCount:
@@ -46020,6 +46235,7 @@ components:
         - createdAt
         - id
         - level
+        - mainImageAlt
         - mainImagePath
         - recursiveProductCount
         - slug
@@ -46042,7 +46258,6 @@ components:
         image:
           type: string
           format: uri
-          title: Εικόνα
         imageType:
           allOf:
             - $ref: '#/components/schemas/ImageTypeEnum'
@@ -46059,15 +46274,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         imagePath:
@@ -46124,7 +46335,6 @@ components:
         image:
           type: string
           format: uri
-          title: Εικόνα
         imageType:
           allOf:
             - $ref: '#/components/schemas/ImageTypeEnum'
@@ -46141,15 +46351,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         imagePath:
@@ -46187,7 +46393,6 @@ components:
         image:
           type: string
           format: binary
-          title: Εικόνα
         imageType:
           allOf:
             - $ref: '#/components/schemas/ImageTypeEnum'
@@ -46200,15 +46405,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
       required:
@@ -46229,13 +46430,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
             en:
               type: object
@@ -46244,13 +46445,13 @@ components:
                   type: string
                 description:
                   type: string
+                footerText:
+                  type: string
                 seoTitle:
                   type: string
                 seoDescription:
                   type: string
                 seoKeywords:
-                  type: string
-                footerText:
                   type: string
         slug:
           type: string
@@ -46309,6 +46510,14 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+        gtin:
+          type: string
+          readOnly: true
+          description: 'The number printed under the product''s barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.'
+        mpn:
+          type: string
+          readOnly: true
+          description: The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
         category:
           type: integer
           readOnly: true
@@ -46409,6 +46618,10 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        potentialPoints:
+          type: integer
+          minimum: 0
+          readOnly: true
         mainImagePath:
           type: string
           readOnly: true
@@ -46460,14 +46673,6 @@ components:
           type: boolean
           readOnly: true
           description: When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
-        gtin:
-          type: string
-          readOnly: true
-          description: 'Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.'
-        mpn:
-          type: string
-          readOnly: true
-          description: Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
       required:
         - active
         - announcedDiscountPercent
@@ -46485,6 +46690,7 @@ components:
         - lowStockThreshold
         - mainImagePath
         - mpn
+        - potentialPoints
         - price
         - priceDropAlertsEnabled
         - priorPrice
@@ -46545,6 +46751,14 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+        gtin:
+          type: string
+          readOnly: true
+          description: 'The number printed under the product''s barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.'
+        mpn:
+          type: string
+          readOnly: true
+          description: The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
         category:
           type: integer
           readOnly: true
@@ -46645,6 +46859,10 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        potentialPoints:
+          type: integer
+          minimum: 0
+          readOnly: true
         mainImagePath:
           type: string
           readOnly: true
@@ -46696,14 +46914,6 @@ components:
           type: boolean
           readOnly: true
           description: When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
-        gtin:
-          type: string
-          readOnly: true
-          description: 'Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.'
-        mpn:
-          type: string
-          readOnly: true
-          description: Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
       required:
         - active
         - announcedDiscountPercent
@@ -46721,6 +46931,7 @@ components:
         - lowStockThreshold
         - mainImagePath
         - mpn
+        - potentialPoints
         - price
         - priceDropAlertsEnabled
         - priorPrice
@@ -46858,7 +47069,11 @@ components:
         - product
     ProductFeed:
       type: object
-      description: Serializer that saves :class:`TranslatedFieldsField` automatically.
+      description: |-
+        A product as the catalogue feed (``/product/feed``) publishes it:
+        ``ProductSerializer`` plus the Google Merchant ``product_highlight``
+        list. Only the feed prefetches the highlights
+        (``ProductQuerySet.for_feed``), so only the feed renders them.
       properties:
         id:
           type: integer
@@ -46900,6 +47115,14 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+        gtin:
+          type: string
+          readOnly: true
+          description: 'The number printed under the product''s barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.'
+        mpn:
+          type: string
+          readOnly: true
+          description: The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
         category:
           type: integer
           readOnly: true
@@ -47000,6 +47223,10 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        potentialPoints:
+          type: integer
+          minimum: 0
+          readOnly: true
         mainImagePath:
           type: string
           readOnly: true
@@ -47047,14 +47274,6 @@ components:
           type: string
           nullable: true
           readOnly: true
-        gtin:
-          type: string
-          readOnly: true
-          description: 'Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.'
-        mpn:
-          type: string
-          readOnly: true
-          description: Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
         highlights:
           type: array
           items:
@@ -47078,6 +47297,7 @@ components:
         - lowStockThreshold
         - mainImagePath
         - mpn
+        - potentialPoints
         - price
         - priorPrice
         - reductionStartedAt
@@ -47110,9 +47330,13 @@ components:
         image:
           type: string
           format: uri
-          title: Εικόνα
         altText:
           type: string
+          description: |-
+            The merchant's alt text, else empty.
+
+            No generated sentence: it would be in one language whatever the
+            store speaks, so the storefront builds its own localized fallback.
           readOnly: true
         isMain:
           type: boolean
@@ -47127,15 +47351,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         mainImagePath:
@@ -47173,9 +47393,13 @@ components:
         image:
           type: string
           format: uri
-          title: Εικόνα
         altText:
           type: string
+          description: |-
+            The merchant's alt text, else empty.
+
+            No generated sentence: it would be in one language whatever the
+            store speaks, so the storefront builds its own localized fallback.
           readOnly: true
         isMain:
           type: boolean
@@ -47189,15 +47413,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
         mainImagePath:
@@ -47259,7 +47479,6 @@ components:
         image:
           type: string
           format: binary
-          title: Εικόνα
         isMain:
           type: boolean
         translations:
@@ -47268,15 +47487,11 @@ components:
             el:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
             en:
               type: object
               properties:
-                title:
-                  type: string
                 altText:
                   type: string
       required:
@@ -47715,6 +47930,14 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+        gtin:
+          type: string
+          readOnly: true
+          description: 'The number printed under the product''s barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.'
+        mpn:
+          type: string
+          readOnly: true
+          description: The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
         category:
           type: integer
           readOnly: true
@@ -47815,6 +48038,10 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        potentialPoints:
+          type: integer
+          minimum: 0
+          readOnly: true
         mainImagePath:
           type: string
           readOnly: true
@@ -47871,14 +48098,6 @@ components:
           items:
             $ref: '#/components/schemas/RatingDistribution'
           readOnly: true
-        gtin:
-          type: string
-          readOnly: true
-          description: 'Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.'
-        mpn:
-          type: string
-          readOnly: true
-          description: Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
       required:
         - active
         - announcedDiscountPercent
@@ -47896,6 +48115,7 @@ components:
         - lowStockThreshold
         - mainImagePath
         - mpn
+        - potentialPoints
         - price
         - priceDropAlertsEnabled
         - priorPrice
@@ -48265,6 +48485,14 @@ components:
           minLength: 1
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+        gtin:
+          type: string
+          description: 'The number printed under the product''s barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.'
+          maxLength: 14
+        mpn:
+          type: string
+          description: The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+          maxLength: 70
         category:
           type: integer
           nullable: true
@@ -48305,14 +48533,6 @@ components:
           exclusiveMinimum: true
         active:
           type: boolean
-        gtin:
-          type: string
-          description: 'Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.'
-          maxLength: 14
-        mpn:
-          type: string
-          description: Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-          maxLength: 70
       required:
         - price
         - slug
@@ -49117,7 +49337,6 @@ components:
         note:
           type: string
           readOnly: true
-          title: Σημείωση
         rolledBackFrom:
           type: integer
           maximum: 2147483647
@@ -49387,7 +49606,6 @@ components:
         note:
           type: string
           readOnly: true
-          title: Σημείωση
         scheduledBy:
           allOf:
             - $ref: '#/components/schemas/Staff'
@@ -49468,12 +49686,12 @@ components:
         - suggestedGender
       type: string
       description: |-
-        * `color` - Χρώμα
-        * `size` - Μέγεθος
-        * `material` - Υλικό
-        * `pattern` - Σχέδιο
-        * `suggestedAge` - Προτεινόμενη ηλικία
-        * `suggestedGender` - Προτεινόμενο φύλο
+        * `color` - Colour
+        * `size` - Size
+        * `material` - Material
+        * `pattern` - Pattern
+        * `suggestedAge` - Suggested age
+        * `suggestedGender` - Suggested gender
     SearchAnalyticsResponse:
       type: object
       description: Serializer for search analytics response.
@@ -49801,7 +50019,6 @@ components:
         code:
           type: string
           readOnly: true
-          title: Κωδικός
           description: Stable identifier matching the registered carrier adapter (e.g. 'acs', 'boxnow').
           pattern: ^[-a-zA-Z0-9_]+$
         name:
@@ -49920,6 +50137,18 @@ components:
         - expiresAt
         - staff
         - token
+    StaffSessionRoleEnum:
+      enum:
+        - staff
+        - admin
+        - owner
+        - superuser
+      type: string
+      description: |-
+        * `staff` - staff
+        * `admin` - admin
+        * `owner` - owner
+        * `superuser` - superuser
     StaffSessionStaff:
       type: object
       properties:
@@ -49928,7 +50157,7 @@ components:
         name:
           type: string
         role:
-          type: string
+          $ref: '#/components/schemas/StaffSessionRoleEnum'
       required:
         - id
         - name
@@ -50760,6 +50989,8 @@ components:
           type: string
         googleSiteVerification:
           type: string
+        bingSiteVerification:
+          type: string
         pinterestDomainVerify:
           type: string
         primaryColor:
@@ -50894,6 +51125,8 @@ components:
         googleAdsPageViewLabel:
           type: string
           readOnly: true
+        indexnowKey:
+          type: string
         totpIssuer:
           type: string
           readOnly: true
@@ -50927,10 +51160,6 @@ components:
         boxNowPartnerId:
           type: string
           readOnly: true
-        bingSiteVerification:
-          type: string
-        indexnowKey:
-          type: string
       required:
         - accentHex
         - agentCommerceEnabled
@@ -51402,7 +51631,7 @@ components:
         email:
           type: string
           format: email
-          title: Διεύθυνση ηλεκτρονικού ταχυδρομείου
+          title: Email Address
           maxLength: 254
         firstName:
           type: string
@@ -51415,7 +51644,6 @@ components:
           readOnly: true
         username:
           nullable: true
-          title: Όνομα χρήστη
           description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
           oneOf:
             - type: string
@@ -51510,8 +51738,8 @@ components:
         isSuperuser:
           type: boolean
           readOnly: true
-          title: Κατάσταση υπερχρήστη
-          description: Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.
+          title: Superuser status
+          description: Designates that this user has all permissions without explicitly assigning them.
         createdAt:
           type: string
           format: date-time
@@ -51556,7 +51784,6 @@ components:
           type: string
           readOnly: true
           nullable: true
-          title: Όνομα χρήστη
           description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
         firstName:
           type: string
@@ -51584,7 +51811,6 @@ components:
           type: integer
           readOnly: true
           nullable: true
-          title: Χρήστης
         topic:
           type: integer
         topicDetails:
@@ -51631,7 +51857,6 @@ components:
           type: integer
           readOnly: true
           nullable: true
-          title: Χρήστης
         topic:
           type: integer
         topicDetails:
@@ -51688,7 +51913,6 @@ components:
           maxLength: 255
         username:
           nullable: true
-          title: Όνομα χρήστη
           description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
           oneOf:
             - type: string
@@ -51700,7 +51924,6 @@ components:
           type: string
           format: binary
           nullable: true
-          title: Εικόνα
         phone:
           type: string
         city:
@@ -51822,14 +52045,14 @@ components:
           type: integer
         name:
           type: string
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/VariantAxisValue'
         schemaProperty:
           oneOf:
             - $ref: '#/components/schemas/SchemaPropertyEnum'
             - $ref: '#/components/schemas/BlankEnum'
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariantAxisValue'
       required:
         - id
         - name
@@ -51865,7 +52088,6 @@ components:
         note:
           type: string
           readOnly: true
-          title: Σημείωση
         createdAt:
           type: string
           format: date-time
@@ -51928,7 +52150,6 @@ components:
         note:
           type: string
           readOnly: true
-          title: Σημείωση
         createdAt:
           type: string
           format: date-time

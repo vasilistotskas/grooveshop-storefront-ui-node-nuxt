@@ -1,3 +1,45 @@
+## [3.323.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.3...v3.323.4) (2026-11-05)
+
+
+### Bug Fixes
+
+* **loyalty:** show the points Django works out, not a copy of its rule ([#391](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/391)) ([9f94c12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9f94c12133cbfdfcd5842e0aca59b444121b51b0))
+
+## [3.323.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.2...v3.323.3) (2026-11-05)
+
+
+### Bug Fixes
+
+* **openapi:** read the builder's refusals and staff roles from the schema ([#389](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/389)) ([f9afcab](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f9afcabde9b38eb6dd5e8d4bf2353be4dbb2d799))
+
+## [3.323.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.1...v3.323.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* **builder:** keep a change no save took, whatever stopped the save ([#388](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/388)) ([c3a7b40](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c3a7b408bb0872bbc80a7a63eb74afdbf8484552))
+
+## [3.323.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.0...v3.323.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* correct the Google sign-in CSP and webside's blank email icon ([#386](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/386)) ([12f5458](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12f54589a3b82b2256a7f7433224d8d35ee4b6c6))
+
+# [3.323.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.2...v3.323.0) (2026-11-04)
+
+
+### Features
+
+* **categories:** the home tile uses the store's image alt text ([#387](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/387)) ([2900eda](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2900edab4a7803afb6a9d0e6f06b30f2bce85042))
+
+## [3.322.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.1...v3.322.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* **openapi:** stop declaring the image title ([#384](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/384)) ([85251d8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/85251d83c4b7337c90f53d879d58146a1ef0c6f4))
+
 ## [3.322.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.322.0...v3.322.1) (2026-11-04)
 
 

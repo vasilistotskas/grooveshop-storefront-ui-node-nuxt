@@ -273,28 +273,21 @@ export function buildCspDirectives(options: CspOptions): string[] {
       + ' https://googleads.g.doubleclick.net'
 
   // Google Identity Services (One Tap / "Sign in with Google").
-  // ``setupSocialLogin`` (app/composables/setups.ts) loads
-  // ``accounts.google.com/gsi/client`` as a SCRIPT, but the policy
-  // listed ``accounts.google.com`` under frame-src ONLY — so One Tap was
-  // CSP-blocked for every anonymous visitor the moment the flag was
-  // turned on, silently, with no sign-in button and no server-side
-  // trace. Found dormant: NUXT_PUBLIC_GOOGLE_GSI_ENABLE is "false" in
-  // production, so it had never fired.
+  // ``setupSocialLogin`` (app/composables/setups.ts) loads its script,
+  // which fetches a stylesheet and ``/gsi/status`` and, without FedCM,
+  // opens a frame under ``/gsi/``. A source missing here fails silently,
+  // with no sign-in prompt and no server-side trace, and only once
+  // NUXT_PUBLIC_GOOGLE_GSI_ENABLE is on.
   //
-  // Google's documented set (developers.google.com/identity/gsi/web) is
-  // script-src ``/gsi/client``, connect-src + frame-src ``/gsi/``, plus
-  // ``apis.google.com/js/`` and ``/o/fedcm/`` for the FedCM migration.
-  // Path-scoped on their explicit advice to allow the PARENT url rather
-  // than individual endpoints, so a GIS update cannot break sign-in.
-  // frame-src already carries the bare ``accounts.google.com`` origin
-  // unconditionally, which covers both ``/gsi/`` and ``/o/fedcm/``.
-  const gsiScriptSrc = googleGsiEnabled
-    ? ' https://accounts.google.com/gsi/client'
-    : ''
-  const gsiConnectSrc = googleGsiEnabled
-    ? ' https://accounts.google.com/gsi/ https://apis.google.com/js/'
-    : ''
-  const gsiFrameSrc = googleGsiEnabled ? ' https://apis.google.com/js/' : ''
+  // Exactly Google's set for this library
+  // (developers.google.com/identity/gsi/web/guides/get-google-api-clientid):
+  // the parent ``/gsi/`` for connect and frame, on their advice not to
+  // list endpoints one by one. ``apis.google.com/js/`` and ``/o/fedcm/``
+  // belong to the deprecated Google Sign-In library, never this one.
+  const gsiScriptSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/client' : ''
+  const gsiStyleSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/style' : ''
+  const gsiConnectSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
+  const gsiFrameSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
 
   // Stripe.js. ``StripePayment.vue`` calls ``confirmCardPayment``, which
   // performs 3-D Secure in an iframe served from ``hooks.stripe.com`` —
@@ -313,7 +306,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `default-src 'self'`,
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
     ...(nonceScriptSrcAttr ? [nonceScriptSrcAttr] : []),
-    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
+    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com${gsiStyleSrc}`,
     `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
     // MapLibre draws in a dedicated worker that Vite emits as a
@@ -339,7 +332,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // one layer but not the other fails silently — blank box plus a
     // console line, or stripped from the DOM before CSP is consulted.
     // Both halves were broken at once; see ``shared/utils/embeds.ts``.
-    `frame-src 'self'${dev ? ' data:' : ''}${stripeFrameSrc} https://challenges.cloudflare.com https://accounts.google.com${gsiFrameSrc} ${BOXNOW_FRAME_ORIGINS.join(' ')}${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
+    `frame-src 'self'${dev ? ' data:' : ''}${stripeFrameSrc} https://challenges.cloudflare.com${gsiFrameSrc} ${BOXNOW_FRAME_ORIGINS.join(' ')}${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'${metaFormAction}`,

@@ -38,24 +38,28 @@ describe('third-party integrations the checkout and login actually load', () => 
     expect(pick(directives, 'frame-src')).toContain('https://js.stripe.com')
   })
 
-  it('allows the Google Identity Services script when One Tap is enabled', () => {
-    // setupSocialLogin loads accounts.google.com/gsi/client as a SCRIPT,
-    // while the policy listed accounts.google.com under frame-src only.
+  const GOOGLE_AUTH_DIRECTIVES = ['script-src', 'style-src', 'connect-src', 'frame-src']
+  const googleAuthSources = (directives: string[], name: string) =>
+    pick(directives, name).filter(source => /(accounts|apis)\.google\.com/.test(source))
+
+  it.each([
+    ['script-src', 'https://accounts.google.com/gsi/client'],
+    ['style-src', 'https://accounts.google.com/gsi/style'],
+    ['connect-src', 'https://accounts.google.com/gsi/'],
+    ['frame-src', 'https://accounts.google.com/gsi/'],
+  ])('gives Google Identity Services exactly its %s source when One Tap is enabled', (name, source) => {
+    // Google's set for gsi/client and nothing wider: a missing source
+    // loses the prompt silently, an extra one widens the policy for nothing.
     const directives = buildCspDirectives({ dev: false, frameAncestors: 'none', googleGsiEnabled: true })
-    expect(pick(directives, 'script-src')).toContain('https://accounts.google.com/gsi/client')
-    expect(pick(directives, 'connect-src')).toContain('https://accounts.google.com/gsi/')
-    expect(pick(directives, 'connect-src')).toContain('https://apis.google.com/js/')
-    expect(pick(directives, 'frame-src')).toContain('https://apis.google.com/js/')
+    expect(googleAuthSources(directives, name)).toEqual([source])
   })
 
-  it('ships no Google auth origins when One Tap is disabled', () => {
+  it.each(GOOGLE_AUTH_DIRECTIVES)('ships no Google auth origin in %s when One Tap is disabled', (name) => {
     // Gated like the pixel ids: a store that does not offer Google
     // sign-in should not widen its policy for it. The script does not
     // load in that case either, so the origins would be dead weight.
     const directives = buildCspDirectives({ dev: false, frameAncestors: 'none', googleGsiEnabled: false })
-    const google = (name: string) => pick(directives, name).filter(source => /(accounts|apis)\.google\.com/.test(source))
-    expect(google('script-src')).toEqual([])
-    expect(google('connect-src')).toEqual([])
+    expect(googleAuthSources(directives, name)).toEqual([])
   })
 })
 

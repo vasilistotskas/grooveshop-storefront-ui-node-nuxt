@@ -84,6 +84,7 @@ export function categoryMenuEntry(category: ProductCategory, locale: string, chi
     label: extractTranslated(category, 'name', locale) ?? category.slug,
     to: categoryUrl(category.id, category.slug),
     imagePath: category.mainImagePath,
+    imageAlt: category.mainImageAlt,
     productCount: category.recursiveProductCount,
     children,
   }

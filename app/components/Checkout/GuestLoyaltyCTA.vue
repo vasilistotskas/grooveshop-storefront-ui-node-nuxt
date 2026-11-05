@@ -1,24 +1,16 @@
 <script lang="ts" setup>
 /**
  * A guest's invitation to the store's points on the payment page: what
- * this order would earn (the items' total by the earning factor) and a
- * link to sign up. Self-gated on the store's program.
+ * this order would earn (`getPotentialPoints`) and a link to sign up.
+ * Self-gated on the store's program.
  */
 const { t, n } = useStoreI18n('components/Checkout/GuestLoyaltyCTA')
 const localePath = useLocalePath()
 
 const cartStore = useCartStore()
-const { cart } = storeToRefs(cartStore)
-
-const settings = useLoyaltySettings()
+const { getPotentialPoints: estimatedPoints } = storeToRefs(cartStore)
 
 const enabled = useStoreFeature('loyalty')
-
-// Estimate points the guest could earn: floor(cartTotal * pointsFactor)
-const estimatedPoints = computed(() => {
-  if (!cart.value || !settings.value) return 0
-  return Math.floor(cart.value.totalPrice * settings.value.pointsFactor)
-})
 
 const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
 </script>

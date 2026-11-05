@@ -22,7 +22,7 @@ const localePath = useLocalePath()
     <div class="aspect-square overflow-hidden rounded-[0.875rem] bg-elevated">
       <ImgWithFallback
         :src="category.imagePath"
-        :alt="category.label"
+        :alt="category.imageAlt"
         :width="380"
         :height="380"
         fit="cover"
