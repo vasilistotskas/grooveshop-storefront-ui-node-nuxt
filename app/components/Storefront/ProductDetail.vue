@@ -358,9 +358,8 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-[0.8125rem] text-muted">{{ t('vat_included') }}</span>
               <LoyaltyPointsBadge
-                v-if="displayFinalPrice"
                 :product-id="product.id"
-                :product-price="displayFinalPrice"
+                :potential-points="product.potentialPoints"
               />
             </div>
           </div>

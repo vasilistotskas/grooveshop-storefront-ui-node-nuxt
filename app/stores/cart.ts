@@ -37,6 +37,14 @@ export const useCartStore = defineStore('cart', () => {
   const loaded = ref(false)
 
   const getCartItems = computed(() => cart.value?.items ?? [])
+  /**
+   * What these lines earn at the base rate. Each product's points are
+   * rounded down per unit, so this can fall a little short of the award,
+   * which rounds per line, and never promises more than it.
+   */
+  const getPotentialPoints = computed(() =>
+    getCartItems.value.reduce((total, item) => total + item.product.potentialPoints * (item.quantity ?? 0), 0),
+  )
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
   const getCartItemIds = computed(() => cart.value?.items?.map(item => item.id) ?? [])
   const getCartProductIds = computed(() => cart.value?.items?.map(item => item.product.id) ?? [])
@@ -498,6 +506,7 @@ export const useCartStore = defineStore('cart', () => {
     initialLoading,
     error,
     getCartItems,
+    getPotentialPoints,
     getCartTotalItems,
     getCartItemIds,
     getCartProductIds,

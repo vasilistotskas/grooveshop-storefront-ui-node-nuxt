@@ -3,17 +3,9 @@ const { t } = useStoreI18n('components/variants/webside/Checkout/GuestLoyaltyCTA
 const localePath = useLocalePath()
 
 const cartStore = useCartStore()
-const { cart } = storeToRefs(cartStore)
-
-const settings = useLoyaltySettings()
+const { getPotentialPoints: estimatedPoints } = storeToRefs(cartStore)
 
 const enabled = useStoreFeature('loyalty')
-
-// Estimate points the guest could earn: floor(cartTotal * pointsFactor)
-const estimatedPoints = computed(() => {
-  if (!cart.value || !settings.value) return 0
-  return Math.floor(cart.value.totalPrice * settings.value.pointsFactor)
-})
 
 const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
 </script>
