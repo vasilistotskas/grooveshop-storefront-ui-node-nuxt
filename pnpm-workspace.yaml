@@ -122,6 +122,14 @@ overrides:
   # @eslint/config-inspector) pins 0.4.10 and drags the shared copy
   # below it. Capped <0.5 so a future minor is a deliberate bump.
   'crossws@>=0.4.0 <0.4.12': '>=0.4.12 <0.5'
+# @nuxt/devtools 4 depends on @vitejs/devtools ^0.8.0 and on
+# vite-plugin-vue-devtools 9, whose peer range still says ^0.7.6. Nuxt's
+# release is the one that runs the pair, so its range is the true one.
+# Scoped to this one parent; drop it when the plugin's range moves.
+peerDependencyRules:
+  allowedVersions:
+    'vite-plugin-vue-devtools>@vitejs/devtools': ^0.8.0
+
 allowBuilds:
   '@intlify/vue-i18n-bridge': true
   '@intlify/vue-router-bridge': true

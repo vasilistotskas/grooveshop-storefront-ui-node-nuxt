@@ -451,6 +451,14 @@ export default defineNuxtConfig({
     ],
   },
   vite: {
+    // shared/ is external to the server build, by its absolute path. By
+    // default rolldown writes such a file relative when the first import it
+    // reaches is relative, and that path points outside the project, so
+    // Nitro failed the build whenever the load order fell that way
+    // (app/providers/media-stream.ts imports it relatively; storefront #377).
+    $server: {
+      build: { rolldownOptions: { makeAbsoluteExternalsRelative: false } },
+    },
     plugins: [
       // Browser bundles only: route every `import ... from 'zod'` through
       // the jitless wrapper so its `z.config({ jitless: true })` becomes a
