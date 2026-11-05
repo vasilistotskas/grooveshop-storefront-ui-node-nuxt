@@ -23,7 +23,7 @@ type OAuthProcess = 'login' | 'connect'
  * mangled query — is a sign-in.
  */
 function oauthProcessOf(value: unknown): OAuthProcess {
-  return ZodProviderTokenBody.shape.process.safeParse(value).data ?? 'login'
+  return zPostAllauthAppV1AuthProviderTokenBody.shape.process.safeParse(value).data ?? 'login'
 }
 
 export function captureOAuthProcess(event: H3Event, query: Record<string, string | string[]>) {

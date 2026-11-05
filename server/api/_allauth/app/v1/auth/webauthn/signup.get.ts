@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodWebAuthnSignupGetResponse)
+    return await parseDataAs(response, zGetAllauthAppV1AuthWebauthnSignupResponse)
   }
   catch (error) {
     // Align with signup.post/.put: the signup flow's 4xx payloads

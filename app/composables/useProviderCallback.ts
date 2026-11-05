@@ -60,7 +60,7 @@ export function useProviderCallback(options: {
 
     try {
       const oauthParams = await $api('/api/auth/oauth-params')
-      const token: ProviderToken = { client_id: String(oauthParams.client_id) }
+      const token: AllAuthRequestProviderToken['token'] = { client_id: String(oauthParams.client_id) }
       if (oauthParams.id_token) {
         Object.assign(token, { id_token: String(oauthParams.id_token) })
       }

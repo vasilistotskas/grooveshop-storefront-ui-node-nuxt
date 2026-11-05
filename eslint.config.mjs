@@ -148,7 +148,7 @@ export default withNuxt(
     // patterns like ``(?:id|\-id)`` where the ``\-`` outside a character
     // class is technically unnecessary but harmless. ``no-useless-escape``
     // isn't auto-fixable, so relax it only for the generated folder.
-    files: ['shared/openapi/**/*.ts'],
+    files: ['shared/openapi/**/*.ts', 'shared/openapi-allauth/**/*.ts'],
     rules: {
       'no-useless-escape': 'off',
       '@typescript-eslint/no-invalid-void-type': 'off',

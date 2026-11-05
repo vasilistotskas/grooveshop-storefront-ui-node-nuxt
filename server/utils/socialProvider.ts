@@ -19,7 +19,7 @@ export async function requireSocialProvider(event: H3Event, provider: string): P
   const fetchForStore = backendFetchFor({ tenantHost: requestTenantHost(event), locale: requestLocale(event) })
   const { data } = await parseDataAs(
     fetchForStore(`${djangoUrl}/_allauth/app/v1/config`, { method: 'GET' }),
-    ZodConfigResponse,
+    zGetAllauthAppV1ConfigResponse,
   )
   if (usableSocialProviders(data).some(entry => entry.id === provider)) return
   throw createError({ statusCode: 404, statusMessage: 'Not Found' })

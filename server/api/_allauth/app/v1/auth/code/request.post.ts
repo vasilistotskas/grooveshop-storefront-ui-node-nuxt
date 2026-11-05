@@ -4,15 +4,15 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodCodeRequestBody)
+    const validatedBody = await readValidatedBody(event, zPostAllauthAppV1AuthCodeRequestBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/code/request`, {
       body: validatedBody,
       method: 'POST',
       headers,
     })
-    const requestResponse = await parseDataAs(response, ZodCodeRequestResponse)
-    await processAllAuthSession(event, requestResponse)
-    return requestResponse
+    // The document gives this operation no 2xx: allauth answers 400 or the
+    // 401 below.
+    return response
   }
   catch (error) {
     // allauth signals "code emailed, now confirm it" as a 401 with a pending

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodConfigResponse)
+    return await parseDataAs(response, zGetAllauthAppV1ConfigResponse)
   }
   catch (error) {
     // Config is public data. If the session token is expired (410), clear
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         method: 'GET',
         headers,
       })
-      return await parseDataAs(response, ZodConfigResponse)
+      return await parseDataAs(response, zGetAllauthAppV1ConfigResponse)
     }
     await handleAllAuthError(event, error)
   }

@@ -15,7 +15,7 @@ Creates a new server route file under `server/api/...` (or `server/api/_allauth/
 3. **Variant**: `cached-list` | `mutating` | `cart` | `allauth-auth` | `allauth-account` | `dynamic-param`
 4. **Django endpoint**: e.g. `/blog/post`, `/order/{id}`, `/_allauth/app/v1/auth/login`
 5. **Zod schemas**:
-   - **Input**: schema name(s) for query/body/params (look first in `shared/openapi/zod.gen.ts` for OpenAPI-generated `z*` names; allauth-only schemas live in `shared/schemas/body/all-auth/...` as `Zod*` PascalCase)
+   - **Input**: schema name(s) for query/body/params (look first in `shared/openapi/zod.gen.ts` for OpenAPI-generated `z*` names; allauth's, for a `server/api/_allauth/` route, in `shared/openapi-allauth/zod.gen.ts` as `z<Method>AllauthAppV1<Path>Body|Response`)
    - **Response**: schema name (same locations)
 6. **Cache name** (only for `cached-list`): used as `name` and key prefix; mirror the Django ViewSet (e.g. `BlogPostViewSet`)
 

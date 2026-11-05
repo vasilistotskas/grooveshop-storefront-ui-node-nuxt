@@ -6,7 +6,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoginForm from '~/components/Account/Login/Form.vue'
 import WebsideLoginForm from '~/components/variants/webside/Account/Login/Form.vue'
 import { trees } from '~~/test/helpers/trees'
-import type { Provider } from '~~/shared/types/model/all-auth'
+import type { AllAuthProvider } from '~~/shared/openapi-allauth/types.gen'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse, makeSessionResponse, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 /**
@@ -56,7 +56,7 @@ describe.each(trees(LoginForm, WebsideLoginForm))('$tree Account/Login/Form', ({
   // allauth lists a provider the store has no credentials for; it cannot sign
   // anyone in (`useSocialProviders`), so neither tree draws a block for it.
   describe('the social providers', () => {
-    const mountWithProviders = (providers: Provider[]) => {
+    const mountWithProviders = (providers: AllAuthProvider[]) => {
       const auth = useAuthStore()
       auth.config = makeAllAuthConfig({ socialaccount: { providers } }).data
       auth.status.config = 'success'

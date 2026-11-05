@@ -4,13 +4,13 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodWebAuthnSignupPutBody)
+    const validatedBody = await readValidatedBody(event, zPutAllauthAppV1AuthWebauthnSignupBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/webauthn/signup`, {
       body: validatedBody,
       method: 'PUT',
       headers,
     })
-    const providerResponse = await parseDataAs(response, ZodWebAuthnSignupPutResponse)
+    const providerResponse = await parseDataAs(response, zPutAllauthAppV1AuthWebauthnSignupResponse)
     await processAllAuthSession(event, providerResponse)
     return providerResponse
   }

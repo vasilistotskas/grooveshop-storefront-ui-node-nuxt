@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import YAML from 'yaml'
 import Security from '~/components/Storefront/Account/Security.vue'
 import WebsideSecurity from '~/components/variants/webside/Storefront/Account/Security.vue'
-import type { Authenticator } from '~~/shared/types/model/all-auth/account/authenticators/authenticators'
+import type { AllAuthAuthenticator } from '~~/shared/types/allAuth'
 import { makeAllAuthConfig, makeAuthenticator, makeSessionResponse } from '~~/test/fixtures/allauth'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 import { trees } from '~~/test/helpers/trees'
@@ -20,7 +20,7 @@ import { trees } from '~~/test/helpers/trees'
  * one body runs over the default page and webside's.
  */
 const { getAuthenticators } = vi.hoisted(() => ({
-  getAuthenticators: vi.fn((): Promise<{ status: 200, data: Authenticator[] } | undefined> => Promise.resolve(undefined)),
+  getAuthenticators: vi.fn((): Promise<{ status: 200, data: AllAuthAuthenticator[] } | undefined> => Promise.resolve(undefined)),
 }))
 mockNuxtImport('useAllAuthAccount', () => () => ({ getAuthenticators }))
 mockNuxtImport('useUserSession', () => () => ({
@@ -53,7 +53,7 @@ const messagesOf = (tree: keyof typeof PAGE_FILES) => YAML.parse(
   parseSfc(resolve(REPO, PAGE_FILES[tree])).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
-function given({ factors = [] as Authenticator[], supported = ['totp', 'recovery_codes', 'webauthn'] as Array<'totp' | 'webauthn' | 'recovery_codes'>, password = true } = {}) {
+function given({ factors = [] as AllAuthAuthenticator[], supported = ['totp', 'recovery_codes', 'webauthn'] as Array<'totp' | 'webauthn' | 'recovery_codes'>, password = true } = {}) {
   const store = useAuthStore()
   store.config = makeAllAuthConfig({ mfa: { supported_types: supported, passkey_login_enabled: true } }).data
   store.session = makeSessionResponse({ user: { has_usable_password: password } }).data

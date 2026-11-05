@@ -6,7 +6,7 @@ import { resolve } from 'node:path'
 import YAML from 'yaml'
 import EmailManage from '~/components/Account/EmailManage.vue'
 import WebsideEmailManage from '~/components/variants/webside/Account/EmailManage.vue'
-import type { EmailAddress } from '~~/shared/types/model/all-auth'
+import type { AllAuthEmailAddress } from '~~/shared/openapi-allauth/types.gen'
 import { asProxiedError, makeBadResponse, makeEmailAddress } from '~~/test/fixtures/allauth'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 import { trees } from '~~/test/helpers/trees'
@@ -21,7 +21,7 @@ import { trees } from '~~/test/helpers/trees'
  * a row menu and its own add form.
  */
 const { getEmailAddresses, addEmailAddress, requestEmailVerification, removeEmailAddress, changePrimaryEmailAddress, toastAdd } = vi.hoisted(() => ({
-  getEmailAddresses: vi.fn((): Promise<{ status: number, data: EmailAddress[] }> => Promise.resolve({ status: 200, data: [] })),
+  getEmailAddresses: vi.fn((): Promise<{ status: number, data: AllAuthEmailAddress[] }> => Promise.resolve({ status: 200, data: [] })),
   addEmailAddress: vi.fn((_body: { email: string }) => Promise.resolve({ status: 200 })),
   requestEmailVerification: vi.fn((_body: { email: string }) => Promise.resolve({ status: 200 })),
   removeEmailAddress: vi.fn((_body: { email: string }) => Promise.resolve({ status: 200 })),

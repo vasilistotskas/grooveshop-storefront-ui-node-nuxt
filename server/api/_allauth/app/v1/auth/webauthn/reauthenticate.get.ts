@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodWebAuthnReauthenticateGetResponse)
+    return await parseDataAs(response, zGetAllauthAppV1AuthWebauthnReauthenticateResponse)
   }
   catch (error) {
     await handleAllAuthError(event, error)

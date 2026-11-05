@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       method: 'DELETE',
       headers,
     })
-    return await parseDataAs(response, ZodTotpDeleteResponse)
+    return await parseDataAs(response, zDeleteAllauthAppV1AccountAuthenticatorsTotpResponse)
   }
   catch (error) {
     // Account-management 4xx payloads (wrong password, duplicate email,

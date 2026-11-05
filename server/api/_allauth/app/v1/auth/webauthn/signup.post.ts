@@ -4,15 +4,15 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodWebAuthnSignupPostBody)
+    const validatedBody = await readValidatedBody(event, zPostAllauthAppV1AuthWebauthnSignupBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/webauthn/signup`, {
       body: validatedBody,
       method: 'POST',
       headers,
     })
-    const providerResponse = await parseDataAs(response, ZodWebAuthnSignupPostResponse)
-    await processAllAuthSession(event, providerResponse)
-    return providerResponse
+    // The document gives this operation no 2xx: allauth answers the 401 of
+    // the pending signup flow.
+    return response
   }
   catch (error) {
     return await forwardAllAuthFlow(event, error)

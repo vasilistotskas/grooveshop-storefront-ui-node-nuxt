@@ -6,13 +6,13 @@ export default defineEventHandler(async (event) => {
   wideLog?.set({ auth: { method: 'login' } })
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodLoginBody)
+    const validatedBody = await readValidatedBody(event, zPostAllauthAppV1AuthLoginBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/login`, {
       body: validatedBody,
       method: 'POST',
       headers,
     })
-    const loginResponse = await parseDataAs(response, ZodLoginResponse)
+    const loginResponse = await parseDataAs(response, zPostAllauthAppV1AuthLoginResponse)
     await processAllAuthSession(event, loginResponse)
     return loginResponse
   }

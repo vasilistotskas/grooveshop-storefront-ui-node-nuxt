@@ -16,7 +16,7 @@ describe('useAuthInfo', () => {
   it('follows the auth state as the auth plugin updates it', () => {
     previous = authState().value
     const info = useAuthInfo()
-    const user = { id: 7, email: 'shopper@example.com' }
+    const user = { id: 7, display: 'shopper', email: 'shopper@example.com', has_usable_password: true }
 
     authState().value = {
       status: 200,

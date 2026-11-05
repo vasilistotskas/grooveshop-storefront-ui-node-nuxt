@@ -199,12 +199,13 @@ export default defineNuxtPlugin({
     }
 
     function getReauthenticationFlowPath(auth: AllAuthResponse | AllAuthResponseError) {
-      if ('data' in auth && auth.data?.flows) {
-        const pendingFlow = auth.data.flows.find(flow => flow.is_pending)
+      const flows = flowsOf(auth)
+      if (flows.length) {
+        const pendingFlow = flows.find(flow => flow.is_pending)
         if (pendingFlow) {
           return pathForFlow(pendingFlow)
         }
-        const reauthenticateFlowExists = auth.data.flows.some(flow => flow.id === 'reauthenticate')
+        const reauthenticateFlowExists = flows.some(flow => flow.id === 'reauthenticate')
         if (reauthenticateFlowExists) {
           return Flow2path['reauthenticate']
         }

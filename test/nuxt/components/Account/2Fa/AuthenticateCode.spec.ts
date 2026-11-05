@@ -6,7 +6,7 @@ import AuthenticateCode from '~/components/Account/2Fa/AuthenticateCode.vue'
 import WebsideAuthenticateCode from '~/components/variants/webside/Account/2Fa/AuthenticateCode.vue'
 import { trees } from '~~/test/helpers/trees'
 import { asProxiedError, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
-import type { Flow } from '~~/shared/types/model/all-auth'
+import type { AllAuthFlow } from '~~/shared/openapi-allauth/types.gen'
 
 /**
  * The second-factor code step of sign-in (TOTP or a recovery code). It
@@ -23,7 +23,7 @@ mockNuxtImport('useAllAuthAuthentication', () => () => ({ twoFaAuthenticate }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-const pendingMfa = (types: Flow['types']) => makePendingFlowResponse('mfa_authenticate', { types })
+const pendingMfa = (types: AllAuthFlow['types']) => makePendingFlowResponse('mfa_authenticate', { types })
 const SIGNED_IN = makeSessionResponse()
 const WRONG_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }))
 

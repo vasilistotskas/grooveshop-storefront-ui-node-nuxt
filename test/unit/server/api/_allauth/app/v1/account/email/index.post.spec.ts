@@ -53,10 +53,14 @@ describe('POST /api/_allauth/app/v1/account/email, mid-verification', () => {
     expect(response.body).toEqual({ statusCode: 409, statusMessage: 'Conflict', data: { status: 409 } })
   })
 
-  it('rejects a body that is not an email before calling allauth', async () => {
+  it('leaves judging an address to allauth, whose 400 is returned for the form', async () => {
+    const refused = { status: 400, errors: [{ code: 'invalid', param: 'email', message: 'Enter a valid email address.' }] }
+    backend.reply(jsonResponse(refused, 400))
+
     const response = await change('nope')
 
     expect(response.status).toBe(400)
-    expect(backend.requests).toEqual([])
+    expect(backend.lastRequest.body).toEqual({ email: 'nope' })
+    expect(response.body).toEqual({ statusCode: 400, statusMessage: 'Bad Request', data: refused })
   })
 })

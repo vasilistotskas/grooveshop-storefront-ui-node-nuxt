@@ -3,14 +3,14 @@ import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/se
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const validatedBody = await readValidatedBody(event, ZodProviderTokenBody)
+    const validatedBody = await readValidatedBody(event, zPostAllauthAppV1AuthProviderTokenBody)
     const headers = await getAllAuthHeaders(event)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/provider/token`, {
       body: validatedBody,
       method: 'POST',
       headers,
     })
-    const tokenResponse = await parseDataAs(response, ZodProviderTokenResponse)
+    const tokenResponse = await parseDataAs(response, zPostAllauthAppV1AuthProviderTokenResponse)
     await processAllAuthSession(event, tokenResponse)
     return tokenResponse
   }

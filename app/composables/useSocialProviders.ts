@@ -16,11 +16,11 @@ export function useSocialProviders() {
   const authStore = useAuthStore()
   const { config } = storeToRefs(authStore)
 
-  const providers = computed<Provider[]>(() => usableSocialProviders(config.value))
+  const providers = computed<AllAuthProvider[]>(() => usableSocialProviders(config.value))
 
   const { providerRedirect, browserProviderRedirect } = useAllAuthAuthentication()
 
-  async function signIn(provider: Provider) {
+  async function signIn(provider: AllAuthProvider) {
     if (!provider.flows.includes('provider_token') && provider.flows.includes('provider_redirect')) {
       return await browserProviderRedirect({
         provider: String(provider.id),

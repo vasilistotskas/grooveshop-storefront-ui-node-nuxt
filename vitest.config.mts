@@ -170,6 +170,7 @@ export default defineConfig({
       exclude: [
         // Generated from Django's OpenAPI schema; not ours to test.
         'shared/openapi/**',
+        'shared/openapi-allauth/**',
         // Type-only modules carry no runtime code.
         'shared/types/**',
         // The webside design: its own templates, whose logic is the

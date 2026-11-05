@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/_allauth/app/v1/config.get'
 import { backend, callRoute, jsonResponse, testSession } from '~~/test/helpers/nitro'
+import { makeAllAuthConfig } from '~~/test/fixtures/allauth'
 
 /**
  * GET /api/_allauth/app/v1/config: allauth's public configuration, which
@@ -12,15 +13,7 @@ import { backend, callRoute, jsonResponse, testSession } from '~~/test/helpers/n
 const route = '/api/_allauth/app/v1/config'
 const CONFIG_URL = 'http://backend.test/_allauth/app/v1/config'
 
-const configResponse = {
-  status: 200,
-  data: {
-    account: { authentication_method: 'email', is_open_for_signup: true },
-    socialaccount: { providers: [] },
-    mfa: { supported_types: ['totp', 'webauthn'] },
-    usersessions: { track_activity: false },
-  },
-}
+const configResponse = makeAllAuthConfig()
 
 const expired = jsonResponse({ status: 410, data: { flows: [] }, meta: { is_authenticated: false } }, 410)
 

@@ -53,11 +53,8 @@ export function useAddWebAuthnKey(options: {
     loading.value = true
     try {
       const created = await getWebAuthnCreateOptions(values.passwordless)
-      const json = created?.data.creation_options.publicKey
-      if (!json) throw new Error('allauth sent no creation options')
-      const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(json)
-      const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
-      const response = await addWebAuthnCredential({ name: values.name.trim(), credential: credential.toJSON() })
+      const credential = await createWebAuthnCredential(created?.data.creation_options.publicKey)
+      const response = await addWebAuthnCredential({ name: values.name.trim(), credential })
       toast.add(options.added())
       await navigateTo(response?.meta.recovery_codes_generated
         ? localePath('account-2fa-recovery-codes')

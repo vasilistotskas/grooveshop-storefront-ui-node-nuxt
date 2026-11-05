@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    const resendResponse = await parseDataAs(response, ZodCodeResendResponse)
+    const resendResponse = await parseDataAs(response, zPostAllauthAppV1AuthEmailVerifyResendResponse)
     await processAllAuthSession(event, resendResponse)
     return resendResponse
   }

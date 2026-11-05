@@ -5,7 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import ProvidersManage from '~/components/Account/ProvidersManage.vue'
 import WebsideProvidersManage from '~/components/variants/webside/Account/ProvidersManage.vue'
 import { trees } from '~~/test/helpers/trees'
-import type { Provider, ProviderAccount } from '~~/shared/types/model/all-auth'
+import type { AllAuthProvider, AllAuthProviderAccount } from '~~/shared/openapi-allauth/types.gen'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makeProviderAccount, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 /**
@@ -20,8 +20,8 @@ import { asProxiedError, makeAllAuthConfig, makeBadResponse, makeProviderAccount
  * store's `/config`.
  */
 const { connectedThirdPartyProviderAccounts, disconnectThirdPartyProviderAccount, providerRedirect, toastAdd } = vi.hoisted(() => ({
-  connectedThirdPartyProviderAccounts: vi.fn((): Promise<{ status: 200, data: ProviderAccount[] }> => Promise.resolve({ status: 200, data: [] })),
-  disconnectThirdPartyProviderAccount: vi.fn((_body: { provider: string, account: string }): Promise<{ status: 200, data: ProviderAccount[] }> => Promise.resolve({ status: 200, data: [] })),
+  connectedThirdPartyProviderAccounts: vi.fn((): Promise<{ status: 200, data: AllAuthProviderAccount[] }> => Promise.resolve({ status: 200, data: [] })),
+  disconnectThirdPartyProviderAccount: vi.fn((_body: { provider: string, account: string }): Promise<{ status: 200, data: AllAuthProviderAccount[] }> => Promise.resolve({ status: 200, data: [] })),
   providerRedirect: vi.fn((_provider: unknown, _process: unknown) => {}),
   toastAdd: vi.fn(),
 }))
@@ -36,11 +36,11 @@ const GITHUB = makeSocialProvider({ id: 'github', name: 'GitHub', client_id: 'gi
 const GOOGLE_ACCOUNT = makeProviderAccount()
 const DISCORD_ACCOUNT = makeProviderAccount({ uid: '42', display: 'demo#4242', provider: { id: 'discord', name: 'Discord', flows: ['provider_redirect'] } })
 
-function offer(...providers: Provider[]) {
+function offer(...providers: AllAuthProvider[]) {
   useAuthStore().config = makeAllAuthConfig({ socialaccount: { providers } }).data
 }
 
-function link(...accounts: ProviderAccount[]) {
+function link(...accounts: AllAuthProviderAccount[]) {
   connectedThirdPartyProviderAccounts.mockResolvedValue({ status: 200, data: accounts })
 }
 

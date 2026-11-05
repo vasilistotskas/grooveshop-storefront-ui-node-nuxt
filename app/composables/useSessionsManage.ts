@@ -17,7 +17,7 @@ export function useSessionsManage(options: { signedOut: (count: number) => Toast
 
   const busy = ref<number | 'others' | null>(null)
 
-  async function signOut(targets: Session[], key: number | 'others'): Promise<boolean> {
+  async function signOut(targets: AllAuthSession[], key: number | 'others'): Promise<boolean> {
     busy.value = key
     try {
       const remaining = await deleteSession({ sessions: targets.map(session => session.id) })

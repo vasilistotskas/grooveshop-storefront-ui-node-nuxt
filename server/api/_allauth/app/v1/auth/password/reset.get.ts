@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodPasswordResetGetResponse)
+    return await parseDataAs(response, zGetAllauthAppV1AuthPasswordResetResponse)
   }
   catch (error) {
     await handleAllAuthError(event, error)

@@ -285,7 +285,7 @@ export async function handleAllAuthError(
 // One reason phrase per status an allauth error can carry, keyed by that
 // union: a status added to `AllAuthError` fails the build here until it
 // has one, instead of going out as a generic "Error".
-const HTTP_STATUS_TEXT: Record<AllAuthError['data']['status'], string> = {
+const HTTP_STATUS_TEXT: Record<NonNullable<AllAuthError['data']['status']>, string> = {
   400: 'Bad Request',
   401: 'Unauthorized',
   403: 'Forbidden',

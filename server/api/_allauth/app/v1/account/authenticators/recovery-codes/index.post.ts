@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, ZodRecoveryCodesGetResponse)
+    return await parseDataAs(response, zGetAllauthAppV1AccountAuthenticatorsRecoveryCodesResponse)
   }
   catch (error) {
     // Account-management 4xx payloads (wrong password, duplicate email,

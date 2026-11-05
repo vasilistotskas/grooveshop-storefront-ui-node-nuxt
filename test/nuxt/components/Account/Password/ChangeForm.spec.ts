@@ -4,7 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import ChangeForm from '~/components/Account/Password/ChangeForm.vue'
 import WebsideChangeForm from '~/components/variants/webside/Account/Password/ChangeForm.vue'
-import type { SessionResponse } from '~~/shared/types/response/all-auth/auth/session'
+import type { AllAuthAuthenticatedResponse } from '~~/shared/openapi-allauth/types.gen'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -24,7 +24,7 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
 function signIn(hasUsablePassword: boolean) {
-  const session: SessionResponse['data'] = {
+  const session: AllAuthAuthenticatedResponse['data'] = {
     user: { id: 7, display: 'Shopper', email: 'shopper@example.com', has_usable_password: hasUsablePassword },
     methods: [],
   }

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
         passwordless: query.passwordless,
       },
     })
-    return await parseDataAs(response, ZodWebAuthnGetResponse)
+    return await parseDataAs(response, zGetAllauthAppV1AccountAuthenticatorsWebauthnResponse)
   }
   catch (error) {
     await handleAllAuthError(event, error)

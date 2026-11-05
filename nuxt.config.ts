@@ -1073,7 +1073,7 @@ export default defineNuxtConfig({
       includeCustomCollections: true,
       scan: {
         globInclude: ['app/**/*.{vue,ts}', 'shared/**/*.{vue,ts}'],
-        globExclude: ['shared/openapi/**'],
+        globExclude: ['shared/openapi/**', 'shared/openapi-allauth/**'],
       },
       // Only names a source scan provably cannot see. Everything an
       // `.vue` or `.ts` file spells out is picked up by `scan` above —

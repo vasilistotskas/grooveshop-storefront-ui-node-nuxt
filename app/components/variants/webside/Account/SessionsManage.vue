@@ -13,7 +13,7 @@ const { sessions, otherSessions, busy, signOut } = useSessionsManage({
 
 const loading = computed(() => busy.value !== null)
 
-const logout = async (fromSessions: Session[], key: number | 'others') => {
+const logout = async (fromSessions: AllAuthSession[], key: number | 'others') => {
   if (await signOut(fromSessions, key)) {
     emit('deleteSession')
   }
@@ -30,7 +30,7 @@ const deviceIcon = (userAgent: string) => DEVICE_ICON[deviceClassFromUserAgent(u
 const browserName = (userAgent: string) => browserOf(userAgent) ?? t('unknown')
 const systemName = (userAgent: string) => operatingSystemOf(userAgent) ?? t('unknown')
 
-const columns: TableColumn<Session>[] = [
+const columns: TableColumn<AllAuthSession>[] = [
   {
     accessorKey: 'is_current',
     header: '',
@@ -64,7 +64,7 @@ const data = computed(() => {
   })) || []
 })
 
-const getActionItems = (session: Session): DropdownMenuItem[][] => {
+const getActionItems = (session: AllAuthSession): DropdownMenuItem[][] => {
   return [[
     {
       label: t('logout'),

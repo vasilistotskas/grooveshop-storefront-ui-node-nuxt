@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       headers,
     })
 
-    return await parseDataAs(response, ZodEmailVerifyGetResponse)
+    return await parseDataAs(response, zGetAllauthAppV1AuthEmailVerifyResponse)
   }
   catch (error) {
     await handleAllAuthError(event, error)

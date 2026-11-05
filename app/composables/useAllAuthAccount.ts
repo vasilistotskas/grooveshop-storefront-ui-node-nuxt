@@ -20,7 +20,7 @@ export default function () {
     })
   }
 
-  async function addEmailAddress(body: EmailPostBody) {
+  async function addEmailAddress(body: AllAuthRequestEmail) {
     return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -34,7 +34,7 @@ export default function () {
     })
   }
 
-  async function requestEmailVerification(body: EmailPutBody) {
+  async function requestEmailVerification(body: AllAuthRequestEmail) {
     return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PUT',
       headers: useRequestHeaders(),
@@ -48,7 +48,7 @@ export default function () {
     })
   }
 
-  async function changePrimaryEmailAddress(body: EmailPatchBody) {
+  async function changePrimaryEmailAddress(body: AllAuthRequestMarkPrimaryEmail) {
     return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PATCH',
       headers: useRequestHeaders(),
@@ -62,7 +62,7 @@ export default function () {
     })
   }
 
-  async function removeEmailAddress(body: EmailDeleteBody) {
+  async function removeEmailAddress(body: AllAuthRequestEmail) {
     return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
@@ -76,7 +76,7 @@ export default function () {
     })
   }
 
-  async function changePassword(body: PasswordChangeBody) {
+  async function changePassword(body: AllAuthRequestChangePassword) {
     return $api(`${API_ACCOUNT_BASE_URL}/password/change`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -103,7 +103,7 @@ export default function () {
     })
   }
 
-  async function disconnectThirdPartyProviderAccount(body: ProvidersDeleteBody) {
+  async function disconnectThirdPartyProviderAccount(body: AllAuthRequestProviderAccount) {
     return $api(`${API_ACCOUNT_BASE_URL}/providers`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
@@ -143,7 +143,7 @@ export default function () {
     })
   }
 
-  async function activateTotp(body: TotpPostBody) {
+  async function activateTotp(body: AllAuthRequestSetupTotp) {
     return $api(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -212,7 +212,7 @@ export default function () {
     })
   }
 
-  async function addWebAuthnCredential(body: WebAuthnPostBody) {
+  async function addWebAuthnCredential(body: AllAuthRequestAddWebAuthnAuthenticator) {
     return $api(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'POST',
       headers: useRequestHeaders(),
@@ -226,7 +226,7 @@ export default function () {
     })
   }
 
-  async function deleteWebAuthnCredential(body: WebAuthnDeleteBody) {
+  async function deleteWebAuthnCredential(body: AllAuthRequestDeleteWebAuthn) {
     return $api(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
@@ -240,7 +240,7 @@ export default function () {
     })
   }
 
-  async function updateWebAuthnCredential(body: WebAuthnPutBody) {
+  async function updateWebAuthnCredential(body: AllAuthRequestUpdateWebAuthn) {
     return $api(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'PUT',
       headers: useRequestHeaders(),

@@ -17,10 +17,10 @@ const statusFactory = (): StatusRecord => ({
 })
 
 export const useAuthStore = defineStore('auth', () => {
-  const config = ref<ConfigResponse['data']>()
-  const session = ref<SessionResponse['data']>()
-  const sessions = ref<SessionsGetResponse['data']>([])
-  const authenticators = ref<AuthenticatorsResponse['data']>()
+  const config = ref<GetAllauthAppV1ConfigResponse['data']>()
+  const session = ref<AllAuthAuthenticatedResponse['data']>()
+  const sessions = ref<GetAllauthAppV1AuthSessionsResponse['data']>([])
+  const authenticators = ref<GetAllauthAppV1AccountAuthenticatorsResponse['data']>()
   const status = ref<StatusRecord>(statusFactory())
   const error = ref<ErrorRecord>(errorsFactory())
 
@@ -47,7 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
   const setupConfig = async () => {
     try {
       status.value.config = 'pending'
-      const data = await $api<ConfigResponse>(
+      const data = await $api<GetAllauthAppV1ConfigResponse>(
         ALLAUTH_CONFIG_URL,
         {
           method: 'GET',

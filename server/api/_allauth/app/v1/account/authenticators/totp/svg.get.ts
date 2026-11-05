@@ -8,12 +8,12 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodTotpGetResponseError)
+    return await parseDataAs(response, ZodTotpSvgSetup)
   }
   catch (error) {
     if (isAllAuthError(error)) {
       if (error.data.status === 404 && 'meta' in error.data) {
-        return await parseDataAs(error.data, ZodTotpGetResponseError)
+        return await parseDataAs(error.data, ZodTotpSvgSetup)
       }
     }
     await handleAllAuthError(event, error)

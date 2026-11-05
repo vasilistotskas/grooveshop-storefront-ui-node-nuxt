@@ -5,7 +5,7 @@ import AuthenticateFlow from '~/components/Account/2Fa/AuthenticateFlow.vue'
 import WebsideAuthenticateFlow from '~/components/variants/webside/Account/2Fa/AuthenticateFlow.vue'
 import { trees } from '~~/test/helpers/trees'
 import { makePendingFlowResponse } from '~~/test/fixtures/allauth'
-import type { Flow } from '~~/shared/types/model/all-auth'
+import type { AllAuthFlow } from '~~/shared/openapi-allauth/types.gen'
 
 /**
  * The frame of every second-factor sign-in step: it offers the shopper's
@@ -15,7 +15,7 @@ import type { Flow } from '~~/shared/types/model/all-auth'
 const { navigateToMock } = vi.hoisted(() => ({ navigateToMock: vi.fn() }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 
-const pendingMfa = (types: Flow['types']) => makePendingFlowResponse('mfa_authenticate', { types })
+const pendingMfa = (types: AllAuthFlow['types']) => makePendingFlowResponse('mfa_authenticate', { types })
 
 beforeEach(() => {
   useState('auth-state').value = pendingMfa(['recovery_codes', 'totp', 'webauthn'])

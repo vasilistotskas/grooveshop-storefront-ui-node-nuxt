@@ -4,13 +4,13 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders(event)
-    const validatedBody = await readValidatedBody(event, ZodWebAuthnPostBody)
+    const validatedBody = await readValidatedBody(event, zPostAllauthAppV1AccountAuthenticatorsWebauthnBody)
     const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/account/authenticators/webauthn`, {
       body: validatedBody,
       method: 'POST',
       headers,
     })
-    return await parseDataAs(response, ZodWebAuthnPostResponse)
+    return await parseDataAs(response, zPostAllauthAppV1AccountAuthenticatorsWebauthnResponse)
   }
   catch (error) {
     // WebAuthn 4xx payloads (rejected credential, duplicate passkey,
