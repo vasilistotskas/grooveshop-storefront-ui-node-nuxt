@@ -1006,6 +1006,17 @@ describe('editing the structure of a page', () => {
   })
 
   describe('the settings of the selected section', () => {
+    /** Types into the open record picker, past its delay. */
+    async function searchRecords(term: string) {
+      const input = document.querySelector<HTMLInputElement>('input[placeholder="Αναζήτηση με όνομα ή διεύθυνση"]')!
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      input.value = term
+      input.dispatchEvent(new Event('input'))
+      await vi.advanceTimersByTimeAsync(BUILDER_LINK_SEARCH_DELAY_MS)
+      vi.useRealTimers()
+      await flushPromises()
+    }
+
     /** The control a field's label names, as a screen reader finds it. */
     const control = (wrapper: Awaited<ReturnType<typeof open>>, label: string) => {
       const named = wrapper.findAll('label').find(item => item.text().trim() === label)
@@ -1046,11 +1057,7 @@ describe('editing the structure of a page', () => {
       const picker = wrapper.get('[aria-label="Προσθήκη: Κατηγορίες"]')
       await picker.trigger('click')
       await flushPromises()
-      const input = document.querySelector<HTMLInputElement>('input[placeholder="Αναζήτηση με όνομα ή διεύθυνση"]')!
-      input.value = 'καλ'
-      input.dispatchEvent(new Event('input'))
-      await vi.waitFor(() => expect(api.callsTo('/api/builder/link-search')).toHaveLength(1))
-      await flushPromises()
+      await searchRecords('καλ')
       expect(api.callsTo('/api/builder/link-search')[0]!.options.query).toEqual({ q: 'καλ', kinds: 'category' })
       ;[...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.textContent?.includes('Καλώδια'))!.click()
       await flushPromises()
@@ -1069,11 +1076,7 @@ describe('editing the structure of a page', () => {
       await flushPromises()
       await wrapper.get('[aria-label="Εγγραφή: Σύνδεσμος κουμπιού"]').trigger('click')
       await flushPromises()
-      const input = document.querySelector<HTMLInputElement>('input[placeholder="Αναζήτηση με όνομα ή διεύθυνση"]')!
-      input.value = 'καλ'
-      input.dispatchEvent(new Event('input'))
-      await vi.waitFor(() => expect(api.callsTo('/api/builder/link-search')).toHaveLength(1))
-      await flushPromises()
+      await searchRecords('καλ')
       expect(api.callsTo('/api/builder/link-search')[0]!.options.query).toEqual({ q: 'καλ', kinds: 'product,category,blogCategory,blogPost,page,contentPage' })
       ;[...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.textContent?.includes('Καλώδια'))!.click()
       await flushPromises()
