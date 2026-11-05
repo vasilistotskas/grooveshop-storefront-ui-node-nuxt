@@ -12,7 +12,13 @@ import { backend, createTestEvent, jsonResponse, runNitroPlugin } from '~~/test/
  * CSS says is `themeCss`'s contract (`compile.spec.ts`); this pins where the
  * theme comes from, when the block is emitted and how.
  */
-const PUBLISHED = { ...themeDefaultsFor('volt'), radius: '0.5rem' }
+const VOLT = themeDefaultsFor('volt')
+/** Its accent is the store's own, so a page drawn from the design's would fail. */
+const PUBLISHED = {
+  ...VOLT,
+  radius: '0.5rem',
+  colors: { ...VOLT.colors, light: { ...VOLT.colors.light, accent: '#123456' } },
+}
 
 const summary = (settings: unknown) => ({
   release: 3,
