@@ -1,3 +1,10 @@
+# [3.325.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.324.0...v3.325.0) (2026-11-05)
+
+
+### Features
+
+* **theme:** read a store's look only from its theme document ([#393](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/393)) ([a281504](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a281504f02bdc178d00072b4922a709cb13d5f8d))
+
 # [3.324.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.5...v3.324.0) (2026-11-05)
 
 
