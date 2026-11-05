@@ -184,4 +184,42 @@ describe('useBlogPostsLoadMore', () => {
     await loadMore()
     expect(api.callsTo(POSTS_URL).map(call => call.options.query.page)).toEqual([2, 2])
   })
+
+  it('drops a page of the old list that arrives after the band was read again', async () => {
+    let answer!: (value: unknown) => void
+    api.routes({ [POSTS_URL]: () => new Promise((resolve) => {
+      answer = resolve
+    }) })
+    const { state, items, loading, hasMore, loadMore } = await setup(band([1, 2, 3], 9))
+    const pending = loadMore()
+
+    state.posts = band([11, 12, 13], 4)
+    await nextTick()
+    answer(page([4, 5, 6], 9, true))
+    await pending
+
+    expect(shownIds(items)).toEqual([11, 12, 13])
+    expect(loading.value).toBe(false)
+    expect(hasMore.value).toBe(true)
+    api.routes({ [POSTS_URL]: page([14], 4, false) })
+    await loadMore()
+    expect(api.callsTo(POSTS_URL).at(-1)!.options.query.page).toBe(2)
+    expect(shownIds(items)).toEqual([11, 12, 13, 14])
+  })
+
+  it('tells nobody about a failed page of a list the band has left', async () => {
+    let fail!: (error: unknown) => void
+    api.routes({ [POSTS_URL]: () => new Promise((_resolve, reject) => {
+      fail = reject
+    }) })
+    const { state, loadMore } = await setup(band([1, 2, 3], 9))
+    const pending = loadMore()
+
+    state.posts = band([11, 12, 13], 9)
+    await nextTick()
+    fail(new Error('gone'))
+    await pending
+
+    expect(toast.add).not.toHaveBeenCalled()
+  })
 })
