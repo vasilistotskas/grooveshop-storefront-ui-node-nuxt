@@ -10,9 +10,11 @@ export interface DegradableEvent {
  * `DEGRADED_RENDER_STATUS` while it is inside Nitro's page cache, which
  * stores nothing below that bar. `server/plugins/edge-cache.ts` puts the
  * remembered status back as the response ends
- * (`shared/constants/degradedRender.ts`).
+ * (`shared/constants/degradedRender.ts`). Several reads can fail in one
+ * render, and they fail together when Django is down: only the first holds the
+ * real status, so a later mark must not store the veto status in its place.
  */
 export function markDegradedRender(event: DegradableEvent): void {
-  event.context.degradedRender = { status: event.node.res.statusCode }
+  event.context.degradedRender ??= { status: event.node.res.statusCode }
   event.node.res.statusCode = DEGRADED_RENDER_STATUS
 }

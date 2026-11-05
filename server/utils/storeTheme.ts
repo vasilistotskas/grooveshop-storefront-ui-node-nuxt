@@ -16,9 +16,11 @@ import type { ThemeSettings } from '../../shared/theme/settings'
  * release is the only thing that changes the published theme, and Django's
  * `builder` surface moves that epoch when one is published or rolled back
  * (`invalidates_tenant_config`, `core/cache/surfaces.py`): every entry of the
- * store then sits under a key nobody reads again and expires on its TTL, so
- * the new theme reaches the next render with no purge of this name. The page
- * cache holding the render is purged by the same surface.
+ * store then sits under a key nobody reads again, so the new theme reaches the
+ * next render with no purge of this name. `swr: false` is what gives those
+ * entries a TTL (Nitro sets one only without `swr`, see `cachedRead`), or every
+ * release would leave one behind for good. The page cache holding the render is
+ * purged by the same surface.
  *
  * A theme that is not one (the publish validates it against the same
  * schema, so this is a broken contract, not a merchant's mistake) is an error
@@ -38,8 +40,7 @@ export const readPublishedTheme = defineCachedFunction(
   {
     name: 'builderTheme',
     maxAge: 60 * 5,
-    staleMaxAge: 60 * 60,
-    swr: true,
+    swr: false,
     getKey: (tenantHost: string, locale: string) => dataCacheKey(tenantHost, locale, 'theme'),
   },
 )
