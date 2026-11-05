@@ -229,9 +229,6 @@ export type AcsStationDetail = {
   readonly updatedAt: string
   readonly addressLine2: string
   readonly region: string
-  /**
-     * Τηλέφωνο
-     */
   readonly phone: string
 }
 
@@ -650,9 +647,6 @@ export type BlogAuthorWriteRequest = {
       bio?: string
     }
   }
-  /**
-     * Χρήστης
-     */
   user: number
   website?: string | string
 }
@@ -782,9 +776,6 @@ export type BlogCategoryWriteRequest = {
   }
   slug: string
   parent?: number | null
-  /**
-     * Εικόνα
-     */
   image?: Blob | File | null
 }
 
@@ -1280,9 +1271,6 @@ export type BoxNowLocker = {
      * ISO 3166-1 alpha-2 country code
      */
   readonly countryCode: string
-  /**
-     * Σημείωση
-     */
   readonly note: string
   readonly isActive: boolean
   /**
@@ -1328,9 +1316,6 @@ export type BoxNowLockerDetail = {
      * ISO 3166-1 alpha-2 country code
      */
   readonly countryCode: string
-  /**
-     * Σημείωση
-     */
   readonly note: string
   readonly isActive: boolean
   /**
@@ -1702,10 +1687,41 @@ export type BuilderFeatures = {
 }
 
 /**
+ * The 409 of deleting an image a published page uses: which documents.
+ */
+export type BuilderMediaInUse = {
+  detail: string
+  code: BuilderMediaInUseCodeEnum
+  usedBy: Array<string>
+}
+
+/**
+ * * `media_in_use` - media_in_use
+ */
+export type BuilderMediaInUseCodeEnum = 'media_in_use'
+
+/**
  * * `page` - Page
  * * `template` - Template
  */
 export type BuilderPageKindEnum = 'page' | 'template'
+
+/**
+ * The 409 of a change made against a revision that is no longer the
+ * current one: the revision to reload and who moved it.
+ */
+export type BuilderRevisionConflict = {
+  detail: string
+  code: BuilderRevisionConflictCodeEnum
+  currentRevision: number
+  updatedBy: Staff | null
+  updatedAt: string
+}
+
+/**
+ * * `revision_conflict` - revision_conflict
+ */
+export type BuilderRevisionConflictCodeEnum = 'revision_conflict'
 
 /**
  * * `checkpoint` - Named save
@@ -1813,9 +1829,6 @@ export type CancelOrderRequestRequest = {
 
 export type Cart = {
   readonly id: number
-  /**
-     * Χρήστης
-     */
   user?: number | null
   readonly uuid: string
   readonly items: Array<CartItem>
@@ -2224,9 +2237,9 @@ export type ClickIdsEnum = 'gclid' | 'gbraid' | 'wbraid' | 'msclkid' | 'ttclid' 
 export type ColorEnum = 'primary' | 'secondary' | 'neutral' | 'info' | 'success' | 'warning' | 'error'
 
 /**
- * * `1` - Μικρό
- * * `2` - Μεσαίο
- * * `3` - Μεγάλο
+ * * `1` - Small
+ * * `2` - Medium
+ * * `3` - Large
  */
 export type CompartmentSizeEnum = 1 | 2 | 3
 
@@ -2291,9 +2304,6 @@ export type ContactWrite = {
   email: string
   message: string
   company?: string
-  /**
-     * Τηλέφωνο
-     */
   phone?: string
   subject?: string
   readonly createdAt: string
@@ -2306,9 +2316,6 @@ export type ContactWriteRequest = {
   email: string
   message: string
   company?: string
-  /**
-     * Τηλέφωνο
-     */
   phone?: string
   subject?: string
 }
@@ -2710,9 +2717,6 @@ export type Detail = {
 }
 
 export type DocumentDetail = {
-  /**
-     * Κλειδί
-     */
   readonly key: string
   kind: BuilderDocumentKindEnum
   /**
@@ -2734,9 +2738,6 @@ export type DocumentDetail = {
 }
 
 export type DocumentList = {
-  /**
-     * Κλειδί
-     */
   readonly key: string
   kind: BuilderDocumentKindEnum
   /**
@@ -2928,8 +2929,6 @@ export type GiftCard = {
   readonly id: number
   readonly uuid: string
   /**
-     * Κωδικός
-     *
      * Crypto-random, uppercased; the bearer secret
      */
   readonly code: string
@@ -3052,9 +3051,6 @@ export type GiftCardTransaction = {
      * Signed: positive adds balance (issue/refund credit), negative removes it (redeem/expire)
      */
   readonly amount: number
-  /**
-     * Ταξινόμηση
-     */
   readonly order: number | null
   readonly createdAt: string
 }
@@ -3196,7 +3192,7 @@ export type LinkTargetsResponse = {
 }
 
 /**
- * * `HOME` - Αρχική
+ * * `HOME` - Home
  * * `OFFICE` - Office
  * * `OTHER` - Other
  */
@@ -3382,7 +3378,7 @@ export type Notification = {
 }
 
 /**
- * * `ORDER` - Ταξινόμηση
+ * * `ORDER` - Order
  * * `PAYMENT` - Payment
  * * `SHIPPING` - Shipping
  * * `CART` - Cart
@@ -3411,7 +3407,7 @@ export type NotificationIdsRequest = {
 }
 
 /**
- * * `ERROR` - Σφάλμα
+ * * `ERROR` - Error
  * * `SUCCESS` - Success
  * * `INFO` - Info
  * * `WARNING` - Warning
@@ -3490,9 +3486,6 @@ export type OfferKindEnum = 'MARKDOWN' | 'PROMOTION'
 
 export type Order = {
   readonly id: number
-  /**
-     * Χρήστης
-     */
   user?: number | null
   /**
      * Country Code Alpha 2
@@ -3876,7 +3869,7 @@ export type OrderCreateFromCartRequest = {
   /**
      * Location, as a LocationChoicesEnum member (e.g. HOME)
      *
-     * * `HOME` - Αρχική
+     * * `HOME` - Home
      * * `OFFICE` - Office
      * * `OTHER` - Other
      */
@@ -3967,9 +3960,6 @@ export type OrderDeliveryMethod = {
 
 export type OrderDetail = {
   readonly id: number
-  /**
-     * Χρήστης
-     */
   user?: number | null
   /**
      * Country Code Alpha 2
@@ -4206,9 +4196,6 @@ export type OrderDocumentType = 'RECEIPT' | 'INVOICE' | 'PROFORMA' | 'SHIPPING_L
 export type OrderItem = {
   readonly id: number
   readonly uuid: string
-  /**
-     * Ταξινόμηση
-     */
   order: number
   product: number
   readonly price: number
@@ -4230,9 +4217,6 @@ export type OrderItemCreateRequest = {
 export type OrderItemDetail = {
   readonly id: number
   readonly uuid: string
-  /**
-     * Ταξινόμηση
-     */
   order: number
   product: Product
   readonly price: number
@@ -4267,9 +4251,6 @@ export type OrderItemRestockResponse = {
 }
 
 export type OrderItemWriteRequest = {
-  /**
-     * Ταξινόμηση
-     */
   order: number
   product: number
   quantity?: number
@@ -4686,19 +4667,6 @@ export type PaginatedProductFavouriteList = {
   results: Array<ProductFavourite>
 }
 
-export type PaginatedProductImageList = {
-  links?: {
-    next?: string | null
-    previous?: string | null
-  }
-  count: number
-  totalPages?: number
-  pageSize?: number
-  pageTotalResults?: number
-  page?: number
-  results: Array<ProductImage>
-}
-
 export type PaginatedProductFeedList = {
   links?: {
     next?: string | null
@@ -4710,6 +4678,19 @@ export type PaginatedProductFeedList = {
   pageTotalResults?: number
   page?: number
   results: Array<ProductFeed>
+}
+
+export type PaginatedProductImageList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ProductImage>
 }
 
 export type PaginatedProductReviewList = {
@@ -4889,9 +4870,6 @@ export type PatchedBlogAuthorWriteRequest = {
       bio?: string
     }
   }
-  /**
-     * Χρήστης
-     */
   user?: number
   website?: string | string
 }
@@ -4912,9 +4890,6 @@ export type PatchedBlogCategoryWriteRequest = {
   }
   slug?: string
   parent?: number | null
-  /**
-     * Εικόνα
-     */
   image?: Blob | File | null
 }
 
@@ -5066,9 +5041,6 @@ export type PatchedNotificationUserWriteRequest = {
 }
 
 export type PatchedOrderItemWriteRequest = {
-  /**
-     * Ταξινόμηση
-     */
   order?: number
   product?: number
   quantity?: number
@@ -5113,8 +5085,6 @@ export type PatchedPayWayWriteRequest = {
     }
   }
   /**
-     * Κλειδί
-     *
      * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
      *
      * * `CREDIT_CARD` - Credit Card
@@ -5159,9 +5129,6 @@ export type PatchedProductCategoryImageBulkUpdateRequest = {
  */
 export type PatchedProductCategoryImageWriteRequest = {
   category?: number
-  /**
-     * Εικόνα
-     */
   image?: Blob | File
   imageType?: ImageTypeEnum
   active?: boolean
@@ -5183,18 +5150,18 @@ export type PatchedProductCategoryWriteRequest = {
     el?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
     en?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
   }
   slug?: string
@@ -5211,9 +5178,6 @@ export type PatchedProductFavouriteWriteRequest = {
  */
 export type PatchedProductImageWriteRequest = {
   product?: number
-  /**
-     * Εικόνα
-     */
   image?: Blob | File
   isMain?: boolean
   translations?: {
@@ -5265,6 +5229,14 @@ export type PatchedProductWriteRequest = {
     }
   }
   slug?: string
+  /**
+     * The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.
+     */
+  gtin?: string
+  /**
+     * The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+     */
+  mpn?: string
   category?: number | null
   brand?: number | null
   price?: number
@@ -5276,14 +5248,6 @@ export type PatchedProductWriteRequest = {
   } | null
   discountPercent?: number
   active?: boolean
-  /**
-     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  gtin?: string
-  /**
-     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  mpn?: string
 }
 
 /**
@@ -5418,14 +5382,9 @@ export type PatchedUserWriteRequest = {
   firstName?: string
   lastName?: string
   /**
-     * Όνομα χρήστη
-     *
      * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
-  /**
-     * Εικόνα
-     */
   image?: Blob | File | null
   phone?: string
   city?: string
@@ -5494,8 +5453,6 @@ export type PayWay = {
   }
   readonly id: number
   /**
-     * Κλειδί
-     *
      * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
      *
      * * `CREDIT_CARD` - Credit Card
@@ -5564,8 +5521,6 @@ export type PayWayWriteRequest = {
     }
   }
   /**
-     * Κλειδί
-     *
      * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
      *
      * * `CREDIT_CARD` - Credit Card
@@ -5743,9 +5698,6 @@ export type PreviewCopyRequest = {
 export type PreviewLink = {
   readonly id: number
   readonly documents: Array<string>
-  /**
-     * Σημείωση
-     */
   note?: string
   createdBy: Staff | null
   readonly createdAt: string
@@ -5759,9 +5711,6 @@ export type PreviewLinkCreated = {
   token: string
   readonly id: number
   readonly documents: Array<string>
-  /**
-     * Σημείωση
-     */
   note?: string
   createdBy: Staff | null
   readonly createdAt: string
@@ -5814,6 +5763,14 @@ export type Product = {
     }
   }
   slug: string
+  /**
+     * The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.
+     */
+  readonly gtin: string
+  /**
+     * The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+     */
+  readonly mpn: string
   readonly category: number | null
   /**
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
@@ -5841,6 +5798,7 @@ export type Product = {
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
   readonly reductionStartedAt: string | null
+  readonly potentialPoints: number
   readonly mainImagePath: string
   readonly imagePaths: Array<string>
   /**
@@ -5861,14 +5819,6 @@ export type Product = {
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
   readonly variantGroupTitle: string | null
-  /**
-     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly gtin: string
-  /**
-     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly mpn: string
 }
 
 export type ProductAlert = {
@@ -5876,9 +5826,6 @@ export type ProductAlert = {
   readonly uuid: string
   kind: ProductAlertKindEnum
   product: number
-  /**
-     * Χρήστης
-     */
   readonly user: number | null
   email?: string | null
   targetPrice?: number | null
@@ -5912,13 +5859,13 @@ export type ProductAttribute = {
      */
   readonly attributeName: string
   readonly isVariant: boolean
+  schemaProperty: SchemaPropertyEnum | BlankEnum
   attributeValueId: number
   /**
      * Return translated attribute value.
      */
   readonly value: string
   readonly createdAt: string
-  schemaProperty: SchemaPropertyEnum | BlankEnum
 }
 
 /**
@@ -5965,6 +5912,7 @@ export type ProductCard = {
   readonly effectivePrice: number | null
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
+  readonly potentialPoints: number
   readonly mainImagePath: string
   /**
      * Return the average review rating for this product.
@@ -5988,18 +5936,18 @@ export type ProductCategory = {
     el?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
     en?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
   }
   slug: string
@@ -6008,11 +5956,11 @@ export type ProductCategory = {
   readonly level: number
   readonly treeId: number
   readonly mainImagePath: string
+  readonly mainImageAlt: string
   readonly recursiveProductCount: number
   readonly createdAt: string
   readonly updatedAt: string
   readonly uuid: string
-  readonly mainImageAlt: string
 }
 
 /**
@@ -6024,18 +5972,18 @@ export type ProductCategoryDetail = {
     el?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
     en?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
   }
   slug: string
@@ -6044,12 +5992,12 @@ export type ProductCategoryDetail = {
   readonly level: number
   readonly treeId: number
   readonly mainImagePath: string
+  readonly mainImageAlt: string
   readonly recursiveProductCount: number
   readonly createdAt: string
   readonly updatedAt: string
   readonly uuid: string
   readonly children: Array<ProductCategory>
-  readonly mainImageAlt: string
 }
 
 /**
@@ -6059,9 +6007,6 @@ export type ProductCategoryImage = {
   readonly id: number
   category: number
   readonly categoryName: string
-  /**
-     * Εικόνα
-     */
   image: string
   imageType?: ImageTypeEnum
   active?: boolean
@@ -6093,9 +6038,6 @@ export type ProductCategoryImageDetail = {
   readonly id: number
   category: number
   readonly categoryName: string
-  /**
-     * Εικόνα
-     */
   image: string
   imageType?: ImageTypeEnum
   active?: boolean
@@ -6119,9 +6061,6 @@ export type ProductCategoryImageDetail = {
  */
 export type ProductCategoryImageWriteRequest = {
   category: number
-  /**
-     * Εικόνα
-     */
   image: Blob | File
   imageType?: ImageTypeEnum
   active?: boolean
@@ -6143,18 +6082,18 @@ export type ProductCategoryWriteRequest = {
     el?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
     en?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
   }
   slug: string
@@ -6186,6 +6125,14 @@ export type ProductDetail = {
     }
   }
   slug: string
+  /**
+     * The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.
+     */
+  readonly gtin: string
+  /**
+     * The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+     */
+  readonly mpn: string
   readonly category: number | null
   /**
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
@@ -6213,6 +6160,7 @@ export type ProductDetail = {
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
   readonly reductionStartedAt: string | null
+  readonly potentialPoints: number
   readonly mainImagePath: string
   readonly imagePaths: Array<string>
   /**
@@ -6237,14 +6185,6 @@ export type ProductDetail = {
      * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
      */
   readonly priceDropAlertsEnabled: boolean
-  /**
-     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly gtin: string
-  /**
-     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly mpn: string
 }
 
 /**
@@ -6271,6 +6211,14 @@ export type ProductDetailResponse = {
     }
   }
   slug: string
+  /**
+     * The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.
+     */
+  readonly gtin: string
+  /**
+     * The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+     */
+  readonly mpn: string
   readonly category: number | null
   /**
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
@@ -6298,6 +6246,7 @@ export type ProductDetailResponse = {
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
   readonly reductionStartedAt: string | null
+  readonly potentialPoints: number
   readonly mainImagePath: string
   readonly imagePaths: Array<string>
   /**
@@ -6322,14 +6271,6 @@ export type ProductDetailResponse = {
      * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
      */
   readonly priceDropAlertsEnabled: boolean
-  /**
-     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly gtin: string
-  /**
-     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly mpn: string
 }
 
 export type ProductFavourite = {
@@ -6376,7 +6317,10 @@ export type ProductFavouriteWriteRequest = {
 }
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * A product as the catalogue feed (``/product/feed``) publishes it:
+ * ``ProductSerializer`` plus the Google Merchant ``product_highlight``
+ * list. Only the feed prefetches the highlights
+ * (``ProductQuerySet.for_feed``), so only the feed renders them.
  */
 export type ProductFeed = {
   readonly id: number
@@ -6399,6 +6343,14 @@ export type ProductFeed = {
     }
   }
   slug: string
+  /**
+     * The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.
+     */
+  readonly gtin: string
+  /**
+     * The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+     */
+  readonly mpn: string
   readonly category: number | null
   /**
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
@@ -6426,6 +6378,7 @@ export type ProductFeed = {
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
   readonly reductionStartedAt: string | null
+  readonly potentialPoints: number
   readonly mainImagePath: string
   readonly imagePaths: Array<string>
   /**
@@ -6446,14 +6399,6 @@ export type ProductFeed = {
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
   readonly variantGroupTitle: string | null
-  /**
-     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly gtin: string
-  /**
-     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly mpn: string
   readonly highlights: Array<string>
 }
 
@@ -6464,10 +6409,13 @@ export type ProductImage = {
   readonly id: number
   readonly uuid: string
   readonly product: number
-  /**
-     * Εικόνα
-     */
   image: string
+  /**
+     * The merchant's alt text, else empty.
+     *
+     * No generated sentence: it would be in one language whatever the
+     * store speaks, so the storefront builds its own localized fallback.
+     */
   readonly altText: string
   isMain?: boolean
   readonly sortOrder: number | null
@@ -6490,10 +6438,13 @@ export type ProductImageDetail = {
   readonly id: number
   readonly uuid: string
   product: Product
-  /**
-     * Εικόνα
-     */
   image: string
+  /**
+     * The merchant's alt text, else empty.
+     *
+     * No generated sentence: it would be in one language whatever the
+     * store speaks, so the storefront builds its own localized fallback.
+     */
   readonly altText: string
   isMain?: boolean
   readonly sortOrder: number | null
@@ -6527,9 +6478,6 @@ export type ProductImageDetail = {
  */
 export type ProductImageWriteRequest = {
   product: number
-  /**
-     * Εικόνα
-     */
   image: Blob | File
   isMain?: boolean
   translations: {
@@ -6761,6 +6709,14 @@ export type ProductRetrieve = {
     }
   }
   slug: string
+  /**
+     * The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.
+     */
+  readonly gtin: string
+  /**
+     * The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+     */
+  readonly mpn: string
   readonly category: number | null
   /**
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
@@ -6788,6 +6744,7 @@ export type ProductRetrieve = {
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
   readonly reductionStartedAt: string | null
+  readonly potentialPoints: number
   readonly mainImagePath: string
   readonly imagePaths: Array<string>
   /**
@@ -6813,14 +6770,6 @@ export type ProductRetrieve = {
      */
   readonly priceDropAlertsEnabled: boolean
   readonly ratingDistribution: Array<RatingDistribution>
-  /**
-     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly gtin: string
-  /**
-     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  readonly mpn: string
 }
 
 /**
@@ -6962,6 +6911,14 @@ export type ProductWriteRequest = {
     }
   }
   slug: string
+  /**
+     * The number printed under the product's barcode (EAN, UPC or ISBN): 8, 12, 13 or 14 digits. Google Merchant Center uses it to recognise the product. Leave empty if the product has none.
+     */
+  gtin?: string
+  /**
+     * The manufacturer's part number, as the manufacturer prints it. Use it for a product without a barcode. This is not your SKU. Leave empty if the product has none.
+     */
+  mpn?: string
   category?: number | null
   brand?: number | null
   price: number
@@ -6973,14 +6930,6 @@ export type ProductWriteRequest = {
   } | null
   discountPercent?: number
   active?: boolean
-  /**
-     * Ο αριθμός κάτω από το barcode του προϊόντος (EAN, UPC ή ISBN): 8, 12, 13 ή 14 ψηφία. Το Google Merchant Center τον χρησιμοποιεί για να αναγνωρίσει το προϊόν. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  gtin?: string
-  /**
-     * Ο κωδικός εξαρτήματος του κατασκευαστή (MPN), όπως τον τυπώνει ο κατασκευαστής. Χρησιμοποιήστε τον για προϊόν χωρίς barcode. Δεν είναι ο κωδικός SKU σας. Αφήστε το κενό αν το προϊόν δεν έχει.
-     */
-  mpn?: string
 }
 
 /**
@@ -7383,9 +7332,6 @@ export type Release = {
   readonly number: number
   readonly publishedAt: string
   publishedBy: Staff | null
-  /**
-     * Σημείωση
-     */
   readonly note: string
   readonly rolledBackFrom: number | null
   versions: unknown
@@ -7547,9 +7493,6 @@ export type Schedule = {
   readonly scheduledFor: string
   status: ScheduleStatusEnum
   readonly documents: Array<string>
-  /**
-     * Σημείωση
-     */
   readonly note: string
   scheduledBy: Staff | null
   readonly executedAt: string | null
@@ -7576,12 +7519,12 @@ export type ScheduleWriteRequest = {
 }
 
 /**
- * * `color` - Χρώμα
- * * `size` - Μέγεθος
- * * `material` - Υλικό
- * * `pattern` - Σχέδιο
- * * `suggestedAge` - Προτεινόμενη ηλικία
- * * `suggestedGender` - Προτεινόμενο φύλο
+ * * `color` - Colour
+ * * `size` - Size
+ * * `material` - Material
+ * * `pattern` - Pattern
+ * * `suggestedAge` - Suggested age
+ * * `suggestedGender` - Suggested gender
  */
 export type SchemaPropertyEnum = 'color' | 'size' | 'material' | 'pattern' | 'suggestedAge' | 'suggestedGender'
 
@@ -7814,8 +7757,6 @@ export type ShippingPolicyEntry = {
 export type ShippingProvider = {
   readonly id: number
   /**
-     * Κωδικός
-     *
      * Stable identifier matching the registered carrier adapter (e.g. 'acs', 'boxnow').
      */
   readonly code: string
@@ -7887,10 +7828,18 @@ export type StaffSessionResponse = {
   staff: StaffSessionStaff
 }
 
+/**
+ * * `staff` - staff
+ * * `admin` - admin
+ * * `owner` - owner
+ * * `superuser` - superuser
+ */
+export type StaffSessionRoleEnum = 'staff' | 'admin' | 'owner' | 'superuser'
+
 export type StaffSessionStaff = {
   id: number
   name: string
-  role: string
+  role: StaffSessionRoleEnum
 }
 
 export type StaffSessionTicketRequest = {
@@ -8326,6 +8275,7 @@ export type TenantConfig = {
   isPlatformStorefront?: boolean
   seoAuthor?: string
   googleSiteVerification?: string
+  bingSiteVerification?: string
   pinterestDomainVerify?: string
   readonly primaryColor: string
   readonly neutralColor: string
@@ -8370,6 +8320,7 @@ export type TenantConfig = {
   readonly googleAdsBeginCheckoutLabel: string
   googleAdsAddPaymentInfoLabel?: string
   readonly googleAdsPageViewLabel: string
+  indexnowKey?: string
   readonly totpIssuer: string
   readonly socialsDiscord: string
   readonly socialsFacebook: string
@@ -8381,8 +8332,6 @@ export type TenantConfig = {
   readonly socialsTwitter: string
   readonly socialsYoutube: string
   readonly boxNowPartnerId: string
-  bingSiteVerification?: string
-  indexnowKey?: string
 }
 
 /**
@@ -8597,15 +8546,13 @@ export type UserDetails = {
      */
   readonly pk: number
   /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     * Email Address
      */
   email: string
   firstName?: string
   lastName?: string
   readonly id: number
   /**
-     * Όνομα χρήστη
-     *
      * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
@@ -8670,9 +8617,9 @@ export type UserDetails = {
      */
   readonly isStaff: boolean
   /**
-     * Κατάσταση υπερχρήστη
+     * Superuser status
      *
-     * Υποδηλώνει ότι ο συγκεκριμένος χρήστης έχει όλα τα δικαιώματα χωρίς να χρειάζεται να τα παραχωρήσετε ξεχωριστά.
+     * Designates that this user has all permissions without explicitly assigning them.
      */
   readonly isSuperuser: boolean
   readonly createdAt: string
@@ -8687,8 +8634,6 @@ export type UserDetails = {
 export type UserPublic = {
   readonly id: number
   /**
-     * Όνομα χρήστη
-     *
      * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   readonly username: string | null
@@ -8702,9 +8647,6 @@ export type UserPublic = {
 
 export type UserSubscription = {
   readonly id: number
-  /**
-     * Χρήστης
-     */
   readonly user: number | null
   topic: number
   topicDetails: SubscriptionTopic
@@ -8721,9 +8663,6 @@ export type UserSubscription = {
 
 export type UserSubscriptionDetail = {
   readonly id: number
-  /**
-     * Χρήστης
-     */
   readonly user: number | null
   topic: number
   topicDetails: SubscriptionTopic
@@ -8750,14 +8689,9 @@ export type UserWriteRequest = {
   firstName?: string
   lastName?: string
   /**
-     * Όνομα χρήστη
-     *
      * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
-  /**
-     * Εικόνα
-     */
   image?: Blob | File | null
   phone?: string
   city?: string
@@ -8831,8 +8765,8 @@ export type UsernameUpdateResponse = {
 export type VariantAxis = {
   id: number
   name: string
-  values: Array<VariantAxisValue>
   schemaProperty: SchemaPropertyEnum | BlankEnum
+  values: Array<VariantAxisValue>
 }
 
 /**
@@ -8851,9 +8785,6 @@ export type VersionDetail = {
      * The number of the version this one restores (kind restore).
      */
   readonly restoredFrom: number | null
-  /**
-     * Σημείωση
-     */
   readonly note: string
   readonly createdAt: string
   createdBy: Staff | null
@@ -8884,9 +8815,6 @@ export type VersionList = {
      * The number of the version this one restores (kind restore).
      */
   readonly restoredFrom: number | null
-  /**
-     * Σημείωση
-     */
   readonly note: string
   readonly createdAt: string
   createdBy: Staff | null
@@ -9291,9 +9219,6 @@ export type BuilderFeaturesWritable = {
 }
 
 export type CartWritable = {
-  /**
-     * Χρήστης
-     */
   user?: number | null
 }
 
@@ -9327,9 +9252,6 @@ export type ContactWriteWritable = {
   email: string
   message: string
   company?: string
-  /**
-     * Τηλέφωνο
-     */
   phone?: string
   subject?: string
 }
@@ -9339,9 +9261,6 @@ export type ContactWriteRequestWritable = {
   email: string
   message: string
   company?: string
-  /**
-     * Τηλέφωνο
-     */
   phone?: string
   subject?: string
   attachmentIds?: Array<string>
@@ -9555,9 +9474,6 @@ export type NotificationUserDetailWritable = {
 }
 
 export type OrderWritable = {
-  /**
-     * Χρήστης
-     */
   user?: number | null
   /**
      * Country Code Alpha 2
@@ -9677,7 +9593,7 @@ export type OrderCreateFromCartRequestWritable = {
   /**
      * Location, as a LocationChoicesEnum member (e.g. HOME)
      *
-     * * `HOME` - Αρχική
+     * * `HOME` - Home
      * * `OFFICE` - Office
      * * `OTHER` - Other
      */
@@ -9772,9 +9688,6 @@ export type OrderCreateFromCartRequestWritable = {
 }
 
 export type OrderDetailWritable = {
-  /**
-     * Χρήστης
-     */
   user?: number | null
   /**
      * Country Code Alpha 2
@@ -9810,18 +9723,12 @@ export type OrderDetailWritable = {
 }
 
 export type OrderItemWritable = {
-  /**
-     * Ταξινόμηση
-     */
   order: number
   product: number
   quantity?: number
 }
 
 export type OrderItemDetailWritable = {
-  /**
-     * Ταξινόμηση
-     */
   order: number
   quantity?: number
   notes?: string
@@ -10196,19 +10103,6 @@ export type PaginatedProductFavouriteListWritable = {
   results: Array<ProductFavouriteWritable>
 }
 
-export type PaginatedProductImageListWritable = {
-  links?: {
-    next?: string | null
-    previous?: string | null
-  }
-  count: number
-  totalPages?: number
-  pageSize?: number
-  pageTotalResults?: number
-  page?: number
-  results: Array<ProductImageWritable>
-}
-
 export type PaginatedProductFeedListWritable = {
   links?: {
     next?: string | null
@@ -10220,6 +10114,19 @@ export type PaginatedProductFeedListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<ProductFeedWritable>
+}
+
+export type PaginatedProductImageListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ProductImageWritable>
 }
 
 export type PaginatedProductReviewListWritable = {
@@ -10425,9 +10332,6 @@ export type PayWayWritable = {
  * only in the answer that made the link.
  */
 export type PreviewLinkWritable = {
-  /**
-     * Σημείωση
-     */
   note?: string
   expiresAt: string
 }
@@ -10437,9 +10341,6 @@ export type PreviewLinkWritable = {
  */
 export type PreviewLinkCreatedWritable = {
   token: string
-  /**
-     * Σημείωση
-     */
   note?: string
   expiresAt: string
 }
@@ -10527,18 +10428,18 @@ export type ProductCategoryWritable = {
     el?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
     en?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
   }
   slug: string
@@ -10554,18 +10455,18 @@ export type ProductCategoryDetailWritable = {
     el?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
     en?: {
       name?: string
       description?: string
+      footerText?: string
       seoTitle?: string
       seoDescription?: string
       seoKeywords?: string
-      footerText?: string
     }
   }
   slug: string
@@ -10578,9 +10479,6 @@ export type ProductCategoryDetailWritable = {
  */
 export type ProductCategoryImageWritable = {
   category: number
-  /**
-     * Εικόνα
-     */
   image: string
   imageType?: ImageTypeEnum
   active?: boolean
@@ -10599,9 +10497,6 @@ export type ProductCategoryImageWritable = {
  */
 export type ProductCategoryImageDetailWritable = {
   category: number
-  /**
-     * Εικόνα
-     */
   image: string
   imageType?: ImageTypeEnum
   active?: boolean
@@ -10692,7 +10587,10 @@ export type ProductFavouriteWriteWritable = {
 }
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * A product as the catalogue feed (``/product/feed``) publishes it:
+ * ``ProductSerializer`` plus the Google Merchant ``product_highlight``
+ * list. Only the feed prefetches the highlights
+ * (``ProductQuerySet.for_feed``), so only the feed renders them.
  */
 export type ProductFeedWritable = {
   translations: {
@@ -10727,9 +10625,6 @@ export type ProductFeedWritable = {
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductImageWritable = {
-  /**
-     * Εικόνα
-     */
   image: string
   isMain?: boolean
   translations: {
@@ -10746,9 +10641,6 @@ export type ProductImageWritable = {
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductImageDetailWritable = {
-  /**
-     * Εικόνα
-     */
   image: string
   isMain?: boolean
   translations: {
@@ -11102,6 +10994,7 @@ export type TenantConfigWritable = {
   isPlatformStorefront?: boolean
   seoAuthor?: string
   googleSiteVerification?: string
+  bingSiteVerification?: string
   pinterestDomainVerify?: string
   availableLocales?: Array<string>
   shippingCarriers?: Array<unknown>
@@ -11109,7 +11002,6 @@ export type TenantConfigWritable = {
   codeResendCooldownSeconds?: number
   openaiPixelId?: string
   googleAdsAddPaymentInfoLabel?: string
-  bingSiteVerification?: string
   indexnowKey?: string
 }
 
@@ -11167,14 +11059,12 @@ export type UserAddressDetailWritable = {
 
 export type UserDetailsWritable = {
   /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     * Email Address
      */
   email: string
   firstName?: string
   lastName?: string
   /**
-     * Όνομα χρήστη
-     *
      * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
@@ -11407,7 +11297,7 @@ export type ListBlogAuthorData = {
     hasWebsite?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -11702,7 +11592,7 @@ export type GetBlogAuthorPostsData = {
     featured?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -11861,7 +11751,7 @@ export type ListBlogCategoryData = {
     hasRecursivePosts?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -12351,7 +12241,7 @@ export type ListBlogCategoryPostsData = {
     featured?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -12639,7 +12529,7 @@ export type ListBlogCommentData = {
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -13044,7 +12934,7 @@ export type ListBlogCommentRepliesData = {
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -13277,7 +13167,7 @@ export type GetBlogCommentThreadData = {
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -13556,7 +13446,7 @@ export type ListMyBlogCommentsData = {
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -13783,7 +13673,7 @@ export type ListBlogPostData = {
     featured?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -14136,7 +14026,7 @@ export type ListBlogPostRelatedData = {
     featured?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -14325,7 +14215,7 @@ export type ListFeaturedBlogPostsData = {
     featured?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -14535,7 +14425,7 @@ export type ListPopularBlogPostsData = {
     featured?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -14694,7 +14584,7 @@ export type ListTrendingBlogPostsData = {
     featured?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -14829,7 +14719,7 @@ export type ListBlogTagData = {
     hasPosts?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -15152,7 +15042,9 @@ export type ApiV1BuilderDocumentsDestroyData = {
 
 export type ApiV1BuilderDocumentsDestroyErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
-  409: ErrorResponse
+  404: ErrorResponse
+  409: BuilderRevisionConflict
+  428: ErrorResponse
 }
 
 export type ApiV1BuilderDocumentsDestroyError = ApiV1BuilderDocumentsDestroyErrors[keyof ApiV1BuilderDocumentsDestroyErrors]
@@ -15175,6 +15067,12 @@ export type ApiV1BuilderDocumentsRetrieveData = {
   url: '/api/v1/builder/documents/{key}'
 }
 
+export type ApiV1BuilderDocumentsRetrieveErrors = {
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsRetrieveError = ApiV1BuilderDocumentsRetrieveErrors[keyof ApiV1BuilderDocumentsRetrieveErrors]
+
 export type ApiV1BuilderDocumentsRetrieveResponses = {
   200: DocumentDetail
 }
@@ -15192,7 +15090,9 @@ export type ApiV1BuilderDocumentsCheckpointCreateData = {
 
 export type ApiV1BuilderDocumentsCheckpointCreateErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  404: ErrorResponse
   409: ErrorResponse
+  503: ErrorResponse
 }
 
 export type ApiV1BuilderDocumentsCheckpointCreateError = ApiV1BuilderDocumentsCheckpointCreateErrors[keyof ApiV1BuilderDocumentsCheckpointCreateErrors]
@@ -15220,7 +15120,9 @@ export type ApiV1BuilderDocumentsDiscardCreateData = {
 
 export type ApiV1BuilderDocumentsDiscardCreateErrors = {
   400: ApiValidationError | ApiError
-  409: ErrorResponse
+  404: ErrorResponse
+  409: BuilderRevisionConflict
+  428: ErrorResponse
 }
 
 export type ApiV1BuilderDocumentsDiscardCreateError = ApiV1BuilderDocumentsDiscardCreateErrors[keyof ApiV1BuilderDocumentsDiscardCreateErrors]
@@ -15248,7 +15150,10 @@ export type ApiV1BuilderDocumentsDraftUpdateData = {
 
 export type ApiV1BuilderDocumentsDraftUpdateErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
-  409: ErrorResponse
+  404: ErrorResponse
+  409: BuilderRevisionConflict
+  428: ErrorResponse
+  503: ErrorResponse
 }
 
 export type ApiV1BuilderDocumentsDraftUpdateError = ApiV1BuilderDocumentsDraftUpdateErrors[keyof ApiV1BuilderDocumentsDraftUpdateErrors]
@@ -15297,6 +15202,12 @@ export type ApiV1BuilderDocumentsVersionsRetrieveData = {
   url: '/api/v1/builder/documents/{key}/versions/{number}'
 }
 
+export type ApiV1BuilderDocumentsVersionsRetrieveErrors = {
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderDocumentsVersionsRetrieveError = ApiV1BuilderDocumentsVersionsRetrieveErrors[keyof ApiV1BuilderDocumentsVersionsRetrieveErrors]
+
 export type ApiV1BuilderDocumentsVersionsRetrieveResponses = {
   200: VersionDetail
 }
@@ -15315,6 +15226,7 @@ export type ApiV1BuilderDocumentsVersionsPublishCreateData = {
 
 export type ApiV1BuilderDocumentsVersionsPublishCreateErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  404: ErrorResponse
   409: ErrorResponse
 }
 
@@ -15344,7 +15256,9 @@ export type ApiV1BuilderDocumentsVersionsRestoreCreateData = {
 
 export type ApiV1BuilderDocumentsVersionsRestoreCreateErrors = {
   400: ApiValidationError | ApiError
-  409: ErrorResponse
+  404: ErrorResponse
+  409: BuilderRevisionConflict
+  428: ErrorResponse
 }
 
 export type ApiV1BuilderDocumentsVersionsRestoreCreateError = ApiV1BuilderDocumentsVersionsRestoreCreateErrors[keyof ApiV1BuilderDocumentsVersionsRestoreCreateErrors]
@@ -15545,7 +15459,8 @@ export type ApiV1BuilderMediaDestroyData = {
 
 export type ApiV1BuilderMediaDestroyErrors = {
   400: ApiValidationError | ApiError
-  409: ErrorResponse
+  404: ErrorResponse
+  409: BuilderMediaInUse
 }
 
 export type ApiV1BuilderMediaDestroyError = ApiV1BuilderMediaDestroyErrors[keyof ApiV1BuilderMediaDestroyErrors]
@@ -15568,6 +15483,12 @@ export type ApiV1BuilderMediaRetrieveData = {
   url: '/api/v1/builder/media/{id}'
 }
 
+export type ApiV1BuilderMediaRetrieveErrors = {
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderMediaRetrieveError = ApiV1BuilderMediaRetrieveErrors[keyof ApiV1BuilderMediaRetrieveErrors]
+
 export type ApiV1BuilderMediaRetrieveResponses = {
   200: Asset
 }
@@ -15585,6 +15506,7 @@ export type ApiV1BuilderMediaPartialUpdateData = {
 
 export type ApiV1BuilderMediaPartialUpdateErrors = {
   400: ApiValidationError | ApiError
+  404: ErrorResponse
   409: ErrorResponse
 }
 
@@ -15606,6 +15528,7 @@ export type ApiV1BuilderMediaImportCreateData = {
 export type ApiV1BuilderMediaImportCreateErrors = {
   400: ApiValidationError | ApiError
   409: ErrorResponse
+  503: ErrorResponse
 }
 
 export type ApiV1BuilderMediaImportCreateError = ApiV1BuilderMediaImportCreateErrors[keyof ApiV1BuilderMediaImportCreateErrors]
@@ -15729,7 +15652,9 @@ export type ApiV1BuilderPreviewLinksCreateData = {
 
 export type ApiV1BuilderPreviewLinksCreateErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  404: ErrorResponse
   409: ErrorResponse
+  503: ErrorResponse
 }
 
 export type ApiV1BuilderPreviewLinksCreateError = ApiV1BuilderPreviewLinksCreateErrors[keyof ApiV1BuilderPreviewLinksCreateErrors]
@@ -15852,7 +15777,9 @@ export type ApiV1BuilderPublishCreateData = {
 
 export type ApiV1BuilderPublishCreateErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  404: ErrorResponse
   409: ErrorResponse
+  503: ErrorResponse
 }
 
 export type ApiV1BuilderPublishCreateError = ApiV1BuilderPublishCreateErrors[keyof ApiV1BuilderPublishCreateErrors]
@@ -15872,7 +15799,9 @@ export type ApiV1BuilderPublishCheckCreateData = {
 
 export type ApiV1BuilderPublishCheckCreateErrors = {
   400: ApiValidationError | ApiError
+  404: ErrorResponse
   409: ErrorResponse
+  503: ErrorResponse
 }
 
 export type ApiV1BuilderPublishCheckCreateError = ApiV1BuilderPublishCheckCreateErrors[keyof ApiV1BuilderPublishCheckCreateErrors]
@@ -15962,6 +15891,7 @@ export type ApiV1BuilderRollbackCreateData = {
 
 export type ApiV1BuilderRollbackCreateErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  404: ErrorResponse
   409: ErrorResponse
 }
 
@@ -16017,7 +15947,9 @@ export type ApiV1BuilderSchedulesCreateData = {
 
 export type ApiV1BuilderSchedulesCreateErrors = {
   400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  404: ErrorResponse
   409: ErrorResponse
+  503: ErrorResponse
 }
 
 export type ApiV1BuilderSchedulesCreateError = ApiV1BuilderSchedulesCreateErrors[keyof ApiV1BuilderSchedulesCreateErrors]
@@ -16038,7 +15970,8 @@ export type ApiV1BuilderSchedulesDestroyData = {
 }
 
 export type ApiV1BuilderSchedulesDestroyErrors = {
-  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  400: ApiValidationError | ApiError
+  404: ErrorResponse
   409: ErrorResponse
 }
 
@@ -16059,6 +15992,12 @@ export type ApiV1BuilderSchedulesRetrieveData = {
   url: '/api/v1/builder/schedules/{id}'
 }
 
+export type ApiV1BuilderSchedulesRetrieveErrors = {
+  404: ErrorResponse
+}
+
+export type ApiV1BuilderSchedulesRetrieveError = ApiV1BuilderSchedulesRetrieveErrors[keyof ApiV1BuilderSchedulesRetrieveErrors]
+
 export type ApiV1BuilderSchedulesRetrieveResponses = {
   200: Schedule
 }
@@ -16075,7 +16014,8 @@ export type ApiV1BuilderSchedulesPartialUpdateData = {
 }
 
 export type ApiV1BuilderSchedulesPartialUpdateErrors = {
-  400: ApiValidationError | ApiError
+  400: ApiValidationError | ApiError | BuilderDocumentInvalidError
+  404: ErrorResponse
   409: ErrorResponse
 }
 
@@ -16098,6 +16038,7 @@ export type ApiV1BuilderSchedulesAcknowledgeCreateData = {
 
 export type ApiV1BuilderSchedulesAcknowledgeCreateErrors = {
   400: ApiValidationError | ApiError
+  404: ErrorResponse
   409: ErrorResponse
 }
 
@@ -16465,7 +16406,7 @@ export type ListCartItemData = {
     createdBefore?: string
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -16818,7 +16759,7 @@ export type ListCartData = {
     hasItems?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -17269,7 +17210,7 @@ export type ListCountryData = {
     alpha2_Icontains?: string
     alpha2_Iexact?: string
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     alpha2_In?: string | Array<string>
     /**
@@ -17282,7 +17223,7 @@ export type ListCountryData = {
     alpha3_Icontains?: string
     alpha3_Iexact?: string
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     alpha3_In?: string | Array<string>
     /**
@@ -17342,7 +17283,7 @@ export type ListCountryData = {
     isoCc?: string | number
     isoCc_Gte?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     isoCc_In?: string | Array<number>
     isoCc_Lte?: string | number
@@ -17400,7 +17341,7 @@ export type ListCountryData = {
     phoneCode?: string | number
     phoneCode_Gte?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     phoneCode_In?: string | Array<number>
     phoneCode_Lte?: string | number
@@ -18068,7 +18009,7 @@ export type ListNotificationUserData = {
     highPriority?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -18571,7 +18512,7 @@ export type ListOrderData = {
     hasUser?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -18654,7 +18595,7 @@ export type ListOrderData = {
          */
     paymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED'
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     paymentStatus_In?: string | Array<string>
     /**
@@ -18728,7 +18669,7 @@ export type ListOrderData = {
          */
     status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     status_In?: string | Array<string>
     /**
@@ -18890,7 +18831,7 @@ export type ListOrderItemData = {
     highValueItems?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -20003,7 +19944,7 @@ export type ListMyOrdersData = {
     hasUser?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -20086,7 +20027,7 @@ export type ListMyOrdersData = {
          */
     paymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED'
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     paymentStatus_In?: string | Array<string>
     /**
@@ -20160,7 +20101,7 @@ export type ListMyOrdersData = {
          */
     status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     status_In?: string | Array<string>
     /**
@@ -20371,8 +20312,6 @@ export type ListPayWayData = {
          */
     id?: string | number
     /**
-         * Κλειδί
-         *
          * Filter by payment method key
          *
          * * `CREDIT_CARD` - Credit Card
@@ -25054,7 +24993,7 @@ export type ListTagData = {
     hasUsage?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -25337,7 +25276,7 @@ export type ListTaggedItemData = {
     cursor?: string
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -26361,7 +26300,7 @@ export type ListUserAddressData = {
     hasNotes?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -26735,7 +26674,7 @@ export type ListUserSubscriptionData = {
     hasMetadata?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**
@@ -27163,7 +27102,7 @@ export type ListSubscriptionTopicData = {
     hasSubscribers?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         * Multiple values may be separated by commas.
          */
     id_In?: string | Array<number>
     /**

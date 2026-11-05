@@ -53,6 +53,7 @@ export function makeProduct(overrides: ProductOverrides = {}): Product {
 
   return {
     id,
+    potentialPoints: 0,
     translations: {
       el: {
         name: `Προϊόν ${id}`,
@@ -121,6 +122,7 @@ export function makeProductCard(overrides: Partial<ProductCard> & { discountPerc
 
   return {
     id: product.id,
+    potentialPoints: product.potentialPoints,
     translations: {
       el: { name: el?.name, description: el?.description },
       en: { name: en?.name, description: en?.description },

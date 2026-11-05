@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 /**
  * Where a document's saving stands:
  * - `saved`: the store holds what the editor shows;
@@ -15,11 +13,7 @@ import { z } from 'zod'
 export type BuilderSaveState = 'saved' | 'pending' | 'saving' | 'retrying' | 'conflict' | 'invalid' | 'signedOut' | 'failed'
 
 /** Someone else's save, as Django's 409 states it. */
-export interface BuilderSaveConflict {
-  currentRevision: number
-  updatedBy: { id: number, name: string } | null
-  updatedAt: string
-}
+export type BuilderSaveConflict = Pick<BuilderRevisionConflict, 'currentRevision' | 'updatedBy' | 'updatedAt'>
 
 interface DocumentSave {
   state: BuilderSaveState
@@ -28,13 +22,6 @@ interface DocumentSave {
   conflict?: BuilderSaveConflict
   problems?: readonly PublishProblem[]
 }
-
-const ZodConflict = z.object({
-  code: z.literal('revision_conflict'),
-  currentRevision: z.int().min(0),
-  updatedBy: z.object({ id: z.int(), name: z.string() }).nullable(),
-  updatedAt: z.string(),
-})
 
 const statusOf = (error: unknown): number | undefined =>
   typeof error === 'object' && error !== null && 'statusCode' in error && typeof error.statusCode === 'number'
@@ -155,7 +142,7 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
 
   function failed(key: string, error: unknown, attempt: number): void {
     const status = statusOf(error)
-    const conflict = ZodConflict.safeParse(dataOf(error))
+    const conflict = zBuilderRevisionConflict.safeParse(dataOf(error))
     const invalid = zBuilderDocumentInvalidError.safeParse(dataOf(error))
     keep(key)
     if (status === 409 && conflict.success) {
@@ -197,7 +184,7 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
    * asks which copy to keep. Answers whether `body` was Django's conflict.
    */
   function reportConflict(key: string, body: unknown): boolean {
-    const conflict = ZodConflict.safeParse(body)
+    const conflict = zBuilderRevisionConflict.safeParse(body)
     if (!conflict.success) return false
     keep(key)
     set(key, { state: 'conflict', conflict: conflict.data })
