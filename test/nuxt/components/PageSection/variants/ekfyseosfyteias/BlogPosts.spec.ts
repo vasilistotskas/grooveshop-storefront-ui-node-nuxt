@@ -1,11 +1,17 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogPosts from '~/components/PageSection/variants/ekfyseosfyteias/BlogPosts.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
-const COPY = { heading: 'Ένας χρόνος στη Φυτειά', allPosts: 'Όλα τα άρθρα', read: 'Διαβάστε' }
+const COPY = { heading: 'Ένας χρόνος στη Φυτειά', allPosts: 'Όλα τα άρθρα', read: 'Διαβάστε', loadMore: 'Φόρτωση περισσότερων άρθρων' }
+
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+
+const POSTS_URL = '/api/blog/posts'
 
 const post = (id: number, title: string, publishedAt: string, subtitle = '') =>
   makeBlogPost({
@@ -23,15 +29,15 @@ const POSTS = [
 ]
 
 /** The `posts` data setting as the page route hands it over. */
-const posts = (items: BlogPost[]) => ({
+const posts = (items: BlogPost[], total = items.length) => ({
   status: items.length ? 'ok' : 'empty',
   items,
-  total: items.length,
+  total,
   descriptor: { mode: 'filter', ordering: 'newest', limit: 4 },
 }) as ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
 
-const mountPosts = (props: Record<string, unknown> = {}, items: BlogPost[] = POSTS) =>
-  mountSuspended(BlogPosts, { route: false, props: { posts: posts(items), ...props } })
+const mountPosts = (props: Record<string, unknown> = {}, items: BlogPost[] = POSTS, total = items.length) =>
+  mountSuspended(BlogPosts, { route: false, props: { posts: posts(items, total), ...props } })
 
 /**
  * The season cards. The data path is the base band's (the posts arrive
@@ -107,5 +113,27 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
     const wrapper = await mountPosts({}, [])
 
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  describe('with `loadMore` on', () => {
+    const loadMoreButton = (wrapper: Awaited<ReturnType<typeof mountPosts>>) => wrapper.findAll('button').find(button => button.text() === COPY.loadMore)
+
+    it('draws no button when the setting is off', async () => {
+      const wrapper = await mountPosts({}, POSTS.slice(0, 2), 4)
+
+      expect(loadMoreButton(wrapper)).toBeUndefined()
+    })
+
+    it('adds the next posts of the same list below the first ones, and takes the button away when the list is shown', async () => {
+      api.routes({ [POSTS_URL]: { count: 4, links: { next: null, previous: null }, results: POSTS.slice(2) } })
+      const wrapper = await mountPosts({ loadMore: true }, POSTS.slice(0, 2), 4)
+
+      await loadMoreButton(wrapper)!.trigger('click')
+      await vi.waitFor(() => expect(wrapper.findAll('ol > li')).toHaveLength(4))
+
+      expect(wrapper.findAll('h3').map(h => h.text())).toEqual(POSTS.map(p => p.translations.el!.title))
+      expect(api.callsTo(POSTS_URL)[0]!.options.query).toMatchObject({ pageSize: 4, page: 2 })
+      expect(loadMoreButton(wrapper)).toBeUndefined()
+    })
   })
 })

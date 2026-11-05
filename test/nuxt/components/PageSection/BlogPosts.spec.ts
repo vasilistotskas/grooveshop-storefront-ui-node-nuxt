@@ -4,37 +4,43 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import BlogPosts from '~/components/PageSection/BlogPosts.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
 import { makeBlogCategory, makeBlogPost } from '~~/test/fixtures/blog'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
+const toast = vi.hoisted(() => ({ add: vi.fn(), update: vi.fn() }))
+mockNuxtImport('useToast', () => () => toast)
+
 const CATEGORIES_URL = '/api/blog/categories'
+const POSTS_URL = '/api/blog/posts'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
-const COPY = { heading: 'Από το blog', allPosts: 'Όλα τα άρθρα' }
+const COPY = { heading: 'Από το blog', allPosts: 'Όλα τα άρθρα', loadMore: 'Φόρτωση περισσότερων άρθρων', loadError: 'Δεν φορτώθηκαν τα επόμενα άρθρα' }
 
 /** Stands in for the rail: renders the ids of the posts it was handed, and their category's name. */
 const RailStub = defineComponent({
   props: {
     posts: { type: Array as () => { id: number, category: number }[], default: () => [] },
     categoryName: { type: Function, default: undefined },
+    stacked: { type: Boolean, default: false },
   },
-  setup: props => () => h('ol', props.posts.map(p =>
+  setup: props => () => h('ol', { 'data-stacked': props.stacked }, props.posts.map(p =>
     h('li', { 'data-post': p.id, 'data-category': props.categoryName?.(p.category) }))),
 })
 
 /** The `posts` data setting as the page route hands it over. */
-const posts = (items: BlogPost[]) => ({
+const posts = (items: BlogPost[], total = items.length) => ({
   status: items.length ? 'ok' : 'empty',
   items,
-  total: items.length,
-  descriptor: { mode: 'filter', ordering: 'newest', limit: 3 },
+  total,
+  descriptor: { mode: 'filter', ordering: 'newest', limit: 2 },
 }) as ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
 
-const mountPosts = (props: Record<string, unknown> = {}, items: BlogPost[] = [makeBlogPost({ id: 1, category: 1 }), makeBlogPost({ id: 2, category: 2 })]) =>
-  mountSuspended(BlogPosts, { route: false, props: { posts: posts(items), ...props }, global: { stubs: { BlogRail: RailStub } } })
+const mountPosts = (props: Record<string, unknown> = {}, items: BlogPost[] = [makeBlogPost({ id: 1, category: 1 }), makeBlogPost({ id: 2, category: 2 })], total = items.length) =>
+  mountSuspended(BlogPosts, { route: false, props: { posts: posts(items, total), ...props }, global: { stubs: { BlogRail: RailStub } } })
 
 /**
  * The store's writing as a band on another page. A band with nothing to
@@ -82,5 +88,57 @@ describe('PageSection/BlogPosts', () => {
     expect(wrapper.find('h2').text()).toBe('Νέα')
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual(['Περισσότερα', '/blog/category/5/news'])
+  })
+
+  describe('with `loadMore` on', () => {
+    const FIRST_PAGE = [makeBlogPost({ id: 1, category: 1 }), makeBlogPost({ id: 2, category: 2 })]
+    const loadMoreButton = (wrapper: Awaited<ReturnType<typeof mountPosts>>) => wrapper.findAll('button').find(button => button.text() === COPY.loadMore)
+
+    beforeEach(() => {
+      toast.add.mockReset()
+    })
+
+    it('draws no button when the setting is off, however many posts the list has', async () => {
+      const wrapper = await mountPosts({}, FIRST_PAGE, 5)
+
+      expect(loadMoreButton(wrapper)).toBeUndefined()
+      expect(wrapper.find('[role="status"]').exists()).toBe(false)
+      expect(wrapper.get('[data-stacked]').attributes('data-stacked')).toBe('false')
+    })
+
+    it('lays the posts out as a grid, which a row to swipe could not hold more posts of', async () => {
+      const wrapper = await mountPosts({ loadMore: true }, FIRST_PAGE, 5)
+
+      expect(wrapper.get('[data-stacked]').attributes('data-stacked')).toBe('true')
+    })
+
+    it('adds the next posts of the same list below the first ones, and takes the button away when the list is shown', async () => {
+      api.routes({ [POSTS_URL]: { count: 5, links: { next: null, previous: null }, results: [makeBlogPost({ id: 3 }), makeBlogPost({ id: 4 }), makeBlogPost({ id: 5 })] } })
+      const wrapper = await mountPosts({ loadMore: true }, FIRST_PAGE, 5)
+
+      await loadMoreButton(wrapper)!.trigger('click')
+      await vi.waitFor(() => expect(wrapper.findAll('[data-post]')).toHaveLength(5))
+
+      expect(wrapper.findAll('[data-post]').map(li => li.attributes('data-post'))).toEqual(['1', '2', '3', '4', '5'])
+      expect(api.callsTo(POSTS_URL)[0]!.options.query).toMatchObject({ pageSize: 2, ordering: '-publishedAt', page: 2 })
+      expect(loadMoreButton(wrapper)).toBeUndefined()
+    })
+
+    it('keeps the posts it shows and the button, and says why, when a page cannot be read', async () => {
+      api.routes({ [POSTS_URL]: failWith(502) })
+      const wrapper = await mountPosts({ loadMore: true }, FIRST_PAGE, 5)
+
+      await loadMoreButton(wrapper)!.trigger('click')
+      await vi.waitFor(() => expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ title: COPY.loadError, color: 'error' })))
+
+      expect(wrapper.findAll('[data-post]').map(li => li.attributes('data-post'))).toEqual(['1', '2'])
+      expect(loadMoreButton(wrapper)).toBeDefined()
+    })
+
+    it('draws no button over a band with nothing to show', async () => {
+      const wrapper = await mountPosts({ loadMore: true }, [])
+
+      expect(wrapper.find('button').exists()).toBe(false)
+    })
   })
 })

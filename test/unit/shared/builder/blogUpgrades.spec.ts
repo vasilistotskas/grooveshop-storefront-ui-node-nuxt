@@ -64,3 +64,25 @@ describe('blog_categories, version 1 to 2', () => {
     expect(parsed.success).toBe(true)
   })
 })
+
+describe('blog_posts_list, loadMore', () => {
+  const settingsOf = (extra: Record<string, unknown>) => ({ posts: { mode: 'filter', ordering: 'newest', limit: 9 }, ...extra })
+
+  it('is an optional setting, so a version 2 node written without it is valid as it is and no version moved', () => {
+    const definition = block('blog_posts_list')
+
+    expect(definition.version).toBe(2)
+    expect(definition.schema.safeParse(settingsOf({})).success).toBe(true)
+    expect(definition.schema.safeParse(settingsOf({ loadMore: true })).success).toBe(true)
+  })
+
+  it('is a boolean', () => {
+    expect(block('blog_posts_list').schema.safeParse(settingsOf({ loadMore: 'yes' })).success).toBe(false)
+  })
+
+  it('belongs to the list alone: the grid and the carousel, which draw no button, drop it from what they keep', () => {
+    expect(block('blog_posts_list').schema.parse(settingsOf({ loadMore: true }))).toHaveProperty('loadMore', true)
+    expect(block('blog_posts_grid').schema.parse(settingsOf({ loadMore: true }))).not.toHaveProperty('loadMore')
+    expect(block('blog_posts_carousel').schema.parse(settingsOf({ loadMore: true }))).not.toHaveProperty('loadMore')
+  })
+})

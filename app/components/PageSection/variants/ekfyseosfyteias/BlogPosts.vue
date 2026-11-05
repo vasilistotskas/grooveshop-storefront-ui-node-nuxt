@@ -13,6 +13,11 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  *
  * The season and the month are read in UTC, as the order pages read
  * their dates, so the server and the browser agree on both.
+ *
+ * `loadMore` (`blog_posts_list`'s setting) adds a button, in the tenant's
+ * outlined pill, that reads the next posts of the same list
+ * (`useBlogPostsLoadMore`); the cards then run in a grid at every width,
+ * since posts added to a row to swipe would land out of sight.
  */
 // The section row hands over every prop its type admits. The ones this
 // band does not read must not fall through onto it as DOM attributes.
@@ -27,6 +32,7 @@ const props = defineProps<{
   ctaLink?: string
   /** What the band lists: the posts, read by the page route. */
   posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
+  loadMore?: boolean
 }>()
 
 const BLOG_PATH = '/blog'
@@ -49,7 +55,13 @@ const SEASON_BY_MONTH = [
 const { t, locale } = useStoreI18n('components/PageSection/variants/ekfyseosfyteias/BlogPosts')
 const { blogPostUrl } = useUrls()
 
-const cards = computed(() => props.posts.items.map(post => ({
+const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadMore({
+  posts: () => props.posts,
+  enabled: () => props.loadMore === true,
+  errorTitle: () => t('load_error'),
+})
+
+const cards = computed(() => items.value.map(post => ({
   id: post.id,
   image: post.mainImagePath,
   title: extractTranslated(post, 'title', locale.value) ?? '',
@@ -90,23 +102,24 @@ const cards = computed(() => props.posts.items.map(post => ({
            row's overflow does not clip that text, and the cards off to the
            right widened the phone page to ~1000px. -->
       <ol
-        class="
-          relative -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-5
-          overflow-x-auto px-6 [scrollbar-width:none]
-          md:mx-0 md:grid
-          md:grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))]
-          md:overflow-visible md:px-0
-        "
+        :class="loadMore
+          ? 'grid grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))] gap-5'
+          : `
+            relative -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-5
+            overflow-x-auto px-6 [scrollbar-width:none]
+            md:mx-0 md:grid
+            md:grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))]
+            md:overflow-visible md:px-0
+          `"
       >
         <li
           v-for="card in cards"
           :key="card.id"
           class="
-            flex w-[min(300px,80vw)] shrink-0 snap-start flex-col
-            overflow-hidden rounded-3xl bg-(--fy-surface)
+            flex flex-col overflow-hidden rounded-3xl bg-(--fy-surface)
             shadow-[0_1px_0_rgb(28_26_23/8%)]
-            md:w-auto
           "
+          :class="!loadMore && 'w-[min(300px,80vw)] shrink-0 snap-start md:w-auto'"
         >
           <ImgWithFallback
             :src="card.image"
@@ -156,6 +169,36 @@ const cards = computed(() => props.posts.items.map(post => ({
           </div>
         </li>
       </ol>
+      <PageSectionBlogPostsLoadMore
+        v-if="loadMore"
+        :has-more="hasMore"
+        :loading="loading"
+        :added="added"
+        @load="loadNext"
+      >
+        <template #button="{ load, loading: busy, label }">
+          <button
+            type="button"
+            :aria-busy="busy"
+            class="
+              inline-flex min-h-[54px] items-center gap-2.5 rounded-full
+              border-2 border-(--fy-text) px-[26px] text-[16.5px] font-semibold
+              text-(--fy-text)
+              focus-visible:outline-3 focus-visible:outline-offset-3
+              focus-visible:outline-(--fy-focus)
+            "
+            @click="load"
+          >
+            {{ label }}
+            <UIcon
+              :name="busy ? 'i-lucide:refresh-cw' : 'i-lucide:chevron-down'"
+              class="size-[18px] shrink-0"
+              :class="busy && 'motion-safe:animate-spin'"
+              aria-hidden="true"
+            />
+          </button>
+        </template>
+      </PageSectionBlogPostsLoadMore>
     </div>
   </section>
 </template>
@@ -165,6 +208,7 @@ el:
   heading: Ένας χρόνος στη Φυτειά
   all_posts: Όλα τα άρθρα
   read: Διαβάστε
+  load_error: Δεν φορτώθηκαν τα επόμενα άρθρα
   seasons:
     spring: Άνοιξη
     summer: Καλοκαίρι
@@ -174,6 +218,7 @@ en:
   heading: A year in Fytia
   all_posts: All posts
   read: Read
+  load_error: The next posts could not be loaded
   seasons:
     spring: Spring
     summer: Summer
