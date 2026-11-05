@@ -115,6 +115,28 @@ describe('the Volt design scope', () => {
     expect(declares(ruleBody(VOLT), token), `${token} missing from ${VOLT}`).toBe(true)
   })
 
+  // `themeCss` writes these for every store, and `data-design="volt"` is set
+  // only where it does, so a literal here is a second source: Volt's values
+  // are `themeDefaultsFor('volt')`. The base `:root` / `.dark` keep theirs,
+  // which draw the page editor and a page with no store.
+  it.each([
+    '--ui-primary',
+    '--ui-secondary',
+    '--ui-success',
+    '--ui-warning',
+    '--ui-error',
+    '--ui-info',
+    '--ui-liked',
+    '--ui-radius',
+    '--ui-container',
+    '--font-sans',
+    '--font-display',
+    '--font-mono',
+  ])('leaves %s to the theme block, in both colour schemes', (token) => {
+    expect(declares(ruleBody(VOLT), token), `${token} in ${VOLT}`).toBe(false)
+    expect(declares(ruleBody(VOLT_DARK), token), `${token} in ${VOLT_DARK}`).toBe(false)
+  })
+
   it('overrides the base tokens by coming after them', () => {
     expect(css.indexOf(`\n${VOLT} {`)).toBeGreaterThan(css.indexOf('\n:root {'))
     expect(css.indexOf(`\n${VOLT_DARK} {`)).toBeGreaterThan(css.indexOf('\n.dark {'))

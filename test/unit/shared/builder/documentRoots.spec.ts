@@ -88,28 +88,13 @@ describe('themeDefaultsFor', () => {
     })
   })
 
-  describe('Groove Volt: [data-design="volt"]', () => {
+  describe('Groove Volt: the faces and the heart of its defaults', () => {
     const defaults = themeDefaultsFor('volt')
 
-    it.each(['light', 'dark'] as const)('paints the %s scheme the Volt block paints', (scheme) => {
-      const colours = defaults.colors[scheme]
-      const css = volt[scheme]
-
-      expect(colours.action).toBe(colourOf(css['--ui-primary']!))
-      expect(colours.accent).toBe(colourOf(css['--ui-secondary']!))
-      expect(colours.success).toBe(colourOf(css['--ui-success']!))
-      expect(colours.warning).toBe(colourOf(css['--ui-warning']!))
-      expect(colours.error).toBe(colourOf(css['--ui-error']!))
-      expect(colours.info).toBe(colourOf(css['--ui-info']!))
-      // Volt sets no heart of its own.
-      expect(css['--ui-liked']).toBeUndefined()
-      expect(colours.liked).toBe(colourOf(base.light['--ui-liked']!))
-    })
-
-    it('has the radius, width and faces of the Volt design', () => {
-      expect(defaults.radius).toBe(volt.light['--ui-radius'])
-      expect(CONTAINER_MAP[defaults.container]).toBe(volt.light['--ui-container'])
+    it('are the Volt faces and the heart the base stylesheet paints', () => {
       expect(defaults.fonts).toEqual(DESIGN_FONTS.volt)
+      expect(defaults.colors.light.liked).toBe(colourOf(base.light['--ui-liked']!))
+      expect(defaults.colors.dark.liked).toBe(colourOf(base.light['--ui-liked']!))
     })
   })
 })
