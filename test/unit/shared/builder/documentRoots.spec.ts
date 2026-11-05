@@ -5,7 +5,6 @@ import { evaluateContrastRules } from '~~/shared/builder/contrastRules'
 import { VOLT_BACKGROUND, builderDocumentRootsFor, themeContrastRulesFor, themeRootFor } from '~~/shared/builder/documentRoots'
 import { CONTAINER_MAP, FONT_ALLOWLIST } from '~~/shared/theme/constants'
 import { themeDefaultsFor } from '~~/shared/theme/defaults'
-import { DESIGN_FONTS } from '~~/shared/theme/design'
 import { zThemeSettings } from '~~/shared/theme/settings'
 import { TAILWIND_PALETTES } from '~~/shared/theme/tailwindPalettes'
 
@@ -88,11 +87,10 @@ describe('themeDefaultsFor', () => {
     })
   })
 
-  describe('Groove Volt: the faces and the heart of its defaults', () => {
+  describe('Groove Volt: the heart of its defaults', () => {
     const defaults = themeDefaultsFor('volt')
 
-    it('are the Volt faces and the heart the base stylesheet paints', () => {
-      expect(defaults.fonts).toEqual(DESIGN_FONTS.volt)
+    it('are the heart the base stylesheet paints', () => {
       expect(defaults.colors.light.liked).toBe(colourOf(base.light['--ui-liked']!))
       expect(defaults.colors.dark.liked).toBe(colourOf(base.light['--ui-liked']!))
     })

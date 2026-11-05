@@ -41,7 +41,6 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 - `staticDomain` — the tenant's own static-file hostname (e.g. `static.tenant.com`); additively expands CSP img-src/connect-src alongside the platform `staticOrigin`
 - `defaultLocale` — the store's configured language. NOT what `/` renders: the unprefixed routes render the build-time `DEFAULT_LOCALE` on every tenant, and `1.locale.ts` follows what renders (`servedLocale`)
 - `defaultCurrency` — ISO 4217 code (e.g. `'EUR'`), used in RSS and checkout
-- `accentHex` — CSS hex for PWA theme_color
 - `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
 - `features` — Django's effective state of each store feature (`useStoreFeature`, `eventStoreFeature`; see `.claude/rules/ui-and-pages.md`, "Store features"). `loyaltyEnabled`, `blogEnabled` and the other plan flags still arrive but nothing in the storefront reads them
 - `preferences` — each store preference's state, the presentation switches the API does not refuse on (`useStorePreference`, `storePreferenceOn`; same section). `cart` and `catalogue` are in `features`, not here

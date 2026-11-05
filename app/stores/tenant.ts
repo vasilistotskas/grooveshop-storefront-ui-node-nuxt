@@ -9,9 +9,6 @@ export const useTenantStore = defineStore('tenant', () => {
   const apiDomain = computed(() => config.value?.apiDomain ?? '')
   const assetsDomain = computed(() => config.value?.assetsDomain ?? '')
   const staticDomain = computed(() => config.value?.staticDomain ?? '')
-  const primaryColor = computed(() => config.value?.primaryColor ?? 'neutral')
-  const neutralColor = computed(() => config.value?.neutralColor ?? 'zinc')
-  const accentHex = computed(() => config.value?.accentHex ?? '#003DFF')
   const logoLightUrl = computed(() => config.value?.logoLightUrl ?? '')
   const logoDarkUrl = computed(() => config.value?.logoDarkUrl ?? '')
   const faviconUrl = computed(() => config.value?.faviconUrl ?? '')
@@ -33,7 +30,6 @@ export const useTenantStore = defineStore('tenant', () => {
   // gateway). Read by the trust-badges band, which must not let a
   // store advertise a surface it does not serve.
   const agentCommerceEnabled = computed(() => config.value?.agentCommerceEnabled ?? false)
-  const themePreset = computed(() => config.value?.themePreset ?? 'default')
   const stripePublishableKey = computed(() => config.value?.stripePublishableKey ?? '')
   // Minimum gap between two emailed codes. Undefined when the API does not
   // publish one: the resend timer then stays hidden, the action does not.
@@ -135,9 +131,6 @@ export const useTenantStore = defineStore('tenant', () => {
     apiDomain,
     assetsDomain,
     staticDomain,
-    primaryColor,
-    neutralColor,
-    accentHex,
     logoLightUrl,
     logoDarkUrl,
     faviconUrl,
@@ -147,7 +140,6 @@ export const useTenantStore = defineStore('tenant', () => {
     defaultCurrency,
     shippingCarriers,
     agentCommerceEnabled,
-    themePreset,
     stripePublishableKey,
     codeResendCooldownSeconds,
     metaPixelId,

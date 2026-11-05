@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import plugin from '~~/server/plugins/tenant-theme'
 import { DEGRADED_RENDER_STATUS } from '~~/shared/constants/degradedRender'
+import { PLATFORM_THEME_COLOR } from '~~/shared/theme/constants'
 import { themeCss } from '~~/shared/theme/compile'
 import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { backend, createTestEvent, jsonResponse, runNitroPlugin } from '~~/test/helpers/nitro'
@@ -30,14 +31,17 @@ async function render(context: Record<string, unknown>, url = '/') {
 }
 
 const STORE = { schemaName: 'shop' }
+const CHARSET = '<meta charset="utf-8">'
+const themeColor = (color: string) => `<meta name="theme-color" content="${color}">`
+const stylesheet = (css: string) => `<style id="tenant-theme">${css}</style>`
 
 describe('server/plugins/tenant-theme', () => {
-  it('appends the published theme\'s stylesheet after everything else in the head', async () => {
+  it('appends the published theme\'s theme-color and stylesheet after everything else in the head', async () => {
     backend.reply(summary(PUBLISHED))
 
     const { head } = await render({ tenant: STORE })
 
-    expect(head).toEqual(['<meta charset="utf-8">', `<style id="tenant-theme">${themeCss(PUBLISHED, 'volt')}</style>`])
+    expect(head).toEqual([CHARSET, themeColor(PUBLISHED.colors.light.accent), stylesheet(themeCss(PUBLISHED, 'volt'))])
   })
 
   it('compiles the theme for the store\'s design: webside\'s accent is not Volt\'s', async () => {
@@ -45,7 +49,7 @@ describe('server/plugins/tenant-theme', () => {
 
     const { head } = await render({ tenant: { schemaName: 'webside' } })
 
-    expect(head[1]).toBe(`<style id="tenant-theme">${themeCss(themeDefaultsFor(null), null)}</style>`)
+    expect(head.slice(1)).toEqual([themeColor('#003dff'), stylesheet(themeCss(themeDefaultsFor(null), null))])
   })
 
   it('carries the request CSP nonce when there is one', async () => {
@@ -53,7 +57,7 @@ describe('server/plugins/tenant-theme', () => {
 
     const { head } = await render({ tenant: STORE, cspNonce: 'abc123' })
 
-    expect(head[1]).toMatch(/^<style id="tenant-theme" nonce="abc123">/)
+    expect(head[2]).toMatch(/^<style id="tenant-theme" nonce="abc123">/)
   })
 
   it('draws a store with no published theme in its design\'s own', async () => {
@@ -61,7 +65,7 @@ describe('server/plugins/tenant-theme', () => {
 
     const { head, event } = await render({ tenant: STORE })
 
-    expect(head[1]).toBe(`<style id="tenant-theme">${themeCss(themeDefaultsFor('volt'), 'volt')}</style>`)
+    expect(head.slice(1)).toEqual([themeColor(themeDefaultsFor('volt').colors.light.accent), stylesheet(themeCss(themeDefaultsFor('volt'), 'volt'))])
     expect(event.context.degradedRender).toBeUndefined()
   })
 
@@ -70,28 +74,28 @@ describe('server/plugins/tenant-theme', () => {
 
     const { head, event } = await render({ tenant: STORE })
 
-    expect(head[1]).toBe(`<style id="tenant-theme">${themeCss(themeDefaultsFor('volt'), 'volt')}</style>`)
+    expect(head[2]).toBe(stylesheet(themeCss(themeDefaultsFor('volt'), 'volt')))
     expect(event.context.degradedRender).toBeDefined()
     expect(event.node.res.statusCode).toBe(DEGRADED_RENDER_STATUS)
   })
 
-  it('reads nothing and adds nothing without a tenant', async () => {
+  it('reads nothing and names the platform neutral as theme-color without a tenant', async () => {
     const { head } = await render({})
 
-    expect(head).toEqual(['<meta charset="utf-8">'])
+    expect(head).toEqual([CHARSET, themeColor(PLATFORM_THEME_COLOR)])
     expect(backend.requests).toHaveLength(0)
   })
 
-  it.each(['/_builder', '/en/_builder'])('reads nothing and adds nothing on the page editor (%s), which is drawn in the platform\'s look', async (url) => {
+  it.each(['/_builder', '/en/_builder'])('reads nothing and draws the platform\'s look on the page editor (%s)', async (url) => {
     const { head } = await render({ tenant: STORE }, url)
 
-    expect(head).toEqual(['<meta charset="utf-8">'])
+    expect(head).toEqual([CHARSET, themeColor(PLATFORM_THEME_COLOR)])
     expect(backend.requests).toHaveLength(0)
   })
 
   it('still themes a store page whose path merely contains the editor\'s', async () => {
     backend.reply(summary(PUBLISHED))
 
-    expect((await render({ tenant: STORE }, '/blog/_builder-tips')).head).toHaveLength(2)
+    expect((await render({ tenant: STORE }, '/blog/_builder-tips')).head).toHaveLength(3)
   })
 })
