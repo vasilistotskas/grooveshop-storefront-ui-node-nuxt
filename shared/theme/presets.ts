@@ -3,7 +3,7 @@
  * (Django ``ThemePreset`` choices: default / minimal / bold / custom).
  *
  * Resolution order (rightmost wins) lives in
- * ``server/utils/themeTokens.ts``:
+ * ``shared/theme/seed.ts``, which moved the stores onto their themes:
  *   preset defaults ⊕ dedicated Tenant fields ⊕ sanitized theme_metadata
  *
  * ``custom`` equals ``default`` — it exists so an operator signals

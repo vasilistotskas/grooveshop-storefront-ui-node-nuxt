@@ -280,6 +280,8 @@ export interface TestRequestLogger {
   /** The level `setLevel` last chose, if any. */
   readonly level: string | undefined
   set: (fields: Record<string, unknown>) => void
+  /** Records an error on the wide event, with context (evlog's `error(error, context?)`). */
+  error: ReturnType<typeof vi.fn<(error: Error | string, context?: Record<string, unknown>) => void>>
   setLevel: (level: string) => void
   /** evlog's accessor for the fields set so far (`requestId` among them in production). */
   getContext: () => Record<string, unknown>
@@ -298,6 +300,7 @@ export function createRequestLogger(): TestRequestLogger {
     set(next) {
       fields = defu(next, fields)
     },
+    error: vi.fn(),
     setLevel(next) {
       level = next
     },

@@ -68,7 +68,7 @@ export const zThemeMetadata = z
     // dark mode (the pre-darkColors behaviour, unchanged).
     darkColors: zScaleSet.optional(),
     // --ui-liked override (distinct semantic colour owned by main.css;
-    // deliberately NOT the accent — see themeTokens.ts).
+    // deliberately NOT the accent — see seed.ts).
     likedHex: zHex6.optional(),
     // Dark-mode value for --ui-secondary, mirroring how main.css ships
     // a lighter platform secondary (#3364FF) in ``.dark``.

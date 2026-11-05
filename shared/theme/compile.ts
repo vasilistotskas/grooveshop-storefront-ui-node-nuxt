@@ -35,8 +35,8 @@ function schemeTokens(colours: ThemeColorScheme, designAccent: string): string[]
  * font stack, so nothing a store wrote reaches the CSS raw.
  *
  * `html:root` / `html.dark` (0,1,1) beat `main.css`'s `:root` / `.dark` and
- * the design blocks whatever the stylesheet order, as the tenant block always
- * has (`server/utils/themeTokens.ts`).
+ * the design blocks whatever the stylesheet order, as the store's theme block
+ * does (`server/plugins/tenant-theme.ts`).
  */
 export function themeCss(settings: ThemeSettings, design: StorefrontDesign | null): string {
   const defaults = themeDefaultsFor(design)

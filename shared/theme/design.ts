@@ -3,7 +3,7 @@
  *
  * `volt` is the platform default. Its tokens live under
  * `[data-design="volt"]` in `main.css`, its faces are `DESIGN_FONTS.volt`
- * (emitted per request by `server/utils/themeTokens.ts`), and its
+ * (written into the page by `themeCss` from the store's theme), and its
  * component theme is merged into the request's app config by
  * `app/plugins/design.ts` — never written into `app.config.ts` or the
  * `:root` tokens, because those are what the webside tree renders
@@ -34,7 +34,7 @@ export function resolveDesign(tenantSchema?: string | null): StorefrontDesign | 
  * The faces a design sets, as `FONT_ALLOWLIST` keys, before any tenant
  * override: Groove Volt's body (Manrope), headings (Geologica) and
  * numerics (JetBrains Mono). A tenant's `theme_metadata` font wins over
- * these (see `resolveTenantFonts`).
+ * these (`seedThemeSettings`, which moved the stores onto their themes).
  */
 export const DESIGN_FONTS: Record<StorefrontDesign, { sans: string, display: string, mono: string }> = {
   volt: { sans: 'manrope', display: 'geologica', mono: 'jetbrains-mono' },

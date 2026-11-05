@@ -40,23 +40,16 @@ const NUXT_UI_ALIASES = {
   dark: { '--ui-primary': 'var(--ui-color-primary-400)', '--ui-secondary': 'var(--ui-color-secondary-400)', '--ui-success': 'var(--ui-color-success-400)', '--ui-info': 'var(--ui-color-info-400)', '--ui-warning': 'var(--ui-color-warning-400)', '--ui-error': 'var(--ui-color-error-400)' },
 }
 
-/** The palettes Nuxt UI's semantic colours take besides the store's primary and neutral (Nuxt UI's defaults). */
-const SEMANTIC = { secondary: 'blue', success: 'green', info: 'blue', warning: 'yellow', error: 'red' } as const
+/** The palette each of Nuxt UI's colours names in the app config (`app.config.ts` sets primary and neutral, Nuxt UI's defaults the rest). */
+const NUXT_UI_PALETTES: Record<string, TailwindPaletteName> = { primary: 'neutral', neutral: 'zinc', secondary: 'blue', success: 'green', info: 'blue', warning: 'yellow', error: 'red' }
 
 /** The themed tokens compared, besides every shade of the three scales. */
 export const THEMED_TOKENS = ['--ui-primary', '--ui-on-secondary', '--ui-secondary', '--ui-success', '--ui-warning', '--ui-error', '--ui-info', '--ui-liked', '--ui-radius', '--ui-container', '--font-sans', '--font-display', '--font-mono'] as const
 
-/** The store a page is drawn for: its design, and the Tailwind names the tenant plugin hands Nuxt UI. */
-export interface RenderedStore {
-  schemaName: string
-  primaryColor: string
-  neutralColor: string
-}
-
-/** Every themed token of `scheme` on a page of `store` whose theme block is `themeCss`, resolved to a value. */
-export function renderedTokens(store: RenderedStore, themeCss: string, scheme: 'light' | 'dark'): Record<string, string> {
+/** Every themed token of `scheme` on a page of the store `schemaName` (which picks its design) whose theme block is `themeCss`, resolved to a value. */
+export function renderedTokens(schemaName: string, themeCss: string, scheme: 'light' | 'dark'): Record<string, string> {
   const dark = scheme === 'dark'
-  const volt = resolveDesign(store.schemaName) === 'volt'
+  const volt = resolveDesign(schemaName) === 'volt'
   const css: Declarations = Object.assign(
     {},
     NUXT_UI_ALIASES[scheme],
@@ -70,11 +63,7 @@ export function renderedTokens(store: RenderedStore, themeCss: string, scheme: '
     declarations(themeCss, 'html:root'),
     dark ? declarations(themeCss, 'html.dark') : {},
   )
-  const palettes: Record<string, TailwindPaletteName> = {
-    primary: (store.primaryColor in TAILWIND_PALETTES ? store.primaryColor : 'neutral') as TailwindPaletteName,
-    neutral: (store.neutralColor in TAILWIND_PALETTES ? store.neutralColor : 'zinc') as TailwindPaletteName,
-    ...SEMANTIC,
-  }
+  const palettes = NUXT_UI_PALETTES
   const resolve = (value: string): string => {
     const shade = /^var\(--(?:ui-)?color-(\w+)-(\d+)\)$/.exec(value)
     if (shade) {

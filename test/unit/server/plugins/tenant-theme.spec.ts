@@ -1,58 +1,97 @@
 import { describe, expect, it } from 'vitest'
 import plugin from '~~/server/plugins/tenant-theme'
-import { createTestEvent, log, runNitroPlugin } from '~~/test/helpers/nitro'
+import { DEGRADED_RENDER_STATUS } from '~~/shared/constants/degradedRender'
+import { themeCss } from '~~/shared/theme/compile'
+import { themeDefaultsFor } from '~~/shared/theme/defaults'
+import { backend, createTestEvent, jsonResponse, runNitroPlugin } from '~~/test/helpers/nitro'
 
 /**
- * The tenant's design tokens reach the page as one `<style>` block pushed
- * last into the head. What the CSS says is `server/utils/themeTokens.ts`'s
- * contract (its own spec); this pins when the block is emitted and how.
+ * The store's theme reaches the page as one `<style>` block pushed last into
+ * the head, compiled from the theme document of its current release. What the
+ * CSS says is `themeCss`'s contract (`compile.spec.ts`); this pins where the
+ * theme comes from, when the block is emitted and how.
  */
+const PUBLISHED = { ...themeDefaultsFor('volt'), radius: '0.5rem' }
+
+const summary = (settings: unknown) => ({
+  release: 3,
+  locale: 'el',
+  theme: settings === null ? null : { key: 'theme', version: 1, sections: {}, order: [], settings },
+  groups: {},
+  pages: [],
+})
+
 async function render(context: Record<string, unknown>, url = '/') {
   const nitroApp = await runNitroPlugin(plugin)
   const html = { head: ['<meta charset="utf-8">'] }
-  await nitroApp.hooks.callHook('render:html', html, { event: createTestEvent({ context, url }) })
-  return html.head
+  const event = createTestEvent({ context, url })
+  await nitroApp.hooks.callHook('render:html', html, { event })
+  return { head: html.head, event }
 }
 
-const THEMED = { schemaName: 'shop', accentHex: '#b3694b' }
+const STORE = { schemaName: 'shop' }
 
 describe('server/plugins/tenant-theme', () => {
-  it('appends the tenant stylesheet after everything else in the head', async () => {
-    const head = await render({ tenant: THEMED })
+  it('appends the published theme\'s stylesheet after everything else in the head', async () => {
+    backend.reply(summary(PUBLISHED))
 
-    expect(head).toHaveLength(2)
-    expect(head[1]).toMatch(/^<style id="tenant-theme">.*--ui-secondary: ?#b3694b.*<\/style>$/s)
+    const { head } = await render({ tenant: STORE })
+
+    expect(head).toEqual(['<meta charset="utf-8">', `<style id="tenant-theme">${themeCss(PUBLISHED, 'volt')}</style>`])
+  })
+
+  it('compiles the theme for the store\'s design: webside\'s accent is not Volt\'s', async () => {
+    backend.reply(summary(themeDefaultsFor(null)))
+
+    const { head } = await render({ tenant: { schemaName: 'webside' } })
+
+    expect(head[1]).toBe(`<style id="tenant-theme">${themeCss(themeDefaultsFor(null), null)}</style>`)
   })
 
   it('carries the request CSP nonce when there is one', async () => {
-    const head = await render({ tenant: THEMED, cspNonce: 'abc123' })
+    backend.reply(summary(PUBLISHED))
+
+    const { head } = await render({ tenant: STORE, cspNonce: 'abc123' })
 
     expect(head[1]).toMatch(/^<style id="tenant-theme" nonce="abc123">/)
   })
 
-  it.each([
-    ['no tenant', {}],
-    ['webside, which changes nothing', { tenant: { schemaName: 'webside' } }],
-  ])('adds nothing for %s', async (_label, context) => {
-    expect(await render(context)).toEqual(['<meta charset="utf-8">'])
+  it('draws a store with no published theme in its design\'s own', async () => {
+    backend.reply(summary(null))
+
+    const { head, event } = await render({ tenant: STORE })
+
+    expect(head[1]).toBe(`<style id="tenant-theme">${themeCss(themeDefaultsFor('volt'), 'volt')}</style>`)
+    expect(event.context.degradedRender).toBeUndefined()
   })
 
-  it.each(['/_builder', '/en/_builder'])('adds nothing to the page editor (%s), which is drawn in the platform\'s look', async (url) => {
-    expect(await render({ tenant: THEMED }, url)).toEqual(['<meta charset="utf-8">'])
+  it('draws the design\'s own theme and keeps the render out of every cache when the theme cannot be read', async () => {
+    backend.reply(jsonResponse({ detail: 'Bad gateway.' }, 502))
+
+    const { head, event } = await render({ tenant: STORE })
+
+    expect(head[1]).toBe(`<style id="tenant-theme">${themeCss(themeDefaultsFor('volt'), 'volt')}</style>`)
+    expect(event.context.degradedRender).toBeDefined()
+    expect(event.node.res.statusCode).toBe(DEGRADED_RENDER_STATUS)
+  })
+
+  it('reads nothing and adds nothing without a tenant', async () => {
+    const { head } = await render({})
+
+    expect(head).toEqual(['<meta charset="utf-8">'])
+    expect(backend.requests).toHaveLength(0)
+  })
+
+  it.each(['/_builder', '/en/_builder'])('reads nothing and adds nothing on the page editor (%s), which is drawn in the platform\'s look', async (url) => {
+    const { head } = await render({ tenant: STORE }, url)
+
+    expect(head).toEqual(['<meta charset="utf-8">'])
+    expect(backend.requests).toHaveLength(0)
   })
 
   it('still themes a store page whose path merely contains the editor\'s', async () => {
-    expect(await render({ tenant: THEMED }, '/blog/_builder-tips')).toHaveLength(2)
-  })
+    backend.reply(summary(PUBLISHED))
 
-  it('warns about invalid theme metadata and still applies the tenant fields', async () => {
-    const head = await render({ tenant: { ...THEMED, themeMetadata: { notAThemeKey: true } } })
-
-    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({
-      tag: 'tenant-theme',
-      schema: 'shop',
-      metadataError: expect.stringContaining('notAThemeKey'),
-    }))
-    expect(head[1]).toMatch(/--ui-secondary: ?#b3694b/)
+    expect((await render({ tenant: STORE }, '/blog/_builder-tips')).head).toHaveLength(2)
   })
 })
