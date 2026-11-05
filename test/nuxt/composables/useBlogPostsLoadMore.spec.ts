@@ -37,13 +37,13 @@ const page = (posts: number[], count: number, next: boolean) => ({
 async function setup(posts: Posts, enabled = true) {
   const state = reactive({ posts, enabled })
   let result!: ReturnType<typeof useBlogPostsLoadMore>
-  await mountSuspended(defineComponent({
+  const wrapper = await mountSuspended(defineComponent({
     setup() {
       result = useBlogPostsLoadMore({ posts: () => state.posts, enabled: () => state.enabled, errorTitle: () => 'Το φόρτωμα απέτυχε' })
       return () => h('div')
     },
   }), { route: false })
-  return { state, ...result }
+  return { state, wrapper, ...result }
 }
 
 const shownIds = (items: { value: BlogPost[] }) => items.value.map(post => post.id)
@@ -205,6 +205,43 @@ describe('useBlogPostsLoadMore', () => {
     await loadMore()
     expect(api.callsTo(POSTS_URL).at(-1)!.options.query.page).toBe(2)
     expect(shownIds(items)).toEqual([11, 12, 13, 14])
+  })
+
+  it('keeps loading while a page of the new list is on its way and an old page settles', async () => {
+    const answers: Array<(value: unknown) => void> = []
+    api.routes({ [POSTS_URL]: () => new Promise((resolve) => {
+      answers.push(resolve)
+    }) })
+    const { state, loading, loadMore } = await setup(band([1, 2, 3], 9))
+    const stale = loadMore()
+
+    state.posts = band([11, 12, 13], 9)
+    await nextTick()
+    const fresh = loadMore()
+    answers[0]!(page([4, 5, 6], 9, true))
+    await stale
+
+    expect(loading.value).toBe(true)
+    await loadMore()
+    expect(api.callsTo(POSTS_URL)).toHaveLength(2)
+    answers[1]!(page([14], 9, false))
+    await fresh
+    expect(loading.value).toBe(false)
+  })
+
+  it('tells nobody about a page that fails after the band has left the page', async () => {
+    let fail!: (error: unknown) => void
+    api.routes({ [POSTS_URL]: () => new Promise((_resolve, reject) => {
+      fail = reject
+    }) })
+    const { wrapper, loadMore } = await setup(band([1, 2, 3], 9))
+    const pending = loadMore()
+
+    wrapper.unmount()
+    fail(new Error('gone'))
+    await pending
+
+    expect(toast.add).not.toHaveBeenCalled()
   })
 
   it('tells nobody about a failed page of a list the band has left', async () => {

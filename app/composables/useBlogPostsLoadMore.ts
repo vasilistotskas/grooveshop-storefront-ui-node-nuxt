@@ -16,8 +16,9 @@
  * What the shopper sees stays true: a failed page keeps what is shown and
  * leaves the button to try again, a post a page repeats (the list moved
  * between two reads) is shown once, and the button goes when the list has no
- * more. A page that arrives after the band was read again belongs to the old
- * list, so it is dropped, its failure with it.
+ * more. A page that arrives after the band was read again, or after it left
+ * the page, belongs to a list nobody shows, so it is dropped, its failure
+ * with it.
  */
 export function useBlogPostsLoadMore(options: {
   /** What the band lists, as the page route resolved it. */
@@ -40,6 +41,11 @@ export function useBlogPostsLoadMore(options: {
   const added = ref(0)
   /** Which list a read belongs to: moved each time the band is read again. */
   let list = 0
+  // Leaving the page ends the list as reading it again does: a read still on
+  // its way when the band unmounts must not toast on the next page.
+  onScopeDispose(() => {
+    list += 1
+  })
 
   const items = computed(() => [...options.posts().items, ...more.value])
 
