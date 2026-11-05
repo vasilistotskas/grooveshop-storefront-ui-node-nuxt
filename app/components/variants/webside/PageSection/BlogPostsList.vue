@@ -39,7 +39,24 @@ useLikedBlogPosts(() => items.value.map(post => post.id))
       :loading="loading"
       :added="added"
       @load="loadNext"
-    />
+    >
+      <!-- Webside's own "more" button, as its paginated lists draw it
+           (`variants/webside/Pagination/Cursor.vue`), kept enabled while a
+           page is read so the keyboard's focus stays on it. -->
+      <template #button="{ load, loading: busy, label }">
+        <UButton
+          type="button"
+          size="md"
+          variant="soft"
+          color="neutral"
+          :label="label"
+          :icon="busy ? 'i-lucide-refresh-cw' : undefined"
+          :ui="{ leadingIcon: busy ? 'motion-safe:animate-spin' : '' }"
+          :aria-busy="busy"
+          @click="load"
+        />
+      </template>
+    </PageSectionBlogPostsLoadMore>
   </div>
   <WebsidePageSectionBlogPostsGrid
     v-else-if="posts.items.length"

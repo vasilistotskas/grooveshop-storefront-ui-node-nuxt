@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogPostsLoadMore from '~/components/PageSection/BlogPostsLoadMore.vue'
 
@@ -71,6 +72,19 @@ describe('PageSection/BlogPostsLoadMore', () => {
 
     await wrapper.setProps({ hasMore: false })
     await vi.waitFor(() => expect(document.activeElement).toBe(wrapper.element))
+  })
+
+  it('leaves the focus where it is when the shopper was not on the button', async () => {
+    const elsewhere = document.createElement('input')
+    document.body.append(elsewhere)
+    const wrapper = await mountMore()
+    elsewhere.focus()
+
+    await wrapper.setProps({ hasMore: false })
+    await nextTick()
+    await nextTick()
+
+    expect(document.activeElement).toBe(elsewhere)
   })
 
   it('lets a design draw the button, and hands it what it needs to', async () => {

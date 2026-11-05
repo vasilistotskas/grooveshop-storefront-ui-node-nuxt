@@ -16,7 +16,8 @@
  * What the shopper sees stays true: a failed page keeps what is shown and
  * leaves the button to try again, a post a page repeats (the list moved
  * between two reads) is shown once, and the button goes when the list has no
- * more.
+ * more. A page that arrives after the band was read again belongs to the old
+ * list, so it is dropped, its failure with it.
  */
 export function useBlogPostsLoadMore(options: {
   /** What the band lists, as the page route resolved it. */
@@ -37,6 +38,8 @@ export function useBlogPostsLoadMore(options: {
   const loading = ref(false)
   /** How many posts the last read added: what a screen reader is told. */
   const added = ref(0)
+  /** Which list a read belongs to: moved each time the band is read again. */
+  let list = 0
 
   const items = computed(() => [...options.posts().items, ...more.value])
 
@@ -56,6 +59,8 @@ export function useBlogPostsLoadMore(options: {
   // A band that is read again (another page, the page's data refreshed) is a
   // new list: what was added to the old one does not belong to it.
   watch(() => options.posts(), () => {
+    list += 1
+    loading.value = false
     more.value = []
     nextPage.value = 2
     total.value = undefined
@@ -67,12 +72,14 @@ export function useBlogPostsLoadMore(options: {
     const rule = filter.value
     if (!rule || !hasMore.value || loading.value) return
 
+    const asked = list
     loading.value = true
     added.value = 0
     try {
       const response = await $api<PaginatedBlogPostList>('/api/blog/posts', {
         query: { ...blogPostListQuery(rule), page: nextPage.value, languageCode: locale.value },
       })
+      if (asked !== list) return
       const shown = new Set(items.value.map(post => post.id))
       const fresh = response.results.filter(post => !shown.has(post.id) && shown.add(post.id))
       more.value = [...more.value, ...fresh]
@@ -82,11 +89,12 @@ export function useBlogPostsLoadMore(options: {
       finished.value = response.results.length === 0 || !response.links?.next
     }
     catch (error) {
+      if (asked !== list) return
       log.error({ action: 'blogPosts:loadMore', error })
       notify('blog-posts:load-more', error, { title: options.errorTitle() })
     }
     finally {
-      loading.value = false
+      if (asked === list) loading.value = false
     }
   }
 

@@ -33,12 +33,12 @@ const announcement = computed(() => props.added > 0 ? t('loaded', { count: props
 
 // The button the shopper pressed is gone with the last page; hand the focus
 // to this block, which stays in the page, instead of letting it fall to the
-// top of the document.
+// top of the document. Only when the focus was on it: asked before the DOM
+// updates (a `pre` watcher), while the button is still there.
 watch(() => props.hasMore, async (now, before) => {
-  if (before && !now) {
-    await nextTick()
-    root.value?.focus({ preventScroll: true })
-  }
+  if (!before || now || !root.value?.contains(document.activeElement)) return
+  await nextTick()
+  root.value?.focus({ preventScroll: true })
 })
 </script>
 

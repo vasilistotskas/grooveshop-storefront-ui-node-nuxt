@@ -62,6 +62,18 @@ describe('webside PageSection/BlogPostsList', () => {
     expect(loadMoreButton(wrapper)).toBeUndefined()
   })
 
+  // The variant and colour are the contract: webside draws its "more" buttons
+  // soft and neutral (`variants/webside/Pagination/Cursor.vue`), not in the
+  // default design's outline.
+  it('draws the button in webside\'s own look', async () => {
+    const wrapper = await mountList({ loadMore: true })
+
+    const button = wrapper.findAllComponents({ name: 'UButton' })
+      .find(found => found.attributes('aria-busy') !== undefined)!
+    expect(button.props()).toMatchObject({ variant: 'soft', color: 'neutral', size: 'md' })
+    expect(button.attributes('aria-busy')).toBe('false')
+  })
+
   it('keeps the posts it shows and the button, and says why, when a page cannot be read', async () => {
     api.routes({ [POSTS_URL]: failWith(502) })
     const wrapper = await mountList({ loadMore: true })
