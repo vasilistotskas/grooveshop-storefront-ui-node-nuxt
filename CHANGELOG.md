@@ -1,3 +1,10 @@
+## [3.325.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.1...v3.325.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **blog:** drop a stale page, keep focus, and draw webside's own button ([#395](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/395)) ([2da4c2b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2da4c2b86e53b499fe539aa82cc80433c82ff4d8))
+
 ## [3.325.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.0...v3.325.1) (2026-11-05)
 
 
