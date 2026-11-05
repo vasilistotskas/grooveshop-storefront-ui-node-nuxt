@@ -1,21 +1,14 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  productPrice: number
+  potentialPoints: number
 }>()
 
 const { t } = useStoreI18n('components/variants/webside/Product/GuestLoyaltyCTA')
 const localePath = useLocalePath()
 
-const settings = useLoyaltySettings()
-
 const enabled = useStoreFeature('loyalty')
 
-const estimatedPoints = computed(() => {
-  if (!settings.value || !props.productPrice) return 0
-  return Math.floor(props.productPrice * settings.value.pointsFactor)
-})
-
-const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
+const shouldShow = computed(() => enabled.value && props.potentialPoints > 0)
 </script>
 
 <template>
@@ -43,13 +36,13 @@ const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
           />
         </svg>
         <span class="relative z-10 text-[11px] font-bold text-secondary-900 dark:text-secondary-100">
-          +{{ estimatedPoints }}
+          +{{ potentialPoints }}
         </span>
       </div>
 
       <!-- Text -->
       <span class="flex-1 text-xs font-medium text-primary-800 dark:text-primary-200">
-        {{ t('earn', { points: estimatedPoints }) }}
+        {{ t('earn', { points: potentialPoints }) }}
       </span>
 
       <!-- Arrow indicator -->

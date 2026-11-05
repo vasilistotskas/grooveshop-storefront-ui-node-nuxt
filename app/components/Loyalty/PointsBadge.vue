@@ -3,8 +3,8 @@
  * "Earn N points" beside the product's price, for every shopper.
  *
  * A signed-in shopper sees the points Django works out for them, their
- * tier's multiplier included; anyone else sees the store's base rate on
- * the price (`pointsFactor`), which is what an account would earn. One
+ * tier's multiplier included; anyone else sees the product's
+ * `potentialPoints`, what an account at the base rate would earn. One
  * badge in both cases, so the line under the price does not change shape
  * when the session arrives after hydration — only the number can.
  *
@@ -14,15 +14,13 @@
  */
 const props = defineProps<{
   productId: number
-  /** The price the shopper pays, for the signed-out estimate. */
-  productPrice: number
+  /** The points of the base rate, shown until a signed-in shopper's own arrive. */
+  potentialPoints: number
 }>()
 
 const { t } = useStoreI18n('components/Loyalty/PointsBadge')
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
-
-const settings = useLoyaltySettings()
 
 const enabled = useStoreFeature('loyalty')
 const { data: productPoints } = loyalty.fetchProductPoints(props.productId, loggedIn)
@@ -30,8 +28,7 @@ const { data: productPoints } = loyalty.fetchProductPoints(props.productId, logg
 const points = computed(() => {
   if (!enabled.value) return 0
   if (loggedIn.value && productPoints.value) return productPoints.value.potentialPoints
-  if (!settings.value) return 0
-  return Math.floor(props.productPrice * settings.value.pointsFactor)
+  return props.potentialPoints
 })
 </script>
 

@@ -432,8 +432,8 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               :product-id="product.id"
             />
             <WebsideProductGuestLoyaltyCTA
-              v-else-if="product?.finalPrice"
-              :product-price="product.finalPrice"
+              v-else-if="product"
+              :potential-points="product.potentialPoints"
             />
 
             <USeparator />
