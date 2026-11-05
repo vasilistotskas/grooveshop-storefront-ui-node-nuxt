@@ -1,3 +1,10 @@
+## [3.323.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.4...v3.323.5) (2026-11-05)
+
+
+### Bug Fixes
+
+* **auth:** generate the allauth schemas from Django's document ([#385](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/385)) ([b4c6be4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b4c6be4faf86289da6f4da84de24e5b2acbfaaea)), closes [#459](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/459)
+
 ## [3.323.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.3...v3.323.4) (2026-11-05)
 
 
