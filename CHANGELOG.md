@@ -1,3 +1,10 @@
+## [3.325.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.2...v3.325.3) (2026-11-05)
+
+
+### Bug Fixes
+
+* **blog:** drop a load-more read when its band leaves the page ([#396](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/396)) ([dff9c15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dff9c15f03576480912311546ed2889f8f3d0764))
+
 ## [3.325.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.1...v3.325.2) (2026-11-05)
 
 
