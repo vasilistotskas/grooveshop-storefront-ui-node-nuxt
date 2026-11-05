@@ -28,7 +28,7 @@ function offer(...providers: AllAuthProvider[]) {
   useAuthStore().config = makeAllAuthConfig({ socialaccount: { providers } }).data
 }
 
-describe.each(trees(ProviderList, WebsideProviderList))('$tree Account/AllAuthProvider/List', ({ C }) => {
+describe.each(trees(ProviderList, WebsideProviderList))('$tree Account/Provider/List', ({ C }) => {
   async function mountList() {
     const wrapper = await mountSuspended(C, { route: false })
     await flushPromises()
@@ -82,7 +82,7 @@ describe.each(trees(ProviderList, WebsideProviderList))('$tree Account/AllAuthPr
  * action, never "Google" alone. Webside draws the icon-only button the
  * same guidelines allow, so this is the default design's.
  */
-describe('default Account/AllAuthProvider/List: the Google button', () => {
+describe('default Account/Provider/List: the Google button', () => {
   beforeEach(() => {
     offer(GOOGLE, GITHUB)
   })
