@@ -1,6 +1,6 @@
 /**
  * WCAG 2.x contrast for `#RRGGBB` colours: one implementation for the
- * tenant theme's `--ui-on-secondary` (`server/utils/themeTokens.ts`)
+ * theme's `--ui-on-secondary` (`shared/theme/compile.ts`)
  * and for any component that puts text on an operator-chosen fill.
  */
 

@@ -1,40 +1,38 @@
-import { buildTenantThemeCss } from '../utils/themeTokens'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { getRequestURL } from 'h3'
 
 /**
- * Injects the per-tenant design-token stylesheet into every SSR
- * response. The values come from the pure compiler in
- * ``server/utils/themeTokens.ts`` (preset ⊕ Tenant fields ⊕ sanitized
- * theme_metadata — see its sanitization contract).
+ * Injects the store's theme into every SSR response as one
+ * `<style id="tenant-theme">`: the stylesheet `themeCss` writes from the
+ * theme document of the store's current release (`requestStoreTheme`, the
+ * same compiler the page editor's preview draws with). Nothing of the
+ * stylesheet comes from the Tenant row.
  *
- * Nuxt UI's own ``#nuxt-ui-colors`` tag (rendered from the per-request
- * ``appConfig.ui.colors`` set by ``app/plugins/tenant-theme.ts``) lives
- * in ``@layer theme``; this block is unlayered and pushed last, so it
- * wins over both Nuxt UI defaults and ``main.css`` platform values.
+ * It sets everything the theme holds, Nuxt UI's `--ui-primary` and the three
+ * colour scales included, so the colours Nuxt UI's own `#nuxt-ui-colors` tag
+ * writes from `appConfig.ui.colors` (the platform's palettes, the same on the
+ * server and in the browser, so no flash and no hydration mismatch) are
+ * overwritten by this block. It is unlayered and pushed last, so it wins over
+ * Nuxt UI's `@layer theme` and `main.css`.
+ *
+ * The render is what Nitro's page cache stores, so this runs on a cache miss
+ * only; the read behind it is cached too, and a render that could not read
+ * the theme is marked degraded and kept out of every cache
+ * (`requestStoreTheme`).
  *
  * Carries the request's CSP nonce when the nonce pipeline stamped one
- * (``server/plugins/csp-nonce.ts``) so the block keeps working if
- * style-src ever drops 'unsafe-inline'.
+ * (`server/plugins/csp-nonce.ts`) so the block keeps working if style-src
+ * ever drops 'unsafe-inline'.
  *
- * Not on the page editor (`isBuilderEditorPath`): the editor is drawn in
- * the platform's look, and the store is what its preview frame shows.
+ * Not on the page editor (`isBuilderEditorPath`): the editor is drawn in the
+ * platform's look, and the store is what its preview frame shows.
  */
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook('render:html', (html, { event }) => {
-    const tenant = event.context.tenant
-    if (!tenant || isBuilderEditorPath(getRequestURL(event).pathname)) return
+  nitroApp.hooks.hook('render:html', async (html, { event }) => {
+    if (!event.context.tenant || isBuilderEditorPath(getRequestURL(event).pathname)) return
 
-    const { css, metadataError } = buildTenantThemeCss(tenant)
-    if (metadataError) {
-      log.warn({
-        tag: 'tenant-theme',
-        message: 'invalid theme_metadata — preset values used instead',
-        schema: tenant.schemaName,
-        metadataError,
-      })
-    }
-    if (!css) return
+    const settings = await requestStoreTheme(event)
+    const css = themeCss(settings, resolveDesign(event.context.tenant.schemaName))
 
     const nonce = event.context.cspNonce
     const nonceAttr = typeof nonce === 'string' && nonce

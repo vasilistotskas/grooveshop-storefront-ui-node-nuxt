@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import plugin from '~~/server/plugins/tenant-fonts'
 import { keepHeadFontFaces, tenantFontFamilies } from '~~/server/utils/tenantFontFaces'
-import { createTestEvent, runNitroPlugin } from '~~/test/helpers/nitro'
+import { themeDefaultsFor } from '~~/shared/theme/defaults'
+import { backend, createTestEvent, runNitroPlugin } from '~~/test/helpers/nitro'
 
 /**
  * `@nuxt/fonts` inlines a face for every selectable family into every
@@ -24,6 +25,17 @@ const FONTS_STYLE = `<style>${[
   face('"Source Serif 4"'),
 ].join('')}</style>`
 
+/** The faces the store's published theme sets, as the release summary Django answers carries them. */
+function publishTheme(fonts: { sans: string, display: string, mono: string } | null, design: 'volt' | null = 'volt') {
+  backend.reply({
+    release: 3,
+    locale: 'el',
+    theme: fonts && { key: 'theme', version: 1, sections: {}, order: [], settings: { ...themeDefaultsFor(design), fonts } },
+    groups: {},
+    pages: [],
+  })
+}
+
 async function render(context: Record<string, unknown>, url = '/') {
   const nitroApp = await runNitroPlugin(plugin)
   const html = { head: ['<meta charset="utf-8">', FONTS_STYLE] }
@@ -35,7 +47,9 @@ const families = (head: string) =>
   [...head.matchAll(/font-family:([^;]+);/g)].map(match => match[1])
 
 describe('server/plugins/tenant-fonts', () => {
-  it('keeps the Volt faces, with their fallbacks, on a Volt store', async () => {
+  it('keeps the Volt faces, with their fallbacks, on a Volt store with no published theme', async () => {
+    publishTheme(null)
+
     expect(families(await render({ tenant: { schemaName: 'demo' } }))).toEqual([
       'Manrope',
       'Manrope Fallback\\: Arial',
@@ -45,16 +59,15 @@ describe('server/plugins/tenant-fonts', () => {
   })
 
   it.each(['/_builder', '/en/_builder?ticket=x'])('keeps none of the store\'s faces on the page editor (%s), which is not the store', async (url) => {
+    publishTheme({ sans: 'manrope', display: 'geologica', mono: 'jetbrains-mono' })
+
     expect(families(await render({ tenant: { schemaName: 'demo' } }, url))).toEqual([])
   })
 
-  it('keeps the store\'s own faces where it chose them', async () => {
-    const head = await render({
-      tenant: {
-        schemaName: 'ekfyseosfyteias',
-        themeMetadata: { fontSans: 'commissioner', fontDisplay: 'vollkorn' },
-      },
-    })
+  it('keeps the faces its published theme chose', async () => {
+    publishTheme({ sans: 'commissioner', display: 'vollkorn', mono: 'jetbrains-mono' })
+
+    const head = await render({ tenant: { schemaName: 'ekfyseosfyteias' } })
 
     expect(families(head)).toEqual([
       'JetBrains Mono',
@@ -65,6 +78,8 @@ describe('server/plugins/tenant-fonts', () => {
   })
 
   it('drops every selectable face, and the emptied style, where the store sets none', async () => {
+    publishTheme({ sans: 'system', display: 'system', mono: 'system-mono' }, null)
+
     expect(await render({ tenant: { schemaName: 'webside' } })).toBe('<meta charset="utf-8">')
     expect(await render({})).toBe('<meta charset="utf-8">')
   })
@@ -74,7 +89,7 @@ describe('keepHeadFontFaces', () => {
   it('reads a quoted or escaped family name', () => {
     const style = `<style>${face('"Source Serif 4"')}${face('Source Serif\\ \\34 ')}</style>`
 
-    expect(keepHeadFontFaces([style], tenantFontFamilies({ display: 'source-serif-4' }))).toEqual([style])
+    expect(keepHeadFontFaces([style], tenantFontFamilies({ sans: 'system', display: 'source-serif-4', mono: 'system-mono' }))).toEqual([style])
     expect(keepHeadFontFaces([style], new Set())).toEqual([])
   })
 

@@ -1,4 +1,4 @@
-import type { TenantFonts } from './themeTokens'
+import type { ThemeSettings } from '../../shared/theme/settings'
 
 /**
  * Which `@font-face` rules a page keeps.
@@ -32,8 +32,8 @@ function declaredFamily(rule: string): string | undefined {
       hex ? String.fromCodePoint(Number.parseInt(hex, 16)) : char!)
 }
 
-/** The family names behind the tenant's resolved faces. */
-export function tenantFontFamilies(fonts: TenantFonts): Set<string> {
+/** The family names behind the store's theme faces. */
+export function tenantFontFamilies(fonts: ThemeSettings['fonts']): Set<string> {
   const families = new Set<string>()
   for (const key of [fonts.sans, fonts.display, fonts.mono]) {
     const name = key ? FONT_FAMILY_NAMES[key] : undefined

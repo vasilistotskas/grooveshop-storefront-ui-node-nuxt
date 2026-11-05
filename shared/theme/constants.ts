@@ -1,8 +1,7 @@
 /**
  * Per-tenant design-token vocabulary — single source of truth shared by
- * the SSR token compiler (``server/utils/themeTokens.ts``), the
- * universal theme plugin (``app/plugins/tenant-theme.ts``), the fonts
- * setup in ``nuxt.config.ts`` and the metadata schema.
+ * the theme compiler (``shared/theme/compile.ts``), the fonts setup in
+ * ``nuxt.config.ts``, the theme schema and the metadata schema.
  *
  * Every value a tenant can influence is either enum-mapped through the
  * tables below or matched against ``HEX_COLOR_RE`` — raw tenant strings

@@ -2,6 +2,7 @@ import type { RequestEventContext } from '@nuxt/schema'
 import type { AuditableLogger } from 'evlog'
 import type { SupportedLocale } from '~~/i18n/locales'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
+import type { ThemeSettings } from '~~/shared/theme/settings'
 import type { TenantResult } from '~~/shared/types/TenantResult'
 
 /**
@@ -23,6 +24,8 @@ declare module '@nuxt/schema' {
     tenant?: TenantConfig
     /** The one lookup of this request's store, shared by every caller: `requestTenantResult`. */
     tenantResult?: Promise<TenantResult>
+    /** The theme this request's pages are drawn with, read once: `requestStoreTheme`. */
+    storeTheme?: Promise<ThemeSettings>
     /** The locale this request renders in: `server/middleware/1.locale.ts`. */
     locale?: SupportedLocale
     /** The CSP nonce for this response: `server/middleware/3.csp.ts`. */

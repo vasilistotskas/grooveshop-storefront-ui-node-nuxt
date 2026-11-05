@@ -32,13 +32,13 @@ const paletteName = (value: string | null | undefined, fallback: TailwindPalette
 /**
  * The theme document that renders a store exactly as its Tenant fields do
  * today, for the one-off move of the existing stores onto the theme document
- * (`pnpm theme:seed`). It reads the fields the way the render reads them: the
- * Tailwind names the tenant plugin hands Nuxt UI (`app/plugins/tenant-theme.ts`),
- * then every rule of `buildTenantThemeCss` (`server/utils/themeTokens.ts`),
- * which writes only what a store changed, over its design's defaults
- * (`themeDefaultsFor`), which hold what the design's stylesheet paints. A
- * `theme_metadata` that does not validate is read as none, as the render reads
- * it.
+ * (`pnpm theme:seed`). It reads the fields the way the render read them: the
+ * Tailwind names the tenant plugin handed Nuxt UI, then every rule of the
+ * Tenant-field compiler, which wrote only what a store changed, over its
+ * design's defaults (`themeDefaultsFor`), which hold what the design's
+ * stylesheet paints. A `theme_metadata` that does not validate is read as
+ * none. Both are gone from the render; `seed.spec.ts` holds the seed to what
+ * they drew for the production stores.
  */
 export function seedThemeSettings(fields: TenantThemeFields): ThemeSettings {
   const design = resolveDesign(fields.schemaName)
@@ -52,7 +52,7 @@ export function seedThemeSettings(fields: TenantThemeFields): ThemeSettings {
 
   // The accent: an accentHex the store changed, else a custom secondary
   // scale's 500 (400 in the dark), else the design's; accentDarkHex wins in
-  // the dark (themeTokens.ts, "accentHex maps to --ui-secondary only").
+  // the dark ("accentHex maps to --ui-secondary only").
   const accentHex = hex(fields.accentHex)
   const accentCustomized = accentHex !== null && accentHex !== PLATFORM_COLORS.secondary
   const secondaryScale = metadata.colors?.secondaryScale
@@ -96,11 +96,11 @@ export function seedThemeSettings(fields: TenantThemeFields): ThemeSettings {
   }
 
   // Radius and width are written only when they are not the platform's
-  // (0.25rem, `wide`); otherwise the design's own stand (themeTokens.ts).
+  // (0.25rem, `wide`); otherwise the design's own stand.
   const radius = metadata.radius ?? preset.radius
   const container = metadata.container ?? preset.container
 
-  // The faces as resolveTenantFonts picks them; a role it leaves unset is the
+  // The faces as the Tenant path picked them; a role it leaves unset is the
   // stylesheet's: the design's face, or main.css's (display follows sans).
   const designFonts = design ? DESIGN_FONTS[design] : undefined
   const chosenSans = metadata.fontSans ?? preset.fontSans

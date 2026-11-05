@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { themeDefaultsFor } from '../../shared/theme/defaults'
 import { makeProductPoints } from '../fixtures/loyalty'
 import { makeProduct, makeProductCard } from '../fixtures/product'
 import { makeCategory, makeProductSearchResponse } from '../fixtures/productFilters'
@@ -91,6 +92,13 @@ const TEXTS_DOWN_HOST_PREFIX = 'texts-down'
 /** One host per request the upstream got for the texts of a store whose texts are down. */
 const textsDownRequests: string[] = []
 
+const THEME_DOWN_HOST_PREFIX = 'theme-down'
+const THEME_PUBLISHED_HOST_PREFIX = 'theme-published'
+/** One host per request the upstream got for the release of a store whose release cannot be read. */
+const themeDownRequests: string[] = []
+/** The theme document the store `theme-published*` has released: Volt's own with a rounder corner. */
+const PUBLISHED_THEME = { ...themeDefaultsFor('volt'), radius: '0.5rem' }
+
 // The default design's store, and webside's, for the search count below.
 const SEARCH_COUNT_HOST = 'search-count.localhost'
 /** The query of every products search the upstream got for those stores. */
@@ -131,8 +139,18 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
 
   // The release's own read: its groups and the list of its pages.
   if (reqUrl.pathname.endsWith('/builder/published')) {
+    const host = String(req.headers['x-forwarded-host'])
+    if (host.startsWith(THEME_DOWN_HOST_PREFIX)) {
+      themeDownRequests.push(host)
+      sendJson(res, { detail: 'Service unavailable.' }, 503)
+      return
+    }
     sendJson(res, {
       release: 1,
+      locale: 'el',
+      theme: host.startsWith(THEME_PUBLISHED_HOST_PREFIX)
+        ? { key: 'theme', version: 1, sections: {}, order: [], settings: PUBLISHED_THEME }
+        : null,
       groups: {},
       pages: [{ key: CUSTOM_PAGE_SLUG, kind: 'page', updatedAt: '2026-11-01T10:00:00+00:00' }],
     })
@@ -522,6 +540,37 @@ export function describePageRenders(): void {
       }
       // Not stored by Nitro either: the second visitor asked again.
       expect(textsDownRequests.length).toBeGreaterThanOrEqual(2)
+    }, 60000)
+
+    // The store's theme is its published theme document, drawn into the page
+    // and kept by the page cache like the page.
+    it('draws a page with the theme its release published, and caches it for everyone', async () => {
+      const { statusCode, body, headers } = await request('/contact', 'theme-published-smoke.localhost')
+
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+      expect(body).toContain(`<style id="tenant-theme"`)
+      expect(body).toContain(`--ui-radius: ${PUBLISHED_THEME.radius}`)
+      expect(headers['cloudflare-cdn-cache-control']).toBeTruthy()
+      expect(headers['cache-control']).toBe('no-cache')
+    }, 60000)
+
+    // The release could not be read: the page renders with its design's own
+    // theme, and that render must reach no cache (a cached page would keep
+    // the design's colours over the store's after Django recovers).
+    it('renders a page with the default theme of its design, uncached, while the release of the store cannot be read', async () => {
+      const host = 'theme-down-smoke.localhost'
+
+      const first = await request('/contact', host)
+      const second = await request('/contact', host)
+
+      for (const { statusCode, body, headers } of [first, second]) {
+        expect(statusCode, body.slice(0, 900)).toBe(200)
+        expect(body).toContain(`--ui-radius: ${themeDefaultsFor('volt').radius}`)
+        expect(headers['cloudflare-cdn-cache-control']).toBeUndefined()
+        expect(headers['cache-tag']).toBeUndefined()
+        expect(headers['cache-control']).toBe('private, no-store')
+      }
+      expect(themeDownRequests.length).toBeGreaterThanOrEqual(2)
     }, 60000)
 
     // The filter column's counts and ranges ride on the listing's own

@@ -22,4 +22,14 @@ describe('markDegradedRender', () => {
 
     expect(event.context.degradedRender).toEqual({ status: 404 })
   })
+
+  it('keeps the real status when a second failure marks the same render', () => {
+    const event = render()
+
+    markDegradedRender(event)
+    markDegradedRender(event)
+
+    expect(event.context.degradedRender).toEqual({ status: 200 })
+    expect(event.node.res.statusCode).toBe(DEGRADED_RENDER_STATUS)
+  })
 })

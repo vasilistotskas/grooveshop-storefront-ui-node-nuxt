@@ -1,6 +1,6 @@
 /**
- * Draws the storefront in its design system — UNIVERSAL, like
- * `tenant-theme.ts`, and for the same reasons.
+ * Draws the storefront in its design system — UNIVERSAL: the server run and
+ * the client run set the same values, so there is no flash and no mismatch.
  *
  * The design is resolved per tenant (`resolveDesign`): every store gets
  * Groove Volt except the webside design, which must keep rendering
