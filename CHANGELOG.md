@@ -1,3 +1,10 @@
+## [3.325.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.0...v3.325.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* **blog:** let a list band load more of its own posts ([#394](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/394)) ([bd64079](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bd6407956230dc3d837218603febeb4a12adcfc2))
+
 # [3.325.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.324.0...v3.325.0) (2026-11-05)
 
 
