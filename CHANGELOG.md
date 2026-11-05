@@ -1,3 +1,10 @@
+## [3.323.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.2...v3.323.3) (2026-11-05)
+
+
+### Bug Fixes
+
+* **openapi:** read the builder's refusals and staff roles from the schema ([#389](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/389)) ([f9afcab](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f9afcabde9b38eb6dd5e8d4bf2353be4dbb2d799))
+
 ## [3.323.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.1...v3.323.2) (2026-11-04)
 
 
