@@ -1,3 +1,10 @@
+## [3.323.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.3...v3.323.4) (2026-11-05)
+
+
+### Bug Fixes
+
+* **loyalty:** show the points Django works out, not a copy of its rule ([#391](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/391)) ([9f94c12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9f94c12133cbfdfcd5842e0aca59b444121b51b0))
+
 ## [3.323.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.2...v3.323.3) (2026-11-05)
 
 
