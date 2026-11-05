@@ -64,7 +64,7 @@ export function requestStoreTheme(event: H3Event): Promise<ThemeSettings> {
 }
 
 async function loadStoreTheme(event: H3Event): Promise<ThemeSettings> {
-  const tenant = event.context.tenant
+  const tenant = (await requestTenantResult(event)).config
   const design = resolveDesign(tenant?.schemaName)
   const locale = requestLocale(event)
   try {

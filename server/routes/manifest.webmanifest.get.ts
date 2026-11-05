@@ -19,13 +19,10 @@ export default defineEventHandler(async (event) => {
   const description = tenant?.storeDescription || siteConfig.description || ''
   const lang = tenant?.defaultLocale || siteConfig.defaultLocale || 'el'
 
-  // Derive theme_color from the tenant accent hex (if provided) or fall back
-  // to the brand default. Strip leading '#' that the frontend palette sometimes
-  // omits — the manifest spec requires the full CSS colour value.
-  const tenantAccent = tenant?.accentHex
-  const themeColor = tenantAccent
-    ? (tenantAccent.startsWith('#') ? tenantAccent : `#${tenantAccent}`)
-    : '#1a202c'
+  // theme_color is the accent of the store's published theme, the colour its
+  // pages' own `theme-color` names (`server/plugins/tenant-theme.ts`); a
+  // request with no store gets the platform neutral.
+  const themeColor = tenant ? themeColorOf(await requestStoreTheme(event)) : PLATFORM_THEME_COLOR
 
   setHeader(event, 'Content-Type', 'application/manifest+json')
 

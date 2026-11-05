@@ -24,20 +24,27 @@ import { getRequestURL } from 'h3'
  * (`server/plugins/csp-nonce.ts`) so the block keeps working if style-src
  * ever drops 'unsafe-inline'.
  *
+ * Also the page's `theme-color`: the theme's accent (`themeColorOf`, which the
+ * manifest's `theme_color` names too), written here rather than by the app
+ * because the app never holds the theme; the platform neutral where there is
+ * no theme to draw with.
+ *
  * Not on the page editor (`isBuilderEditorPath`): the editor is drawn in the
  * platform's look, and the store is what its preview frame shows.
  */
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('render:html', async (html, { event }) => {
-    if (!event.context.tenant || isBuilderEditorPath(getRequestURL(event).pathname)) return
+    const tenant = event.context.tenant
+    const themed = tenant && !isBuilderEditorPath(getRequestURL(event).pathname) ? tenant : undefined
+    const settings = themed && await requestStoreTheme(event)
 
-    const settings = await requestStoreTheme(event)
-    const css = themeCss(settings, resolveDesign(event.context.tenant.schemaName))
+    html.head.push(`<meta name="theme-color" content="${settings ? themeColorOf(settings) : PLATFORM_THEME_COLOR}">`)
+    if (!themed || !settings) return
 
     const nonce = event.context.cspNonce
     const nonceAttr = typeof nonce === 'string' && nonce
       ? ` nonce="${nonce}"`
       : ''
-    html.head.push(`<style id="tenant-theme"${nonceAttr}>${css}</style>`)
+    html.head.push(`<style id="tenant-theme"${nonceAttr}>${themeCss(settings, resolveDesign(themed.schemaName))}</style>`)
   })
 })

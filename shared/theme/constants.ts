@@ -1,30 +1,17 @@
 /**
  * Per-tenant design-token vocabulary — single source of truth shared by
  * the theme compiler (``shared/theme/compile.ts``), the fonts setup in
- * ``nuxt.config.ts``, the theme schema and the metadata schema.
+ * ``nuxt.config.ts`` and the theme schema (``shared/theme/settings.ts``).
  *
- * Every value a tenant can influence is either enum-mapped through the
- * tables below or matched against ``HEX_COLOR_RE`` — raw tenant strings
- * are NEVER interpolated into CSS.
+ * Every value a store can influence is either enum-mapped through the
+ * tables below or matched against ``HEX_COLOR_RE`` — raw strings are
+ * NEVER interpolated into CSS.
  */
 
 export const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/
 
 /** The shades of a Nuxt UI colour scale (`--ui-color-<name>-<shade>`), lightest first. */
 export const THEME_SHADES = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'] as const
-
-/**
- * Mirror of Django's ``tenant.models.TailwindColor`` choices — the only
- * values accepted for ``primaryColor`` / ``neutralColor``. Nuxt UI
- * resolves these to full 50–950 scales at head-render time.
- */
-export const TAILWIND_COLOR_ALLOWLIST = new Set([
-  'slate', 'gray', 'zinc', 'neutral', 'stone',
-  'red', 'orange', 'amber', 'yellow', 'lime',
-  'green', 'emerald', 'teal', 'cyan', 'sky',
-  'blue', 'indigo', 'violet', 'purple', 'fuchsia',
-  'pink', 'rose',
-])
 
 /**
  * Curated font stacks. ``system`` is the platform default (identical to
@@ -186,23 +173,8 @@ export const CONTAINER_MAP: Record<string, string> = {
 }
 
 /**
- * The platform's own colour values, as written in
- * `app/assets/css/main.css` and mirrored by the Django `Tenant` field
- * defaults.
- *
- * Used to decide whether a tenant has actually CUSTOMIZED a colour.
- * Every colour field on the Tenant model ships with a non-blank default
- * equal to the platform value, so "the field has a value" says nothing —
- * treating it as customization made the token compiler emit the full
- * block for the platform tenant itself, overriding main.css at equal
- * specificity and flattening the deliberately different `.dark` values.
- *
- * Lower-case: comparisons normalise before matching.
+ * The `theme-color` of a page that is not drawn with a store's theme (the page
+ * editor, a page with no store) and of a manifest with none: the platform's
+ * neutral ink.
  */
-export const PLATFORM_COLORS = {
-  secondary: '#003dff',
-  success: '#16a34a',
-  warning: '#ca8a04',
-  error: '#dc2626',
-  info: '#2563eb',
-} as const
+export const PLATFORM_THEME_COLOR = '#1a202c'

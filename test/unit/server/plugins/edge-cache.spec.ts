@@ -148,6 +148,12 @@ describe('server/plugins/edge-cache', () => {
   })
 
   describe('a render that fell back to defaults (shared/constants/degradedRender.ts)', () => {
+    it('puts the real status back on a route that is no page: the manifest reads the theme too', async () => {
+      await respond('/manifest.webmanifest', { status: 503, degradedRender: { status: 200 } })
+
+      expect(lastStatus).toBe(200)
+    })
+
     const degraded = { status: 503, degradedRender: { status: 200 }, headers: { 'cache-control': NITRO_SWR, 'content-type': 'text/html;charset=utf-8' } }
 
     it('answers with the real status and no cache directive anywhere', async () => {

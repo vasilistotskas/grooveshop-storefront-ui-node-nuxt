@@ -1,13 +1,16 @@
 /**
- * The PWA manifest: tenant fields (storeName, accentHex, faviconUrl,
- * defaultLocale) override the platform defaults, and — since the route
+ * The PWA manifest: tenant fields (storeName, faviconUrl, defaultLocale)
+ * and the accent of the store's published theme (theme_color) override the
+ * platform defaults, and — since the route
  * is bypassed in 0.tenant.ts — it resolves the tenant itself when the
  * context has none. Another store's brand must never appear in a
  * tenant's install surface.
  */
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { createSiteConfigStack } from 'site-config-stack'
 import handler from '~~/server/routes/manifest.webmanifest.get'
+import { PLATFORM_THEME_COLOR } from '~~/shared/theme/constants'
+import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 
@@ -38,32 +41,52 @@ async function manifest(tenant?: Record<string, unknown>) {
   return response.body
 }
 
+/** What Django answers: the store behind the host (none by default) and the theme of its release (none by default). */
+const upstream: { tenant?: Record<string, unknown>, theme: unknown } = { theme: null }
+
+beforeEach(() => {
+  upstream.tenant = undefined
+  upstream.theme = null
+  backend.reply(({ path }) => {
+    if (path.endsWith('/tenant/resolve')) return upstream.tenant ?? jsonResponse({ detail: 'Not found.' }, 404)
+    if (path.endsWith('/builder/published')) {
+      return {
+        release: 1,
+        locale: 'el',
+        theme: upstream.theme && { key: 'theme', version: 1, sections: {}, order: [], settings: upstream.theme },
+        groups: {},
+        pages: [],
+      }
+    }
+    throw new Error(`Unexpected backend request: ${path}`)
+  })
+})
+
 const tenant = (overrides: Record<string, unknown> = {}) => validTenantConfig(HOST, {
   storeName: 'Aurora Store',
   storeDescription: '',
   faviconUrl: '',
-  accentHex: '',
   ...overrides,
 })
 
 describe('GET /manifest.webmanifest', () => {
   it('uses the platform defaults and icons when no tenant resolves', async () => {
-    backend.reply(jsonResponse({ detail: 'Not found.' }, 404))
-
     const body = await manifest()
 
-    expect(body).toMatchObject({ name: 'Platform Store', description: 'Default description', theme_color: '#1a202c', lang: 'en' })
+    expect(body).toMatchObject({ name: 'Platform Store', description: 'Default description', theme_color: PLATFORM_THEME_COLOR, lang: 'en' })
     expect(body.icons.map((icon: { src: string }) => icon.src)).toEqual(PLATFORM_ICONS)
     // Resolved for the Host, never for a caller-supplied X-Forwarded-Host.
-    expect(backend.lastRequest.query).toEqual({ domain: HOST })
+    expect(backend.requests.map(request => request.query)).toEqual([{ domain: HOST }])
   })
 
   it('resolves the tenant for the request host when the context has none', async () => {
-    backend.reply(tenant({ storeName: 'Resolved Store' }))
+    upstream.tenant = tenant({ storeName: 'Resolved Store', schemaName: 'demo' })
 
     const body = await manifest()
 
     expect(body.name).toBe('Resolved Store')
+    // The theme is read for the store it resolved: Groove Volt's default accent.
+    expect(body.theme_color).toBe('#0038e8')
     expect(body.icons).toEqual([])
   })
 
@@ -71,7 +94,7 @@ describe('GET /manifest.webmanifest', () => {
     const body = await manifest(tenant({ storeName: 'Webside Store' }))
 
     expect(body.name).toBe('Webside Store')
-    expect(backend.requests).toEqual([])
+    expect(backend.requests.map(request => request.path)).not.toContainEqual(expect.stringMatching(/\/tenant\/resolve$/))
   })
 
   it.each([
@@ -86,10 +109,19 @@ describe('GET /manifest.webmanifest', () => {
     expect(body.short_name).toBe(shortName)
   })
 
-  it.each([['#FF5733'], ['FF5733']])('uses the tenant accent %j as a full CSS theme_color', async (accentHex) => {
-    const body = await manifest(tenant({ accentHex }))
+  it('uses the accent of the store\'s published theme, not its Tenant fields, as theme_color', async () => {
+    const published = themeDefaultsFor('volt')
+    upstream.theme = { ...published, colors: { ...published.colors, light: { ...published.colors.light, accent: '#b3694b' } } }
 
-    expect(body.theme_color).toBe('#FF5733')
+    const body = await manifest(tenant({ accentHex: '#003DFF' }))
+
+    expect(body.theme_color).toBe('#b3694b')
+  })
+
+  it.each([['Groove Volt', 'demo', '#0038e8'], ['Webside', 'webside', '#003dff']])('uses the default accent of %s for a store with no published theme', async (_design, schemaName, accent) => {
+    const body = await manifest(tenant({ schemaName }))
+
+    expect(body.theme_color).toBe(accent)
   })
 
   it('prefers the tenant description and locale, falling back to the site config', async () => {

@@ -51,3 +51,12 @@ export function themeCss(settings: ThemeSettings, design: StorefrontDesign | nul
   const dark = [...shared, ...schemeTokens(settings.colors.dark, defaults.colors.dark.accent)]
   return `html:root { ${light.join('; ')} } html.dark { ${dark.join('; ')} }`
 }
+
+/**
+ * The colour a browser tints its own chrome with for the store (the page's
+ * `theme-color` and the manifest's `theme_color`): the accent of the light
+ * scheme.
+ */
+export function themeColorOf(settings: ThemeSettings): string {
+  return settings.colors.light.accent
+}
