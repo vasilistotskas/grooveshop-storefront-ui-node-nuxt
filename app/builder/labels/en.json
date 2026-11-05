@@ -296,6 +296,10 @@
     "link": {
       "label": "Link"
     },
+    "loadMore": {
+      "label": "Load more button",
+      "help": "Shows a button that adds the next posts of the same list, when it has more than the band shows."
+    },
     "marquee": {
       "label": "Scrolling row"
     },

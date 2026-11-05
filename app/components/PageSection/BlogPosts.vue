@@ -14,7 +14,7 @@
  * own `<h2>` above a list that answered "no articles yet" — and it was the
  * first thing a brand-new store showed.
  */
-defineProps<{
+const props = defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
   title?: string
   heading?: string
@@ -24,6 +24,8 @@ defineProps<{
   surface?: 'default' | 'muted'
   /** What the band lists: the posts, and the rule or hand-picked list they came from. */
   posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
+  /** `blog_posts_list`'s setting: a button reads the next posts of the same list below these. */
+  loadMore?: boolean
 }>()
 
 const { t } = useStoreI18n('components/PageSection/BlogPosts')
@@ -32,6 +34,12 @@ const localePath = useLocalePath()
 // The name of each post's category is the store's own list of categories:
 // one shared read for every band and page that shows one.
 const categoryName = await useBlogCategoryNames()
+
+const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadMore({
+  posts: () => props.posts,
+  enabled: () => props.loadMore === true,
+  errorTitle: () => t('load_error'),
+})
 </script>
 
 <template>
@@ -44,8 +52,16 @@ const categoryName = await useBlogCategoryNames()
     :surface="surface"
   >
     <BlogRail
-      :posts="[...posts.items]"
+      :posts="items"
       :category-name="categoryName"
+      :stacked="loadMore"
+    />
+    <PageSectionBlogPostsLoadMore
+      v-if="loadMore"
+      :has-more="hasMore"
+      :loading="loading"
+      :added="added"
+      @load="loadNext"
     />
   </PageSectionBand>
 </template>
@@ -54,7 +70,9 @@ const categoryName = await useBlogCategoryNames()
 el:
   heading: Από το blog
   all_posts: Όλα τα άρθρα
+  load_error: Δεν φορτώθηκαν τα επόμενα άρθρα
 en:
   heading: From the blog
   all_posts: All posts
+  load_error: The next posts could not be loaded
 </i18n>

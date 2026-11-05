@@ -1,5 +1,5 @@
 {
-  "hash": "04f0ac268a6c8f20",
+  "hash": "43f2e90cc7292a82",
   "blocks": [
     {
       "type": "about_content",
@@ -998,6 +998,9 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "loadMore": {
+            "type": "boolean"
           }
         },
         "required": [

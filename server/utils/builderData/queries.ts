@@ -24,11 +24,6 @@ const PRODUCT_ORDER_BY = {
   priceDesc: '-effectivePrice',
 } as const satisfies Record<ProductOrdering, string>
 
-const BLOG_POST_ORDER_BY = {
-  newest: '-publishedAt',
-  mostViewed: '-viewCount',
-} as const satisfies Record<BlogPostOrdering, string>
-
 const parseDescriptor = <Schema extends z.ZodType>(schema: Schema, descriptor: unknown): z.output<Schema> =>
   schema.parse(descriptor)
 
@@ -58,12 +53,7 @@ export function productQuery(descriptor: unknown): DjangoQuery {
 export function blogPostQuery(descriptor: unknown): DjangoQuery {
   const parsed = parseDescriptor(DATA_DESCRIPTORS.blogPost(DATA_LIMITS.maxQueryLimit), descriptor)
   if (parsed.mode === 'picked') throw new Error('A hand-picked list is read by id, not by query')
-  return {
-    pageSize: parsed.limit,
-    ordering: BLOG_POST_ORDER_BY[parsed.ordering],
-    ...(parsed.category !== undefined && { category: parsed.category }),
-    ...(parsed.featured !== undefined && { featured: parsed.featured }),
-  }
+  return blogPostListQuery(parsed)
 }
 
 export function categoryQuery(descriptor: unknown): DjangoQuery {
