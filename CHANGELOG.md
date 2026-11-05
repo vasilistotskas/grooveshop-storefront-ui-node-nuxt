@@ -1,3 +1,10 @@
+# [3.324.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.5...v3.324.0) (2026-11-05)
+
+
+### Features
+
+* **theme:** draw every page from the store's published theme ([#392](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/392)) ([5d9dbb9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5d9dbb97c6544d1fdf6331d8c2ebfe56d9c163b6)), closes [#nuxt-ui-colors](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/nuxt-ui-colors)
+
 ## [3.323.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.323.4...v3.323.5) (2026-11-05)
 
 
