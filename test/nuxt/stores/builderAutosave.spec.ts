@@ -121,7 +121,7 @@ describe('the autosave', () => {
     expect(autosave.reportConflict(HOME, { code: 'revision_conflict', currentRevision: 7 })).toBe(false)
     expect(autosave.stateOf(HOME)).toBe('saved')
 
-    const body = { code: 'revision_conflict', currentRevision: 7, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }
+    const body = { code: 'revision_conflict', detail: 'x', currentRevision: 7, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }
     expect(autosave.reportConflict(HOME, body)).toBe(true)
     expect(autosave.stateOf(HOME)).toBe('conflict')
     expect(autosave.conflict).toMatchObject({ key: HOME, currentRevision: 7, updatedBy: { name: 'Nikos' } })
