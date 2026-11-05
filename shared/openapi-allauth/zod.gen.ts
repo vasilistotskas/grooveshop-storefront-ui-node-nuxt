@@ -943,11 +943,11 @@ export const zGetAllauthAppV1AuthWebauthnSignupHeaders = z.object({
 })
 
 /**
- * WebAuthn credential request options.
+ * WebAuthn credential creation options.
  */
 export const zGetAllauthAppV1AuthWebauthnSignupResponse = z.object({
   status: zAllAuthStatusOk,
-  data: zAllAuthWebAuthnCredentialRequestOptions,
+  data: zAllAuthWebAuthnCredentialCreationOptions,
   meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 

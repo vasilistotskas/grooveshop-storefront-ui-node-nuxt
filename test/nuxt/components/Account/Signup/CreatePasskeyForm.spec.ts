@@ -31,7 +31,7 @@ const allauthError = (status: number) => ({
 
 beforeEach(() => {
   useState('auth-state').value = pending('mfa_signup_webauthn')
-  getWebAuthnCreateOptionsAtSignup.mockResolvedValue({ status: 200, data: { request_options: { publicKey: CREATION_OPTIONS } } })
+  getWebAuthnCreateOptionsAtSignup.mockResolvedValue({ status: 200, data: { creation_options: { publicKey: CREATION_OPTIONS } } })
   signupWebAuthnCredential.mockResolvedValue({ status: 200 })
   credentialsCreate.mockResolvedValue({ toJSON: () => CREDENTIAL_JSON })
   vi.stubGlobal('PublicKeyCredential', { parseCreationOptionsFromJSON: (json: unknown) => ({ parsed: json }) })

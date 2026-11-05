@@ -1798,11 +1798,11 @@ export type GetAllauthAppV1AuthWebauthnSignupError = GetAllauthAppV1AuthWebauthn
 
 export type GetAllauthAppV1AuthWebauthnSignupResponses = {
   /**
-     * WebAuthn credential request options.
+     * WebAuthn credential creation options.
      */
   200: {
     status: AllAuthStatusOk
-    data: AllAuthWebAuthnCredentialRequestOptions
+    data: AllAuthWebAuthnCredentialCreationOptions
     meta?: AllAuthBaseAuthenticationMeta
   }
 }

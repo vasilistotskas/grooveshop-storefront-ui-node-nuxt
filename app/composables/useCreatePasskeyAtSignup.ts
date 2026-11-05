@@ -44,7 +44,7 @@ export function useCreatePasskeyAtSignup(options: {
       hasError.value = false
 
       const optResp = await getWebAuthnCreateOptionsAtSignup()
-      const credential = await createWebAuthnCredential(optResp?.data.request_options.publicKey)
+      const credential = await createWebAuthnCredential(optResp?.data.creation_options.publicKey)
 
       await signupWebAuthnCredential({
         name: event.data.name,

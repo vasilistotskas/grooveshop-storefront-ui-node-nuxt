@@ -1203,14 +1203,13 @@ paths:
       summary: Get passkey credential request options
       parameters:
       - $ref: '#/components/parameters/SessionToken'
-      description: 'Returns the WebAuthn credential request options, that can be
-
-        processed using `parseRequestOptionsFromJSON()` on the frontend.
+      description: 'Returns the WebAuthn credential creation options, that can be
+        processed using `parseCreationOptionsFromJSON()` on the frontend.
 
         '
       responses:
         '200':
-          $ref: '#/components/responses/WebAuthnRequestOptionsResponse'
+          $ref: '#/components/responses/WebAuthnCreationOptionsResponse'
         '409':
           description: 'Conflict. For example, when the passkey signup flow is not
             pending.
