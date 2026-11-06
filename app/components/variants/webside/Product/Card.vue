@@ -289,7 +289,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <div class="flex flex-col gap-2">
         <div
-          v-if="wasPrice && (isWholesalePrice || announcement)"
+          v-if="announcement || (isWholesalePrice && wasPrice)"
           class="flex items-center gap-2"
         >
           <ProductPriorPrice
