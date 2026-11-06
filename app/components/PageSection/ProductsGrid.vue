@@ -10,6 +10,9 @@
  * The whole band disappears when the list comes back empty: its block
  * declares that, and a heading over nothing is what a brand-new store used
  * to show.
+ *
+ * A design with its own product card draws it through the `card` slot: the
+ * band stays this one, and the slot's root is an `<li>` of the band's list.
  */
 const props = withDefaults(defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
@@ -25,6 +28,10 @@ const props = withDefaults(defineProps<{
 }>(), {
   showAddToCart: true,
 })
+
+defineSlots<{
+  card?(props: { product: ProductCard, showAddToCart: boolean }): unknown
+}>()
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
@@ -50,12 +57,21 @@ const label = computed(
         lg:grid-cols-4 lg:gap-6
       "
     >
-      <ProductCard
+      <template
         v-for="product in products.items"
         :key="product.id"
-        :product="product"
-        :show-add-to-cart-button="showAddToCart"
-      />
+      >
+        <slot
+          name="card"
+          :product="product"
+          :show-add-to-cart="showAddToCart"
+        >
+          <ProductCard
+            :product="product"
+            :show-add-to-cart-button="showAddToCart"
+          />
+        </slot>
+      </template>
     </UPageGrid>
   </PageSectionBand>
 </template>

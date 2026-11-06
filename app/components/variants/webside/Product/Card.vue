@@ -8,6 +8,11 @@ const productReviewsEnabled = useStoreFeature('productReviews')
 
 const props = defineProps({
   product: { type: Object as PropType<Product | ProductCard>, required: true },
+  /**
+   * The element the card renders as: `li` inside the `<ul>`/`<ol>` of a
+   * listing, `div` on a slide of a rail, which is no list.
+   */
+  as: { type: String, required: false, default: 'li' },
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },
@@ -129,7 +134,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
 <template>
   <UCard
-    as="li"
+    :as="as"
     class="
       product-card group relative h-full w-full max-w-full transition-all duration-300
       hover:shadow-xl hover:scale-[1.02]

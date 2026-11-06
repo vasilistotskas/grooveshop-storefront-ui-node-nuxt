@@ -50,6 +50,8 @@ import HeroCarousel from '~/components/variants/webside/PageSection/HeroCarousel
 import BlogCategories from '~/components/variants/webside/PageSection/BlogCategories.vue'
 import BlogPostsList from '~/components/variants/webside/PageSection/BlogPostsList.vue'
 import RecentlyViewed from '~/components/variants/webside/PageSection/RecentlyViewed.vue'
+import ProductsGrid from '~/components/variants/webside/PageSection/ProductsGridBand.vue'
+import ProductsSlider from '~/components/variants/webside/PageSection/ProductsSliderBand.vue'
 import DefaultLayout from '~/layouts/default.vue'
 import AccountOverview from '~/components/variants/webside/Storefront/Account/Overview.vue'
 import AccountOrders from '~/components/variants/webside/Storefront/Account/Orders.vue'
@@ -501,6 +503,22 @@ describe('webside design render', () => {
 
     await expectSnapshot(BlogPostsList, { props: { posts } }, (html) => {
       expect(html).toContain('Τι είναι τα mAh')
+    })
+  })
+
+  it('section products_grid', async () => {
+    const products = { status: 'ok', items: [PRODUCT_CARD], total: 1, descriptor: { mode: 'filter', ordering: 'newest', limit: 8 } }
+
+    await expectSnapshot(ProductsGrid, { props: { products } }, (html) => {
+      expect(html).toContain('product-card')
+    })
+  })
+
+  it('section products_slider', async () => {
+    const products = { status: 'ok', items: [PRODUCT_CARD], total: 1, descriptor: { mode: 'filter', ordering: 'newest', limit: 8 } }
+
+    await expectSnapshot(ProductsSlider, { props: { products } }, (html) => {
+      expect(html).toContain('product-card')
     })
   })
 
