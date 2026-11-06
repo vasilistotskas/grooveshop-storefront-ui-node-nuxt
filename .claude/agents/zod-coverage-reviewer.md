@@ -73,7 +73,7 @@ Out: files under `server/utils/`, `server/middleware/`, `server/plugins/`, `serv
 
 - Cached GETs use `defineCachedRoute` (`server/utils/cachedRoute.ts`) with `getKey` built on `tenantCacheKey(event, …)`; a key without it serves one tenant's data to another. Flag a bare `defineCachedEventHandler` in `server/api/` and any `getKey` that does not return `tenantCacheKey(event, …)`.
 - Caching is forbidden on per-user data: cart, orders, user account, notifications, favourites, sessions list, authenticators, addresses, reviews-by-user. Flag any cached route whose Django URL contains `/user/`, `/cart`, `/order`, `/notification`, or whose key is built on per-user data. (`/blog/post`, `/product`, `/category`, `/contact-info` are fine to cache.)
-- Cached routes must have a `name`, `getKey`, and reasonable `maxAge` + `staleMaxAge` + `swr: true`.
+- Cached routes must have a `name`, `getKey` and a reasonable `maxAge`, with `swr: true` + `staleMaxAge` for stable lists. A sort-, filter- or cart-sensitive route may use `swr: false`, with a comment saying why.
 
 ## Known exceptions (DO NOT flag)
 

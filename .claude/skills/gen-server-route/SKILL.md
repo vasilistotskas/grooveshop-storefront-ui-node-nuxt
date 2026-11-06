@@ -1,7 +1,6 @@
 ---
 name: gen-server-route
 description: Scaffold a new server API route under server/api/ following the project's strict 4-step pattern (Zod input → `useBackendFetch(event)` to Django → parseDataAs response → handleError(event, error) catch). Use when adding a new endpoint that proxies the Django backend. Pick the right variant — cached GET, mutating POST/PUT/PATCH, cart-aware, allauth-protected, or dynamic-param.
-disable-model-invocation: true
 ---
 
 # Generate Server Route

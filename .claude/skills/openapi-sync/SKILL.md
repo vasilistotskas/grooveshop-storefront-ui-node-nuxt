@@ -1,7 +1,6 @@
 ---
 name: openapi-sync
 description: Regenerate the storefront's OpenAPI types, Zod schemas and derived YAML from a LOCAL Django. Use after a Django serializer/schema change lands or when CI's OpenAPI Schema Freshness job fails.
-disable-model-invocation: true
 allowed-tools: Read, Edit, Bash, Grep, Glob
 ---
 

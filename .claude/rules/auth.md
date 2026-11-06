@@ -11,6 +11,12 @@ paths:
   - "server/api/_allauth/**"
   - "server/routes/auth/**"
   - "shared/auth.d.ts"
+  - "server/utils/cartSession.ts"
+  - "server/utils/error.ts"
+  - "server/middleware/0.anonymous-session.ts"
+  - "server/api/websocket/**"
+  - "app/plugins/websocket.client.ts"
+  - "app/types/global.d.ts"
 ---
 
 # Authentication
@@ -27,7 +33,7 @@ Uses [django-allauth](https://docs.allauth.org/) headless API via `nuxt-auth-uti
 - **Auth plugin** (`app/plugins/auth.ts`): Listens to `auth:change` Nuxt hook, determines auth event type (LOGGED_IN/LOGGED_OUT/REAUTHENTICATED/FLOW_UPDATED), handles navigation. Depends on nothing, runs in parallel.
 - **Setup plugin** (`app/plugins/setup.ts`): Depends on `auth` plugin. SSR-critical: fetches config + session, then account + cart. Defers sessions/authenticators/notifications to client via `requestIdleCallback` (with `setTimeout` fallback for Safari).
 - **WebSocket plugin** (`app/plugins/websocket.client.ts`): Client-only, connects to Django WebSocket at `/ws/notifications/` for real-time notifications. Uses BroadcastChannel and Web Notification API.
-- **Auth middleware** (`app/middleware/auth.global.ts`): Global — redirects unauthenticated users from protected routes to `account-login?next=<original-path>`; uses `AuthenticatedRoutes`/`AuthenticatedRoutesSet` from `shared/constants/index.ts`
+- **Auth middleware** (`app/middleware/auth.global.ts`): Global — redirects unauthenticated users from protected routes to `account-login?next=<original-path>`; uses `isRouteProtected` and `AuthenticatedRoutes`/`AuthenticatedRoutesSet` from `app/utils/route.ts`
 - **Guest middleware** (`app/middleware/guest.ts`): Prevents logged-in users from accessing login/signup pages
 - **Auth flow routing**: `Flow2path` constant maps allauth flow states to page routes (login, signup, MFA, reauthenticate, WebAuthn, recovery codes)
 - **Reading a session creates one**: `getUserSession` on a request with no session mints a new one and sets `nuxt-session` (h3 `getSession`). Every read goes through `readUserSession(event)` (`server/utils/auth.ts`), which returns an empty session for a request without one (`requestHasSession`: the cookie, the header, or a session written earlier in the same request). `getUserSession` stays in the files that write a session on purpose, which ESLint enforces (`SESSION_READ` / `SESSION_WRITERS` in `eslint.config.mjs`): sign-in, the cart's first write (`server/utils/cartSession.ts`), the OAuth hand-off and the auth error path. nuxt-auth-utils' own `GET /api/_auth/session` reads it unconditionally, so `server/middleware/0.anonymous-session.ts` answers it with `{}` for a visitor without a session. An unguarded read gives every anonymous visitor a cookie, and a response that sets a cookie is never cached at the edge.

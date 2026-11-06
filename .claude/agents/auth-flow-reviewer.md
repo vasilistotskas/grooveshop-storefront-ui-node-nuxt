@@ -53,7 +53,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 12. **Knox access token via `requireAllAuthAccessToken()`**. Routes that require auth and call Django with a Bearer token must call `requireAllAuthAccessToken()` outside the try block (it throws a clean 401 before any Django call). Flag inline `session.secure?.accessToken` accesses that don't enforce presence.
 13. **Don't log tokens**. `server/utils/auth.ts`, `server/utils/error.ts`, and the OAuth helpers must not pass `sessionToken`, `accessToken`, or `oauthParams.access_token` to `log.*`, `console.*`, or response headers. Flag any structured-log call whose context object contains these keys.
-14. **Token clearing on auth error**. `handleAllAuthError` clears `X-Session-Token` and `Authorization` from response headers via `clearResponseHeaders`. New custom auth handlers must do the same.
+14. **Token clearing on auth error**. `handleAllAuthError` clears `X-Session-Token` and `Authorization` from response headers (`event.res.headers.delete(...)` in `syncAllAuthSessionFromError`, `server/utils/error.ts`). New custom auth handlers must do the same.
 
 ### Auth lifecycle (client)
 
@@ -71,7 +71,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 ### Middleware
 
-23. **`auth.global.ts` uses `isRouteProtected`**. Don't hardcode route names. The `AuthenticatedRoutes` / `AuthenticatedRoutesSet` constants in `shared/constants/index.ts` are the source of truth.
+23. **`auth.global.ts` uses `isRouteProtected`**. Don't hardcode route names. The `AuthenticatedRoutes` / `AuthenticatedRoutesSet` constants in `app/utils/route.ts` are the source of truth.
 24. **Login redirect carries `next`**. The middleware sends `query: { next: to.fullPath }`. Removing `next` breaks the post-login redirect chain in the `handleLoggedIn` handler.
 
 ### WebSocket

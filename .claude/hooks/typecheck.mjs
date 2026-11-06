@@ -1,11 +1,13 @@
 /**
- * Stop hook: type-check when TS/Vue files were edited this session.
+ * Stop hook: type-check the checkouts where this session edited TS/Vue files.
  *
- * - Reads the `.claude/.typecheck-pending` marker (written by track-typecheck.mjs).
+ * - Reads this session's marker (written by track-typecheck.mjs).
  * - If absent: exit 0 silently (no edits, nothing to check).
  * - If `stop_hook_active` is true: exit 0, so a Stop hook can't loop.
- * - Otherwise run `nuxt typecheck`. On failure, exit 2 with the compiler
- *   output on stderr so the errors have to be addressed before the turn ends.
+ * - Otherwise run `nuxt typecheck` in one marked checkout; any other stays marked
+ *   for the next Stop, because the budget below is for one run. On failure, exit 2
+ *   with the compiler output on stderr so the errors have to be addressed before
+ *   the turn ends.
  *
  * Runs `nuxt typecheck`, not `vue-tsc --noEmit`: it catches template errors
  * vue-tsc misses — notably Nuxt UI v4 typing UButton's onClick as
@@ -21,11 +23,12 @@
  * the next turn checks again. A missing toolchain exits 0 without re-marking:
  * retrying cannot fix it.
  */
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, unlinkSync, writeFileSync, writeSync } from 'node:fs'
+import { closeSync, existsSync, openSync, readFileSync, unlinkSync, writeSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
+import { markPending, takePending } from './lib/checkout.mjs'
 
 // Two `nuxt typecheck` runs regenerate `.nuxt/` at the same time, and the one
 // that reads it half written sees an empty typed-route map: dozens of
@@ -122,17 +125,6 @@ function releaseLock(lockPath) {
   }
 }
 
-/** Puts the marker back, so a check that did not finish runs again next turn. */
-function markPending(markerPath) {
-  try {
-    mkdirSync(dirname(markerPath), { recursive: true })
-    writeFileSync(markerPath, String(Date.now()))
-  }
-  catch {
-    // Without the marker the next turn skips the check; nothing more to do.
-  }
-}
-
 /** Returns the exit code, or null when the run timed out (the caller re-marks). */
 function runTypecheck(projectDir, timeoutMs) {
   const nuxtBin = resolve(projectDir, 'node_modules', 'nuxt', 'bin', 'nuxt.mjs')
@@ -176,20 +168,12 @@ if (input.stop_hook_active) {
   process.exit(0)
 }
 
-// Anchor on CLAUDE_PROJECT_DIR, not cwd, so this finds the marker
-// track-typecheck.mjs wrote and runs nuxt in the project root.
-const projectDir = resolve(process.env.CLAUDE_PROJECT_DIR || '.')
-const markerPath = resolve(projectDir, '.claude', '.typecheck-pending')
-if (!existsSync(markerPath)) {
+const session = input.session_id
+const [projectDir, ...later] = takePending(session)
+if (!projectDir) {
   process.exit(0)
 }
-
-try {
-  unlinkSync(markerPath)
-}
-catch {
-  // If the marker survives, the next turn simply re-runs the check.
-}
+for (const checkout of later) markPending(session, checkout)
 
 // One lock per checkout: worktrees have their own `.nuxt/` and may run in parallel.
 // The workspace-root Stop hook (grooveshop/.claude/hooks/lib/repos.mjs) derives
@@ -201,7 +185,7 @@ const lockPath = resolve(tmpdir(), `claude-nuxt-typecheck-${checkoutId}.lock`)
 const deadline = startedAt + WAIT_MS
 
 if (!acquireLock(lockPath, deadline)) {
-  markPending(markerPath)
+  markPending(session, projectDir)
   process.stderr.write('nuxt typecheck skipped: another hook held the lock for 5 minutes; it will run again next turn.\n')
   process.exit(0)
 }
@@ -219,16 +203,16 @@ try {
   // Reserve one probe so a slow last poll cannot push the run past the hook timeout.
   const remainingMs = startedAt + HOOK_BUDGET_MS - Date.now() - PROBE_TIMEOUT_MS
   if (!free) {
-    markPending(markerPath)
+    markPending(session, projectDir)
     process.stderr.write('nuxt typecheck skipped: another run was still going after 5 minutes; it will run again next turn.\n')
   }
   else if (remainingMs < MIN_TYPECHECK_MS) {
-    markPending(markerPath)
+    markPending(session, projectDir)
     process.stderr.write('nuxt typecheck skipped: too little of the hook budget left; it will run again next turn.\n')
   }
   else {
     const result = runTypecheck(projectDir, remainingMs)
-    if (result === null) markPending(markerPath)
+    if (result === null) markPending(session, projectDir)
     else exitCode = result
   }
 }

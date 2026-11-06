@@ -27,11 +27,11 @@ Browser → Nuxt SSR (3000) → Django API (8000) → PostgreSQL / Redis / Meili
          Media Stream (3003)
 ```
 
-- SSR renders every non-prerendered page — TTFB is critical
+- SSR renders every page; nothing is prerendered at build — TTFB is critical
 - Nitro server proxies all API calls to Django — double-hop latency
 - Redis caching (`defineCachedRoute`, keyed by `tenantCacheKey`) offloads repeated Django calls
 - `@nuxt/image` with custom `mediaStream` provider handles image optimization
-- Nitro uses gzip + brotli compression, esbuild target `esnext`
+- Nitro uses gzip + brotli compression
 
 ## Checklist
 
@@ -67,7 +67,7 @@ Current route rules define caching for static assets, images, favicons. Verify A
 - [ ] **All product/blog images use `<NuxtImg>` or `<NuxtPicture>`** — not raw `<img>` tags
 - [ ] **LCP images have `loading="eager"` and `fetchpriority="high"`** — hero banners, main product images; flag `loading="lazy"` on LCP elements
 - [ ] **Below-fold images have `loading="lazy"`** — product grids, blog post cards, footer images
-- [ ] **`sizes` attribute specified** — prevents oversized image downloads on mobile (uses screen config: xs:320, sm:640, md:768, lg:1024, xl:1280, 2xl:1536)
+- [ ] **`sizes` attribute specified** — prevents oversized image downloads on mobile (uses screen config: xs:320, sm:640, md:768, lg:1024, xl:1280, xxl:1536)
 - [ ] **AVIF/WebP format used** — `format="avif"` with WebP fallback via `<NuxtPicture>`
 - [ ] **No inline base64 for large images** — only for tiny icons/placeholders (<1KB)
 
@@ -80,7 +80,7 @@ Current route rules define caching for static assets, images, favicons. Verify A
 
 ### Network & Resource Hints
 
-Per-tenant media-stream/static origin hints are rendered at runtime by `setupPageHeader`; there are none in the build-time head and no Google hints. Verify:
+The per-tenant media-origin hint is rendered at runtime by `setupPageHeader`, with none for the static origin; there are none in the build-time head and no Google hints. Verify:
 
 - [ ] **Preconnect only to first-party critical origins** — too many preconnects waste bandwidth
 - [ ] **`crossOriginPrefetch: true`** is enabled (it is — experimental setting)
@@ -111,8 +111,8 @@ Per-tenant media-stream/static origin hints are rendered at runtime by `setupPag
 
 - `vue/no-v-html` being disabled (project convention, content is sanitized)
 - Options API disabled (`optionsAPI: false` in vite config — intentional)
-- Server sourcemaps disabled (`sourcemap.server: false` — intentional for smaller production bundles)
-- Prerendered static pages not having SWR (they're built at build time)
+- Sourcemaps disabled (`sourcemap: false`, client and server — intentional for smaller production bundles)
+- The `PRERENDERED_ROUTES` pages being cached with `swr` (`nuxt.config.ts`): that is how they are served
 - `@nuxt/a11y` being dev-only (it's a runtime devtool, not production code)
 
 ## Output Format

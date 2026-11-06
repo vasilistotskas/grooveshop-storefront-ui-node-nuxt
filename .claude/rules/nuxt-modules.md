@@ -2,6 +2,8 @@
 paths:
   - "nuxt.config.ts"
   - "modules/**"
+  - "app/blocks/**"
+  - "shared/builder/**"
 ---
 
 # Nuxt modules

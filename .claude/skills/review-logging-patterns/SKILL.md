@@ -14,7 +14,7 @@ Review and improve logging patterns in this storefront. Transform scattered
 self-documenting structured errors.
 
 The repo's own rules win over anything generic in this skill: read
-`.claude/rules/server-routes.md` › **Structured Logging (evlog)** first. It
+`.claude/rules/server-runtime.md` › **Structured Logging (evlog)** first. It
 documents what reaches the log line, the client-error level downgrade, browser
 error reports and the request id.
 

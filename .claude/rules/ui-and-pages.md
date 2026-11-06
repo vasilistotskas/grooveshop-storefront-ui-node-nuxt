@@ -4,6 +4,14 @@ paths:
   - "app/layouts/**"
   - "app/pages/**"
   - "app/middleware/**"
+  - "app/providers/**"
+  - "app/assets/**"
+  - "app/app.config.ts"
+  - "app/utils/variantRegistry.ts"
+  - "app/utils/apiError.ts"
+  - "app/utils/routeGate.ts"
+  - "app/utils/route.ts"
+  - "app/composables/useApiError*"
 ---
 
 # Components, layouts and pages
@@ -171,13 +179,13 @@ Components in `app/components/` organized by domain:
 - **DynamicForm** — Multi-step form system
 - **Loyalty** — PointsBadge, RewardsCard (the account overview's), Summary, TierSystem, ProgressHero, Transactions, Redemption
 - **Order** — Progress (the five-step strip), StatusBadge, Thumbs — the account's order rows and order page (`app/utils/orderStatus.ts` holds the flow and the status tints)
-- **Product** — the product page's parts (Images/ImageModal gallery and zoom, VariantSelector, Offers, NotifyMe alerts dialog, Review sheet, Suggestions grid), Favourites, CardSkeleton, Categories slider. **Reviews is one implementation for every store, webside included** (below): `Reviews/Section` (id `reviews`: summary, write button, list, the sheet), `Reviews/Overview`, `Reviews/List` (sort, show all, load more), `Reviews/Item`, `Reviews/Stars`, `Reviews/StatusBadge`, `Product/Rating` (the "4.3 · 12" quote on cards and beside the title) and `Review.vue` (the write/edit sheet: `UDrawer` below `sm`, `UModal` from it up, chosen by `useDevice`)
+- **Product** — the product page's parts (Images/ImageModal gallery and zoom, VariantSelector, Offers, NotifyMe alerts dialog, Review sheet, Suggestions grid), Favourites, CardSkeleton. **Reviews is one implementation for every store, webside included** (below): `Reviews/Section` (id `reviews`: summary, write button, list, the sheet), `Reviews/Overview`, `Reviews/List` (sort, show all, load more), `Reviews/Item`, `Reviews/Stars`, `Reviews/StatusBadge`, `Product/Rating` (the "4.3 · 12" quote on cards and beside the title) and `Review.vue` (the write/edit sheet: `UDrawer` below `sm`, `UModal` from it up, chosen by `useDevice`)
 - **Products** — the listing (Header, CategoryChips, Browse, List, Toolbar, Sidebar, Pagination, Filters: CategoryTree, AttributeValues, PriceRange, ActiveFilters) and the Rail of product cards
-- **Search** — Input, Modal, Result
+- **Search** — Input, Modal, GuideCard
 - **User** — Avatar, NotificationsBell
-- **Page** — Header, Navbar, Title
-- **UI/Layout** — Pagination (PageNumber, LimitOffset, Cursor), Ordering, Rating, Quantity Selector, ReadMore, Empty state, LoadingIndicator, DesktopOnly, MobileOrTabletOnly, Socials, Anchor, ImgWithFallback, IframeModal, DemoModeMessage, Error
-- **Integrations** — StripePayment, WebAuthn LoginButton, Language Switcher, Logout Button
+- **Page** — Breadcrumb, SectionsShell, Title, Wrapper
+- **UI/Layout** — Pagination (PageNumber, LimitOffset, Cursor), Ordering, Quantity Selector, ReadMore, Empty state, LoadingIndicator, DesktopOnly, MobileOrTabletOnly, Socials, Anchor, ImgWithFallback, Error
+- **Integrations** — StripePayment, StripeCheckout, VivaWalletCheckout (at the components root), `WebAuthn/`, `Language/Switcher`, Logout Button
 
 ## UI & Styling
 
@@ -189,10 +197,10 @@ Components in `app/components/` organized by domain:
 ## SEO & Performance
 
 - **`@nuxtjs/seo`** suite: sitemap (dynamic via `/api/__sitemap__/urls`, excludes account/cart/checkout routes, cached per host in Redis by the `/sitemap.xml` route rule, purged by Django), OG Image disabled, Schema.org (minified), link checker (non-production). The module's canonical redirect is off (`seo.redirectToCanonicalSiteUrl: false`); `server/middleware/5.tenant-canonical.ts` enforces each tenant's canonical host
-- **Route rules**: Immutable caching for `/_nuxt/**`, static assets, images, CSS/JS. CORS for `/api/**`. Custom headers for manifest, favicons. IPX image prerendering.
+- **Route rules**: Immutable caching for `/_nuxt/**`, static assets, images, CSS/JS. CORS (`Access-Control-Allow-Origin: *`) only on `/_nuxt/**`. Custom headers for manifest, favicons. `/_ipx/` is excluded from prerender.
 - **Experimental features**: `typedPages`, `asyncContext`, `inlineRouteRules`, `crossOriginPrefetch`, `nitroAutoImports` (kept until evlog's `log` works without it), `emitRouteChunkError: 'automatic-immediate'`.
-- **Build-time version injection**: `runtimeConfig.public.version` is set from `process.env.npm_package_version` in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.
-- **Nitro**: ESBuild target `esnext`, gzip + brotli compression, minification, async context. Prerendered routes for critical above-the-fold images.
+- **Build-time version injection**: `runtimeConfig.public.version` is set from `packageJson.version` (imported from `package.json`) in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.
+- **Nitro**: gzip + brotli compression, minification, async context. Nothing is prerendered at build: the brand pages in `PRERENDERED_ROUTES` are SSR'd per store and cached with `swr`.
 - **Resource hints**: one `dns-prefetch` + `preconnect` to the tenant's media origin, rendered at runtime by `setupPageHeader`, with no `crossorigin` (images load no-cors and only reuse a socket opened in the same mode). None for the static origin, which the browser never fetches from, none in the build-time head and no Google hints.
 - **Client chunks** (`shared/constants/clientChunks.ts`, read by the `codeSplitting` groups in `nuxt.config.ts`): three groups over rolldown's automatic splitting, which alone makes one file per distinct set of lazy chunks that reach a module, whatever its size. `eager` is the entry's static closure, in the entry. `lazy-shared` holds the lazy modules at least `SHARED_CHUNK_MIN_ENTRIES` lazy chunks reach, so a library few pages use stays out by that rule alone. `route-boot` holds what a first render awaits before the page body can load: the route shells, the named middleware, `i18n.config` and the `default` and `checkout` layouts. Every visitor downloads the last two, so the build fails past `CLIENT_CHUNK_BUDGET_BYTES`: whatever a page file statically imports lands in `route-boot`, one more reason to keep it a thin shell, and a route or layout that cannot be one stays out of `ROUTE_BOOT_SOURCE`. `nuxt.config.ts` records what was measured and rejected, and why: `entriesAware` merging, `experimentalInlineCommonChunks`, and resource hints for these chunks. Measure a chunking change on real pages in a browser, in every design: `nuxt analyze` and the bundle analyzers stop at a page's thin shell and report the same size for every route.
 - **Source maps**: none, client or server (`sourcemap: false`): nothing consumes them, and Nitro serves whatever sits in `public/`. For a one-off size attribution of a chunk, build locally with `sourcemap.client: true` and keep the maps out of the image.

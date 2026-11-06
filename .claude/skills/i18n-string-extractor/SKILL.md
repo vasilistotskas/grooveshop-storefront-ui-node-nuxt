@@ -1,6 +1,6 @@
 ---
 name: i18n-string-extractor
-description: Find hardcoded user-facing strings (Greek or English) in Vue components and pages, propose i18n keys, and add translations to either component-scoped <i18n lang="yaml"> blocks or shared locale files under i18n/locales/. Use after adding/editing UI to enforce the project's "no hardcoded strings" rule. Active locales are el and en — write both; there is no de.
+description: Find hardcoded user-facing strings (Greek or English) in Vue components and pages, propose i18n keys, and add translations to either component-scoped i18n YAML blocks or shared locale files under i18n/locales/. Use after adding/editing UI to enforce the project's "no hardcoded strings" rule. Active locales are el and en — write both; there is no de.
 ---
 
 # i18n String Extractor
@@ -14,7 +14,8 @@ Audit a Vue file (component or page) for user-facing strings that bypass `useI18
 | String is unique to this component (button label, aria-label, single-screen heading) | Component-scoped `<i18n lang="yaml">` block in the same `.vue` file |
 | String belongs to an existing domain bundle (auth, breadcrumb, checkout, cookies, validation) | Append to the matching `i18n/locales/<domain>/el-GR.json` and `en-US.json` |
 | String is reused across 2+ files OR is a generic noun/verb (`save`, `cancel`, `confirm`, etc.) | Append to the root `i18n/locales/el-GR.json` and `en-US.json` |
-| String is a server-side error / validation message | `i18n/locales/validation/el-GR.json` and `en-US.json` |
+| String is a client Zod validation message | `i18n/locales/validation/el-GR.json` and `en-US.json` |
+| String is a server error code the storefront words itself | `errors.codes.<code>` in the root `i18n/locales/el-GR.json` and `en-US.json` |
 | String is a Django/parler model field (product name, blog title, category) | **Do not translate** — use `extractTranslated(obj, field, locale)` from `app/utils/translate.ts` |
 
 ## What counts as a hardcoded string
@@ -40,7 +41,7 @@ Do **not** flag:
 
 Two root keys, `el:` and `en:`, with the same key tree under each (`el` is the default, so it comes first). Nest naturally for hierarchy. Use placeholders with curly braces for interpolation: `{appTitle}`, `{count}`.
 
-Example matching the project style (`Account/Login/Form.vue`):
+Example of the shape:
 
 ```vue
 <i18n lang="yaml">
@@ -99,14 +100,14 @@ The root `el-GR.json` / `en-US.json` are mostly flat with selective nesting (`er
 4. **Confirm with the user** which strings to translate. Do not assume Greek translation quality — if the literal is in English, ask the user for the Greek translation rather than guessing.
 5. **Apply the edits**:
    - Replace each literal in the template/script with `t('key')` (template uses `{{ t('key') }}` for text content, `:attr="t('key')"` for attribute bindings).
-   - Confirm `useI18n` is imported in `<script setup>`: `const { t } = useI18n()`.
+   - A component with an `<i18n>` block takes `t` from `useStoreI18n`, never bare `useI18n()` (`test/unit/source-rules/store-i18n.spec.ts`): `const { t } = useStoreI18n('components/Account/Login/Form')`, the file's path under `app/` without `.vue`.
    - Add component block or append to shared JSON.
 6. **Do not run** `pnpm dev` or any build — the user can verify visually.
 
 ## Gotchas
 
 - Component-scoped i18n keys override shared keys with the same name within that component only — prefer scoped blocks for component-unique copy to keep shared files lean.
-- Some files use `useI18n()` in a different shape: `const { t } = useI18n({ useScope: 'local' })` for strict component-scoped lookup. Inspect the existing file before adding the import.
+- A composable with no `<i18n>` block may use `useI18n({ useScope: 'global' })`; a store uses `useNuxtApp().$i18n`.
 - The `i18n/` directory is **outside** Nitro/Nuxt auto-import scope, so the `log` global is unavailable there. Don't suggest moving translation glue code into `i18n/`.
 - Interpolation uses Vue I18n syntax with single curly braces (`{appTitle}`), not `${}` or `{{}}`. Don't translate the placeholder name itself.
 - `t()` returns real Greek in nuxt tests; assert `useNuxtApp().$i18n.t('key', params)`, not a hardcoded string or `expect.any(String)` (`.claude/rules/testing.md`).
