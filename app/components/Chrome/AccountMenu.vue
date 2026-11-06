@@ -78,7 +78,10 @@ const MENU_UI = { content: 'w-72' }
               size="lg"
               :ui="MENU_AVATAR_UI"
             />
-            <div class="min-w-0">
+            <div
+              data-clarity-mask="true"
+              class="min-w-0"
+            >
               <p class="truncate text-sm font-semibold text-highlighted">
                 {{ menu.name.value }}
               </p>

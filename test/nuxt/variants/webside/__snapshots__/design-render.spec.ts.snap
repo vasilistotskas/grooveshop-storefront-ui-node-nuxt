@@ -1185,7 +1185,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
     </div>
   </header>
   <main class="min-h-[calc(100dvh-var(--ui-header-height))]" id="main-content">
-    <div class="grid gap-2 md:gap-6">
+    <div data-clarity-mask="true" class="grid gap-2 md:gap-6">
       <div class="bg-primary-100 md:rounded-b-[94px] dark:bg-primary-900">
         <div class="z-20 mx-auto grid w-full max-w-(--container-7xl) items-center p-0 md:w-[calc(100%-8rem)]">
           <div class="flex items-center justify-center gap-4 px-2 py-4 md:justify-start md:gap-8 md:py-6">

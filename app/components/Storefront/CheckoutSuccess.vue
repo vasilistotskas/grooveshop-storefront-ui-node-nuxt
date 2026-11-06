@@ -166,6 +166,7 @@ async function openInvoice() {
 <template>
   <div
     v-if="order"
+    data-clarity-mask="true"
     class="flex flex-col"
   >
     <UContainer class="py-8 lg:py-12">

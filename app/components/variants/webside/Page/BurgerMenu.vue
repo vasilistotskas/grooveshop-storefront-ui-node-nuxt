@@ -200,7 +200,10 @@ const onClickCookieSettings = () => {
               :show-name="false"
               size="lg"
             />
-            <div class="flex min-w-0 flex-col">
+            <div
+              data-clarity-mask="true"
+              class="flex min-w-0 flex-col"
+            >
               <span
                 class="
                   truncate text-sm font-semibold text-primary-950

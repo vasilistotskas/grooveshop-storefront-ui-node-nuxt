@@ -80577,6 +80577,9 @@
                     "openaiPixelId": {
                         "type": "string"
                     },
+                    "clarityProjectId": {
+                        "type": "string"
+                    },
                     "gaTrackingId": {
                         "type": "string",
                         "readOnly": true

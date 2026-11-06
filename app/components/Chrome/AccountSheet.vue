@@ -54,7 +54,10 @@ const UI = {
           size="xl"
           :ui="AVATAR_UI"
         />
-        <span class="truncate">{{ menu.name.value }}</span>
+        <span
+          data-clarity-mask="true"
+          class="truncate"
+        >{{ menu.name.value }}</span>
       </span>
     </template>
 

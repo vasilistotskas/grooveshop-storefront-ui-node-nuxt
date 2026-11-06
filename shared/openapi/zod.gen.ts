@@ -5583,6 +5583,7 @@ export const zTenantConfig = z.object({
   metaPixelId: z.string().readonly(),
   tiktokPixelId: z.string().readonly(),
   openaiPixelId: z.string().optional(),
+  clarityProjectId: z.string().optional(),
   gaTrackingId: z.string().readonly(),
   googleAdsConversionId: z.string().readonly(),
   googleAdsPurchaseLabel: z.string().readonly(),
@@ -8629,6 +8630,7 @@ export const zTenantConfigWritable = z.object({
   recommendationsEnabled: z.boolean().optional(),
   codeResendCooldownSeconds: z.int().optional(),
   openaiPixelId: z.string().optional(),
+  clarityProjectId: z.string().optional(),
   googleAdsAddPaymentInfoLabel: z.string().optional(),
   indexnowKey: z.string().optional(),
 })
