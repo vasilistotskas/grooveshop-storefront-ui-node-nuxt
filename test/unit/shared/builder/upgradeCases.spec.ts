@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseVersionedType, upgradeNode } from '~~/shared/builder/upgrade'
 import { builderTranslatedSettings, upgradeNodeTranslations } from '~/utils/builderTranslation'
+import { settingAt } from '~/utils/builderWorkingCopy'
 import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
 import cases from '~~/test/fixtures/builder/upgrade-cases.json'
 
@@ -55,8 +56,8 @@ describe('upgrade-cases.json', () => {
     const moved = upgradeNodeTranslations(before, definition, translations!)
 
     for (const pointer of definition.translatable) {
-      const name = pointer.slice(1)
-      expect(builderTranslatedSettings(upgraded.settings, moved)[name], pointer).toEqual(read.settings[name])
+      const path = pointer.slice(1).split('/').join('.')
+      expect(settingAt(builderTranslatedSettings(upgraded.settings, moved), path), pointer).toEqual(settingAt(read.settings, path))
     }
   })
 })

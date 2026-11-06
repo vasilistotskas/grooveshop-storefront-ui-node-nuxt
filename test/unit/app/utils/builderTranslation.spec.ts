@@ -82,8 +82,8 @@ describe('upgradeNodeTranslations', () => {
     type: 'banner',
     version: 2,
     kinds: ['section'],
-    schema: z.object({ heading: z.string().optional(), note: z.string().optional() }),
-    translatable: ['/heading', '/note'],
+    schema: z.object({ heading: z.string().optional(), note: z.string().optional(), prompt: z.object({ text: z.string().optional() }).optional() }),
+    translatable: ['/heading', '/note', '/prompt/text'],
     upgrade: {
       1: ({ settings: { title, heading, dropped: _dropped, ...kept }, ...body }) => ({
         ...body,
@@ -111,6 +111,10 @@ describe('upgradeNodeTranslations', () => {
   it('leaves out an entry that only repeats the draft\'s text, and keeps one that was already there', () => {
     expect(upgradeNodeTranslations(node('banner@1', { title: 'Same' }), banner, { '/title': 'Same' })).toEqual({})
     expect(upgradeNodeTranslations(node('banner@1', { note: 'Same' }), banner, { '/note': 'Same' })).toEqual({ '/note': 'Same' })
+  })
+
+  it('reads a setting inside an object by its whole pointer', () => {
+    expect(upgradeNodeTranslations(node('banner@1', { prompt: { text: 'Δείτε' } }), banner, { '/prompt/text': 'See' })).toEqual({ '/prompt/text': 'See' })
   })
 
   it('takes out an empty translation, which says nothing', () => {
