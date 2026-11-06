@@ -18,8 +18,6 @@ export interface CheckoutArrival {
   vivaOrderCode?: string
   /** An offline pay-way placed the order just now. */
   placed?: boolean
-  /** The purchase events have fired, so a reload does not count it twice. */
-  purchaseReported?: boolean
 }
 
 const STORAGE_KEY = 'checkout-arrival'
@@ -43,7 +41,15 @@ export function readCheckoutArrival(): CheckoutArrival | undefined {
   }
 }
 
-export function markPurchaseReported(): void {
-  const arrival = readCheckoutArrival()
-  if (arrival) writeCheckoutArrival({ ...arrival, purchaseReported: true })
+/**
+ * Whether this browser already reported an order's purchase. TikTok and OpenAI
+ * do not dedup, and a reload or an older link from the history would count the
+ * sale again, in this tab or another, so it is not kept with the arrival.
+ */
+export function isPurchaseReported(orderUuid: string): boolean {
+  return localStorage.getItem(`checkout_purchase_reported_${orderUuid}`) !== null
+}
+
+export function markPurchaseReported(orderUuid: string): void {
+  localStorage.setItem(`checkout_purchase_reported_${orderUuid}`, '1')
 }

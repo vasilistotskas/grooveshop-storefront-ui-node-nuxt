@@ -22,21 +22,20 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   // Pinia needs, and a hook has no component instance to belong to.
   const blogEnabled = useStoreFeature('blog')
   const arrival = readCheckoutArrival()
-  const orderUUID = arrival?.orderUuid
-
-  if (!orderUUID) {
+  if (!arrival) {
     throw createError({ statusCode: 404, statusMessage: 'Missing order UUID', fatal: true })
   }
+  const orderUUID: string = arrival.orderUuid
 
-  const sessionId = computed(() => arrival?.sessionId)
-  const vivaOrderCode = computed(() => arrival?.vivaOrderCode)
+  const sessionId = computed(() => arrival.sessionId)
+  const vivaOrderCode = computed(() => arrival.vivaOrderCode)
   const fromViva = computed(() => !!vivaOrderCode.value)
   // Offline pay-ways (COD) navigate here with ``placed`` — there is no
   // provider redirect param to key on, but the purchase pixels (Meta +
   // GA4) and the cart cleanup still need the "arrived via a real
   // checkout" signal. Unlike the online params it must NOT trigger the
   // payment-status polling below: a COD order is legitimately unpaid.
-  const placedOffline = computed(() => arrival?.placed === true)
+  const placedOffline = computed(() => arrival.placed === true)
   const fromCheckout = computed(
     () => !!sessionId.value || fromViva.value || placedOffline.value,
   )
@@ -136,7 +135,7 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   const googleAds = useGoogleAds()
   const purchaseEventFired = ref(false)
   function tryFirePurchaseEvent() {
-    if (!order.value || purchaseEventFired.value || arrival?.purchaseReported) return
+    if (!order.value || purchaseEventFired.value || isPurchaseReported(orderUUID)) return
     // Purchase is only meaningful when the customer landed here via a
     // real checkout flow (not a revisit of an older link to the order).
     // Gate on ``fromCheckout`` so direct revisits don't
@@ -247,7 +246,7 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
         newCustomer: order.value.isFirstOrder,
       })
       purchaseEventFired.value = true
-      markPurchaseReported()
+      markPurchaseReported(orderUUID)
     }
     catch (pixelErr) {
       log.warn(

@@ -1,14 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { markPurchaseReported, readCheckoutArrival, writeCheckoutArrival } from '../../../../app/utils/checkoutArrival'
+import { isPurchaseReported, markPurchaseReported, readCheckoutArrival, writeCheckoutArrival } from '../../../../app/utils/checkoutArrival'
 
 const store = new Map<string, string>()
+const browserStorage = (prefix: string) => ({
+  getItem: (key: string) => store.get(prefix + key) ?? null,
+  setItem: (key: string, value: string) => void store.set(prefix + key, value),
+})
 
 beforeEach(() => {
   store.clear()
-  vi.stubGlobal('sessionStorage', {
-    getItem: (key: string) => store.get(key) ?? null,
-    setItem: (key: string, value: string) => void store.set(key, value),
-  })
+  vi.stubGlobal('sessionStorage', browserStorage('session:'))
+  vi.stubGlobal('localStorage', browserStorage('local:'))
 })
 
 describe('the checkout arrival', () => {
@@ -30,22 +32,25 @@ describe('the checkout arrival', () => {
     ['an empty order id', '{"orderUuid":""}'],
     ['no order id', '{"placed":true}'],
   ])('finds none in %s', (_label, stored) => {
-    store.set('checkout-arrival', stored)
+    store.set('session:checkout-arrival', stored)
 
     expect(readCheckoutArrival()).toBeUndefined()
   })
 
-  it('remembers that the purchase was reported, for a reload', () => {
+  it('remembers a reported purchase per order', () => {
+    expect(isPurchaseReported('u')).toBe(false)
+
+    markPurchaseReported('u')
+
+    expect(isPurchaseReported('u')).toBe(true)
+    expect(isPurchaseReported('another')).toBe(false)
+  })
+
+  it('keeps that apart from the arrival, which an older link overwrites', () => {
+    markPurchaseReported('u')
+
     writeCheckoutArrival({ orderUuid: 'u', placed: true })
 
-    markPurchaseReported()
-
-    expect(readCheckoutArrival()).toEqual({ orderUuid: 'u', placed: true, purchaseReported: true })
-  })
-
-  it('has nothing to mark without an arrival', () => {
-    markPurchaseReported()
-
-    expect(readCheckoutArrival()).toBeUndefined()
+    expect(isPurchaseReported('u')).toBe(true)
   })
 })

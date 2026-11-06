@@ -41,7 +41,6 @@ mockNuxtImport('readCheckoutArrival', () => () => route.params.uuid
       sessionId: route.query.session_id,
       vivaOrderCode: route.query.s,
       placed: route.query.placed === '1',
-      purchaseReported: route.query.reported === '1',
     }
   : undefined)
 
@@ -279,6 +278,7 @@ describe.each([
     })
 
     it('reports the purchase of a real arrival', async () => {
+      localStorage.clear()
       route.query = { placed: '1' }
       serveOrders(order({ payWayKey: 'PAY_ON_DELIVERY', isCollectedOnDelivery: true, metaEventIds: { purchase: 'event-1' } }))
 
@@ -289,8 +289,10 @@ describe.each([
     })
 
     // TikTok and OpenAI do not dedup: a reload must not count the sale again.
-    it('does not report it again when the tab says it already did', async () => {
-      route.query = { placed: '1', reported: '1' }
+    it('does not report it again when this browser already did', async () => {
+      localStorage.clear()
+      markPurchaseReported(UUID)
+      route.query = { placed: '1' }
       serveOrders(order({ payWayKey: 'PAY_ON_DELIVERY', isCollectedOnDelivery: true, metaEventIds: { purchase: 'event-1' } }))
 
       await mount()

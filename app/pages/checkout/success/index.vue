@@ -16,5 +16,8 @@ const body = computed(() => resolvePage('checkout-success', tenantStore.schemaNa
     <component
       :is="body"
     />
+    <template #fallback>
+      <div class="min-h-[60vh]" />
+    </template>
   </ClientOnly>
 </template>

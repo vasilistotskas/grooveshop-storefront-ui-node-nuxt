@@ -725,6 +725,8 @@ export function setupSocialLogin() {
   // GSI is client-only anyway — the GSI button + ``onLoaded`` callback
   // are meaningless on the server — so skip the entire setup.
   if (import.meta.server) return
+  // A Google script like any other: it stays off an address holding a secret.
+  if (!useTrackingAllowed().value) return
 
   const { config: authConfig } = storeToRefs(useAuthStore())
   const {
