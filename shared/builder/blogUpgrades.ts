@@ -2,9 +2,7 @@ import type { BlockUpgrade } from '../types/builder'
 
 /**
  * The upgrades that move the blog's bands onto a data setting
- * (`builderField.query`). Only settings that are the same in every language
- * move here: a translation is kept by setting pointer, outside the node, and
- * a pointer the block no longer has is refused on save.
+ * (`builderField.query`).
  */
 
 /**

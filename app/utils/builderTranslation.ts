@@ -59,6 +59,32 @@ export function builderTranslatedSettings(settings: Readonly<Record<string, unkn
 }
 
 /**
+ * A node's translations into one language, once its block's upgrades have run.
+ * What a language reads is the upgrade of its own settings, so a translation
+ * follows whatever an upgrade does to its setting (a rename, a merge, the
+ * setting taken out) and no upgrade has to state it. An entry is kept where the
+ * language reads something other than the draft's upgraded text, or where it
+ * already translated that setting; a new entry that only repeats the draft's
+ * text is left out, since the setting falls back to that text anyway. Django
+ * does the same when it writes the upgrades into what is stored
+ * (`builder/block_upgrades.py`), held to `upgrade-cases.json`.
+ */
+export function upgradeNodeTranslations(
+  node: BuilderNode,
+  definition: Pick<BlockDefinition, 'type' | 'version' | 'upgrade' | 'translatable'>,
+  translations: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> {
+  const upgraded = upgradeNode(node, definition)
+  if (upgraded === node) return translations
+  const translated = upgradeNode({ ...node, settings: builderTranslatedSettings(node.settings, translations) }, definition)
+  return Object.fromEntries(definition.translatable.flatMap((pointer) => {
+    const value = valueAtPointer(translated.settings, pointer)
+    const repeatsDraft = JSON.stringify(value) === JSON.stringify(valueAtPointer(upgraded.settings, pointer))
+    return isEmptyValue(value) || (repeatsDraft && !(pointer in translations)) ? [] : [[pointer, value]]
+  }))
+}
+
+/**
  * How many settings of a document still need a translation into `locale`:
  * every translatable setting of every node that has text in the draft and
  * none in that language. A block this build does not define counts nothing.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
+import { BUILDER_DOCUMENT_NODE_ID } from '~~/shared/constants/builder'
 import {
   canDuplicateNode,
   builderNodeSiblings,
@@ -11,12 +12,14 @@ import {
   duplicateNode,
   insertNode,
   moveNode,
+  readBuilderWorkingCopy,
   removeNode,
   sameWorkingCopy,
   setNodeHidden,
   setNodeSetting,
   settingAt,
   upgradeDraft,
+  upgradeOverlay,
 } from '~/utils/builderWorkingCopy'
 import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
 import type { BuilderWorkingCopy } from '~~/shared/types/builderEditor'
@@ -27,6 +30,7 @@ const list = defineBlock({
   version: 2,
   kinds: ['section'],
   schema: z.object({ title: z.string().optional() }),
+  translatable: ['/title'],
   limits: { maxBlocks: 3 },
   children: { allowed: ['item'] },
   upgrade: { 1: body => ({ ...body, settings: { title: String(body.settings.heading ?? '') } }) },
@@ -198,6 +202,41 @@ describe('upgradeDraft', () => {
     ['a block below it it cannot read', node('list@2', {}, { x: node('gone@1') })],
   ])('cannot open a draft with %s', (_case, section) => {
     expect(upgradeDraft({ sections: { s: section }, order: ['s'] }, blocks)).toBeUndefined()
+  })
+})
+
+describe('upgradeOverlay', () => {
+  const stored = {
+    sections: { s: node('list@1', { heading: 'Παλιό' }, { a: node('item@1', { label: 'Α' }) }), t: node('list@1') },
+    order: ['s', 't'],
+  }
+
+  it('moves each language\'s translations with its node, at every depth', () => {
+    const overlay = { en: { s: { '/heading': 'Old' }, a: { '/label': 'A' } }, de: { s: { '/heading': 'Alt' } } }
+
+    expect(upgradeOverlay(stored, overlay, blocks)).toEqual({ en: { s: { '/title': 'Old' }, a: { '/label': 'A' } }, de: { s: { '/title': 'Alt' } } })
+  })
+
+  it('keeps what belongs to no node: the document\'s own settings, and an entry the draft has no node for', () => {
+    const overlay = { en: { [BUILDER_DOCUMENT_NODE_ID]: { '/seoTitle': 'Home' }, gone: { '/title': 'Gone' } } }
+
+    expect(upgradeOverlay(stored, overlay, blocks)).toEqual(overlay)
+  })
+
+  it('takes out a node and a language left with no translation', () => {
+    expect(upgradeOverlay(stored, { en: { s: { '/old': 'gone' } } }, blocks)).toEqual({})
+    expect(upgradeOverlay(stored, { en: { s: { '/old': 'gone' }, a: { '/label': 'A' } } }, blocks)).toEqual({ en: { a: { '/label': 'A' } } })
+  })
+})
+
+describe('readBuilderWorkingCopy', () => {
+  it('opens a stored document with its overlay moved along with the upgrades of the real blocks', () => {
+    const draft = { sections: { s: node('products_grid@1', { title: 'Νέα', pageSize: 6 }) }, order: ['s'] }
+
+    const copy = readBuilderWorkingCopy('template:home', draft, { en: { s: { '/title': 'New', '/pageSize': 12 } } })
+
+    expect(copy?.draft.sections.s?.type).toBe('products_grid@2')
+    expect(copy?.i18n).toEqual({ en: { s: { '/title': 'New' } } })
   })
 })
 
