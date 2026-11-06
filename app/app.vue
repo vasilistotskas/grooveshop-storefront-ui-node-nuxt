@@ -19,6 +19,7 @@ else {
   setupTikTokPixelConsent()
   setupOpenAIPixelConsent()
   setupClarityConsent()
+  setupConsentWithdrawal()
   setupCookieConsentTracking()
   setupSocialLogin()
 }

@@ -3,7 +3,7 @@
  * analytics consent, told each decision through Clarity's consent API.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { effectScope } from 'vue'
+import { effectScope, nextTick } from 'vue'
 import type { EffectScope } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -133,6 +133,17 @@ describe('setupClarityConsent', () => {
     await answer('ad_storage')
 
     expect(clarity).not.toHaveBeenCalled()
+  })
+
+  it('erases at once, not after a paint a reload would never reach', async () => {
+    setupClarityConsent()
+    await answer('analytics_storage')
+    clarity.mockClear()
+
+    consent.enabled.value = []
+    await nextTick()
+
+    expect(clarity).toHaveBeenCalledExactlyOnceWith('consent', false)
   })
 
   it('takes consent again after it was withdrawn', async () => {
