@@ -14,6 +14,7 @@ if (builderSurface) {
   useRobotsRule(false)
 }
 else {
+  setupConsentRenewal()
   setupGoogleAnalyticsConsent()
   setupMetaPixelConsent()
   setupTikTokPixelConsent()

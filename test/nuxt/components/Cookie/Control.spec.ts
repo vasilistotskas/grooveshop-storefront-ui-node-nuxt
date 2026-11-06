@@ -53,6 +53,14 @@ describe('Cookie/Control', () => {
   })
   afterEach(resetConsent)
 
+  it('names the services the consent is for', async () => {
+    setTenant({ gaTrackingId: 'G-1', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '', clarityProjectId: 'c' })
+
+    const wrapper = await mountBanner()
+
+    expect(wrapper.text()).toContain('Google, Microsoft Clarity')
+  })
+
   it('asks a visitor who has not decided yet', async () => {
     const wrapper = await mountBanner()
 

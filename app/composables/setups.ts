@@ -1,3 +1,4 @@
+import { COOKIE_ID_SEPARATOR } from '#cookie-control/types'
 import { el as uiLocaleEl } from '@nuxt/ui/locale'
 
 export function setupPageHeader() {
@@ -483,6 +484,39 @@ export function setupClarityConsent() {
     },
     { immediate: true },
   )
+}
+
+/**
+ * Ask again when the store has added a service since the visitor answered.
+ *
+ * A consent covers the services it was given for, the ones the banner named.
+ * Which those were is kept beside the decision, so a store that adds one asks
+ * every visitor who has not answered for it. A service removed asks nobody. A
+ * decision with no record predates it and is treated the same way.
+ *
+ * Called from ``app.vue`` before the tracker setups, whose gates read the
+ * state this resets. Only the state is reset: the cookies stay until the visitor
+ * answers, so reloading before that asks again. Browser only, like the banner.
+ */
+export function setupConsentRenewal() {
+  if (import.meta.server) return
+  const { optionalServices } = storeToRefs(useTenantStore())
+  const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, moduleOptions } = useCookieControl()
+  const answeredFor = useCookie<string | undefined>(moduleOptions.cookieNameConsentServices, {
+    expires: new Date(Date.now() + moduleOptions.cookieExpiryOffsetMs),
+    ...moduleOptions.cookieOptions,
+  })
+
+  const known = answeredFor.value?.split(COOKIE_ID_SEPARATOR) ?? []
+  if (isConsentGiven.value && optionalServices.value.some(service => !known.includes(service))) {
+    isConsentGiven.value = false
+    cookiesEnabled.value = []
+    cookiesEnabledIds.value = []
+  }
+
+  watch(isConsentGiven, (given) => {
+    if (given) answeredFor.value = optionalServices.value.join(COOKIE_ID_SEPARATOR)
+  })
 }
 
 /**

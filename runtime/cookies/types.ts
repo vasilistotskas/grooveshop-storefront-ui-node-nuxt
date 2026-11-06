@@ -24,6 +24,7 @@ export interface ModuleOptions {
   closeModalOnClickOutside: boolean
   cookieExpiryOffsetMs: number
   cookieNameCookiesEnabledIds: string
+  cookieNameConsentServices: string
   cookieNameIsConsentGiven: string
   cookies: {
     necessary: Cookie[]
@@ -47,6 +48,7 @@ export const DEFAULTS: Required<ModuleOptions> = {
   cookieExpiryOffsetMs: 1000 * 60 * 60 * 24 * 365, // one year
   cookieNameIsConsentGiven: 'ncc_c',
   cookieNameCookiesEnabledIds: 'ncc_e',
+  cookieNameConsentServices: 'ncc_s',
   cookieOptions: {
     path: '/',
     readonly: false,
