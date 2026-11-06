@@ -1,3 +1,10 @@
+## [3.326.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.0...v3.326.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **analytics:** withdrawing consent stops trackers, and new services ask again ([#400](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/400)) ([ff37136](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ff371362e0880db55506d8cb1a270970c7b0fd49))
+
 # [3.326.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.4...v3.326.0) (2026-11-06)
 
 
