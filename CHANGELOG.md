@@ -1,3 +1,10 @@
+# [3.328.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.327.1...v3.328.0) (2026-11-06)
+
+
+### Features
+
+* **builder:** webside's bands of products draw webside's own card ([#404](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/404)) ([7163578](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7163578c97c58bcc4b46c8da8429ce998a7f6d47))
+
 ## [3.327.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.327.0...v3.327.1) (2026-11-06)
 
 
