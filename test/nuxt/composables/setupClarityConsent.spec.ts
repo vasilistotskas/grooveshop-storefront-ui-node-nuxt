@@ -3,13 +3,13 @@
  * analytics consent, told each decision through Clarity's consent API.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { effectScope, nextTick } from 'vue'
+import { effectScope } from 'vue'
 import type { EffectScope } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setTenant } from '~~/test/helpers/tenant'
 
-const { clarity, scriptClarityMock, triggerConsentMock, consent } = await vi.hoisted(async () => {
+const { clarity, scriptClarityMock, triggerConsentMock, consent, paint } = await vi.hoisted(async () => {
   const { ref } = await import('vue')
   const clarity = vi.fn()
   return {
@@ -17,6 +17,8 @@ const { clarity, scriptClarityMock, triggerConsentMock, consent } = await vi.hoi
     scriptClarityMock: vi.fn(() => ({ proxy: { clarity } })),
     triggerConsentMock: vi.fn(() => 'consent-trigger'),
     consent: { given: ref(false), enabled: ref<string[]>([]) },
+    // The next paint, held back by a test that must see what runs before it.
+    paint: { held: null as Promise<void> | null },
   }
 })
 mockNuxtImport('useScriptClarity', () => scriptClarityMock)
@@ -25,7 +27,7 @@ mockNuxtImport('useCookieControl', () => () => ({
   isConsentGiven: consent.given,
   cookiesEnabledIds: consent.enabled,
 }))
-mockNuxtImport('afterNextPaint', () => () => Promise.resolve())
+mockNuxtImport('afterNextPaint', () => () => paint.held ?? Promise.resolve())
 
 const { setupClarityConsent: setup } = await import('~/composables/setups')
 
@@ -49,6 +51,7 @@ afterEach(() => scope.stop())
 
 beforeEach(() => {
   scope = effectScope()
+  paint.held = null
   consent.given.value = false
   consent.enabled.value = []
   setTenant({ clarityProjectId: 'z8z79wsqeu' })
@@ -135,15 +138,24 @@ describe('setupClarityConsent', () => {
     expect(clarity).not.toHaveBeenCalled()
   })
 
-  it('erases at once, not after a paint a reload would never reach', async () => {
+  it('erases without waiting for the paint the reload follows', async () => {
     setupClarityConsent()
     await answer('analytics_storage')
     clarity.mockClear()
+    paint.held = new Promise(() => {})
 
-    consent.enabled.value = []
-    await nextTick()
+    await answer()
 
     expect(clarity).toHaveBeenCalledExactlyOnceWith('consent', false)
+  })
+
+  it('waits for the next paint before it tells Clarity of a consent', async () => {
+    setupClarityConsent()
+    paint.held = new Promise(() => {})
+
+    await answer('analytics_storage')
+
+    expect(clarity).not.toHaveBeenCalled()
   })
 
   it('takes consent again after it was withdrawn', async () => {
