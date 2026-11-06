@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { hasProtocol, joinURL } from 'ufo'
+
 const props = defineProps<{
   title?: string
   artworks?: ResolvedImage[]
@@ -27,8 +29,24 @@ const items = computed(() => {
   return props.artworks ?? []
 })
 
-/** Where the artwork is, or nothing for one that is gone: the slot draws no picture for it. */
-const pathOf = (item: ResolvedImage) => readyImage(item)?.path ?? ''
+const mediaStreamBaseUrl = useMediaStreamBaseUrl()
+
+/**
+ * What the slot draws for an artwork: its source, the provider that serves it
+ * and its description. A library image (`media/<schema>/uploads/...`) is
+ * served by the media service, absolutized against the store's own origin
+ * (`useMediaStreamBaseUrl`) so the preload names the URL the image uses; an
+ * app image (`/img/...`) stays with IPX, as it always was. An artwork that is
+ * gone has no source, and the slot draws no picture for it.
+ */
+const drawn = (item: ResolvedImage): { src: string, provider?: 'mediaStream', alt: string } => {
+  const image = readyImage(item)
+  if (!image?.path) return { src: '', alt: '' }
+  const alt = image.alt || appTitle.value
+  if (!isMediaStreamSrc(image.path)) return { src: image.path, alt }
+  return { src: hasProtocol(image.path) ? image.path : joinURL(mediaStreamBaseUrl.value, image.path), provider: 'mediaStream', alt }
+}
+const slides = computed(() => items.value.map(drawn))
 
 const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
@@ -38,21 +56,22 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
   <UCarousel
     v-if="items.length"
     v-slot="{ item }"
-    :items="items"
+    :items="slides"
     :ui="{ item: 'basis-full place-items-center justify-center' }"
     :aria-label="t('carousel.banner')"
     class="w-full md:p-0!"
     indicators
   >
     <NuxtLink
-      v-if="pathOf(item) && link"
+      v-if="item.src && link"
       :to="link"
       :aria-label="t('carousel.bannerLink')"
       class="block"
     >
       <NuxtImg
-        :alt="appTitle"
-        :src="pathOf(item)"
+        :alt="item.alt"
+        :src="item.src"
+        :provider="item.provider"
         :height="bannerHeight"
         :width="bannerWidth"
         densities="x1"
@@ -68,9 +87,10 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
       />
     </NuxtLink>
     <NuxtImg
-      v-else-if="pathOf(item)"
-      :alt="appTitle"
-      :src="pathOf(item)"
+      v-else-if="item.src"
+      :alt="item.alt"
+      :src="item.src"
+      :provider="item.provider"
       :height="bannerHeight"
       :width="bannerWidth"
       densities="x1"

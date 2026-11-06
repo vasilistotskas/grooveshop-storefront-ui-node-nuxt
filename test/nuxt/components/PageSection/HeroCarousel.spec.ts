@@ -309,6 +309,14 @@ describe('PageSectionHeroCarousel images', () => {
     expect(phone.get('img').attributes('src')).toContain('phone.avif')
   })
 
+  it('carries the description of a flat artwork, and names one without by the store', async () => {
+    const wrapper = await mountHero({ artworks: [makeResolvedImage(DESK, 'Ένας φορτιστής'), makeResolvedImage(DESK)] })
+
+    expect(wrapper.findAll('img')[0]!.attributes('alt')).toBe('Ένας φορτιστής')
+    expect(wrapper.findAll('img')[1]!.attributes('alt')).not.toBe('')
+    expect(wrapper.findAll('img')[1]!.attributes('alt')).not.toBe('Ένας φορτιστής')
+  })
+
   it('draws the phone image of a flat artwork at the same position on a phone', async () => {
     device.mobile.value = true
     const wrapper = await mountHero({ artworks: [makeResolvedImage(DESK), makeResolvedImage(DESK)], mobileArtworks: [makeResolvedImage(PHONE)] })
