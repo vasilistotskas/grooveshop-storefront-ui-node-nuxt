@@ -35,7 +35,7 @@ coverage
 
 # AI
 .claude/settings.local.json
-.claude/.typecheck-pending
+.claude/.typecheck-pending*
 .claude/agent-memory/
 .cursor
 .cursorrules

@@ -62,7 +62,7 @@ the workspace root. Symptom triage that stays on the Nuxt side works either way.
 | Setup plugin (SSR init) | `app/plugins/setup.ts` |
 | Auth middleware (route guard) | `app/middleware/auth.global.ts` |
 | Session type augmentation | `shared/auth.d.ts` |
-| Protected routes list | `shared/constants/index.ts` (AuthenticatedRoutes) |
+| Protected routes list | `app/utils/route.ts` (AuthenticatedRoutes) |
 | Flow → path mapping | `shared/constants/index.ts` (Flow2path) |
 
 ## Debugging Workflow

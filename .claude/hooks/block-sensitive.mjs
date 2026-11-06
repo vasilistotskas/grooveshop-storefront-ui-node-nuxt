@@ -2,7 +2,7 @@
  * PreToolUse hook: refuse edits to files that hold credentials or that a tool
  * must regenerate.
  *
- * Sibling of the same-named hook in the other four repos and of the workspace
+ * Sibling of the same-named hook in the other repos and of the workspace
  * root's `guard-paths.mjs`. They cannot share a file — each repo is a separate
  * checkout — so they are kept structurally identical instead: the same
  * first-match-wins RULES table, the same universal rules at the top, and only

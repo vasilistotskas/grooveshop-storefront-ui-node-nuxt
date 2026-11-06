@@ -7,7 +7,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-sensitive.mjs\"",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-sensitive.mjs"
+            ],
             "timeout": 15
           }
         ]
@@ -19,13 +22,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-lint.mjs\"",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-lint.mjs"
+            ],
             "statusMessage": "eslint --fix…",
             "timeout": 180
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/track-typecheck.mjs\"",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/track-typecheck.mjs"
+            ],
             "timeout": 15
           }
         ]
@@ -36,7 +45,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/typecheck.mjs\"",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/typecheck.mjs"
+            ],
             "statusMessage": "nuxt typecheck…",
             "timeout": 660
           }

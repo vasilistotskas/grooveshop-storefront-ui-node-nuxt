@@ -4,6 +4,7 @@ paths:
   - "app/stores/**"
   - "app/composables/**"
   - "nuxt.config.ts"
+  - "app/plugins/tenant.ts"
 ---
 
 # Multi-tenant architecture

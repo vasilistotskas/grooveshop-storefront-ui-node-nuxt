@@ -39,7 +39,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 4. **`return handleError(...)` and `handleAllAuthError` end the catch**. `handleError` returns an upstream 4xx body or throws; `handleAllAuthError` always throws. Code after them in a catch block is dead or a bypass. Flag every such instance, and a `handleError` call that is not returned.
 5. **`createError` must be thrown, not returned**. `return createError(...)` sends a 200 response with the error as JSON body.
-6. **AllAuth namespace uses `handleAllAuthError`**. Routes under `server/api/_allauth/**` must use `handleAllAuthError` (which clears session on 410, updates tokens on 401/invalid-session, then throws the mapped error). Flag mismatched usage.
+6. **AllAuth namespace uses its own helpers**. Routes under `server/api/_allauth/**` use `forwardAllAuthFlow` or `handleAllAuthError` (which clears session on 410, updates tokens on 401/invalid-session, then throws the mapped error), never `handleError`. Flag mismatched usage.
 7. **Status 410 = session torn down**. The error helper clears the session on 410 Gone. Any custom branch that handles 410 *without* clearing the session (or that clears on 401 *with* `meta.is_authenticated = true`) is wrong.
 
 ### Headers / forwarding
@@ -53,7 +53,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 12. **Knox access token via `requireAllAuthAccessToken()`**. Routes that require auth and call Django with a Bearer token must call `requireAllAuthAccessToken()` outside the try block (it throws a clean 401 before any Django call). Flag inline `session.secure?.accessToken` accesses that don't enforce presence.
 13. **Don't log tokens**. `server/utils/auth.ts`, `server/utils/error.ts`, and the OAuth helpers must not pass `sessionToken`, `accessToken`, or `oauthParams.access_token` to `log.*`, `console.*`, or response headers. Flag any structured-log call whose context object contains these keys.
-14. **Token clearing on auth error**. `handleAllAuthError` clears `X-Session-Token` and `Authorization` from response headers via `clearResponseHeaders`. New custom auth handlers must do the same.
+14. **Token clearing on auth error**. For a recognised allauth error, `handleAllAuthError` clears `X-Session-Token` and `Authorization` from response headers (`event.res.headers.delete(...)` in `syncAllAuthSessionFromError`, `server/utils/error.ts`); an unexpected error returns before that. New custom auth handlers must clear both on every path.
 
 ### Auth lifecycle (client)
 
@@ -71,7 +71,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 ### Middleware
 
-23. **`auth.global.ts` uses `isRouteProtected`**. Don't hardcode route names. The `AuthenticatedRoutes` / `AuthenticatedRoutesSet` constants in `shared/constants/index.ts` are the source of truth.
+23. **`auth.global.ts` uses `isRouteProtected`**. Don't hardcode route names. The `AuthenticatedRoutes` / `AuthenticatedRoutesSet` constants in `app/utils/route.ts` are the source of truth.
 24. **Login redirect carries `next`**. The middleware sends `query: { next: to.fullPath }`. Removing `next` breaks the post-login redirect chain in the `handleLoggedIn` handler.
 
 ### WebSocket
