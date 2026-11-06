@@ -19,7 +19,6 @@ const props = defineProps({
   showAddToCartButton: { type: Boolean, required: false, default: true },
   imgWidth: { type: Number, required: false, default: 420 },
   imgHeight: { type: Number, required: false, default: 420 },
-  showStartPrice: { type: Boolean, required: false, default: false },
   showDescription: { type: Boolean, required: false, default: false },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -296,7 +295,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <div class="flex flex-col gap-2">
         <div
-          v-if="wasPrice && (isWholesalePrice || (announcement && showStartPrice))"
+          v-if="announcement || (isWholesalePrice && wasPrice)"
           class="flex items-center gap-2"
         >
           <ProductPriorPrice
@@ -308,7 +307,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             "
           />
           <span
-            v-else
+            v-else-if="wasPrice"
             class="
               text-sm text-neutral-700 line-through
               dark:text-neutral-300
