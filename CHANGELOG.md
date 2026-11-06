@@ -1,3 +1,10 @@
+# [3.330.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.329.1...v3.330.0) (2026-11-06)
+
+
+### Features
+
+* **builder:** a band has one heading ([#405](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/405)) ([cb2f53a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cb2f53ab8bc5d24eeb2a2adf36b438a9320c9fda))
+
 ## [3.329.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.329.0...v3.329.1) (2026-11-06)
 
 
