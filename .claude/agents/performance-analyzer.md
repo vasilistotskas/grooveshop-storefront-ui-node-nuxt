@@ -57,7 +57,7 @@ Browser → Nuxt SSR (3000) → Django API (8000) → PostgreSQL / Redis / Meili
 
 Current route rules define caching for static assets, images, favicons. Verify API caching:
 
-- [ ] **`defineCachedRoute` for read-heavy GETs** — product lists, categories, blog posts, settings should use SWR caching; `getKey` must start with `tenantCacheKey(event, …)` and include every varying query param
+- [ ] **`defineCachedRoute` for read-heavy GETs** — product lists, categories, blog posts, settings should be cached, with SWR for stable lists (a sort-, filter- or cart-sensitive listing may set `swr: false`, with a comment saying why); `getKey` must start with `tenantCacheKey(event, …)` and include every varying query param
 - [ ] **Per-user data NEVER cached** — cart, orders, user account, notifications, session endpoints must NOT use `defineCachedRoute`
 - [ ] **Cache TTL matches data volatility** — products/blog (1h+), categories (24h), settings (24h), search results (5min)
 - [ ] **Redis cache backend configured for production** — `NUXT_CACHE_BASE=redis` with `storage.ts` plugin fallback to memory

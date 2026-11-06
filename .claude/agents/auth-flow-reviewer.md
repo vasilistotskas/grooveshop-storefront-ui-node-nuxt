@@ -53,7 +53,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 12. **Knox access token via `requireAllAuthAccessToken()`**. Routes that require auth and call Django with a Bearer token must call `requireAllAuthAccessToken()` outside the try block (it throws a clean 401 before any Django call). Flag inline `session.secure?.accessToken` accesses that don't enforce presence.
 13. **Don't log tokens**. `server/utils/auth.ts`, `server/utils/error.ts`, and the OAuth helpers must not pass `sessionToken`, `accessToken`, or `oauthParams.access_token` to `log.*`, `console.*`, or response headers. Flag any structured-log call whose context object contains these keys.
-14. **Token clearing on auth error**. `handleAllAuthError` clears `X-Session-Token` and `Authorization` from response headers (`event.res.headers.delete(...)` in `syncAllAuthSessionFromError`, `server/utils/error.ts`). New custom auth handlers must do the same.
+14. **Token clearing on auth error**. For a recognised allauth error, `handleAllAuthError` clears `X-Session-Token` and `Authorization` from response headers (`event.res.headers.delete(...)` in `syncAllAuthSessionFromError`, `server/utils/error.ts`); an unexpected error returns before that. New custom auth handlers must clear both on every path.
 
 ### Auth lifecycle (client)
 
