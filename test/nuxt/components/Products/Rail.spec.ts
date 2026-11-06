@@ -67,4 +67,13 @@ describe('Products/Rail', () => {
     expect(container.classes()).toContain('ms-0')
     expect(container.classes()).not.toContain('-ms-4')
   })
+
+  // The classes are the contract here too: a design's card grows on hover
+  // inside a viewport that clips, and fills a slide as tall as its neighbour's.
+  it('gives a card room to grow, and lines the cards up', async () => {
+    const wrapper = await mountRail()
+
+    expect(wrapper.find('[data-slot="viewport"]').classes()).toEqual(expect.arrayContaining(['-my-3', 'py-3']))
+    expect(wrapper.find('[data-slot="container"]').classes()).toContain('items-stretch')
+  })
 })

@@ -11,8 +11,8 @@
  * declares that, and a heading over nothing is what a brand-new store used
  * to show.
  *
- * A design with its own product card draws it through the `card` slot: the
- * band stays this one, and the slot's root is an `<li>` of the band's list.
+ * A design with its own product card draws the list through the `list` slot:
+ * the band stays this one, and the card keeps the columns it was laid out for.
  */
 const props = withDefaults(defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<{
 })
 
 defineSlots<{
-  card?(props: { product: ProductCard, showAddToCart: boolean }): unknown
+  list?(props: { items: readonly ProductCard[], showAddToCart: boolean }): unknown
 }>()
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
@@ -50,29 +50,26 @@ const label = computed(
     :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('products')"
     :surface="surface"
   >
-    <UPageGrid
-      as="ul"
-      class="
-        grid-cols-2 gap-3.5
-        lg:grid-cols-4 lg:gap-6
-      "
+    <slot
+      name="list"
+      :items="products.items"
+      :show-add-to-cart="showAddToCart"
     >
-      <template
-        v-for="product in products.items"
-        :key="product.id"
+      <UPageGrid
+        as="ul"
+        class="
+          grid-cols-2 gap-3.5
+          lg:grid-cols-4 lg:gap-6
+        "
       >
-        <slot
-          name="card"
+        <ProductCard
+          v-for="product in products.items"
+          :key="product.id"
           :product="product"
-          :show-add-to-cart="showAddToCart"
-        >
-          <ProductCard
-            :product="product"
-            :show-add-to-cart-button="showAddToCart"
-          />
-        </slot>
-      </template>
-    </UPageGrid>
+          :show-add-to-cart-button="showAddToCart"
+        />
+      </UPageGrid>
+    </slot>
   </PageSectionBand>
 </template>
 

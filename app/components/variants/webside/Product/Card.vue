@@ -5,6 +5,7 @@ const { productUrl } = useUrls()
 const { t, locale } = useStoreI18n('components/variants/webside/Product/Card')
 // Off, reviews are gone everywhere — the stars on a card with them.
 const productReviewsEnabled = useStoreFeature('productReviews')
+const productAlertsEnabled = useStoreFeature('productAlerts')
 
 const props = defineProps({
   product: { type: Object as PropType<Product | ProductCard>, required: true },
@@ -348,6 +349,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           w-full transition-all duration-300
           hover:scale-105
         "
+      />
+
+      <LazyWebsideProductNotifyMe
+        v-if="productAlertsEnabled && product.stock === 0"
+        :product-id="productId"
+        kind="restock"
       />
     </div>
   </UCard>

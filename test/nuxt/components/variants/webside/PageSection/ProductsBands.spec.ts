@@ -1,14 +1,20 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { resolveSectionComponent } from '~/utils/componentRegistry'
-import ProductsGrid from '~/components/variants/webside/PageSection/ProductsGridBand.vue'
-import ProductsSlider from '~/components/variants/webside/PageSection/ProductsSliderBand.vue'
+import Renderer from '~/components/PageSection/Renderer.vue'
+import { makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { makeProductCard } from '~~/test/fixtures/product'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
-const products = (ids: number[]) => ({
+// The card names the alert lazily, which only the module's own mock can replace.
+vi.mock('~/components/variants/webside/Product/NotifyMe.vue', async () => {
+  const { defineComponent, h } = await import('vue')
+  return { default: defineComponent({ props: { productId: { type: Number, required: true } }, setup: props => () => h('div', { 'data-notify-me': props.productId }) }) }
+})
+
+const products = (ids: number[], overrides: Parameters<typeof makeProductCard>[0] = {}) => ({
   status: ids.length ? 'ok' : 'empty',
-  items: ids.map(id => makeProductCard({ id })),
+  items: ids.map(id => makeProductCard({ id, ...overrides })),
   total: ids.length,
   descriptor: { mode: 'filter', ordering: 'newest', limit: 8 },
 }) as ResolvedQuery<ProductCard, DataDescriptor<'product'>>
@@ -17,58 +23,122 @@ const products = (ids: number[]) => ({
 const NEWEST_HEADING = 'Νέες αφίξεις'
 
 /**
- * webside's bands of products are the platform's bands in webside's own card:
- * the card is all these two files hold, so what a band does is checked once,
- * in the base specs, and here only that it still reaches this design.
+ * webside's bands of products are the platform's bands in webside's own card,
+ * drawn here as a page draws them: the block type through the component
+ * registry, on the store's schema. What a band does is checked once, in the
+ * base specs, and here only that it still reaches this design.
+ *
+ * `.product-card` is webside's card's own class (the default card has none),
+ * and the element is the contract: a slide is no list.
  */
 describe.each([
-  ['the grid', ProductsGrid, 'li'],
-  ['the rail', ProductsSlider, 'div'],
-])('webside PageSection, %s', (_name, Band, cardElement) => {
+  ['products_grid', 'LI', 'OL'],
+  ['featured_products', 'LI', 'OL'],
+  ['products_slider', 'DIV', 'DIV'],
+])('webside\'s %s', (componentType, cardElement, parentElement) => {
   beforeEach(() => {
-    setTenant()
+    setTenant({ schemaName: 'webside' })
+    setTenantFeatures({ catalogue: true })
   })
 
-  const mountBand = (props: Record<string, unknown> = {}) =>
-    mountSuspended(Band, { route: false, props: { products: products([7, 8]), ...props } })
+  const mountBand = async (props: Record<string, unknown> = {}) => {
+    const wrapper = await mountSuspended(Renderer, {
+      route: false,
+      props: { section: makeBuilderSection({ componentType, props: { products: products([7, 8]), ...props } }) },
+    })
+    return wrapper
+  }
+
+  const drawn = async (props?: Record<string, unknown>) => {
+    const wrapper = await mountBand(props)
+    await vi.waitFor(() => expect(wrapper.find('section').exists()).toBe(true), { timeout: 4000 })
+    return wrapper
+  }
 
   it('draws webside\'s card for each product, as what its parent can hold', async () => {
-    const wrapper = await mountBand()
+    const wrapper = await drawn()
+    const cards = wrapper.findAll('.product-card')
 
-    expect(wrapper.findAll('.product-card').map(card => card.element.tagName.toLowerCase())).toEqual([cardElement, cardElement])
+    expect(cards.map(card => card.element.tagName)).toEqual([cardElement, cardElement])
+    expect(cards[0]!.element.parentElement!.tagName).toBe(parentElement)
   })
 
   it('hands every setting to the platform\'s band: the heading, and a link of the store\'s own', async () => {
-    const wrapper = await mountBand({ heading: 'Για σένα', ctaText: 'Δες τα', ctaLink: '/offers' })
+    const wrapper = await drawn({ heading: 'Για σένα', ctaText: 'Δες τα', ctaLink: '/offers' })
 
     expect(wrapper.find('h2').text()).toBe('Για σένα')
-    const link = wrapper.findAll('a').find(anchor => anchor.text() === 'Δες τα')
-    expect(link?.attributes('href')).toBe('/offers')
+    expect(wrapper.findAll('a').find(anchor => anchor.text() === 'Δες τα')?.attributes('href')).toBe('/offers')
   })
 
   it('names the band by what it lists when the store did not', async () => {
-    const wrapper = await mountBand()
+    const wrapper = await drawn()
 
     expect(wrapper.find('h2').text()).toBe(NEWEST_HEADING)
   })
 
-  it('takes the add to cart button off the cards when the block turns it off', async () => {
-    const withButton = await mountBand()
-    const withoutButton = await mountBand({ showAddToCart: false })
+  it('takes the buy button off the cards when the block turns it off', async () => {
+    const withButton = await drawn()
+    await vi.waitFor(() => expect(withButton.text()).toContain('Αγορά'), { timeout: 4000 })
+    const withoutButton = await drawn({ showAddToCart: false })
 
-    expect(withButton.findAll('.product-card button').length).toBeGreaterThan(withoutButton.findAll('.product-card button').length)
+    expect(withoutButton.text()).not.toContain('Αγορά')
   })
 
   it('disappears with nothing to list', async () => {
     const wrapper = await mountBand({ products: products([]) })
 
+    // The section's lazy component settles, and draws nothing of its own.
+    await vi.dynamicImportSettled()
     expect(wrapper.find('section').exists()).toBe(false)
+    expect(wrapper.find('.product-card').exists()).toBe(false)
   })
 })
 
-describe('the sections of webside that list products', () => {
-  it.each(['products_slider', 'products_grid', 'featured_products'])('%s has a webside design, and stays the base one for another store', (type) => {
-    expect(resolveSectionComponent(type, 'webside')).not.toBe(resolveSectionComponent(type, 'demo'))
-    expect(resolveSectionComponent(type, 'demo')).toBe(resolveSectionComponent(type))
+describe('webside\'s product grid', () => {
+  beforeEach(() => {
+    setTenant({ schemaName: 'webside' })
+    setTenantFeatures({ catalogue: true })
+  })
+
+  // The classes are the contract: happy-dom lays nothing out. In two columns on
+  // a phone this card's corner buttons cover its stock badge.
+  it('keeps one column on a phone, as webside\'s listing has it', async () => {
+    const wrapper = await mountSuspended(Renderer, {
+      route: false,
+      props: { section: makeBuilderSection({ componentType: 'products_grid', props: { products: products([7]) } }) },
+    })
+    await vi.waitFor(() => expect(wrapper.find('.product-card').exists()).toBe(true), { timeout: 4000 })
+
+    const classes = wrapper.find('ol').classes()
+    expect(classes).toContain('grid-cols-1')
+    expect(classes).not.toContain('grid-cols-2')
+  })
+})
+
+describe('webside\'s card when a product is sold out', () => {
+  beforeEach(() => {
+    setTenant({ schemaName: 'webside' })
+  })
+
+  const mountSoldOut = async (productAlerts: boolean, stock: number) => {
+    setTenantFeatures({ catalogue: true, productAlerts })
+    const wrapper = await mountSuspended(Renderer, {
+      route: false,
+      props: { section: makeBuilderSection({ componentType: 'products_grid', props: { products: products([7], { stock }) } }) },
+    })
+    await vi.waitFor(() => expect(wrapper.find('.product-card').exists()).toBe(true), { timeout: 4000 })
+    await vi.dynamicImportSettled()
+    await nextTick()
+    return wrapper
+  }
+
+  it.each([
+    ['offers the restock alert when the store has alerts', true, 0, true],
+    ['offers none while it is in stock', true, 5, false],
+    ['offers none when the store has no alerts', false, 0, false],
+  ])('%s', async (_name, productAlerts, stock, offered) => {
+    const wrapper = await mountSoldOut(productAlerts, stock)
+
+    expect(wrapper.find('[data-notify-me="7"]').exists()).toBe(offered)
   })
 })

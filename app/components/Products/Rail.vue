@@ -35,9 +35,15 @@ const { isMobileOrTablet } = useDevice()
  * replaces, and `-ms-4` on the container, which nothing replaced until
  * `ms-0` here: it pulled the first card 16px left of the heading, and the
  * viewport cut off 8px of it.
+ *
+ * The viewport clips, so it takes room above and below for a design's card
+ * that grows and casts a shadow on hover, and gives it back to the layout.
+ * The items stretch, so a card that fills its slide lines up with its
+ * neighbours when one of them says more (a sold-out product's restock alert).
  */
 const carouselUi = {
-  container: 'ms-0',
+  viewport: '-my-3 py-3',
+  container: 'ms-0 items-stretch',
   item: `
     basis-[78%] px-2
     sm:basis-1/2
@@ -79,6 +85,7 @@ const arrowButton = {
     >
       <ProductCard
         as="div"
+        class="h-full"
         :product="item"
         :show-add-to-cart-button="showAddToCart"
       />
