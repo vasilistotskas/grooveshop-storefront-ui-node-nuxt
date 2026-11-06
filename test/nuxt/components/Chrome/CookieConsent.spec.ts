@@ -63,7 +63,7 @@ describe('Chrome/CookieConsent', () => {
 
     const wrapper = await mountBanner()
 
-    expect(wrapper.find('p').text()).toContain(own(wrapper, 'body', { services: 'Google, TikTok, OpenAI' }))
+    expect(wrapper.find('p').text()).toContain(own(wrapper, 'body', { services: 'Google Analytics, TikTok, OpenAI' }))
   })
 
   it('asks nothing of a store with no optional service', async () => {

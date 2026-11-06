@@ -58,7 +58,24 @@ describe('Cookie/Control', () => {
 
     const wrapper = await mountBanner()
 
-    expect(wrapper.text()).toContain('Google, Microsoft Clarity')
+    expect(wrapper.text()).toContain('Google Analytics, Microsoft Clarity')
+  })
+
+  it('names only the services the store uses, in the page\'s language', async () => {
+    setTenant({ availableLocales: ['el', 'en'], gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '1', tiktokPixelId: '', openaiPixelId: '', clarityProjectId: '' })
+    const { $i18n } = useNuxtApp()
+
+    await $i18n.setLocale('en')
+    try {
+      const text = (await mountBanner()).text()
+
+      expect(text).toContain('Services we use with your consent: Meta.')
+      expect(text).not.toContain('Google')
+      expect(text).not.toContain('Clarity')
+    }
+    finally {
+      await $i18n.setLocale('el')
+    }
   })
 
   it('asks a visitor who has not decided yet', async () => {

@@ -44,13 +44,22 @@ afterEach(() => scope.stop())
 describe('setupConsentRenewal', () => {
   it('asks again when the store added a service since the answer', () => {
     setTenant({ ...NONE, gaTrackingId: 'G-1', clarityProjectId: 'c' })
-    answered('Google')
+    answered('Google Analytics')
 
     run()
 
     const { isConsentGiven, cookiesEnabledIds } = useCookieControl()
     expect(isConsentGiven.value).toBe(false)
     expect(cookiesEnabledIds.value).toEqual([])
+  })
+
+  it('asks again when a store with Google Analytics adds Google Ads', () => {
+    setTenant({ ...NONE, gaTrackingId: 'G-1', googleAdsConversionId: 'AW-1' })
+    answered('Google Analytics')
+
+    run()
+
+    expect(useCookieControl().isConsentGiven.value).toBe(false)
   })
 
   it('asks a visitor whose decision has no record of its services', () => {
@@ -64,7 +73,7 @@ describe('setupConsentRenewal', () => {
 
   it('keeps a consent that covers every service', () => {
     setTenant({ ...NONE, gaTrackingId: 'G-1', clarityProjectId: 'c' })
-    answered('Google~Microsoft Clarity')
+    answered('Google Analytics~Microsoft Clarity')
 
     run()
 
@@ -75,7 +84,7 @@ describe('setupConsentRenewal', () => {
 
   it('asks nobody when the store removed a service', () => {
     setTenant({ ...NONE, gaTrackingId: 'G-1' })
-    answered('Google~Meta')
+    answered('Google Analytics~Meta')
 
     run()
 
@@ -101,6 +110,6 @@ describe('setupConsentRenewal', () => {
     await nextTick()
     await nextTick()
 
-    expect(cookieValue(moduleOptions.cookieNameConsentServices)).toBe('Google~Microsoft Clarity')
+    expect(cookieValue(moduleOptions.cookieNameConsentServices)).toBe('Google Analytics~Microsoft Clarity')
   })
 })

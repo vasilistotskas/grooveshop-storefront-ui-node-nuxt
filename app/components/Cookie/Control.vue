@@ -176,7 +176,8 @@ defineExpose({
       <div
         v-if="tenantStore.hasOptionalServices && !isConsentGiven && !moduleOptions.isModalForced"
         class="
-            fixed right-0 bottom-2 left-0 z-50 mx-auto max-w-sm rounded-md
+            fixed right-0 bottom-2 left-0 z-50 mx-auto max-h-[calc(100dvh-1rem)]
+            max-w-sm overflow-y-auto rounded-md
             border border-primary-200 bg-primary-50 px-4 py-4 text-primary-600
             shadow-xl
             sm:max-w-xl

@@ -71,7 +71,8 @@ export const useTenantStore = defineStore('tenant', () => {
   // name here is a service ``setups.ts`` registers behind consent.
   const optionalServices = computed(() =>
     [
-      (gaTrackingId.value || googleAdsConversionId.value) && 'Google',
+      gaTrackingId.value && 'Google Analytics',
+      googleAdsConversionId.value && 'Google Ads',
       metaPixelId.value && 'Meta',
       tiktokPixelId.value && 'TikTok',
       openaiPixelId.value && 'OpenAI',
