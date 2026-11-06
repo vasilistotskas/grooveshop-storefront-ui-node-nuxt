@@ -15,6 +15,8 @@
  * - `media`: an id of an image of the media library, a `record` of kind `media`;
  * - `query`: a descriptor of a list to read (`builderField.query`), which the
  *   storefront resolves when the page is read;
+ * - `mediaList`: a list of media ids, each entry an image of the media library
+ *   (`builderField.ref('media', ...)` as the items of an array: the `*` data pointer);
  * - `list`: a list of strings;
  * - `group`: an object, with fields of its own;
  * - `richText`: HTML (`contentMediaType: text/html`).
@@ -26,7 +28,7 @@ export type BuilderSettingField
     | { kind: 'boolean' | 'color' | 'icon' | 'url' | 'link' | 'richText' | 'media', path: string, pointer: SettingsPointer, required: boolean }
     | { kind: 'record', path: string, pointer: SettingsPointer, required: boolean, refKind: BlockRefKind }
     | { kind: 'query', path: string, pointer: SettingsPointer, required: boolean, source: DataSource, maxLimit: number }
-    | { kind: 'list', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
+    | { kind: 'list' | 'mediaList', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
     | { kind: 'group', path: string, pointer: SettingsPointer, required: boolean, fields: BuilderSettingField[] }
 
 export interface BuilderTextField {
@@ -85,8 +87,12 @@ function fieldOf(
         ...(numberOf(schema.minimum) !== undefined && { min: numberOf(schema.minimum) }),
         ...(numberOf(schema.maximum) !== undefined && { max: numberOf(schema.maximum) }),
       }
-    case 'array':
-      return { ...base, kind: 'list', ...(numberOf(schema.maxItems) !== undefined && { maxItems: numberOf(schema.maxItems) }) }
+    case 'array': {
+      // A list whose entries are media references (the `*` data pointer): a list of images, not of strings.
+      const entries = definition.data[`${pointer}/*` as SettingsPointer]
+      const kind = entries?.field === 'ref' && entries.kind === 'media' ? 'mediaList' : 'list'
+      return { ...base, kind, ...(numberOf(schema.maxItems) !== undefined && { maxItems: numberOf(schema.maxItems) }) }
+    }
     case 'object': {
       const properties = isSchema(schema.properties) ? schema.properties : {}
       const requiredKeys = new Set(Array.isArray(schema.required) ? schema.required : [])
