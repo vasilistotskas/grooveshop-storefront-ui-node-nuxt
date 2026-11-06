@@ -15,6 +15,30 @@ describe('webside Product/Card', () => {
     setTenant({ defaultLocale: 'en', availableLocales: ['el', 'en'] })
   })
 
+  const mountCard = (overrides: Parameters<typeof makeProduct>[0]) => mountSuspended(WebsideProductCard, {
+    props: { product: makeProduct(overrides) },
+    global: { stubs: { ImgWithFallback: true, ButtonProductAddToCart: true } },
+    route: false,
+  })
+
+  // EU Omnibus: a percentage on a card is an announced reduction, and an
+  // announcement states the prior price Django froze when it began
+  // (`shared/utils/productPrice.ts: productAnnouncement`).
+  it('states the prior price of the reduction its badge announces', async () => {
+    const wrapper = await mountCard({ price: 100, priorPrice: 150, announcedDiscountPercent: 17 })
+
+    expect(wrapper.text()).toContain('-17%')
+    expect(wrapper.get('s').text()).toBe(useNuxtApp().$i18n.n(150, 'currency'))
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
+  })
+
+  it('announces nothing, and strikes nothing through, for a markdown with no prior price', async () => {
+    const wrapper = await mountCard({ price: 100, discountPercent: 10 })
+
+    expect(wrapper.text()).not.toContain('%')
+    expect(wrapper.find('s').exists()).toBe(false)
+  })
+
   it('names a product the store has not translated into the page\'s language in the store\'s', async () => {
     const product = makeProduct({
       id: 7,
