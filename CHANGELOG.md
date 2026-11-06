@@ -1,3 +1,10 @@
+## [3.327.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.327.0...v3.327.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **pricing:** webside's product card states the prior price of a reduction ([#406](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/406)) ([d05a503](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d05a503b22787ae43df4129df241b67fc588f1a2))
+
 # [3.327.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.2...v3.327.0) (2026-11-06)
 
 
