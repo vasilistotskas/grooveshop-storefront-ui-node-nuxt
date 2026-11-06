@@ -24,8 +24,6 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   body?: string
   items?: Array<{ title: string, text?: string, icon?: string }>
@@ -39,7 +37,7 @@ const { t } = useStoreI18n('components/PageSection/variants/ekfyseosfyteias/Feat
 
 const framed = computed(() => props.decor === 'framed')
 const teaser = computed(() => Boolean(props.ctaText && props.ctaLink))
-const label = computed(() => props.heading || props.title)
+const label = computed(() => props.heading)
 
 // Whole class strings, so Tailwind sees every one at build time.
 const listClass = computed(() => {
