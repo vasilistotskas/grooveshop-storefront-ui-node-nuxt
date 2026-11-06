@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import type { ResolvedImage } from '~~/shared/types/builderData'
 import { makeResolvedImage } from '~~/test/fixtures/media'
 import TrustBadges from '~/components/PageSection/TrustBadges.vue'
 
-const mountBadges = (items: unknown[]) => mountSuspended(TrustBadges, { route: false, props: { items } as Record<string, unknown> })
+type Item = { kind: 'payment' | 'shipping' | 'ai' | 'custom', label: string, icon?: string, image?: ResolvedImage }
+
+const mountBadges = (items: Item[]) => mountSuspended(TrustBadges, { route: false, props: { items } })
 
 describe('PageSection/TrustBadges image', () => {
   it('draws the logo, named by the badge label', async () => {

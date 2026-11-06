@@ -1,11 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import type { ResolvedImage } from '~~/shared/types/builderData'
 import { makeResolvedImage } from '~~/test/fixtures/media'
 import ImageGallery from '~/components/PageSection/ImageGallery.vue'
 import EkfyGallery from '~/components/PageSection/variants/ekfyseosfyteias/ImageGallery.vue'
 
+type Item = { image?: ResolvedImage, imageDecorative?: boolean, caption?: string }
+
 describe.each([['default', ImageGallery], ['ekfyseosfyteias', EkfyGallery]])('%s image_gallery', (_design, Gallery) => {
-  const mountGallery = (items: unknown[]) => mountSuspended(Gallery, { route: false, props: { items } as Record<string, unknown> })
+  const mountGallery = (items: Item[]) => mountSuspended(Gallery, { route: false, props: { items } })
 
   it('draws each picture with the description of its image and its caption', async () => {
     const wrapper = await mountGallery([{ image: makeResolvedImage('https://assets.example.test/a.jpg', 'Μια ελιά'), caption: 'Το κτήμα' }])

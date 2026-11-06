@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import type { ResolvedImage } from '~~/shared/types/builderData'
 import { makeResolvedImage } from '~~/test/fixtures/media'
 import Testimonials from '~/components/PageSection/Testimonials.vue'
 
-const mountReviews = (items: unknown[]) => mountSuspended(Testimonials, { route: false, props: { items } as Record<string, unknown> })
+type Item = { name: string, text: string, avatarImage?: ResolvedImage }
+
+const mountReviews = (items: Item[]) => mountSuspended(Testimonials, { route: false, props: { items } })
 const QUOTE = { name: 'Μαρία', text: 'Πολύ καλό' }
 
 describe('PageSection/Testimonials photo', () => {
