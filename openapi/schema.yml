@@ -50993,32 +50993,6 @@ components:
           type: string
         pinterestDomainVerify:
           type: string
-        primaryColor:
-          type: string
-          readOnly: true
-        neutralColor:
-          type: string
-          readOnly: true
-        accentHex:
-          type: string
-          readOnly: true
-        successHex:
-          type: string
-          readOnly: true
-        warningHex:
-          type: string
-          readOnly: true
-        errorHex:
-          type: string
-          readOnly: true
-        infoHex:
-          type: string
-          readOnly: true
-        themePreset:
-          type: string
-          readOnly: true
-        themeMetadata:
-          readOnly: true
         defaultLocale:
           type: string
           readOnly: true
@@ -51161,7 +51135,6 @@ components:
           type: string
           readOnly: true
       required:
-        - accentHex
         - agentCommerceEnabled
         - agentHostedPaymentEnabled
         - agentPaymentInstruments
@@ -51174,7 +51147,6 @@ components:
         - boxNowPartnerId
         - defaultCurrency
         - defaultLocale
-        - errorHex
         - faviconUrl
         - features
         - gaTrackingId
@@ -51184,15 +51156,12 @@ components:
         - googleAdsConversionId
         - googleAdsPageViewLabel
         - googleAdsPurchaseLabel
-        - infoHex
         - logoDarkUrl
         - logoLightUrl
         - loyaltyEnabled
         - metaPixelId
         - name
-        - neutralColor
         - preferences
-        - primaryColor
         - primaryDomain
         - productFeedsEnabled
         - promotionsEnabled
@@ -51210,12 +51179,8 @@ components:
         - storeDescription
         - storeName
         - stripePublishableKey
-        - successHex
-        - themeMetadata
-        - themePreset
         - tiktokPixelId
         - totpIssuer
-        - warningHex
     TenantShippingCarrier:
       type: object
       description: What a footer "Delivered by" badge needs, and nothing more.
