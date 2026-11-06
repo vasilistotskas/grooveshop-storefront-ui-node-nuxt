@@ -4,11 +4,6 @@ import type { BlockUpgrade } from '../types/builder'
  * The upgrades that move a block's list settings onto a data setting
  * (`builderField.query`): what version 1 of a rail spread over `ordering`,
  * `categoryId` and a count becomes the one descriptor it stands for.
- *
- * Only settings that are the same in every language move here. A setting a
- * store translates cannot be renamed by an upgrade: the translations are kept
- * by setting pointer, outside the node, and a pointer the block no longer has
- * is refused on save.
  */
 
 /** What the first product rails called their orderings, and what each one sorted by. `featured` was the view count, not an arrangement of the merchant's. */
