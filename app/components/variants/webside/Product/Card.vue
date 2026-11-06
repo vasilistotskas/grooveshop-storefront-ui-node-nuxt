@@ -301,7 +301,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             "
           />
           <span
-            v-else
+            v-else-if="wasPrice"
             class="
               text-sm text-neutral-700 line-through
               dark:text-neutral-300

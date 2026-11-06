@@ -37,6 +37,7 @@ describe('webside Product/Card', () => {
 
     expect(wrapper.text()).not.toContain('%')
     expect(wrapper.find('s').exists()).toBe(false)
+    expect(wrapper.find('span.line-through').exists()).toBe(false)
   })
 
   it('names a product the store has not translated into the page\'s language in the store\'s', async () => {
