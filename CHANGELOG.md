@@ -1,3 +1,10 @@
+## [3.328.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.328.0...v3.328.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **checkout:** a success page with no readable order shows the error page ([#407](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/407)) ([ab01c51](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ab01c51d4565195a6cef96864fa9ea6448e94d49))
+
 # [3.328.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.327.1...v3.328.0) (2026-11-06)
 
 
