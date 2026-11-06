@@ -1,0 +1,69 @@
+[
+  {
+    "block": "gallery_image",
+    "from": "/src",
+    "to": "/image",
+    "alt": "/alt",
+    "decorative": "/imageDecorative",
+    "list": false
+  },
+  {
+    "block": "hero_banner",
+    "from": "/imageUrl",
+    "to": "/image",
+    "alt": "/imageAlt",
+    "decorative": "/imageDecorative",
+    "list": false
+  },
+  {
+    "block": "hero_banner",
+    "from": "/mobileImageUrl",
+    "to": "/mobileImage",
+    "list": false
+  },
+  {
+    "block": "hero_carousel",
+    "from": "/images/*",
+    "to": "/artworks/*",
+    "list": true
+  },
+  {
+    "block": "hero_carousel",
+    "from": "/mobileImages/*",
+    "to": "/mobileArtworks/*",
+    "list": true
+  },
+  {
+    "block": "hero_slide",
+    "from": "/imageUrl",
+    "to": "/image",
+    "alt": "/alt",
+    "decorative": "/imageDecorative",
+    "list": false
+  },
+  {
+    "block": "hero_slide",
+    "from": "/mobileImageUrl",
+    "to": "/mobileImage",
+    "list": false
+  },
+  {
+    "block": "media_text",
+    "from": "/imageUrl",
+    "to": "/image",
+    "decorative": "/imageDecorative",
+    "list": false
+  },
+  {
+    "block": "testimonial",
+    "from": "/avatar",
+    "to": "/avatarImage",
+    "list": false
+  },
+  {
+    "block": "trust_badge",
+    "from": "/imageUrl",
+    "to": "/image",
+    "list": false
+  }
+]

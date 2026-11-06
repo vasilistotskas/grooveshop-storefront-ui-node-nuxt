@@ -5,12 +5,23 @@
 const props = withDefaults(defineProps<{
   /** The operator's section title, from the section row itself. */
   title?: string
-  items?: Array<{ src: string, alt: string, caption?: string }>
+  items?: Array<{
+    image?: ResolvedImage
+    /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
+    imageDecorative?: boolean
+    caption?: string
+  }>
   columns?: number
   surface?: 'default' | 'muted'
 }>(), {
   columns: 3,
 })
+
+/** What is drawn: a picture whose image is gone or unreadable has nothing to show, so it is left out. */
+const tiles = computed(() => (props.items ?? []).flatMap((item) => {
+  const image = readyImage(item.image)
+  return image ? [{ src: image.path, alt: item.imageDecorative ? '' : image.alt, caption: item.caption }] : []
+}))
 
 // Static class map so Tailwind sees every variant at build time.
 const COLUMN_CLASSES: Record<number, string> = {
@@ -26,7 +37,7 @@ const columnsClass = computed(
 
 <template>
   <PageSectionBand
-    v-if="items?.length"
+    v-if="tiles.length"
     :heading="title"
     :surface="surface"
   >
@@ -35,7 +46,7 @@ const columnsClass = computed(
       :class="columnsClass"
     >
       <figure
-        v-for="(item, idx) in items"
+        v-for="(item, idx) in tiles"
         :key="idx"
         class="m-0"
       >

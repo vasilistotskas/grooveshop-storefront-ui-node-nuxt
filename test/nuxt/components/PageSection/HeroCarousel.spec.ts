@@ -5,9 +5,12 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import HeroCarousel from '~/components/PageSection/HeroCarousel.vue'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
+import { makeResolvedImage } from '~~/test/fixtures/media'
 
 /** The browser's media-query answers, per query; a missing one is `false`. */
 const media = vi.hoisted(() => ({ matches: {} as Record<string, boolean> }))
+const device = vi.hoisted(() => ({ mobile: { value: false } }))
+mockNuxtImport('useDevice', () => () => ({ isMobileOrTablet: device.mobile }))
 mockNuxtImport('useMediaQuery', () => (query: string) => ref(media.matches[query] ?? false))
 
 const HOVER = '(hover: hover) and (pointer: fine)'
@@ -36,8 +39,7 @@ const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
  */
 const SLIDES = [
   {
-    imageUrl: 'https://assets.example.test/hero-charging.avif',
-    alt: 'A charger and a power bank on a desk',
+    image: makeResolvedImage('https://assets.example.test/hero-charging.avif', 'A charger and a power bank on a desk'),
     eyebrow: 'Charging',
     heading: 'Charge fast, once a day',
     subheading: 'Power banks, GaN chargers and cables that last.',
@@ -47,7 +49,7 @@ const SLIDES = [
     secondaryCtaLink: '/blog',
   },
   {
-    imageUrl: 'https://assets.example.test/hero-audio.avif',
+    image: makeResolvedImage('https://assets.example.test/hero-audio.avif'),
     heading: 'Earbuds that actually fit',
     ctaText: 'Shop audio',
     ctaLink: '/products',
@@ -225,12 +227,12 @@ describe('PageSectionHeroCarousel', () => {
     expect(images[1]!.attributes('loading')).toBe('lazy')
   })
 
-  it('still renders the flat images form, as the photograph alone', async () => {
+  it('still renders the flat artworks form, as the photograph alone', async () => {
     // Layouts written before `slides` existed pass bare URLs and bake
     // their wording into the artwork: no panel, one link over the
     // picture.
     const wrapper = await mountHero({
-      images: ['https://assets.example.test/hero-charging.avif'],
+      artworks: [makeResolvedImage('https://assets.example.test/hero-charging.avif')],
       link: '/products',
     })
 
@@ -266,5 +268,59 @@ describe('PageSectionHeroCarousel', () => {
     const wrapper = await mountHero({ slides: SLIDES, autoplayMs })
 
     expect(wrapper.findComponent({ name: 'UCarousel' }).props('autoplay')).toEqual(autoplay)
+  })
+})
+
+describe('PageSectionHeroCarousel images', () => {
+  const DESK = 'https://assets.example.test/desk.avif'
+  const PHONE = 'https://assets.example.test/phone.avif'
+
+  beforeEach(() => {
+    device.mobile.value = false
+  })
+
+  it('describes a slide by its image, else its heading, and a decorative one by nothing', async () => {
+    const wrapper = await mountHero({
+      slides: [
+        { image: makeResolvedImage(DESK, 'Ένας φορτιστής'), heading: 'Γρήγορη φόρτιση' },
+        { image: makeResolvedImage(DESK), heading: 'Ακουστικά' },
+        { image: makeResolvedImage(DESK, 'Ένας φορτιστής'), heading: 'Διακοσμητικό', imageDecorative: true },
+      ],
+    })
+
+    expect(wrapper.findAll('img').map(img => img.attributes('alt'))).toEqual(['Ένας φορτιστής', 'Ακουστικά', ''])
+  })
+
+  it('draws a slide whose image is gone without one, and keeps its copy', async () => {
+    const wrapper = await mountHero({ slides: [{ image: { status: 'missing' }, heading: 'Γρήγορη φόρτιση' }] })
+
+    expect(wrapper.get('h1').text()).toBe('Γρήγορη φόρτιση')
+    expect(wrapper.get('img').attributes('src')).not.toContain('desk.avif')
+  })
+
+  it('draws the phone image of a slide on a phone, else the desk one', async () => {
+    const slides = [{ image: makeResolvedImage(DESK), mobileImage: makeResolvedImage(PHONE) }]
+
+    const desk = await mountHero({ slides })
+    device.mobile.value = true
+    const phone = await mountHero({ slides })
+
+    expect(desk.get('img').attributes('src')).toContain('desk.avif')
+    expect(phone.get('img').attributes('src')).toContain('phone.avif')
+  })
+
+  it('draws the phone image of a flat artwork at the same position on a phone', async () => {
+    device.mobile.value = true
+    const wrapper = await mountHero({ artworks: [makeResolvedImage(DESK), makeResolvedImage(DESK)], mobileArtworks: [makeResolvedImage(PHONE)] })
+
+    expect(wrapper.findAll('img').map(img => img.attributes('src')?.includes('phone.avif'))).toEqual([true, false])
+  })
+
+  it('pairs the flat lists by position, a gone desk image drawing without one', async () => {
+    const wrapper = await mountHero({ artworks: [makeResolvedImage(DESK), { status: 'missing' }], mobileArtworks: [makeResolvedImage(PHONE)] })
+
+    expect(wrapper.findAll('img')).toHaveLength(2)
+    expect(wrapper.findAll('img')[0]!.attributes('src')).toContain('desk.avif')
+    expect(wrapper.findAll('img')[1]!.attributes('src')).not.toContain('avif')
   })
 })

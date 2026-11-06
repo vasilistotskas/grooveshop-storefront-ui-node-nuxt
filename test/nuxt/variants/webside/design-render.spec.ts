@@ -46,6 +46,7 @@ import ErrorScreen from '~/components/variants/webside/ErrorScreen.vue'
 import AccountLoginForm from '~/components/variants/webside/Account/Login/Form.vue'
 import AccountProviderList from '~/components/variants/webside/Account/Provider/List.vue'
 import AccountSignupForm from '~/components/variants/webside/Account/Signup/Form.vue'
+import { makeResolvedImage } from '~~/test/fixtures/media'
 import HeroCarousel from '~/components/variants/webside/PageSection/HeroCarousel.vue'
 import BlogCategories from '~/components/variants/webside/PageSection/BlogCategories.vue'
 import BlogPostsList from '~/components/variants/webside/PageSection/BlogPostsList.vue'
@@ -486,7 +487,7 @@ describe('webside design render', () => {
 
   it('section hero_carousel', async () => {
     await expectSnapshot(HeroCarousel, {
-      props: { images: ['/img/main-banner.png'], mobileImages: ['/img/main-banner-mobile.png'], link: '/products/2/mini-power-bank-5000mah' },
+      props: { artworks: [makeResolvedImage('/img/main-banner.png')], mobileArtworks: [makeResolvedImage('/img/main-banner-mobile.png')], link: '/products/2/mini-power-bank-5000mah' },
     })
   })
 

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 const props = defineProps<{
   title?: string
-  images?: string[]
-  /** Mobile/tablet variants (matching indices); falls back to `images`. */
-  mobileImages?: string[]
+  artworks?: ResolvedImage[]
+  /** Mobile/tablet variants; used instead of `artworks` when there are any. */
+  mobileArtworks?: ResolvedImage[]
   /** Optional deep-link the banner navigates to (validated internal path or https URL). */
   link?: string
 }>()
@@ -21,11 +21,14 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 // would put one store's promo on every tenant whose layout carries a
 // prop-less hero_carousel. Empty props render nothing.
 const items = computed(() => {
-  if (isMobileOrTablet.value && props.mobileImages?.length) {
-    return props.mobileImages
+  if (isMobileOrTablet.value && props.mobileArtworks?.length) {
+    return props.mobileArtworks
   }
-  return props.images ?? []
+  return props.artworks ?? []
 })
+
+/** Where the artwork is, or nothing for one that is gone: the slot draws no picture for it. */
+const pathOf = (item: ResolvedImage) => readyImage(item)?.path ?? ''
 
 const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
@@ -42,14 +45,14 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
     indicators
   >
     <NuxtLink
-      v-if="item && link"
+      v-if="pathOf(item) && link"
       :to="link"
       :aria-label="t('carousel.bannerLink')"
       class="block"
     >
       <NuxtImg
         :alt="appTitle"
-        :src="item"
+        :src="pathOf(item)"
         :height="bannerHeight"
         :width="bannerWidth"
         densities="x1"
@@ -65,9 +68,9 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
       />
     </NuxtLink>
     <NuxtImg
-      v-else-if="item"
+      v-else-if="pathOf(item)"
       :alt="appTitle"
-      :src="item"
+      :src="pathOf(item)"
       :height="bannerHeight"
       :width="bannerWidth"
       densities="x1"

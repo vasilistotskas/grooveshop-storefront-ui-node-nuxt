@@ -133,6 +133,31 @@ export interface BlockConfig<Schema extends ZodObject = ZodObject> {
   childList?: Readonly<Record<string, string>>
   /** What only the editor reads: never part of the catalogue, so it changes nothing Django checks. */
   editor?: BlockEditorConfig
+  /**
+   * TRANSITIONAL (P15 stage 2, deleted with every use at stage 4): the image
+   * settings this block still accepts as URLs beside their media-reference
+   * successors. Three things read it: the server's read adapter
+   * (`legacyImageRefs`), the settings form (which leaves the old settings out)
+   * and the fixture Django's `migrate_builder_media` is held to
+   * (`test/fixtures/builder/legacy-image-fields.json`).
+   */
+  legacyImages?: readonly LegacyImage[]
+}
+
+/**
+ * One old image setting and its media-reference successor. Pointers name a
+ * top-level setting (`/imageUrl`), or every entry of a list setting
+ * (`/images/*`, then `to` is a list too). TRANSITIONAL, see `BlockConfig.legacyImages`.
+ */
+export interface LegacyImage {
+  /** The old setting: a URL, or a list of URLs. */
+  from: SettingsPointer
+  /** The media `ref` setting that replaces it. */
+  to: SettingsPointer
+  /** The old alt text setting, when the block had one of its own; the adapter hands it on as the image's alt. */
+  alt?: SettingsPointer
+  /** The boolean setting the migration sets for a use that deliberately has no alt text. */
+  decorative?: SettingsPointer
 }
 
 /** How the editor presents a block (`BlockConfig.editor`). */

@@ -36,8 +36,9 @@ const props = defineProps<{
   heading?: string
   subheading?: string
   eyebrow?: string
-  imageUrl?: string
-  imageAlt?: string
+  image?: ResolvedImage
+  /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
+  imageDecorative?: boolean
   ctaText?: string
   ctaLink?: string
   secondaryCtaText?: string
@@ -49,13 +50,18 @@ const props = defineProps<{
 
 const leadsPage = useLeadsPage()
 
+const picture = computed(() => readyImage(props.image))
+
+/** The picture's description, else the heading. */
+const alt = computed(() => (props.imageDecorative ? '' : picture.value?.alt || props.heading || ''))
+
 const presentation = computed(() => {
-  if (!props.imageUrl) return 'page'
+  if (!picture.value) return 'page'
   return props.theme === 'dark' ? 'overlap' : 'seal'
 })
 
 const hasContent = computed(
-  () => !!props.imageUrl || !!props.heading || !!props.subheading,
+  () => !!picture.value || !!props.heading || !!props.subheading,
 )
 
 const primary = computed(() => !!(props.ctaText && props.ctaLink))
@@ -165,8 +171,8 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
           "
         >
           <ImgWithFallback
-            :src="imageUrl"
-            :alt="imageAlt || heading || ''"
+            :src="picture?.path"
+            :alt="alt"
             :width="1080"
             :height="1080"
             sizes="xs:90vw sm:90vw md:540px"
@@ -216,8 +222,8 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
          width the photograph is DRAWN at: on a phone the 360px-tall band
          covers ~800px of it, from a tablet on the full viewport. -->
     <ImgWithFallback
-      :src="imageUrl"
-      :alt="imageAlt || heading || ''"
+      :src="picture?.path"
+      :alt="alt"
       sizes="xs:800px md:100vw lg:100vw xl:100vw xxl:100vw"
       class="block h-[clamp(360px,42vw,600px)] w-full object-cover"
       fit="cover"

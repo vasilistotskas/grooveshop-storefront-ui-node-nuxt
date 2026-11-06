@@ -164,3 +164,22 @@ describe('builderSettingsFields, data settings', () => {
     expect(fieldForSettingPath([...fields.values()], 'products.ids')?.path).toBe('products')
   })
 })
+
+describe('builderSettingsFields of a block with legacy image settings', () => {
+  const banner = defineBlock({
+    type: 'banner',
+    version: 1,
+    kinds: ['section'],
+    schema: z.object({
+      imageUrl: builderField.text(1000).optional(),
+      imageAlt: builderField.text(200).optional(),
+      image: builderField.ref('media', { onMissing: 'empty' }).optional(),
+      caption: builderField.text(100).optional(),
+    }),
+    legacyImages: [{ from: '/imageUrl', to: '/image', alt: '/imageAlt' }],
+  })
+
+  it('leaves the old URL and its alt text out of the form, and keeps their successor', () => {
+    expect(builderSettingsFields(banner).map(field => field.path)).toEqual(['image', 'caption'])
+  })
+})

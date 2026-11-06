@@ -9,13 +9,15 @@ export default defineBlock({
     kind: z.enum(['payment', 'shipping', 'ai', 'custom']),
     label: builderField.requiredText(60),
     imageUrl: builderField.text(1000).optional(),
+    image: builderField.ref('media', { onMissing: 'empty' }).optional(),
     icon: builderField.icon().optional(),
     href: builderField.link().optional(),
   })
     // A badge with neither a logo nor an icon would be a bare word in a row of marks.
     // The rule is stated in the catalogue too, so Django refuses it on save.
-    .refine(badge => Boolean(badge.imageUrl || badge.icon), { message: 'needs imageUrl or icon' })
-    .meta({ anyOf: [{ required: ['imageUrl'] }, { required: ['icon'] }] }),
+    .refine(badge => badge.image !== undefined || Boolean(badge.imageUrl || badge.icon), { message: 'needs image, imageUrl or icon' })
+    .meta({ anyOf: [{ required: ['image'] }, { required: ['imageUrl'] }, { required: ['icon'] }] }),
+  legacyImages: [{ from: '/imageUrl', to: '/image' }],
   translatable: ['/label'],
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { kind: 'custom', icon: 'i-lucide-shield-check' } }],
   editor: { title: ['label'] },

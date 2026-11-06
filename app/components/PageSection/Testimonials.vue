@@ -13,12 +13,12 @@
  * should show. `role` is who the quote is from ("Verified buyer",
  * "Χονδρική"), which is what gives it weight.
  */
-defineProps<{
+const props = defineProps<{
   heading?: string
   items?: Array<{
     name: string
     text: string
-    avatar?: string
+    avatarImage?: ResolvedImage
     role?: string
     rating?: number
   }>
@@ -26,11 +26,17 @@ defineProps<{
 }>()
 
 const { t } = useStoreI18n('components/PageSection/Testimonials')
+
+/** Each quote with its photograph, described by the asset's own text, else the person's name. */
+const cards = computed(() => (props.items ?? []).map((item) => {
+  const photo = readyImage(item.avatarImage)
+  return { ...item, avatar: photo ? { src: photo.path, alt: photo.alt || item.name } : undefined }
+}))
 </script>
 
 <template>
   <PageSectionBand
-    v-if="items?.length"
+    v-if="cards.length"
     :heading="heading"
     :surface="surface"
   >
@@ -42,7 +48,7 @@ const { t } = useStoreI18n('components/PageSection/Testimonials')
       "
     >
       <figure
-        v-for="(item, idx) in items"
+        v-for="(item, idx) in cards"
         :key="idx"
         class="flex flex-col gap-4.5 rounded-md border border-default bg-default p-6"
       >
@@ -82,8 +88,7 @@ const { t } = useStoreI18n('components/PageSection/Testimonials')
             :name="item.name"
             :description="item.role"
             :avatar="item.avatar
-              ? { src: item.avatar, alt: item.name }
-              : { text: item.name.slice(0, 1), ui: { root: 'bg-elevated', fallback: 'text-sm font-extrabold text-highlighted' } }"
+              ?? { text: item.name.slice(0, 1), ui: { root: 'bg-elevated', fallback: 'text-sm font-extrabold text-highlighted' } }"
             size="xl"
             :ui="{ root: 'gap-3', name: 'text-sm font-bold', description: `
               text-[0.8125rem]

@@ -21,7 +21,7 @@ const props = defineProps<{
   items?: Array<{
     kind: 'payment' | 'shipping' | 'ai' | 'custom'
     label: string
-    imageUrl?: string
+    image?: ResolvedImage
     icon?: string
     href?: string
   }>
@@ -33,9 +33,9 @@ const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 
 const visible = computed(() =>
-  (props.items ?? []).filter(
-    item => item.kind !== 'ai' || tenantStore.agentCommerceEnabled,
-  ),
+  (props.items ?? [])
+    .filter(item => item.kind !== 'ai' || tenantStore.agentCommerceEnabled)
+    .map(item => ({ ...item, picture: readyImage(item.image) })),
 )
 </script>
 
@@ -62,8 +62,8 @@ const visible = computed(() =>
         class="flex items-center gap-2.5 text-sm font-semibold text-highlighted"
       >
         <ImgWithFallback
-          v-if="badge.imageUrl"
-          :src="badge.imageUrl"
+          v-if="badge.picture"
+          :src="badge.picture.path"
           :alt="badge.label"
           :width="72"
           :height="24"
@@ -112,8 +112,8 @@ const visible = computed(() =>
           "
         >
           <ImgWithFallback
-            v-if="badge.imageUrl"
-            :src="badge.imageUrl"
+            v-if="badge.picture"
+            :src="badge.picture.path"
             :alt="badge.label"
             :width="72"
             :height="24"

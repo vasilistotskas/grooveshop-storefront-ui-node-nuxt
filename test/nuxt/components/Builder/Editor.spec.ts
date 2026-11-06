@@ -1024,8 +1024,11 @@ describe('editing the structure of a page', () => {
     }
 
     /** One choice of a segmented setting, by its name. */
-    const option = (wrapper: Awaited<ReturnType<typeof open>>, name: string) =>
-      wrapper.findAll('[data-slot="item"]').find(item => item.text().trim() === name)!.get('[role="radio"]')
+    /** The option `name` of the choice that also offers `beside`: "Default" is every optional choice's first. */
+    const option = (wrapper: Awaited<ReturnType<typeof open>>, name: string, beside?: string) =>
+      wrapper.findAll('[data-slot="item"]')
+        .find(item => item.text().trim() === name && (beside === undefined || item.element.parentElement?.textContent?.includes(beside)))!
+        .get('[role="radio"]')
 
     it('asks for a section when nothing is selected', async () => {
       const wrapper = await open()
@@ -1092,7 +1095,7 @@ describe('editing the structure of a page', () => {
       await option(wrapper, 'Κέντρο').trigger('click')
       expect(settings()).toMatchObject({ align: 'center' })
 
-      await option(wrapper, 'Προεπιλογή').trigger('click')
+      await option(wrapper, 'Προεπιλογή', 'Κέντρο').trigger('click')
       expect(settings()).not.toHaveProperty('align')
     })
 

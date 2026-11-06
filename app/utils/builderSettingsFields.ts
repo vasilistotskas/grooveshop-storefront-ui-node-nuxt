@@ -112,10 +112,16 @@ function fieldOf(
   }
 }
 
-/** The fields of a block's settings form, in the order its schema declares them. */
+/**
+ * The fields of a block's settings form, in the order its schema declares them.
+ * TRANSITIONAL (P15 stage 2): the old image settings a block still accepts
+ * (`legacyImages`: the URL and its alt text) are not in the form, since their
+ * media-reference successors are.
+ */
 export function builderSettingsFields(definition: BlockDefinition): BuilderSettingField[] {
   const root = fieldOf(blockSettingsJsonSchema(definition.schema), [], true, definition)
-  return root.kind === 'group' ? root.fields : []
+  const legacy = new Set((definition.legacyImages ?? []).flatMap(({ from, alt }) => [from, alt].flatMap(pointer => pointer === undefined ? [] : [`/${pointer.split('/')[1]}`])))
+  return root.kind === 'group' ? root.fields.filter(field => !legacy.has(field.pointer)) : []
 }
 
 /** Every field of a form, the fields of its groups included, depth first. */

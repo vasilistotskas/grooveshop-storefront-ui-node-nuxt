@@ -12,6 +12,10 @@ export default defineBlock({
     imageUrl: builderField.text(1000).optional(),
     mobileImageUrl: builderField.text(1000).optional(),
     imageAlt: builderField.text(200).optional(),
+    image: builderField.ref('media', { onMissing: 'empty' }).optional(),
+    mobileImage: builderField.ref('media', { onMissing: 'empty' }).optional(),
+    // An explicit choice: an empty description never means decorative.
+    imageDecorative: builderField.boolean().optional(),
     ctaText: builderField.text(100).optional(),
     ctaLink: builderField.link().optional(),
     secondaryCtaText: builderField.text(100).optional(),
@@ -23,6 +27,10 @@ export default defineBlock({
   }),
   translatable: ['/heading', '/subheading', '/eyebrow', '/imageAlt', '/ctaText', '/secondaryCtaText'],
   upgrade: { 1: upgradeTitleIntoHeading },
+  legacyImages: [
+    { from: '/imageUrl', to: '/image', alt: '/imageAlt', decorative: '/imageDecorative' },
+    { from: '/mobileImageUrl', to: '/mobileImage' },
+  ],
   limits: { maxBlocks: 4 },
   children: { allowed: ['stat'], maxDepth: 1 },
   childList: { stat: 'stats' },
