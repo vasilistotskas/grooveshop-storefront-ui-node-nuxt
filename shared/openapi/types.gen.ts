@@ -8277,15 +8277,6 @@ export type TenantConfig = {
   googleSiteVerification?: string
   bingSiteVerification?: string
   pinterestDomainVerify?: string
-  readonly primaryColor: string
-  readonly neutralColor: string
-  readonly accentHex: string
-  readonly successHex: string
-  readonly warningHex: string
-  readonly errorHex: string
-  readonly infoHex: string
-  readonly themePreset: string
-  readonly themeMetadata: unknown
   readonly defaultLocale: string
   availableLocales?: Array<string>
   readonly defaultCurrency: string

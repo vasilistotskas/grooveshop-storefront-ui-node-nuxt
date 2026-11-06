@@ -109,11 +109,11 @@ describe('GET /manifest.webmanifest', () => {
     expect(body.short_name).toBe(shortName)
   })
 
-  it('uses the accent of the store\'s published theme, not its Tenant fields, as theme_color', async () => {
+  it('uses the accent of the store\'s published theme as theme_color', async () => {
     const published = themeDefaultsFor('volt')
     upstream.theme = { ...published, colors: { ...published.colors, light: { ...published.colors.light, accent: '#b3694b' } } }
 
-    const body = await manifest(tenant({ accentHex: '#003DFF' }))
+    const body = await manifest(tenant())
 
     expect(body.theme_color).toBe('#b3694b')
   })
