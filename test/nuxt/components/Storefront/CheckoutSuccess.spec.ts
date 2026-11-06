@@ -34,15 +34,15 @@ mockNuxtImport('useRequestApi', () => () => api)
 const { route } = vi.hoisted(() => ({
   route: { params: { uuid: '' } as Record<string, string>, query: {} as Record<string, string> },
 }))
-mockNuxtImport('useRoute', () => () => ({
-  ...route,
-  path: `/checkout/success/${route.params.uuid}`,
-  fullPath: `/checkout/success/${route.params.uuid}`,
-  name: 'checkout-success-uuid___el',
-  hash: '',
-  matched: [],
-  meta: {},
-}))
+// The arrival a shopper's history entry holds (`app/utils/checkoutArrival.ts`).
+mockNuxtImport('readCheckoutArrival', () => () => route.params.uuid
+  ? {
+      orderUuid: route.params.uuid,
+      sessionId: route.query.session_id,
+      vivaOrderCode: route.query.s,
+      placed: route.query.placed === '1',
+    }
+  : undefined)
 
 // The purchase pixels are not what this suite is about; stubbed so a
 // mount never loads a vendor script.

@@ -190,24 +190,86 @@ describe('setupGoogleAnalyticsConsent', () => {
     })
   })
 
-  it('loads the tag when the loaded page is idle, not on the first tap', async () => {
+  /** Whether the tag's load trigger has fired, tracked from now on. */
+  async function mountTag() {
     setTenant({ gaTrackingId: 'G-GGKMZ8YLNN', googleAdsConversionId: '' })
+    scriptGoogleAnalytics.mockClear()
     await mountSuspended(GaHarness, { route: false })
     // The first registration loads the tag; useGoogleAds' later one is 'manual'.
     const trigger = scriptGoogleAnalytics.mock.calls[0]?.[0].scriptOptions.trigger
-    let fired = false
+    const state = { fired: false }
     Promise.resolve(trigger).then(() => {
-      fired = true
+      state.fired = true
     })
+    return state
+  }
+
+  function decide(given: boolean | undefined, ...categories: string[]) {
+    const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+    isConsentGiven.value = given
+    cookiesEnabledIds.value = categories
+  }
+
+  it('sends nothing to Google before the visitor answers', async () => {
+    decide(undefined)
+
+    const tag = await mountTag()
+    loadIdle.resolve()
+    await flushPromises()
+
+    expect(tag.fired).toBe(false)
+  })
+
+  it('sends nothing to Google when the visitor refuses both categories', async () => {
+    decide(true, 'n', 'functionality_storage')
+
+    const tag = await mountTag()
+    loadIdle.resolve()
+    await flushPromises()
+
+    expect(tag.fired).toBe(false)
+  })
+
+  it.each(['analytics_storage', 'ad_storage'])('loads the tag once %s is granted', async (category) => {
+    decide(undefined)
+    const tag = await mountTag()
+    loadIdle.resolve()
+
+    decide(true, category)
+    await flushPromises()
+
+    expect(tag.fired).toBe(true)
+  })
+
+  it('loads the tag when the loaded page is idle, not on the first tap', async () => {
+    decide(true, 'analytics_storage')
+    const tag = await mountTag()
 
     window.dispatchEvent(new Event('pointerdown'))
     window.dispatchEvent(new Event('touchstart'))
     await flushPromises()
-    expect(fired).toBe(false)
+    expect(tag.fired).toBe(false)
 
     loadIdle.resolve()
     await flushPromises()
-    expect(fired).toBe(true)
+    expect(tag.fired).toBe(true)
+  })
+
+  it('holds the tag while the address holds a secret, whatever the consent', async () => {
+    const address = window.location.pathname
+    window.history.replaceState(null, '', '/account/password/reset/key/a-key')
+    try {
+      decide(true, 'analytics_storage', 'ad_storage')
+
+      const tag = await mountTag()
+      loadIdle.resolve()
+      await flushPromises()
+
+      expect(tag.fired).toBe(false)
+    }
+    finally {
+      window.history.replaceState(null, '', address)
+    }
   })
 
   it('queues the decision the visitor arrived with at once', async () => {
