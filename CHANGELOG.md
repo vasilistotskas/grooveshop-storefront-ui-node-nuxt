@@ -1,3 +1,10 @@
+## [3.329.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.329.0...v3.329.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **csp:** Nuxt DevTools can connect on a store host, and a redundant DNS hint goes ([#409](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/409)) ([62a1173](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/62a11730827c5ad12aeff07cb257fac986496f2f))
+
 # [3.329.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.328.1...v3.329.0) (2026-11-06)
 
 

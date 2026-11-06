@@ -77,12 +77,7 @@ export function setupPageHeader() {
     const href = tenantStore.assetsDomain
       ? `https://${tenantStore.assetsDomain}`
       : (publicConfig.mediaStreamOrigin as string | undefined)
-    return href
-      ? [
-          { rel: 'dns-prefetch' as const, href },
-          { rel: 'preconnect' as const, href },
-        ]
-      : []
+    return href ? [{ rel: 'preconnect' as const, href }] : []
   })
 
   const colorMode = useColorMode()
@@ -736,7 +731,7 @@ export function setupSocialLogin() {
   const router = useRouter()
 
   const gsi = useScript({
-    src: '//accounts.google.com/gsi/client',
+    src: GSI_CLIENT_SCRIPT,
     async: true,
     defer: true,
     referrerpolicy: false,

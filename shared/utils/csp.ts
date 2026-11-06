@@ -106,6 +106,17 @@ export interface CspOptions {
   frameAncestors: CspFrameAncestors
 }
 
+/** Google's sign-in library: what the page loads and the one script the policy names for it. */
+export const GSI_CLIENT_SCRIPT = 'https://accounts.google.com/gsi/client'
+
+/**
+ * What Nuxt DevTools needs, in development only: its websocket, on a free port
+ * of the host the page was opened on (`ws://webside.localhost:9777/__ws`), and
+ * the logo its dock draws. Refused, it can never connect on a store's host.
+ */
+const DEVTOOLS_CONNECT_SRC = ' ws://localhost:* ws://*.localhost:*'
+const DEVTOOLS_IMG_SRC = ' https://nuxt.com'
+
 export function buildCspDirectives(options: CspOptions): string[] {
   const {
     dev,
@@ -297,7 +308,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
   // the parent ``/gsi/`` for connect and frame, on their advice not to
   // list endpoints one by one. ``apis.google.com/js/`` and ``/o/fedcm/``
   // belong to the deprecated Google Sign-In library, never this one.
-  const gsiScriptSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/client' : ''
+  const gsiScriptSrc = googleGsiEnabled ? ` ${GSI_CLIENT_SCRIPT}` : ''
   const gsiStyleSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/style' : ''
   const gsiConnectSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
   const gsiFrameSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
@@ -320,14 +331,14 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${clarityOrigins}${tenantExtra}${nonceScriptSrc}`,
     ...(nonceScriptSrcAttr ? [nonceScriptSrcAttr] : []),
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com${gsiStyleSrc}`,
-    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${clarityOrigins}${tenantExtra}`,
+    `img-src 'self'${dev ? DEVTOOLS_IMG_SRC : ''} data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${clarityOrigins}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
     // MapLibre draws in a dedicated worker that Vite emits as a
     // same-origin ``/_nuxt/`` file; ``worker-src 'self'`` is the directive
     // MapLibre documents for it. Explicit, so the worker does not hinge on
     // each browser's script-src fallback under 'strict-dynamic'.
     `worker-src 'self'`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc}${mapsOrigin} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${clarityOrigins}${tenantExtra}`,
+    `connect-src 'self'${dev ? DEVTOOLS_CONNECT_SRC : ''} ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc}${mapsOrigin} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${clarityOrigins}${tenantExtra}`,
     // BoxNow widget iframe origins — one per verified live market
     // (GR, CY) plus the CDN's known redirect hops. CSP validates every
     // hop of a frame's redirect chain against frame-src, so the
