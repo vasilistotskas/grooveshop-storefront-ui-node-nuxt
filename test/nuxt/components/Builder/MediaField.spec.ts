@@ -1,0 +1,181 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { defineComponent, h, ref } from 'vue'
+import { UApp } from '#components'
+import BuilderMediaField from '~/components/Builder/MediaField.vue'
+import { failWith } from '~~/test/helpers/api'
+import { makeAsset } from '~~/test/fixtures/media'
+
+/**
+ * The control of an image setting (`builderField.ref('media', ...)`): it shows
+ * the image the setting holds with its name, opens the library to choose
+ * another, and clears the setting when it may be left empty. The setting holds
+ * the asset id and nothing else.
+ */
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+
+const ONE = '/api/builder/media/4'
+const LIBRARY = '/api/builder/media'
+
+const hero = makeAsset({ id: 4, path: 'https://assets.example.test/hero.jpg' })
+const banner = makeAsset({ id: 8, path: 'https://assets.example.test/banner.png' })
+
+beforeEach(() => {
+  api.routes({
+    [ONE]: hero,
+    [LIBRARY]: { count: 2, results: [hero, banner] },
+  })
+})
+
+async function mount(value: unknown, clearable = true) {
+  const updates: Array<number | undefined> = []
+  const wrapper = await mountSuspended(defineComponent({
+    render: () => h(UApp, null, {
+      default: () => h(BuilderMediaField, {
+        value,
+        label: 'Εικόνα',
+        clearable,
+        disabled: false,
+        onUpdate: (next: number | undefined) => updates.push(next),
+      }),
+    }),
+  }), { attachTo: document.body })
+  await flushPromises()
+  return { wrapper, updates }
+}
+
+const button = (name: string) => [...document.querySelectorAll<HTMLButtonElement>('button')].find(node => node.getAttribute('aria-label') === name || node.textContent?.trim() === name)
+
+describe('BuilderMediaField', () => {
+  it('names the image the setting holds by its file, asked of the library by its id', async () => {
+    const { wrapper } = await mount(4)
+
+    expect(wrapper.text()).toContain('hero.jpg')
+    expect(api.callsTo(ONE)).toHaveLength(1)
+  })
+
+  it('asks the library nothing while no image is chosen, and offers to choose one', async () => {
+    const { wrapper } = await mount(undefined)
+
+    expect(api.callsTo(ONE)).toHaveLength(0)
+    expect(wrapper.text()).toContain('Επιλογή εικόνας')
+    expect(wrapper.text()).not.toContain('Αφαίρεση')
+  })
+
+  it('says when the library no longer has the image, and still lets it be changed or cleared', async () => {
+    api.routes({ [ONE]: failWith(404, { detail: 'Not found.' }) })
+
+    const { wrapper } = await mount(4)
+
+    expect(wrapper.text()).toContain('Δεν είναι πια διαθέσιμη· η ενότητα εμφανίζεται χωρίς εικόνα.')
+    expect(wrapper.text()).toContain('Εικόνα #4')
+    expect(wrapper.text()).toContain('Αλλαγή εικόνας')
+    expect(wrapper.text()).toContain('Αφαίρεση')
+  })
+
+  it('says when it could not read the image, and reads it again when asked', async () => {
+    api.routes({ [ONE]: failWith(503) })
+
+    const { wrapper } = await mount(4)
+
+    expect(wrapper.text()).toContain('Η εικόνα δεν μπόρεσε να διαβαστεί.')
+    expect(wrapper.text()).not.toContain('Δεν είναι πια διαθέσιμη')
+
+    api.routes({ [ONE]: hero })
+    button('Δοκιμάστε ξανά')!.click()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('hero.jpg')
+    expect(wrapper.text()).not.toContain('Η εικόνα δεν μπόρεσε να διαβαστεί.')
+  })
+
+  it('clears the setting, with a control named after it', async () => {
+    const { updates } = await mount(4)
+
+    button('Αφαίρεση εικόνας: Εικόνα')!.click()
+    await flushPromises()
+
+    expect(updates).toEqual([undefined])
+  })
+
+  it('offers no way to clear a setting that must hold an image', async () => {
+    const { wrapper } = await mount(4, false)
+
+    expect(wrapper.text()).not.toContain('Αφαίρεση')
+  })
+
+  it('opens the library and puts the id of the image chosen into the setting', async () => {
+    const { updates } = await mount(4)
+
+    button('Αλλαγή εικόνας: Εικόνα')!.click()
+    await flushPromises()
+    await vi.waitFor(() => expect(button('banner.png')).not.toBeUndefined())
+    button('banner.png')!.click()
+    await flushPromises()
+    button('Χρήση αυτής της εικόνας')!.click()
+    await flushPromises()
+
+    expect(updates).toEqual([8])
+  })
+
+  it('shows the image chosen once the setting holds it, and asks nothing more of the one it replaced', async () => {
+    api.routes({ [ONE]: hero, [`${LIBRARY}/8`]: banner, [LIBRARY]: { count: 2, results: [hero, banner] } })
+    const value = ref<number | undefined>(4)
+    const wrapper = await mountSuspended(defineComponent({
+      setup: () => () => h(UApp, null, {
+        default: () => h(BuilderMediaField, {
+          value: value.value,
+          label: 'Εικόνα',
+          clearable: true,
+          disabled: false,
+          onUpdate: (next: number | undefined) => { value.value = next },
+        }),
+      }),
+    }), { attachTo: document.body })
+    await flushPromises()
+
+    button('Αλλαγή εικόνας: Εικόνα')!.click()
+    await flushPromises()
+    await vi.waitFor(() => expect(button('banner.png')).not.toBeUndefined())
+    button('banner.png')!.click()
+    await flushPromises()
+    button('Χρήση αυτής της εικόνας')!.click()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('banner.png')
+    expect(api.callsTo(`${LIBRARY}/8`)).toHaveLength(1)
+    expect(api.callsTo(ONE)).toHaveLength(1)
+  })
+
+  describe('deleting from the library', () => {
+    async function deleteInLibrary(name: string, id: number) {
+      const mounted = await mount(4)
+      button('Αλλαγή εικόνας: Εικόνα')!.click()
+      await flushPromises()
+      await vi.waitFor(() => expect(button(name)).not.toBeUndefined())
+      button(name)!.click()
+      await flushPromises()
+      api.routes({ [LIBRARY]: { count: 1, results: [hero] }, [`${LIBRARY}/${id}`]: null })
+      button('Διαγραφή')!.click()
+      await flushPromises()
+      button('Επιβεβαίωση διαγραφής')!.click()
+      await flushPromises()
+      return mounted
+    }
+
+    it('clears the setting when the image it holds is deleted: publishing would be refused with it', async () => {
+      const { updates } = await deleteInLibrary('hero.jpg', 4)
+
+      expect(updates).toEqual([undefined])
+    })
+
+    it('leaves the setting alone when another image is deleted', async () => {
+      const { updates } = await deleteInLibrary('banner.png', 8)
+
+      expect(updates).toEqual([])
+    })
+  })
+})

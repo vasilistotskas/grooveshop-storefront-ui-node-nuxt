@@ -25,6 +25,7 @@ const rail = defineBlock({
     products: builderField.query('product', { onEmpty: 'hide' }),
     posts: builderField.query('blogPost', { onEmpty: 'empty' }).optional(),
     top: builderField.ref('category', { onMissing: 'hide' }).optional(),
+    banner: builderField.ref('media', { onMissing: 'empty' }).optional(),
   }),
   children: { allowed: ['slide'] },
   childList: { slide: 'slides' },
@@ -38,7 +39,7 @@ const documentOf = (sections: Record<string, BuilderNode>): BuilderDocument => (
 const newest = { mode: 'filter', ordering: 'newest', limit: 4 }
 
 const resolution = (overrides: Partial<{ [K in keyof DataResolution['records']]: DataResolution['records'][K] }> = {}, queries: Record<string, readonly unknown[] | 'failed'> = {}): DataResolution => ({
-  records: { product: new Map(), blogPost: new Map(), category: new Map(), blogCategory: new Map(), ...overrides },
+  records: { product: new Map(), blogPost: new Map(), category: new Map(), blogCategory: new Map(), media: new Map(), ...overrides },
   queries: new Map(Object.entries(queries).map(([key, items]) => [key, items === 'failed' ? items : { items, total: items.length }])),
 })
 
@@ -93,7 +94,7 @@ describe('planData', () => {
 
     const plan = planData(dataSites(document, registry))
 
-    expect(plan.ids).toEqual({ product: [2, 4, 7], blogPost: [9], category: [5], blogCategory: [] })
+    expect(plan.ids).toEqual({ product: [2, 4, 7], blogPost: [9], category: [5], blogCategory: [], media: [] })
     expect([...plan.queries.keys()]).toEqual([canonicalQuery('product', newest)])
   })
 })
@@ -218,5 +219,32 @@ describe('applyData', () => {
     const { document: out } = applyData(document, new Map([[plain.type, plain]]), resolution())
 
     expect(out).toEqual(document)
+  })
+})
+
+describe('a media ref', () => {
+  const home = documentOf({
+    a: node('rail@1', { products: newest, banner: 12 }),
+    b: node('rail@1', { products: newest, banner: 4 }),
+    c: node('rail@1', { products: newest }),
+  })
+  const queries = { [canonicalQuery('product', newest)]: [{ id: 1 }] }
+
+  it('is planned with the other kinds\' ids: one sorted set of asset ids', () => {
+    expect(planData(dataSites(home, registry)).ids.media).toEqual([4, 12])
+  })
+
+  it('becomes the asset the library resolved, or `missing` for one it no longer has', () => {
+    const { document: out, issues } = applyData(home, registry, resolution({ media: new Map([[12, { id: 12, path: 'media/s/uploads/a.jpg' }]]) }, queries))
+
+    expect(out.sections.a!.settings.banner).toEqual({ status: 'ok', value: { id: 12, path: 'media/s/uploads/a.jpg' } })
+    expect(out.sections.b!.settings.banner).toEqual({ status: 'missing' })
+    expect(issues).toEqual([expect.objectContaining({ nodePath: ['b'], pointer: '/banner', status: 'missing' })])
+  })
+
+  it('is `failed`, never an absence, when the read of the library failed', () => {
+    const { document: out } = applyData(home, registry, resolution({ media: 'failed' }, queries))
+
+    expect(out.sections.a!.settings.banner).toEqual({ status: 'failed' })
   })
 })

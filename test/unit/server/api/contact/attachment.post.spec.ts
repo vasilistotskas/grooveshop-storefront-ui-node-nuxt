@@ -83,6 +83,15 @@ describe('POST /api/contact/attachment', () => {
     expect(backend.lastRequest.headers.get('x-language')).toBe(DEFAULT_LOCALE)
   })
 
+  it('fails on a Django fault and passes none of its body on', async () => {
+    backend.reply(jsonResponse({ detail: 'a stack trace' }, 500))
+
+    const response = await upload(16)
+
+    expect(response.status).toBe(500)
+    expect(JSON.stringify(response.body)).not.toContain('a stack trace')
+  })
+
   it('relays a Django 400 verbatim too', async () => {
     backend.reply(jsonResponse({ file: ['Unsupported type.'] }, 400))
 

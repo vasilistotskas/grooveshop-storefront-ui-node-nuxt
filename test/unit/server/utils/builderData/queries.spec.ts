@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { blogCategoryQuery, blogPostQuery, categoryQuery, idQueries, productQuery, promotionLimit } from '~~/server/utils/builderData/queries'
+import { DATA_MEDIA_MAX_IDS } from '~~/shared/constants/builder'
+import { blogCategoryQuery, blogPostQuery, categoryQuery, idQueries, mediaQueries, productQuery, promotionLimit } from '~~/server/utils/builderData/queries'
 
 describe('idQueries', () => {
   it('asks for the ids as one sorted set, however they were given', () => {
@@ -17,6 +18,25 @@ describe('idQueries', () => {
 
   it('asks nothing for no ids', () => {
     expect(idQueries([])).toEqual([])
+  })
+})
+
+describe('mediaQueries', () => {
+  it('asks for the ids as one sorted set, in the `ids` of the resolve read', () => {
+    expect(mediaQueries([5, 3, 5, 1])).toEqual([{ ids: '1,3,5' }])
+  })
+
+  it('splits a set past the most ids Django answers into as many reads', () => {
+    const ids = Array.from({ length: DATA_MEDIA_MAX_IDS * 2 + 5 }, (_, index) => index + 1)
+
+    const queries = mediaQueries(ids)
+
+    expect(queries.map(query => String(query.ids).split(',').length)).toEqual([DATA_MEDIA_MAX_IDS, DATA_MEDIA_MAX_IDS, 5])
+    expect(queries.flatMap(query => String(query.ids).split(',')).map(Number)).toEqual(ids)
+  })
+
+  it('asks nothing for no ids', () => {
+    expect(mediaQueries([])).toEqual([])
   })
 })
 

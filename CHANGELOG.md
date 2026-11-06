@@ -1,3 +1,10 @@
+# [3.329.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.328.1...v3.329.0) (2026-11-06)
+
+
+### Features
+
+* **builder:** the media library in the editor, and the resolver reads media ([#408](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/408)) ([13783cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/13783cd760a8cf007de59dbe3a6ae903912a465d))
+
 ## [3.328.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.328.0...v3.328.1) (2026-11-06)
 
 

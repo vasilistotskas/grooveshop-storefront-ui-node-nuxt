@@ -24,14 +24,15 @@ export function parseBuilderPage(featureOn: (feature: StoreFeatureName) => boole
  * The published page and the editor's preview of it go through this one
  * function, so the preview draws what a release will. `keepHidden` is the
  * editor canvas, which keeps a node the page would leave out so the merchant
- * can see why it is empty.
+ * can see why it is empty; `staffHeaders`, the preview's, lets it show an
+ * image nobody has published.
  */
 export async function renderBuilderPage(
   event: RequestEvent,
   parsed: BuilderDocument,
-  { keepHidden = false }: { keepHidden?: boolean } = {},
+  options: BuilderReadOptions = {},
 ): Promise<BuilderPage> {
-  const { document: withData } = await resolveBuilderData(event, parsed, { keepHidden })
+  const { document: withData } = await resolveBuilderData(event, parsed, options)
   const document = resolveLinks(withData, await readLinkTargets(event, collectLinkRefs(withData, builderBlocks)), builderBlocks)
   return {
     ...(document.settings && { settings: document.settings }),
@@ -43,7 +44,7 @@ export async function renderBuilderPage(
 }
 
 /** A page document of Django, parsed and rendered in one go: the editor's preview and a share link, whose document is not cached. */
-export async function builderPageOf(event: RequestEvent, raw: unknown, options: { keepHidden?: boolean } = {}): Promise<BuilderPage> {
+export async function builderPageOf(event: RequestEvent, raw: unknown, options: BuilderReadOptions = {}): Promise<BuilderPage> {
   return renderBuilderPage(event, parseBuilderPage(storeFeatureOf(event), raw), options)
 }
 

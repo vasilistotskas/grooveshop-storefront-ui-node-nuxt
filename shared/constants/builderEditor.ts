@@ -154,3 +154,6 @@ export const BUILDER_VERSIONS_PAGE_SIZE = 30
 
 /** How many records a new rule lists until the merchant sets it (capped by the setting's own largest). */
 export const BUILDER_QUERY_DEFAULT_LIMIT = 8
+
+/** How many images the media picker shows on one page of the library. */
+export const BUILDER_MEDIA_PAGE_SIZE = 24

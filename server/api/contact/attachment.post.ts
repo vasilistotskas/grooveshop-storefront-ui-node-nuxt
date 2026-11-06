@@ -24,7 +24,7 @@ import { useRuntimeConfig } from 'nuxt/server'
  *   Django's response body straight to the client. Django's 400s and
  *   its 404-when-disabled therefore reach the browser verbatim, which
  *   is what `handleError` achieves for the other
- *   routes by hand.
+ *   routes by hand. A 5xx body does not (`refuseUpstreamFault`).
  * * The tenant headers are set explicitly. `useBackendFetch` cannot
  *   be used — `sendProxy` needs a real `fetch`, not an ofetch
  *   instance — so without these three Django would resolve the PUBLIC
@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
         'X-Forwarded-Host': requestTenantHost(event),
         'X-Language': requestLocale(event),
       },
+      onResponse: (_event, response) => refuseUpstreamFault(response),
     },
   )
 })
