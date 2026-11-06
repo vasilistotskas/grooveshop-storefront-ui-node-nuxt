@@ -176,7 +176,8 @@ defineExpose({
       <div
         v-if="tenantStore.hasOptionalServices && !isConsentGiven && !moduleOptions.isModalForced"
         class="
-            fixed right-0 bottom-2 left-0 z-50 mx-auto max-w-sm rounded-md
+            fixed right-0 bottom-2 left-0 z-50 mx-auto max-h-[calc(100dvh-1rem)]
+            max-w-sm overflow-y-auto rounded-md
             border border-primary-200 bg-primary-50 px-4 py-4 text-primary-600
             shadow-xl
             sm:max-w-xl
@@ -203,7 +204,7 @@ defineExpose({
                   text-sm text-primary-600
                   dark:text-primary-100
                 "
-                v-text="t('banner.description')"
+                v-text="t('banner.description', { services: tenantStore.optionalServices.join(', ') })"
               />
             </slot>
           </div>
@@ -289,7 +290,7 @@ el:
   aria:
     region: Ρυθμίσεις cookies
   banner:
-    description: "Χρησιμοποιούμε cookies και παρόμοιες τεχνολογίες για να εξατομικεύσουμε το περιεχόμενο και να προσφέρουμε καλύτερη εμπειρία. Μπορείς να επιλέξεις την προσαρμογή τους κάνοντας κλικ στο κουμπί προσαρμογής."
+    description: "Χρησιμοποιούμε cookies και παρόμοιες τεχνολογίες για να εξατομικεύσουμε το περιεχόμενο και να προσφέρουμε καλύτερη εμπειρία. Μπορείς να επιλέξεις την προσαρμογή τους κάνοντας κλικ στο κουμπί προσαρμογής. Υπηρεσίες που χρησιμοποιούμε με τη συγκατάθεσή σας: {services}."
     title: "\U0001F36A Γεια. Αυτός ο ιστότοπος χρησιμοποιεί Cookies \U0001F36A"
   decline: Απόρριψη
   manage_cookies: Ρυθμίσεις cookies
@@ -299,7 +300,7 @@ en:
   aria:
     region: Cookie settings
   banner:
-    description: "We use cookies and similar technologies to personalise content and offer a better experience. You can customise them by clicking the customise button."
+    description: "We use cookies and similar technologies to personalise content and offer a better experience. You can customise them by clicking the customise button. Services we use with your consent: {services}."
     title: "\U0001F36A Hi. This site uses cookies \U0001F36A"
   decline: Decline
   manage_cookies: Cookie settings

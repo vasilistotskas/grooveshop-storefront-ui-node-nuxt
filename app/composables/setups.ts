@@ -1,3 +1,4 @@
+import { COOKIE_ID_SEPARATOR } from '#cookie-control/types'
 import { el as uiLocaleEl } from '@nuxt/ui/locale'
 
 export function setupPageHeader() {
@@ -328,8 +329,8 @@ const useAdStorageConsent = () => useStorageConsent('ad_storage')
  * * ``useScriptTriggerConsent({ consent: adConsent })`` is the
  *   documented binary script-load gate. The script tag is injected
  *   into the DOM only after ``adConsent`` flips true. It gates the load
- *   only: a script already loaded keeps running if consent is later
- *   withdrawn. This is the gate documented in
+ *   only: ``setupConsentWithdrawal`` is what stops a script already
+ *   loaded. This is the gate documented in
  *   ``https://nuxt.com/scripts/guides/consent`` — replacing the
  *   previous pattern that combined ``defaultConsent: 'denied'`` with
  *   a manual ``consent.grant()`` watcher. That older combination
@@ -436,10 +437,11 @@ export function setupTikTokPixelConsent() {
  * Clarity requires for visitors from the EEA, the UK and Switzerland
  * (learn.microsoft.com/clarity/setup-and-installation/clarity-consent-api-v2).
  *
- * Withdrawing needs its own call. The consent trigger only stops a tag
- * that has not loaded, and ``consentv2`` with ``denied`` keeps Clarity
- * running without cookies. ``consent`` with ``false`` is the call Clarity
- * documents to erase its cookies and stop tracking until consent returns.
+ * Withdrawing erases its cookies with ``consent`` and ``false``, before
+ * ``setupConsentWithdrawal`` reloads the page. That call alone does not
+ * stop Clarity, whatever its documentation says: it restarts without cookies
+ * and goes on sending (``consentv2`` in clarity-js, and measured on webside
+ * on 2026-11-06, 8 uploads in the 40 s after withdrawing).
  *
  * Content is masked by ``data-clarity-mask`` on the private parts of the
  * store (``test/unit/source-rules/clarity-masks-private-surfaces.spec.ts``),
@@ -468,20 +470,78 @@ export function setupClarityConsent() {
   watch(
     [analyticsConsent, adConsent],
     async ([analytics, ads], previous) => {
+      if (!analytics) {
+        // At once, so the cookies are gone before the reload that follows.
+        if (previous?.[0]) proxy.clarity('consent', false)
+        return
+      }
       // Waiting for the next paint lets the banner close first, as for gtag.
       await afterNextPaint()
-      if (analytics) {
-        proxy.clarity('consentv2', {
-          ad_Storage: ads ? 'granted' : 'denied',
-          analytics_Storage: 'granted',
-        })
-      }
-      else if (previous?.[0]) {
-        proxy.clarity('consent', false)
-      }
+      proxy.clarity('consentv2', {
+        ad_Storage: ads ? 'granted' : 'denied',
+        analytics_Storage: 'granted',
+      })
     },
     { immediate: true },
   )
+}
+
+/**
+ * Ask again when the store has added a service since the visitor answered.
+ *
+ * A consent covers the services it was given for, the ones the banner named.
+ * Which those were is kept beside the decision, so a store that adds one asks
+ * every visitor who has not answered for it. A service removed asks nobody. A
+ * decision with no record predates it and is treated the same way.
+ *
+ * Called from ``app.vue`` before the tracker setups, whose gates read the
+ * state this resets. Only the state is reset: the cookies stay until the visitor
+ * answers, so reloading before that asks again. Browser only, like the banner.
+ */
+export function setupConsentRenewal() {
+  if (import.meta.server) return
+  const { optionalServices } = storeToRefs(useTenantStore())
+  const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, moduleOptions } = useCookieControl()
+  const answeredFor = useCookie<string | undefined>(moduleOptions.cookieNameConsentServices, {
+    expires: new Date(Date.now() + moduleOptions.cookieExpiryOffsetMs),
+    ...moduleOptions.cookieOptions,
+  })
+
+  const known = answeredFor.value?.split(COOKIE_ID_SEPARATOR) ?? []
+  if (isConsentGiven.value && optionalServices.value.some(service => !known.includes(service))) {
+    isConsentGiven.value = false
+    cookiesEnabled.value = []
+    cookiesEnabledIds.value = []
+  }
+
+  watch(isConsentGiven, (given) => {
+    if (given) answeredFor.value = optionalServices.value.join(COOKIE_ID_SEPARATOR)
+  })
+}
+
+/**
+ * Stop what a withdrawn consent had let run, by loading the page again.
+ *
+ * The consent trigger gates a tag's load and nothing after it, so a pixel or
+ * Clarity already loaded keeps running, and this store moves between pages
+ * without leaving the document. Their own APIs do not reliably stop them. A
+ * new document is the one thing that does: the gates are closed, so no tag is
+ * injected. Called from ``app.vue`` after the setups above, so their watchers
+ * run first. It waits for the next paint, by when the decision is in its
+ * cookies (``useCookieConsentSync``, ``Cookie/Control.vue``) and the new
+ * document reads it.
+ */
+export function setupConsentWithdrawal() {
+  if (import.meta.server) return
+  const { cookiesEnabledIds, moduleOptions } = useCookieControl()
+  const optional = moduleOptions.cookies.optional.map(cookie => cookie.id)
+
+  watch(cookiesEnabledIds, async (current, previous) => {
+    const withdrawn = optional.some(id => previous?.includes(id) && !current?.includes(id))
+    if (!withdrawn) return
+    await afterNextPaint()
+    window.location.reload()
+  })
 }
 
 /**

@@ -769,7 +769,7 @@ export default defineNuxtConfig({
           id: 'n',
           name: 'cookies.necessary',
           description: 'cookies.necessary_description',
-          targetCookieIds: ['i18n_redirected', 'ncc_c', 'ncc_e'],
+          targetCookieIds: ['i18n_redirected', 'ncc_c', 'ncc_e', 'ncc_s'],
         },
         {
           id: 'functionality_storage',

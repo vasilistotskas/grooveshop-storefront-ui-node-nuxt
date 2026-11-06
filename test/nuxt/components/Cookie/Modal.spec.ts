@@ -98,7 +98,7 @@ describe('Cookie/Modal', () => {
     it('shows the cookie ids a necessary category covers', async () => {
       await openModal()
 
-      expect(dialog()!.textContent).toContain('IDs: "i18n_redirected", "ncc_c", "ncc_e"')
+      expect(dialog()!.textContent).toContain('IDs: "i18n_redirected", "ncc_c", "ncc_e", "ncc_s"')
     })
 
     it('starts from the consent already given', async () => {

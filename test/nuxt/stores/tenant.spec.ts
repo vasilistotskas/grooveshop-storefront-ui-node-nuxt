@@ -185,10 +185,10 @@ describe('useTenantStore', () => {
     })
 
     it.each<[string, Partial<TenantConfig>, string[]]>([
-      ['GA4', { gaTrackingId: 'G-1' }, ['Google']],
-      ['Google Ads alone', { googleAdsConversionId: 'AW-1' }, ['Google']],
-      ['GA4 and Ads as one Google tag', { gaTrackingId: 'G-1', googleAdsConversionId: 'AW-1' }, ['Google']],
-      ['every pixel', { gaTrackingId: 'G-1', metaPixelId: '1', tiktokPixelId: 'T', openaiPixelId: 'O' }, ['Google', 'Meta', 'TikTok', 'OpenAI']],
+      ['GA4', { gaTrackingId: 'G-1' }, ['Google Analytics']],
+      ['Google Ads alone', { googleAdsConversionId: 'AW-1' }, ['Google Ads']],
+      ['GA4 and Ads as two services', { gaTrackingId: 'G-1', googleAdsConversionId: 'AW-1' }, ['Google Analytics', 'Google Ads']],
+      ['every pixel', { gaTrackingId: 'G-1', metaPixelId: '1', tiktokPixelId: 'T', openaiPixelId: 'O' }, ['Google Analytics', 'Meta', 'TikTok', 'OpenAI']],
       ['the ChatGPT pixel alone', { openaiPixelId: 'O' }, ['OpenAI']],
       ['Microsoft Clarity alone', { clarityProjectId: 'C' }, ['Microsoft Clarity']],
     ])('names %s', (_label, overrides, names) => {
