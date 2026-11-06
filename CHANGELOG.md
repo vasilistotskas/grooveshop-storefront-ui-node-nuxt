@@ -1,3 +1,10 @@
+# [3.327.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.2...v3.327.0) (2026-11-06)
+
+
+### Features
+
+* **builder:** a block upgrade moves a setting's translations with it ([#402](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/402)) ([9a4e562](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9a4e56226bbc1b102fe34b72038212e81567142d))
+
 ## [3.326.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.1...v3.326.2) (2026-11-06)
 
 

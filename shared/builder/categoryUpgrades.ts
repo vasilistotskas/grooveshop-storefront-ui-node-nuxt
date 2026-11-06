@@ -2,9 +2,7 @@ import type { BlockUpgrade } from '../types/builder'
 
 /**
  * The upgrade that moves the categories band onto a data setting
- * (`builderField.query('category')`). Only settings that are the same in
- * every language move here: a translation is kept by setting pointer, outside
- * the node, and a pointer the block no longer has is refused on save.
+ * (`builderField.query('category')`).
  */
 
 /**

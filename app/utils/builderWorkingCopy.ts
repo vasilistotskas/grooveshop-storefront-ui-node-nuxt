@@ -184,6 +184,25 @@ export function upgradeDraft(draft: BuilderDocument, blocks: ReadonlyMap<string,
 }
 
 /**
+ * A stored overlay as the draft `upgradeDraft` makes of `draft` reads it (`draft`
+ * is the stored one, so a node's upgrade can run again for each language). A
+ * document's own settings and an entry for no node have no upgrade, so they stay;
+ * a node or a language left with no translation goes.
+ */
+export function upgradeOverlay(draft: BuilderDocument, overlay: BuilderOverlay, blocks: ReadonlyMap<string, BlockDefinition>): BuilderOverlay {
+  const nodes = new Map(allNodes(draft).map(({ id, node }) => [id, node]))
+  return Object.fromEntries(Object.entries(overlay).flatMap(([locale, perNode]) => {
+    const translated = Object.entries(perNode).flatMap(([nodeId, translations]) => {
+      const node = nodes.get(nodeId)
+      const definition = node && blocks.get(builderBlockType(node))
+      const upgraded = definition ? upgradeNodeTranslations(node, definition, translations) : translations
+      return Object.keys(upgraded).length === 0 ? [] : [[nodeId, upgraded] as const]
+    })
+    return translated.length === 0 ? [] : [[locale, Object.fromEntries(translated)] as const]
+  })) as BuilderOverlay
+}
+
+/**
  * The sections two versions of a document disagree on, in the order the
  * first lists them, then the ones only the second has: added, removed, or
  * changed anywhere inside (settings, blocks, translations).
@@ -345,9 +364,11 @@ export function builderNodePosition(copy: BuilderWorkingCopy, nodeId: string): B
  * The working copy a stored document or version holds, as this build can open
  * and save it whole: its `draft` read by its structure (`ZodBuilderDraft`) and
  * brought to the current version of every block (`upgradeDraft`), its overlay
- * by `ZodBuilderOverlay`. `undefined` when it is not one (written by a build
- * with another format): the editor then does not open it rather than half-draw
- * it and save it back mangled. `key` names the document in the log.
+ * by `ZodBuilderOverlay` and moved with those upgrades (`upgradeOverlay`), so a
+ * save never names a setting the block no longer has. `undefined` when it is
+ * not one (written by a build with another format): the editor then does not
+ * open it rather than half-draw it and save it back mangled. `key` names the
+ * document in the log.
  */
 export function readBuilderWorkingCopy(key: string, draft: unknown, i18n: unknown): BuilderWorkingCopy | undefined {
   const parsedDraft = ZodBuilderDraft.safeParse(draft)
@@ -362,5 +383,5 @@ export function readBuilderWorkingCopy(key: string, draft: unknown, i18n: unknow
     })
     return undefined
   }
-  return { draft: upgraded, i18n: parsedOverlay.data }
+  return { draft: upgraded, i18n: upgradeOverlay(parsedDraft.data!, parsedOverlay.data, builderEditorBlocks) }
 }
