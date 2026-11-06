@@ -32,7 +32,6 @@ error reports and the request id.
 | Wide events patterns    | [references/wide-events.md](references/wide-events.md)             |
 | Error handling          | [references/structured-errors.md](references/structured-errors.md) |
 | Code review checklist   | [references/code-review.md](references/code-review.md)             |
-| Drain pipeline          | [references/drain-pipeline.md](references/drain-pipeline.md)       |
 
 The references are generic evlog guidance. Where they show `useLogger(event)`,
 a drain or an auto-imported `createError`, this repo's rules below take
@@ -133,27 +132,6 @@ Set under the `evlog` key in `nuxt.config.ts`:
 
 ---
 
-## AI SDK Integration
-
-Capture token usage, tool calls, model info, and streaming metrics from the
-Vercel AI SDK into wide events with `createAILogger` from `evlog/ai` (requires
-`ai >= 6.0.0` as a peer dependency). The storefront does not use the AI SDK
-today; reach for this only if it starts to.
-
-```typescript
-import { createAILogger } from 'evlog/ai'
-
-const ai = createAILogger(event.context.log)
-const result = streamText({ model: ai.wrap('anthropic/claude-sonnet-4.6'), messages })
-```
-
-| Anti-Pattern | Fix |
-|--------------|-----|
-| Manual token tracking in `onFinish` | `ai.wrap()` — middleware captures automatically |
-| `console.log('tokens:', result.usage)` | `ai.wrap()` — structured `ai.*` fields in wide event |
-
----
-
 ## Structured Errors
 
 ```typescript
@@ -196,4 +174,3 @@ Load based on what you're working on — **do not load all at once**:
 - Designing wide events → [references/wide-events.md](references/wide-events.md)
 - Improving errors → [references/structured-errors.md](references/structured-errors.md)
 - Full code review → [references/code-review.md](references/code-review.md)
-- Drain pipeline setup → [references/drain-pipeline.md](references/drain-pipeline.md) (generic; this repo has no drain)
