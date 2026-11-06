@@ -13,6 +13,17 @@ import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from '~~/shared/utils/e
 const pick = (directives: string[], name: string) =>
   (directives.find(d => d.startsWith(`${name} `)) ?? '').split(/\s+/).slice(1)
 
+describe('Nuxt DevTools', () => {
+  it.each([
+    ['connect-src', 'ws://*.localhost:*'],
+    ['connect-src', 'ws://localhost:*'],
+    ['img-src', 'https://nuxt.com'],
+  ])('%s holds %s in development, and never in production', (directive, source) => {
+    expect(pick(buildCspDirectives({ dev: true, frameAncestors: 'none' }), directive)).toContain(source)
+    expect(pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), directive)).not.toContain(source)
+  })
+})
+
 describe('who may frame a page', () => {
   it.each(['none', 'self'] as const)('says frame-ancestors %s, as asked', (frameAncestors) => {
     expect(pick(buildCspDirectives({ dev: false, frameAncestors }), 'frame-ancestors')).toEqual([`'${frameAncestors}'`])

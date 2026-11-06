@@ -431,7 +431,6 @@ describe('setupPageHeader connection hints', () => {
     setTenant({ assetsDomain: 'assets.shop.test', staticDomain: 'static.shop.test' })
 
     expect(await connectionHints()).toEqual([
-      { rel: 'dns-prefetch', href: 'https://assets.shop.test', crossorigin: null },
       { rel: 'preconnect', href: 'https://assets.shop.test', crossorigin: null },
     ])
   })
