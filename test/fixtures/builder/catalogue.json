@@ -1,5 +1,5 @@
 {
-  "hash": "43f2e90cc7292a82",
+  "hash": "1fd48a64714530ce",
   "blocks": [
     {
       "type": "about_content",
@@ -1129,18 +1129,14 @@
     },
     {
       "type": "contact_panel",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "eyebrow": {
             "type": "string",
             "maxLength": 100
@@ -1161,7 +1157,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/eyebrow",
         "/heading",
         "/body",
@@ -1187,18 +1182,14 @@
     },
     {
       "type": "cta_banner",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "heading": {
             "type": "string",
             "maxLength": 200
@@ -1397,7 +1388,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/description",
         "/buttonText"
@@ -1618,18 +1608,14 @@
     },
     {
       "type": "featured_products",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "surface": {
             "type": "string",
             "enum": [
@@ -1906,7 +1892,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -2589,18 +2574,14 @@
     },
     {
       "type": "hero_banner",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "heading": {
             "type": "string",
             "maxLength": 200
@@ -3007,7 +2988,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/subheading",
         "/eyebrow",
@@ -4220,18 +4200,14 @@
     },
     {
       "type": "media_text",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "surface": {
             "type": "string",
             "enum": [
@@ -4457,7 +4433,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/body",
         "/eyebrow",
@@ -4636,18 +4611,14 @@
     },
     {
       "type": "newsletter_signup",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "heading": {
             "type": "string",
             "maxLength": 200
@@ -4675,7 +4646,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/description",
         "/placeholder",
@@ -4699,18 +4669,14 @@
     },
     {
       "type": "offers_preview",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "surface": {
             "type": "string",
             "enum": [
@@ -4933,7 +4899,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/eyebrow",
         "/heading",
         "/subheading",
@@ -5368,18 +5333,14 @@
     },
     {
       "type": "products_grid",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "surface": {
             "type": "string",
             "enum": [
@@ -5656,7 +5617,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -5696,18 +5656,14 @@
     },
     {
       "type": "products_slider",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "surface": {
             "type": "string",
             "enum": [
@@ -5984,7 +5940,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -6072,18 +6027,14 @@
     },
     {
       "type": "recently_viewed",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "heading": {
             "type": "string",
             "maxLength": 200
@@ -6092,7 +6043,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading"
       ],
       "refs": {},
@@ -6434,18 +6384,14 @@
     },
     {
       "type": "story_timeline",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "heading": {
             "type": "string",
             "maxLength": 200
@@ -6465,7 +6411,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading",
         "/subheading"
       ],
@@ -6556,18 +6501,14 @@
     },
     {
       "type": "testimonials",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "surface": {
             "type": "string",
             "enum": [
@@ -6583,7 +6524,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading"
       ],
       "refs": {},
@@ -6919,18 +6859,14 @@
     },
     {
       "type": "trust_badges",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "maxLength": 200
-          },
           "surface": {
             "type": "string",
             "enum": [
@@ -6949,7 +6885,6 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title",
         "/heading"
       ],
       "refs": {},

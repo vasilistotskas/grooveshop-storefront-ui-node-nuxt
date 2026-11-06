@@ -24,8 +24,6 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   eyebrow?: string
   heading?: string
   body?: string
@@ -42,9 +40,7 @@ const props = defineProps<{
 
 const LONG_HEADING = 60
 
-const label = computed(() => props.heading || props.title)
-
-const longHeading = computed(() => (label.value?.length ?? 0) > LONG_HEADING)
+const longHeading = computed(() => (props.heading?.length ?? 0) > LONG_HEADING)
 
 const imageFirst = computed(() => props.imagePosition !== 'right')
 
@@ -84,7 +80,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
 
 <template>
   <section
-    v-if="label || body || imageUrl"
+    v-if="heading || body || imageUrl"
     :class="surface === 'muted' ? 'bg-(--fy-raised)' : 'bg-(--fy-ground)'"
     :data-fy-surface="surface === 'muted' ? undefined : 'ground'"
   >
@@ -139,7 +135,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         </p>
 
         <h2
-          v-if="label"
+          v-if="heading"
           class="
             font-display text-balance text-(--fy-text)
           "
@@ -150,7 +146,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
               tracking-[-0.015em]
             `"
         >
-          {{ label }}
+          {{ heading }}
         </h2>
 
         <p

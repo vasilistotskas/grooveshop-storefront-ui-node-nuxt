@@ -15,8 +15,6 @@
  * the band stays this one, and the card keeps the columns it was laid out for.
  */
 const props = withDefaults(defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   subheading?: string
   ctaText?: string
@@ -37,7 +35,7 @@ const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
 
 const label = computed(
-  () => props.heading || props.title || t(`heading.${productRailKind(props.products.descriptor)}`),
+  () => props.heading || t(`heading.${productRailKind(props.products.descriptor)}`),
 )
 </script>
 

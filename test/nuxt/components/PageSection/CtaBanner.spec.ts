@@ -35,22 +35,16 @@ describe('PageSection/CtaBanner', () => {
     expect(wrapper.find('section').attributes('style')).toContain('color: #000000')
   })
 
-  it('prefers the heading over the section title', async () => {
-    const wrapper = await mountBanner({ title: 'Τίτλος', heading: 'Δωρεάν αποστολή' })
-
-    expect(wrapper.find('h2').text()).toBe('Δωρεάν αποστολή')
-  })
-
   it('links the button to the operator\'s target', async () => {
-    const wrapper = await mountBanner({ title: 'Τίτλος', buttonText: 'Αγόρασε', buttonLink: '/products' })
+    const wrapper = await mountBanner({ heading: 'Τίτλος', buttonText: 'Αγόρασε', buttonLink: '/products' })
 
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual(['Αγόρασε', '/products'])
   })
 
   it.each([
-    { name: 'button text without a link', props: { title: 'Τίτλος', buttonText: 'Αγόρασε' } },
-    { name: 'a link without button text', props: { title: 'Τίτλος', buttonLink: '/products' } },
+    { name: 'button text without a link', props: { heading: 'Τίτλος', buttonText: 'Αγόρασε' } },
+    { name: 'a link without button text', props: { heading: 'Τίτλος', buttonLink: '/products' } },
   ])('draws no button for $name', async ({ props }) => {
     const wrapper = await mountBanner(props)
 

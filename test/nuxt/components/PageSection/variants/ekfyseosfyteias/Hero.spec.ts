@@ -135,12 +135,6 @@ describe('ekfyseosfyteias hero_banner', () => {
       expect(wrapper.find('img').exists()).toBe(false)
       expect(wrapper.text()).toContain(PROPS.subheading)
     })
-
-    it('uses the section title when the heading is not set', async () => {
-      const wrapper = await mountHero({ imageUrl: undefined, heading: undefined, title: 'Χρηματοδότηση ΕΣΠΑ' })
-
-      expect(wrapper.find('h1').text()).toBe('Χρηματοδότηση ΕΣΠΑ')
-    })
   })
 
   it('renders nothing without copy or artwork', async () => {

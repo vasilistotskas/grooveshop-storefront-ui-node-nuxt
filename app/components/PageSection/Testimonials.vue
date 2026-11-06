@@ -14,8 +14,6 @@
  * "Χονδρική"), which is what gives it weight.
  */
 defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   items?: Array<{
     name: string
@@ -33,7 +31,7 @@ const { t } = useStoreI18n('components/PageSection/Testimonials')
 <template>
   <PageSectionBand
     v-if="items?.length"
-    :heading="heading || title"
+    :heading="heading"
     :surface="surface"
   >
     <div

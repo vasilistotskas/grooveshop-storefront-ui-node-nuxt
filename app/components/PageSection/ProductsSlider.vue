@@ -15,8 +15,6 @@
  * band and the rail stay these ones.
  */
 const props = withDefaults(defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   subheading?: string
   ctaText?: string
@@ -40,7 +38,7 @@ const kind = computed(() => productRailKind(props.products.descriptor))
 
 /** The operator's words first; otherwise one that fits what the band lists. */
 const label = computed(
-  () => props.heading || props.title || t(`heading.${kind.value}`),
+  () => props.heading || t(`heading.${kind.value}`),
 )
 
 /**

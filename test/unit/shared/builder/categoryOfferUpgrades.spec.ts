@@ -33,12 +33,12 @@ describe('product_categories, version 1 to 2', () => {
   })
 })
 
-describe('offers_preview, version 1 to 2', () => {
+describe('offers_preview, from version 1', () => {
   it('keeps the words of the band, which a store may translate, and lists three when it named no size', () => {
     const { node, parsed } = upgraded('offers_preview', { title: 'Τίτλος', eyebrow: 'Προσφορές', surface: 'muted' })
 
-    expect(node.type).toBe('offers_preview@2')
-    expect(node.settings).toEqual({ title: 'Τίτλος', eyebrow: 'Προσφορές', surface: 'muted', offers: { limit: 3 } })
+    expect(node.type).toBe('offers_preview@3')
+    expect(node.settings).toEqual({ heading: 'Τίτλος', eyebrow: 'Προσφορές', surface: 'muted', offers: { limit: 3 } })
     expect(parsed.success).toBe(true)
   })
 

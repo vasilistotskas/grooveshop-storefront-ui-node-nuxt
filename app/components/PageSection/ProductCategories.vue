@@ -15,8 +15,6 @@
  * default did, and why a brand-new store opened on a row of placeholders.
  */
 const props = withDefaults(defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   layout?: 'slider' | 'grid' | 'tiles'
   surface?: 'default' | 'muted'
@@ -31,7 +29,7 @@ const localePath = useLocalePath()
 
 const entries = computed(() => props.categories.items.map(category => categoryMenuEntry(category, locale.value)))
 
-const label = computed(() => props.heading || props.title || t('heading'))
+const label = computed(() => props.heading || t('heading'))
 
 /**
  * Up to six tiles in a row on a desk, as the design sets them — and

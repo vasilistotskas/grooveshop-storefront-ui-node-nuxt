@@ -22,8 +22,6 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   eyebrow?: string
   heading?: string
   body?: string
@@ -36,8 +34,6 @@ const { t } = useStoreI18n('components/PageSection/variants/ekfyseosfyteias/Cont
 const { identity } = useMerchantIdentity()
 const { offices } = useStoreOffices()
 const { schedule } = useBusinessHours()
-
-const label = computed(() => props.heading || props.title)
 
 const phone = computed(() => identity.value?.phone?.trim() ?? '')
 const email = computed(() => identity.value?.email?.trim() ?? '')
@@ -83,7 +79,7 @@ const facts = computed(() => [
 ].filter(fact => fact.lines.length))
 
 const hasContent = computed(
-  () => !!(label.value || phone.value || email.value || facts.value.length),
+  () => !!(props.heading || phone.value || email.value || facts.value.length),
 )
 </script>
 
@@ -110,13 +106,13 @@ const hasContent = computed(
           {{ eyebrow }}
         </p>
         <h2
-          v-if="label"
+          v-if="heading"
           class="
             font-display text-[length:clamp(36px,3.8vw,54px)] leading-[1.04]
             font-extrabold text-balance
           "
         >
-          {{ label }}
+          {{ heading }}
         </h2>
         <p
           v-if="body"

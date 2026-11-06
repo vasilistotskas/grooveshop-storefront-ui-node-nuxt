@@ -12,8 +12,6 @@
  * (`TenantConfig.preferences`), which every render already has.
  */
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
 }>()
 
@@ -23,7 +21,7 @@ const recentlyViewedEnabled = useStorePreference('recentlyViewed')
 
 const { items } = useRecentlyViewed()
 
-const label = computed(() => props.heading || props.title || t('heading'))
+const label = computed(() => props.heading || t('heading'))
 </script>
 
 <template>

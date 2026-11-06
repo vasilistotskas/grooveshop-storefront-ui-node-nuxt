@@ -11,7 +11,6 @@
  * campaigns, so an operator can leave it published.
  */
 const props = withDefaults(defineProps<{
-  title?: string
   eyebrow?: string
   heading?: string
   subheading?: string
@@ -42,7 +41,7 @@ function onCopy(code: string) {
   <PageSectionBand
     v-if="offers.items.length"
     :eyebrow="eyebrow || t('eyebrow')"
-    :heading="heading || title || t('heading')"
+    :heading="heading || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_offers', { count: offers.total }, offers.total)"
     :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('offers')"

@@ -7,7 +7,7 @@
         "settings": {}
       },
       "00000000-0000-4000-8000-5eed00000002": {
-        "type": "trust_badges@1",
+        "type": "trust_badges@2",
         "settings": {
           "surface": "default"
         }
@@ -24,7 +24,7 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000004": {
-        "type": "products_grid@2",
+        "type": "products_grid@3",
         "settings": {
           "surface": "muted",
           "products": {
@@ -35,7 +35,7 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000005": {
-        "type": "offers_preview@2",
+        "type": "offers_preview@3",
         "settings": {
           "surface": "ink",
           "offers": {
@@ -44,7 +44,7 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000006": {
-        "type": "featured_products@2",
+        "type": "featured_products@3",
         "settings": {
           "surface": "default",
           "products": {
@@ -78,7 +78,7 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000010": {
-        "type": "testimonials@1",
+        "type": "testimonials@2",
         "settings": {
           "surface": "default"
         }

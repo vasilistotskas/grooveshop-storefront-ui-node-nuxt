@@ -22,7 +22,7 @@ function memoryStorage(): Storage {
 
 const recovery = {
   revision: 4,
-  copy: { draft: { sections: { hero: { type: 'hero_banner@1', settings: { heading: 'Γεια' } } }, order: ['hero'] }, i18n: {} },
+  copy: { draft: { sections: { hero: { type: 'hero_banner@2', settings: { heading: 'Γεια' } } }, order: ['hero'] }, i18n: {} },
   keptAt: '2026-11-02T15:00:00.000Z',
 }
 
@@ -37,6 +37,30 @@ describe('the recovery copy', () => {
     expect(readBuilderRecovery('shop.test', 'template:home')).toEqual(recovery)
     expect(readBuilderRecovery('other.test', 'template:home')).toBeUndefined()
     expect(readBuilderRecovery('shop.test', 'page:about')).toBeUndefined()
+  })
+
+  it('brings a copy an older build kept up to this build\'s blocks, its translations with them', () => {
+    keepBuilderRecovery('shop.test', 'template:home', {
+      ...recovery,
+      copy: {
+        draft: { sections: { hero: { type: 'hero_banner@1', settings: { title: 'Γεια' } } }, order: ['hero'] },
+        i18n: { en: { hero: { '/title': 'Hello' } } },
+      },
+    })
+
+    expect(readBuilderRecovery('shop.test', 'template:home')?.copy).toEqual({
+      draft: { sections: { hero: { type: 'hero_banner@2', settings: { heading: 'Γεια' } } }, order: ['hero'] },
+      i18n: { en: { hero: { '/heading': 'Hello' } } },
+    })
+  })
+
+  it('offers no copy of a block newer than this build knows', () => {
+    keepBuilderRecovery('shop.test', 'template:home', {
+      ...recovery,
+      copy: { draft: { sections: { hero: { type: 'hero_banner@99', settings: {} } }, order: ['hero'] }, i18n: {} },
+    })
+
+    expect(readBuilderRecovery('shop.test', 'template:home')).toBeUndefined()
   })
 
   it('forgets them', () => {

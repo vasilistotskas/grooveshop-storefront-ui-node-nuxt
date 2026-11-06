@@ -24,8 +24,6 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   subheading?: string
   ctaText?: string
@@ -87,7 +85,7 @@ const cards = computed(() => items.value.map(post => ({
       "
     >
       <PageSectionVariantsEkfyseosfyteiasSectionHeader
-        :heading="heading || title || t('heading')"
+        :heading="heading || t('heading')"
         :lead="subheading"
         :cta-text="ctaText || t('all_posts')"
         :cta-link="ctaLink || BLOG_PATH"

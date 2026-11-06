@@ -17,8 +17,6 @@
  * unreadable, and so is white on a mid-tone terracotta.
  */
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   description?: string
   buttonText?: string
@@ -28,8 +26,6 @@ const props = defineProps<{
 }>()
 
 const localePath = useLocalePath()
-
-const label = computed(() => props.heading || props.title)
 
 /**
  * The copy's colour on the operator's `#RRGGBB` (the only shape the
@@ -53,7 +49,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 
 <template>
   <PageSectionBand
-    v-if="label || description || hasLink"
+    v-if="heading || description || hasLink"
     :surface="surface"
     :style="backgroundColor ? { backgroundColor, color: copyColor } : undefined"
   >
@@ -66,13 +62,13 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
       >
         <div class="flex max-w-2xl flex-col gap-2">
           <h2
-            v-if="label"
+            v-if="heading"
             :class="[
               'font-display text-2xl font-semibold tracking-tight text-balance md:text-3xl',
               !backgroundColor && 'text-highlighted',
             ]"
           >
-            {{ label }}
+            {{ heading }}
           </h2>
           <p
             v-if="description"

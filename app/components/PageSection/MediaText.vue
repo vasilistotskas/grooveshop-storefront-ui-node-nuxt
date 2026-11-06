@@ -10,8 +10,6 @@
  * checklist, or the comparison cards a technical page argues with.
  */
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   eyebrow?: string
   heading?: string
   body?: string
@@ -95,7 +93,7 @@ const bodyParts = computed(() => {
       <ImgWithFallback
         v-if="imageUrl"
         :src="imageUrl"
-        :alt="heading || title || ''"
+        :alt="heading || ''"
         :width="720"
         :height="540"
         class="

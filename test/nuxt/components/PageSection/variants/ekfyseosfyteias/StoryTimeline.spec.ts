@@ -36,12 +36,6 @@ describe('ekfyseosfyteias story_timeline', () => {
     expect(wrapper.text()).toContain('Όπου μας συναντάτε.')
   })
 
-  it('takes the section title when there is no heading', async () => {
-    const wrapper = await mountSuspended(StoryTimeline, { route: false, props: { title: 'Εκθέσεις', items: ITEMS } })
-
-    expect(wrapper.find('h2').text()).toBe('Εκθέσεις')
-  })
-
   it('draws the list alone when the section has no heading', async () => {
     const wrapper = await mountSuspended(StoryTimeline, { route: false, props: { items: ITEMS } })
 

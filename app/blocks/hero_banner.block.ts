@@ -3,10 +3,9 @@ import * as z from 'zod'
 /** The top of a page: one picture, one promise, one ask, with an optional proof row. */
 export default defineBlock({
   type: 'hero_banner',
-  version: 1,
+  version: 2,
   kinds: ['section'],
   schema: z.object({
-    title: builderField.text(200).optional(),
     heading: builderField.text(200).optional(),
     subheading: builderField.text(500).optional(),
     eyebrow: builderField.text(100).optional(),
@@ -22,10 +21,11 @@ export default defineBlock({
     align: z.enum(['left', 'center']).optional(),
     theme: z.enum(['light', 'dark', 'auto']).optional(),
   }),
-  translatable: ['/title', '/heading', '/subheading', '/eyebrow', '/imageAlt', '/ctaText', '/secondaryCtaText'],
+  translatable: ['/heading', '/subheading', '/eyebrow', '/imageAlt', '/ctaText', '/secondaryCtaText'],
+  upgrade: { 1: upgradeTitleIntoHeading },
   limits: { maxBlocks: 4 },
   children: { allowed: ['stat'], maxDepth: 1 },
   childList: { stat: 'stats' },
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
-  editor: { title: ['heading', 'title'], category: 'hero' },
+  editor: { title: ['heading'], category: 'hero' },
 })

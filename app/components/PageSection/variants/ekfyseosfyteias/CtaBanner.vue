@@ -18,21 +18,18 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   description?: string
   buttonText?: string
   buttonLink?: string
 }>()
 
-const label = computed(() => props.heading || props.title)
 const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 </script>
 
 <template>
   <section
-    v-if="label || description || hasLink"
+    v-if="heading || description || hasLink"
     class="
       bg-(--fy-ground) pt-[clamp(64px,8vw,112px)]
       [[data-fy-surface=ground]+&]:pt-0
@@ -55,13 +52,13 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
       >
         <div class="flex flex-col gap-3">
           <h2
-            v-if="label"
+            v-if="heading"
             class="
               font-display text-[length:clamp(30px,3vw,44px)] leading-[1.08]
               font-extrabold text-balance text-(--fy-text)
             "
           >
-            {{ label }}
+            {{ heading }}
           </h2>
           <p
             v-if="description"

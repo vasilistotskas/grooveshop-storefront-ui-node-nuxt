@@ -34,7 +34,12 @@ export function keepBuilderRecovery(host: string, documentKey: string, recovery:
   }
 }
 
-/** The changes kept for a document, or `undefined` when there are none (or none this editor can read). */
+/**
+ * The changes kept for a document, or `undefined` when there are none (or none
+ * this editor can read). A copy can outlive the build that kept it, so it is
+ * read like a stored draft (`readBuilderWorkingCopy`): restored as it was kept,
+ * an older block's first save would be refused, with the copy already gone.
+ */
 export function readBuilderRecovery(host: string, documentKey: string): BuilderRecovery | undefined {
   let stored: string | null
   try {
@@ -52,7 +57,9 @@ export function readBuilderRecovery(host: string, documentKey: string): BuilderR
     raw = undefined
   }
   const recovery = ZodBuilderRecovery.safeParse(raw)
-  return recovery.success ? recovery.data : undefined
+  if (!recovery.success) return undefined
+  const copy = readBuilderWorkingCopy(documentKey, recovery.data.copy.draft, recovery.data.copy.i18n)
+  return copy && { ...recovery.data, copy }
 }
 
 /** Forgets the changes kept for a document: they were saved, restored or dismissed. */

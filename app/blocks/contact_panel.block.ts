@@ -6,17 +6,17 @@ import * as z from 'zod'
  */
 export default defineBlock({
   type: 'contact_panel',
-  version: 1,
+  version: 2,
   kinds: ['section'],
   designs: ['ekfyseosfyteias'],
   schema: z.object({
-    title: builderField.text(200).optional(),
     eyebrow: builderField.text(100).optional(),
     heading: builderField.text(200).optional(),
     body: builderField.text(600).optional(),
     hint: builderField.text(400).optional(),
   }),
-  translatable: ['/title', '/eyebrow', '/heading', '/body', '/hint'],
+  translatable: ['/eyebrow', '/heading', '/body', '/hint'],
+  upgrade: { 1: upgradeTitleIntoHeading },
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
-  editor: { title: ['heading', 'title'], category: 'store' },
+  editor: { title: ['heading'], category: 'store' },
 })
