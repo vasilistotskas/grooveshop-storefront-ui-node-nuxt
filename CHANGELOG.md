@@ -1,3 +1,10 @@
+# [3.326.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.4...v3.326.0) (2026-11-06)
+
+
+### Features
+
+* **analytics:** Microsoft Clarity, per store and behind consent ([#398](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/398)) ([d4cb8d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d4cb8d4d00618154062e8c2eb2438aec6820a1a0))
+
 ## [3.325.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.3...v3.325.4) (2026-11-06)
 
 
