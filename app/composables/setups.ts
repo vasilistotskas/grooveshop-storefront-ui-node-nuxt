@@ -210,25 +210,32 @@ export function setupGoogleAnalyticsConsent() {
     googleAdsConversionId: tenantStore.googleAdsConversionId,
   })
   if (!tagId) return
+  if (import.meta.server) return
+
+  // Consent Mode's basic implementation: the tag loads only once the visitor
+  // grants one of the two categories it serves. Nothing reaches Google before
+  // that, or after a refusal. The advanced one sent cookieless hits with the
+  // page's address for every visitor (support.google.com/analytics/answer/9976101).
+  const analyticsConsent = useStorageConsent('analytics_storage')
+  const adConsent = useAdStorageConsent()
+  const trigger = useScriptTriggerConsent({
+    consent: computed(() => analyticsConsent.value || adConsent.value),
+    // gtag's evaluation is one ~180 ms task on a phone-class CPU (4x
+    // slowdown), followed by ~50-150 ms timer tasks of its own. Loaded on
+    // the visitor's first tap, a second tap in that window cost 176-320 ms
+    // of INP against 16 ms with gtag blocked (webside blog post,
+    // 2026-10-19). So it waits until the page has fully loaded (the LCP
+    // image included) and the main thread is next idle, when a visitor is
+    // reading rather than tapping.
+    postConsentTrigger: () => afterLoadWhenIdle(),
+  })
+
   const { consent, proxy } = useScriptGoogleAnalytics({
     id: tagId,
     scriptOptions: {
-      // gtag is 173KB of transfer that loads for EVERY visitor before
-      // any consent (Consent Mode v2 pings), and its evaluation is one
-      // ~180 ms task on a phone-class CPU (4x slowdown), followed by
-      // ~50-150 ms timer tasks of its own. It used to load on the
-      // visitor's first pointerdown/keydown/scroll, which put that work
-      // ~0.4 s after the first tap: a second tap in that window cost
-      // 176-320 ms of INP against 16 ms with gtag blocked (webside blog
-      // post, 2026-10-19), and webside fails INP in the field. It now
-      // loads once the page has fully loaded (the LCP image included)
-      // and the main thread is next idle, which is when a visitor is
-      // reading rather than tapping. 'onNuxtReady' fired right after
-      // hydration, inside the LCP window. No warmup at all: the default
-      // warmup emitted a rel=preload for the script, and a preconnect
-      // would open the connection to Google at page load, before the
-      // visitor has done or decided anything.
-      trigger: import.meta.client ? afterLoadWhenIdle() : 'onNuxtReady',
+      trigger,
+      // No warmup at all: the default emitted a rel=preload for the script,
+      // and a preconnect would contact Google before the visitor has decided.
       warmupStrategy: false,
     },
     defaultConsent: GOOGLE_TAG_DEFAULT_CONSENT,
@@ -306,11 +313,28 @@ export function setupGoogleAnalyticsConsent() {
  */
 function useStorageConsent(category: 'ad_storage' | 'analytics_storage') {
   const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+  const trackingAllowed = useTrackingAllowed()
   return computed(() =>
     !!(
-      isConsentGiven.value
+      trackingAllowed.value
+      && isConsentGiven.value
       && cookiesEnabledIds.value?.includes(category)
     ),
+  )
+}
+
+/**
+ * No tracker runs while the address holds a secret (`isPrivateUrl`): each sends
+ * the address with its hits. Those pages are reached from outside, in a new
+ * document, so a tracker has not loaded yet, and it loads once the visitor moves
+ * on. The browser's address is read beside the router's because the router is
+ * still at its start location while `app.vue` sets up.
+ */
+function useTrackingAllowed() {
+  const router = useRouter()
+  return computed(() =>
+    !isPrivateUrl(router.currentRoute.value.fullPath)
+    && !isPrivateUrl(window.location.pathname + window.location.search),
   )
 }
 
@@ -701,6 +725,8 @@ export function setupSocialLogin() {
   // GSI is client-only anyway — the GSI button + ``onLoaded`` callback
   // are meaningless on the server — so skip the entire setup.
   if (import.meta.server) return
+  // A Google script like any other: it stays off an address holding a secret.
+  if (!useTrackingAllowed().value) return
 
   const { config: authConfig } = storeToRefs(useAuthStore())
   const {

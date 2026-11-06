@@ -502,11 +502,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         await cleanCartState()
         await fetch()
         if (order.uuid) {
-          await navigateTo(localePath({
-            name: 'checkout-success-uuid',
-            params: { uuid: order.uuid },
-            query: { placed: '1' },
-          }))
+          writeCheckoutArrival({ orderUuid: order.uuid, placed: true })
+          await navigateTo(localePath({ name: 'checkout-success' }))
         }
         return
       }
@@ -589,14 +586,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         log.error({ action: 'checkout:offlinePayment', error: 'No order UUID' })
         return
       }
-      // ``placed=1`` marks a real checkout arrival for the success
+      // ``placed`` marks a real checkout arrival for the success
       // page (purchase pixels + cart cleanup) — offline pay-ways
       // have no provider redirect param (session_id / s) to key on.
-      await navigateTo(localePath({
-        name: 'checkout-success-uuid',
-        params: { uuid: order.uuid },
-        query: { placed: '1' },
-      }))
+      writeCheckoutArrival({ orderUuid: order.uuid, placed: true })
+      await navigateTo(localePath({ name: 'checkout-success' }))
     }
     catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
@@ -777,10 +771,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // confirmation doesn't wipe the cart before we know it succeeded.
     await cleanCartState()
     await fetch()
-    await navigateTo(localePath({
-      name: 'checkout-success-uuid',
-      params: { uuid: createdOrder.value?.uuid },
-    }))
+    writeCheckoutArrival({ orderUuid: createdOrder.value.uuid })
+    await navigateTo(localePath({ name: 'checkout-success' }))
   }
 
   const onPaymentError = async (error: string) => {
