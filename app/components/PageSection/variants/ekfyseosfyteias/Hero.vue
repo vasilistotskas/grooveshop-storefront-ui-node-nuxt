@@ -33,8 +33,6 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   subheading?: string
   eyebrow?: string
@@ -51,15 +49,13 @@ const props = defineProps<{
 
 const leadsPage = useLeadsPage()
 
-const label = computed(() => props.heading || props.title)
-
 const presentation = computed(() => {
   if (!props.imageUrl) return 'page'
   return props.theme === 'dark' ? 'overlap' : 'seal'
 })
 
 const hasContent = computed(
-  () => !!props.imageUrl || !!label.value || !!props.subheading,
+  () => !!props.imageUrl || !!props.heading || !!props.subheading,
 )
 
 const primary = computed(() => !!(props.ctaText && props.ctaLink))
@@ -98,13 +94,13 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         </p>
 
         <h1
-          v-if="label"
+          v-if="heading"
           class="
             font-display text-[length:clamp(50px,6.6vw,96px)] leading-[0.98]
             font-extrabold tracking-[-0.02em] text-balance
           "
         >
-          {{ label }}
+          {{ heading }}
         </h1>
 
         <p
@@ -170,7 +166,7 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         >
           <ImgWithFallback
             :src="imageUrl"
-            :alt="imageAlt || label || ''"
+            :alt="imageAlt || heading || ''"
             :width="1080"
             :height="1080"
             sizes="xs:90vw sm:90vw md:540px"
@@ -221,7 +217,7 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
          covers ~800px of it, from a tablet on the full viewport. -->
     <ImgWithFallback
       :src="imageUrl"
-      :alt="imageAlt || label || ''"
+      :alt="imageAlt || heading || ''"
       sizes="xs:800px md:100vw lg:100vw xl:100vw xxl:100vw"
       class="block h-[clamp(360px,42vw,600px)] w-full object-cover"
       fit="cover"
@@ -247,13 +243,13 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
           {{ eyebrow }}
         </p>
         <h2
-          v-if="label"
+          v-if="heading"
           class="
             font-display text-[length:clamp(32px,3.4vw,48px)] leading-[1.05]
             font-extrabold tracking-[-0.01em] text-(--fy-text)
           "
         >
-          {{ label }}
+          {{ heading }}
         </h2>
         <p
           v-if="subheading"
@@ -293,14 +289,14 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
       <!-- wrap-anywhere + hyphens-auto: «Χρηματοδότηση» alone is wider than
            a 320px phone at 40px, and pushed the page sideways. -->
       <h1
-        v-if="label"
+        v-if="heading"
         class="
           max-w-[860px] font-display text-[length:clamp(40px,5vw,72px)]
           leading-none font-extrabold tracking-[-0.02em] text-balance
           wrap-anywhere hyphens-auto
         "
       >
-        {{ label }}
+        {{ heading }}
       </h1>
       <p
         v-if="subheading"

@@ -11,8 +11,6 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 defineOptions({ inheritAttrs: false })
 
 defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   subheading?: string
   items?: Array<{
@@ -37,17 +35,17 @@ defineProps<{
       "
     >
       <div
-        v-if="heading || title || subheading"
+        v-if="heading || subheading"
         class="flex flex-col gap-4"
       >
         <h2
-          v-if="heading || title"
+          v-if="heading"
           class="
             font-display text-[length:clamp(38px,4.2vw,62px)] leading-[1.02]
             font-extrabold tracking-[-0.015em] text-balance
           "
         >
-          {{ heading || title }}
+          {{ heading }}
         </h2>
         <p
           v-if="subheading"

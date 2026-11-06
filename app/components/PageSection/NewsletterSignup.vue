@@ -12,7 +12,6 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 withDefaults(defineProps<{
-  title?: string
   heading?: string
   description?: string
   placeholder?: string
@@ -61,7 +60,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
               md:text-3xl
             "
           >
-            {{ heading || title || t('heading') }}
+            {{ heading || t('heading') }}
           </h2>
           <p class="text-base text-pretty text-muted md:text-lg">
             {{ description || t('description') }}

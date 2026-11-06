@@ -37,7 +37,7 @@ describe('upgrade-cases.json', () => {
   })
 
   it.each(upgradeCases)('$name', ({ before, after }) => {
-    expect(upgradeNode(before, definitionOf(before))).toEqual(after)
+    expect(upgradeNode(before, definitionOf(before))).toStrictEqual(after)
   })
 
   const translated = upgradeCases.filter(({ translations }) => translations)

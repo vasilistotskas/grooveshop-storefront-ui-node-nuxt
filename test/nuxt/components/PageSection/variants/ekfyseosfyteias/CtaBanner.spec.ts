@@ -55,12 +55,6 @@ describe('ekfyseosfyteias cta_banner', () => {
     expect(wrapper.find('a').exists()).toBe(false)
   })
 
-  it('takes the section title when there is no heading', async () => {
-    const wrapper = await mountSuspended(CtaBanner, { route: false, props: { title: 'Συνεργασία', buttonText: 'Γράψτε', buttonLink: '/contact' } })
-
-    expect(wrapper.find('h2').text()).toBe('Συνεργασία')
-  })
-
   it('renders nothing when empty', async () => {
     const wrapper = await mountSuspended(CtaBanner, { route: false, props: {} })
 

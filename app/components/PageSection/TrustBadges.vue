@@ -17,7 +17,6 @@
  * not serve.
  */
 const props = defineProps<{
-  title?: string
   heading?: string
   items?: Array<{
     kind: 'payment' | 'shipping' | 'ai' | 'custom'
@@ -43,7 +42,7 @@ const visible = computed(() =>
 <template>
   <PageSectionBand
     v-if="visible.length"
-    :heading="heading || title"
+    :heading="heading"
     :surface="surface"
     padding="none"
     class="

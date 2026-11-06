@@ -8,8 +8,6 @@ import type { TimelineItem } from '@nuxt/ui'
  * progress tracker with a current position.
  */
 const props = defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   subheading?: string
   items?: Array<{
@@ -37,7 +35,7 @@ const lastValue = computed(() => timelineItems.value.length - 1)
 <template>
   <PageSectionBand
     v-if="timelineItems.length"
-    :heading="heading || title"
+    :heading="heading"
     :subheading="subheading"
     :surface="surface"
   >

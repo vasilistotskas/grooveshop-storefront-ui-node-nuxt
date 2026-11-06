@@ -42,12 +42,12 @@ const detail = <Draft>(key: string, kind: string, draft: Draft) => ({ ...row(key
 const HOME = detail('template:home', 'template', {
   sections: {
     hero: {
-      type: 'hero_banner@1',
+      type: 'hero_banner@2',
       settings: { heading: 'Ενέργεια για όλη τη μέρα' },
       blocks: { s1: { type: 'stat@1', settings: { label: 'παραγγελίες', value: '2.500+' } } },
       blockOrder: ['s1'],
     },
-    grid: { type: 'products_grid@2', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } },
+    grid: { type: 'products_grid@3', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } },
     news: { type: 'newsletter_signup@1', disabled: true, settings: {} },
   },
   order: ['hero', 'grid', 'news'],
@@ -1135,7 +1135,7 @@ describe('editing the structure of a page', () => {
 
   describe('when someone else saved in between', () => {
     const conflict = { code: 'revision_conflict', detail: 'x', currentRevision: 6, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }
-    const THEIRS = { ...HOME, draftRevision: 6, draft: { sections: { other: { type: 'products_grid@1', settings: { title: 'Νέες αφίξεις' } } }, order: ['other'] } }
+    const THEIRS = { ...HOME, draftRevision: 6, draft: { sections: { other: { type: 'products_grid@3', settings: { heading: 'Νέες αφίξεις' } } }, order: ['other'] } }
 
     async function conflicted() {
       const wrapper = await open(HERO)

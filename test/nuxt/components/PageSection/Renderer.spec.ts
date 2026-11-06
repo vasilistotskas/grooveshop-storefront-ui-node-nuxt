@@ -17,7 +17,7 @@ mockNuxtImport('useBuilderSurface', () => surface)
  * import to land before looking for it.
  */
 const section = (componentType: string, props: Record<string, unknown> = {}) =>
-  makeBuilderSection({ componentType, props: { title: 'Δωρεάν αποστολή', ...props } })
+  makeBuilderSection({ componentType, props: { heading: 'Δωρεάν αποστολή', ...props } })
 
 const mountSection = (value: BuilderSection) =>
   mountSuspended(Renderer, { route: false, props: { section: value } })
@@ -32,7 +32,7 @@ describe('PageSection/Renderer', () => {
 
     await vi.waitFor(() => expect(wrapper.findComponent(CtaBanner).exists()).toBe(true))
     expect(wrapper.findComponent(CtaBanner).props()).toMatchObject({
-      title: 'Δωρεάν αποστολή',
+      heading: 'Δωρεάν αποστολή',
       description: 'Για αγορές άνω των 30 €',
     })
     expect(wrapper.find('h2').text()).toBe('Δωρεάν αποστολή')

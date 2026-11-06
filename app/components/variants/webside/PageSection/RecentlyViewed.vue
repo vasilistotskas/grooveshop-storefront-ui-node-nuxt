@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineProps<{
-  title?: string
+  heading?: string
 }>()
 
 // The store's recently-viewed preference. The rail it gates

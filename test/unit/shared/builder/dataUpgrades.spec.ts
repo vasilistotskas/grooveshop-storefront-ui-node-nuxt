@@ -4,7 +4,8 @@ import type { BlockDefinition } from '~~/shared/types/builder'
 
 /**
  * Version 1 of the product rails kept what they list in `ordering`,
- * `categoryId`, `pageSize` (and `columns`); version 2 keeps one descriptor.
+ * `categoryId`, `pageSize` (and `columns`); since version 2 it is one
+ * descriptor, and since version 3 one `heading`.
  * The pages already written must draw what they drew: the upgrade is that
  * promise, run on every read and on every load of the editor.
  */
@@ -17,11 +18,11 @@ const upgraded = (type: string, settings: Record<string, unknown>) => {
   return { node, parsed: definition.schema.safeParse(node.settings) }
 }
 
-describe.each(['products_slider', 'products_grid', 'featured_products'])('%s, version 1 to 2', (type) => {
+describe.each(['products_slider', 'products_grid', 'featured_products'])('%s, from version 1', (type) => {
   it('turns the ordering, category and size of a rail into the descriptor of what it lists', () => {
     const { node, parsed } = upgraded(type, { ordering: 'popular', categoryId: 4, pageSize: 6, heading: 'Για σένα', showAddToCart: false })
 
-    expect(node.type).toBe(`${type}@2`)
+    expect(node.type).toBe(`${type}@3`)
     expect(node.settings).toEqual({
       heading: 'Για σένα',
       showAddToCart: false,
@@ -42,10 +43,11 @@ describe.each(['products_slider', 'products_grid', 'featured_products'])('%s, ve
     expect((node.settings.products as { ordering: string }).ordering).toBe(current)
   })
 
-  it('keeps the title and the words of the band, which a store may translate', () => {
+  it('keeps the words of the band, which a store may translate, under one heading', () => {
     const { node } = upgraded(type, { title: 'Τίτλος', heading: 'Επικεφαλίδα', subheading: 'Υπότιτλος', ctaText: 'Όλα', ctaLink: { route: '/offers' }, surface: 'muted' })
 
-    expect(node.settings).toMatchObject({ title: 'Τίτλος', heading: 'Επικεφαλίδα', subheading: 'Υπότιτλος', ctaText: 'Όλα', ctaLink: { route: '/offers' }, surface: 'muted' })
+    expect(node.settings).toMatchObject({ heading: 'Επικεφαλίδα', subheading: 'Υπότιτλος', ctaText: 'Όλα', ctaLink: { route: '/offers' }, surface: 'muted' })
+    expect(node.settings).not.toHaveProperty('title')
   })
 
   it('leaves out what version 1 left out, with the ordering and size the component drew', () => {

@@ -3,10 +3,9 @@ import * as z from 'zod'
 /** A picture beside a text, with bullets and spec cards under it. `emphasis` is a substring of `body` set in the emphasis weight, not markup: an HTML setting would be an injection surface for one bold phrase. */
 export default defineBlock({
   type: 'media_text',
-  version: 1,
+  version: 2,
   kinds: ['section'],
   schema: z.object({
-    title: builderField.text(200).optional(),
     surface: builderField.surface().optional(),
     heading: builderField.text(200).optional(),
     body: builderField.text(5000).optional(),
@@ -19,10 +18,11 @@ export default defineBlock({
     ctaLink: builderField.link().optional(),
     decor: z.enum(['none', 'orbs', 'gradient']).optional(),
   }),
-  translatable: ['/title', '/heading', '/body', '/eyebrow', '/note', '/emphasis', '/ctaText'],
+  translatable: ['/heading', '/body', '/eyebrow', '/note', '/emphasis', '/ctaText'],
+  upgrade: { 1: upgradeTitleIntoHeading },
   limits: { maxBlocks: 10 },
   children: { allowed: ['bullet', 'spec_card'], maxDepth: 2 },
   childList: { bullet: 'bullets', spec_card: 'specs' },
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
-  editor: { title: ['heading', 'title'], category: 'content' },
+  editor: { title: ['heading'], category: 'content' },
 })

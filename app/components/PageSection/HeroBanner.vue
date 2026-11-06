@@ -14,8 +14,6 @@
  * explicit dimensions.
  */
 const props = withDefaults(defineProps<{
-  /** The operator's section title; `heading` wins when both are set. */
-  title?: string
   heading?: string
   subheading?: string
   eyebrow?: string
@@ -41,7 +39,6 @@ const localePath = useLocalePath()
 const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 
-const label = computed(() => props.heading || props.title)
 const hasImage = computed(() => !!props.imageUrl)
 
 const artwork = computed(() =>
@@ -61,7 +58,7 @@ const centred = computed(() => props.align === 'center')
 
 /** A hero with neither copy nor artwork is not a band. */
 const hasContent = computed(
-  () => hasImage.value || !!label.value || !!props.subheading,
+  () => hasImage.value || !!props.heading || !!props.subheading,
 )
 </script>
 
@@ -80,7 +77,7 @@ const hasContent = computed(
     <template v-if="hasImage">
       <ImgWithFallback
         :src="artwork"
-        :alt="imageAlt || label || ''"
+        :alt="imageAlt || heading || ''"
         :width="isMobileOrTablet ? 768 : 1536"
         :height="isMobileOrTablet ? 960 : 640"
         sizes="xs:100vw"
@@ -139,7 +136,7 @@ const hasContent = computed(
       </p>
 
       <h1
-        v-if="label"
+        v-if="heading"
         :class="[
           `
             font-display max-w-3xl text-4xl font-semibold tracking-tight
@@ -150,7 +147,7 @@ const hasContent = computed(
           inverted ? 'text-white' : 'text-highlighted',
         ]"
       >
-        {{ label }}
+        {{ heading }}
       </h1>
 
       <p
