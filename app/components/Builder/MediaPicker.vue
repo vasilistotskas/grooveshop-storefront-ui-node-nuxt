@@ -29,7 +29,7 @@ watch(search, () => {
 })
 
 // Its own key: pickers of one page share a call site and a query, and a shared key would keep the first one's `enabled`.
-const { data: library, status, refresh } = useLazyApi('/api/builder/media', {
+const { data: library, status, error: libraryError, refresh } = useLazyApi('/api/builder/media', {
   key: `builder-media-library-${useId()}`,
   query: computed(() => ({
     page: page.value,
@@ -37,6 +37,11 @@ const { data: library, status, refresh } = useLazyApi('/api/builder/media', {
     ...(search.value && { search: search.value }),
   })),
   enabled: open,
+})
+
+// Django answers 404 past the end of the list, whatever emptied the last page: a deletion, an edit that left the search, another member of staff.
+watch(libraryError, (failure) => {
+  if (failure?.statusCode === 404 && page.value > 1) page.value -= 1
 })
 
 /** The image being looked at, and the alt text being written for it, by language. */
@@ -106,9 +111,7 @@ async function remove(): Promise<void> {
     await $api(`/api/builder/media/${id}`, { method: 'DELETE' })
     current.value = undefined
     emit('remove', id)
-    // The last image of the last page leaves that page empty: Django answers 404 past the end, so step back.
-    if (page.value > 1 && library.value?.results.length === 1) page.value -= 1
-    else await refresh()
+    await refresh()
   }
   catch (error) {
     // A published page still uses it: Django names the documents, and the editor says which.
@@ -195,6 +198,7 @@ function use(): void {
               :class="current?.id === asset.id ? 'ring-2 ring-primary' : 'ring-default'"
               :aria-label="builderMediaName(asset.path)"
               :aria-pressed="current?.id === asset.id"
+              :disabled="busy"
               @click="() => { current = asset }"
             >
               <ImgWithFallback

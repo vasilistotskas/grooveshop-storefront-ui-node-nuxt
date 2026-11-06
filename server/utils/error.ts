@@ -194,6 +194,18 @@ export function handleError(event: RequestEvent, error: unknown): never {
   rejectError(event, error)
 }
 
+/**
+ * The `onResponse` of a route that PIPES Django's reply (`proxyRequest`), which
+ * `handleError` never sees: a refusal goes through as Django wrote it, but a 5xx
+ * body never reaches the browser, so the reply is dropped and the request fails
+ * here with its status.
+ */
+export function refuseUpstreamFault(response: Response): void {
+  if (response.status < 500) return
+  void response.body?.cancel().catch(() => undefined)
+  throw createError({ status: response.status, statusText: 'Upstream error' })
+}
+
 // A few routes document a 5xx answer of their own, such as the cancel
 // route's 503 ``courier_unreachable``: the courier gave no answer and
 // the client tells the shopper to try again later. Such a body is

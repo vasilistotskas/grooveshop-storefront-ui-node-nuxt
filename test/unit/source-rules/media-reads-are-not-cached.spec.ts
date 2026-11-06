@@ -18,7 +18,7 @@ import { REPO, withoutComments } from '../../helpers/sourceText'
  */
 const DIR = 'server/utils/builderData'
 const CACHED_CALL = /\b(?:cachedRead|defineCachedFunction)\s*\(/g
-const FORBIDDEN = /staff-resolve|preview-media|staffHeaders|shareToken/
+const FORBIDDEN = /staff-resolve|preview-media|staffHeaders|shareToken|readStaffMedia|readSharedMedia/
 
 /** The text of the call whose `(` is at `open`: up to its matching `)`. */
 function callBody(source: string, open: number): string {

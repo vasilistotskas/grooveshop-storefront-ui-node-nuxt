@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import { UApp } from '#components'
 import BuilderMediaField from '~/components/Builder/MediaField.vue'
 import { failWith } from '~~/test/helpers/api'
@@ -76,6 +76,22 @@ describe('BuilderMediaField', () => {
     expect(wrapper.text()).toContain('Αφαίρεση')
   })
 
+  it('says when it could not read the image, and reads it again when asked', async () => {
+    api.routes({ [ONE]: failWith(503) })
+
+    const { wrapper } = await mount(4)
+
+    expect(wrapper.text()).toContain('Η εικόνα δεν μπόρεσε να διαβαστεί.')
+    expect(wrapper.text()).not.toContain('Δεν είναι πια διαθέσιμη')
+
+    api.routes({ [ONE]: hero })
+    button('Δοκιμάστε ξανά')!.click()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('hero.jpg')
+    expect(wrapper.text()).not.toContain('Η εικόνα δεν μπόρεσε να διαβαστεί.')
+  })
+
   it('clears the setting, with a control named after it', async () => {
     const { updates } = await mount(4)
 
@@ -103,6 +119,35 @@ describe('BuilderMediaField', () => {
     await flushPromises()
 
     expect(updates).toEqual([8])
+  })
+
+  it('shows the image chosen once the setting holds it, and asks nothing more of the one it replaced', async () => {
+    api.routes({ [ONE]: hero, [`${LIBRARY}/8`]: banner, [LIBRARY]: { count: 2, results: [hero, banner] } })
+    const value = ref<number | undefined>(4)
+    const wrapper = await mountSuspended(defineComponent({
+      setup: () => () => h(UApp, null, {
+        default: () => h(BuilderMediaField, {
+          value: value.value,
+          label: 'Εικόνα',
+          clearable: true,
+          disabled: false,
+          onUpdate: (next: number | undefined) => { value.value = next },
+        }),
+      }),
+    }), { attachTo: document.body })
+    await flushPromises()
+
+    button('Αλλαγή εικόνας: Εικόνα')!.click()
+    await flushPromises()
+    await vi.waitFor(() => expect(button('banner.png')).not.toBeUndefined())
+    button('banner.png')!.click()
+    await flushPromises()
+    button('Χρήση αυτής της εικόνας')!.click()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('banner.png')
+    expect(api.callsTo(`${LIBRARY}/8`)).toHaveLength(1)
+    expect(api.callsTo(ONE)).toHaveLength(1)
   })
 
   describe('deleting from the library', () => {

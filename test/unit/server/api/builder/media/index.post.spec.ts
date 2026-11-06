@@ -34,6 +34,16 @@ describe('POST /api/builder/media', () => {
     expect(backend.lastRequest.headers.get('x-forwarded-proto')).toBe('https')
   })
 
+  it('fails on a Django fault and passes none of its body on', async () => {
+    const cookie = await signInBuilderStaff()
+    backend.replyOnce(jsonResponse({ detail: 'a stack trace' }, 500))
+
+    const response = await upload(cookie)
+
+    expect(response.status).toBe(500)
+    expect(JSON.stringify(response.body)).not.toContain('a stack trace')
+  })
+
   it('streams the body without reading it first', async () => {
     const cookie = await signInBuilderStaff()
     // A real node request stream: h3 hands it on as a web stream only under streamRequest.

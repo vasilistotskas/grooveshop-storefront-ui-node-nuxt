@@ -26,6 +26,10 @@ const { data: asset, error, refresh } = useLazyApi(() => `/api/builder/media/${i
 
 /** Whether the library no longer has the image: the page shows that block without one. */
 const unavailable = computed(() => id.value !== undefined && error.value?.statusCode === 404)
+/** Why the image could not be read, when the library did not simply say it is gone. */
+const failure = computed(() => id.value !== undefined && error.value && !unavailable.value
+  ? describeApiError(error.value, { fallback: t('unreadable') }).description
+  : undefined)
 const name = computed(() => asset.value ? builderMediaName(asset.value.path) : t('image', { id: id.value }))
 
 /** The library deleted an image: if the setting holds it, it holds nothing (publishing would be refused). */
@@ -33,9 +37,9 @@ function forget(removed: number): void {
   if (removed === id.value) emit('update', undefined)
 }
 
+// The lookup follows the setting: once the new id comes back as `value`, its address changes and it asks.
 function choose(chosen: Asset): void {
   emit('update', chosen.id)
-  void refresh()
 }
 </script>
 
@@ -69,6 +73,23 @@ function choose(chosen: Asset): void {
         class="size-3.5 shrink-0"
       />
       {{ t('unavailable') }}
+    </p>
+    <p
+      v-if="failure"
+      class="flex flex-wrap items-center gap-1 text-xs text-error"
+    >
+      <UIcon
+        name="i-lucide-cloud-off"
+        class="size-3.5 shrink-0"
+      />
+      {{ failure }}
+      <UButton
+        color="neutral"
+        variant="link"
+        size="xs"
+        :label="t('retry')"
+        @click="() => refresh()"
+      />
     </p>
     <div class="flex flex-wrap gap-2">
       <UButton
@@ -112,6 +133,8 @@ el:
   clear: Αφαίρεση
   clearOf: "Αφαίρεση εικόνας: {name}"
   unavailable: Δεν είναι πια διαθέσιμη· η ενότητα εμφανίζεται χωρίς εικόνα.
+  unreadable: Η εικόνα δεν μπόρεσε να διαβαστεί.
+  retry: Δοκιμάστε ξανά
 en:
   image: "Image #{id}"
   choose: Choose an image
@@ -121,4 +144,6 @@ en:
   clear: Remove
   clearOf: "Remove the image: {name}"
   unavailable: No longer available; the section shows without an image.
+  unreadable: The image could not be read.
+  retry: Try again
 </i18n>

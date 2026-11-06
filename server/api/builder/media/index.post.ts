@@ -8,7 +8,7 @@ import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
  * through to Django's `POST builder/media`, which answers the asset (the one
  * already there, with `duplicate: true`, when the same image is uploaded
  * again). Django's refusals (not an image, too large) reach the editor as
- * they are.
+ * they are; a fault does not (`refuseUpstreamFault`).
  *
  * It PROXIES instead of parsing, for the reason `contact/attachment.post.ts`
  * does (the body is never read into this process, and so is not checked
@@ -33,8 +33,9 @@ export default defineEventHandler(async (event) => {
       'X-Forwarded-Host': requestTenantHost(event),
       'X-Language': requestLocale(event),
     },
-    onResponse: (proxied) => {
+    onResponse: (proxied, response) => {
       setResponseHeader(proxied, 'Cache-Control', 'private, no-store')
+      refuseUpstreamFault(response)
     },
   })
 })

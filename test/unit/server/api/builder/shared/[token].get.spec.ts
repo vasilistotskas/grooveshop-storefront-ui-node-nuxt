@@ -107,7 +107,7 @@ describe('GET /api/builder/shared/<token>', () => {
 
     const { body } = await open()
 
-    const page = (body as BuilderPreviewResponse).pages['page:home'] ?? (body as BuilderPreviewResponse).pages['template:home']
+    const page = (body as BuilderPreviewResponse).pages['page:home']
     expect(page?.sections[0]?.props.image).toEqual({ status: 'ok', value: expect.objectContaining({ id: 12 }) })
     const read = backend.requests.find(request => request.path === `${API}/builder/preview-media/${TOKEN}`)!
     expect(read.url.searchParams.get('ids')).toBe('12')

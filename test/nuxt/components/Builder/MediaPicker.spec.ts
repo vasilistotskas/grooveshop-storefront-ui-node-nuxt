@@ -215,28 +215,80 @@ describe('BuilderMediaPicker', () => {
     expect(button('Αποθήκευση κειμένου')).toBeUndefined()
   })
 
-  it('steps back a page when the last image of the last page is deleted', async () => {
-    const onlyOnLast = (_url: string, options: { query?: { page?: number } }) =>
+  describe('when the page it is on no longer exists', () => {
+    const paged = (_url: string, options: { query?: { page?: number } }) =>
       options.query?.page === 2 ? { count: 25, results: [banner] } : { count: 25, results: [hero] }
-    api.routes({ [LIBRARY]: onlyOnLast })
+    const pageTwoGone = (url: string, options: { query?: { page?: number } }) =>
+      options.query?.page === 2 ? failWith(404, { detail: 'Invalid page.' })() : paged(url, options)
+
+    async function onPageTwo() {
+      api.routes({ [LIBRARY]: paged })
+      await mount()
+      all<HTMLButtonElement>('nav button').find(node => node.textContent?.trim() === '2')!.click()
+      await flushPromises()
+      await look('banner.png')
+    }
+
+    it('steps back a page when the last image of the last page is deleted', async () => {
+      await onPageTwo()
+      api.routes({ [LIBRARY]: pageTwoGone, [`${LIBRARY}/8`]: null })
+
+      button('Διαγραφή')!.click()
+      await flushPromises()
+      button('Επιβεβαίωση διαγραφής')!.click()
+      await flushPromises()
+
+      expect(api.callsTo(LIBRARY).at(-1)!.options.query.page).toBe(1)
+      expect(all('ul button').map(node => node.getAttribute('aria-label'))).toEqual(['hero.jpg'])
+    })
+
+    it('steps back a page when saved alt text takes the last match off it', async () => {
+      await onPageTwo()
+      api.routes({ [LIBRARY]: pageTwoGone, [`${LIBRARY}/8`]: makeAsset({ id: 8, path: banner.path, alt: { el: 'Πανό', en: '' } }) })
+
+      await typeInto(field('Εναλλακτικό κείμενο (Ελληνικά)'), 'Πανό')
+      button('Αποθήκευση κειμένου')!.click()
+      await flushPromises()
+
+      expect(api.callsTo(LIBRARY).at(-1)!.options.query.page).toBe(1)
+      expect(all('ul button').map(node => node.getAttribute('aria-label'))).toEqual(['hero.jpg'])
+    })
+
+    it('stays and offers to try again when the first page itself is not found', async () => {
+      api.routes({ [LIBRARY]: failWith(404, { detail: 'Not found.' }) })
+
+      await mount()
+
+      expect(api.callsTo(LIBRARY).every(call => call.options.query.page === 1)).toBe(true)
+      expect(api.callsTo(LIBRARY)).toHaveLength(1)
+    })
+  })
+
+  it('locks the library while a change is being made, so its answer cannot replace another image', async () => {
     await mount()
-    all<HTMLButtonElement>('nav button').find(node => node.textContent?.trim() === '2')!.click()
-    await flushPromises()
-    await look('banner.png')
-    api.routes({ [LIBRARY]: onlyOnLast, [`${LIBRARY}/8`]: null })
+    await look('hero.jpg')
+    let answer!: (asset: Asset) => void
+    const pending = new Promise<Asset>((resolve) => {
+      answer = resolve
+    })
+    api.routes({ [LIBRARY]: LISTED, [`${LIBRARY}/4`]: () => pending })
 
-    button('Διαγραφή')!.click()
-    await flushPromises()
-    button('Επιβεβαίωση διαγραφής')!.click()
+    await typeInto(field('Εναλλακτικό κείμενο (Ελληνικά)'), 'Νέο')
+    button('Αποθήκευση κειμένου')!.click()
     await flushPromises()
 
-    expect(api.callsTo(LIBRARY).at(-1)!.options.query.page).toBe(1)
+    expect(button('banner.png')!.disabled).toBe(true)
+
+    answer(hero)
+    await flushPromises()
+
+    expect(button('banner.png')!.disabled).toBe(false)
   })
 
   it('asks twice before it deletes, and names the pages that use an image Django refuses to delete', async () => {
     await mount()
     await look('hero.jpg')
-    api.routes({ [LIBRARY]: LISTED, [`${LIBRARY}/4`]: failWith(409, { detail: 'In use.', code: 'media_in_use', usedBy: ['page:home'] }) })
+    api.routes({ [LIBRARY]: LISTED, [`${LIBRARY}/4`]: failWith(409, { detail: 'In use.', code: 'media_in_use', usedBy: ['page:about'] }) })
 
     button('Διαγραφή')!.click()
     await flushPromises()
@@ -246,6 +298,7 @@ describe('BuilderMediaPicker', () => {
 
     expect(api.callsTo(`${LIBRARY}/4`)[0]!.options.method).toBe('DELETE')
     expect(document.body.textContent).toContain('Η εικόνα χρησιμοποιείται σε δημοσιευμένες σελίδες')
+    expect(document.body.textContent).toContain('about')
     expect(button('Επιβεβαίωση διαγραφής')).toBeUndefined()
   })
 })
