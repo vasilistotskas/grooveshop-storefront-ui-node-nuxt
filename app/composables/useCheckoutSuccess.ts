@@ -21,22 +21,21 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   // the first await: after one, the server has lost the injection context
   // Pinia needs, and a hook has no component instance to belong to.
   const blogEnabled = useStoreFeature('blog')
-  const route = useRoute(`checkout-success-uuid___${locale.value}`)
-  const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
-
-  if (!orderUUID || typeof orderUUID !== 'string') {
-    throw createError({ statusCode: 404, statusMessage: 'Missing order UUID' })
+  const arrival = readCheckoutArrival()
+  if (!arrival) {
+    throw createError({ statusCode: 404, statusMessage: 'Missing order UUID', fatal: true })
   }
+  const orderUUID: string = arrival.orderUuid
 
-  const sessionId = computed(() => route.query.session_id as string | undefined)
-  const vivaOrderCode = computed(() => route.query.s as string | undefined)
+  const sessionId = computed(() => arrival.sessionId)
+  const vivaOrderCode = computed(() => arrival.vivaOrderCode)
   const fromViva = computed(() => !!vivaOrderCode.value)
-  // Offline pay-ways (COD) navigate here with ``?placed=1`` — there is no
+  // Offline pay-ways (COD) navigate here with ``placed`` — there is no
   // provider redirect param to key on, but the purchase pixels (Meta +
   // GA4) and the cart cleanup still need the "arrived via a real
   // checkout" signal. Unlike the online params it must NOT trigger the
   // payment-status polling below: a COD order is legitimately unpaid.
-  const placedOffline = computed(() => route.query.placed === '1')
+  const placedOffline = computed(() => arrival.placed === true)
   const fromCheckout = computed(
     () => !!sessionId.value || fromViva.value || placedOffline.value,
   )
@@ -136,10 +135,10 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   const googleAds = useGoogleAds()
   const purchaseEventFired = ref(false)
   function tryFirePurchaseEvent() {
-    if (!order.value || purchaseEventFired.value) return
+    if (!order.value || purchaseEventFired.value || isPurchaseReported(orderUUID)) return
     // Purchase is only meaningful when the customer landed here via a
-    // real checkout flow (not a deep-link to /checkout/success/<uuid>
-    // from history). Gate on ``fromCheckout`` so direct revisits don't
+    // real checkout flow (not a revisit of an older link to the order).
+    // Gate on ``fromCheckout`` so direct revisits don't
     // re-fire the event.
     if (!fromCheckout.value) return
     // Only fire after the Django side has minted an event_id (i.e.
@@ -247,6 +246,7 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
         newCustomer: order.value.isFirstOrder,
       })
       purchaseEventFired.value = true
+      markPurchaseReported(orderUUID)
     }
     catch (pixelErr) {
       log.warn(

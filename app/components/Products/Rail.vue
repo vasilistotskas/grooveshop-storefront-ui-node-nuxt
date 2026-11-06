@@ -15,6 +15,11 @@ withDefaults(defineProps<{
   showAddToCart: true,
 })
 
+defineSlots<{
+  /** What each slide draws, for a design with its own card. A slide is no list, so its root is not an `<li>`. */
+  card?(props: { product: ProductCard, showAddToCart: boolean }): unknown
+}>()
+
 const { isMobileOrTablet } = useDevice()
 
 /**
@@ -24,8 +29,21 @@ const { isMobileOrTablet } = useDevice()
  * 1440). A third of the way down centres them on the product IMAGE
  * rather than the whole card, whose lower half is text and a buy
  * button.
+ *
+ * The rail's gaps are its items' own `px-2`, taken back by the `-mx-2` on
+ * the carousel. The theme's own gaps are `ps-4` on the items, which `px-2`
+ * replaces, and `-ms-4` on the container, which nothing replaced until
+ * `ms-0` here: it pulled the first card 16px left of the heading, and the
+ * viewport cut off 8px of it.
+ *
+ * The viewport clips, so it takes room above and below for a design's card
+ * that grows and casts a shadow on hover, and gives it back to the layout.
+ * The items stretch, so a card that fills its slide lines up with its
+ * neighbours when one of them says more (a sold-out product's restock alert).
  */
 const carouselUi = {
+  viewport: '-my-3 py-3',
+  container: 'ms-0 items-stretch',
   item: `
     basis-[78%] px-2
     sm:basis-1/2
@@ -60,10 +78,17 @@ const arrowButton = {
     :next="arrowButton"
     class="-mx-2"
   >
-    <ProductCard
-      as="div"
+    <slot
+      name="card"
       :product="item"
-      :show-add-to-cart-button="showAddToCart"
-    />
+      :show-add-to-cart="showAddToCart"
+    >
+      <ProductCard
+        as="div"
+        class="h-full"
+        :product="item"
+        :show-add-to-cart-button="showAddToCart"
+      />
+    </slot>
   </UCarousel>
 </template>

@@ -227,11 +227,8 @@ describe('useCheckoutSubmit', () => {
         expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
         expect(cart.cart).toBeNull()
         expect(m.sessionFetch).toHaveBeenCalled()
-        expect(m.navigateTo).toHaveBeenCalledWith({
-          name: 'checkout-success-uuid',
-          params: { uuid: 'order-free' },
-          query: { placed: '1' },
-        })
+        expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success' })
+        expect(readCheckoutArrival()).toEqual({ orderUuid: 'order-free', placed: true })
         expect(m.toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: t('order_created_payment_required') }))
       },
     )
@@ -459,11 +456,8 @@ describe('useCheckoutSubmit', () => {
       expect(m.sessionFetch).toHaveBeenCalled()
       // ``placed=1`` gates the success page's purchase pixels and cart
       // cleanup; offline pay-ways have no provider redirect param.
-      expect(m.navigateTo).toHaveBeenCalledWith({
-        name: 'checkout-success-uuid',
-        params: { uuid: 'order-cod' },
-        query: { placed: '1' },
-      })
+      expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success' })
+      expect(readCheckoutArrival()).toEqual({ orderUuid: 'order-cod', placed: true })
       expect(m.releaseReservations).not.toHaveBeenCalled()
       // The success page is the confirmation: no toast beside it.
       expect(m.toastAdd).not.toHaveBeenCalled()
@@ -703,7 +697,8 @@ describe('useCheckoutSubmit', () => {
       expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
       expect(cart.cart).toBeNull()
       expect(m.sessionFetch).toHaveBeenCalled()
-      expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success-uuid', params: { uuid: 'order-paid' } })
+      expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success' })
+      expect(readCheckoutArrival()).toEqual({ orderUuid: 'order-paid' })
     })
 
     it('does nothing on a success with no order behind it', async () => {

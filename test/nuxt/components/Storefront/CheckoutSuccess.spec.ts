@@ -34,21 +34,26 @@ mockNuxtImport('useRequestApi', () => () => api)
 const { route } = vi.hoisted(() => ({
   route: { params: { uuid: '' } as Record<string, string>, query: {} as Record<string, string> },
 }))
-mockNuxtImport('useRoute', () => () => ({
-  ...route,
-  path: `/checkout/success/${route.params.uuid}`,
-  fullPath: `/checkout/success/${route.params.uuid}`,
-  name: 'checkout-success-uuid___el',
-  hash: '',
-  matched: [],
-  meta: {},
-}))
+// The arrival a shopper's history entry holds (`app/utils/checkoutArrival.ts`).
+mockNuxtImport('readCheckoutArrival', () => () => route.params.uuid
+  ? {
+      orderUuid: route.params.uuid,
+      sessionId: route.query.session_id,
+      vivaOrderCode: route.query.s,
+      placed: route.query.placed === '1',
+    }
+  : undefined)
 
 // The purchase pixels are not what this suite is about; stubbed so a
 // mount never loads a vendor script.
-const { pixel } = vi.hoisted(() => ({
-  pixel: () => ({ trackPurchase: vi.fn(), trackCompletePayment: vi.fn(), trackOrderCreated: vi.fn() }),
-}))
+const { pixel, tiktokPurchase } = await vi.hoisted(async () => {
+  const { vi } = await import('vitest')
+  const tiktokPurchase = vi.fn()
+  return {
+    tiktokPurchase,
+    pixel: () => ({ trackPurchase: vi.fn(), trackCompletePayment: tiktokPurchase, trackOrderCreated: vi.fn() }),
+  }
+})
 mockNuxtImport('useMetaPixel', () => pixel)
 mockNuxtImport('useTikTokPixel', () => pixel)
 mockNuxtImport('useOpenAIPixel', () => pixel)
@@ -270,6 +275,30 @@ describe.each([
       expect(refreshes()).toBe(0)
       expect(wrapper.text()).toContain(messages.payment.on_delivery.title)
       expect(wrapper.text()).not.toContain(messages.verifying.payment)
+    })
+
+    it('reports the purchase of a real arrival', async () => {
+      localStorage.clear()
+      route.query = { placed: '1' }
+      serveOrders(order({ payWayKey: 'PAY_ON_DELIVERY', isCollectedOnDelivery: true, metaEventIds: { purchase: 'event-1' } }))
+
+      await mount()
+      await flushPromises()
+
+      expect(tiktokPurchase).toHaveBeenCalledOnce()
+    })
+
+    // TikTok and OpenAI do not dedup: a reload must not count the sale again.
+    it('does not report it again when this browser already did', async () => {
+      localStorage.clear()
+      markPurchaseReported(UUID)
+      route.query = { placed: '1' }
+      serveOrders(order({ payWayKey: 'PAY_ON_DELIVERY', isCollectedOnDelivery: true, metaEventIds: { purchase: 'event-1' } }))
+
+      await mount()
+      await flushPromises()
+
+      expect(tiktokPurchase).not.toHaveBeenCalled()
     })
 
     it('neither polls nor claims a payment state on a direct revisit', async () => {

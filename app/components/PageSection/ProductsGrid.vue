@@ -10,6 +10,9 @@
  * The whole band disappears when the list comes back empty: its block
  * declares that, and a heading over nothing is what a brand-new store used
  * to show.
+ *
+ * A design with its own product card draws the list through the `list` slot:
+ * the band stays this one, and the card keeps the columns it was laid out for.
  */
 const props = withDefaults(defineProps<{
   heading?: string
@@ -23,6 +26,10 @@ const props = withDefaults(defineProps<{
 }>(), {
   showAddToCart: true,
 })
+
+defineSlots<{
+  list?(props: { items: readonly ProductCard[], showAddToCart: boolean }): unknown
+}>()
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
@@ -41,20 +48,26 @@ const label = computed(
     :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('products')"
     :surface="surface"
   >
-    <UPageGrid
-      as="ul"
-      class="
-        grid-cols-2 gap-3.5
-        lg:grid-cols-4 lg:gap-6
-      "
+    <slot
+      name="list"
+      :items="products.items"
+      :show-add-to-cart="showAddToCart"
     >
-      <ProductCard
-        v-for="product in products.items"
-        :key="product.id"
-        :product="product"
-        :show-add-to-cart-button="showAddToCart"
-      />
-    </UPageGrid>
+      <UPageGrid
+        as="ul"
+        class="
+          grid-cols-2 gap-3.5
+          lg:grid-cols-4 lg:gap-6
+        "
+      >
+        <ProductCard
+          v-for="product in products.items"
+          :key="product.id"
+          :product="product"
+          :show-add-to-cart-button="showAddToCart"
+        />
+      </UPageGrid>
+    </slot>
   </PageSectionBand>
 </template>
 

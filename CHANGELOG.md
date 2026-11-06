@@ -1,3 +1,31 @@
+# [3.328.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.327.1...v3.328.0) (2026-11-06)
+
+
+### Features
+
+* **builder:** webside's bands of products draw webside's own card ([#404](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/404)) ([7163578](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7163578c97c58bcc4b46c8da8429ce998a7f6d47))
+
+## [3.327.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.327.0...v3.327.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **pricing:** webside's product card states the prior price of a reduction ([#406](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/406)) ([d05a503](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d05a503b22787ae43df4129df241b67fc588f1a2))
+
+# [3.327.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.2...v3.327.0) (2026-11-06)
+
+
+### Features
+
+* **builder:** a block upgrade moves a setting's translations with it ([#402](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/402)) ([9a4e562](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9a4e56226bbc1b102fe34b72038212e81567142d))
+
+## [3.326.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.1...v3.326.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* **privacy:** no tracker sees an address that holds a secret ([#403](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/403)) ([fb67279](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fb67279f5a115bf760ea246a7aa1ad7721ada4cc))
+
 ## [3.326.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.0...v3.326.1) (2026-11-06)
 
 

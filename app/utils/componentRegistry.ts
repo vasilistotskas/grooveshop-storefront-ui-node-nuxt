@@ -115,6 +115,9 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'hero_carousel@webside': eagerSection(() => import('~/components/variants/webside/PageSection/HeroCarousel.vue')),
   'recently_viewed@webside': idleSection(() => import('~/components/variants/webside/PageSection/RecentlyViewed.vue')),
   'blog_posts_list@webside': lazySection(() => import('~/components/variants/webside/PageSection/BlogPostsList.vue')),
+  'products_slider@webside': lazySection(() => import('~/components/variants/webside/PageSection/ProductsSliderBand.vue')),
+  'products_grid@webside': lazySection(() => import('~/components/variants/webside/PageSection/ProductsGridBand.vue')),
+  'featured_products@webside': lazySection(() => import('~/components/variants/webside/PageSection/ProductsGridBand.vue')),
 }
 
 /**
