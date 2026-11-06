@@ -14,7 +14,9 @@ import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/se
  * that is not published is hidden, as it would be until that page is.
  *
  * Staff only (STAFF included, who may look), never cached: the answer is one
- * staff member's unsaved work.
+ * staff member's unsaved work. The staff member's credentials also go to the
+ * image read, so a draft shows an image nobody has published
+ * (`GET builder/media/staff-resolve`, uncached); no other route passes them.
  */
 export default defineEventHandler(async (event): Promise<BuilderPreviewResponse> => {
   const config = useRuntimeConfig()
@@ -27,7 +29,7 @@ export default defineEventHandler(async (event): Promise<BuilderPreviewResponse>
       headers,
       body: { pageKey: parseBuilderDocumentKey(pageKey).name, locale: requestLocale(event), documents },
     }).then(response => parseDataAs(response, zApiV1BuilderPreviewResolveCreateResponse))
-    const preview = await builderPreviewOf(event, pageKey, resolving, { keepHidden: true })
+    const preview = await builderPreviewOf(event, pageKey, resolving, { keepHidden: true, staffHeaders: headers })
     event.res.headers.set('Cache-Control', 'private, no-store')
     return preview
   }

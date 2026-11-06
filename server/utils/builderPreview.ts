@@ -19,7 +19,7 @@ export async function builderPreviewOf(
   event: RequestEvent,
   documentKey: string,
   resolving: Promise<Pick<PublishedPage, 'page' | 'groups'>>,
-  options: { keepHidden?: boolean } = {},
+  options: BuilderReadOptions = {},
 ): Promise<BuilderPreviewResponse> {
   const tenantHost = requestTenantHost(event)
   const [resolved, targets] = await Promise.all([

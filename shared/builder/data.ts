@@ -23,6 +23,11 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
 /** Whether `kind` is one a page reads by id (`DATA_RECORD_KINDS`). */
 export const isDataRecordKind = (kind: string): kind is DataRecordKind => (DATA_RECORD_KINDS as readonly string[]).includes(kind)
 
+/** One value for every kind a page reads by id (`DATA_RECORD_KINDS`). */
+function perKind<T>(make: (kind: DataRecordKind) => T): Record<DataRecordKind, T> {
+  return Object.fromEntries(DATA_RECORD_KINDS.map(kind => [kind, make(kind)])) as Record<DataRecordKind, T>
+}
+
 /** A hand-picked list: the merchant's ids, in the merchant's order. */
 function pickedIds(value: unknown): number[] | undefined {
   if (!isObject(value) || value.mode !== 'picked' || !Array.isArray(value.ids)) return undefined
@@ -105,7 +110,7 @@ export function dataSites(document: BuilderDocument, registry: ReadonlyMap<strin
  * answers it `failed`.
  */
 export function planData(sites: readonly DataSite[]): DataPlan {
-  const ids: Record<DataRecordKind, Set<number>> = { product: new Set(), blogPost: new Set(), category: new Set(), blogCategory: new Set() }
+  const ids = perKind(() => new Set<number>())
   const queries = new Map<string, QueryDemand>()
   for (const { declaration, value } of sites) {
     if (declaration.field === 'ref') {
@@ -123,7 +128,7 @@ export function planData(sites: readonly DataSite[]): DataPlan {
   }
   const sorted = (set: Set<number>) => [...set].sort((a, b) => a - b)
   return {
-    ids: { product: sorted(ids.product), blogPost: sorted(ids.blogPost), category: sorted(ids.category), blogCategory: sorted(ids.blogCategory) },
+    ids: perKind(kind => sorted(ids[kind])),
     queries,
   }
 }

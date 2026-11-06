@@ -3,13 +3,15 @@ import { useRuntimeConfig } from 'nuxt/server'
 import type { z } from 'zod'
 
 import { hashedCacheKey } from '../cacheKey'
-import { blogCategoryQuery, blogPostQuery, categoryQuery, idQueries, productQuery, promotionLimit } from './queries'
+import { blogCategoryQuery, blogPostQuery, categoryQuery, idQueries, mediaQueries, productQuery, promotionLimit } from './queries'
 import type { DjangoQuery } from './queries'
 
 /** The store and language a read is for: a cached function has no request, so both travel as arguments and key the entry. */
 export interface LoaderContext {
   tenantHost: string
   locale: string
+  /** The editor's preview alone (`BuilderReadOptions`): the media loader then reads any asset of the library, uncached. */
+  staffHeaders?: Readonly<Record<string, string>>
 }
 
 /**
@@ -41,13 +43,13 @@ export function cachedRead<Schema extends z.ZodType>(
   name: string,
   path: string,
   schema: Schema,
-  { localized = true }: { localized?: boolean } = {},
+  { localized = true, localeKey = 'languageCode' }: { localized?: boolean, localeKey?: string } = {},
 ) {
   return defineCachedFunction(
     async (tenantHost: string, locale: string, query: DjangoQuery): Promise<z.output<Schema>> => {
       const response = await backendFetchFor({ tenantHost, locale })(`${useRuntimeConfig().apiBaseUrl}${path}`, {
         method: 'GET',
-        query: localized ? { ...query, languageCode: locale } : query,
+        query: localized ? { ...query, [localeKey]: locale } : query,
       })
       return parseDataAs(response, schema)
     },
@@ -67,6 +69,23 @@ const readBlogPosts = cachedRead('builderDataBlogPost', '/blog/post', zListBlogP
 const readCategories = cachedRead('builderDataCategory', '/product/category', zListProductCategoryResponse)
 const readBlogCategories = cachedRead('builderDataBlogCategory', '/blog/category', zListBlogCategoryResponse)
 const readPromotions = cachedRead('builderDataPromotion', '/promotion', zListPublicPromotionsResponse)
+// Django names the language of the alt text `locale` here, and serves only the assets a release uses.
+export const readMedia = cachedRead('builderDataMedia', '/builder/media/resolve', zApiV1BuilderMediaResolveRetrieveResponse, { localeKey: 'locale' })
+
+/**
+ * The editor's preview reads any asset of the library
+ * (`GET builder/media/staff-resolve`), so a draft shows an image nobody has
+ * published. It is NEVER cached: the answer is for one staff member, and
+ * under the public entry's name it would hand an unpublished image to the
+ * next visitor. Only a preview passes the credentials (`BuilderReadOptions`).
+ */
+async function readStaffMedia({ tenantHost, locale, staffHeaders }: LoaderContext, query: DjangoQuery) {
+  const response = await backendFetchFor({ tenantHost, locale, ...(staffHeaders && { headers: { ...staffHeaders } }) })(
+    `${useRuntimeConfig().apiBaseUrl}/builder/media/staff-resolve`,
+    { method: 'GET', query: { ...query, locale } },
+  )
+  return parseDataAs(response, zApiV1BuilderMediaStaffResolveRetrieveResponse)
+}
 
 /** The slugs of the records a page links to (`GET builder/link-targets`): they do not vary by language, so the call carries none. */
 export const readLinkSlugs = cachedRead('builderDataSlug', '/builder/link-targets', zApiV1BuilderLinkTargetsRetrieveResponse, { localized: false })
@@ -75,8 +94,9 @@ export const readLinkSlugs = cachedRead('builderDataSlug', '/builder/link-target
 async function readByIds<Item>(
   read: (query: DjangoQuery) => Promise<{ results: Item[] }>,
   ids: readonly number[],
+  queries: (ids: readonly number[]) => DjangoQuery[] = idQueries,
 ): Promise<Item[]> {
-  const pages = await Promise.all(idQueries(ids).map(read))
+  const pages = await Promise.all(queries(ids).map(read))
   return pages.flatMap(page => page.results)
 }
 
@@ -91,6 +111,11 @@ export const RECORD_LOADERS: { [Kind in DataRecordKind]: (context: LoaderContext
   blogPost: ({ tenantHost, locale }, ids) => readByIds(query => readBlogPosts(tenantHost, locale, query), ids),
   category: ({ tenantHost, locale }, ids) => readByIds(query => readCategories(tenantHost, locale, query), ids),
   blogCategory: ({ tenantHost, locale }, ids) => readByIds(query => readBlogCategories(tenantHost, locale, query), ids),
+  media: (context, ids) => readByIds(
+    query => context.staffHeaders ? readStaffMedia(context, query) : readMedia(context.tenantHost, context.locale, query),
+    ids,
+    mediaQueries,
+  ),
 }
 
 const answerOf = <Item>({ results, count }: { results: Item[], count: number }): QueryAnswer<Item> => ({ items: results, total: count })

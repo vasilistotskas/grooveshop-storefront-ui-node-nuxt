@@ -12,6 +12,7 @@
  * - `color`, `icon`, `url`: the shared formats (`BUILDER_FIELD_PATTERNS`);
  * - `link`: a link setting (`linkRefs`), `{ href } | { route } | { ref }`;
  * - `record`: an id of another record (`refs`, or a `builderField.ref` data setting);
+ * - `media`: an id of an image of the media library, a `record` of kind `media`;
  * - `query`: a descriptor of a list to read (`builderField.query`), which the
  *   storefront resolves when the page is read;
  * - `list`: a list of strings;
@@ -22,7 +23,7 @@ export type BuilderSettingField
   = | BuilderTextField
     | { kind: 'choice' | 'route', path: string, pointer: SettingsPointer, required: boolean, options: readonly string[] }
     | { kind: 'number', path: string, pointer: SettingsPointer, required: boolean, integer: boolean, min?: number, max?: number }
-    | { kind: 'boolean' | 'color' | 'icon' | 'url' | 'link' | 'richText', path: string, pointer: SettingsPointer, required: boolean }
+    | { kind: 'boolean' | 'color' | 'icon' | 'url' | 'link' | 'richText' | 'media', path: string, pointer: SettingsPointer, required: boolean }
     | { kind: 'record', path: string, pointer: SettingsPointer, required: boolean, refKind: BlockRefKind }
     | { kind: 'query', path: string, pointer: SettingsPointer, required: boolean, source: DataSource, maxLimit: number }
     | { kind: 'list', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
@@ -61,6 +62,7 @@ function fieldOf(
   const refKind = data?.field === 'ref' ? data.kind : definition.refs[pointer]
   if (definition.linkRefs.includes(pointer)) return { ...base, kind: 'link' }
   if (data?.field === 'query') return { ...base, kind: 'query', source: data.source, maxLimit: data.maxLimit }
+  if (refKind === 'media') return { ...base, kind: 'media' }
   if (refKind) return { ...base, kind: 'record', refKind }
   if (schema.contentMediaType === 'text/html') return { ...base, kind: 'richText' }
   if (Array.isArray(schema.enum)) {

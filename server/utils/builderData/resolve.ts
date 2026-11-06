@@ -68,10 +68,10 @@ function logFailedRead(what: Record<string, unknown>, error: unknown): void {
 export async function resolveBuilderData(
   event: RequestEvent,
   document: BuilderDocument,
-  { keepHidden = false }: { keepHidden?: boolean } = {},
+  { keepHidden = false, staffHeaders }: BuilderReadOptions = {},
 ): Promise<{ document: BuilderDocument, issues: DataIssue[] }> {
   const sites = dataSites(document, builderBlocks)
   if (sites.length === 0) return { document, issues: [] }
-  const resolution = await readData({ tenantHost: requestTenantHost(event), locale: requestLocale(event) }, planData(sites))
+  const resolution = await readData({ tenantHost: requestTenantHost(event), locale: requestLocale(event), ...(staffHeaders && { staffHeaders }) }, planData(sites))
   return applyData(document, builderBlocks, resolution, { keepHidden })
 }

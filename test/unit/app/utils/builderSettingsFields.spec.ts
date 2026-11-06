@@ -155,9 +155,9 @@ describe('builderSettingsFields, data settings', () => {
     expect(fields.get('posts')).toMatchObject({ kind: 'query', source: 'blogPost', maxLimit: 24, required: false })
   })
 
-  it('gives a ref the record picker of its kind, like the refs map did', () => {
+  it('gives a ref the record picker of its kind, and a media ref the image picker', () => {
     expect(fields.get('spotlight')).toMatchObject({ kind: 'record', refKind: 'product' })
-    expect(fields.get('hero')).toMatchObject({ kind: 'record', refKind: 'media' })
+    expect(fields.get('hero')).toMatchObject({ kind: 'media', pointer: '/hero', required: false })
   })
 
   it('finds the field a problem under a descriptor falls under', () => {

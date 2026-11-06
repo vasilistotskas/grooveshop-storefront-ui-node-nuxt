@@ -1,18 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
 import { cacheKeyBelongsToHost } from '~~/server/utils/cacheKey'
-import { cachedRead } from '~~/server/utils/builderData/loaders'
+import { cachedRead, readMedia } from '~~/server/utils/builderData/loaders'
 import { readData, resolveBuilderData } from '~~/server/utils/builderData/resolve'
 import { backend, cacheOptionsOf, createRequestEvent, jsonResponse, log } from '~~/test/helpers/nitro'
 import { makeBlogPost } from '~~/test/fixtures/blog'
+import { makeResolvedAsset } from '~~/test/fixtures/media'
 import { makeProductCard, makeProductCategory } from '~~/test/fixtures/product'
-import { DATA_LIMITS } from '~~/shared/constants/builder'
+import { DATA_LIMITS, DATA_MEDIA_MAX_IDS } from '~~/shared/constants/builder'
 import { makePromotion } from '~~/test/fixtures/promotion'
 import { zListProductResponse } from '~~/shared/openapi/zod.gen'
 import type { DataPlan, DataResolution, QueryAnswer } from '~~/shared/types/builderData'
 
 const page = (results: unknown[]) => ({ count: results.length, results })
 const context = { tenantHost: 'shop-a.test', locale: 'en' }
-const emptyIds = { product: [], blogPost: [], category: [], blogCategory: [] }
+const emptyIds = { product: [], blogPost: [], category: [], blogCategory: [], media: [] }
 const newest = { mode: 'filter', ordering: 'newest', limit: 4 }
 
 /** A list the reads answered, which is not a failed one. */
@@ -202,6 +203,81 @@ describe('readData', () => {
   })
 })
 
+describe('readData, media', () => {
+  const media = (resolution: DataResolution) => resolution.records.media as ReadonlyMap<number, unknown>
+  const staffHeaders = { Authorization: 'StaffBearer knox-secret-token' }
+
+  it('reads the assets of the page in ONE request to the public resolve, as the store, with the alt text in the page\'s language', async () => {
+    backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 }), makeResolvedAsset({ id: 9 })] }))
+
+    const resolution = await readData(context, planOf({ ids: { ...emptyIds, media: [9, 3, 14] } }))
+
+    expect(backend.requests).toHaveLength(1)
+    expect(backend.lastRequest.url.pathname).toBe('/api/v1/builder/media/resolve')
+    expect(backend.lastRequest.url.searchParams.get('ids')).toBe('3,9,14')
+    expect(backend.lastRequest.url.searchParams.get('locale')).toBe('en')
+    expect(backend.lastRequest.url.searchParams.has('languageCode')).toBe(false)
+    expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('shop-a.test')
+    expect(backend.lastRequest.headers.get('authorization')).toBeNull()
+    // 14 is not in the answer: an asset no release uses is simply absent.
+    expect([...media(resolution).keys()]).toEqual([3, 9])
+  })
+
+  it('splits more ids than Django\'s resolve answers into several reads', async () => {
+    backend.reply(() => ({ results: [] }))
+
+    await readData(context, planOf({ ids: { ...emptyIds, media: Array.from({ length: DATA_MEDIA_MAX_IDS + 20 }, (_, index) => index + 1) } }))
+
+    expect(backend.requests.map(request => request.url.searchParams.get('ids')!.split(',').length).sort((a, b) => b - a)).toEqual([DATA_MEDIA_MAX_IDS, 20])
+  })
+
+  it('answers `failed` for a read that failed, not an absence', async () => {
+    backend.reply(() => jsonResponse({ detail: 'down' }, 503))
+
+    const resolution = await readData(context, planOf({ ids: { ...emptyIds, media: [3] } }))
+
+    expect(resolution.records.media).toBe('failed')
+  })
+
+  it('reads any asset of the library for the editor\'s preview: the staff resolve, as the staff member', async () => {
+    backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 })] }))
+
+    const resolution = await readData({ ...context, staffHeaders }, planOf({ ids: { ...emptyIds, media: [3] } }))
+
+    expect(backend.lastRequest.url.pathname).toBe('/api/v1/builder/media/staff-resolve')
+    expect(backend.lastRequest.url.searchParams.get('ids')).toBe('3')
+    expect(backend.lastRequest.url.searchParams.get('locale')).toBe('en')
+    expect(backend.lastRequest.headers.get('authorization')).toBe(staffHeaders.Authorization)
+    expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('shop-a.test')
+    expect([...media(resolution).keys()]).toEqual([3])
+  })
+
+  it('never caches a staff read, and never lets a public read see one: each read asks Django', async () => {
+    backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 })] }))
+    const plan = planOf({ ids: { ...emptyIds, media: [3] } })
+
+    await readData({ ...context, staffHeaders }, plan)
+    await readData({ ...context, staffHeaders }, plan)
+    await readData(context, plan)
+
+    expect(backend.requests.map(request => request.url.pathname)).toEqual([
+      '/api/v1/builder/media/staff-resolve',
+      '/api/v1/builder/media/staff-resolve',
+      '/api/v1/builder/media/resolve',
+    ])
+    expect(backend.requests.map(request => request.headers.get('authorization'))).toEqual([staffHeaders.Authorization, staffHeaders.Authorization, null])
+  })
+
+  it('sends no staff credentials for any other kind of record', async () => {
+    backend.reply(() => page([makeProductCard({ id: 2 })]))
+
+    await readData({ ...context, staffHeaders }, planOf({ ids: { ...emptyIds, product: [2] } }))
+
+    expect(backend.lastRequest.url.pathname).toBe('/api/v1/product')
+    expect(backend.lastRequest.headers.get('authorization')).toBeNull()
+  })
+})
+
 describe('the cache of a read', () => {
   const read = cachedRead('builderDataTest', '/product', zListProductResponse)
   const keyOf = (host: string, locale: string, query: Record<string, string | number>) => {
@@ -222,6 +298,15 @@ describe('the cache of a read', () => {
     expect(keyOf('shop-a.test', 'en', { pageSize: 5 })).not.toBe(base)
     // Two questions that differ only in the order they were written are one entry.
     expect(keyOf('shop-a.test', 'en', { a: 1, b: 2 })).toBe(keyOf('shop-a.test', 'en', { b: 2, a: 1 }))
+  })
+
+  it('keeps the name Django\'s purge of the builder surface evicts, and keys the public media read on the store and the language', () => {
+    const { getKey } = cacheOptionsOf(readMedia)
+    if (!getKey) throw new Error('A read must state its key')
+
+    expect(cacheOptionsOf(readMedia)).toMatchObject({ name: 'builderDataMedia', maxAge: 60, swr: false })
+    expect(getKey('shop-a.test', 'en', { ids: '3' })).not.toBe(getKey('shop-b.test', 'en', { ids: '3' }))
+    expect(getKey('shop-a.test', 'en', { ids: '3' })).not.toBe(getKey('shop-a.test', 'el', { ids: '3' }))
   })
 
   it('names the store as its own segment, so a purge scoped to a store finds it and no other', () => {

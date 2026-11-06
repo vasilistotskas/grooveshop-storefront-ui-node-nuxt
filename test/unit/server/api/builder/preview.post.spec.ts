@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/builder/preview.post'
 import type { BlockDefinition } from '~~/shared/types/builder'
+import { makeResolvedAsset } from '~~/test/fixtures/media'
 import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 import { BUILDER_STAFF_TOKEN, signInBuilderStaff } from '~~/test/helpers/builderStaff'
 
@@ -9,12 +10,27 @@ import { BUILDER_STAFF_TOKEN, signInBuilderStaff } from '~~/test/helpers/builder
  * the release (`POST builder/preview/resolve`), and the storefront draws the
  * answer through what the published reads go through. It needs real blocks
  * (a hero and the menus), so the REAL blocks stand in for `#builder-blocks`,
- * as in `navigation.get.spec.ts`.
+ * as in `navigation.get.spec.ts`, with one more section that holds an image of
+ * the media library (no real block declares one yet).
  */
-vi.mock('#builder-blocks', async () => ({
-  default: (await Promise.all(Object.values(import.meta.glob<{ default: BlockDefinition }>('../../../../../app/blocks/*.block.ts')).map(load => load())))
-    .map(({ default: block }) => block),
-}))
+vi.mock('#builder-blocks', async () => {
+  const z = await import('zod')
+  const { defineBlock: define } = await import('~~/shared/builder/defineBlock')
+  const { builderField: field } = await import('~~/shared/builder/fields')
+  const photoBand = define({
+    type: 'photo_band',
+    version: 1,
+    kinds: ['section'],
+    schema: z.object({ image: field.ref('media', { onMissing: 'empty' }) }),
+  })
+  return {
+    default: [
+      ...(await Promise.all(Object.values(import.meta.glob<{ default: BlockDefinition }>('../../../../../app/blocks/*.block.ts')).map(load => load())))
+        .map(({ default: block }) => block),
+      photoBand,
+    ],
+  }
+})
 
 const route = '/api/builder/preview'
 const API = 'http://backend.test/api/v1'
@@ -60,6 +76,7 @@ function serve(options: { pages?: string[], resolve?: () => unknown } = {}) {
       return { release: 4, locale: 'el', theme: null, groups: {}, pages: pages.map(key => ({ key, kind: 'page', updatedAt: '2026-11-01T10:00:00Z' })) }
     }
     if (path.endsWith('/content-page')) return { results: [] }
+    if (path.endsWith('/builder/media/staff-resolve')) return { results: [makeResolvedAsset({ id: 12 })] }
     throw new Error(`unexpected backend request: ${path}`)
   })
 }
@@ -137,5 +154,23 @@ describe('POST /api/builder/preview', () => {
 
     expect(response.status).toBeGreaterThanOrEqual(500)
     expect(response.headers.get('cache-control')).toBe('private, no-store')
+  })
+
+  describe('an image of the media library', () => {
+    const WITH_IMAGE = { ...RESOLVED, page: { ...RESOLVED.page, sections: { band: { type: 'photo_band@1', settings: { image: 12 } } }, order: ['band'] } }
+    const imageOf = (response: { body: { pages: Record<string, { sections: Array<{ props: { image: unknown } }> }> } }) => response.body.pages['template:home']!.sections[0]!.props.image
+
+    it('shows an image nobody has published: the staff resolve answers it, as the staff member, and is never cached', async () => {
+      const first = await post(HOME_AND_HEADER, { resolve: () => WITH_IMAGE })
+      const second = await post(HOME_AND_HEADER, { resolve: () => WITH_IMAGE })
+
+      expect(imageOf(first)).toEqual({ status: 'ok', value: expect.objectContaining({ id: 12 }) })
+      const reads = backend.requests.filter(request => request.path.endsWith('/builder/media/staff-resolve'))
+      expect(reads).toHaveLength(2)
+      expect(reads[0]!.headers.get('authorization')).toBe(`StaffBearer ${BUILDER_STAFF_TOKEN}`)
+      expect(reads[0]!.url.searchParams.get('ids')).toBe('12')
+      expect(backend.requests.some(request => request.path.endsWith('/builder/media/resolve'))).toBe(false)
+      expect(imageOf(second)).toEqual(imageOf(first))
+    })
   })
 })

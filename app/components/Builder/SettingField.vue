@@ -47,8 +47,8 @@ const number = computed(() => typeof value.value === 'number' ? value.value : un
 const list = computed(() => Array.isArray(value.value) ? value.value.map(String) : [])
 
 /**
- * The kind of record a record setting names (`refs`), when it is one a
- * link may name and so the record picker finds; a media id is not.
+ * The kind of record a record setting names (`refs`): always one a link may
+ * name, and so the record picker finds (a media id is a `media` field).
  */
 const recordKind = computed(() => {
   const field = props.field
@@ -222,6 +222,14 @@ function moveListItem(index: number, delta: -1 | 1): void {
       :disabled="locked"
       @update="(next: BuilderLinkRef | undefined) => set(next?.id)"
     />
+    <BuilderMediaField
+      v-else-if="field.kind === 'media'"
+      :value="value"
+      :label="label"
+      :clearable="!field.required"
+      :disabled="locked"
+      @update="set"
+    />
     <BuilderQueryField
       v-else-if="field.kind === 'query'"
       :field="field"
@@ -231,11 +239,11 @@ function moveListItem(index: number, delta: -1 | 1): void {
       @update="(next: BuilderQueryDescriptor) => set(next)"
     />
     <UInputNumber
-      v-else-if="field.kind === 'number' || field.kind === 'record'"
+      v-else-if="field.kind === 'number'"
       :model-value="number"
-      :min="field.kind === 'number' ? field.min : 1"
-      :max="field.kind === 'number' ? field.max : undefined"
-      :step="field.kind === 'number' ? step : 1"
+      :min="field.min"
+      :max="field.max"
+      :step="step"
       :disabled="locked"
       class="w-full"
       @update:model-value="(next: number | null | undefined) => set(next ?? undefined)"
