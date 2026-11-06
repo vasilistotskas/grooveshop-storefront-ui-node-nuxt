@@ -303,8 +303,6 @@ describe('webside design render', () => {
       name: 'Webside',
       storeName: 'Webside',
       isPlatformStorefront: true,
-      primaryColor: 'neutral',
-      neutralColor: 'zinc',
       blogEnabled: true,
       loyaltyEnabled: true,
       recommendationsEnabled: true,

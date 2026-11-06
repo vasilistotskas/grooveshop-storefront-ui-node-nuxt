@@ -1,3 +1,10 @@
+## [3.325.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.3...v3.325.4) (2026-11-06)
+
+
+### Bug Fixes
+
+* **openapi:** stop requiring the Tenant theme fields ([#397](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/397)) ([6ce3bc9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6ce3bc91a5e6f72842dafed0962f2c0f9a34fdd4))
+
 ## [3.325.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.325.2...v3.325.3) (2026-11-05)
 
 
