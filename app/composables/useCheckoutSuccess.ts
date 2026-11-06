@@ -340,10 +340,14 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
 
   await orderRequest
 
+  // Fatal: this runs in the browser, where a non-fatal error leaves the page
+  // empty instead of showing the error page. A guest's link past its time
+  // (`GUEST_ORDER_ACCESS_DAYS`) ends here too, answering 403.
   if (!order.value || error.value) {
     throw createError({
       statusCode: 404,
       message: t('error.page.not.found'),
+      fatal: true,
     })
   }
 
