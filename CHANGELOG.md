@@ -1,3 +1,10 @@
+## [3.326.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.1...v3.326.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* **privacy:** no tracker sees an address that holds a secret ([#403](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/403)) ([fb67279](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fb67279f5a115bf760ea246a7aa1ad7721ada4cc))
+
 ## [3.326.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.326.0...v3.326.1) (2026-11-06)
 
 
