@@ -239,6 +239,32 @@ describe('readData, media', () => {
     expect(resolution.records.media).toBe('failed')
   })
 
+  it('reads a share link\'s assets through its token, as nobody, and never from a cache', async () => {
+    backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 })] }))
+    const plan = planOf({ ids: { ...emptyIds, media: [3] } })
+    const shared = { ...context, shareToken: 'link-token' }
+
+    const resolution = await readData(shared, plan)
+    await readData(shared, plan)
+
+    expect(backend.requests.map(request => request.url.pathname)).toEqual([
+      '/api/v1/builder/preview-media/link-token',
+      '/api/v1/builder/preview-media/link-token',
+    ])
+    expect(backend.lastRequest.url.searchParams.get('ids')).toBe('3')
+    expect(backend.lastRequest.url.searchParams.get('locale')).toBe('en')
+    expect(backend.lastRequest.headers.get('authorization')).toBeNull()
+    expect([...media(resolution).keys()]).toEqual([3])
+  })
+
+  it('answers failed when a share link has gone, rather than taking its images for absent', async () => {
+    backend.reply(() => jsonResponse({ code: 'preview_link_expired' }, 404))
+
+    const resolution = await readData({ ...context, shareToken: 'gone' }, planOf({ ids: { ...emptyIds, media: [3] } }))
+
+    expect(resolution.records.media).toBe('failed')
+  })
+
   it('reads any asset of the library for the editor\'s preview: the staff resolve, as the staff member', async () => {
     backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 })] }))
 

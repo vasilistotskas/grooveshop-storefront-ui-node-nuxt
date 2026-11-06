@@ -92,6 +92,8 @@ export interface DataResolution {
 export interface BuilderReadOptions {
   keepHidden?: boolean
   staffHeaders?: Readonly<Record<string, string>>
+  /** A share link's token: its images are read through it, since a draft can use one nobody has published. */
+  shareToken?: string
 }
 
 /** What a list answers: the items it shows, and how many match in all. */

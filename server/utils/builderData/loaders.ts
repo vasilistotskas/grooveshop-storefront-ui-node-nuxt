@@ -12,6 +12,8 @@ export interface LoaderContext {
   locale: string
   /** The editor's preview alone (`BuilderReadOptions`): the media loader then reads any asset of the library, uncached. */
   staffHeaders?: Readonly<Record<string, string>>
+  /** A share link alone (`BuilderReadOptions`): the media loader then reads the assets the link's documents use, uncached. */
+  shareToken?: string
 }
 
 /**
@@ -79,6 +81,20 @@ export const readMedia = cachedRead('builderDataMedia', '/builder/media/resolve'
  * under the public entry's name it would hand an unpublished image to the
  * next visitor. Only a preview passes the credentials (`BuilderReadOptions`).
  */
+/**
+ * A share link reads the assets its frozen documents point at
+ * (`GET builder/preview-media/<token>`), so a draft shows an image nobody has
+ * published and the token opens nothing else of the library. Never cached, as
+ * the route around it is not: a revoked link must stop answering.
+ */
+async function readSharedMedia({ tenantHost, locale, shareToken }: LoaderContext, query: DjangoQuery) {
+  const response = await backendFetchFor({ tenantHost, locale })(
+    `${useRuntimeConfig().apiBaseUrl}/builder/preview-media/${shareToken}`,
+    { method: 'GET', query: { ...query, locale } },
+  )
+  return parseDataAs(response, zApiV1BuilderPreviewMediaRetrieveResponse)
+}
+
 async function readStaffMedia({ tenantHost, locale, staffHeaders }: LoaderContext, query: DjangoQuery) {
   const response = await backendFetchFor({ tenantHost, locale, ...(staffHeaders && { headers: { ...staffHeaders } }) })(
     `${useRuntimeConfig().apiBaseUrl}/builder/media/staff-resolve`,
@@ -112,7 +128,11 @@ export const RECORD_LOADERS: { [Kind in DataRecordKind]: (context: LoaderContext
   category: ({ tenantHost, locale }, ids) => readByIds(query => readCategories(tenantHost, locale, query), ids),
   blogCategory: ({ tenantHost, locale }, ids) => readByIds(query => readBlogCategories(tenantHost, locale, query), ids),
   media: (context, ids) => readByIds(
-    query => context.staffHeaders ? readStaffMedia(context, query) : readMedia(context.tenantHost, context.locale, query),
+    (query) => {
+      if (context.staffHeaders) return readStaffMedia(context, query)
+      if (context.shareToken) return readSharedMedia(context, query)
+      return readMedia(context.tenantHost, context.locale, query)
+    },
     ids,
     mediaQueries,
   ),
