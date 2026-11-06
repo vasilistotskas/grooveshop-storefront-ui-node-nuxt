@@ -68,7 +68,10 @@ const CHIP = 'bg-(--ui-text-inverted)/10 text-inverted ring-0'
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div
+    data-clarity-mask="true"
+    class="flex flex-col"
+  >
     <section
       :aria-label="t('band_label')"
       class="bg-inverted text-inverted"

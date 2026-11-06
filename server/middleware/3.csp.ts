@@ -91,6 +91,7 @@ export default defineEventHandler(async (event) => {
     metaPixelId: tenant?.metaPixelId,
     tiktokPixelId: tenant?.tiktokPixelId,
     openaiPixelId: tenant?.openaiPixelId,
+    clarityProjectId: tenant?.clarityProjectId,
     // Platform-level, not per-tenant: the GSI script is gated on the
     // same runtime flag in ``setupSocialLogin``, so the policy widens
     // only when the script can actually load.

@@ -152,6 +152,7 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
 
 <template>
   <WebsidePageWrapper
+    data-clarity-mask="true"
     class="
       flex flex-col gap-6
       md:gap-8

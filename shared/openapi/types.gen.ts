@@ -8304,6 +8304,7 @@ export type TenantConfig = {
   readonly metaPixelId: string
   readonly tiktokPixelId: string
   openaiPixelId?: string
+  clarityProjectId?: string
   readonly gaTrackingId: string
   readonly googleAdsConversionId: string
   readonly googleAdsPurchaseLabel: string
@@ -10992,6 +10993,7 @@ export type TenantConfigWritable = {
   recommendationsEnabled?: boolean
   codeResendCooldownSeconds?: number
   openaiPixelId?: string
+  clarityProjectId?: string
   googleAdsAddPaymentInfoLabel?: string
   indexnowKey?: string
 }

@@ -293,26 +293,28 @@ export function setupGoogleAnalyticsConsent() {
 }
 
 /**
- * Reactive "the customer granted ad consent" gate shared by the ad
- * pixels (Meta, TikTok): the user has explicitly accepted the banner
- * AND the ``ad_storage`` category is enabled. Either gate alone is
- * insufficient:
+ * Reactive "the customer granted this category" gate: the user has
+ * explicitly accepted the banner AND the category is enabled. Either gate
+ * alone is insufficient:
  *
  * * isConsentGiven only flips true after the user clicks the banner
  *   so we don't fire pixel events for visitors who never made a
  *   choice.
- * * Even when the banner is acknowledged, the user can deselect
- *   ad_storage via "Manage preferences" — we honour that choice.
+ * * Even when the banner is acknowledged, the user can deselect the
+ *   category via "Manage preferences" — we honour that choice.
  */
-function useAdStorageConsent() {
+function useStorageConsent(category: 'ad_storage' | 'analytics_storage') {
   const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
   return computed(() =>
     !!(
       isConsentGiven.value
-      && cookiesEnabledIds.value?.includes('ad_storage')
+      && cookiesEnabledIds.value?.includes(category)
     ),
   )
 }
+
+/** The gate shared by the ad pixels (Meta, TikTok, OpenAI). */
+const useAdStorageConsent = () => useStorageConsent('ad_storage')
 
 /**
  * Initialise the Meta Pixel — single source of truth for the
@@ -325,9 +327,9 @@ function useAdStorageConsent() {
  *   changes.
  * * ``useScriptTriggerConsent({ consent: adConsent })`` is the
  *   documented binary script-load gate. The script tag is injected
- *   into the DOM only after ``adConsent`` flips true; if it later
- *   flips false, ``useScriptTriggerConsent`` revokes and the script
- *   is unloaded. This is the gate documented in
+ *   into the DOM only after ``adConsent`` flips true. It gates the load
+ *   only: a script already loaded keeps running if consent is later
+ *   withdrawn. This is the gate documented in
  *   ``https://nuxt.com/scripts/guides/consent`` — replacing the
  *   previous pattern that combined ``defaultConsent: 'denied'`` with
  *   a manual ``consent.grant()`` watcher. That older combination
@@ -425,14 +427,72 @@ export function setupTikTokPixelConsent() {
 }
 
 /**
+ * Initialise Microsoft Clarity, which records how shoppers use the store,
+ * so it is an analytics service: the tag loads only once the customer
+ * grants ``analytics_storage``, never before they answer the banner.
+ *
+ * The registry's ``defaultConsent`` and ``consent.set`` wrap Clarity's
+ * deprecated first API, so the decision is sent as ``consentv2``, which
+ * Clarity requires for visitors from the EEA, the UK and Switzerland
+ * (learn.microsoft.com/clarity/setup-and-installation/clarity-consent-api-v2).
+ *
+ * Withdrawing needs its own call. The consent trigger only stops a tag
+ * that has not loaded, and ``consentv2`` with ``denied`` keeps Clarity
+ * running without cookies. ``consent`` with ``false`` is the call Clarity
+ * documents to erase its cookies and stop tracking until consent returns.
+ *
+ * Content is masked by ``data-clarity-mask`` on the private parts of the
+ * store (``test/unit/source-rules/clarity-masks-private-surfaces.spec.ts``),
+ * because Clarity's default mode hides only numbers and email addresses.
+ *
+ * No-op when the tenant's ``clarityProjectId`` is not provisioned.
+ */
+export function setupClarityConsent() {
+  const tenantStore = useTenantStore()
+  // Tenant-only — no platform/env fallback (a shared project would mix
+  // the recordings of every merchant's shoppers).
+  const projectId = tenantStore.clarityProjectId
+  if (!projectId) return
+  if (import.meta.server) return
+
+  const analyticsConsent = useStorageConsent('analytics_storage')
+  const adConsent = useAdStorageConsent()
+  const trigger = useScriptTriggerConsent({ consent: analyticsConsent })
+
+  const { proxy } = useScriptClarity({
+    id: projectId,
+    // bundle:false — see ``setupMetaPixelConsent``.
+    scriptOptions: { trigger, bundle: false },
+  })
+
+  watch(
+    [analyticsConsent, adConsent],
+    async ([analytics, ads], previous) => {
+      // Waiting for the next paint lets the banner close first, as for gtag.
+      await afterNextPaint()
+      if (analytics) {
+        proxy.clarity('consentv2', {
+          ad_Storage: ads ? 'granted' : 'denied',
+          analytics_Storage: 'granted',
+        })
+      }
+      else if (previous?.[0]) {
+        proxy.clarity('consent', false)
+      }
+    },
+    { immediate: true },
+  )
+}
+
+/**
  * Initialise the OpenAI / ChatGPT Ads conversion pixel (``oaiq``).
  *
  * Same consent lifecycle and client-only posture as the two pixels
  * above; the difference is that ``@nuxt/scripts`` has no OpenAI
  * registry entry, so this uses the generic ``useScript`` with the same
  * ``useScriptTriggerConsent`` trigger. The script tag is injected only
- * after the shopper grants ``ad_storage``, and revoking consent removes
- * it — the trigger owns that lifecycle, so there is deliberately no
+ * after the shopper grants ``ad_storage``. The trigger owns the load, so
+ * there is deliberately no
  * manual ``grant()`` watcher here (an older combination of the two
  * caused races; see the note on ``setupMetaPixelConsent``).
  *

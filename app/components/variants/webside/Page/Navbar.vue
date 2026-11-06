@@ -336,6 +336,7 @@ const items = computed(() => [
                 <button
                   type="button"
                   :aria-label="t('user.profile')"
+                  data-clarity-mask="true"
                   class="cursor-pointer bg-transparent p-0"
                 >
                   <UserAvatar
@@ -345,7 +346,10 @@ const items = computed(() => [
                 </button>
 
                 <template #account="{ item }">
-                  <div class="text-left">
+                  <div
+                    data-clarity-mask="true"
+                    class="text-left"
+                  >
                     <p>{{ t('email.title') }}</p>
                     <p
                       class="

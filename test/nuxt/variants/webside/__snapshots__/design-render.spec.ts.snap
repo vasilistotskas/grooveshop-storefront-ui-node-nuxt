@@ -1161,7 +1161,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                             <!--v-if-->
                           </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>
                       </li>
-                      <li class="relative grid items-center justify-center justify-items-center"><button class="cursor-pointer bg-transparent p-0" id="ID" type="button" aria-haspopup="menu" aria-expanded="false" data-state="closed" aria-label="Προφίλ">
+                      <li class="relative grid items-center justify-center justify-items-center"><button class="cursor-pointer bg-transparent p-0" id="ID" type="button" aria-haspopup="menu" aria-expanded="false" data-state="closed" aria-label="Προφίλ" data-clarity-mask="true">
                           <div title="" class="gap-0 flex flex-col items-center" arrow="">
                             <div class="group relative"><span data-slot="root" class="inline-flex items-center justify-center shrink-0 select-none rounded-full align-middle size-7 text-sm bg-elevated transition-opacity"><img width="28" height="28" data-nuxt-img="" srcset="/_ipx/s_28x28/img/default.png 1x, /_ipx/s_56x56/img/default.png 2x" alt="Μαρία Παπαδοπούλου" data-slot="image" class="h-full w-full rounded-[inherit] object-cover" src="/_ipx/s_28x28/img/default.png"></span>
                               <!--v-if-->
@@ -1185,7 +1185,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
     </div>
   </header>
   <main class="min-h-[calc(100dvh-var(--ui-header-height))]" id="main-content">
-    <div class="grid gap-2 md:gap-6">
+    <div data-clarity-mask="true" class="grid gap-2 md:gap-6">
       <div class="bg-primary-100 md:rounded-b-[94px] dark:bg-primary-900">
         <div class="z-20 mx-auto grid w-full max-w-(--container-7xl) items-center p-0 md:w-[calc(100%-8rem)]">
           <div class="flex items-center justify-center gap-4 px-2 py-4 md:justify-start md:gap-8 md:py-6">

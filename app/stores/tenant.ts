@@ -39,6 +39,7 @@ export const useTenantStore = defineStore('tenant', () => {
   const metaPixelId = computed(() => config.value?.metaPixelId ?? '')
   const tiktokPixelId = computed(() => config.value?.tiktokPixelId ?? '')
   const openaiPixelId = computed(() => config.value?.openaiPixelId ?? '')
+  const clarityProjectId = computed(() => config.value?.clarityProjectId ?? '')
   const gaTrackingId = computed(() => config.value?.gaTrackingId ?? '')
   // Google Ads conversion tracking — the id and one label per action
   // the storefront reports. Consumed by useGoogleAds; '' means the
@@ -74,6 +75,7 @@ export const useTenantStore = defineStore('tenant', () => {
       metaPixelId.value && 'Meta',
       tiktokPixelId.value && 'TikTok',
       openaiPixelId.value && 'OpenAI',
+      clarityProjectId.value && 'Microsoft Clarity',
     ].filter((name): name is string => Boolean(name)),
   )
   const hasOptionalServices = computed(() => optionalServices.value.length > 0)
@@ -145,6 +147,7 @@ export const useTenantStore = defineStore('tenant', () => {
     metaPixelId,
     tiktokPixelId,
     openaiPixelId,
+    clarityProjectId,
     gaTrackingId,
     googleAdsConversionId,
     optionalServices,

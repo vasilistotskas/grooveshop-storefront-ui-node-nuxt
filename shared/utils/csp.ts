@@ -81,6 +81,8 @@ export interface CspOptions {
   tiktokPixelId?: string
   /** Tenant's ChatGPT Ads pixel id (``TenantConfig.openaiPixelId``). */
   openaiPixelId?: string
+  /** Tenant's Microsoft Clarity project (``TenantConfig.clarityProjectId``). */
+  clarityProjectId?: string
   /**
    * Per-tenant CSP source expansion (``TenantConfig.allowedCspSources``).
    * Appended to script-src, img-src, connect-src and frame-src. The
@@ -114,6 +116,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     metaPixelId,
     tiktokPixelId,
     openaiPixelId,
+    clarityProjectId,
     googleGsiEnabled = false,
     tenantSources = [],
     tenantApiDomain,
@@ -244,6 +247,16 @@ export function buildCspDirectives(options: CspOptions): string[] {
   const openaiScriptSrc = openaiPixelId ? ' https://bzrcdn.openai.com' : ''
   const openaiConnectSrc = openaiPixelId ? ' https://bzrcdn.openai.com' : ''
 
+  // Microsoft Clarity. Its tag and collection hosts are load balanced across
+  // ``[a-z].clarity.ms``, and it also calls ``c.bing.com``
+  // (learn.microsoft.com/clarity/setup-and-installation/clarity-csp). That
+  // page names ``default-src``; a policy with its own script, image and
+  // connect directives lists the hosts in each. Gated on the id like the
+  // pixels above.
+  const clarityOrigins = clarityProjectId
+    ? ' https://*.clarity.ms https://c.bing.com'
+    : ''
+
   // GA4 with Google Signals enabled fires a remarketing pixel to
   // ``www.google.<tld>/ads/ga-audiences`` (an <img>, sometimes a beacon).
   // The ccTLD follows the visitor's locale — ``.gr`` for Greek users,
@@ -304,17 +317,17 @@ export function buildCspDirectives(options: CspOptions): string[] {
 
   return [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${clarityOrigins}${tenantExtra}${nonceScriptSrc}`,
     ...(nonceScriptSrcAttr ? [nonceScriptSrcAttr] : []),
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com${gsiStyleSrc}`,
-    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
+    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${clarityOrigins}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
     // MapLibre draws in a dedicated worker that Vite emits as a
     // same-origin ``/_nuxt/`` file; ``worker-src 'self'`` is the directive
     // MapLibre documents for it. Explicit, so the worker does not hinge on
     // each browser's script-src fallback under 'strict-dynamic'.
     `worker-src 'self'`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc}${mapsOrigin} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc}${mapsOrigin} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${clarityOrigins}${tenantExtra}`,
     // BoxNow widget iframe origins — one per verified live market
     // (GR, CY) plus the CDN's known redirect hops. CSP validates every
     // hop of a frame's redirect chain against frame-src, so the

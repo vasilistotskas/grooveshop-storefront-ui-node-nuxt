@@ -13,7 +13,10 @@ const { user } = useUserSession()
 </script>
 
 <template>
-  <div class="grid gap-2 md:gap-6">
+  <div
+    data-clarity-mask="true"
+    class="grid gap-2 md:gap-6"
+  >
     <div
       class="
         bg-primary-100

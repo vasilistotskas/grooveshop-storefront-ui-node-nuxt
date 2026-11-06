@@ -28,7 +28,10 @@ const checkoutHeader = computed(() =>
       id="main-content"
       as="main"
     >
-      <section class="flex w-full flex-1 flex-col">
+      <section
+        data-clarity-mask="true"
+        class="flex w-full flex-1 flex-col"
+      >
         <slot />
       </section>
     </UMain>

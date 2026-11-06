@@ -175,7 +175,7 @@ describe('useTenantStore', () => {
   })
 
   describe('optionalServices / hasOptionalServices', () => {
-    const NONE = { gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '' }
+    const NONE = { gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '', clarityProjectId: '' }
 
     it('is empty for a store with no consent-gated service', () => {
       const store = useTenantStore()
@@ -190,6 +190,7 @@ describe('useTenantStore', () => {
       ['GA4 and Ads as one Google tag', { gaTrackingId: 'G-1', googleAdsConversionId: 'AW-1' }, ['Google']],
       ['every pixel', { gaTrackingId: 'G-1', metaPixelId: '1', tiktokPixelId: 'T', openaiPixelId: 'O' }, ['Google', 'Meta', 'TikTok', 'OpenAI']],
       ['the ChatGPT pixel alone', { openaiPixelId: 'O' }, ['OpenAI']],
+      ['Microsoft Clarity alone', { clarityProjectId: 'C' }, ['Microsoft Clarity']],
     ])('names %s', (_label, overrides, names) => {
       const store = useTenantStore()
       store.setConfig(config({ ...NONE, ...overrides }))

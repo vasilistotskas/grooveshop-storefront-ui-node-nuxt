@@ -143,6 +143,19 @@ describe('server/middleware/3.csp', () => {
     expect(directive('script-src')).not.toContain('analytics.tiktok.com')
   })
 
+  it('allows the Microsoft Clarity origins only for a store with a Clarity project', async () => {
+    const withProject = await runWith('/products/3/some-product', { tenant: { clarityProjectId: 'z8z79wsqeu' } })
+    const directiveOf = (name: string) => directive(withProject['Content-Security-Policy'], name)
+    for (const name of ['script-src', 'img-src', 'connect-src']) {
+      expect(directiveOf(name)).toContain('https://*.clarity.ms')
+      expect(directiveOf(name)).toContain('https://c.bing.com')
+    }
+
+    const without = await runWith('/products/3/some-product', { tenant: { clarityProjectId: '' } })
+    expect(without['Content-Security-Policy']).not.toContain('clarity.ms')
+    expect(without['Content-Security-Policy']).not.toContain('c.bing.com')
+  })
+
   it('does not gate on Meta/TikTok origins when there is no tenant at all', async () => {
     const csp = (await runWith('/products/3/some-product'))['Content-Security-Policy']
     const directive = (name: string) =>

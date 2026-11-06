@@ -89,7 +89,7 @@ Pinia stores in `app/stores/`:
 ### Key Composables
 
 50+ composables in `app/composables/` following `use[Feature].ts` naming. Key ones for cross-cutting concerns:
-- `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent`/`setupMetaPixelConsent`/`setupTikTokPixelConsent` (GDPR-gated, tenant-only ids — no platform/env fallback), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
+- `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent`/`setupMetaPixelConsent`/`setupTikTokPixelConsent`/`setupClarityConsent` (GDPR-gated, tenant-only ids — no platform/env fallback), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
 - `useMediaStreamImage.ts` — `useMediaStreamBaseUrl`/`useMediaStreamImage`/`useMediaStreamSrc`: tenant-aware Media Stream origin resolution (see Image Handling)
 - `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
 - `useCheckout.ts` — Stock reservation and release, cart payment intent (payment-status polling, the purchase pixels and the cart cleanup after an order live in `useCheckoutSuccess.ts`; the delivery step's cards and its move-on rule in `useCheckoutShippingStep.ts`)

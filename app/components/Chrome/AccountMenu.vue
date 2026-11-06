@@ -61,16 +61,24 @@ const MENU_UI = { content: 'w-72' }
         trailing-icon="i-lucide-chevron-down"
         class="ps-1 pe-1.5"
       >
-        <UAvatar
-          :src="menu.avatarSrc.value"
-          :alt="menu.name.value"
-          size="md"
-          :ui="AVATAR_UI"
-        />
+        <span
+          data-clarity-mask="true"
+          class="contents"
+        >
+          <UAvatar
+            :src="menu.avatarSrc.value"
+            :alt="menu.name.value"
+            size="md"
+            :ui="AVATAR_UI"
+          />
+        </span>
       </UButton>
 
       <template #account>
-        <div class="flex min-w-0 flex-col gap-2.5 py-1">
+        <div
+          data-clarity-mask="true"
+          class="flex min-w-0 flex-col gap-2.5 py-1"
+        >
           <div class="flex min-w-0 items-center gap-3">
             <UAvatar
               :src="menu.avatarSrc.value"
