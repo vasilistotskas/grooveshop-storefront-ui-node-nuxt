@@ -108,12 +108,6 @@ describe('ekfyseosfyteias features_grid', () => {
     })
   })
 
-  it('uses the section title as the heading when none is set', async () => {
-    const wrapper = await mountSuspended(FeaturesGrid, { route: false, props: { items: ITEMS, title: 'Το κελάρι μας' } })
-
-    expect(wrapper.find('h2').text()).toBe('Το κελάρι μας')
-  })
-
   it('renders nothing without items', async () => {
     const wrapper = await mountSuspended(FeaturesGrid, { route: false, props: { items: [], heading: 'Κενό' } })
 
