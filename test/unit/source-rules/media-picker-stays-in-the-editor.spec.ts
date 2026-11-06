@@ -12,11 +12,23 @@ import { REPO, withoutComments } from '../../helpers/sourceText'
  * the editor's chunk (`/_builder`) and never in a store page a shopper loads.
  * Mounted anywhere else, it would put the staff library in front of shoppers.
  *
- * Read off the source with comments removed, so a comment cannot trip it.
+ * A component is reached by its tag (PascalCase or kebab-case, `Lazy` or
+ * not), by `resolveComponent('...')`, by `h(...)` or by an import of its file,
+ * so each way is held. Read off the source with comments removed, so a
+ * comment cannot trip it.
  */
-const PICKER = /<(?:Lazy)?BuilderMediaPicker\b/
-const FIELD = /<(?:Lazy)?BuilderMediaField\b/
+const reaching = (pascal: string, kebab: string, file: string) => new RegExp(
+  `<(?:Lazy|lazy-)?(?:${pascal}|${kebab})\\b`
+  + `|resolveComponent\\(\\s*['"\`](?:Lazy)?${pascal}['"\`]`
+  + `|\\bh\\(\\s*(?:Lazy)?${pascal}\\b`
+  + `|\\b(?:Lazy)?${pascal}\\b(?=\\s*[,)}])`
+  + `|Builder/${file}(?:\\.vue)?['"\`]`,
+)
 
+const PICKER = reaching('BuilderMediaPicker', 'builder-media-picker', 'MediaPicker')
+const FIELD = reaching('BuilderMediaField', 'builder-media-field', 'MediaField')
+
+const PICKER_FILE = 'app/components/Builder/MediaPicker.vue'
 const MOUNTER = 'app/components/Builder/MediaField.vue'
 const FORM = 'app/components/Builder/SettingField.vue'
 
@@ -35,11 +47,38 @@ describe('the media library dialog', () => {
     expect(sourceFiles.find(({ path }) => path === FORM)?.source).toMatch(FIELD)
   })
 
-  it('is mounted by the image setting alone', () => {
-    expect(sourceFiles.filter(({ source }) => PICKER.test(source)).map(({ path }) => path)).toEqual([MOUNTER])
+  it.each([
+    ['a tag', '<BuilderMediaPicker v-model:open="open" />'],
+    ['a lazy tag', '<LazyBuilderMediaPicker />'],
+    ['a kebab-case tag', '<builder-media-picker />'],
+    ['resolveComponent', 'resolveComponent(\'BuilderMediaPicker\')'],
+    ['resolveComponent of the lazy name', 'resolveComponent(\'LazyBuilderMediaPicker\')'],
+    ['h()', 'h(BuilderMediaPicker, { open: true })'],
+    ['an import', 'import Picker from \'~/components/Builder/MediaPicker.vue\''],
+    ['a component map', 'components: { BuilderMediaPicker }'],
+  ])('sees the picker reached by %s', (_how, snippet) => {
+    expect(snippet).toMatch(PICKER)
+  })
+
+  it.each([
+    ['a tag', '<BuilderMediaField :value="1" />'],
+    ['a kebab-case tag', '<builder-media-field />'],
+    ['resolveComponent', 'resolveComponent(\'BuilderMediaField\')'],
+    ['h()', 'h(LazyBuilderMediaField, {})'],
+    ['an import', 'import Field from \'~/components/Builder/MediaField.vue\''],
+  ])('sees the field reached by %s', (_how, snippet) => {
+    expect(snippet).toMatch(FIELD)
+  })
+
+  it('is reached from the image setting alone', () => {
+    const offenders = sourceFiles.filter(({ path, source }) => path !== PICKER_FILE && PICKER.test(source)).map(({ path }) => path)
+
+    expect(offenders).toEqual([MOUNTER])
   })
 
   it('is a setting of the page editor form alone', () => {
-    expect(sourceFiles.filter(({ source }) => FIELD.test(source)).map(({ path }) => path)).toEqual([FORM])
+    const offenders = sourceFiles.filter(({ path, source }) => path !== MOUNTER && FIELD.test(source)).map(({ path }) => path)
+
+    expect(offenders).toEqual([FORM])
   })
 })

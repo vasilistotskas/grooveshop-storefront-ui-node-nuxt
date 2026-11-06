@@ -326,7 +326,7 @@ describe('the cache of a read', () => {
     expect(keyOf('shop-a.test', 'en', { a: 1, b: 2 })).toBe(keyOf('shop-a.test', 'en', { b: 2, a: 1 }))
   })
 
-  it('keeps the name Django\'s purge of the builder surface evicts, and keys the public media read on the store and the language', () => {
+  it('names the public media read builderDataMedia, expires it briefly, and keys it on the store and the language (the epoch and the TTL evict it until Django\'s purge names it)', () => {
     const { getKey } = cacheOptionsOf(readMedia)
     if (!getKey) throw new Error('A read must state its key')
 

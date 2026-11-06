@@ -10,6 +10,8 @@ defineProps<{
 const emit = defineEmits<{
   /** The image to use: the library's own record of it, alt text included. */
   select: [asset: Asset]
+  /** An image was deleted from the library: a setting that holds it holds nothing now. */
+  remove: [id: number]
 }>()
 
 const open = defineModel<boolean>('open', { required: true })
@@ -26,7 +28,9 @@ watch(search, () => {
   page.value = 1
 })
 
+// Its own key: pickers of one page share a call site and a query, and a shared key would keep the first one's `enabled`.
 const { data: library, status, refresh } = useLazyApi('/api/builder/media', {
+  key: `builder-media-library-${useId()}`,
   query: computed(() => ({
     page: page.value,
     pageSize: BUILDER_MEDIA_PAGE_SIZE,
@@ -45,10 +49,15 @@ watch(current, (asset) => {
   alt.value = { ...asset?.alt }
   confirmingDelete.value = false
 })
-// `enabled` only blocks a fetch; opening is what asks for the library, afresh each time (an upload elsewhere shows).
+// `enabled` only blocks a fetch; opening is what asks for the library, afresh each time from its first page (an upload elsewhere shows).
 watch(open, (isOpen) => {
-  if (isOpen) void refresh()
-  else current.value = undefined
+  if (!isOpen) {
+    current.value = undefined
+    return
+  }
+  // A new page is itself a new question; the same page is asked again.
+  if (page.value === 1) void refresh()
+  else page.value = 1
 })
 
 const languages = computed(() => current.value ? toUiLocales(Object.keys(current.value.alt)) : [])
@@ -93,9 +102,13 @@ async function remove(): Promise<void> {
   if (!current.value) return
   busy.value = true
   try {
-    await $api(`/api/builder/media/${current.value.id}`, { method: 'DELETE' })
+    const { id } = current.value
+    await $api(`/api/builder/media/${id}`, { method: 'DELETE' })
     current.value = undefined
-    await refresh()
+    emit('remove', id)
+    // The last image of the last page leaves that page empty: Django answers 404 past the end, so step back.
+    if (page.value > 1 && library.value?.results.length === 1) page.value -= 1
+    else await refresh()
   }
   catch (error) {
     // A published page still uses it: Django names the documents, and the editor says which.

@@ -65,7 +65,7 @@ export function cachedRead<Schema extends z.ZodType>(
   )
 }
 
-// The cache names are a contract with Django's purge (`core/cache/surfaces.py`).
+// The cache names are a contract with Django's purge (`core/cache/surfaces.py`), except `builderDataMedia`, which that file does not name yet: until the block change adds it, the epoch in the key and the short TTL are what evict it.
 const readProducts = cachedRead('builderDataProduct', '/product', zListProductResponse)
 const readBlogPosts = cachedRead('builderDataBlogPost', '/blog/post', zListBlogPostResponse)
 const readCategories = cachedRead('builderDataCategory', '/product/category', zListProductCategoryResponse)
@@ -74,13 +74,6 @@ const readPromotions = cachedRead('builderDataPromotion', '/promotion', zListPub
 // Django names the language of the alt text `locale` here, and serves only the assets a release uses.
 export const readMedia = cachedRead('builderDataMedia', '/builder/media/resolve', zApiV1BuilderMediaResolveRetrieveResponse, { localeKey: 'locale' })
 
-/**
- * The editor's preview reads any asset of the library
- * (`GET builder/media/staff-resolve`), so a draft shows an image nobody has
- * published. It is NEVER cached: the answer is for one staff member, and
- * under the public entry's name it would hand an unpublished image to the
- * next visitor. Only a preview passes the credentials (`BuilderReadOptions`).
- */
 /**
  * A share link reads the assets its frozen documents point at
  * (`GET builder/preview-media/<token>`), so a draft shows an image nobody has
@@ -95,6 +88,13 @@ async function readSharedMedia({ tenantHost, locale, shareToken }: LoaderContext
   return parseDataAs(response, zApiV1BuilderPreviewMediaRetrieveResponse)
 }
 
+/**
+ * The editor's preview reads any asset of the library
+ * (`GET builder/media/staff-resolve`), so a draft shows an image nobody has
+ * published. It is NEVER cached: the answer is for one staff member, and
+ * under the public entry's name it would hand an unpublished image to the
+ * next visitor. Only a preview passes the credentials (`BuilderReadOptions`).
+ */
 async function readStaffMedia({ tenantHost, locale, staffHeaders }: LoaderContext, query: DjangoQuery) {
   const response = await backendFetchFor({ tenantHost, locale, ...(staffHeaders && { headers: { ...staffHeaders } }) })(
     `${useRuntimeConfig().apiBaseUrl}/builder/media/staff-resolve`,

@@ -52,6 +52,29 @@ describe('POST /api/builder/media', () => {
     expect(received).toBe(2048)
   })
 
+  it('files the upload under the store and the staff member, whatever the client claims', async () => {
+    const cookie = await signInBuilderStaff()
+    backend.replyOnce(jsonResponse({ ...makeAsset({ id: 9 }), duplicate: false }, 201))
+
+    await callRoute(handler, {
+      route,
+      method: 'POST',
+      body: Buffer.alloc(16, 1),
+      headers: {
+        ...multipart,
+        'cookie': cookie,
+        'x-forwarded-host': 'victim-store.example',
+        'authorization': 'StaffBearer stolen-token',
+        'x-language': 'xx',
+      },
+    })
+
+    const sent = backend.lastRequest.headers
+    expect(sent.get('x-forwarded-host')).toBe('shop.test')
+    expect(sent.get('authorization')).toBe(`StaffBearer ${BUILDER_STAFF_TOKEN}`)
+    expect(sent.get('x-language')).not.toBe('xx')
+  })
+
   it('marks the reply private and uncached, whatever Django says about caching', async () => {
     const cookie = await signInBuilderStaff()
     backend.replyOnce(jsonResponse({ ...makeAsset({ id: 9 }), duplicate: true }, 201, { 'Cache-Control': 'public, max-age=600' }))

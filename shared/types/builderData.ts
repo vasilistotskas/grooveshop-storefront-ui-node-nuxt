@@ -86,8 +86,10 @@ export interface DataResolution {
  * is the editor canvas, which keeps a node the page would leave out.
  * `staffHeaders` is the editor's preview alone: the staff member's
  * credentials, with which an image nobody has published is read too (the
- * published read serves only what a release uses). A published page and a
- * share link pass none, and never read an unpublished image.
+ * published read serves only what a release uses). `shareToken` is a share
+ * link's: its images are read through the token, which opens only the assets
+ * the link's frozen documents use. A published page passes neither and never
+ * reads an unpublished image.
  */
 export interface BuilderReadOptions {
   keepHidden?: boolean

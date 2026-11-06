@@ -33,23 +33,25 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-async function mount(selected: number | undefined = undefined) {
+async function mount(selected: number | undefined = undefined, startOpen = true) {
   const chosen: Asset[] = []
+  const removed: number[] = []
+  const open = ref(startOpen)
   const wrapper = await mountSuspended(defineComponent({
     setup() {
-      const open = ref(true)
       return () => h(UApp, null, {
         default: () => h(BuilderMediaPicker, {
           'open': open.value,
           'onUpdate:open': (next: boolean) => { open.value = next },
           selected,
           'onSelect': (asset: Asset) => chosen.push(asset),
+          'onRemove': (id: number) => removed.push(id),
         }),
       })
     },
   }), { attachTo: document.body })
   await flushPromises()
-  return { wrapper, chosen }
+  return { wrapper, chosen, removed, open }
 }
 
 const all = <T extends HTMLElement>(selector: string) => [...document.querySelectorAll<T>(selector)]
@@ -149,6 +151,86 @@ describe('BuilderMediaPicker', () => {
     expect((post.options.body as FormData).get('file')).toBe(file)
     expect(field('Εναλλακτικό κείμενο (Ελληνικά)')).toBeTruthy()
     expect(document.body.textContent).toContain('new.webp')
+  })
+
+  it('asks for the library only once it is opened, and again at its first page each time', async () => {
+    const { open } = await mount(undefined, false)
+    expect(api.callsTo(LIBRARY)).toHaveLength(0)
+
+    open.value = true
+    await flushPromises()
+    expect(all('ul button').map(node => node.getAttribute('aria-label'))).toEqual(['hero.jpg', 'banner.png'])
+    expect(api.callsTo(LIBRARY)).toHaveLength(1)
+  })
+
+  it('opens at the first page even when it was closed on a later one', async () => {
+    api.routes({ [LIBRARY]: (_url: string, options: { query?: { page?: number } }) => ({ count: 30, results: options.query?.page === 2 ? [banner] : [hero] }) })
+    const { open } = await mount()
+    const second = all<HTMLButtonElement>('nav button').find(node => node.textContent?.trim() === '2')!
+    second.click()
+    await flushPromises()
+    expect(api.callsTo(LIBRARY).at(-1)!.options.query.page).toBe(2)
+
+    open.value = false
+    await flushPromises()
+    open.value = true
+    await flushPromises()
+
+    expect(api.callsTo(LIBRARY).at(-1)!.options.query.page).toBe(1)
+  })
+
+  it('keeps one library per picker: opening the second asks for it even though the first never opened', async () => {
+    const opens = [ref(false), ref(false)]
+    await mountSuspended(defineComponent({
+      setup: () => () => h(UApp, null, {
+        default: () => opens.map((open, index) => h(BuilderMediaPicker, {
+          'key': index,
+          'open': open.value,
+          'onUpdate:open': (next: boolean) => { open.value = next },
+          'selected': undefined,
+        })),
+      }),
+    }), { attachTo: document.body })
+    await flushPromises()
+
+    opens[1]!.value = true
+    await flushPromises()
+
+    expect(all('ul button').map(node => node.getAttribute('aria-label'))).toEqual(['hero.jpg', 'banner.png'])
+  })
+
+  it('deletes an image nothing uses, tells the field, and shows the library without it', async () => {
+    const { removed } = await mount()
+    await look('banner.png')
+    api.routes({ [LIBRARY]: { count: 1, results: [hero] }, [`${LIBRARY}/8`]: null })
+
+    button('Διαγραφή')!.click()
+    await flushPromises()
+    button('Επιβεβαίωση διαγραφής')!.click()
+    await flushPromises()
+
+    expect(api.callsTo(`${LIBRARY}/8`)[0]!.options.method).toBe('DELETE')
+    expect(removed).toEqual([8])
+    expect(all('ul button').map(node => node.getAttribute('aria-label'))).toEqual(['hero.jpg'])
+    expect(button('Αποθήκευση κειμένου')).toBeUndefined()
+  })
+
+  it('steps back a page when the last image of the last page is deleted', async () => {
+    const onlyOnLast = (_url: string, options: { query?: { page?: number } }) =>
+      options.query?.page === 2 ? { count: 25, results: [banner] } : { count: 25, results: [hero] }
+    api.routes({ [LIBRARY]: onlyOnLast })
+    await mount()
+    all<HTMLButtonElement>('nav button').find(node => node.textContent?.trim() === '2')!.click()
+    await flushPromises()
+    await look('banner.png')
+    api.routes({ [LIBRARY]: onlyOnLast, [`${LIBRARY}/8`]: null })
+
+    button('Διαγραφή')!.click()
+    await flushPromises()
+    button('Επιβεβαίωση διαγραφής')!.click()
+    await flushPromises()
+
+    expect(api.callsTo(LIBRARY).at(-1)!.options.query.page).toBe(1)
   })
 
   it('asks twice before it deletes, and names the pages that use an image Django refuses to delete', async () => {

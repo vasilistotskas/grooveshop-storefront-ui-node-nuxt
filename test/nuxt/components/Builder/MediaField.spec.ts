@@ -104,4 +104,33 @@ describe('BuilderMediaField', () => {
 
     expect(updates).toEqual([8])
   })
+
+  describe('deleting from the library', () => {
+    async function deleteInLibrary(name: string, id: number) {
+      const mounted = await mount(4)
+      button('Αλλαγή εικόνας: Εικόνα')!.click()
+      await flushPromises()
+      await vi.waitFor(() => expect(button(name)).not.toBeUndefined())
+      button(name)!.click()
+      await flushPromises()
+      api.routes({ [LIBRARY]: { count: 1, results: [hero] }, [`${LIBRARY}/${id}`]: null })
+      button('Διαγραφή')!.click()
+      await flushPromises()
+      button('Επιβεβαίωση διαγραφής')!.click()
+      await flushPromises()
+      return mounted
+    }
+
+    it('clears the setting when the image it holds is deleted: publishing would be refused with it', async () => {
+      const { updates } = await deleteInLibrary('hero.jpg', 4)
+
+      expect(updates).toEqual([undefined])
+    })
+
+    it('leaves the setting alone when another image is deleted', async () => {
+      const { updates } = await deleteInLibrary('banner.png', 8)
+
+      expect(updates).toEqual([])
+    })
+  })
 })

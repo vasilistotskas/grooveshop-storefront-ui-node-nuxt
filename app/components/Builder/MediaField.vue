@@ -28,6 +28,11 @@ const { data: asset, error, refresh } = useLazyApi(() => `/api/builder/media/${i
 const unavailable = computed(() => id.value !== undefined && error.value?.statusCode === 404)
 const name = computed(() => asset.value ? builderMediaName(asset.value.path) : t('image', { id: id.value }))
 
+/** The library deleted an image: if the setting holds it, it holds nothing (publishing would be refused). */
+function forget(removed: number): void {
+  if (removed === id.value) emit('update', undefined)
+}
+
 function choose(chosen: Asset): void {
   emit('update', chosen.id)
   void refresh()
@@ -92,6 +97,7 @@ function choose(chosen: Asset): void {
       v-model:open="open"
       :selected="id"
       @select="choose"
+      @remove="forget"
     />
   </div>
 </template>
