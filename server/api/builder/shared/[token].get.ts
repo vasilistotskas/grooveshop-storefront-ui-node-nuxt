@@ -23,7 +23,7 @@ export default defineEventHandler(async (event): Promise<BuilderPreviewResponse>
       `${config.apiBaseUrl}/builder/preview/${token}/${page}`,
       { method: 'GET', query: { locale: requestLocale(event) } },
     ).then(response => parseDataAs(response, zApiV1BuilderPreviewRetrieveResponse))
-    return await builderPreviewOf(event, builderDocumentKey('page', page), resolving)
+    return await builderPreviewOf(event, builderDocumentKey('page', page), resolving, { shareToken: token })
   }
   catch (error) {
     return handleError(event, error)

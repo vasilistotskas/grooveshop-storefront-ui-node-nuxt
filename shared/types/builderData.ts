@@ -1,6 +1,6 @@
 import type { z } from 'zod'
 
-import type { BlogCategory, BlogPost, ProductCard, ProductCategory } from '../openapi/types.gen'
+import type { BlogCategory, BlogPost, ProductCard, ProductCategory, ResolvedAsset } from '../openapi/types.gen'
 import type { zPublicPromotion } from '../openapi/zod.gen'
 import type { BLOG_POST_ORDERINGS, PRODUCT_ORDERINGS } from '../constants/builder'
 import type { DataDeclaration, DataRecordKind, DataSource } from './builder'
@@ -14,6 +14,8 @@ export interface DataRecords {
   blogPost: BlogPost
   category: ProductCategory
   blogCategory: BlogCategory
+  /** An image of the media library: where it is served from, its size, its alt text in the page's language. */
+  media: ResolvedAsset
 }
 
 /** What a list of each source holds. */
@@ -77,6 +79,23 @@ export interface DataPlan {
 export interface DataResolution {
   records: Readonly<Record<DataRecordKind, ReadonlyMap<number, unknown> | 'failed'>>
   queries: ReadonlyMap<string, QueryAnswer<unknown> | 'failed'>
+}
+
+/**
+ * How a document's data is read for the page that renders it. `keepHidden`
+ * is the editor canvas, which keeps a node the page would leave out.
+ * `staffHeaders` is the editor's preview alone: the staff member's
+ * credentials, with which an image nobody has published is read too (the
+ * published read serves only what a release uses). `shareToken` is a share
+ * link's: its images are read through the token, which opens only the assets
+ * the link's frozen documents use. A published page passes neither and never
+ * reads an unpublished image.
+ */
+export interface BuilderReadOptions {
+  keepHidden?: boolean
+  staffHeaders?: Readonly<Record<string, string>>
+  /** A share link's token: its images are read through it, since a draft can use one nobody has published. */
+  shareToken?: string
 }
 
 /** What a list answers: the items it shows, and how many match in all. */

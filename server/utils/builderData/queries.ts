@@ -27,15 +27,22 @@ const PRODUCT_ORDER_BY = {
 const parseDescriptor = <Schema extends z.ZodType>(schema: Schema, descriptor: unknown): z.output<Schema> =>
   schema.parse(descriptor)
 
+/** The ids once each and sorted, in groups of at most `size`: the same set is the same questions. */
+function idChunks(ids: readonly number[], size: number): number[][] {
+  const sorted = [...new Set(ids)].sort((a, b) => a - b)
+  const chunks: number[][] = []
+  for (let from = 0; from < sorted.length; from += size) chunks.push(sorted.slice(from, from + size))
+  return chunks
+}
+
 /** Records by id: one read per `DATA_MAX_PAGE_SIZE` ids, the ids sorted so the same set is the same question. */
 export function idQueries(ids: readonly number[]): DjangoQuery[] {
-  const sorted = [...new Set(ids)].sort((a, b) => a - b)
-  const queries: DjangoQuery[] = []
-  for (let from = 0; from < sorted.length; from += DATA_MAX_PAGE_SIZE) {
-    const chunk = sorted.slice(from, from + DATA_MAX_PAGE_SIZE)
-    queries.push({ id_In: chunk.join(','), pageSize: chunk.length })
-  }
-  return queries
+  return idChunks(ids, DATA_MAX_PAGE_SIZE).map(chunk => ({ id_In: chunk.join(','), pageSize: chunk.length }))
+}
+
+/** Assets by id: one read per `DATA_MEDIA_MAX_IDS` ids, which is all Django's resolve answers. */
+export function mediaQueries(ids: readonly number[]): DjangoQuery[] {
+  return idChunks(ids, DATA_MEDIA_MAX_IDS).map(chunk => ({ ids: chunk.join(',') }))
 }
 
 export function productQuery(descriptor: unknown): DjangoQuery {
