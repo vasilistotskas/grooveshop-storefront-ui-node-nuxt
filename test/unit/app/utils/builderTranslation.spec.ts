@@ -6,6 +6,7 @@ import {
   builderTranslatedSettings,
   builderTranslationAt,
   setNodeTranslation,
+  upgradeNodeTranslations,
 } from '~/utils/builderTranslation'
 import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
 import type { BuilderWorkingCopy } from '~~/shared/types/builderEditor'
@@ -72,6 +73,54 @@ describe('builderTranslatedSettings', () => {
       .toEqual({ title: 'Offers', prompt: { text: 'See them' }, surface: 'muted' })
     expect(builderTranslatedSettings({}, { '/prompt/text': 'See them' })).toEqual({ prompt: { text: 'See them' } })
     expect(settings).toEqual(page().draft.sections.band!.settings)
+  })
+})
+
+describe('upgradeNodeTranslations', () => {
+  /** A band that had a `title` beside its `heading`, which won when both were set: one `heading` now. */
+  const banner = defineBlock({
+    type: 'banner',
+    version: 2,
+    kinds: ['section'],
+    schema: z.object({ heading: z.string().optional(), note: z.string().optional() }),
+    translatable: ['/heading', '/note'],
+    upgrade: {
+      1: ({ settings: { title, heading, dropped: _dropped, ...kept }, ...body }) => ({
+        ...body,
+        settings: { ...kept, ...((heading ?? title) !== undefined && { heading: heading ?? title }) },
+      }),
+    },
+  })
+
+  it('moves a translation with the setting the upgrade renames', () => {
+    expect(upgradeNodeTranslations(node('banner@1', { title: 'Νέα' }), banner, { '/title': 'New' })).toEqual({ '/heading': 'New' })
+  })
+
+  it('keeps what the language reads when the upgrade merges two settings', () => {
+    const both = node('banner@1', { title: 'Τίτλος', heading: 'Επικεφαλίδα' })
+
+    // The heading won, in the draft's text, so the title's translation was never read.
+    expect(upgradeNodeTranslations(both, banner, { '/title': 'Title' })).toEqual({})
+    expect(upgradeNodeTranslations(both, banner, { '/title': 'Title', '/heading': 'Heading' })).toEqual({ '/heading': 'Heading' })
+  })
+
+  it('drops a translation of a setting the upgrade takes out', () => {
+    expect(upgradeNodeTranslations(node('banner@1', { dropped: 'Α', note: 'Β' }), banner, { '/dropped': 'A', '/note': 'B' })).toEqual({ '/note': 'B' })
+  })
+
+  it('leaves out an entry that only repeats the draft\'s text, and keeps one that was already there', () => {
+    expect(upgradeNodeTranslations(node('banner@1', { title: 'Same' }), banner, { '/title': 'Same' })).toEqual({})
+    expect(upgradeNodeTranslations(node('banner@1', { note: 'Same' }), banner, { '/note': 'Same' })).toEqual({ '/note': 'Same' })
+  })
+
+  it('takes out an empty translation, which says nothing', () => {
+    expect(upgradeNodeTranslations(node('banner@1', { note: 'Β' }), banner, { '/note': '' })).toEqual({})
+  })
+
+  it('returns the translations of a node already current as they are', () => {
+    const translations = { '/heading': 'Now', '/stale': 'kept' }
+
+    expect(upgradeNodeTranslations(node('banner@2', { heading: 'Τώρα' }), banner, translations)).toBe(translations)
   })
 })
 
