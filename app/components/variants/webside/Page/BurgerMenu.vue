@@ -195,31 +195,33 @@ const onClickCookieSettings = () => {
               dark:hover:bg-primary-900/60
             "
           >
-            <UserAvatar
-              :user-account="account"
-              :show-name="false"
-              size="lg"
-            />
             <div
               data-clarity-mask="true"
-              class="flex min-w-0 flex-col"
+              class="contents"
             >
-              <span
-                class="
-                  truncate text-sm font-semibold text-primary-950
-                  dark:text-primary-50
-                "
-              >
-                {{ t('hello_user', { name: greetingName }) }}
-              </span>
-              <span
-                class="
-                  truncate text-xs text-primary-700
-                  dark:text-primary-300
-                "
-              >
-                {{ user?.email }}
-              </span>
+              <UserAvatar
+                :user-account="account"
+                :show-name="false"
+                size="lg"
+              />
+              <div class="flex min-w-0 flex-col">
+                <span
+                  class="
+                    truncate text-sm font-semibold text-primary-950
+                    dark:text-primary-50
+                  "
+                >
+                  {{ t('hello_user', { name: greetingName }) }}
+                </span>
+                <span
+                  class="
+                    truncate text-xs text-primary-700
+                    dark:text-primary-300
+                  "
+                >
+                  {{ user?.email }}
+                </span>
+              </div>
             </div>
             <UIcon
               name="i-heroicons-chevron-right"

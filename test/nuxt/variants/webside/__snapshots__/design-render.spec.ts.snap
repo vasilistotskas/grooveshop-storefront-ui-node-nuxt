@@ -1161,7 +1161,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                             <!--v-if-->
                           </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>
                       </li>
-                      <li class="relative grid items-center justify-center justify-items-center"><button class="cursor-pointer bg-transparent p-0" id="ID" type="button" aria-haspopup="menu" aria-expanded="false" data-state="closed" aria-label="Προφίλ">
+                      <li class="relative grid items-center justify-center justify-items-center"><button class="cursor-pointer bg-transparent p-0" id="ID" type="button" aria-haspopup="menu" aria-expanded="false" data-state="closed" aria-label="Προφίλ" data-clarity-mask="true">
                           <div title="" class="gap-0 flex flex-col items-center" arrow="">
                             <div class="group relative"><span data-slot="root" class="inline-flex items-center justify-center shrink-0 select-none rounded-full align-middle size-7 text-sm bg-elevated transition-opacity"><img width="28" height="28" data-nuxt-img="" srcset="/_ipx/s_28x28/img/default.png 1x, /_ipx/s_56x56/img/default.png 2x" alt="Μαρία Παπαδοπούλου" data-slot="image" class="h-full w-full rounded-[inherit] object-cover" src="/_ipx/s_28x28/img/default.png"></span>
                               <!--v-if-->

@@ -27,23 +27,28 @@ const name = computed(() =>
       p-3.5
     "
   >
-    <UAvatar
-      :alt="name || user?.email"
-      size="xl"
-      :ui="{
-        root: 'bg-volt',
-        fallback: 'font-extrabold text-on-volt',
-      }"
-    />
-    <span class="flex min-w-0 flex-1 flex-col">
-      <strong class="truncate text-[0.9375rem] text-highlighted">
-        {{ name || t('account') }}
-      </strong>
-      <ChromeMobileMenuLoyalty v-if="loyaltyEnabled" />
-      <span
-        v-else
-        class="truncate text-xs text-muted"
-      >{{ user?.email }}</span>
+    <span
+      data-clarity-mask="true"
+      class="contents"
+    >
+      <UAvatar
+        :alt="name || user?.email"
+        size="xl"
+        :ui="{
+          root: 'bg-volt',
+          fallback: 'font-extrabold text-on-volt',
+        }"
+      />
+      <span class="flex min-w-0 flex-1 flex-col">
+        <strong class="truncate text-[0.9375rem] text-highlighted">
+          {{ name || t('account') }}
+        </strong>
+        <ChromeMobileMenuLoyalty v-if="loyaltyEnabled" />
+        <span
+          v-else
+          class="truncate text-xs text-muted"
+        >{{ user?.email }}</span>
+      </span>
     </span>
     <UIcon
       name="i-heroicons-chevron-right"

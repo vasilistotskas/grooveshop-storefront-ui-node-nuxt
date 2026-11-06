@@ -42,23 +42,25 @@ const UI = {
 <template>
   <UDrawer
     v-model:open="open"
-    :title="menu.name.value"
-    :description="standing"
     :ui="UI"
   >
     <template #title>
-      <span class="flex items-center gap-3.5">
+      <span
+        data-clarity-mask="true"
+        class="flex items-center gap-3.5"
+      >
         <UAvatar
           :src="menu.avatarSrc.value"
           alt=""
           size="xl"
           :ui="AVATAR_UI"
         />
-        <span
-          data-clarity-mask="true"
-          class="truncate"
-        >{{ menu.name.value }}</span>
+        <span class="truncate">{{ menu.name.value }}</span>
       </span>
+    </template>
+
+    <template #description>
+      <span data-clarity-mask="true">{{ standing }}</span>
     </template>
 
     <template #body>
