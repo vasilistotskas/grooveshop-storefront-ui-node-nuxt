@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-// Client only: the order's id is in this tab's history state, which a server
-// render cannot read (`app/utils/checkoutArrival.ts`).
 defineRouteRules({
   robots: false,
-  ssr: false,
 })
 definePageMeta({
   layout: 'default',
@@ -13,7 +10,11 @@ const body = computed(() => resolvePage('checkout-success', tenantStore.schemaNa
 </script>
 
 <template>
-  <component
-    :is="body"
-  />
+  <!-- In the browser only: the order is in this tab's storage, which a server
+       render cannot read (`app/utils/checkoutArrival.ts`). -->
+  <ClientOnly>
+    <component
+      :is="body"
+    />
+  </ClientOnly>
 </template>

@@ -1,19 +1,19 @@
 import { splitLocale } from '~~/shared/i18n/localeFromPath'
 
 /**
- * The pages whose address is itself a secret: a key emailed to one person, or
- * an order id that opens a guest order without a login.
+ * The addresses that hold a secret: a key emailed to one person, or an order id
+ * that opens a guest order without a login.
  *
  * Every tracker sends the page's address with its hits, and most offer no way
  * to change it. So no tracker runs while one of these is the address
  * (`useTrackingAllowed` in `app/composables/setups.ts`). On 2026-11-06 a
  * password-reset key was seen reaching Google from webside this way.
  *
- * A new page with a secret in its address goes here.
- * `test/unit/source-rules/private-urls.spec.ts` fails for a dynamic page under
- * these sections that is not.
+ * A new page with a secret in its path or query goes here.
+ * `test/unit/source-rules/private-urls.spec.ts` fails for a dynamic page named
+ * as one that is not.
  */
-const PRIVATE_URL_PATTERNS: readonly RegExp[] = [
+const PRIVATE_PATHS: readonly RegExp[] = [
   /^\/account\/password\/reset\/key\/[^/]+$/,
   /^\/account\/verify-email\/[^/]+$/,
   /^\/account\/provider\/callback$/,
@@ -24,8 +24,23 @@ const PRIVATE_URL_PATTERNS: readonly RegExp[] = [
   /^\/newsletter\/confirm\/[^/]+$/,
 ]
 
-/** Whether this address, with or without a locale prefix, holds a secret. */
-export function isPrivateUrl(path: string): boolean {
+/** Query parameters that are secrets: `export` opens a shopper's data export. */
+const PRIVATE_QUERY_PARAMS: readonly string[] = ['export']
+
+/** Query parameters holding the address to go to next, as login's do. */
+const NEXT_ADDRESS_PARAMS: readonly string[] = ['next', 'redirect']
+
+/** Whether this address (path and query, any locale) holds a secret. */
+export function isPrivateUrl(url: string): boolean {
+  const queryAt = url.indexOf('?')
+  const path = queryAt === -1 ? url : url.slice(0, queryAt)
   const { route } = splitLocale(path)
-  return PRIVATE_URL_PATTERNS.some(pattern => pattern.test(route))
+  if (PRIVATE_PATHS.some(pattern => pattern.test(route))) return true
+  if (queryAt === -1) return false
+  const query = new URLSearchParams(url.slice(queryAt + 1))
+  return PRIVATE_QUERY_PARAMS.some(name => query.has(name))
+    || NEXT_ADDRESS_PARAMS.some((name) => {
+      const next = query.get(name)
+      return next !== null && isPrivateUrl(next)
+    })
 }

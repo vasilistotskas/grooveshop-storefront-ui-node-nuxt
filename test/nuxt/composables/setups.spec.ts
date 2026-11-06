@@ -272,6 +272,23 @@ describe('setupGoogleAnalyticsConsent', () => {
     }
   })
 
+  it('holds the tag while the query holds a secret', async () => {
+    const address = window.location.pathname
+    window.history.replaceState(null, '', '/account/settings/privacy?export=a-token')
+    try {
+      decide(true, 'analytics_storage')
+
+      const tag = await mountTag()
+      loadIdle.resolve()
+      await flushPromises()
+
+      expect(tag.fired).toBe(false)
+    }
+    finally {
+      window.history.replaceState(null, '', address)
+    }
+  })
+
   it('queues the decision the visitor arrived with at once', async () => {
     const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
     isConsentGiven.value = true

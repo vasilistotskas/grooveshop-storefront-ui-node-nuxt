@@ -333,8 +333,8 @@ function useStorageConsent(category: 'ad_storage' | 'analytics_storage') {
 function useTrackingAllowed() {
   const router = useRouter()
   return computed(() =>
-    !isPrivateUrl(router.currentRoute.value.path)
-    && !isPrivateUrl(window.location.pathname),
+    !isPrivateUrl(router.currentRoute.value.fullPath)
+    && !isPrivateUrl(window.location.pathname + window.location.search),
   )
 }
 

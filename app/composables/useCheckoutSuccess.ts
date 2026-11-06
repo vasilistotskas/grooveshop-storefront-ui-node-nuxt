@@ -21,11 +21,11 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   // the first await: after one, the server has lost the injection context
   // Pinia needs, and a hook has no component instance to belong to.
   const blogEnabled = useStoreFeature('blog')
-  const arrival = readCheckoutArrival(window.history.state)
+  const arrival = readCheckoutArrival()
   const orderUUID = arrival?.orderUuid
 
   if (!orderUUID) {
-    throw createError({ statusCode: 404, statusMessage: 'Missing order UUID' })
+    throw createError({ statusCode: 404, statusMessage: 'Missing order UUID', fatal: true })
   }
 
   const sessionId = computed(() => arrival?.sessionId)
@@ -136,7 +136,7 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   const googleAds = useGoogleAds()
   const purchaseEventFired = ref(false)
   function tryFirePurchaseEvent() {
-    if (!order.value || purchaseEventFired.value) return
+    if (!order.value || purchaseEventFired.value || arrival?.purchaseReported) return
     // Purchase is only meaningful when the customer landed here via a
     // real checkout flow (not a revisit of an older link to the order).
     // Gate on ``fromCheckout`` so direct revisits don't
@@ -247,6 +247,7 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
         newCustomer: order.value.isFirstOrder,
       })
       purchaseEventFired.value = true
+      markPurchaseReported()
     }
     catch (pixelErr) {
       log.warn(
