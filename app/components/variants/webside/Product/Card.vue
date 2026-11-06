@@ -5,9 +5,15 @@ const { productUrl } = useUrls()
 const { t, locale } = useStoreI18n('components/variants/webside/Product/Card')
 // Off, reviews are gone everywhere — the stars on a card with them.
 const productReviewsEnabled = useStoreFeature('productReviews')
+const productAlertsEnabled = useStoreFeature('productAlerts')
 
 const props = defineProps({
   product: { type: Object as PropType<Product | ProductCard>, required: true },
+  /**
+   * The element the card renders as: `li` inside the `<ul>`/`<ol>` of a
+   * listing, `div` on a slide of a rail, which is no list.
+   */
+  as: { type: String, required: false, default: 'li' },
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },
@@ -128,7 +134,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
 <template>
   <UCard
-    as="li"
+    :as="as"
     class="
       product-card group relative h-full w-full max-w-full transition-all duration-300
       hover:shadow-xl hover:scale-[1.02]
@@ -342,6 +348,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           w-full transition-all duration-300
           hover:scale-105
         "
+      />
+
+      <LazyWebsideProductNotifyMe
+        v-if="productAlertsEnabled && product.stock === 0"
+        :product-id="productId"
+        kind="restock"
       />
     </div>
   </UCard>

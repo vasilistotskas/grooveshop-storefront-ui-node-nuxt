@@ -341,10 +341,16 @@ describe.each([
   })
 
   describe('missing order', () => {
-    it('404s when the order does not exist', async () => {
+    it('shows the error page when the order does not exist', async () => {
       serveOrders(failWith(404))
 
-      expect(await setupError()).toMatchObject({ statusCode: 404 })
+      expect(await setupError()).toMatchObject({ statusCode: 404, fatal: true })
+    })
+
+    it('shows the error page when a guest\'s link is past its time', async () => {
+      serveOrders(failWith(403))
+
+      expect(await setupError()).toMatchObject({ statusCode: 404, fatal: true })
     })
 
     it('404s without a uuid in the route', async () => {

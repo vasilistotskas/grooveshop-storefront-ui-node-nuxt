@@ -10,6 +10,9 @@
  * The whole band disappears when the list comes back empty: its block
  * declares that, and a heading over nothing is what a brand-new store used
  * to show.
+ *
+ * A design with its own product card draws it through the `card` slot: the
+ * band and the rail stay these ones.
  */
 const props = withDefaults(defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
@@ -25,6 +28,10 @@ const props = withDefaults(defineProps<{
 }>(), {
   showAddToCart: true,
 })
+
+const slots = defineSlots<{
+  card?(props: { product: ProductCard, showAddToCart: boolean }): unknown
+}>()
 
 const { t } = useStoreI18n('components/PageSection/ProductsSlider')
 const localePath = useLocalePath()
@@ -71,7 +78,17 @@ const cta = computed(() => {
     <ProductsRail
       :products="[...products.items]"
       :show-add-to-cart="showAddToCart"
-    />
+    >
+      <template
+        v-if="slots.card"
+        #card="card"
+      >
+        <slot
+          name="card"
+          v-bind="card"
+        />
+      </template>
+    </ProductsRail>
   </PageSectionBand>
 </template>
 
