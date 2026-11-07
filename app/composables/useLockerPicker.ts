@@ -46,7 +46,7 @@ export function useLockerPicker(options: {
   open: Ref<boolean>
 }) {
   const { props, open } = options
-  const { t, locale } = useNuxtApp().$i18n
+  const { t, te, locale } = useNuxtApp().$i18n
 
   const activeTab = ref<'list' | 'map'>('map')
   const query = ref('')
@@ -69,19 +69,33 @@ export function useLockerPicker(options: {
     // between two openings.
     const country = (props.countryCode ?? 'GR').toUpperCase()
     if (loadedCountry === country && lockers.value.length > 0) return
+    // Another country's lockers must never stay on screen, and stay
+    // choosable, while this one loads or after it failed.
+    if (loadedCountry !== country) {
+      lockers.value = []
+      loadedCountry = null
+    }
     abort?.abort()
     const controller = new AbortController()
     abort = controller
     loading.value = true
     errorMessage.value = null
     try {
-      lockers.value = await props.carrier.fetchAll(country, controller.signal)
+      const loaded = await props.carrier.fetchAll(country, controller.signal)
+      // A newer load (another country) owns the picker now.
+      if (abort !== controller) return
+      lockers.value = loaded
       loadedCountry = country
     }
     catch (err: unknown) {
-      if (err instanceof DOMException && err.name === 'AbortError') return
+      if (abort !== controller || (err instanceof DOMException && err.name === 'AbortError')) return
       log.warn({ tag: 'shipping/picker', message: 'locker catalogue failed to load', error: err })
-      errorMessage.value = t('shipping.locker_picker.error')
+      // The server's reason (a throttle names its wait), else ours.
+      errorMessage.value = describeApiErrorWith(
+        err,
+        { t: (key, params) => t(key, params ?? {}), te: key => te(key) },
+        { fallback: t('shipping.locker_picker.error') },
+      ).description
     }
     finally {
       if (abort === controller) loading.value = false
@@ -108,6 +122,12 @@ export function useLockerPicker(options: {
   // asynchronously) or change while it is open.
   watch(location.permission, (state) => {
     if (open.value && state === 'granted' && location.status.value === 'idle') location.locate()
+  })
+
+  // The address's country can change while the picker is open (a saved
+  // address checked late): the catalogue follows it.
+  watch(() => props.countryCode, () => {
+    if (open.value) void loadCatalogue()
   })
 
   onUnmounted(() => {

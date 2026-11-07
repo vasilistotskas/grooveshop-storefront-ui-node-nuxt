@@ -24,6 +24,8 @@ const sim = vi.hoisted(() => ({
   fitted: [] as unknown[],
   // The map container's size: 0 stands for a map on a hidden tab.
   size: 400,
+  deferLoad: false,
+  fireLoad: null as (() => void) | null,
 }))
 
 vi.mock('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url', () => ({ default: '/_nuxt/maplibre-worker.js' }))
@@ -37,10 +39,13 @@ vi.mock('maplibre-gl', () => {
     constructor(options: Record<string, unknown>) {
       if (sim.failWebGl) throw new GPUInitializationError('WebGL2 is required')
       sim.options.push(options)
-      queueMicrotask(() => {
+      const load = () => {
         this.emit('load')
         this.emit('render')
-      })
+      }
+      // `deferLoad` holds the style load back until the test fires it.
+      if (sim.deferLoad) sim.fireLoad = load
+      else queueMicrotask(load)
     }
 
     on(type: string, handler: (event?: unknown) => void) {
@@ -84,7 +89,12 @@ vi.mock('maplibre-gl', () => {
   class Marker {
     private element: HTMLElement
     constructor({ element }: { element: HTMLElement }) { this.element = element }
-    setLngLat() { return this }
+    // Where the marker stands, on its element, for the test to read.
+    setLngLat(lngLat: [number, number]) {
+      this.element.dataset.lngLat = JSON.stringify(lngLat)
+      return this
+    }
+
     addTo() {
       document.body.append(this.element)
       sim.appended.push(this.element)
@@ -165,7 +175,7 @@ describe('Checkout/SmartpointMap', () => {
   beforeEach(() => {
     originalUrl = useRuntimeConfig().public.mapsTileJsonUrl
     useRuntimeConfig().public.mapsTileJsonUrl = 'https://maps.platform.test/basemap.json'
-    Object.assign(sim, { features: [], failWebGl: false, options: [], easedTo: [], appended: [], fitted: [], size: 400 })
+    Object.assign(sim, { features: [], failWebGl: false, options: [], easedTo: [], appended: [], fitted: [], size: 400, deferLoad: false, fireLoad: null })
   })
   afterEach(() => {
     useRuntimeConfig().public.mapsTileJsonUrl = originalUrl as string
@@ -229,6 +239,18 @@ describe('Checkout/SmartpointMap', () => {
       expect(sim.fitted).toEqual([FOCUS, [23.72, 37.97, 23.73, 37.97]])
     })
 
+    it('takes a focus that arrived while its style was still loading', async () => {
+      sim.deferLoad = true
+      const wrapper = await mountSuspended(SmartpointMap, { route: false, props: { lockers: [FIRST, SECOND] } })
+      await vi.waitFor(() => expect(sim.fireLoad).not.toBeNull())
+
+      await wrapper.setProps({ focus: FOCUS })
+      expect(sim.fitted).toEqual([])
+      sim.fireLoad!()
+
+      expect(sim.fitted).toEqual([FOCUS])
+    })
+
     it('waits until a hidden map is shown again before it moves', async () => {
       let onResize: ResizeObserverCallback = () => {}
       vi.stubGlobal('ResizeObserver', class {
@@ -255,9 +277,11 @@ describe('Checkout/SmartpointMap', () => {
     expect(dots()).toHaveLength(0)
 
     await wrapper.setProps({ here: { lat: 37.98, lng: 23.74 } })
+    expect(JSON.parse(dots()[0]!.attributes('data-lng-lat')!)).toEqual([23.74, 37.98])
     await wrapper.setProps({ here: { lat: 37.99, lng: 23.75 } })
 
     expect(dots()).toHaveLength(1)
+    expect(JSON.parse(dots()[0]!.attributes('data-lng-lat')!)).toEqual([23.75, 37.99])
   })
 
   it('says the map is unavailable without WebGL2, and offers the list', async () => {

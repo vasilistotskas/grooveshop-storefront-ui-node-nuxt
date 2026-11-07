@@ -293,6 +293,50 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(inBody(tp('error'))).toBe(false)
   })
 
+  it('drops another country\'s lockers when the new country\'s catalogue fails to load', async () => {
+    const fetchAll = vi.fn((country: string, _signal?: AbortSignal) =>
+      country === 'GR' ? Promise.resolve(CATALOGUE) : Promise.reject(new Error('503')))
+    const wrapper = await openPicker(fakeCarrier({ fetchAll }))
+    await wrapper.setProps({ open: false })
+    await flushPromises()
+
+    await wrapper.setProps({ countryCode: 'CY' })
+    await wrapper.setProps({ open: true })
+    await flushPromises()
+    await showList()
+    await search('smartpoint')
+
+    expect(fetchAll).toHaveBeenLastCalledWith('CY', expect.any(AbortSignal))
+    expect(inBody(tp('error'))).toBe(true)
+    expect(rowNames()).toEqual([])
+    expect(mapStub().attributes('data-count')).toBe('0')
+  })
+
+  it('follows a country change while it is open, and an older answer cannot bring the old lockers back', async () => {
+    let answerGreece: (rows: Locker[]) => void = () => {}
+    const cyprus = [locker('CY-1', 'Smartpoint Λευκωσία', { city: 'Λευκωσία', postalCode: '1010', lat: 35.17, lng: 33.36 })]
+    const fetchAll = vi.fn((country: string, _signal?: AbortSignal) =>
+      country === 'GR' ? new Promise<Locker[]>((resolve) => { answerGreece = resolve }) : Promise.resolve(cyprus))
+    const wrapper = await openPicker(fakeCarrier({ fetchAll }))
+
+    await wrapper.setProps({ countryCode: 'CY' })
+    await flushPromises()
+    answerGreece(CATALOGUE)
+    await flushPromises()
+    await showList()
+    await search('smartpoint')
+
+    expect(fetchAll).toHaveBeenLastCalledWith('CY', expect.any(AbortSignal))
+    expect(rowNames()).toEqual(['Smartpoint Λευκωσία'])
+  })
+
+  it('shows the server\'s reason when it refuses the catalogue', async () => {
+    const refusal = Object.assign(new Error('429'), { statusCode: 429, data: { detail: 'Δοκιμάστε ξανά σε 30 δευτερόλεπτα.' } })
+    await openPicker(fakeCarrier({ fetchAll: vi.fn(() => Promise.reject(refusal)) }))
+
+    expect(inBody('Δοκιμάστε ξανά σε 30 δευτερόλεπτα.')).toBe(true)
+  })
+
   it('explains a carrier with no catalogue', async () => {
     await openPicker(fakeCarrier({ fetchAll: undefined }))
 

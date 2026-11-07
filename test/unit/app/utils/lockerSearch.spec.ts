@@ -98,8 +98,20 @@ describe('matching a locker', () => {
   })
 
   it('reads a postcode typed with its space as one postcode', () => {
-    expect(searchQueryWords('104 33')).toEqual(['10433'])
+    expect(searchQueryWords('104 33')).toEqual([['10433']])
     expect(finds('104 33')).toBe(true)
+  })
+
+  it('keeps a street number apart from the postcode after it', () => {
+    expect(finds('Ιουλιανού 50 10433')).toBe(true)
+  })
+
+  it('finds a locker whose postcode is stored with its space', () => {
+    expect(finds('10433', locker({ postalCode: '104 33' }))).toBe(true)
+  })
+
+  it.each(['Πειρα', 'Πειραι', 'peira', 'Πειραιά'])('finds Πειραιάς while %j is still being typed', (query) => {
+    expect(finds(query, locker({ city: 'Πειραιάς' }))).toBe(true)
   })
 
   it('has no words for a blank query', () => {
@@ -134,6 +146,12 @@ describe('postcodeCentre', () => {
 
     expect(centre.lat).toBeCloseTo(37.733, 3)
     expect(centre.lng).toBeCloseTo(23.2, 3)
+  })
+
+  it('reads catalogue postcodes stored with their space', () => {
+    const spaced = locker({ postalCode: '104 33', lat: 38, lng: 23.7 })
+
+    expect(postcodeCentre([spaced, c], '10433')).toEqual({ lat: 38, lng: 23.7 })
   })
 
   it('is unknown for a postcode with nothing near, or too short to place', () => {

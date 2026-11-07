@@ -8,8 +8,9 @@ import type { GeoJSONSource, Map as MapLibreMap, Marker, Popup } from 'maplibre-
  * The picker steers the camera: `focus` is the box to show (the
  * search's matches, or the shopper's area), and `null` the whole
  * catalogue. `here` is the shopper's own position, drawn as a dot. A
- * focus that changes while the map is hidden (the list tab) is applied
- * when the map is shown again, since a hidden map has no size to fit.
+ * focus that changes before the map can take it (its style still
+ * loading, or hidden on the list tab with no size to fit) is applied as
+ * soon as it can.
  *
  * Clusters and lockers are HTML `<button>` markers over a clustered
  * GeoJSON source (MapLibre's HTML-cluster pattern), so each one is in
@@ -91,6 +92,7 @@ const { map, state } = useMapLibre(container, {
     popup = new maplibre.Popup({ className: 'locker-popup', offset: 20, maxWidth: '18rem', focusAfterOpen: true })
     makeMarker = element => new maplibre.Marker({ element })
     drawHere()
+    if (fitPending) fitCamera()
     instance.on('render', () => {
       if (instance.isSourceLoaded(LOCKER_SOURCE)) syncMarkers(instance)
     })
@@ -232,17 +234,23 @@ function drawHere(): void {
   hereMarker = makeMarker(dot).setLngLat([props.here.lng, props.here.lat]).addTo(instance)
 }
 
-let fitWhenShown = false
+let fitPending = false
 
+// A camera the map cannot take yet (its style still loading, or hidden
+// on the list tab with no size to fit) is taken when it can.
 function fitCamera(): void {
   const instance = map.value
-  if (!instance || state.value !== 'ready' || !camera.value) return
-  const canvas = instance.getContainer()
-  if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
-    fitWhenShown = true
+  if (!camera.value) return
+  if (!instance || state.value !== 'ready') {
+    fitPending = true
     return
   }
-  fitWhenShown = false
+  const canvas = instance.getContainer()
+  if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
+    fitPending = true
+    return
+  }
+  fitPending = false
   instance.fitBounds(camera.value, { padding: FIT_PADDING, maxZoom: FOCUS_MAX_ZOOM })
 }
 
@@ -250,7 +258,7 @@ watch(camera, fitCamera)
 watch(() => props.here, drawHere)
 
 useResizeObserver(container, ([entry]) => {
-  if (!fitWhenShown || !entry || entry.contentRect.width === 0 || entry.contentRect.height === 0) return
+  if (!fitPending || !entry || entry.contentRect.width === 0 || entry.contentRect.height === 0) return
   map.value?.resize()
   fitCamera()
 })
