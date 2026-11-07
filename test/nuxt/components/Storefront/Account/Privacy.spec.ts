@@ -60,11 +60,9 @@ function makeExport(overrides: Partial<UserDataExport> = {}): UserDataExport {
   return {
     id: 1,
     status: 'ready',
-    token: 'tok',
     fileSize: 2048,
     expiresAt: '2026-10-11T10:00:00Z',
     createdAt: '2026-10-04T10:00:00Z',
-    downloadUrl: 'https://api.example.test/export/tok',
     ...overrides,
   }
 }
@@ -132,7 +130,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
   it('requests an export, then shows it as pending', async () => {
     const wrapper = await mountPage()
     api.routes({
-      [EXPORTS]: () => ({ results: [makeExport({ status: 'pending', downloadUrl: null, fileSize: null, expiresAt: null })] }),
+      [EXPORTS]: () => ({ results: [makeExport({ status: 'pending', fileSize: null, expiresAt: null })] }),
       [REQUEST]: () => ({}),
       [SUMMARY]: () => makeSummary(),
     })
@@ -148,7 +146,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
 
   it('polls while the export is processing and stops once it is ready', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
-    given({ exports: [makeExport({ status: 'processing', downloadUrl: null, fileSize: null, expiresAt: null })] })
+    given({ exports: [makeExport({ status: 'processing', fileSize: null, expiresAt: null })] })
     const wrapper = await mountPage()
     expect(wrapper.text()).toContain(text('export.status.processing'))
     expect(api.callsTo(EXPORTS)).toHaveLength(1)
@@ -186,11 +184,11 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
 
     await wrapper.findAll('button').find(button => button.text() === text('export.download'))!.trigger('click')
 
-    expect(open).toHaveBeenCalledWith('https://api.example.test/export/tok', '_blank', 'noopener,noreferrer')
+    expect(open).toHaveBeenCalledWith('/api/user/account/7/data-exports/1/download', '_blank', 'noopener,noreferrer')
   })
 
   it('says a failed export failed and lets the shopper ask again', async () => {
-    given({ exports: [makeExport({ status: 'failed', downloadUrl: null, fileSize: null, expiresAt: null })] })
+    given({ exports: [makeExport({ status: 'failed', fileSize: null, expiresAt: null })] })
 
     const wrapper = await mountPage()
 
@@ -200,7 +198,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
   })
 
   it.runIf(tree === 'default')('explains a failed export in an alert', async () => {
-    given({ exports: [makeExport({ status: 'failed', downloadUrl: null, fileSize: null, expiresAt: null })] })
+    given({ exports: [makeExport({ status: 'failed', fileSize: null, expiresAt: null })] })
 
     const wrapper = await mountPage()
 
@@ -208,7 +206,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
   })
 
   it('says an expired export expired and offers no download', async () => {
-    given({ exports: [makeExport({ status: 'expired', downloadUrl: null })] })
+    given({ exports: [makeExport({ status: 'expired' })] })
 
     const wrapper = await mountPage()
 

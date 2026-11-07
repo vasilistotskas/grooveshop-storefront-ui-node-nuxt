@@ -101,9 +101,12 @@ export function useAccountPrivacy(options: {
   }
 
   const openDownload = () => {
-    const url = latest.value?.downloadUrl
-    if (!url) return
-    window.open(url, '_blank', 'noopener,noreferrer')
+    if (!uid.value || !latest.value) return
+    window.open(
+      `/api/user/account/${uid.value}/data-exports/${latest.value.id}/download`,
+      '_blank',
+      'noopener,noreferrer',
+    )
   }
 
   const isDeleteModalOpen = ref(false)
