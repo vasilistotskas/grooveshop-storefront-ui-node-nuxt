@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import Assistant from '~/components/Chrome/Assistant.vue'
@@ -34,6 +34,14 @@ const launcher = (wrapper: VueWrapper) => wrapper.find('button[aria-expanded]')
 const panel = () => document.body.querySelector('[data-test="panel"]')
 
 describe('Chrome/Assistant', () => {
+  // The overlays' first load is the slow part: under the full parallel
+  // run a cold load of Nuxt UI's drawer outlasted a test's 5 s budget
+  // (`names the dialog… (phone: true)`, 7.7 s). The file pays it once,
+  // here, in the hook's own budget, and every test opens a warm overlay.
+  beforeAll(async () => {
+    await Promise.all([import('@nuxt/ui/components/Drawer.vue'), import('@nuxt/ui/components/Modal.vue')])
+  })
+
   beforeEach(() => {
     setTenant()
     setTenantFeatures({ chatWidget: true })

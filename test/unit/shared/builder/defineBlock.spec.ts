@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
+import { builderField } from '~~/shared/builder/fields'
 import type { BlockConfig, BlockUpgrade } from '~~/shared/types/builder'
 
 const schema = z.object({ title: z.string(), items: z.array(z.string()).optional() })
@@ -153,5 +154,46 @@ describe('defineBlock', () => {
 
   it('names the block in every refusal', () => {
     expect(() => define({ version: 0 })).toThrow(/^defineBlock\(banner\): /)
+  })
+
+  describe('legacyImages', () => {
+    const images = z.object({
+      imageUrl: z.string().optional(),
+      imageAlt: z.string().optional(),
+      image: builderField.ref('media', { onMissing: 'empty' }).optional(),
+      urls: z.array(z.string()).optional(),
+      artworks: z.array(builderField.ref('media', { onMissing: 'empty' })).optional(),
+      other: builderField.ref('product', { onMissing: 'empty' }).optional(),
+    })
+    const withImages = (legacyImages: BlockConfig['legacyImages']) => define({ schema: images, legacyImages })
+
+    it('keeps a declaration of a URL and of a list', () => {
+      const legacyImages = [{ from: '/imageUrl', to: '/image', alt: '/imageAlt' }, { from: '/urls/*', to: '/artworks/*' }] as const
+
+      expect(withImages(legacyImages).legacyImages).toEqual(legacyImages)
+    })
+
+    it('refuses a pointer that is not a top-level setting or every entry of a list', () => {
+      expect(() => withImages([{ from: '/imageUrl/deep', to: '/image' }])).toThrow(/both name a top-level setting/)
+    })
+
+    it('refuses a list mapped to a single setting, and the reverse', () => {
+      expect(() => withImages([{ from: '/urls/*', to: '/image' }])).toThrow(/both name a top-level setting/)
+      expect(() => withImages([{ from: '/imageUrl', to: '/artworks/*' }])).toThrow(/both name a top-level setting/)
+    })
+
+    it('refuses a setting the schema does not have', () => {
+      expect(() => withImages([{ from: '/missing', to: '/image' }])).toThrow(/names a setting the schema does not have/)
+      expect(() => withImages([{ from: '/imageUrl', to: '/image', alt: '/missing' }])).toThrow(/names a setting the schema does not have/)
+    })
+
+    it('refuses a successor that is not a media reference', () => {
+      expect(() => withImages([{ from: '/imageUrl', to: '/other' }])).toThrow(/must be a media reference/)
+      expect(() => withImages([{ from: '/imageUrl', to: '/imageAlt' }])).toThrow(/must be a media reference/)
+    })
+
+    it('refuses an alt text for a list', () => {
+      expect(() => withImages([{ from: '/urls/*', to: '/artworks/*', alt: '/imageAlt' }])).toThrow(/no alt text of its own/)
+    })
   })
 })

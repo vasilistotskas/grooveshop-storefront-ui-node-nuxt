@@ -58,7 +58,7 @@ describe('the ACS adapter', () => {
   it('tells apart two lockers of one area, and writes the picked pair to the form', async () => {
     fetchMock.mockResolvedValue([station({ branchCode: '001' }), station({ branchCode: '002', name: 'Smartpoint Γλυφάδα 2' })])
 
-    const [first, second] = await acsCarrier.fetchByPostal!({ postalCode: '16674' })
+    const [first, second] = await acsCarrier.fetchAll!('GR')
 
     expect(first!.id).toBe(second!.id)
     expect(first!.key).not.toBe(second!.key)
@@ -78,33 +78,12 @@ describe('the ACS adapter', () => {
     expect(acsCarrier.formFieldName).toBe('acsStationExternalId')
   })
 
-  describe('fetchByPostal', () => {
-    it('asks for the nearest stations with every filter it was given', async () => {
-      fetchMock.mockResolvedValue([])
-      const signal = new AbortController().signal
-
-      await acsCarrier.fetchByPostal!({ postalCode: '16674', city: 'Γλυφάδα', country: 'GR', shopKind: 7, signal })
-
-      expect(fetchMock).toHaveBeenCalledWith('/api/shipping/acs/nearest', {
-        method: 'GET',
-        query: { postalCode: '16674', city: 'Γλυφάδα', countryCode: 'GR', shopKind: '7' },
-        signal,
-      })
-    })
-
-    it('sends only the postal code when that is all it has', async () => {
-      fetchMock.mockResolvedValue([])
-
-      await acsCarrier.fetchByPostal!({ postalCode: '16674' })
-
-      expect(fetchMock.mock.calls[0]![1].query).toEqual({ postalCode: '16674' })
-    })
-
+  describe('fetchAll', () => {
     it('normalises each station into a locker', async () => {
       const row = station()
       fetchMock.mockResolvedValue([row])
 
-      expect(await acsCarrier.fetchByPostal!({ postalCode: '16674' })).toEqual([{ ...LOCKER, raw: row }])
+      expect(await acsCarrier.fetchAll!('GR')).toEqual([{ ...LOCKER, raw: row }])
     })
 
     it('fills what a station leaves out, and drops one with no id', async () => {
@@ -120,7 +99,7 @@ describe('the ACS adapter', () => {
       })
       fetchMock.mockResolvedValue([station({ externalId: '   ' }), bare])
 
-      expect(await acsCarrier.fetchByPostal!({ postalCode: '16674' })).toEqual([{
+      expect(await acsCarrier.fetchAll!('GR')).toEqual([{
         ...LOCKER,
         key: acsLockerKey('ATH2', null),
         id: 'ATH2',
@@ -137,7 +116,7 @@ describe('the ACS adapter', () => {
     it('treats an empty answer as no stations', async () => {
       fetchMock.mockResolvedValue(null)
 
-      expect(await acsCarrier.fetchByPostal!({ postalCode: '16674' })).toEqual([])
+      expect(await acsCarrier.fetchAll!('GR')).toEqual([])
     })
   })
 

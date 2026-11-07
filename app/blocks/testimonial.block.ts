@@ -9,10 +9,12 @@ export default defineBlock({
     name: builderField.text(100).optional(),
     text: builderField.text(1000).optional(),
     avatar: builderField.text(1000).optional(),
+    avatarImage: builderField.ref('media', { onMissing: 'empty' }).optional(),
     role: builderField.text(100).optional(),
     rating: builderField.integer(1, 5).optional(),
   }),
   translatable: ['/name', '/text', '/role'],
+  legacyImages: [{ from: '/avatar', to: '/avatarImage' }],
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
   editor: { title: ['name'] },
 })

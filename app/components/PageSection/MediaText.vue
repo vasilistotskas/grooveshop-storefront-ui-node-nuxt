@@ -24,7 +24,9 @@ const props = defineProps<{
     subtitle?: string
     rows?: Array<{ label: string, value: string }>
   }>
-  imageUrl?: string
+  image?: ResolvedImage
+  /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
+  imageDecorative?: boolean
   imagePosition?: 'left' | 'right'
   ctaText?: string
   ctaLink?: string
@@ -35,6 +37,11 @@ const props = defineProps<{
 const localePath = useLocalePath()
 
 const imageFirst = computed(() => props.imagePosition !== 'right')
+
+const picture = computed(() => readyImage(props.image))
+
+/** The picture's description, else the heading. */
+const alt = computed(() => (props.imageDecorative ? '' : picture.value?.alt || props.heading || ''))
 
 /**
  * The body split around `emphasis`, so the phrase can be wrapped in a
@@ -59,7 +66,7 @@ const bodyParts = computed(() => {
 
 <template>
   <PageSectionBand
-    v-if="heading || body || imageUrl"
+    v-if="heading || body || picture"
     :surface="surface"
   >
     <!-- `overflow-hidden` is load-bearing, not tidiness: the decor
@@ -90,9 +97,9 @@ const bodyParts = computed(() => {
       />
 
       <ImgWithFallback
-        v-if="imageUrl"
-        :src="imageUrl"
-        :alt="heading || ''"
+        v-if="picture"
+        :src="picture.path"
+        :alt="alt"
         :width="720"
         :height="540"
         class="

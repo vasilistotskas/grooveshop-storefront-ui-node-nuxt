@@ -13,7 +13,7 @@
  * keys on the checkout form. Renaming any of those is a breaking
  * change against persisted drafts and the order-create payload.
  */
-import type { Locker, LockerQuery, ShippingCarrier } from '../interfaces'
+import type { Locker, ShippingCarrier } from '../interfaces'
 
 function _toNumber(value: string | null | undefined): number | null {
   if (value === null || value === undefined || value === '') return null
@@ -62,25 +62,6 @@ const acsCarrier: ShippingCarrier = {
   label: 'ACS Courier',
   usesGenericPicker: true,
   formFieldName: 'acsStationExternalId',
-
-  async fetchByPostal(query: LockerQuery): Promise<Locker[]> {
-    const params: Record<string, string> = {
-      postalCode: query.postalCode,
-    }
-    if (query.city) params.city = query.city
-    if (query.country) params.countryCode = query.country
-    if (query.shopKind) params.shopKind = String(query.shopKind)
-
-    const rows = await $fetch<AcsStation[]>(
-      '/api/shipping/acs/nearest',
-      {
-        method: 'GET',
-        query: params,
-        signal: query.signal,
-      },
-    )
-    return (rows ?? []).map(_normalize).filter(Boolean) as Locker[]
-  },
 
   async fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]> {
     const rows = await $fetch<AcsStation[]>(

@@ -18,7 +18,6 @@ const formState = defineModel<Record<string, any>>('formState', {
 const props = defineProps<{
   carrier: ShippingCarrier
   initialPostalCode?: string
-  initialCity?: string
   countryCode?: string
 }>()
 
@@ -123,7 +122,6 @@ function onSelected(picked: Locker): void {
       v-model:open="isOpen"
       :carrier="carrier"
       :initial-postal-code="initialPostalCode"
-      :initial-city="initialCity"
       :country-code="countryCode"
       @selected="onSelected"
     />

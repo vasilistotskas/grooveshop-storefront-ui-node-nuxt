@@ -13,6 +13,9 @@ export default defineBlock({
     note: builderField.text(200).optional(),
     emphasis: builderField.text(120).optional(),
     imageUrl: builderField.text(1000).optional(),
+    image: builderField.ref('media', { onMissing: 'empty' }).optional(),
+    // An explicit choice: an empty description never means decorative.
+    imageDecorative: builderField.boolean().optional(),
     imagePosition: z.enum(['left', 'right']).optional(),
     ctaText: builderField.text(100).optional(),
     ctaLink: builderField.link().optional(),
@@ -20,6 +23,7 @@ export default defineBlock({
   }),
   translatable: ['/heading', '/body', '/eyebrow', '/note', '/emphasis', '/ctaText'],
   upgrade: { 1: upgradeTitleIntoHeading },
+  legacyImages: [{ from: '/imageUrl', to: '/image' }],
   limits: { maxBlocks: 10 },
   children: { allowed: ['bullet', 'spec_card'], maxDepth: 2 },
   childList: { bullet: 'bullets', spec_card: 'specs' },

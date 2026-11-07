@@ -33,6 +33,16 @@ export interface DataItems extends DataRecords {
 export type ResolvedRef<T> = { status: 'ok', value: T } | { status: 'missing' | 'failed' }
 
 /**
+ * The image a section component draws, from a `media` ref: what it reads of a
+ * `ResolvedAsset`. TRANSITIONAL (P15 stage 2): `width` and `height` are
+ * optional because the read adapter (`legacyImageRefs`) builds the value of a
+ * block that still stores a URL and knows neither; stage 4 deletes the
+ * adapter and makes this exactly `ResolvedAsset`.
+ */
+export type ResolvedImageValue = Pick<ResolvedAsset, 'path' | 'alt'> & Partial<Pick<ResolvedAsset, 'width' | 'height'>>
+export type ResolvedImage = ResolvedRef<ResolvedImageValue>
+
+/**
  * What a section component receives for a `query` setting: what the descriptor
  * lists now, how many there are in all (`total`, which can be more than the
  * band shows: "see all 7 offers"), and the descriptor itself (a band names
