@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://www.coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit reviews this repository on its free open-source tier, which allows
+# only a few pull request reviews an hour per author and counts every push as a
+# review. So a pull request is reviewed once, when it is opened or marked ready
+# (drafts wait), and again only when its author asks with `@coderabbitai review`.
+#
+# `inheritance: true` keeps every setting not named here from the organisation
+# settings in the CodeRabbit app. `@coderabbitai configuration` on a pull
+# request shows what applies and where each value comes from.
+inheritance: true
+reviews:
+  auto_review:
+    auto_incremental_review: false
