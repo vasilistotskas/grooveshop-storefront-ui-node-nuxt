@@ -1,3 +1,10 @@
+## [3.332.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.332.1...v3.332.2) (2026-11-07)
+
+
+### Bug Fixes
+
+* **checkout:** find pickup points near a typed address, and let "My location" replace the search ([#423](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/423)) ([26f7103](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/26f7103f004b613775031b418dc44d3c406a3098))
+
 ## [3.332.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.332.0...v3.332.1) (2026-11-07)
 
 
