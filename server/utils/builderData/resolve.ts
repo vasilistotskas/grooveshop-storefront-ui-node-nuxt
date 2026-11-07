@@ -71,7 +71,9 @@ export async function resolveBuilderData(
   { keepHidden = false, staffHeaders, shareToken }: BuilderReadOptions = {},
 ): Promise<{ document: BuilderDocument, issues: DataIssue[] }> {
   const sites = dataSites(document, builderBlocks)
-  if (sites.length === 0) return { document, issues: [] }
-  const resolution = await readData({ tenantHost: requestTenantHost(event), locale: requestLocale(event), ...(staffHeaders && { staffHeaders }), ...(shareToken && { shareToken }) }, planData(sites))
-  return applyData(document, builderBlocks, resolution, { keepHidden })
+  const read = sites.length === 0
+    ? { document, issues: [] }
+    : applyData(document, builderBlocks, await readData({ tenantHost: requestTenantHost(event), locale: requestLocale(event), ...(staffHeaders && { staffHeaders }), ...(shareToken && { shareToken }) }, planData(sites)), { keepHidden })
+  // TRANSITIONAL (P15 stage 2): a page that stores only the old URLs has no data sites, so this runs either way.
+  return { document: legacyImageRefs(read.document, builderBlocks), issues: read.issues }
 }

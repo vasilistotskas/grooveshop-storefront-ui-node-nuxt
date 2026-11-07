@@ -44,7 +44,7 @@ const PickerStub = await vi.hoisted(async () => {
   const { defineComponent, h } = await import('vue')
   return defineComponent({
     name: 'PickerStub',
-    props: ['open', 'carrier', 'initialPostalCode', 'initialCity', 'countryCode'],
+    props: ['open', 'carrier', 'initialPostalCode', 'countryCode'],
     emits: ['update:open', 'selected'],
     render: () => h('div'),
   })
@@ -62,7 +62,6 @@ describe.each(trees(CheckoutSelectedGenericLocker, WebsideCheckoutSelectedGeneri
         'onUpdate:formState': () => {},
         'carrier': acsCarrier,
         'initialPostalCode': '10557',
-        'initialCity': 'Αθήνα',
         'countryCode': 'GR',
       },
     })
@@ -82,13 +81,12 @@ describe.each(trees(CheckoutSelectedGenericLocker, WebsideCheckoutSelectedGeneri
     expect(picker(wrapper).props('open')).toBe(true)
   })
 
-  it('hands the picker the carrier and the checkout address as its search hint', async () => {
+  it('hands the picker the carrier and the checkout postcode to start from', async () => {
     const wrapper = await mount({})
 
     expect(picker(wrapper).props()).toMatchObject({
       carrier: acsCarrier,
       initialPostalCode: '10557',
-      initialCity: 'Αθήνα',
       countryCode: 'GR',
     })
   })

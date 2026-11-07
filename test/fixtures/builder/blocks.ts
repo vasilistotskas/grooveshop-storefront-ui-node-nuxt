@@ -59,4 +59,17 @@ export const promoRail = defineBlock({
   translatable: ['/heading'],
 })
 
-export const fixtureBlocks = [promoBanner, promoItem, promoRail]
+/** A picture that still stores its image as a URL beside the media reference that replaces it, to run the read adapter on. */
+export const promoPicture = defineBlock({
+  type: 'promo_picture',
+  version: 1,
+  kinds: ['section'],
+  schema: z.object({
+    imageUrl: z.string().max(1000).optional(),
+    imageAlt: z.string().max(200).optional(),
+    image: builderField.ref('media', { onMissing: 'empty' }).optional(),
+  }),
+  legacyImages: [{ from: '/imageUrl', to: '/image', alt: '/imageAlt' }],
+})
+
+export const fixtureBlocks = [promoBanner, promoItem, promoRail, promoPicture]

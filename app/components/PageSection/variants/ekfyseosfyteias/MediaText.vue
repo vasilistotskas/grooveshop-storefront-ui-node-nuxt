@@ -31,7 +31,9 @@ const props = defineProps<{
   /** The photograph's caption. */
   note?: string
   bullets?: Array<{ text: string }>
-  imageUrl?: string
+  image?: ResolvedImage
+  /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
+  imageDecorative?: boolean
   imagePosition?: 'left' | 'right'
   ctaText?: string
   ctaLink?: string
@@ -43,6 +45,11 @@ const LONG_HEADING = 60
 const longHeading = computed(() => (props.heading?.length ?? 0) > LONG_HEADING)
 
 const imageFirst = computed(() => props.imagePosition !== 'right')
+
+const picture = computed(() => readyImage(props.image))
+
+/** The picture's description, else the caption under it. */
+const alt = computed(() => (props.imageDecorative ? '' : picture.value?.alt || props.note || ''))
 
 /**
  * The body as paragraphs, each split around `emphasis` so the phrase
@@ -80,7 +87,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
 
 <template>
   <section
-    v-if="heading || body || imageUrl"
+    v-if="heading || body || picture"
     :class="surface === 'muted' ? 'bg-(--fy-raised)' : 'bg-(--fy-ground)'"
     :data-fy-surface="surface === 'muted' ? undefined : 'ground'"
   >
@@ -89,18 +96,18 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         mx-auto grid w-full max-w-[1280px] items-center gap-x-[72px] gap-y-12
         px-6 py-[clamp(64px,8vw,112px)]
       "
-      :class="imageUrl
+      :class="picture
         ? 'grid-cols-[repeat(auto-fit,minmax(min(460px,100%),1fr))]'
         : 'grid-cols-1'"
     >
       <figure
-        v-if="imageUrl"
+        v-if="picture"
         class="flex flex-col gap-3"
         :class="!imageFirst && 'lg:order-2'"
       >
         <ImgWithFallback
-          :src="imageUrl"
-          :alt="note ?? ''"
+          :src="picture.path"
+          :alt="alt"
           :width="960"
           :height="720"
           sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:640px"
@@ -113,7 +120,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         />
         <figcaption
           v-if="note"
-          aria-hidden="true"
+          :aria-hidden="alt === note ? 'true' : undefined"
           class="text-sm text-(--fy-text-muted)"
         >
           {{ note }}
@@ -192,7 +199,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         </ul>
 
         <p
-          v-if="note && !imageUrl"
+          v-if="note && !picture"
           class="text-sm text-(--fy-text-muted)"
         >
           {{ note }}

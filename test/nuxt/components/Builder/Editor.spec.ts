@@ -6,6 +6,7 @@ import { UApp } from '#components'
 import BuilderEditor from '~/components/Builder/Editor.vue'
 import BuilderLayout from '~/layouts/builder.vue'
 import { failWith } from '~~/test/helpers/api'
+import { makeAsset } from '~~/test/fixtures/media'
 import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { resetBuilderEditorStores } from '~~/test/helpers/builderEditor'
 import { useBuilderLibraryStore } from '~/stores/builderLibrary'
@@ -1024,8 +1025,11 @@ describe('editing the structure of a page', () => {
     }
 
     /** One choice of a segmented setting, by its name. */
-    const option = (wrapper: Awaited<ReturnType<typeof open>>, name: string) =>
-      wrapper.findAll('[data-slot="item"]').find(item => item.text().trim() === name)!.get('[role="radio"]')
+    /** The option `name` of the choice that also offers `beside`: "Default" is every optional choice's first. */
+    const option = (wrapper: Awaited<ReturnType<typeof open>>, name: string, beside?: string) =>
+      wrapper.findAll('[data-slot="item"]')
+        .find(item => item.text().trim() === name && (beside === undefined || item.element.parentElement?.textContent?.includes(beside)))!
+        .get('[role="radio"]')
 
     it('asks for a section when nothing is selected', async () => {
       const wrapper = await open()
@@ -1085,6 +1089,55 @@ describe('editing the structure of a page', () => {
       expect(api.callsTo(DRAFT_URL)[0]!.options.body.draft.sections.grid.settings.ctaLink).toEqual({ ref: { kind: 'category', id: 7 } })
     })
 
+    describe('a hero that still stores its image as a URL', () => {
+      const OLD = detail('template:home', 'template', {
+        sections: { hero: { type: 'hero_banner@2', settings: { heading: 'Ενέργεια', imageUrl: 'https://assets.example.test/old.jpg', imageAlt: 'Παλιά φωτογραφία' } } },
+        order: ['hero'],
+      })
+      const banner = makeAsset({ id: 8, path: 'https://assets.example.test/banner.png' })
+      const settings = () => useBuilderEditorStore().opened['template:home']!.copy.draft.sections.hero!.settings
+
+      beforeEach(() => {
+        api.routes({
+          '/api/builder/documents': LIST,
+          '/api/builder/presence': NOBODY_ELSE,
+          [documentUrl('template:home')]: OLD,
+          [documentUrl('group:header')]: HEADER,
+          [documentUrl('group:footer')]: FOOTER,
+          [DRAFT_URL]: (_url: string, options: { body: { draft: unknown, i18n: unknown } }) => ({ ...OLD, draftRevision: 3, draft: options.body.draft, i18n: options.body.i18n }),
+          '/api/builder/media': { count: 1, results: [banner] },
+          '/api/builder/media/8': banner,
+        })
+      })
+
+      it('shows an empty image field, not the URL', async () => {
+        const wrapper = await open(HERO)
+
+        expect(wrapper.text()).not.toContain('old.jpg')
+        expect(wrapper.find('button[aria-label="Επιλογή εικόνας: Εικόνα"]').exists()).toBe(true)
+      })
+
+      it('takes the URL and its description out when an image is chosen, and does not bring them back when it is cleared', async () => {
+        const wrapper = await open(HERO)
+
+        await wrapper.get('button[aria-label="Επιλογή εικόνας: Εικόνα"]').trigger('click')
+        await flushPromises()
+        const named = (name: string) => [...document.querySelectorAll<HTMLButtonElement>('button')].find(node => node.getAttribute('aria-label') === name || node.textContent?.trim() === name)
+        await vi.waitFor(() => expect(named('banner.png')).not.toBeUndefined())
+        named('banner.png')!.click()
+        await flushPromises()
+        named('Χρήση αυτής της εικόνας')!.click()
+        await flushPromises()
+
+        expect(settings()).toEqual({ heading: 'Ενέργεια', image: 8 })
+
+        await wrapper.get('button[aria-label="Αφαίρεση εικόνας: Εικόνα"]').trigger('click')
+        await flushPromises()
+
+        expect(settings()).toEqual({ heading: 'Ενέργεια' })
+      })
+    })
+
     it('sets a choice, and leaves it to the section again', async () => {
       const wrapper = await open(HERO)
       const settings = () => useBuilderEditorStore().opened['template:home']!.copy.draft.sections.hero!.settings
@@ -1092,7 +1145,7 @@ describe('editing the structure of a page', () => {
       await option(wrapper, 'Κέντρο').trigger('click')
       expect(settings()).toMatchObject({ align: 'center' })
 
-      await option(wrapper, 'Προεπιλογή').trigger('click')
+      await option(wrapper, 'Προεπιλογή', 'Κέντρο').trigger('click')
       expect(settings()).not.toHaveProperty('align')
     })
 

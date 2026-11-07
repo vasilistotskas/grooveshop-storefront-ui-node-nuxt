@@ -1,3 +1,4 @@
+import type { ResolvedImage } from '~~/shared/types/builderData'
 import type { Asset, ResolvedAsset } from '~~/shared/openapi/types.gen'
 
 /**
@@ -40,4 +41,14 @@ export function makeAsset(overrides: Partial<Asset> = {}): Asset {
     updatedAt: '2026-11-01T09:00:00+02:00',
     ...overrides,
   }
+}
+
+/**
+ * An image a section component receives for a media setting: what the read
+ * adapter makes of an old URL (`legacyImageRefs`), and all a component reads of
+ * a resolved asset. TRANSITIONAL with `ResolvedImageValue`: stage 4 uses
+ * `{ status: 'ok', value: makeResolvedAsset(...) }`.
+ */
+export function makeResolvedImage(path: string, alt = ''): ResolvedImage {
+  return { status: 'ok', value: { path, alt } }
 }

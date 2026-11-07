@@ -21,7 +21,7 @@ describe('GET /api/builder/catalogue', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toContain('application/json')
     expect(response.body.hash).toMatch(/^[0-9a-f]{16}$/)
-    expect(response.body.blocks.map((block: { type: string }) => block.type)).toEqual(['promo_banner', 'promo_item', 'promo_rail'])
+    expect(response.body.blocks.map((block: { type: string }) => block.type)).toEqual(['promo_banner', 'promo_item', 'promo_picture', 'promo_rail'])
     expect(response.body.blocks[0]).toMatchObject({
       type: 'promo_banner',
       version: 2,
@@ -65,7 +65,7 @@ describe('GET /api/builder/catalogue', () => {
     const response = await get({ 'if-none-match': '"0000000000000000"' })
 
     expect(response.status).toBe(200)
-    expect(response.body.blocks).toHaveLength(3)
+    expect(response.body.blocks).toHaveLength(4)
   })
 
   describe('?schema', () => {
