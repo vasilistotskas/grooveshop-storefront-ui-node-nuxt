@@ -1,3 +1,10 @@
+## [3.330.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.0...v3.330.1) (2026-11-07)
+
+
+### Bug Fixes
+
+* **privacy:** contact and store nothing optional before consent ([#411](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/411)) ([293257e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/293257e67c70462602e0cd344d9db0b2e9cd9cc3))
+
 # [3.330.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.329.1...v3.330.0) (2026-11-06)
 
 
