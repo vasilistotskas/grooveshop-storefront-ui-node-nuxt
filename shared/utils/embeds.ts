@@ -38,12 +38,6 @@
 export const YOUTUBE_PLAYER_ORIGIN = 'https://www.youtube-nocookie.com'
 
 /**
- * Where a YouTube facade's poster comes from (see ``sanitizeRichHtml``).
- * Listed in CSP ``img-src``.
- */
-export const YOUTUBE_THUMBNAIL_ORIGIN = 'https://i.ytimg.com'
-
-/**
  * The origins an author's YouTube iframe may name. ``youtube-nocookie``
  * is what TinyMCE emits when "privacy-enhanced mode" is on, so both
  * have to be accepted or embeds break depending on an editor toggle.
@@ -126,12 +120,12 @@ const YOUTUBE_VIDEO_ID = /^[\w-]{11}$/
  */
 const YOUTUBE_TIME = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/
 
-export function isYouTubeVideoId(id: string | null | undefined): id is string {
+function isYouTubeVideoId(id: string | null | undefined): id is string {
   return !!id && YOUTUBE_VIDEO_ID.test(id)
 }
 
 /** True when ``src`` is an iframe on either YouTube embed origin. */
-export function isYouTubeEmbedUrl(src: string): boolean {
+function isYouTubeEmbedUrl(src: string): boolean {
   try {
     return YOUTUBE_EMBED_ORIGINS.includes(new URL(src).origin)
   }
@@ -168,17 +162,28 @@ export function parseYouTubeEmbed(src: string | null | undefined): YouTubeEmbed 
 }
 
 /**
- * The privacy-enhanced player for ``video``, set to play at once: it is
- * only ever loaded by the visitor pressing the facade's play button.
+ * The player for an allow-listed embed ``src``, set to play at once: it is only
+ * ever loaded by the visitor pressing a facade's play button. A YouTube embed
+ * plays from the privacy-enhanced host, whichever host its author wrote.
  */
-export function youTubePlayerUrl(video: YouTubeEmbed): string {
-  const url = new URL(`/embed/${video.id}`, YOUTUBE_PLAYER_ORIGIN)
+export function embedPlayerUrl(src: string): string {
+  const video = parseYouTubeEmbed(src)
+  const authored = new URL(src)
+  const url = video
+    ? new URL(`/embed/${video.id}`, YOUTUBE_PLAYER_ORIGIN)
+    : isYouTubeEmbedUrl(src)
+      ? new URL(`${authored.pathname}${authored.search}`, YOUTUBE_PLAYER_ORIGIN)
+      : authored
   url.searchParams.set('autoplay', '1')
-  if (video.start > 0) url.searchParams.set('start', String(video.start))
+  if (video && video.start > 0) url.searchParams.set('start', String(video.start))
   return url.href
 }
 
-/** The facade's poster: YouTube's 480x360 frame, which every video has. */
-export function youTubeThumbnailUrl(id: string): string {
-  return `${YOUTUBE_THUMBNAIL_ORIGIN}/vi/${id}/hqdefault.jpg`
+/**
+ * Where the media service serves a YouTube video's poster, fetched there
+ * (``YOUTUBE_POSTER`` in grooveshop-media-stream) so that a visitor's browser
+ * contacts nobody but the store until they press play.
+ */
+export function youTubePosterSource(id: string): string {
+  return `youtube/${id}`
 }

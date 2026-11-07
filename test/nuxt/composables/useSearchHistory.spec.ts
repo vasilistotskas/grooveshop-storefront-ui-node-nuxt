@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { setPersonalizationConsent } from '~~/test/helpers/consent'
 
 /** The page renders `el` in the harness (vitest.config.mts pins it). */
 const KEY = 'search:recent:el'
@@ -6,6 +8,7 @@ const stored = () => JSON.parse(window.localStorage.getItem(KEY) ?? 'null')
 
 describe('useSearchHistory', () => {
   beforeEach(() => {
+    setPersonalizationConsent(true)
     window.localStorage.clear()
   })
 
@@ -78,7 +81,51 @@ describe('useSearchHistory', () => {
     history.clear()
 
     expect(history.entries.value).toEqual([])
-    expect(stored()).toEqual([])
+    expect(stored()).toBeNull()
+  })
+
+  it('shares one list between search modals, so clearing in one clears both', () => {
+    window.localStorage.setItem(KEY, JSON.stringify(['boots']))
+    const first = useSearchHistory()
+    const second = useSearchHistory()
+
+    first.clear()
+
+    expect(second.entries.value).toEqual([])
+  })
+
+  it('leaves the rest of the browser\'s storage alone when forgetting', () => {
+    window.localStorage.setItem(KEY, JSON.stringify(['boots']))
+    window.localStorage.setItem('search:recent:en', JSON.stringify(['shoes']))
+    window.localStorage.setItem('search:recently', 'not ours')
+
+    forgetSearchHistory()
+
+    expect(window.localStorage.getItem(KEY)).toBeNull()
+    expect(window.localStorage.getItem('search:recent:en')).toBeNull()
+    expect(window.localStorage.getItem('search:recently')).toBe('not ours')
+  })
+
+  describe('without consent to personalisation', () => {
+    beforeEach(async () => {
+      setPersonalizationConsent(false)
+      await flushPromises()
+    })
+
+    it('stores no query', () => {
+      const history = useSearchHistory()
+
+      history.add('boots')
+
+      expect(history.entries.value).toEqual([])
+      expect(stored()).toBeNull()
+    })
+
+    it('reads nothing that storage holds', () => {
+      window.localStorage.setItem(KEY, JSON.stringify(['boots']))
+
+      expect(useSearchHistory().entries.value).toEqual([])
+    })
   })
 
   it('still updates the list when storage refuses the write', () => {

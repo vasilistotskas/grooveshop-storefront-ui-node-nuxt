@@ -37,7 +37,9 @@ describe('Blog/Article', () => {
       '<iframe src="https://player.vimeo.com/video/76979871"></iframe><iframe src="https://evil.example/embed"></iframe>',
     )
 
-    expect(wrapper.findAll('iframe').map(frame => frame.attributes('src'))).toEqual(['https://player.vimeo.com/video/76979871'])
+    expect(wrapper.find('iframe').exists()).toBe(false)
+    expect(wrapper.findAll('button.rich-embed').map(button => button.attributes('data-embed-src')))
+      .toEqual(['https://player.vimeo.com/video/76979871?autoplay=1'])
   })
 
   it('shows a YouTube video as a play button named in the page\'s language', async () => {

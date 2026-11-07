@@ -5,7 +5,9 @@
  * can never wipe newer history.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 import type { RecentlyViewedProduct } from '~/composables/useRecentlyViewed'
+import { setPersonalizationConsent } from '~~/test/helpers/consent'
 
 const KEY = 'grooveshop:recently-viewed'
 const NOW = new Date('2026-09-30T10:00:00Z').getTime()
@@ -17,6 +19,7 @@ const ids = (items: readonly RecentlyViewedProduct[]) => items.map(p => p.id)
 
 describe('useRecentlyViewed', () => {
   beforeEach(() => {
+    setPersonalizationConsent(true)
     window.localStorage.clear()
     clearNuxtState('recently-viewed:items')
     vi.useFakeTimers({ toFake: ['Date'] })
@@ -90,7 +93,35 @@ describe('useRecentlyViewed', () => {
     clear()
 
     expect(items.value).toEqual([])
-    expect(stored()).toEqual([])
+    expect(stored()).toBeNull()
+  })
+
+  describe('without consent to personalisation', () => {
+    beforeEach(async () => {
+      setPersonalizationConsent(false)
+      await flushPromises()
+    })
+
+    it('stores no view', () => {
+      const { items, add } = useRecentlyViewed()
+
+      add(product(1))
+
+      expect(items.value).toEqual([])
+      expect(stored()).toBeNull()
+    })
+
+    it('reads nothing that storage holds', () => {
+      store([product(1)])
+
+      expect(useRecentlyViewed().items.value).toEqual([])
+    })
+
+    it('writes nothing when removing a product', () => {
+      useRecentlyViewed().remove(1)
+
+      expect(stored()).toBeNull()
+    })
   })
 
   it('excludes the product being viewed from the rail, and nothing when there is none', () => {

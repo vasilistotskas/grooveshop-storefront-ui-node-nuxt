@@ -50,6 +50,7 @@ import HeroCarousel from '~/components/variants/webside/PageSection/HeroCarousel
 import BlogCategories from '~/components/variants/webside/PageSection/BlogCategories.vue'
 import BlogPostsList from '~/components/variants/webside/PageSection/BlogPostsList.vue'
 import RecentlyViewed from '~/components/variants/webside/PageSection/RecentlyViewed.vue'
+import { setPersonalizationConsent } from '~~/test/helpers/consent'
 import ProductsGrid from '~/components/variants/webside/PageSection/ProductsGridBand.vue'
 import ProductsSlider from '~/components/variants/webside/PageSection/ProductsSliderBand.vue'
 import DefaultLayout from '~/layouts/default.vue'
@@ -291,6 +292,7 @@ describe('webside design render', () => {
     // `useApi` caches by key on the shared app: without this a section
     // would render whatever an earlier test's mount left behind.
     clearNuxtData()
+    setPersonalizationConsent(true)
     clearNuxtState('recently-viewed:items')
     localStorage.removeItem(RECENTLY_VIEWED_KEY)
     // `app.vue` seeds this on every real render; the harness mounts a

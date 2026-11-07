@@ -15,6 +15,7 @@ import {
   makeProductSearchResponse,
 } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { setPersonalizationConsent } from '~~/test/helpers/consent'
 
 /**
  * The default modal is a command palette (the second suite below); the
@@ -100,6 +101,7 @@ describe('Webside Search/Modal', () => {
   const C = WebsideSearchModal
 
   beforeEach(() => {
+    setPersonalizationConsent(true)
     clearNuxtData()
     localStorage.clear()
     sent.length = 0
@@ -304,6 +306,7 @@ describe('Webside Search/Modal', () => {
  */
 describe('Search/Modal (palette)', () => {
   beforeEach(() => {
+    setPersonalizationConsent(true)
     clearNuxtData()
     localStorage.clear()
     sent.length = 0
