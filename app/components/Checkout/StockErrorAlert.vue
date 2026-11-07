@@ -42,14 +42,17 @@ const localePath = useLocalePath()
           <div
             v-for="item in stockError.failedItems"
             :key="item.productId"
-            class="rounded-lg bg-warning-50 dark:bg-warning-950/50 p-3"
+            class="
+              rounded-lg bg-warning-50 p-3
+              dark:bg-warning-950/50
+            "
           >
             <div class="flex items-start justify-between gap-3">
-              <div class="flex-1 min-w-0">
-                <p class="font-medium text-default truncate">
+              <div class="min-w-0 flex-1">
+                <p class="truncate font-medium text-default">
                   {{ item.productName }}
                 </p>
-                <p class="text-sm text-toned mt-1">
+                <p class="mt-1 text-sm text-toned">
                   {{ t('stock_error.requested_vs_available', {
                     requested: item.requested,
                     available: item.available,

@@ -73,7 +73,12 @@ const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
       variant="soft"
     />
 
-    <ol class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+    <ol
+      class="
+        grid grid-cols-2 gap-2
+        sm:grid-cols-5
+      "
+    >
       <li
         v-for="(code, index) in codes"
         :key="code"
@@ -82,10 +87,12 @@ const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
           :aria-label="t('copy_code', { code })"
           type="button"
           class="
-            flex w-full cursor-pointer items-center gap-2 rounded-[0.75rem] bg-elevated px-3 py-2.5
-            font-mono text-sm text-highlighted transition-colors
+            flex w-full cursor-pointer items-center gap-2 rounded-[0.75rem]
+            bg-elevated px-3 py-2.5 font-mono text-sm text-highlighted
+            transition-colors
             hover:bg-accented
-            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
+            focus-visible:outline-2 focus-visible:outline-offset-2
+            focus-visible:outline-primary
           "
           @click="() => copyCode(code)"
         >

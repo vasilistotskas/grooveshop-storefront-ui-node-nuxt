@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { nextTick, ref } from 'vue'
+import { effectScope, nextTick, ref } from 'vue'
 import type { Ref } from 'vue'
+import type { UseWebSocketOptions } from '@vueuse/core'
 import websocketPlugin from '~/plugins/websocket.client'
 import { setTenant } from '~~/test/helpers/tenant'
 import { failWith } from '~~/test/helpers/api'
@@ -25,11 +26,13 @@ interface SocketOptions {
   autoReconnect: boolean
 }
 
-const { session, sockets, callAuthChangeHookMock } = vi.hoisted(() => ({
+const { session, sockets, callAuthChangeHookMock, mockLog } = vi.hoisted(() => ({
   session: { loggedIn: undefined as undefined | Ref<boolean> },
   sockets: [] as Array<{ url: string, options: SocketOptions, close: ReturnType<typeof vi.fn> }>,
   callAuthChangeHookMock: vi.fn(() => Promise.resolve()),
+  mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }))
+mockNuxtImport('log', () => mockLog)
 
 mockNuxtImport('useUserSession', () => () => {
   session.loggedIn ??= ref(false)
@@ -170,5 +173,98 @@ describe('websocket plugin', () => {
     await install()
 
     expect(sockets).toEqual([])
+  })
+})
+
+/** A server end the test plays: what the browser sent, and whether it closed. */
+class FakeSocket {
+  static last: FakeSocket | undefined
+  sent: string[] = []
+  closed = false
+  onopen: (() => void) | null = null
+  onclose: ((event: { code: number, reason: string }) => void) | null = null
+  onmessage: ((event: { data: string }) => void) | null = null
+  onerror: (() => void) | null = null
+
+  constructor(readonly url: string) {
+    FakeSocket.last = this
+  }
+
+  send(data: string) { this.sent.push(data) }
+  close(code = 1000, reason = '') {
+    this.closed = true
+    this.onclose?.({ code, reason })
+  }
+
+  /** The server accepts the connection. */
+  accept() { this.onopen?.() }
+  /** The server sends a frame. */
+  reply(data: string) { this.onmessage?.({ data }) }
+}
+
+/**
+ * The heartbeat the plugin configures, driven through VueUse's real
+ * `useWebSocket` with the plugin's own options. Django answers each ping
+ * with a pong; with no answer the socket is closed and a new one opened.
+ */
+describe('websocket plugin heartbeat', () => {
+  // A stopped scope runs nothing, so each test gets its own.
+  let scope = effectScope()
+
+  beforeEach(() => {
+    scope = effectScope()
+    FakeSocket.last = undefined
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    vi.stubGlobal('WebSocket', FakeSocket)
+    setTenant({ apiDomain: 'api.test.local' })
+    session.loggedIn = ref(true)
+    sockets.length = 0
+    tickets = 0
+    api.routes({ [TICKET]: () => ({ ticket: `t${++tickets}`, expiresIn: 60 }) })
+  })
+
+  afterEach(() => {
+    scope.stop()
+    vi.useRealTimers()
+  })
+
+  /** Install the plugin, then open a real VueUse socket with the options it chose. */
+  async function connectForReal(): Promise<FakeSocket> {
+    await install()
+    const options: UseWebSocketOptions = sockets[0]!.options
+    const { useWebSocket } = await vi.importActual<typeof import('@vueuse/core')>('@vueuse/core')
+    scope.run(() => useWebSocket(sockets[0]!.url, options))
+    const server = FakeSocket.last!
+    server.accept()
+    return server
+  }
+
+  it('keeps the socket while the server answers each ping, and never reads the answer as a notification', async () => {
+    const server = await connectForReal()
+
+    for (let beat = 0; beat < 20; beat++) {
+      await vi.advanceTimersByTimeAsync(30000)
+      server.reply('pong')
+    }
+    await vi.advanceTimersByTimeAsync(5000)
+
+    expect(server.sent).toEqual(Array.from({ length: 20 }, () => 'ping'))
+    expect(server.closed).toBe(false)
+    // No reconnect: the plugin opened one socket in ten minutes.
+    expect(sockets).toHaveLength(1)
+    expect(mockLog.error).not.toHaveBeenCalled()
+  })
+
+  it('closes a socket whose server stays silent and opens a new one with a fresh ticket', async () => {
+    const server = await connectForReal()
+
+    await vi.advanceTimersByTimeAsync(30000)
+    expect(server.sent).toEqual(['ping'])
+    await vi.advanceTimersByTimeAsync(5000)
+
+    expect(server.closed).toBe(true)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(api.callsTo(TICKET)).toHaveLength(2)
+    expect(sockets).toHaveLength(2)
   })
 })

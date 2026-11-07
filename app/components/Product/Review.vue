@@ -358,7 +358,7 @@ const heading = computed(() => props.userHadReviewed ? t('update_review') : t('w
           color="neutral"
           variant="link"
           icon="i-lucide-trash-2"
-          class="min-h-11 me-auto"
+          class="me-auto min-h-11"
           :disabled="submitting"
           @click="() => { confirmingDelete = true }"
         />

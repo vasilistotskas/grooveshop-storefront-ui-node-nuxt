@@ -15,7 +15,7 @@ const { locale } = useI18n()
 <template>
   <ImgWithFallback
     loading="lazy"
-    class="h-24 w-24 bg-primary-100"
+    class="size-24 bg-primary-100"
     :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
     :width="96"
     :height="96"

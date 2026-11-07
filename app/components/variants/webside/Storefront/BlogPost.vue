@@ -179,8 +179,7 @@ onReactivated(async () => {
 
           <div
             class="
-              flex h-[3rem] flex-row flex-nowrap items-center justify-start
-              gap-3
+              flex h-12 flex-row flex-nowrap items-center justify-start gap-3
             "
           >
             <WebsideButtonBlogPostLike
@@ -221,7 +220,7 @@ onReactivated(async () => {
               />
 
               <template #fallback>
-                <USkeleton class="h-10 w-10" />
+                <USkeleton class="size-10" />
               </template>
             </ClientOnly>
           </div>

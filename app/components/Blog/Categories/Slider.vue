@@ -56,7 +56,7 @@ const localePath = useLocalePath()
       <UButton
         :label="contentShorten(extractTranslated(item, 'name', locale), 0, isMobileOrTablet ? 6 : 10)"
         :to="localePath({ name: 'blog-category-id-slug', params: { id: item?.id, slug: item?.slug } })"
-        class="w-full !px-2 !py-2 font-bold"
+        class="w-full p-2! font-bold"
         color="secondary"
         size="xl"
       >

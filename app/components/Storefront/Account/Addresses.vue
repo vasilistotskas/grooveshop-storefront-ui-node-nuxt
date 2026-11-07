@@ -34,7 +34,11 @@ const { data: addresses, status, refresh } = await useAccountAddresses({
 
     <div
       v-if="status === 'pending' && !addresses"
-      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+      class="
+        grid gap-4
+        sm:grid-cols-2
+        xl:grid-cols-3
+      "
     >
       <USkeleton
         v-for="index in 3"
@@ -51,7 +55,11 @@ const { data: addresses, status, refresh } = await useAccountAddresses({
 
     <ul
       v-else-if="addresses?.results.length"
-      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+      class="
+        grid gap-4
+        sm:grid-cols-2
+        xl:grid-cols-3
+      "
     >
       <li
         v-for="address in addresses.results"
@@ -66,7 +74,10 @@ const { data: addresses, status, refresh } = await useAccountAddresses({
 
     <div
       v-else
-      class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
+      class="
+        flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring
+        ring-default
+      "
     >
       <p class="font-semibold text-highlighted">
         {{ t('empty.title') }}

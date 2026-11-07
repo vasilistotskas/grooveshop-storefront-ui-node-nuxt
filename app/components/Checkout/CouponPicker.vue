@@ -42,12 +42,14 @@ const { open, submitting, rows, triggerLabel, savingLabel, applyCoupon } = await
           flex items-center gap-3 rounded-2xl p-3 ring ring-default
           sm:gap-4
         "
-        :class="row.eligible || row.applied ? (row.personal ? 'bg-secondary/10' : 'bg-default') : 'bg-muted/50'"
+        :class="row.eligible || row.applied ? (row.personal ? 'bg-secondary/10' : `
+          bg-default
+        `) : `bg-muted/50`"
       >
         <code
           class="
-            shrink-0 rounded-lg border border-dashed border-default px-2.5 py-1.5
-            font-mono text-xs font-bold text-highlighted
+            shrink-0 rounded-lg border border-dashed border-default px-2.5
+            py-1.5 font-mono text-xs font-bold text-highlighted
           "
         >{{ row.code }}</code>
 

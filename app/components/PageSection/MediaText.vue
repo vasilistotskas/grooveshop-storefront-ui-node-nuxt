@@ -76,8 +76,7 @@ const bodyParts = computed(() => {
     <div
       class="
         relative grid items-center gap-8 overflow-hidden
-        md:grid-cols-2
-        md:gap-12
+        md:grid-cols-2 md:gap-12
       "
     >
       <div
@@ -92,8 +91,8 @@ const bodyParts = computed(() => {
         v-else-if="decor === 'gradient'"
         aria-hidden="true"
         class="
-          absolute inset-0 -z-10 rounded-xl
-          bg-gradient-to-b from-primary/10 to-transparent
+          absolute inset-0 -z-10 rounded-xl bg-linear-to-b from-primary/10
+          to-transparent
         "
       />
 
@@ -126,8 +125,8 @@ const bodyParts = computed(() => {
         <h2
           v-if="heading"
           class="
-            font-display text-2xl font-semibold tracking-tight text-highlighted
-            text-balance
+            font-display text-2xl font-semibold tracking-tight text-balance
+            text-highlighted
             md:text-3xl
           "
         >
@@ -136,7 +135,7 @@ const bodyParts = computed(() => {
 
         <p
           v-if="body"
-          class="whitespace-pre-line text-pretty text-muted"
+          class="text-pretty whitespace-pre-line text-muted"
         >
           <template
             v-for="(part, idx) in bodyParts"
@@ -211,7 +210,7 @@ const bodyParts = computed(() => {
                 <dt class="text-muted">
                   {{ row.label }}
                 </dt>
-                <dd class="font-mono tabular-nums text-highlighted">
+                <dd class="font-mono text-highlighted tabular-nums">
                   {{ row.value }}
                 </dd>
               </div>

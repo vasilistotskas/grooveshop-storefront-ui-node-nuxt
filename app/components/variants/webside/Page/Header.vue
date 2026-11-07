@@ -23,8 +23,8 @@ defineSlots<{
     <div
       data-slot="container"
       class="
-        mx-auto flex h-full w-full max-w-full items-center justify-between
-        gap-3 px-0
+        mx-auto flex size-full max-w-full items-center justify-between gap-3
+        px-0
       "
     >
       <div data-slot="center" class="flex w-full">

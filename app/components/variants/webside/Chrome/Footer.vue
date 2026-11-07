@@ -4,7 +4,12 @@ const { isMobileOrTablet } = useDevice()
 
 <template>
   <MobileOrTabletOnly>
-    <div class="px-4 pt-6 lg:hidden">
+    <div
+      class="
+        px-4 pt-6
+        lg:hidden
+      "
+    >
       <LazyWebsideFooterNewsletter hydrate-on-visible />
     </div>
     <div

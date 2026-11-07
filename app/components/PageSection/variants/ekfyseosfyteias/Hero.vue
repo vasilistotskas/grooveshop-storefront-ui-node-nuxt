@@ -78,9 +78,9 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
   >
     <div
       class="
-        mx-auto grid w-full max-w-[1280px] items-center gap-14 px-6 pt-[clamp(48px,6vw,88px)]
-        pb-[clamp(64px,7vw,104px)]
-        grid-cols-[repeat(auto-fit,minmax(min(500px,100%),1fr))]
+        mx-auto grid w-full max-w-[1280px]
+        grid-cols-[repeat(auto-fit,minmax(min(500px,100%),1fr))] items-center
+        gap-14 px-6 pt-[clamp(48px,6vw,88px)] pb-[clamp(64px,7vw,104px)]
       "
     >
       <div class="flex flex-col items-start gap-7">
@@ -102,7 +102,7 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         <h1
           v-if="heading"
           class="
-            font-display text-[length:clamp(50px,6.6vw,96px)] leading-[0.98]
+            font-display text-[clamp(50px,6.6vw,96px)] leading-[0.98]
             font-extrabold tracking-[-0.02em] text-balance
           "
         >
@@ -112,8 +112,7 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         <p
           v-if="subheading"
           class="
-            max-w-[32em] text-[length:clamp(18px,1.5vw,21px)] leading-[1.6]
-            text-pretty
+            max-w-[32em] text-[clamp(18px,1.5vw,21px)] leading-[1.6] text-pretty
           "
         >
           {{ subheading }}
@@ -122,9 +121,9 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         <dl
           v-if="stats?.length"
           class="
-            grid w-full gap-x-6 gap-y-4 border-t-[1.5px] border-dashed
-            border-(--fy-text) pt-[18px]
-            grid-cols-[repeat(auto-fit,minmax(min(140px,100%),1fr))]
+            grid w-full grid-cols-[repeat(auto-fit,minmax(min(140px,100%),1fr))]
+            gap-x-6 gap-y-4 border-t-[1.5px] border-dashed border-(--fy-text)
+            pt-[18px]
           "
         >
           <div
@@ -132,10 +131,20 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
             :key="stat.label"
             class="flex flex-col gap-1"
           >
-            <dt class="text-[13px] font-bold tracking-[0.12em] text-(--fy-eyebrow-on-sage) uppercase">
+            <dt
+              class="
+                text-[13px] font-bold tracking-[0.12em]
+                text-(--fy-eyebrow-on-sage) uppercase
+              "
+            >
               {{ stat.label }}
             </dt>
-            <dd class="font-display text-2xl font-bold [font-variant-numeric:lining-nums]">
+            <dd
+              class="
+                font-display text-2xl font-bold
+                [font-variant-numeric:lining-nums]
+              "
+            >
               {{ stat.value }}
             </dd>
           </div>
@@ -163,7 +172,7 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         </div>
       </div>
 
-      <div class="flex justify-center pt-2 pb-2">
+      <div class="flex justify-center py-2">
         <div
           class="
             relative aspect-square w-[min(540px,100%)] rounded-full border-2
@@ -251,7 +260,7 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         <h2
           v-if="heading"
           class="
-            font-display text-[length:clamp(32px,3.4vw,48px)] leading-[1.05]
+            font-display text-[clamp(32px,3.4vw,48px)] leading-[1.05]
             font-extrabold tracking-[-0.01em] text-(--fy-text)
           "
         >
@@ -297,9 +306,9 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
       <h1
         v-if="heading"
         class="
-          max-w-[860px] font-display text-[length:clamp(40px,5vw,72px)]
-          leading-none font-extrabold tracking-[-0.02em] text-balance
-          wrap-anywhere hyphens-auto
+          max-w-[860px] font-display text-[clamp(40px,5vw,72px)] leading-none
+          font-extrabold tracking-[-0.02em] text-balance wrap-anywhere
+          hyphens-auto
         "
       >
         {{ heading }}

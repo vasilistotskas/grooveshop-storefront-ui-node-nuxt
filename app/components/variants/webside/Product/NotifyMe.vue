@@ -119,7 +119,12 @@ watchEffect(() => {
             class="w-full"
           />
         </UFormField>
-        <p v-else class="text-sm text-neutral-600 dark:text-neutral-300">
+        <p
+          v-else class="
+            text-sm text-neutral-600
+            dark:text-neutral-300
+          "
+        >
           {{ t('logged_in_hint', { email: state.email }) }}
         </p>
 
@@ -141,7 +146,12 @@ watchEffect(() => {
             class="w-full"
           >
             <template #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">€</span>
+              <span
+                class="
+                  pl-1 text-sm font-medium text-neutral-700
+                  dark:text-neutral-200
+                "
+              >€</span>
             </template>
           </UInput>
         </UFormField>

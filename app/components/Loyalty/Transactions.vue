@@ -90,7 +90,10 @@ const totalPages = computed(() => transactions.value?.totalPages ?? 1)
 <template>
   <section
     :aria-labelledby="headingId"
-    class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
+    "
   >
     <div class="flex items-center justify-between gap-3">
       <h2
@@ -192,7 +195,10 @@ const totalPages = computed(() => transactions.value?.totalPages ?? 1)
             year="numeric"
             month="short"
             day="numeric"
-            class="mt-0.5 block text-xs text-muted sm:hidden"
+            class="
+              mt-0.5 block text-xs text-muted
+              sm:hidden
+            "
           />
         </template>
 
@@ -207,7 +213,9 @@ const totalPages = computed(() => transactions.value?.totalPages ?? 1)
         <template #points-cell="{ row }">
           <span
             class="font-mono font-semibold"
-            :class="row.original.points > 0 ? 'text-success' : 'text-highlighted'"
+            :class="row.original.points > 0 ? 'text-success' : `
+              text-highlighted
+            `"
           >
             {{ n(row.original.points, { signDisplay: 'always' }) }}
           </span>

@@ -86,7 +86,10 @@ const TOGGLES: Array<{ key: AccessibilityToggle, icon: string }> = [
               @click="() => { shrink() }"
             />
             <output
-              class="w-14 text-center text-sm font-semibold text-highlighted tabular-nums"
+              class="
+                w-14 text-center text-sm font-semibold text-highlighted
+                tabular-nums
+              "
               aria-live="polite"
             >{{ textPercent }}%</output>
             <UButton

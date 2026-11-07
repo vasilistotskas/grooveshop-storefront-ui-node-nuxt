@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/analytics/recommendation-event.post'
-import { backend, callRoute, testSession, useStorage } from '~~/test/helpers/nitro'
+import { backend, callRoute, testSession } from '~~/test/helpers/nitro'
 
 /**
  * POST /api/analytics/recommendation-event: forwards a recommendation
@@ -27,6 +27,10 @@ const report = (body: unknown = recommendationEvent) => callRoute(handler, {
 })
 
 describe('POST /api/analytics/recommendation-event', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('forwards the event with the cart\'s identity and answers 202', async () => {
     testSession.set({ secure: { accessToken: 'knox-1' } })
     backend.reply({ detail: 'ok' })
@@ -50,11 +54,16 @@ describe('POST /api/analytics/recommendation-event', () => {
   })
 
   it('refuses the 61st event from one IP on the store', async () => {
-    await useStorage('cache').setItem('rate:recommendation-event:shop.test:203.0.113.9', 60)
+    // The start of a minute: every event of the test falls in one window.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-07T12:00:00Z'))
+    backend.reply({ detail: 'ok' })
+    for (let i = 0; i < 60; i++) expect((await report()).status).toBe(202)
+    const forwarded = backend.requests.length
 
     const response = await report()
 
     expect(response.status).toBe(429)
-    expect(backend.requests).toEqual([])
+    expect(backend.requests).toHaveLength(forwarded)
   })
 })

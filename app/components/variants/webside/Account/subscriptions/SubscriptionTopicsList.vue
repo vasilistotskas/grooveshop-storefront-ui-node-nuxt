@@ -49,7 +49,7 @@ const handleUnsubscribe = async (subscriptionId: number) => {
         <div class="flex items-center gap-3">
           <USkeleton class="size-10 rounded-md" />
           <USkeleton class="h-10 w-32 rounded-md" />
-          <USkeleton class="h-8 w-8 rounded-full" />
+          <USkeleton class="size-8 rounded-full" />
         </div>
         <div
           class="

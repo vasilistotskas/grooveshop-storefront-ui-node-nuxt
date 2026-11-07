@@ -80,7 +80,12 @@ async function copyCode(code: string) {
 </script>
 
 <template>
-  <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+  <UContainer
+    class="
+      flex flex-col gap-6 pt-6 pb-14
+      lg:gap-8 lg:pb-22
+    "
+  >
     <PageBreadcrumb :items="breadcrumb" />
 
     <header class="flex flex-col gap-2">
@@ -131,7 +136,13 @@ async function copyCode(code: string) {
         @update:model-value="(value: string | number) => { filter = value as Filter }"
       />
 
-      <ul class="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+      <ul
+        class="
+          m-0 grid list-none gap-4 p-0
+          sm:grid-cols-2
+          lg:grid-cols-3
+        "
+      >
         <li
           v-for="offer in rows"
           :key="offer.id"

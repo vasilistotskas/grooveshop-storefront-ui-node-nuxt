@@ -46,7 +46,12 @@ const items = computed(() => [
 </script>
 
 <template>
-  <UContainer class="flex flex-col gap-8 py-6 lg:py-10">
+  <UContainer
+    class="
+      flex flex-col gap-8 py-6
+      lg:py-10
+    "
+  >
     <UBreadcrumb
       :items="items"
       class="min-w-0"
@@ -63,7 +68,10 @@ const items = computed(() => [
       <UAvatar
         :src="avatarSrc"
         :alt="authorName"
-        class="size-24 shrink-0 text-3xl sm:size-28"
+        class="
+          size-24 shrink-0 text-3xl
+          sm:size-28
+        "
         :ui="AVATAR_UI"
       />
 
@@ -82,7 +90,12 @@ const items = computed(() => [
           />
         </div>
 
-        <h1 class="font-display text-4xl/none font-bold tracking-tight text-highlighted lg:text-5xl/none">
+        <h1
+          class="
+            font-display text-4xl/none font-bold tracking-tight text-highlighted
+            lg:text-5xl/none
+          "
+        >
           {{ authorName }}
         </h1>
 
@@ -103,7 +116,10 @@ const items = computed(() => [
         icon="i-lucide-globe"
         color="neutral"
         variant="outline"
-        class="rounded-full sm:self-start"
+        class="
+          rounded-full
+          sm:self-start
+        "
       />
     </header>
 

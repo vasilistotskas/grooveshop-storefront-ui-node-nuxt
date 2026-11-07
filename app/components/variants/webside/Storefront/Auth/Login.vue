@@ -28,8 +28,8 @@ useHead({
 <template>
   <WebsidePageWrapper
     class="
-      !mt-0 flex flex-col gap-0 p-0
-      md:!mt-4
+      mt-0! flex flex-col gap-0 p-0
+      md:mt-4!
     "
   >
     <WebsidePageTitle
@@ -53,14 +53,13 @@ useHead({
         `,
       }"
       class="
-        relative mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
-        !pt-2
-        md:mb-5 md:w-full md:!pt-0
+        relative mx-auto w-auto max-w-xl bg-transparent px-4! pt-2!
+        md:mb-5 md:w-full md:pt-0!
         dark:bg-transparent
       "
     />
     <UCard
-      class="mx-auto w-xl max-w-full !p-0"
+      class="mx-auto w-xl max-w-full p-0!"
       :ui="{
         root: isMobileOrTablet? 'rounded-none ring-0' : '',
         body: isMobileOrTablet? 'p-0' : `

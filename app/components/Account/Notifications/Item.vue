@@ -54,8 +54,8 @@ const toggleName = computed(() => t(props.row.seen ? 'mark_unseen_named' : 'mark
   >
     <span
       class="
-        flex size-10 shrink-0 items-center justify-center rounded-xl
-        bg-elevated text-highlighted
+        flex size-10 shrink-0 items-center justify-center rounded-xl bg-elevated
+        text-highlighted
       "
     >
       <UIcon

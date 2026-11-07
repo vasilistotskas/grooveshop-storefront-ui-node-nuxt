@@ -34,7 +34,11 @@ const { providers, signIn: loginWithProvider } = useSocialProviders()
         :disabled="loading"
         :loading="loading"
         :class="provider.id === 'google'
-          ? 'bg-(--google-signin-fill) ring-(--google-signin-stroke) hover:bg-(--google-signin-fill) active:bg-(--google-signin-fill)'
+          ? `
+            bg-(--google-signin-fill) ring-(--google-signin-stroke)
+            hover:bg-(--google-signin-fill)
+            active:bg-(--google-signin-fill)
+          `
           : undefined"
         color="neutral"
         variant="outline"

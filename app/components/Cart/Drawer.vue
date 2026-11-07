@@ -89,7 +89,10 @@ const UDrawer = resolveComponent('UDrawer')
              it for a screen reader, count included. -->
         <p
           aria-hidden="true"
-          class="flex items-baseline gap-2 font-display text-2xl font-bold text-highlighted"
+          class="
+            flex items-baseline gap-2 font-display text-2xl font-bold
+            text-highlighted
+          "
         >
           {{ t('title') }}
           <span
@@ -148,7 +151,10 @@ const UDrawer = resolveComponent('UDrawer')
           <li
             v-for="item in items"
             :key="item.id"
-            class="py-4 first:pt-0"
+            class="
+              py-4
+              first:pt-0
+            "
           >
             <CartItemCard
               :cart-item="item"
@@ -179,7 +185,9 @@ const UDrawer = resolveComponent('UDrawer')
                 fit="cover"
                 loading="lazy"
                 densities="x1 x2"
-                class="size-13 shrink-0 rounded-[0.625rem] bg-elevated object-cover"
+                class="
+                  size-13 shrink-0 rounded-[0.625rem] bg-elevated object-cover
+                "
               />
               <div class="flex min-w-0 flex-1 flex-col">
                 <span class="line-clamp-1 text-sm font-medium text-highlighted">{{ nameOf(product) }}</span>

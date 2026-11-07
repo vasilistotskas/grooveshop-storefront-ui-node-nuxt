@@ -156,7 +156,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       sm:gap-3.5
     "
   >
-    <div class="relative aspect-[4/3.4] overflow-hidden rounded-[0.875rem] bg-elevated">
+    <div
+      class="
+        relative aspect-[4/3.4] overflow-hidden rounded-[0.875rem] bg-elevated
+      "
+    >
       <!-- Not a link of its own: the title's stretched link already
            covers the whole card, and a second one here would be a
            second tab stop to the same page. -->
@@ -184,7 +188,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         :color="badge.color"
         :variant="badge.variant"
         :class="badge.class"
-        class="absolute start-2.5 top-2.5 z-10"
+        class="absolute inset-s-2.5 top-2.5 z-10"
       />
 
       <!-- Per-visitor: a cached anonymous card must not carry this
@@ -197,7 +201,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           :favourite-id="favouriteId"
           size="sm"
           class="
-            absolute end-2 top-2 z-10 bg-default/90 ring-0
+            absolute inset-e-2 top-2 z-10 bg-default/90 ring-0
             hover:bg-default
           "
           @favourite-delete="onFavouriteDelete"
@@ -215,7 +219,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         size="sm"
         :block="false"
         class="
-          absolute end-2.5 bottom-2.5 z-10 hidden
+          absolute inset-e-2.5 bottom-2.5 z-10 hidden
           sm:inline-flex
         "
       />
@@ -224,7 +228,9 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
     <div class="flex flex-col gap-1 px-0.5">
       <p
         v-if="product.brandName"
-        class="text-[0.6875rem] font-bold tracking-[0.08em] text-muted uppercase"
+        class="
+          text-[0.6875rem] font-bold tracking-[0.08em] text-muted uppercase
+        "
       >
         {{ product.brandName }}
       </p>
@@ -241,7 +247,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <!-- The link stretches over the whole card, so the card is one
              target instead of three. The controls above it sit on a
              higher layer and stay clickable. -->
-        <h3 class="line-clamp-2 text-sm/[1.35] font-semibold text-pretty sm:text-[0.9375rem]">
+        <h3
+          class="
+            line-clamp-2 text-sm/[1.35] font-semibold text-pretty
+            sm:text-[0.9375rem]
+          "
+        >
           {{ productName }}
         </h3>
       </NuxtLink>
@@ -254,17 +265,22 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <div class="mt-0.5 flex items-center justify-between gap-2">
         <div class="flex flex-wrap items-baseline gap-x-2">
-          <span class="font-mono text-base font-bold tabular-nums text-highlighted sm:text-lg">
+          <span
+            class="
+              font-mono text-base font-bold text-highlighted tabular-nums
+              sm:text-lg
+            "
+          >
             {{ $i18n.n(displayFinalPrice, 'currency') }}
           </span>
           <ProductPriorPrice
             v-if="announcement"
             :price="announcement.priorPrice"
-            class="font-mono text-sm tabular-nums text-muted"
+            class="font-mono text-sm text-muted tabular-nums"
           />
           <s
             v-else-if="wasPrice"
-            class="font-mono text-sm tabular-nums text-muted"
+            class="font-mono text-sm text-muted tabular-nums"
           >
             {{ $i18n.n(wasPrice, 'currency') }}
           </s>
@@ -299,7 +315,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         color="neutral"
         variant="link"
         size="sm"
-        class="relative z-10 self-start p-0 text-[0.8125rem] font-semibold text-accent"
+        class="
+          relative z-10 self-start p-0 text-[0.8125rem] font-semibold
+          text-accent
+        "
         @click="() => { notify.mounted = true; notify.open = true }"
       />
     </div>

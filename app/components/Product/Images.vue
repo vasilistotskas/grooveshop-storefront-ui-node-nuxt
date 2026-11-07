@@ -97,7 +97,7 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
         class="aspect-square w-full object-cover"
       />
 
-      <div class="absolute start-3.5 top-3.5 flex gap-1.5">
+      <div class="absolute inset-s-3.5 top-3.5 flex gap-1.5">
         <UBadge
           v-if="soldOut"
           :label="t('sold_out')"
@@ -121,7 +121,7 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
         size="sm"
         square
         :aria-label="t('zoom')"
-        class="absolute end-3.5 bottom-3.5"
+        class="absolute inset-e-3.5 bottom-3.5"
         @click="openZoom"
       />
     </div>
@@ -144,9 +144,8 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
         class="
           aspect-square cursor-pointer overflow-hidden rounded-[0.875rem]
           bg-elevated outline-offset-2
-          aria-[current=true]:outline-2
-          aria-[current=true]:outline-inverted!
           focus-visible:outline-2 focus-visible:outline-secondary
+          aria-current:outline-2 aria-current:outline-inverted!
         "
         @click="show(index)"
       >

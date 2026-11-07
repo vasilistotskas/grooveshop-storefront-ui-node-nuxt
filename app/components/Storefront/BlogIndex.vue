@@ -38,7 +38,12 @@ const onSearch = async () => {
 </script>
 
 <template>
-  <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+  <UContainer
+    class="
+      flex flex-col gap-6 pt-6 pb-14
+      lg:gap-8 lg:pb-22
+    "
+  >
     <PageBreadcrumb :items="breadcrumb" />
 
     <!-- Breadcrumb ABOVE the branded band (crumb landed mid-page for
@@ -76,7 +81,10 @@ const onSearch = async () => {
 
       <form
         role="search"
-        class="w-full sm:w-72"
+        class="
+          w-full
+          sm:w-72
+        "
         @submit.prevent="onSearch"
       >
         <UInput

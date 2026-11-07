@@ -20,13 +20,15 @@ const { blogPostUrl } = useUrls()
   <NuxtLink
     :to="localePath({ path: blogPostUrl(post.master, post.slug) })"
     class="
-      flex items-center gap-3.5 rounded-2xl border border-default bg-default
-      p-3 transition-colors
+      flex items-center gap-3.5 rounded-2xl border border-default bg-default p-3
+      transition-colors
       hover:border-accented
     "
     @click="emit('click')"
   >
-    <span class="size-18 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated">
+    <span
+      class="size-18 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated"
+    >
       <ImgWithFallback
         :src="post.mainImagePath"
         alt=""
@@ -38,7 +40,9 @@ const { blogPostUrl } = useUrls()
         class="size-full object-cover"
       />
     </span>
-    <strong class="line-clamp-3 text-[0.9375rem]/[1.3] font-bold text-highlighted">
+    <strong
+      class="line-clamp-3 text-[0.9375rem]/[1.3] font-bold text-highlighted"
+    >
       {{ post.title }}
     </strong>
   </NuxtLink>

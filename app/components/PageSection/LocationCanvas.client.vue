@@ -60,7 +60,10 @@ const { state } = useMapLibre(container, {
     <div
       v-if="state === 'unavailable'"
       role="status"
-      class="flex size-full items-center justify-center gap-2 p-4 text-center text-sm text-muted"
+      class="
+        flex size-full items-center justify-center gap-2 p-4 text-center text-sm
+        text-muted
+      "
     >
       <UIcon name="i-heroicons-map-pin" class="size-5 shrink-0" />
       <span>{{ t('maps.unavailable') }}</span>

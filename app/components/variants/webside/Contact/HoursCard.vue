@@ -19,7 +19,12 @@ const { hasData, isOpen, rows } = useOpeningHoursRows(day => t(`days.${day}`))
   >
     <template #header>
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-lg font-semibold text-primary-950 dark:text-primary-50">
+        <h2
+          class="
+            text-lg font-semibold text-primary-950
+            dark:text-primary-50
+          "
+        >
           {{ t('title') }}
         </h2>
         <UBadge
@@ -43,8 +48,14 @@ const { hasData, isOpen, rows } = useOpeningHoursRows(day => t(`days.${day}`))
         :key="row.day"
         class="flex items-center justify-between gap-4"
         :class="row.isToday
-          ? 'font-semibold text-primary-950 dark:text-primary-50'
-          : 'text-primary-700 dark:text-primary-200'"
+          ? `
+            font-semibold text-primary-950
+            dark:text-primary-50
+          `
+          : `
+            text-primary-700
+            dark:text-primary-200
+          `"
         :aria-current="row.isToday ? 'date' : undefined"
       >
         <span>{{ row.label }}</span>
@@ -54,7 +65,10 @@ const { hasData, isOpen, rows } = useOpeningHoursRows(day => t(`days.${day}`))
         >{{ row.entry.opens }}–{{ row.entry.closes }}</span>
         <span
           v-else
-          class="font-mono text-primary-500 dark:text-primary-400"
+          class="
+            font-mono text-primary-500
+            dark:text-primary-400
+          "
         >{{ t('closed') }}</span>
       </li>
     </ul>

@@ -31,7 +31,10 @@ const { maxCards, cardSchema, formState, submitting, cardError, applyCard } = us
     <div
       v-for="card in appliedCards"
       :key="card.code"
-      class="flex items-center gap-3 rounded-xl bg-(--ui-success-soft) px-3 py-2.5 text-sm text-highlighted"
+      class="
+        flex items-center gap-3 rounded-xl bg-(--ui-success-soft) px-3 py-2.5
+        text-sm text-highlighted
+      "
     >
       <UIcon
         name="i-lucide-gift"

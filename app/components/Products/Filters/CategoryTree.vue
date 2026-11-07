@@ -29,7 +29,10 @@ const trailIds = computed(() => trail.value.map(node => node.id))
       :to="localePath('products')"
       :aria-current="onIndex ? 'page' : undefined"
       class="text-sm font-semibold"
-      :class="onIndex ? 'text-accent' : 'text-highlighted hover:text-accent'"
+      :class="onIndex ? 'text-accent' : `
+        text-highlighted
+        hover:text-accent
+      `"
     >
       <span>{{ t('all_products') }}</span>
     </ULink>

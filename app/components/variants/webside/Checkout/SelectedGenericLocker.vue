@@ -46,28 +46,52 @@ function onSelected(picked: Locker): void {
     <!-- Selected card — visible after a pick -->
     <div
       v-if="hasLocker && locker"
-      class="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-800"
+      class="
+        flex items-start gap-3 rounded-lg border border-neutral-200 p-3
+        dark:border-neutral-800
+      "
     >
       <UIcon
         name="i-lucide-package-check"
-        class="mt-1 size-6 shrink-0 text-primary-600 dark:text-primary-400"
+        class="
+          mt-1 size-6 shrink-0 text-primary-600
+          dark:text-primary-400
+        "
       />
       <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span class="break-words font-semibold">{{ locker.name }}</span>
-        <span class="text-sm text-neutral-700 dark:text-neutral-200">
+        <span class="font-semibold wrap-break-word">{{ locker.name }}</span>
+        <span
+          class="
+            text-sm text-neutral-700
+            dark:text-neutral-200
+          "
+        >
           {{ locker.addressLine1 }}<span v-if="locker.addressLine2">, {{ locker.addressLine2 }}</span>
         </span>
-        <span class="text-xs text-neutral-600 dark:text-neutral-300">
+        <span
+          class="
+            text-xs text-neutral-600
+            dark:text-neutral-300
+          "
+        >
           {{ locker.postalCode }} {{ locker.city }}
         </span>
         <span
           v-if="locker.workingHours"
-          class="text-xs text-neutral-600 dark:text-neutral-300"
+          class="
+            text-xs text-neutral-600
+            dark:text-neutral-300
+          "
         >
           <UIcon name="i-lucide-clock" class="-mt-0.5 size-3 align-middle" />
           {{ locker.workingHours }}
         </span>
-        <span class="mt-1 font-mono text-xs text-neutral-500 dark:text-neutral-400">
+        <span
+          class="
+            mt-1 font-mono text-xs text-neutral-500
+            dark:text-neutral-400
+          "
+        >
           {{ t('shipping.locker_picker.id_label') }}: {{ locker.id }}
         </span>
       </div>

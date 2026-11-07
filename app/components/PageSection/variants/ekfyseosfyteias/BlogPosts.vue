@@ -101,10 +101,12 @@ const cards = computed(() => items.value.map(post => ({
            right widened the phone page to ~1000px. -->
       <ol
         :class="loadMore
-          ? 'grid grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))] gap-5'
+          ? `
+            grid grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))] gap-5
+          `
           : `
-            relative -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-5
-            overflow-x-auto px-6 [scrollbar-width:none]
+            relative -mx-6 flex snap-x snap-mandatory scroll-px-6 scrollbar-none
+            gap-5 overflow-x-auto px-6
             md:mx-0 md:grid
             md:grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))]
             md:overflow-visible md:px-0
@@ -117,7 +119,10 @@ const cards = computed(() => items.value.map(post => ({
             flex flex-col overflow-hidden rounded-3xl bg-(--fy-surface)
             shadow-[0_1px_0_rgb(28_26_23/8%)]
           "
-          :class="!loadMore && 'w-[min(300px,80vw)] shrink-0 snap-start md:w-auto'"
+          :class="!loadMore && `
+            w-[min(300px,80vw)] shrink-0 snap-start
+            md:w-auto
+          `"
         >
           <ImgWithFallback
             :src="card.image"

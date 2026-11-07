@@ -96,7 +96,12 @@ const items = computed(() => [
         "
       />
 
-      <div class="flex min-w-0 flex-col items-center gap-3 sm:items-start">
+      <div
+        class="
+          flex min-w-0 flex-col items-center gap-3
+          sm:items-start
+        "
+      >
         <h1
           class="
             text-2xl font-bold text-primary-950

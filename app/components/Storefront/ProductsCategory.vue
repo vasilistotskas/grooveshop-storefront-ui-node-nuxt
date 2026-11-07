@@ -24,7 +24,12 @@ const breadcrumb = computed(() => [
 
 <template>
   <div>
-    <UContainer class="pt-5 pb-5 lg:pt-9 lg:pb-8">
+    <UContainer
+      class="
+        py-5
+        lg:pt-9 lg:pb-8
+      "
+    >
       <PageBreadcrumb :items="breadcrumb" />
       <!-- The category's OWN name, which is the subject of the page. -->
       <ProductsHeader
@@ -34,7 +39,12 @@ const breadcrumb = computed(() => [
       />
     </UContainer>
 
-    <UContainer class="flex flex-col gap-4.5 pb-12 lg:gap-7 lg:pb-22">
+    <UContainer
+      class="
+        flex flex-col gap-4.5 pb-12
+        lg:gap-7 lg:pb-22
+      "
+    >
       <ProductsCategoryChips />
       <ProductsBrowse />
       <div

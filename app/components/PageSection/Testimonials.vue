@@ -61,7 +61,9 @@ const cards = computed(() => (props.items ?? []).map((item) => {
       <figure
         v-for="(item, idx) in cards"
         :key="idx"
-        class="flex flex-col gap-4.5 rounded-md border border-default bg-default p-6"
+        class="
+          flex flex-col gap-4.5 rounded-md border border-default bg-default p-6
+        "
       >
         <UInputRating
           v-if="item.rating"
@@ -80,10 +82,7 @@ const cards = computed(() => (props.items ?? []).map((item) => {
              (`quotes: auto`): «» in Greek, “” in English — typed into
              the markup they would be English on both. -->
         <blockquote
-          class="
-            text-base/[1.55] text-pretty text-highlighted
-            [quotes:auto]
-          "
+          class="text-base/[1.55] text-pretty text-highlighted [quotes:auto]"
         >
           <p
             class="

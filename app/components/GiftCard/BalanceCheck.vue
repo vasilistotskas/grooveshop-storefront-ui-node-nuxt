@@ -53,7 +53,12 @@ async function checkBalance() {
 
 <template>
   <section class="flex flex-col gap-5">
-    <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    <div
+      class="
+        flex flex-col gap-6
+        md:flex-row md:items-center md:justify-between
+      "
+    >
       <div class="flex flex-col gap-1">
         <h2
           class="
@@ -72,7 +77,10 @@ async function checkBalance() {
       <UForm
         :state="formState"
         :schema="schema"
-        class="flex w-full items-start gap-2 md:max-w-md"
+        class="
+          flex w-full items-start gap-2
+          md:max-w-md
+        "
         @submit="checkBalance"
       >
         <UFormField
@@ -104,8 +112,8 @@ async function checkBalance() {
     <div
       v-if="result"
       class="
-        flex flex-wrap items-center justify-between gap-x-6 gap-y-2
-        rounded-xl p-4 text-highlighted
+        flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-xl
+        p-4 text-highlighted
       "
       :class="result.isRedeemable ? 'bg-(--ui-success-soft)' : 'bg-elevated'"
       role="status"

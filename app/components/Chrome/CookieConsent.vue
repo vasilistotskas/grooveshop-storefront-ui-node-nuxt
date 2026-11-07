@@ -33,11 +33,16 @@ useCookieConsentSync()
           fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))]
           z-60 flex flex-col gap-3.5 rounded-[1.5rem] bg-default p-5.5 shadow-xl
           ring ring-default
-          sm:inset-x-auto sm:start-8 sm:bottom-8 sm:w-115
+          sm:inset-x-auto sm:inset-s-8 sm:bottom-8 sm:w-115
         "
       >
         <div class="flex items-center gap-3">
-          <span class="grid size-10 shrink-0 place-items-center rounded-[0.75rem] bg-volt text-on-volt">
+          <span
+            class="
+              grid size-10 shrink-0 place-items-center rounded-[0.75rem] bg-volt
+              text-on-volt
+            "
+          >
             <UIcon
               name="i-lucide-cookie"
               class="size-5"
@@ -55,7 +60,10 @@ useCookieConsentSync()
           {{ t('body', { services: tenantStore.optionalServices.join(', ') }) }}
           <ULink
             :to="localePath('cookies-policy')"
-            class="font-semibold text-accent hover:underline"
+            class="
+              font-semibold text-accent
+              hover:underline
+            "
           >
             {{ t('policy') }}
           </ULink>

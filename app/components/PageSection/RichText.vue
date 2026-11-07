@@ -29,7 +29,7 @@ const sanitizedContent = computed(() => sanitize(props.content))
     :surface="surface"
   >
     <div
-      class="article prose max-w-none dark:prose-invert"
+      class="article max-w-none"
       v-html="sanitizedContent"
     />
   </PageSectionBand>

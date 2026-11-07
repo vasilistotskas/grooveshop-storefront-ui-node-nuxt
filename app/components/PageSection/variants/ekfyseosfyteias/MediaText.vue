@@ -143,13 +143,11 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
 
         <h2
           v-if="heading"
-          class="
-            font-display text-balance text-(--fy-text)
-          "
+          class="font-display text-balance text-(--fy-text)"
           :class="longHeading
-            ? 'text-[length:clamp(28px,2.6vw,36px)] leading-[1.1] font-bold'
+            ? 'text-[clamp(28px,2.6vw,36px)] leading-[1.1] font-bold'
             : `
-              text-[length:clamp(38px,4.2vw,62px)] leading-[1.02] font-extrabold
+              text-[clamp(38px,4.2vw,62px)] leading-[1.02] font-extrabold
               tracking-[-0.015em]
             `"
         >
@@ -177,9 +175,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
 
         <ul
           v-if="rows.length"
-          class="
-            w-full border-b-[1.5px] border-dashed border-(--fy-rule)
-          "
+          class="w-full border-b-[1.5px] border-dashed border-(--fy-rule)"
         >
           <li
             v-for="(row, index) in rows"

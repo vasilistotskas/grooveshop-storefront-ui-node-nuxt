@@ -53,7 +53,9 @@ const hiddenEligibleCount = computed(
            where a bare date is something to ignore. -->
       <span
         v-if="expiry(offer.endsAt)"
-        class="flex shrink-0 items-center gap-1 text-xs font-medium text-warning"
+        class="
+          flex shrink-0 items-center gap-1 text-xs font-medium text-warning
+        "
       >
         <UIcon name="i-heroicons-clock" class="size-3.5" />
         {{ expiry(offer.endsAt) }}

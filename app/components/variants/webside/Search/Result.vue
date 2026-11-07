@@ -47,14 +47,14 @@ const resultUrl = (result: SearchResult) => {
     block
     :to="resultUrl(result)"
     class="
-      focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary
-      focus-visible:outline-none
+      focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none
+      focus-visible:ring-inset
     "
     @click="emit('click')"
   >
     <span
       class="
-        flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden
+        flex size-16 shrink-0 items-center justify-center overflow-hidden
         rounded-lg
       "
     >
@@ -62,7 +62,7 @@ const resultUrl = (result: SearchResult) => {
         v-if="result.mainImagePath"
         :src="result.mainImagePath"
         :alt="displayTitle"
-        class="h-full w-full object-cover"
+        class="size-full object-cover"
         width="64"
         height="64"
         loading="lazy"
@@ -80,7 +80,8 @@ const resultUrl = (result: SearchResult) => {
           class="
             line-clamp-1 font-medium text-gray-900 transition-colors
             group-hover:text-primary-600
-            dark:text-gray-100 dark:group-hover:text-primary-400
+            dark:text-gray-100
+            dark:group-hover:text-primary-400
           "
         >
           {{ displayTitle }}

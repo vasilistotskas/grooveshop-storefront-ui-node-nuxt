@@ -39,15 +39,23 @@ const tabs = computed(() => [
           :to="tab.to"
           raw
           :aria-current="tab.key === props.current ? 'page' : undefined"
-          class="-mb-px flex items-center gap-2 border-b-2 py-3 text-[0.9375rem] font-semibold transition-colors"
+          class="
+            -mb-px flex items-center gap-2 border-b-2 py-3 text-[0.9375rem]
+            font-semibold transition-colors
+          "
           :class="tab.key === props.current
             ? 'border-(--ui-text-highlighted) text-highlighted'
-            : 'border-transparent text-toned hover:text-highlighted'"
+            : `
+              border-transparent text-toned
+              hover:text-highlighted
+            `"
         >
           {{ tab.label }}
           <UBadge
             :label="String(tab.count)"
-            :class="tab.key === props.current ? 'bg-inverted text-inverted ring-0' : ''"
+            :class="tab.key === props.current ? `
+              bg-inverted text-inverted ring-0
+            ` : ''"
             :color="tab.key === props.current ? undefined : 'neutral'"
             :variant="tab.key === props.current ? undefined : 'soft'"
             size="sm"

@@ -70,8 +70,8 @@ async function remove(id: number) {
     >
       <div
         class="
-          grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 border-b border-default pb-2
-          text-xs font-semibold tracking-[0.06em] text-toned uppercase
+          grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 border-b border-default
+          pb-2 text-xs font-semibold tracking-[0.06em] text-toned uppercase
           max-sm:hidden
         "
         aria-hidden="true"
@@ -93,7 +93,10 @@ async function remove(id: number) {
         >
           <form
             v-if="renaming === key.id"
-            class="flex items-center gap-2 sm:col-span-4"
+            class="
+              flex items-center gap-2
+              sm:col-span-4
+            "
             @submit.prevent="() => rename(key.id!)"
           >
             <UInput
@@ -147,7 +150,10 @@ async function remove(id: number) {
           </template>
           <div
             v-if="renaming !== key.id"
-            class="flex min-w-24 flex-wrap items-center justify-end gap-1 max-sm:justify-start"
+            class="
+              flex min-w-24 flex-wrap items-center justify-end gap-1
+              max-sm:justify-start
+            "
           >
             <template v-if="confirming === key.id">
               <span class="text-sm text-toned">{{ t('confirm_remove') }}</span>

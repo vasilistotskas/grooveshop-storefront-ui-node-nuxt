@@ -83,8 +83,8 @@ defineProps({
       arrows
       wheel-gestures
       class="
-        relative mx-auto w-full min-w-0 max-w-4xl
-        md:w-[43rem]
+        relative mx-auto w-full max-w-4xl min-w-0
+        md:w-172
       "
     >
       <BlogPostCard

@@ -37,14 +37,16 @@ const hasAside = computed(() => !!(props.lead || (props.ctaText && props.ctaLink
       <p
         v-if="eyebrow"
         class="text-[13px] font-bold tracking-[0.16em] uppercase"
-        :class="tone === 'sage' ? 'text-(--fy-eyebrow-on-sage)' : 'text-(--fy-eyebrow)'"
+        :class="tone === 'sage' ? 'text-(--fy-eyebrow-on-sage)' : `
+          text-(--fy-eyebrow)
+        `"
       >
         {{ eyebrow }}
       </p>
       <h2
         v-if="heading"
         class="
-          font-display text-[length:clamp(38px,4.2vw,62px)] leading-[1.02]
+          font-display text-[clamp(38px,4.2vw,62px)] leading-[1.02]
           font-extrabold tracking-[-0.015em] text-balance text-(--fy-text)
         "
       >

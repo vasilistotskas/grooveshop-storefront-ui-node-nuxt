@@ -74,7 +74,10 @@ defineExpose({ submit })
 <template>
   <section
     :aria-labelledby="headingId"
-    class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
+    "
   >
     <h2
       :id="headingId"
@@ -104,7 +107,11 @@ defineExpose({ submit })
          otherwise abort submit on a missing locker before our handler
          could pop the picker. The schema still drives inline error
          rendering for the locker field via the watcher above. -->
-    <UForm v-else ref="formRef" :state="formState" :schema="schema" class="flex flex-col gap-4" @error="scrollToFirstFormError">
+    <UForm
+      v-else ref="formRef" :state="formState" :schema="schema" class="
+        flex flex-col gap-4
+      " @error="scrollToFirstFormError"
+    >
       <!-- No method can carry the cart (Django would refuse the order):
            each card names its own limit, this says what to do about it.
            Advancing is already blocked — every card is disabled. -->
@@ -159,7 +166,7 @@ defineExpose({ submit })
                    ``min-w-0 + break-words`` lets the label itself wrap
                    when the brand name + tagline don't fit one row. -->
               <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span class="font-semibold break-words text-highlighted">{{ item.label }}</span>
+                <span class="font-semibold wrap-break-word text-highlighted">{{ item.label }}</span>
                 <UBadge
                   v-if="item.taglineKey"
                   size="sm"

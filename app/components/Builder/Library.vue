@@ -132,7 +132,10 @@ function moveFocus(event: KeyboardEvent): void {
       <ul
         v-if="shown.length"
         ref="grid"
-        class="grid grid-cols-2 gap-3 sm:grid-cols-3"
+        class="
+          grid grid-cols-2 gap-3
+          sm:grid-cols-3
+        "
         :aria-label="t('results', { count: shown.length })"
         @keydown="moveFocus"
       >
@@ -143,8 +146,15 @@ function moveFocus(event: KeyboardEvent): void {
           <button
             type="button"
             data-library-card
-            class="flex w-full flex-col gap-2 rounded-md p-2 text-start ring ring-default transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-            :class="offer.refusal ? 'cursor-not-allowed opacity-60' : 'hover:bg-elevated/60'"
+            class="
+              flex w-full flex-col gap-2 rounded-md p-2 text-start ring
+              ring-default transition-colors
+              focus-visible:ring-2 focus-visible:ring-primary
+              focus-visible:outline-none
+            "
+            :class="offer.refusal ? 'cursor-not-allowed opacity-60' : `
+              hover:bg-elevated/60
+            `"
             :aria-disabled="Boolean(offer.refusal)"
             :aria-describedby="offer.refusal ? `refusal-${offer.definition.type}` : undefined"
             @click="() => add(offer)"

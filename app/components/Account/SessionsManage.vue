@@ -60,7 +60,10 @@ const describe = (session: AllAuthSession) => ({
         <li
           v-for="session in sessions"
           :key="session.id"
-          class="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:gap-4"
+          class="
+            flex flex-col gap-2 py-3 text-sm
+            sm:flex-row sm:items-center sm:gap-4
+          "
         >
           <span class="flex min-w-0 flex-1 items-center gap-3">
             <UIcon
@@ -76,7 +79,12 @@ const describe = (session: AllAuthSession) => ({
               size="sm"
             />
           </span>
-          <span class="text-toned sm:w-56">
+          <span
+            class="
+              text-toned
+              sm:w-56
+            "
+          >
             <i18n-t :keypath="describe(session).tracked ? 'last_active' : 'signed_in'">
               <template #when>
                 <NuxtTime
@@ -88,7 +96,12 @@ const describe = (session: AllAuthSession) => ({
               </template>
             </i18n-t>
           </span>
-          <span class="flex sm:w-24 sm:justify-end">
+          <span
+            class="
+              flex
+              sm:w-24 sm:justify-end
+            "
+          >
             <UButton
               v-if="!session.is_current"
               :label="t('sign_out')"

@@ -27,6 +27,7 @@ const {
   titles: {
     exportFailed: () => t('export.error_title'),
     downloadFailed: () => t('export.download_error_title'),
+    downloadExpired: () => t('export.download_expired'),
     deleteFailed: () => t('delete.error_title'),
   },
 })
@@ -67,7 +68,7 @@ const fileSizeLabel = computed(() => {
   <WebsideAccountAreaPageWrapper
     class="
       flex flex-col gap-4
-      md:gap-8 md:!p-0
+      md:gap-8 md:p-0!
     "
   >
     <WebsidePageTitle
@@ -293,6 +294,7 @@ el:
     expires_at: "Λήγει: {at}"
     error_title: Δεν ήταν δυνατή η αίτηση εξαγωγής.
     download_error_title: Δεν ήταν δυνατή η λήψη του αρχείου.
+    download_expired: Η εξαγωγή έχει λήξει. Ζήτησε μια νέα.
     failed_title: Η εξαγωγή απέτυχε
     failed_description: Κάτι πήγε στραβά κατά τη δημιουργία του αρχείου. Μπορείς να το ξαναδοκιμάσεις.
     status:
@@ -335,6 +337,7 @@ en:
     expires_at: "Expires: {at}"
     error_title: The export could not be requested.
     download_error_title: The file could not be downloaded.
+    download_expired: This export has expired. Request a new one.
     failed_title: The export failed
     failed_description: Something went wrong while building the file. You can try again.
     status:

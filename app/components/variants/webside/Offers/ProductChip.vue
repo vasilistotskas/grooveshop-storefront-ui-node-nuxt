@@ -34,7 +34,7 @@ const localePath = useLocalePath()
       :height="32"
       fit="contain"
       background="transparent"
-      class="size-8 shrink-0 rounded object-contain"
+      class="size-8 shrink-0 rounded-[0.25rem] object-contain"
     />
     <span class="line-clamp-2 min-w-0">{{ product.name }}</span>
   </NuxtLink>

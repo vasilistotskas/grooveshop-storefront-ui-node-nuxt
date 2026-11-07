@@ -129,15 +129,14 @@ const purchaseSchema = computed(() => z.object({
     <div
       class="
         mx-auto grid w-full max-w-xl gap-8
-        lg:max-w-(--container-6xl) lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]
-        lg:items-start
+        lg:max-w-6xl lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start
       "
     >
       <aside
         v-if="step === 'form'"
         class="
           order-2 space-y-6
-          lg:order-1 lg:sticky lg:top-24
+          lg:sticky lg:top-24 lg:order-1
         "
       >
         <div
@@ -148,8 +147,8 @@ const purchaseSchema = computed(() => z.object({
         >
           <div
             class="
-              absolute inset-0 bg-linear-to-br from-(--ui-secondary)/15
-              via-transparent to-success/15
+              absolute inset-0 bg-linear-to-br from-secondary/15 via-transparent
+              to-success/15
             "
             aria-hidden="true"
           />
@@ -157,7 +156,7 @@ const purchaseSchema = computed(() => z.object({
             <div
               class="
                 flex size-14 shrink-0 items-center justify-center rounded-xl
-                bg-(--ui-secondary)/15
+                bg-secondary/15
               "
             >
               <UIcon
@@ -240,9 +239,7 @@ const purchaseSchema = computed(() => z.object({
           <UFormField :label="t('fields.amount')" name="amount" required>
             <div class="space-y-2">
               <div
-                class="
-                  grid grid-cols-3 gap-2
-                "
+                class="grid grid-cols-3 gap-2"
               >
                 <UButton
                   v-for="amount in suggestedAmounts"

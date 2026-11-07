@@ -27,7 +27,12 @@ const EXPORT_POLL_MS = 3000
  */
 export function useAccountPrivacy(options: {
   toasts: { exportRequested: () => ToastInput, deletionScheduled: () => ToastInput }
-  titles: { exportFailed: () => string, downloadFailed: () => string, deleteFailed: () => string }
+  titles: {
+    exportFailed: () => string
+    downloadFailed: () => string
+    downloadExpired: () => string
+    deleteFailed: () => string
+  }
 }) {
   const toast = useToast()
   const { notify } = useApiError()
@@ -109,15 +114,26 @@ export function useAccountPrivacy(options: {
         `/api/user/account/${uid.value}/data-exports/${exportId}/download`,
         { responseType: 'blob' },
       )
+      const url = URL.createObjectURL(bundle)
       const link = document.createElement('a')
-      link.href = URL.createObjectURL(bundle)
+      link.href = url
       link.download = `data-export-${exportId}.json`
       link.click()
-      URL.revokeObjectURL(link.href)
+      // After the click: the browser reads the blob once the download starts.
+      setTimeout(() => URL.revokeObjectURL(url), 0)
     }
     catch (error) {
       log.error({ action: 'privacy:downloadExport', error })
-      notify('privacy:download-export', error, { title: options.titles.downloadFailed() })
+      // A blob response holds Django's reason as a Blob, so the status names it.
+      const status = (error as { statusCode?: number }).statusCode
+      // The page loaded it as ready; show what it is now, with "request again".
+      if (status === 410) {
+        exports.value = exports.value.map(row => row.id === exportId ? { ...row, status: 'expired' } : row)
+      }
+      notify('privacy:download-export', error, {
+        title: options.titles.downloadFailed(),
+        fallback: status === 410 ? options.titles.downloadExpired() : undefined,
+      })
     }
   }
 

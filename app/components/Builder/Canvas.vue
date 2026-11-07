@@ -228,7 +228,12 @@ const pageName = computed(() => documentLabel(props.documentKey))
     class="flex h-full min-h-0 flex-col"
     :aria-label="t('label')"
   >
-    <div class="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-default px-3">
+    <div
+      class="
+        flex h-11 shrink-0 items-center justify-between gap-2 border-b
+        border-default px-3
+      "
+    >
       <p class="min-w-0 truncate text-sm text-muted">
         {{ pageName }}
       </p>
@@ -283,13 +288,18 @@ const pageName = computed(() => documentLabel(props.documentKey))
         </div>
         <div
           v-if="hoverOutline && !preview"
-          class="pointer-events-none absolute rounded-sm border-2 border-dashed border-primary/60"
+          class="
+            pointer-events-none absolute rounded-sm border-2 border-dashed
+            border-primary/60
+          "
           :style="{ left: pixels(hoverOutline.left), top: pixels(hoverOutline.top), width: pixels(hoverOutline.width), height: pixels(hoverOutline.height) }"
           data-builder-outline="hover"
         />
         <div
           v-if="selectedOutline"
-          class="pointer-events-none absolute rounded-sm border-2 border-primary"
+          class="
+            pointer-events-none absolute rounded-sm border-2 border-primary
+          "
           :style="{ left: pixels(selectedOutline.left), top: pixels(selectedOutline.top), width: pixels(selectedOutline.width), height: pixels(selectedOutline.height) }"
           data-builder-outline="selected"
         />
@@ -302,7 +312,7 @@ const pageName = computed(() => documentLabel(props.documentKey))
             icon="i-lucide-plus"
             color="primary"
             size="xs"
-            class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full shadow-md"
+            class="absolute -translate-1/2 rounded-full shadow-md"
             :style="{ left: pixels(point.left), top: pixels(point.top) }"
             :aria-label="point.label"
             data-builder-insert

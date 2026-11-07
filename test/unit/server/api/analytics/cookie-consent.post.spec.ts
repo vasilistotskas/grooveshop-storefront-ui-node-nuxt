@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/analytics/cookie-consent.post'
-import { callRoute, useStorage } from '~~/test/helpers/nitro'
+import { callRoute } from '~~/test/helpers/nitro'
 
 /**
  * POST /api/analytics/cookie-consent: records the consent banner's
@@ -18,6 +18,10 @@ const send = (body: unknown, headers: Record<string, string> = {}) => callRoute(
 })
 
 describe('POST /api/analytics/cookie-consent', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('records that the banner was shown', async () => {
     const response = await send({ event: 'banner_shown' })
 
@@ -41,7 +45,10 @@ describe('POST /api/analytics/cookie-consent', () => {
   })
 
   it('refuses the 31st event from one IP on one store, but not on another store', async () => {
-    await useStorage('cache').setItem('rate:cookie-consent:shop.test:203.0.113.9', 30)
+    // The start of a minute: every event of the test falls in one window.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-07T12:00:00Z'))
+    for (let i = 0; i < 30; i++) expect((await send({ event: 'banner_shown' })).status).toBe(204)
 
     const limited = await send({ event: 'banner_shown' }, { 'x-forwarded-host': 'other.test' })
     const otherStore = await callRoute(handler, { route, method: 'POST', host: 'other.test', body: { event: 'banner_shown' }, headers: { 'cf-connecting-ip': '203.0.113.9' } })

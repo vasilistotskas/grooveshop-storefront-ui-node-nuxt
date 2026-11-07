@@ -94,21 +94,25 @@ useHead({
         format="webp"
         :preload="{ fetchPriority: 'high' }"
         fetchpriority="high"
-        class="
-          h-auto w-full rounded-2xl shadow-xl ring ring-default
-        "
+        class="h-auto w-full rounded-2xl shadow-xl ring ring-default"
       />
     </UPageHero>
 
     <section
       class="
-        mx-auto mt-8 max-w-3xl space-y-5 text-base leading-relaxed text-primary-950
+        mx-auto mt-8 max-w-3xl space-y-5 text-base leading-relaxed
+        text-primary-950
         sm:mt-12
         md:text-lg
         dark:text-primary-50
       "
     >
-      <h2 class="text-balance text-2xl font-bold md:text-3xl">
+      <h2
+        class="
+          text-2xl font-bold text-balance
+          md:text-3xl
+        "
+      >
         {{ t('about.platform.title') }}
       </h2>
       <p>{{ t('body.p2', { storeName }) }}</p>

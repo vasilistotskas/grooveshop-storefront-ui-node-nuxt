@@ -48,7 +48,10 @@ const openCookieModal = () => {
                 <ULink
                   :to="link.to"
                   active-class="font-medium text-primary"
-                  inactive-class="text-muted transition-colors hover:text-default"
+                  inactive-class="
+                    text-muted transition-colors
+                    hover:text-default
+                  "
                   class="
                     group flex items-center gap-1.5 rounded-sm text-sm
                     outline-primary/25
@@ -90,8 +93,7 @@ const openCookieModal = () => {
         <WebsideFooterHoursBadge />
         <div
           class="
-            flex flex-wrap items-center gap-x-3 gap-y-1 text-sm
-            text-primary-950
+            flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950
             dark:text-primary-100
           "
         >
@@ -100,7 +102,10 @@ const openCookieModal = () => {
             <UButton
               :label="`${siteConfig.name}™.`"
               :to="localePath('index')"
-              class="p-0 text-primary-950 dark:text-primary-50"
+              class="
+                p-0 text-primary-950
+                dark:text-primary-50
+              "
               color="neutral"
               size="lg"
               type="button"

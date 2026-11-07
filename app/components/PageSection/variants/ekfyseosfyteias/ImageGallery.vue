@@ -53,8 +53,8 @@ const trackClass = computed(() => TRACK_CLASSES[props.columns] ?? TRACK_CLASSES[
       <h2
         v-if="title"
         class="
-          font-display text-[length:clamp(36px,4vw,58px)] leading-[1.04]
-          font-extrabold tracking-[-0.015em] text-balance text-(--fy-text)
+          font-display text-[clamp(36px,4vw,58px)] leading-[1.04] font-extrabold
+          tracking-[-0.015em] text-balance text-(--fy-text)
         "
       >
         {{ title }}

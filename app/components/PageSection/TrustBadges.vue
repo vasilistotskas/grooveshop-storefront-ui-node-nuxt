@@ -88,8 +88,8 @@ const visible = computed(() =>
     <ul
       v-else
       class="
-        -mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4
-        [scrollbar-width:none]
+        -mx-4 flex snap-x snap-mandatory scrollbar-none gap-2 overflow-x-auto
+        px-4
         sm:-mx-6 sm:px-6
         lg:mx-0 lg:justify-between lg:gap-4 lg:overflow-visible
         lg:rounded-[1.25rem] lg:border lg:border-default lg:bg-default lg:px-7

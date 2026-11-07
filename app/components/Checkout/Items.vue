@@ -24,7 +24,7 @@ const nameOf = (item: CartItem) => extractTranslated(item.product, 'name', local
       class="flex items-center gap-3"
     >
       <!-- A sized box around the link: Anchor is `w-full`. -->
-      <div class="relative shrink-0 pt-1.5 pe-1.5">
+      <div class="relative shrink-0 pe-1.5 pt-1.5">
         <Anchor
           :to="{ path: productUrl(item.product.id, item.product.slug) }"
           :title="nameOf(item)"
@@ -42,7 +42,10 @@ const nameOf = (item: CartItem) => extractTranslated(item.product, 'name', local
           />
         </Anchor>
         <span
-          class="absolute end-0 top-0 grid size-5 place-items-center rounded-full bg-inverted font-mono text-[0.6875rem] font-bold text-inverted"
+          class="
+            absolute inset-e-0 top-0 grid size-5 place-items-center rounded-full
+            bg-inverted font-mono text-[0.6875rem] font-bold text-inverted
+          "
         >
           <span class="sr-only">{{ t('quantity') }}</span>{{ item.quantity }}
         </span>

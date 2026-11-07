@@ -241,7 +241,12 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
     v-if="product"
     :data-action-bar="stickyAddToCartEnabled ? '' : undefined"
   >
-    <UContainer class="pt-6 max-sm:hidden">
+    <UContainer
+      class="
+        pt-6
+        max-sm:hidden
+      "
+    >
       <PageBreadcrumb :items="breadcrumb" />
     </UContainer>
 
@@ -286,7 +291,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             <h1
               class="
                 font-display text-[1.875rem]/[1.08] font-bold tracking-[-0.02em]
-                text-highlighted text-balance
+                text-balance text-highlighted
                 lg:text-[2.5rem]/[1.08]
               "
             >
@@ -323,8 +328,8 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               <div class="flex flex-wrap items-baseline gap-x-2">
                 <span
                   class="
-                    font-mono text-[1.875rem] font-bold tabular-nums
-                    text-highlighted
+                    font-mono text-[1.875rem] font-bold text-highlighted
+                    tabular-nums
                     lg:text-4xl
                   "
                 >
@@ -334,14 +339,14 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   v-if="announcement"
                   :price="announcement.priorPrice"
                   class="
-                    font-mono text-[1.4375rem] tabular-nums text-muted
+                    font-mono text-[1.4375rem] text-muted tabular-nums
                     lg:text-[1.6875rem]
                   "
                 />
                 <s
                   v-else-if="wasPrice"
                   class="
-                    font-mono text-[1.4375rem] tabular-nums text-muted
+                    font-mono text-[1.4375rem] text-muted tabular-nums
                     lg:text-[1.6875rem]
                   "
                 >
@@ -368,7 +373,9 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                product belongs to a variant group. -->
           <ProductVariantSelector :product="product" />
 
-          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div
+            class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+          >
             <p
               class="flex items-center gap-2 text-sm font-bold text-default"
             >
@@ -632,7 +639,11 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             <p class="truncate text-[0.8125rem] font-semibold text-highlighted">
               {{ productName }}
             </p>
-            <p class="font-mono text-base font-bold tabular-nums text-highlighted">
+            <p
+              class="
+                font-mono text-base font-bold text-highlighted tabular-nums
+              "
+            >
               {{ formatProductPrice(displayFinalPrice) }}
             </p>
           </div>

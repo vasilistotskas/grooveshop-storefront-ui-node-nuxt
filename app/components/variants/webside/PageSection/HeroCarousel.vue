@@ -62,7 +62,10 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
     :items="slides"
     :ui="{ item: 'basis-full place-items-center justify-center' }"
     :aria-label="t('carousel.banner')"
-    class="w-full md:p-0!"
+    class="
+      w-full
+      md:p-0!
+    "
     indicators
   >
     <NuxtLink

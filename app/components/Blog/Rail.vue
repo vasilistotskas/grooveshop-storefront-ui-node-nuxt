@@ -34,10 +34,14 @@ const title = (post: BlogPost) => extractTranslated(post, 'title', locale.value)
   <ul
     v-if="posts.length"
     :class="stacked
-      ? 'grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3'
+      ? `
+        grid grid-cols-1 gap-7
+        sm:grid-cols-2
+        lg:grid-cols-3
+      `
       : `
-        -mx-4 flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-4
-        [scrollbar-width:none]
+        -mx-4 flex snap-x snap-mandatory scrollbar-none gap-3.5 overflow-x-auto
+        px-4
         sm:-mx-6 sm:px-6
         lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-7 lg:overflow-visible lg:px-0
       `"
@@ -47,7 +51,10 @@ const title = (post: BlogPost) => extractTranslated(post, 'title', locale.value)
       v-for="post in posts"
       :key="post.id"
       class="group relative flex flex-col gap-3.5"
-      :class="!stacked && 'w-75 shrink-0 snap-start lg:w-auto'"
+      :class="!stacked && `
+        w-75 shrink-0 snap-start
+        lg:w-auto
+      `"
     >
       <div class="aspect-4/3 overflow-hidden rounded-[0.875rem] bg-elevated">
         <ImgWithFallback

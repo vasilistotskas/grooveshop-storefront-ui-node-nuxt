@@ -60,9 +60,9 @@ describe('ekfyseosfyteias media_text', () => {
     })
 
     // The size class is the contract here: the display scale set this title in seven lines.
-    expect(short.find('h2').classes()).toContain('text-[length:clamp(38px,4.2vw,62px)]')
-    expect(long.find('h2').classes()).toContain('text-[length:clamp(28px,2.6vw,36px)]')
-    expect(long.find('h2').classes()).not.toContain('text-[length:clamp(38px,4.2vw,62px)]')
+    expect(short.find('h2').classes()).toContain('text-[clamp(38px,4.2vw,62px)]')
+    expect(long.find('h2').classes()).toContain('text-[clamp(28px,2.6vw,36px)]')
+    expect(long.find('h2').classes()).not.toContain('text-[clamp(38px,4.2vw,62px)]')
   })
 
   it('gives a photograph without a note an empty alt', async () => {

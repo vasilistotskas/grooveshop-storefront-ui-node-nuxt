@@ -176,15 +176,14 @@ defineExpose({
       <div
         v-if="tenantStore.hasOptionalServices && !isConsentGiven && !moduleOptions.isModalForced"
         class="
-            fixed right-0 bottom-2 left-0 z-50 mx-auto max-h-[calc(100dvh-1rem)]
-            max-w-sm overflow-y-auto rounded-md
-            border border-primary-200 bg-primary-50 px-4 py-4 text-primary-600
-            shadow-xl
-            sm:max-w-xl
-            md:px-6
-            lg:max-w-4xl
-            dark:border-primary-700 dark:bg-primary-800 dark:text-primary-100
-          "
+          fixed inset-x-0 bottom-2 z-50 mx-auto max-h-[calc(100dvh-1rem)]
+          max-w-sm overflow-y-auto rounded-md border border-primary-200
+          bg-primary-50 p-4 text-primary-600 shadow-xl
+          sm:max-w-xl
+          md:px-6
+          lg:max-w-4xl
+          dark:border-primary-700 dark:bg-primary-800 dark:text-primary-100
+        "
       >
         <div
           class="
@@ -256,7 +255,7 @@ defineExpose({
         data-testid="nuxt-cookie-control-control-button"
         type="button"
         class="
-          fixed bottom-[160px] left-[20px] h-[36px] w-[36px] cursor-pointer
+          fixed bottom-[160px] left-[20px] size-[36px] cursor-pointer
           rounded-full border border-primary-200 bg-primary-50 text-primary-900
           transition duration-200
           hover:bg-white hover:text-primary-700
@@ -272,8 +271,8 @@ defineExpose({
           mode="svg"
           class="
             absolute top-1/2 left-1/2 max-h-[24px] min-h-[24px] max-w-[24px]
-            min-w-[24px] -translate-x-1/2 -translate-y-1/2 transform
-            text-primary-600 transition duration-200
+            min-w-[24px] -translate-1/2 transform text-primary-600 transition
+            duration-200
             dark:text-primary-100
           "
         />

@@ -137,8 +137,8 @@ function onSubmit() {
   <div class="flex h-full flex-col overflow-hidden bg-default">
     <div
       class="
-        flex shrink-0 items-center gap-3 bg-linear-to-br
-        from-(--ui-secondary) to-(--ui-chat-gradient-to) px-4 py-3
+        flex shrink-0 items-center gap-3 bg-linear-to-br from-(--ui-secondary)
+        to-(--ui-chat-gradient-to) px-4 py-3
       "
     >
       <div class="relative">
@@ -173,7 +173,10 @@ function onSubmit() {
         icon="i-lucide-rotate-ccw"
         variant="ghost"
         size="sm"
-        class="text-white hover:bg-white/15"
+        class="
+          text-white
+          hover:bg-white/15
+        "
         :aria-label="t('chat.new')"
         @click="reset"
       />
@@ -181,7 +184,10 @@ function onSubmit() {
         icon="i-lucide-x"
         variant="ghost"
         size="sm"
-        class="text-white hover:bg-white/15"
+        class="
+          text-white
+          hover:bg-white/15
+        "
         :aria-label="t('chat.close')"
         @click="emit('close')"
       />
@@ -197,8 +203,8 @@ function onSubmit() {
       >
         <div
           class="
-            flex size-12 items-center justify-center rounded-2xl
-            bg-linear-to-br from-(--ui-secondary) to-(--ui-chat-gradient-to) shadow-lg
+            flex size-12 items-center justify-center rounded-2xl bg-linear-to-br
+            from-(--ui-secondary) to-(--ui-chat-gradient-to) shadow-lg
           "
         >
           <UIcon
@@ -267,7 +273,10 @@ function onSubmit() {
                 v-if="segment.type === 'text'"
                 :value="segment.text"
                 :streaming="message.id === streamingMessageId && index === (shownMessage(message.id)?.segments.length ?? 0) - 1"
-                class="*:first:mt-0 *:last:mb-0"
+                class="
+                  *:first:mt-0
+                  *:last:mb-0
+                "
               />
               <ChromeAssistantProducts
                 v-else

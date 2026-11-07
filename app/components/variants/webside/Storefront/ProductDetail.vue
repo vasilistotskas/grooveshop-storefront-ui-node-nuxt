@@ -250,14 +250,13 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 <template>
   <WebsidePageWrapper>
     <section
-      v-if="product" id="product" class="
-        md:mb-24
-      "
+      v-if="product" id="product" class="md:mb-24"
     >
       <div
         class="
-          mx-auto max-w-7xl md:pb-6
+          mx-auto max-w-7xl
           sm:px-6
+          md:pb-6
           lg:px-8
         "
       >
@@ -374,7 +373,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               <div class="flex flex-col">
                 <span
                   class="
-                    bg-gradient-to-r from-neutral-600 to-secondary-900
+                    bg-linear-to-r from-neutral-600 to-secondary-900
                     bg-clip-text text-3xl font-bold text-transparent
                     sm:text-4xl
                     dark:from-neutral-400 dark:to-secondary-400
@@ -493,7 +492,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 />
               </div>
 
-              <div class="w-full flex h-full">
+              <div class="flex size-full">
                 <label class="sr-only mb-2 block text-sm font-medium opacity-0">
                   {{ t('add_to_cart') }}
                 </label>
@@ -598,8 +597,8 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
       <div
         v-if="stickyAddToCartEnabled && showStickyAddToCart"
         class="
-          fixed right-0 bottom-18 left-0 z-40 border-t border-gray-200
-          bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm
+          fixed inset-x-0 bottom-18 z-40 border-t border-gray-200 bg-white/95
+          px-4 py-3 shadow-lg backdrop-blur-sm
           md:bottom-0
           dark:border-gray-700 dark:bg-gray-900/95
         "
@@ -614,8 +613,8 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               :width="64"
               :height="64"
               class="
-                h-12 w-12 shrink-0 rounded-lg object-contain
-                md:h-16 md:w-16
+                size-12 shrink-0 rounded-lg object-contain
+                md:size-16
               "
             />
             <div class="min-w-0 flex-1">

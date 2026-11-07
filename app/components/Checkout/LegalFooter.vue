@@ -31,7 +31,12 @@ const phone = computed(() => identity.value?.phone?.trim() || null)
 <template>
   <footer class="border-t border-default">
     <UContainer>
-      <ul class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 py-5 text-sm text-toned">
+      <ul
+        class="
+          flex flex-wrap items-center justify-center gap-x-5 gap-y-2 py-5
+          text-sm text-toned
+        "
+      >
         <li
           v-for="link in links"
           :key="link.to"

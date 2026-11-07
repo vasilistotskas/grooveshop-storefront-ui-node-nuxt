@@ -71,7 +71,12 @@ const hasSide = computed(() => hasMethods.value || showHours.value)
               lg:px-0 lg:pt-6
             "
           >
-            <div class="mx-auto flex max-w-xl flex-col gap-6 lg:max-w-none">
+            <div
+              class="
+                mx-auto flex max-w-xl flex-col gap-6
+                lg:max-w-none
+              "
+            >
               <WebsideContactMethodsCard />
               <WebsideContactHoursCard v-if="!layoutHasHours" />
             </div>

@@ -1,3 +1,24 @@
+## [3.330.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.4...v3.330.5) (2026-11-07)
+
+
+### Bug Fixes
+
+* **lint:** check Tailwind classes in templates ([#417](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/417)) ([43c61f3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/43c61f324e105c11dcfac7e5d87d2307d634be0d))
+
+## [3.330.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.3...v3.330.4) (2026-11-07)
+
+
+### Bug Fixes
+
+* **privacy:** stop treating ?export= as a secret ([#416](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/416)) ([e92d4ff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e92d4ff437991c28dc06ab313d03ad757b37a2b4))
+
+## [3.330.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.2...v3.330.3) (2026-11-07)
+
+
+### Bug Fixes
+
+* **account:** say why a data export could not be downloaded, drop the public path ([#413](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/413)) ([c0a1d45](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c0a1d45202b4913b81aee95c93da0232f71f7d7b))
+
 ## [3.330.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.1...v3.330.2) (2026-11-07)
 
 

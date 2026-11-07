@@ -73,9 +73,7 @@ useHead({
         format="webp"
         :preload="{ fetchPriority: 'high' }"
         fetchpriority="high"
-        class="
-          h-auto w-full rounded-2xl shadow-xl ring ring-default
-        "
+        class="h-auto w-full rounded-2xl shadow-xl ring ring-default"
       />
     </UPageHero>
 
@@ -121,9 +119,7 @@ useHead({
         sizes="xs:320px sm:640px md:480px lg:480px xl:560px xxl:600px 2xl:600px"
         loading="lazy"
         quality="80"
-        class="
-          h-auto w-full rounded-2xl shadow-xl ring ring-default
-        "
+        class="h-auto w-full rounded-2xl shadow-xl ring ring-default"
       />
     </UPageSection>
 
@@ -174,9 +170,7 @@ useHead({
         sizes="xs:320px sm:640px md:480px lg:480px xl:560px xxl:600px 2xl:600px"
         loading="lazy"
         quality="80"
-        class="
-          h-auto w-full rounded-2xl shadow-xl ring ring-default
-        "
+        class="h-auto w-full rounded-2xl shadow-xl ring ring-default"
       />
     </UPageSection>
   </div>

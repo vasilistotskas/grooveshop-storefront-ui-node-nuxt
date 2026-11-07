@@ -184,9 +184,9 @@ const customerInitials = computed(() => {
       <div
         class="flex flex-col items-center gap-3"
       >
-        <div class="h-full w-full">
+        <div class="size-full">
           <div class="mb-3 flex w-full items-center gap-2">
-            <UIcon name="i-heroicons-shopping-bag" class="h-5 w-5 text-gray-500" />
+            <UIcon name="i-heroicons-shopping-bag" class="size-5 text-gray-500" />
             <span
               class="
                 text-base font-semibold text-gray-700
@@ -203,7 +203,7 @@ const customerInitials = computed(() => {
                 v-for="item in order.items.slice(0, maxItems)"
                 :key="`product-${item.product}`"
                 :item="item"
-                class="flex-shrink-0"
+                class="shrink-0"
               />
             </div>
 
@@ -225,7 +225,7 @@ const customerInitials = computed(() => {
           <div class="flex w-full flex-col items-start">
             <div class="mb-3 flex w-full items-center justify-between gap-2">
               <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-truck" class="h-5 w-5 text-gray-500" />
+                <UIcon name="i-heroicons-truck" class="size-5 text-gray-500" />
                 <span
                   class="
                     text-base font-semibold text-gray-700
@@ -259,7 +259,7 @@ const customerInitials = computed(() => {
               <div class="flex w-full items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
                   <UIcon
-                    name="i-heroicons-credit-card" class="h-5 w-5 text-gray-500"
+                    name="i-heroicons-credit-card" class="size-5 text-gray-500"
                   />
                   <span
                     class="
@@ -294,9 +294,9 @@ const customerInitials = computed(() => {
       <USeparator />
 
       <div class="flex items-center justify-between gap-3">
-        <div class="flex h-full w-full flex-col">
+        <div class="flex size-full flex-col">
           <div class="mb-3 flex items-center gap-2">
-            <UIcon name="i-heroicons-user" class="h-5 w-5 text-gray-500" />
+            <UIcon name="i-heroicons-user" class="size-5 text-gray-500" />
             <span
               class="
                 text-base font-semibold text-gray-700
@@ -320,7 +320,7 @@ const customerInitials = computed(() => {
 
         <div
           v-if="paymentMethodDisplay"
-          class="flex h-full w-full flex-col"
+          class="flex size-full flex-col"
         >
           <div
             class="
@@ -328,7 +328,7 @@ const customerInitials = computed(() => {
               dark:text-gray-200
             "
           >
-            <UIcon name="i-heroicons-credit-card" class="h-4 w-4" />
+            <UIcon name="i-heroicons-credit-card" class="size-4" />
             {{ t('payment_method') }}
           </div>
           <p
@@ -355,7 +355,7 @@ const customerInitials = computed(() => {
               dark:text-gray-200
             "
           >
-            <UIcon name="i-heroicons-map-pin" class="h-4 w-4" />
+            <UIcon name="i-heroicons-map-pin" class="size-4" />
             {{ t('address') }}
           </div>
           <p
@@ -377,7 +377,7 @@ const customerInitials = computed(() => {
               dark:text-gray-200
             "
           >
-            <UIcon name="i-heroicons-calendar" class="h-4 w-4" />
+            <UIcon name="i-heroicons-calendar" class="size-4" />
             {{ t('order_date') }}
           </div>
           <NuxtTime
@@ -399,7 +399,7 @@ const customerInitials = computed(() => {
               dark:text-gray-200
             "
           >
-            <UIcon name="i-heroicons-truck" class="h-4 w-4" />
+            <UIcon name="i-heroicons-truck" class="size-4" />
             {{ t('shipping') }}
           </div>
           <p
@@ -422,7 +422,7 @@ const customerInitials = computed(() => {
             dark:text-gray-200
           "
         >
-          <UIcon name="i-heroicons-currency-euro" class="h-4 w-4" />
+          <UIcon name="i-heroicons-currency-euro" class="size-4" />
           {{ t('total_price') }}
         </div>
         <p
@@ -448,7 +448,7 @@ const customerInitials = computed(() => {
             dark:text-gray-200
           "
         >
-          <UIcon name="i-heroicons-clock" class="h-4 w-4" />
+          <UIcon name="i-heroicons-clock" class="size-4" />
           <span>{{ t('created_at') }}:</span>
           <NuxtTime :datetime="order.createdAt" :locale="locale" />
         </div>

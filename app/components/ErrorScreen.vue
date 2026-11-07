@@ -171,7 +171,11 @@ const goTo = (name: 'products' | 'contact') =>
             </div>
             <div v-if="error.data">
               <span class="font-medium">{{ t('debug.data') }}:</span>
-              <pre class="mt-1 overflow-auto rounded bg-elevated p-2 text-xs">{{ error.data }}</pre>
+              <pre
+                class="
+                  mt-1 overflow-auto rounded-[0.25rem] bg-elevated p-2 text-xs
+                "
+              >{{ error.data }}</pre>
             </div>
           </div>
         </UCard>

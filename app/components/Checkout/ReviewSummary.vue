@@ -51,7 +51,12 @@ const documentLine = computed(() => isInvoice.value
 </script>
 
 <template>
-  <dl class="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+  <dl
+    class="
+      grid gap-x-8 gap-y-5
+      sm:grid-cols-2
+    "
+  >
     <div class="flex flex-col gap-1">
       <dt class="text-xs font-semibold tracking-wider text-muted uppercase">
         {{ t('contact') }}
@@ -80,7 +85,12 @@ const documentLine = computed(() => isInvoice.value
       </dd>
     </div>
 
-    <div class="flex flex-col gap-1 sm:col-span-2">
+    <div
+      class="
+        flex flex-col gap-1
+        sm:col-span-2
+      "
+    >
       <dt class="text-xs font-semibold tracking-wider text-muted uppercase">
         {{ isInvoice ? t('invoice') : t('receipt') }}
       </dt>
