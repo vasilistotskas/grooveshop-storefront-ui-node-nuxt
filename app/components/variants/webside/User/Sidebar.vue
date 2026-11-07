@@ -37,7 +37,7 @@ const { menus } = useAccountMenus()
       />
       <div
         class="
-          mt-2 rounded border border-primary-500 bg-primary-100 p-2
+          mt-2 rounded-[0.25rem] border border-primary-500 bg-primary-100 p-2
           md:border-transparent md:bg-transparent md:p-0
           dark:bg-primary-900
           md:dark:bg-transparent

@@ -270,8 +270,10 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
         >
           <div
             :class="[
-              'grid h-full w-full grid-rows-[auto_1fr]',
-              hasCopy(item) && 'lg:min-h-150 lg:grid-cols-[5fr_7fr] lg:grid-rows-1',
+              'grid size-full grid-rows-[auto_1fr]',
+              hasCopy(item) && `
+                lg:min-h-150 lg:grid-cols-[5fr_7fr] lg:grid-rows-1
+              `,
             ]"
           >
             <div
@@ -308,9 +310,9 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                 v-if="chips[index]"
                 :to="chips[index]!.to"
                 class="
-                  absolute start-3 bottom-3 flex items-center gap-3.5 rounded-[1.125rem]
-                  bg-default p-2.5 pe-4.5 shadow-lg
-                  lg:start-7 lg:bottom-7
+                  absolute inset-s-3 bottom-3 flex items-center gap-3.5
+                  rounded-[1.125rem] bg-default p-2.5 pe-4.5 shadow-lg
+                  lg:inset-s-7 lg:bottom-7
                 "
               >
                 <ImgWithFallback
@@ -319,12 +321,19 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                   :width="128"
                   :height="128"
                   fit="cover"
-                  class="size-16 shrink-0 rounded-[0.875rem] bg-elevated object-cover"
+                  class="
+                    size-16 shrink-0 rounded-[0.875rem] bg-elevated object-cover
+                  "
                 />
                 <span class="flex min-w-0 flex-col gap-0.5">
                   <span class="text-sm font-bold text-highlighted">{{ chips[index]!.name }}</span>
                   <span class="flex flex-wrap items-baseline gap-2">
-                    <span class="font-mono text-base font-bold text-highlighted tabular-nums">{{ chips[index]!.price }}</span>
+                    <span
+                      class="
+                        font-mono text-base font-bold text-highlighted
+                        tabular-nums
+                      "
+                    >{{ chips[index]!.price }}</span>
                     <ProductPriorPrice
                       v-if="chips[index]!.prior"
                       :price="chips[index]!.prior!"
@@ -387,8 +396,8 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                   :is="headingTag(index)"
                   v-if="item.heading?.trim()"
                   class="
-                    font-display text-[2.375rem]/[1.02] font-bold tracking-[-0.03em]
-                    text-balance
+                    font-display text-[2.375rem]/[1.02] font-bold
+                    tracking-[-0.03em] text-balance
                     sm:text-5xl/[1]
                     xl:text-[4.75rem]/[0.98] xl:tracking-[-0.035em]
                   "
@@ -457,8 +466,13 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                     v-for="dot in items.length"
                     :key="dot"
                     :class="[
-                      'h-1.5 rounded-full lg:hidden',
-                      dot - 1 === index ? 'w-5.5 bg-volt' : 'w-1.5 bg-(--ui-text-inverted)/30',
+                      `
+                        h-1.5 rounded-full
+                        lg:hidden
+                      `,
+                      dot - 1 === index ? 'w-5.5 bg-volt' : `
+                        w-1.5 bg-(--ui-text-inverted)/30
+                      `,
                     ]"
                   />
                 </template>
@@ -474,10 +488,15 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
         <div
           v-if="several"
           :class="[
-            'absolute z-10 hidden items-center gap-3 lg:flex',
+            `
+              absolute z-10 hidden items-center gap-3
+              lg:flex
+            `,
             editorial
-              ? 'start-14 bottom-16 w-[calc((100%*5/12)-7rem)] justify-between'
-              : 'end-6 bottom-6',
+              ? `
+                inset-s-14 bottom-16 w-[calc((100%*5/12)-7rem)] justify-between
+              `
+              : 'inset-e-6 bottom-6',
           ]"
         >
           <div

@@ -26,7 +26,12 @@ const detail = computed(() => [
 </script>
 
 <template>
-  <li class="flex items-center gap-3 border-t border-default py-3 first:border-t-0">
+  <li
+    class="
+      flex items-center gap-3 border-t border-default py-3
+      first:border-t-0
+    "
+  >
     <UBadge
       v-if="offer.code"
       :label="t('code')"

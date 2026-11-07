@@ -93,7 +93,7 @@ const CHIP_OFF = `
           <VariantsEkfyseosfyteiasBlogBreadcrumb :items="breadcrumb" />
           <h1
             class="
-              font-display text-[length:clamp(48px,6vw,88px)] leading-[0.98]
+              font-display text-[clamp(48px,6vw,88px)] leading-[0.98]
               font-extrabold tracking-[-0.02em]
             "
           >
@@ -108,7 +108,7 @@ const CHIP_OFF = `
       <div
         class="
           flex flex-wrap items-center justify-between gap-x-6 gap-y-3
-          border-y-[1.5px] border-dashed border-(color:--fy-rule) py-4
+          border-y-[1.5px] border-dashed border-(--fy-rule) py-4
         "
       >
         <nav
@@ -177,9 +177,7 @@ const CHIP_OFF = `
         </div>
 
         <div
-          class="
-            flex flex-col items-start gap-4 p-[clamp(28px,4vw,56px)]
-          "
+          class="flex flex-col items-start gap-4 p-[clamp(28px,4vw,56px)]"
         >
           <p class="flex flex-wrap items-center gap-2.5">
             <span
@@ -202,7 +200,7 @@ const CHIP_OFF = `
           </p>
           <h2
             class="
-              font-display text-[length:clamp(32px,3.4vw,50px)] leading-[1.04]
+              font-display text-[clamp(32px,3.4vw,50px)] leading-[1.04]
               font-extrabold text-balance
             "
           >
@@ -228,8 +226,8 @@ const CHIP_OFF = `
       <ul
         v-if="rest.length"
         class="
-          grid list-none grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))]
-          gap-5 p-0
+          grid list-none
+          grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-5 p-0
         "
       >
         <li
@@ -264,7 +262,10 @@ const CHIP_OFF = `
             <p class="flex flex-wrap items-center gap-x-2.5 gap-y-2">
               <span
                 v-if="card.category"
-                class="rounded-full px-[11px] py-1 text-[12.5px] font-semibold text-(--fy-eyebrow)"
+                class="
+                  rounded-full px-[11px] py-1 text-[12.5px] font-semibold
+                  text-(--fy-eyebrow)
+                "
                 :class="card.image ? 'bg-(--fy-raised)' : 'bg-(--fy-ground)'"
               >{{ card.category }}</span>
               <NuxtTime
@@ -276,7 +277,9 @@ const CHIP_OFF = `
                 month="long"
                 year="numeric"
                 class="text-[13.5px] font-semibold"
-                :class="card.image ? 'text-(--fy-accent-text)' : 'text-(--fy-text)'"
+                :class="card.image ? 'text-(--fy-accent-text)' : `
+                  text-(--fy-text)
+                `"
               />
             </p>
             <h3 class="font-display text-[23px] leading-[1.15] font-bold">

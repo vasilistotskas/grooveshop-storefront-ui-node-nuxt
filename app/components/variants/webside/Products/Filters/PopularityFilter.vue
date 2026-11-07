@@ -84,17 +84,26 @@ const formattedValue = computed(() => {
     <!-- Current value display -->
     <div
       class="
-        flex items-center justify-between
-        px-3 py-2 rounded-lg
-        bg-neutral-50 dark:bg-neutral-800/50
+        flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2
+        dark:bg-neutral-800/50
       "
     >
-      <span class="text-sm text-neutral-600 dark:text-neutral-300">
+      <span
+        class="
+          text-sm text-neutral-600
+          dark:text-neutral-300
+        "
+      >
         {{ t('minimum_likes') }}
       </span>
       <div class="flex items-center gap-1.5">
         <UIcon name="i-heroicons-heart-solid" class="size-4 text-red-500" />
-        <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <span
+          class="
+            text-sm font-semibold text-neutral-900
+            dark:text-neutral-100
+          "
+        >
           {{ formattedValue }}+
         </span>
       </div>

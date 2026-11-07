@@ -25,8 +25,8 @@ const { headline, figure, conditions } = usePromotionOffer()
 <template>
   <article
     class="
-      flex flex-col gap-4 rounded-[1.375rem] border border-(--ui-text-inverted)/15
-      bg-(--ui-text-inverted)/5 p-6
+      flex flex-col gap-4 rounded-[1.375rem] border
+      border-(--ui-text-inverted)/15 bg-(--ui-text-inverted)/5 p-6
     "
   >
     <!-- A figure where the benefit is a number; the headline's words
@@ -56,13 +56,16 @@ const { headline, figure, conditions } = usePromotionOffer()
          there, so it does not grow when the client adds it. -->
     <div
       class="
-        mt-auto flex min-h-13 items-center justify-between gap-3 rounded-[0.875rem]
-        border-[1.5px] border-dashed border-(--ui-text-inverted)/30 py-2 ps-4 pe-2
+        mt-auto flex min-h-13 items-center justify-between gap-3
+        rounded-[0.875rem] border-[1.5px] border-dashed
+        border-(--ui-text-inverted)/30 py-2 ps-4 pe-2
       "
     >
       <template v-if="offer.code">
         <span class="sr-only">{{ t('promotion.code_label') }}</span>
-        <code class="truncate font-mono font-bold tracking-[0.06em] text-inverted">{{ offer.code }}</code>
+        <code
+          class="truncate font-mono font-bold tracking-[0.06em] text-inverted"
+        >{{ offer.code }}</code>
         <!-- ClientOnly: `isSupported` is false during SSR and true on
              the client, so the button would appear mid-hydration and Vue
              would report a mismatch. -->

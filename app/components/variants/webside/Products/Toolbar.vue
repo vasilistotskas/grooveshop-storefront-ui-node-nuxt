@@ -104,7 +104,10 @@ const handleToggleFilters = () => {
 
 <template>
   <div
-    class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+    class="
+      flex flex-col gap-4
+      sm:flex-row sm:items-center sm:justify-between
+    "
     role="toolbar"
     :aria-label="t('toolbar.aria.browsing_controls')"
   >
@@ -119,7 +122,12 @@ const handleToggleFilters = () => {
         :aria-label="t('toolbar.aria.toggle_filters')"
         @click="handleToggleFilters"
       >
-        <span class="sr-only sm:not-sr-only">{{ t('filters') }}</span>
+        <span
+          class="
+            sr-only
+            sm:not-sr-only
+          "
+        >{{ t('filters') }}</span>
         <UBadge
           v-if="hasActiveFilters"
           :label="activeFilterCount.toString()"
@@ -130,7 +138,10 @@ const handleToggleFilters = () => {
 
       <!-- Results count -->
       <div
-        class="text-sm text-neutral-600 dark:text-neutral-300"
+        class="
+          text-sm text-neutral-600
+          dark:text-neutral-300
+        "
         role="status"
         aria-live="polite"
         aria-atomic="true"
@@ -140,12 +151,20 @@ const handleToggleFilters = () => {
     </div>
 
     <!-- Right section: Sort and items per page controls -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div
+      class="
+        flex flex-col gap-3
+        sm:flex-row sm:items-center
+      "
+    >
       <!-- Sort control -->
       <div class="flex items-center gap-2">
         <label
           for="sort-select"
-          class="text-sm text-gray-600 dark:text-gray-200 whitespace-nowrap"
+          class="
+            text-sm whitespace-nowrap text-gray-600
+            dark:text-gray-200
+          "
         >
           {{ t('sortBy') }}:
         </label>
@@ -163,7 +182,10 @@ const handleToggleFilters = () => {
       <div class="flex items-center gap-2">
         <label
           for="items-per-page-select"
-          class="text-sm text-gray-600 dark:text-gray-200 whitespace-nowrap"
+          class="
+            text-sm whitespace-nowrap text-gray-600
+            dark:text-gray-200
+          "
         >
           {{ t('show') }}:
         </label>

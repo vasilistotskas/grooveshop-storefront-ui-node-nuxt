@@ -46,7 +46,12 @@ const { userNotifications, show, pending, onNotificationClick, onMarkAllRead } =
 
       <template #content>
         <div class="flex flex-col">
-          <div class="flex items-center justify-between gap-3 border-b border-default px-4 py-3">
+          <div
+            class="
+              flex items-center justify-between gap-3 border-b border-default
+              px-4 py-3
+            "
+          >
             <h2 class="font-semibold text-highlighted">
               {{ t('title') }}
             </h2>
@@ -67,24 +72,27 @@ const { userNotifications, show, pending, onNotificationClick, onMarkAllRead } =
             <li
               v-for="row in userNotifications"
               :key="row.id"
-              class="border-b border-default last:border-b-0"
+              class="
+                border-b border-default
+                last:border-b-0
+              "
             >
               <button
                 :id="String(row.id)"
                 type="button"
                 class="
-                flex w-full cursor-pointer items-center gap-3 px-4 py-3
-                text-left transition-colors
-                hover:bg-elevated
-              "
+                  flex w-full cursor-pointer items-center gap-3 px-4 py-3
+                  text-left transition-colors
+                  hover:bg-elevated
+                "
                 :class="row.seen ? '' : 'bg-(--ui-secondary-soft)'"
                 @click="onNotificationClick(row.id, row.notification?.link)"
               >
                 <span
                   class="
-                  flex size-10 shrink-0 items-center justify-center rounded-xl
-                  bg-elevated text-highlighted
-                "
+                    flex size-10 shrink-0 items-center justify-center rounded-xl
+                    bg-elevated text-highlighted
+                  "
                 >
                   <UIcon
                     :name="notificationCategoryIcon(row.notification?.category)"
@@ -130,10 +138,10 @@ const { userNotifications, show, pending, onNotificationClick, onMarkAllRead } =
           <NuxtLink
             :to="localePath('account-notifications')"
             class="
-            block border-t border-default px-4 py-3 text-center text-sm
-            font-medium text-accent
-            hover:bg-elevated
-          "
+              block border-t border-default px-4 py-3 text-center text-sm
+              font-medium text-accent
+              hover:bg-elevated
+            "
             @click="() => { open = false }"
           >
             {{ t('view_all') }}

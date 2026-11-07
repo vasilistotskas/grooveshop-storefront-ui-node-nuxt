@@ -51,7 +51,7 @@ const statusHeading = computed(() => {
   <div
     v-if="error"
     class="
-      relative min-h-screen overflow-hidden bg-gradient-to-br from-primary-50
+      relative min-h-screen overflow-hidden bg-linear-to-br from-primary-50
       via-white to-primary-100
       dark:from-gray-950 dark:via-gray-900 dark:to-primary-950
     "
@@ -62,8 +62,8 @@ const statusHeading = computed(() => {
     <div
       v-if="error.statusCode === 404"
       class="
-        pointer-events-none mx-auto flex max-w-md items-center
-        justify-center px-6 pt-10
+        pointer-events-none mx-auto flex max-w-md items-center justify-center
+        px-6 pt-10
         sm:pt-16
       "
     >
@@ -110,13 +110,11 @@ const statusHeading = computed(() => {
             dark:bg-primary-700
           `,
           index === 1 && `
-            top-40 right-10 bg-warning-300
-            [animation-delay:2s]
+            top-40 right-10 bg-warning-300 [animation-delay:2s]
             dark:bg-warning-700
           `,
           index === 2 && `
-            bottom-20 left-1/2 bg-error-300
-            [animation-delay:4s]
+            bottom-20 left-1/2 bg-error-300 [animation-delay:4s]
             dark:bg-error-700
           `,
         ]"
@@ -185,12 +183,32 @@ const statusHeading = computed(() => {
 
         <div class="space-y-2 text-sm">
           <div v-if="error.message">
-            <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.message') }}:</span>
-            <code class="ml-2 text-error-600 dark:text-error-400">{{ error.message }}</code>
+            <span
+              class="
+                font-medium text-gray-700
+                dark:text-gray-300
+              "
+            >{{ t('error.message') }}:</span>
+            <code
+              class="
+                ml-2 text-error-600
+                dark:text-error-400
+              "
+            >{{ error.message }}</code>
           </div>
           <div v-if="error.data">
-            <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.data') }}:</span>
-            <pre class="mt-1 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-800">{{ error.data }}</pre>
+            <span
+              class="
+                font-medium text-gray-700
+                dark:text-gray-300
+              "
+            >{{ t('error.data') }}:</span>
+            <pre
+              class="
+                mt-1 overflow-auto rounded-[0.25rem] bg-gray-100 p-2 text-xs
+                dark:bg-gray-800
+              "
+            >{{ error.data }}</pre>
           </div>
         </div>
       </UCard>
@@ -201,7 +219,10 @@ const statusHeading = computed(() => {
           color="neutral"
           variant="solid"
           icon="i-heroicons-home-20-solid"
-          class="rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+          class="
+            rounded-full shadow-lg transition-all duration-300
+            hover:scale-105 hover:shadow-xl
+          "
           @click="clearError({ redirect: '/' })"
         >
           {{ t('home') }}
@@ -212,7 +233,10 @@ const statusHeading = computed(() => {
           color="neutral"
           variant="outline"
           icon="i-heroicons-arrow-left-20-solid"
-          class="rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+          class="
+            rounded-full shadow-lg transition-all duration-300
+            hover:scale-105 hover:shadow-xl
+          "
           @click="$router.back()"
         >
           {{ t('go.back') }}

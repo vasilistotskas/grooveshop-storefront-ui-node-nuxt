@@ -67,7 +67,7 @@ const { categories, status, pagination } = await useBlogCategoriesPage({
                 {{ extractTranslated(category, 'name', locale) }}
               </h2>
               <ImgWithFallback
-                class="max-h-[19.75rem] bg-transparent"
+                class="max-h-79 bg-transparent"
                 :style="{
                   contentVisibility: 'auto',
                   filter: 'invert(40%) sepia(85%) saturate(7500%) hue-rotate(220deg) brightness(105%) contrast(120%)',

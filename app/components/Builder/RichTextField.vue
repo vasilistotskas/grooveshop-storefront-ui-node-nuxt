@@ -130,7 +130,7 @@ function removeLink(): void {
       v-if="!disabled"
       :editor="editor"
       :items="items"
-      class="flex-wrap border-b border-default px-1 py-1"
+      class="flex-wrap border-b border-default p-1"
     >
       <template #link>
         <UPopover

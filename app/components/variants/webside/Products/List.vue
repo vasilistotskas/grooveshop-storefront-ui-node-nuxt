@@ -119,7 +119,12 @@ const emit = defineEmits<{
         class="flex flex-col items-center gap-4 pt-8"
       >
         <!-- Page info -->
-        <div class="text-sm text-gray-600 dark:text-gray-200">
+        <div
+          class="
+            text-sm text-gray-600
+            dark:text-gray-200
+          "
+        >
           {{ t('pagination.page_info', { current: page, total: totalPages }) }}
         </div>
 

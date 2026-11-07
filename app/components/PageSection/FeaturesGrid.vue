@@ -57,7 +57,10 @@ const framed = computed(() => props.decor === 'framed')
   >
     <div
       :class="[
-        'grid grid-cols-1 gap-px sm:grid-cols-2',
+        `
+          grid grid-cols-1 gap-px
+          sm:grid-cols-2
+        `,
         columnsClass,
         framed
           ? 'overflow-hidden rounded-xl bg-accented ring ring-default'

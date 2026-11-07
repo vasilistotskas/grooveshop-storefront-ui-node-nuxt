@@ -20,7 +20,10 @@ const { posts, status, refresh, page } = await useFavouritePostsPage({ pageSize:
 
     <div
       v-if="status === 'pending' && !posts"
-      class="grid gap-4 sm:grid-cols-2"
+      class="
+        grid gap-4
+        sm:grid-cols-2
+      "
     >
       <USkeleton
         v-for="index in 2"
@@ -37,7 +40,10 @@ const { posts, status, refresh, page } = await useFavouritePostsPage({ pageSize:
 
     <ul
       v-else-if="posts?.results.length"
-      class="grid gap-4 sm:grid-cols-2"
+      class="
+        grid gap-4
+        sm:grid-cols-2
+      "
     >
       <li
         v-for="post in posts.results"
@@ -49,7 +55,10 @@ const { posts, status, refresh, page } = await useFavouritePostsPage({ pageSize:
 
     <div
       v-else
-      class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
+      class="
+        flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring
+        ring-default
+      "
     >
       <p class="font-semibold text-highlighted">
         {{ t('empty.title') }}

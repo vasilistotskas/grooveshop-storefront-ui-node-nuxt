@@ -78,7 +78,7 @@ const pages = computed(() =>
 </script>
 
 <template>
-  <footer class="bg-(--fy-ink-band) text-(color:--fy-on-ink)">
+  <footer class="bg-(--fy-ink-band) text-(--fy-on-ink)">
     <div
       class="
         mx-auto flex w-full max-w-(--ui-container) flex-col gap-11 px-4 pt-14
@@ -117,10 +117,9 @@ const pages = computed(() =>
           :href="telHref"
           class="
             inline-flex min-h-14 items-center gap-3 rounded-full
-            bg-(--fy-accent) px-6.5 text-[17px] font-bold
-            text-(color:--fy-on-accent)
+            bg-(--fy-accent) px-6.5 text-[17px] font-bold text-(--fy-on-accent)
             focus-visible:outline-3 focus-visible:outline-offset-3
-            focus-visible:outline-(color:--fy-on-ink)
+            focus-visible:outline-(--fy-on-ink)
           "
         >
           <UIcon
@@ -132,7 +131,9 @@ const pages = computed(() =>
         </a>
       </div>
 
-      <div class="border-t-[1.5px] border-dashed border-(color:--fy-rule-on-ink)" />
+      <div
+        class="border-t-[1.5px] border-dashed border-(--fy-rule-on-ink)"
+      />
 
       <div
         class="
@@ -146,7 +147,7 @@ const pages = computed(() =>
         >
           <h2
             class="
-              text-[13px] font-bold tracking-[0.14em] text-(color:--fy-accent)
+              text-[13px] font-bold tracking-[0.14em] text-(--fy-accent)
               uppercase
             "
           >
@@ -156,7 +157,7 @@ const pages = computed(() =>
             <p
               v-for="office in offices"
               :key="office.label"
-              class="text-base leading-[1.6] text-(color:--fy-on-ink-muted)"
+              class="text-base leading-[1.6] text-(--fy-on-ink-muted)"
             >
               {{ office.addressLine }}
             </p>
@@ -169,7 +170,7 @@ const pages = computed(() =>
         >
           <h2
             class="
-              text-[13px] font-bold tracking-[0.14em] text-(color:--fy-accent)
+              text-[13px] font-bold tracking-[0.14em] text-(--fy-accent)
               uppercase
             "
           >
@@ -181,7 +182,7 @@ const pages = computed(() =>
             class="
               w-fit rounded-sm text-base underline underline-offset-3
               focus-visible:outline-3 focus-visible:outline-offset-2
-              focus-visible:outline-(color:--fy-on-ink)
+              focus-visible:outline-(--fy-on-ink)
             "
           >{{ phone }}</a>
           <a
@@ -190,7 +191,7 @@ const pages = computed(() =>
             class="
               w-fit rounded-sm text-base break-all underline underline-offset-3
               focus-visible:outline-3 focus-visible:outline-offset-2
-              focus-visible:outline-(color:--fy-on-ink)
+              focus-visible:outline-(--fy-on-ink)
             "
           >{{ email }}</a>
         </section>
@@ -202,13 +203,15 @@ const pages = computed(() =>
           <template v-if="hasHours">
             <h2
               class="
-                text-[13px] font-bold tracking-[0.14em] text-(color:--fy-accent)
+                text-[13px] font-bold tracking-[0.14em] text-(--fy-accent)
                 uppercase
               "
             >
               {{ t('hours') }}
             </h2>
-            <ul class="flex flex-col gap-2 text-base text-(color:--fy-on-ink-muted)">
+            <ul
+              class="flex flex-col gap-2 text-base text-(--fy-on-ink-muted)"
+            >
               <li
                 v-for="row in hours"
                 :key="row.key"
@@ -237,10 +240,10 @@ const pages = computed(() =>
                 rel="noopener noreferrer"
                 :aria-label="social.label"
                 class="
-                  flex size-11 items-center justify-center rounded-full border-[1.5px]
-                  border-(color:--fy-rule-on-ink)
+                  flex size-11 items-center justify-center rounded-full
+                  border-[1.5px] border-(--fy-rule-on-ink)
                   focus-visible:outline-3 focus-visible:outline-offset-2
-                  focus-visible:outline-(color:--fy-on-ink)
+                  focus-visible:outline-(--fy-on-ink)
                 "
               >
                 <UIcon
@@ -260,7 +263,7 @@ const pages = computed(() =>
         >
           <h2
             class="
-              text-[13px] font-bold tracking-[0.14em] text-(color:--fy-accent)
+              text-[13px] font-bold tracking-[0.14em] text-(--fy-accent)
               uppercase
             "
           >
@@ -274,10 +277,10 @@ const pages = computed(() =>
               <NuxtLink
                 :to="link.to"
                 class="
-                  inline-flex min-h-6 items-center rounded-sm text-base underline
-                  underline-offset-3
+                  inline-flex min-h-6 items-center rounded-sm text-base
+                  underline underline-offset-3
                   focus-visible:outline-3 focus-visible:outline-offset-2
-                  focus-visible:outline-(color:--fy-on-ink)
+                  focus-visible:outline-(--fy-on-ink)
                 "
               >
                 {{ link.label }}
@@ -292,7 +295,7 @@ const pages = computed(() =>
       <div
         class="
           flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-sm
-          text-(color:--fy-on-ink-muted)
+          text-(--fy-on-ink-muted)
         "
       >
         <div class="flex flex-col gap-1">
@@ -310,7 +313,7 @@ const pages = computed(() =>
                 inline-flex min-h-6 items-center rounded-sm underline
                 underline-offset-3
                 focus-visible:outline-3 focus-visible:outline-offset-2
-                focus-visible:outline-(color:--fy-on-ink)
+                focus-visible:outline-(--fy-on-ink)
               "
             >
               {{ link.label }}
@@ -324,7 +327,7 @@ const pages = computed(() =>
                   inline-flex min-h-6 items-center rounded-sm underline
                   underline-offset-3
                   focus-visible:outline-3 focus-visible:outline-offset-2
-                  focus-visible:outline-(color:--fy-on-ink)
+                  focus-visible:outline-(--fy-on-ink)
                 "
                 @click="() => { isModalActive = true }"
               >

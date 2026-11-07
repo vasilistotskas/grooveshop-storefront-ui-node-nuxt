@@ -260,7 +260,13 @@ useSeoMeta({
 
 <template>
   <WebsidePageWrapper class="max-w-6xl">
-    <div class="flex flex-col gap-8 pt-2 md:pt-4 lg:flex-row">
+    <div
+      class="
+        flex flex-col gap-8 pt-2
+        md:pt-4
+        lg:flex-row
+      "
+    >
       <!-- Main Content -->
       <div class="flex-1">
         <!-- Stock Error Alert -->
@@ -376,7 +382,12 @@ useSeoMeta({
       </div>
 
       <!-- Sidebar -->
-      <div class="w-full lg:w-[400px]">
+      <div
+        class="
+          w-full
+          lg:w-[400px]
+        "
+      >
         <div class="lg:sticky lg:top-4">
           <WebsideCheckoutSidebar
             :shipping-price="shippingPrice"

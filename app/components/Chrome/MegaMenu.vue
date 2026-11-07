@@ -32,8 +32,7 @@ const localePath = useLocalePath()
         <ULink
           :to="localePath(pathLocation(category.to))"
           class="
-            flex items-center gap-1.5 text-base font-extrabold
-            text-highlighted
+            flex items-center gap-1.5 text-base font-extrabold text-highlighted
           "
         >
           {{ category.label }}

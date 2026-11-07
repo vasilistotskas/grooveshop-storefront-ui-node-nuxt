@@ -87,7 +87,7 @@ const {
     </div>
 
     <div v-if="isLoading" class="flex w-full justify-center py-8">
-      <UIcon name="i-heroicons-arrow-path" class="h-6 w-6 animate-spin" />
+      <UIcon name="i-heroicons-arrow-path" class="size-6 animate-spin" />
     </div>
 
     <LazyWebsideBlogPostCommentsList

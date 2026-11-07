@@ -194,7 +194,12 @@ useSeoMeta({
 
 <template>
   <div class="flex flex-1 flex-col">
-    <UContainer class="flex w-full flex-1 flex-col gap-6 py-6 lg:gap-8 lg:py-8">
+    <UContainer
+      class="
+        flex w-full flex-1 flex-col gap-6 py-6
+        lg:gap-8 lg:py-8
+      "
+    >
       <!-- The page's heading for assistive tech; the progress strip carries
            the wayfinding on screen. -->
       <PageTitle
@@ -210,7 +215,12 @@ useSeoMeta({
         @select="onStepperUpdate"
       />
 
-      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_25rem] lg:items-start lg:gap-14">
+      <div
+        class="
+          grid gap-6
+          lg:grid-cols-[minmax(0,1fr)_25rem] lg:items-start lg:gap-14
+        "
+      >
         <div class="flex min-w-0 flex-col gap-6">
           <ApiErrorAlert :error="submitError" />
 

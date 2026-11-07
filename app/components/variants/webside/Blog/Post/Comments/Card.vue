@@ -58,7 +58,6 @@ const {
   likeClicked,
   replyCommentFormSchema,
   onReplySubmit,
-  commentCardClass,
   onReplyButtonClick,
   onShowMoreRepliesButtonClick,
   hasReplies,
@@ -66,7 +65,6 @@ const {
   pagination,
 } = useBlogCommentCard({
   comment,
-  depth,
   paginationType,
   pageSize,
   t,
@@ -78,7 +76,6 @@ const {
 <template>
   <details
     v-show="blogPostId"
-    :class="commentCardClass"
     class="relative z-30 grid gap-2"
     open
   >

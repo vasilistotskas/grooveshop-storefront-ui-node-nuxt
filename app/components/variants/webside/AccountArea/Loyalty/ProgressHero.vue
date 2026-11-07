@@ -90,13 +90,18 @@ const ready = computed(() =>
     }"
     variant="subtle"
   >
-    <div class="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
+    <div
+      class="
+        flex flex-col items-center gap-5
+        sm:flex-row sm:items-start sm:gap-6
+      "
+    >
       <!-- Tier Icon -->
       <div class="relative shrink-0">
         <div
           class="
-            flex size-20 items-center justify-center rounded-2xl
-            bg-linear-to-br from-primary-500 to-secondary-500 shadow-lg
+            flex size-20 items-center justify-center rounded-2xl bg-linear-to-br
+            from-primary-500 to-secondary-500 shadow-lg
             sm:size-24
           "
         >
@@ -107,24 +112,35 @@ const ready = computed(() =>
             :height="48"
             fit="contain"
             :background="'transparent'"
-            class="size-10 object-contain sm:size-12"
+            class="
+              size-10 object-contain
+              sm:size-12
+            "
           />
         </div>
         <UBadge
           :label="String(summary!.level)"
           color="primary"
           size="lg"
-          class="absolute font-bold -bottom-1.5 -right-1.5 ring-2 ring-white dark:ring-neutral-900"
+          class="
+            absolute -right-1.5 -bottom-1.5 font-bold ring-2 ring-white
+            dark:ring-neutral-900
+          "
         />
       </div>
 
       <!-- Info -->
-      <div class="flex-1 text-center sm:text-left">
+      <div
+        class="
+          flex-1 text-center
+          sm:text-left
+        "
+      >
         <h3
           class="
             text-xl font-bold text-primary-950
-            dark:text-primary-50
             sm:text-2xl
+            dark:text-primary-50
           "
         >
           {{ currentTierName }}
@@ -141,10 +157,20 @@ const ready = computed(() =>
         <!-- XP Progress -->
         <div class="mt-4 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-neutral-600 dark:text-neutral-300">
+            <span
+              class="
+                font-medium text-neutral-600
+                dark:text-neutral-300
+              "
+            >
               {{ t('xp_progress') }}
             </span>
-            <span class="font-bold text-lg text-primary-900 dark:text-primary-100">
+            <span
+              class="
+                text-lg font-bold text-primary-900
+                dark:text-primary-100
+              "
+            >
               {{ summary!.totalXp.toLocaleString(locale) }} / {{ nextTierXp.toLocaleString(locale) }} XP
             </span>
           </div>
@@ -156,31 +182,57 @@ const ready = computed(() =>
           />
           <p
             v-if="summary!.pointsToNextTier !== null"
-            class="text-xs text-neutral-700 dark:text-neutral-300"
+            class="
+              text-xs text-neutral-700
+              dark:text-neutral-300
+            "
           >
             {{ t('xp_to_next_tier', { xp: summary!.pointsToNextTier!.toLocaleString(locale) }) }}
           </p>
           <p
             v-else
-            class="text-xs font-medium text-success-600 dark:text-success-400"
+            class="
+              text-xs font-medium text-success-600
+              dark:text-success-400
+            "
           >
             {{ t('max_tier_reached') }}
           </p>
         </div>
 
         <!-- Quick Stats -->
-        <div class="mt-4 flex justify-center gap-4 sm:justify-start">
+        <div
+          class="
+            mt-4 flex justify-center gap-4
+            sm:justify-start
+          "
+        >
           <div
             class="
               flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5
               dark:bg-neutral-900/40
             "
           >
-            <UIcon name="i-heroicons-star" class="size-5 text-primary-900 dark:text-primary-100" />
-            <span class="text-sm font-semibold text-primary-950 dark:text-primary-50">
+            <UIcon
+              name="i-heroicons-star" class="
+                size-5 text-primary-900
+                dark:text-primary-100
+              "
+            />
+            <span
+              class="
+                text-sm font-semibold text-primary-950
+                dark:text-primary-50
+              "
+            >
               {{ summary!.level }}
             </span>
-            <span class="text-xs text-neutral-900 dark:text-neutral-100">{{ t('level') }}</span>
+            <span
+              class="
+                text-xs text-neutral-900
+                dark:text-neutral-100
+              "
+            >{{ t('level') }}</span>
           </div>
           <div
             class="
@@ -188,11 +240,23 @@ const ready = computed(() =>
               dark:bg-neutral-900/40
             "
           >
-            <UIcon name="i-heroicons-currency-dollar" class="size-5 text-warning-500" />
-            <span class="text-sm font-semibold text-primary-950 dark:text-primary-50">
+            <UIcon
+              name="i-heroicons-currency-dollar" class="size-5 text-warning-500"
+            />
+            <span
+              class="
+                text-sm font-semibold text-primary-950
+                dark:text-primary-50
+              "
+            >
               {{ summary!.pointsBalance.toLocaleString(locale) }}
             </span>
-            <span class="text-xs text-neutral-900 dark:text-neutral-100">{{ t('points') }}</span>
+            <span
+              class="
+                text-xs text-neutral-900
+                dark:text-neutral-100
+              "
+            >{{ t('points') }}</span>
           </div>
         </div>
       </div>

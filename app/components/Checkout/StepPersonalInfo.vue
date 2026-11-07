@@ -146,7 +146,12 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
         {{ t('contact.title') }}
       </h2>
 
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div
+        class="
+          grid grid-cols-1 gap-4
+          md:grid-cols-2
+        "
+      >
         <UFormField
           :label="t('form.email')"
           name="email"
@@ -210,7 +215,12 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
       <template v-if="!isSavedMode">
         <USeparator v-if="hasSavedAddresses" />
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div
+          class="
+            grid grid-cols-1 gap-4
+            md:grid-cols-2
+          "
+        >
           <UFormField
             :label="t('form.first_name')"
             name="firstName"
@@ -254,7 +264,12 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
           />
         </UFormField>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div
+          class="
+            grid grid-cols-1 gap-4
+            md:grid-cols-3
+          "
+        >
           <UFormField
             :label="t('form.street')"
             name="street"
@@ -297,7 +312,9 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
 
         <div
           class="grid grid-cols-1 gap-4"
-          :class="selectedCountry?.hasRegions !== false ? 'md:grid-cols-3' : 'md:grid-cols-2'"
+          :class="selectedCountry?.hasRegions !== false ? 'md:grid-cols-3' : `
+            md:grid-cols-2
+          `"
         >
           <UFormField
             :label="t('form.zipcode')"
@@ -419,7 +436,12 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
             class="w-full"
           />
         </UFormField>
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div
+          class="
+            grid grid-cols-1 gap-4
+            md:grid-cols-2
+          "
+        >
           <UFormField
             :label="t('form.invoice.vat_label')"
             :help="t('form.invoice.vat_help')"
@@ -470,7 +492,12 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
           color="neutral"
         />
         <template v-if="!formState.billingSameAsShipping">
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div
+            class="
+              grid grid-cols-1 gap-4
+              md:grid-cols-2
+            "
+          >
             <UFormField
               :label="t('form.invoice.billing_street_label')"
               name="billingStreet"
@@ -497,7 +524,12 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
               />
             </UFormField>
           </div>
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div
+            class="
+              grid grid-cols-1 gap-4
+              md:grid-cols-2
+            "
+          >
             <UFormField
               :label="t('form.invoice.billing_city_label')"
               name="billingCity"

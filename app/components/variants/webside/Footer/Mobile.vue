@@ -15,7 +15,8 @@ const items = computed<AccordionItem[]>(() =>
 <template>
   <footer
     class="
-      w-full bg-primary-50 md:pb-11
+      w-full bg-primary-50
+      md:pb-11
       lg:hidden
       dark:bg-primary-900
     "

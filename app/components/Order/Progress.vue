@@ -43,7 +43,10 @@ const current = computed(() => ORDER_FLOW[reached.value - 1])
         />
         <span
           v-if="labels"
-          class="text-xs font-medium max-sm:sr-only"
+          class="
+            text-xs font-medium
+            max-sm:sr-only
+          "
           :class="index < reached ? 'text-highlighted' : 'text-toned'"
         >
           {{ t(`steps.${step}`) }}
@@ -52,7 +55,10 @@ const current = computed(() => ORDER_FLOW[reached.value - 1])
     </ol>
     <p
       v-if="labels && current"
-      class="text-xs font-medium text-highlighted sm:hidden"
+      class="
+        text-xs font-medium text-highlighted
+        sm:hidden
+      "
       aria-hidden="true"
     >
       {{ t(`steps.${current}`) }}

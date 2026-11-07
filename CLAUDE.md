@@ -42,7 +42,7 @@ directly.
 - **Dev server:** `pnpm dev`
 - **Build:** `pnpm build`
 - **Lint (with auto-fix):** `pnpm lint`
-- **Lint (CI, cached):** `pnpm lint:ci`
+- **Lint (CI, cached, in parallel):** `pnpm lint:ci`
 - **Type check:** `pnpm typecheck` (= `nuxt typecheck`). This is the gate — it catches template errors `vue-tsc --noEmit` misses, notably Nuxt UI v4 typing `UButton`'s `onClick` as `(e: MouseEvent) => void | Promise<void>`, which rejects an inline `@click="open = true"` (the expression returns boolean). Use a block-bodied arrow: `@click="() => { open = true }"`.
 - **Run all tests:** `pnpm test`
 - **Run CI tests (unit + nuxt with coverage):** `pnpm test:ci`
@@ -114,7 +114,7 @@ GitHub Actions CI, the Docker publish workflow, semantic-release and the Dockerf
 
 - **Component structure**: `<script setup lang="ts">` → Types → Props → Composables → Constants → Computed → Methods → Lifecycle, then `<template>`, then `<style scoped>` (prefer Tailwind classes). Supports generics: `<script lang="ts" generic="T extends string | number">`
 - **Naming**: Components PascalCase, files kebab-case, functions camelCase, constants UPPER_SNAKE_CASE, types/interfaces PascalCase, composables `use[Feature].ts`, custom events kebab-case
-- **Linting**: ESLint via `@nuxt/eslint` with stylistic rules + `eslint-plugin-better-tailwindcss` (with NuxtUI class ignores). Key relaxed rules: `no-explicit-any: off`, `ban-ts-comment: off`, `vue/no-v-html: off`, `vue/multi-word-component-names: off`, `vue/attribute-hyphenation: off`, `nuxt/prefer-import-meta: off`. Warns on: `vue/no-watch-after-await`, `vue/no-lifecycle-after-await`, unknown Tailwind classes.
+- **Linting**: ESLint via `@nuxt/eslint` with stylistic rules + `eslint-plugin-better-tailwindcss` (with NuxtUI class ignores). Key relaxed rules: `no-explicit-any: off`, `ban-ts-comment: off`, `vue/no-v-html: off`, `vue/multi-word-component-names: off`, `vue/attribute-hyphenation: off`, `nuxt/prefer-import-meta: off`. Warns on: `vue/no-watch-after-await`, `vue/no-lifecycle-after-await`, and the `better-tailwindcss` recommended set over template `class` attributes, `:class` bindings, the `ui` prop and class-building calls (`tv`, `cn`, …). A class styled by plain CSS (a component's `<style>` rule) is unknown to the plugin: add it to the `no-unknown-classes` ignore list in `eslint.config.mjs`. The lint keeps `leading-*` apart from a text size on purpose (the config says why).
 - **TypeScript**: Strict mode with type checking enabled. Typed pages (`experimental.typedPages: true`). `RouteMapI18n` used for type-safe route names. Vite hoisted.
 - **Releases**: Semantic release on `main` branch with conventional commits (e.g., `feat:`, `fix:`, `chore:`)
 - **API route pattern**: Validate input with Zod → `useBackendFetch(event)` to Django → `parseDataAs` response → `return handleError(event, error)` in catch (`.claude/rules/server-routes.md`). `handleError` returns an upstream 4xx's body verbatim (so `error.data` is Django's body on the client, one shape for every route) and throws everything else, so it is always `return`ed (`test/unit/source-rules/handle-error-is-returned.spec.ts`) and nothing follows it. Use `throw createError(...)` not `return createError(...)`.

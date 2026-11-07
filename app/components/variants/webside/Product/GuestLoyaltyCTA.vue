@@ -16,14 +16,12 @@ const shouldShow = computed(() => enabled.value && props.potentialPoints > 0)
     <NuxtLink
       :to="localePath('account-signup')"
       class="
-        group flex items-center gap-2.5 rounded-lg
-        bg-gradient-to-r from-secondary-50 to-primary-50
-        dark:from-secondary-950 dark:to-primary-950
-        ring-1 ring-secondary-200 dark:ring-secondary-800
-        px-3 py-2
+        group flex items-center gap-2.5 rounded-lg bg-linear-to-r
+        from-secondary-50 to-primary-50 px-3 py-2 ring-1 ring-secondary-200
         transition-all duration-200
-        hover:ring-secondary-300 dark:hover:ring-secondary-700
-        hover:shadow-sm
+        hover:shadow-sm hover:ring-secondary-300
+        dark:from-secondary-950 dark:to-primary-950 dark:ring-secondary-800
+        dark:hover:ring-secondary-700
       "
     >
       <!-- Mini hexagonal badge -->
@@ -31,17 +29,30 @@ const shouldShow = computed(() => enabled.value && props.potentialPoints > 0)
         <svg viewBox="0 0 100 100" class="absolute inset-0 size-full">
           <polygon
             points="50 1 95 25 95 75 50 99 5 75 5 25"
-            class="fill-secondary-100 stroke-secondary-400 dark:fill-secondary-900 dark:stroke-secondary-500"
+            class="
+              fill-secondary-100 stroke-secondary-400
+              dark:fill-secondary-900 dark:stroke-secondary-500
+            "
             stroke-width="2"
           />
         </svg>
-        <span class="relative z-10 text-[11px] font-bold text-secondary-900 dark:text-secondary-100">
+        <span
+          class="
+            relative z-10 text-[11px] font-bold text-secondary-900
+            dark:text-secondary-100
+          "
+        >
           +{{ potentialPoints }}
         </span>
       </div>
 
       <!-- Text -->
-      <span class="flex-1 text-xs font-medium text-primary-800 dark:text-primary-200">
+      <span
+        class="
+          flex-1 text-xs font-medium text-primary-800
+          dark:text-primary-200
+        "
+      >
         {{ t('earn', { points: potentialPoints }) }}
       </span>
 
@@ -49,10 +60,10 @@ const shouldShow = computed(() => enabled.value && props.potentialPoints > 0)
       <UIcon
         name="i-heroicons-arrow-right-20-solid"
         class="
-          size-4 shrink-0 text-secondary-400
-          transition-transform duration-200
+          size-4 shrink-0 text-secondary-400 transition-transform duration-200
           group-hover:translate-x-0.5 group-hover:text-secondary-600
-          dark:text-secondary-500 dark:group-hover:text-secondary-300
+          dark:text-secondary-500
+          dark:group-hover:text-secondary-300
         "
       />
     </NuxtLink>

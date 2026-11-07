@@ -13,7 +13,12 @@ useHead({ title: () => t('title') })
       :title="t('title')"
       :lead="t('lead')"
     />
-    <div class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6">
+    <div
+      class="
+        rounded-[1.25rem] bg-default p-5 ring ring-default
+        sm:p-6
+      "
+    >
       <Account2FaRecoveryCodes />
     </div>
   </div>

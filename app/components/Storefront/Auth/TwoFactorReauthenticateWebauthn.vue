@@ -26,7 +26,10 @@ const { loading, failed, submit: onSubmit } = useWebAuthnChallenge('reauthentica
     <Account2FaReauthenticateFlow>
       <div
         v-if="loading"
-        class="flex items-center gap-3 rounded-[1.125rem] border border-default bg-default p-4"
+        class="
+          flex items-center gap-3 rounded-[1.125rem] border border-default
+          bg-default p-4
+        "
         role="status"
       >
         <UIcon

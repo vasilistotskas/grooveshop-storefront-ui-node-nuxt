@@ -43,7 +43,12 @@ const items = computed(() => {
 
 <template>
   <nav :aria-label="t('label')">
-    <ol class="grid grid-cols-4 gap-2 sm:gap-3">
+    <ol
+      class="
+        grid grid-cols-4 gap-2
+        sm:gap-3
+      "
+    >
       <li
         v-for="item in items"
         :key="item.key"
@@ -54,17 +59,26 @@ const items = computed(() => {
           :aria-current="item.current ? 'step' : undefined"
           :class="[
             'flex w-full flex-col gap-2 text-start',
-            item.selectable && 'cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary',
+            item.selectable && `
+              cursor-pointer rounded-sm
+              focus-visible:outline-2 focus-visible:outline-offset-4
+              focus-visible:outline-primary
+            `,
           ]"
           @click="item.selectable ? emit('select', item.page) : undefined"
         >
           <span
             aria-hidden="true"
-            :class="['h-1 rounded-full', item.reached ? 'bg-secondary' : 'bg-accented']"
+            :class="['h-1 rounded-full', item.reached ? 'bg-secondary' : `
+              bg-accented
+            `]"
           />
           <span
             :class="[
-              'flex items-center gap-1.5 text-xs sm:text-sm',
+              `
+                flex items-center gap-1.5 text-xs
+                sm:text-sm
+              `,
               item.reached ? 'font-semibold text-highlighted' : 'text-toned',
             ]"
           >

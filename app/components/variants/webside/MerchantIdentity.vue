@@ -22,7 +22,7 @@ const { identity, hasIdentity, displayName, registeredSeat, inLiquidation }
   <address
     v-if="hasIdentity"
     class="
-      flex flex-col gap-0.5 text-xs not-italic text-primary-700
+      flex flex-col gap-0.5 text-xs text-primary-700 not-italic
       dark:text-primary-300
     "
   >
@@ -53,7 +53,10 @@ const { identity, hasIdentity, displayName, registeredSeat, inLiquidation }
          it must be legible rather than tucked in with the rest. -->
     <span
       v-if="inLiquidation"
-      class="font-semibold text-warning-600 dark:text-warning-400"
+      class="
+        font-semibold text-warning-600
+        dark:text-warning-400
+      "
     >
       {{ t('in_liquidation') }}
     </span>

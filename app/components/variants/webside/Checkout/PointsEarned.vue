@@ -29,16 +29,25 @@ const { shouldFetch, loading, totalPointsEarned, shouldShow } = useCartPointsEar
       <div
         v-else-if="shouldShow"
         class="
-          flex items-center gap-3 rounded-lg
-          bg-secondary-100 p-3
+          flex items-center gap-3 rounded-lg bg-secondary-100 p-3
           dark:bg-secondary-800
         "
       >
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-secondary-900 dark:text-secondary-100">
+        <div class="min-w-0 flex-1">
+          <p
+            class="
+              text-sm font-medium text-secondary-900
+              dark:text-secondary-100
+            "
+          >
             {{ t('earn_with_order', { points: totalPointsEarned }) }}
           </p>
-          <p class="text-xs text-secondary-800 dark:text-secondary-200">
+          <p
+            class="
+              text-xs text-secondary-800
+              dark:text-secondary-200
+            "
+          >
             {{ t('earn_description') }}
           </p>
         </div>
@@ -47,7 +56,7 @@ const { shouldFetch, loading, totalPointsEarned, shouldShow } = useCartPointsEar
           color="neutral"
           variant="solid"
           size="lg"
-          class="shrink-0 tabular-nums font-bold"
+          class="shrink-0 font-bold tabular-nums"
         >
           +{{ totalPointsEarned }}
         </UBadge>

@@ -29,7 +29,12 @@ const {
 </script>
 
 <template>
-  <WebsideAccountAreaPageWrapper class="flex flex-col gap-4 md:mt-1 md:gap-8 md:p-0!">
+  <WebsideAccountAreaPageWrapper
+    class="
+      flex flex-col gap-4
+      md:mt-1 md:gap-8 md:p-0!
+    "
+  >
     <div class="flex items-center gap-4">
       <UButton
         :to="localePath('account-addresses')"
@@ -39,13 +44,23 @@ const {
         size="sm"
         trailing
       />
-      <WebsidePageTitle class="text-center md:mt-0">
+      <WebsidePageTitle
+        class="
+          text-center
+          md:mt-0
+        "
+      >
         {{ t('title') }}
       </WebsidePageTitle>
     </div>
 
     <UCard>
-      <UForm ref="form" :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
+      <UForm
+        ref="form" :schema="schema" :state="state" class="
+          grid gap-4
+          md:grid-cols-2
+        " @error="scrollToFirstFormError" @submit="onSubmit"
+      >
         <!-- Title -->
         <UFormField :label="t('form.title')" name="title" required>
           <UInput

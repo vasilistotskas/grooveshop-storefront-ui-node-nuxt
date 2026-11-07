@@ -36,7 +36,7 @@ const { sections: brandSections } = await useBuilderPage('feedback')
     <!-- Narrow measure belongs to the FORM, not the page frame (see
          contact.vue) — on PageWrapper it also squeezed the breadcrumb
          and the branded band. -->
-    <div class="mx-auto w-full max-w-(--container-4xl)">
+    <div class="mx-auto w-full max-w-4xl">
       <WebsidePageTitle
         v-if="!sectionsProvideHeading(brandSections)"
         :text="t('title')"

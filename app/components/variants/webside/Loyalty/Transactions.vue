@@ -156,11 +156,10 @@ const totalPages = computed(() => {
   >
     <summary
       class="
-        flex cursor-pointer list-none items-center gap-3 px-5 py-4
-        text-xl font-semibold text-primary-950
-        select-none
-        [&::-webkit-details-marker]:hidden
+        flex cursor-pointer list-none items-center gap-3 px-5 py-4 text-xl
+        font-semibold text-primary-950 select-none
         dark:text-primary-50
+        [&::-webkit-details-marker]:hidden
       "
     >
       <UIcon
@@ -173,9 +172,14 @@ const totalPages = computed(() => {
       {{ t('title') }}
     </summary>
 
-    <div class="px-5 pb-5 pt-2">
+    <div class="px-5 pt-2 pb-5">
       <!-- Filters -->
-      <div class="mb-6 grid gap-4 md:grid-cols-3">
+      <div
+        class="
+          mb-6 grid gap-4
+          md:grid-cols-3
+        "
+      >
         <UFormField :label="t('filter.transaction_type')">
           <USelect
             v-model="selectedType"
@@ -212,7 +216,12 @@ const totalPages = computed(() => {
 
       <!-- Error State -->
       <div v-else-if="error" class="py-8 text-center">
-        <p class="mb-4 text-red-600 dark:text-red-400">
+        <p
+          class="
+            mb-4 text-red-600
+            dark:text-red-400
+          "
+        >
           {{ t('error_loading') }}
         </p>
         <UButton
@@ -224,7 +233,12 @@ const totalPages = computed(() => {
 
       <!-- Empty State -->
       <div v-else-if="!transactions?.results?.length" class="py-12 text-center">
-        <p class="text-gray-600 dark:text-gray-200">
+        <p
+          class="
+            text-gray-600
+            dark:text-gray-200
+          "
+        >
           {{ t('empty_state') }}
         </p>
       </div>

@@ -226,7 +226,12 @@ async function goTo(target: WizardStep) {
 </script>
 
 <template>
-  <UContainer class="flex flex-col gap-8 pt-6 pb-14 lg:gap-10 lg:pb-22">
+  <UContainer
+    class="
+      flex flex-col gap-8 pt-6 pb-14
+      lg:gap-10 lg:pb-22
+    "
+  >
     <div class="flex flex-col gap-6">
       <PageBreadcrumb :items="breadcrumb" />
 
@@ -389,7 +394,12 @@ async function goTo(target: WizardStep) {
 
             <!-- Step 2: recipient -->
             <template v-else-if="wizard === 'recipient'">
-              <div class="grid gap-4 sm:grid-cols-2">
+              <div
+                class="
+                  grid gap-4
+                  sm:grid-cols-2
+                "
+              >
                 <UFormField
                   :label="t('fields.recipient_name')"
                   name="recipientName"

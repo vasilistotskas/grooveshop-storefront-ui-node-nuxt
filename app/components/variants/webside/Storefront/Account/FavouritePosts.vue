@@ -46,7 +46,7 @@ const orderingOptions = computed(() => {
   <WebsideAccountAreaPageWrapper
     class="
       flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
+      md:mt-1 md:gap-8 md:p-0!
     "
   >
     <WebsidePageTitle
@@ -99,7 +99,7 @@ const orderingOptions = computed(() => {
     >
       <UIcon
         name="i-heroicons-heart"
-        class="h-16 w-16 text-dimmed"
+        class="size-16 text-dimmed"
       />
       <p class="text-muted">
         {{ t('no_favourites') }}

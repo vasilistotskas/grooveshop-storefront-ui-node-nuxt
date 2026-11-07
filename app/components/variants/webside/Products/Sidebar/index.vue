@@ -205,7 +205,10 @@ watch(slideoverOpen, (isOpen) => {
       <p
         v-if="searching && !shownSections.length"
         role="status"
-        class="py-6 text-center text-sm text-neutral-700 dark:text-neutral-300"
+        class="
+          py-6 text-center text-sm text-neutral-700
+          dark:text-neutral-300
+        "
       >
         {{ t('filters.no_match', { query: query.trim() }) }}
       </p>
@@ -290,10 +293,8 @@ watch(slideoverOpen, (isOpen) => {
     role="region"
     :aria-label="t('filters.title')"
     class="
-      products-sidebar
-      relative h-fit w-72
-      transition-all duration-300 ease-in-out
-      shrink-0
+      products-sidebar relative h-fit w-72 shrink-0 transition-all duration-300
+      ease-in-out
     "
   >
     <UCard
@@ -315,23 +316,34 @@ watch(slideoverOpen, (isOpen) => {
           <div class="flex items-center gap-3">
             <div
               class="
-                flex items-center justify-center
-                size-9 rounded-lg
-                bg-primary-100 dark:bg-primary-900/30
+                flex size-9 items-center justify-center rounded-lg
+                bg-primary-100
+                dark:bg-primary-900/30
               "
             >
               <UIcon
                 name="i-heroicons-funnel"
-                class="size-5 text-primary-600 dark:text-primary-400"
+                class="
+                  size-5 text-primary-600
+                  dark:text-primary-400
+                "
               />
             </div>
             <div>
-              <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">
+              <h2
+                class="
+                  text-lg font-semibold text-neutral-900
+                  dark:text-white
+                "
+              >
                 {{ t('filters.title') }}
               </h2>
               <p
                 v-if="hasActiveFilters"
-                class="text-xs text-neutral-700 dark:text-neutral-300"
+                class="
+                  text-xs text-neutral-700
+                  dark:text-neutral-300
+                "
               >
                 {{ t('filters.active_count', { count: activeFilterCount }) }}
               </p>

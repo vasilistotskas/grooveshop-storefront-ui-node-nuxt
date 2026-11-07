@@ -23,10 +23,14 @@ const { hasData, todayHours, isOpen } = useBusinessHours()
         class="size-2 shrink-0 rounded-full bg-current"
       />
       <span v-if="isOpen">
-        {{ t('open_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('until', { time: todayHours.closes }) }}</span></template>
+        {{ t('open_now') }}<template v-if="todayHours"> · <span
+          class="tabular-nums"
+        >{{ t('until', { time: todayHours.closes }) }}</span></template>
       </span>
       <span v-else>
-        {{ t('closed_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('today', { opens: todayHours.opens, closes: todayHours.closes }) }}</span></template>
+        {{ t('closed_now') }}<template v-if="todayHours"> · <span
+          class="tabular-nums"
+        >{{ t('today', { opens: todayHours.opens, closes: todayHours.closes }) }}</span></template>
       </span>
     </template>
   </p>

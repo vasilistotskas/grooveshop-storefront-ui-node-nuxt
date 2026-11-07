@@ -99,8 +99,7 @@ const hasContent = computed(
       <div
         aria-hidden="true"
         class="
-          absolute -top-24 -left-20 size-80 rounded-full bg-primary/20
-          blur-3xl
+          absolute -top-24 -left-20 size-80 rounded-full bg-primary/20 blur-3xl
         "
       />
       <div
@@ -114,12 +113,16 @@ const hasContent = computed(
     <div
       v-else-if="decor === 'gradient'"
       aria-hidden="true"
-      class="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent"
+      class="absolute inset-0 bg-linear-to-b from-primary/10 to-transparent"
     />
 
     <UContainer
       :class="[
-        'relative flex flex-col gap-5 py-16 md:py-24 lg:py-28',
+        `
+          relative flex flex-col gap-5 py-16
+          md:py-24
+          lg:py-28
+        `,
         centred ? 'items-center text-center' : 'items-start text-start',
       ]"
     >
@@ -139,7 +142,7 @@ const hasContent = computed(
         v-if="heading"
         :class="[
           `
-            font-display max-w-3xl text-4xl font-semibold tracking-tight
+            max-w-3xl font-display text-4xl font-semibold tracking-tight
             text-balance
             md:text-5xl
             lg:text-6xl
@@ -153,7 +156,10 @@ const hasContent = computed(
       <p
         v-if="subheading"
         :class="[
-          'max-w-2xl text-base text-pretty md:text-lg',
+          `
+            max-w-2xl text-base text-pretty
+            md:text-lg
+          `,
           inverted ? 'text-white/85' : 'text-muted',
         ]"
       >
@@ -179,7 +185,10 @@ const hasContent = computed(
           color="neutral"
           variant="outline"
           size="xl"
-          :class="inverted && 'bg-transparent text-white ring-white/40 hover:bg-white/10'"
+          :class="inverted && `
+            bg-transparent text-white ring-white/40
+            hover:bg-white/10
+          `"
         />
       </div>
 
@@ -207,7 +216,10 @@ const hasContent = computed(
           </dt>
           <dd
             :class="[
-              'font-display text-2xl font-semibold tabular-nums md:text-3xl',
+              `
+                font-display text-2xl font-semibold tabular-nums
+                md:text-3xl
+              `,
               inverted ? 'text-white' : 'text-highlighted',
             ]"
           >

@@ -40,7 +40,11 @@ const providerColor = (provider: string) => {
         :disabled="loading"
         :loading="loading"
         :class="provider.id === 'google'
-          ? 'bg-(--google-signin-fill) ring-(--google-signin-stroke) hover:bg-(--google-signin-fill) active:bg-(--google-signin-fill)'
+          ? `
+            bg-(--google-signin-fill) ring-(--google-signin-stroke)
+            hover:bg-(--google-signin-fill)
+            active:bg-(--google-signin-fill)
+          `
           : 'capitalize'"
         :color="providerColor(provider.id)"
         size="xl"
@@ -51,7 +55,9 @@ const providerColor = (provider: string) => {
         <template #leading>
           <AccountProviderIcon
             :provider-id="provider.id"
-            :class="provider.id === 'google' ? 'text-xl' : 'text-xl text-primary-50'"
+            :class="provider.id === 'google' ? 'text-xl' : `
+              text-xl text-primary-50
+            `"
           />
         </template>
       </UButton>

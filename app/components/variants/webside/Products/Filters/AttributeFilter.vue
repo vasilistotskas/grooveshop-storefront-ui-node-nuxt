@@ -173,33 +173,32 @@ const isValueDisabled = (valueId: string) => {
                 :key="value.id"
                 type="button"
                 class="
-                  cursor-pointer w-full flex items-center justify-between gap-3
-                  px-3 py-2 rounded-lg
-                  text-left text-sm
-                  transition-colors duration-150
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500
+                  flex w-full cursor-pointer items-center justify-between gap-3
+                  rounded-lg px-3 py-2 text-left text-sm transition-colors
+                  duration-150
+                  focus:outline-none
+                  focus-visible:ring-2 focus-visible:ring-primary-500
                 "
                 :class="{
-                  'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300':
+                  'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300':
                     selectedAttributeValues.includes(value.id.toString()),
                   'hover:bg-neutral-100 dark:hover:bg-neutral-800':
                     !isValueDisabled(value.id.toString()),
-                  'opacity-40 cursor-not-allowed':
+                  'cursor-not-allowed opacity-40':
                     isValueDisabled(value.id.toString()),
                 }"
                 :disabled="isValueDisabled(value.id.toString())"
                 :aria-pressed="selectedAttributeValues.includes(value.id.toString())"
                 @click="toggleAttributeValue(value.id.toString())"
               >
-                <span class="flex items-center gap-2 flex-1 min-w-0">
+                <span class="flex min-w-0 flex-1 items-center gap-2">
                   <span
                     class="
-                      flex items-center justify-center
-                      size-5 rounded border
-                      transition-colors duration-150
+                      flex size-5 items-center justify-center rounded-[0.25rem]
+                      border transition-colors duration-150
                     "
                     :class="{
-                      'bg-primary-500 border-primary-500':
+                      'border-primary-500 bg-primary-500':
                         selectedAttributeValues.includes(value.id.toString()),
                       'border-neutral-300 dark:border-neutral-600':
                         !selectedAttributeValues.includes(value.id.toString()),
@@ -233,9 +232,17 @@ const isValueDisabled = (valueId: string) => {
       <div class="py-8 text-center">
         <UIcon
           name="i-heroicons-tag"
-          class="mx-auto size-10 text-neutral-300 dark:text-neutral-600"
+          class="
+            mx-auto size-10 text-neutral-300
+            dark:text-neutral-600
+          "
         />
-        <p class="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+        <p
+          class="
+            mt-2 text-sm text-neutral-700
+            dark:text-neutral-300
+          "
+        >
           {{ t('no_attributes') }}
         </p>
       </div>

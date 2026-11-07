@@ -40,7 +40,9 @@ import type { AstNode, ElementNode } from '../../helpers/sourceText'
  * the render that store has today, and its look changes only on
  * purpose. The live `variants/ekfyseosfyteias` trees are checked.
  */
-const H_FULL = /(?:^|[\s'"`:])h-full(?:$|[\s'"`])/
+// `size-full` is `h-full` plus `w-full`: the lint's canonical form of the pair.
+const H_FULL = /(?:^|[\s'"`:])(?:h|size)-full(?:$|[\s'"`])/
+const OWN_HEIGHT = /(?:^|\s)aspect-\S+/
 
 /** Does this file's own template declare `h-full` on any element? */
 const fillsCache = new Map<string, boolean>()
@@ -100,6 +102,10 @@ beforeAll(() => {
       const names = new Set<string>(resolved)
       let inlineFill = false
       walkElements(node, (child) => {
+        // A box with its own aspect ratio fixes its height whatever the
+        // slide does, so an `h-full` inside it (the lightbox's image in
+        // `Product/ImageModal`) never needs the slide stretched.
+        if (OWN_HEIGHT.test(classesOf(child))) return false
         if (H_FULL.test(classesOf(child))) inlineFill = true
         const name = child.tag.replace(/^Lazy/, '')
         if (byName.has(name)) names.add(name)

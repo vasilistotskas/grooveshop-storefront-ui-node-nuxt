@@ -27,12 +27,15 @@ const { favourites, status, refresh, page, onRemoved } = await useFavouriteProdu
 
     <div
       v-if="status === 'pending' && !favourites"
-      class="grid grid-cols-2 gap-4 lg:grid-cols-3"
+      class="
+        grid grid-cols-2 gap-4
+        lg:grid-cols-3
+      "
     >
       <USkeleton
         v-for="index in 3"
         :key="index"
-        class="aspect-[3/4] rounded-[1.25rem]"
+        class="aspect-3/4 rounded-[1.25rem]"
       />
     </div>
 
@@ -44,7 +47,10 @@ const { favourites, status, refresh, page, onRemoved } = await useFavouriteProdu
 
     <ul
       v-else-if="favourites?.results.length"
-      class="grid grid-cols-2 gap-4 lg:grid-cols-3"
+      class="
+        grid grid-cols-2 gap-4
+        lg:grid-cols-3
+      "
     >
       <li
         v-for="favourite in favourites.results"
@@ -59,7 +65,10 @@ const { favourites, status, refresh, page, onRemoved } = await useFavouriteProdu
 
     <div
       v-else
-      class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
+      class="
+        flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring
+        ring-default
+      "
     >
       <p class="font-semibold text-highlighted">
         {{ t('empty.title') }}

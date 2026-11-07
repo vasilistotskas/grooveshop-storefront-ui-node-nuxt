@@ -83,8 +83,8 @@ async function onSelect(axisId: number, rawValue: unknown) {
            navigation live on the fieldset inside, unaffected. -->
       <div
         class="
-          max-sm:snap-x max-sm:snap-mandatory max-sm:overflow-x-auto
-          max-sm:scrollbar-none
+          max-sm:snap-x max-sm:snap-mandatory max-sm:scrollbar-none
+          max-sm:overflow-x-auto
           max-sm:[&::-webkit-scrollbar]:hidden
         "
       >
@@ -115,7 +115,7 @@ async function onSelect(axisId: number, rawValue: unknown) {
               <UIcon
                 v-if="isCurrentValue(group.id, Number(item.value))"
                 name="i-lucide-circle-check"
-                class="absolute end-0 top-0 size-5 text-primary"
+                class="absolute inset-e-0 top-0 size-5 text-primary"
               />
               <ImgWithFallback
                 v-if="group.visual && item.image"

@@ -189,9 +189,9 @@ const onClickCookieSettings = () => {
             :to="localePath('account')"
             class="
               flex items-center gap-3 border-b border-primary-200 bg-primary-50
-              px-4 py-4 transition-colors
-              dark:border-primary-800 dark:bg-primary-950/40
+              p-4 transition-colors
               hover:bg-primary-100
+              dark:border-primary-800 dark:bg-primary-950/40
               dark:hover:bg-primary-900/60
             "
           >
@@ -289,8 +289,8 @@ const onClickCookieSettings = () => {
 
         <div
           class="
-            mt-auto flex items-center justify-center border-t
-            border-primary-200 px-4 py-3
+            mt-auto flex items-center justify-center border-t border-primary-200
+            px-4 py-3
             dark:border-primary-800
           "
         >
@@ -320,8 +320,8 @@ const onClickCookieSettings = () => {
           class="cursor-pointer"
           @click="onClickLogout"
         />
-        <div v-else class="flex flex-col gap-3 w-full">
-          <div class="grid grid-cols-2 gap-2 w-full">
+        <div v-else class="flex w-full flex-col gap-3">
+          <div class="grid w-full grid-cols-2 gap-2">
             <UButton
               :label="t('register')"
               icon="i-heroicons-user-plus"

@@ -26,7 +26,10 @@ async function onSubmit() {
 <template>
   <section
     v-if="status === 'pending'"
-    class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
+    "
   >
     <div class="flex flex-col gap-6">
       <USkeleton class="h-5 w-64" />
@@ -38,7 +41,10 @@ async function onSubmit() {
 
   <section
     v-else-if="totpSecret && totpSvg"
-    class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
+    "
   >
     <ol class="flex flex-col gap-8">
       <li class="flex flex-col gap-4">
@@ -47,7 +53,12 @@ async function onSubmit() {
           {{ t('scan_title') }}
         </h2>
 
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div
+          class="
+            flex flex-col gap-5
+            sm:flex-row sm:items-center
+          "
+        >
           <div
             role="img"
             :aria-label="t('qr_code_alt')"
@@ -62,8 +73,17 @@ async function onSubmit() {
             <p class="text-sm text-toned">
               {{ t('cant_scan') }}
             </p>
-            <div class="flex w-fit max-w-full items-center gap-2 rounded-xl bg-elevated py-2 ps-4 pe-2 ring ring-default">
-              <code class="font-mono text-sm tracking-wider break-all text-highlighted">{{ groupedSecret }}</code>
+            <div
+              class="
+                flex w-fit max-w-full items-center gap-2 rounded-xl bg-elevated
+                py-2 ps-4 pe-2 ring ring-default
+              "
+            >
+              <code
+                class="
+                  font-mono text-sm tracking-wider break-all text-highlighted
+                "
+              >{{ groupedSecret }}</code>
               <!-- ClientOnly: the clipboard is unknown while rendering on the
                    server, so the button would appear between the server's
                    DOM and the hydrated one. -->

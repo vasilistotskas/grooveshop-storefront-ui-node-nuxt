@@ -43,7 +43,7 @@ const label = computed(() => {
       :schema="schema"
       :state="state"
       class="
-        flex w-full flex-col gap-4 rounded bg-primary-100 p-4
+        flex w-full flex-col gap-4 rounded-[0.25rem] bg-primary-100 p-4
         md:grid md:grid-cols-2
         dark:bg-primary-900
       "

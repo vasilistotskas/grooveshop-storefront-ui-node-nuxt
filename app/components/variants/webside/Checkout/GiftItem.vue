@@ -37,8 +37,8 @@ const productLabel = computed(() =>
   -->
   <div
     class="
-      flex w-full min-w-0 items-center gap-3 rounded-lg border
-      border-success/25 bg-success/5 p-2
+      flex w-full min-w-0 items-center gap-3 rounded-lg border border-success/25
+      bg-success/5 p-2
     "
   >
     <div

@@ -20,7 +20,10 @@ const rest = computed(() => Math.max(0, props.items.length - SHOWN))
     <span
       v-for="(item, index) in shown"
       :key="item.id"
-      class="size-14 overflow-hidden rounded-[0.875rem] bg-elevated ring-2 ring-(--ui-bg)"
+      class="
+        size-14 overflow-hidden rounded-[0.875rem] bg-elevated ring-2
+        ring-(--ui-bg)
+      "
       :class="index > 0 ? '-ms-4' : ''"
     >
       <ImgWithFallback

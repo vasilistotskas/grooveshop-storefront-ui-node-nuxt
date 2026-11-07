@@ -67,7 +67,10 @@ const { isLoading, hasSuggestion, suggestionLine, isAllFilled, applySuggestion }
        distract from the form. -->
   <p
     v-else-if="isLoading && isAllFilled"
-    class="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400"
+    class="
+      flex items-center gap-2 text-xs text-neutral-500
+      dark:text-neutral-400
+    "
   >
     <UIcon name="i-lucide-loader-2" class="size-3 animate-spin" />
     {{ t('shipping.acs.address_suggestion.checking') }}

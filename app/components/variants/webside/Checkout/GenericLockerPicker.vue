@@ -92,7 +92,10 @@ function onClose(): void {
           variant="pill"
           size="sm"
           :unmount-on-hide="false"
-          class="border-b border-neutral-200 dark:border-neutral-800"
+          class="
+            border-b border-neutral-200
+            dark:border-neutral-800
+          "
           :ui="{
             list: 'm-2',
             root: 'flex h-full min-h-0 flex-col',
@@ -103,7 +106,14 @@ function onClose(): void {
           }"
         >
           <template #content="{ item }">
-            <div v-if="item.value === 'map'" id="locker-map" class="size-full min-h-[24rem] flex-1 sm:min-h-[28rem] md:min-h-[32rem] lg:min-h-[40rem]">
+            <div
+              v-if="item.value === 'map'" id="locker-map" class="
+                size-full min-h-96 flex-1
+                sm:min-h-112
+                md:min-h-128
+                lg:min-h-160
+              "
+            >
               <ClientOnly>
                 <LazyCheckoutSmartpointMap
                   :lockers="mapLockers"
@@ -129,7 +139,13 @@ function onClose(): void {
             </div>
             <div v-else class="flex h-full flex-col">
               <!-- Search controls -->
-              <div class="flex flex-col gap-3 border-b border-neutral-200 p-4 dark:border-neutral-800 sm:flex-row">
+              <div
+                class="
+                  flex flex-col gap-3 border-b border-neutral-200 p-4
+                  sm:flex-row
+                  dark:border-neutral-800
+                "
+              >
                 <UInput
                   v-model="postal"
                   :placeholder="t('shipping.locker_picker.postal_placeholder')"
@@ -159,8 +175,14 @@ function onClose(): void {
                   class="flex flex-col gap-2 p-4"
                   :aria-label="t('shipping.locker_picker.loading')"
                 >
-                  <li v-for="i in 5" :key="i" class="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-                    <USkeleton class="h-10 w-10 rounded-full" />
+                  <li
+                    v-for="i in 5" :key="i" class="
+                      flex items-start gap-3 rounded-lg border
+                      border-neutral-200 p-3
+                      dark:border-neutral-800
+                    "
+                  >
+                    <USkeleton class="size-10 rounded-full" />
                     <div class="flex-1 space-y-2">
                       <USkeleton class="h-4 w-3/4" />
                       <USkeleton class="h-3 w-1/2" />
@@ -182,13 +204,23 @@ function onClose(): void {
                 <!-- Empty / no-results state -->
                 <div
                   v-else-if="initialSearchDone && stations.length === 0"
-                  class="flex h-full flex-col items-center justify-center gap-2 p-4 text-center"
+                  class="
+                    flex h-full flex-col items-center justify-center gap-2 p-4
+                    text-center
+                  "
                 >
-                  <UIcon name="i-lucide-map-pin-off" class="size-10 text-neutral-400" />
+                  <UIcon
+                    name="i-lucide-map-pin-off" class="size-10 text-neutral-400"
+                  />
                   <p class="text-base font-medium">
                     {{ t('shipping.locker_picker.empty_title') }}
                   </p>
-                  <p class="text-sm text-neutral-700 dark:text-neutral-200">
+                  <p
+                    class="
+                      text-sm text-neutral-700
+                      dark:text-neutral-200
+                    "
+                  >
                     {{ t('shipping.locker_picker.empty_description') }}
                   </p>
                 </div>
@@ -196,13 +228,21 @@ function onClose(): void {
                 <!-- Pre-search hint -->
                 <div
                   v-else-if="!initialSearchDone && stations.length === 0"
-                  class="flex h-full flex-col items-center justify-center gap-2 p-4 text-center"
+                  class="
+                    flex h-full flex-col items-center justify-center gap-2 p-4
+                    text-center
+                  "
                 >
                   <UIcon name="i-lucide-search" class="size-10 text-neutral-400" />
                   <p class="text-base font-medium">
                     {{ t('shipping.locker_picker.search_prompt_title') }}
                   </p>
-                  <p class="text-sm text-neutral-700 dark:text-neutral-200">
+                  <p
+                    class="
+                      text-sm text-neutral-700
+                      dark:text-neutral-200
+                    "
+                  >
                     {{ t('shipping.locker_picker.search_prompt_description') }}
                   </p>
                 </div>
@@ -215,24 +255,48 @@ function onClose(): void {
                   >
                     <button
                       type="button"
-                      class="flex w-full items-start gap-3 rounded-lg border border-neutral-200 p-3 text-left transition-colors hover:border-primary-500 hover:bg-primary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-neutral-800 dark:hover:border-primary-400 dark:hover:bg-primary-950"
+                      class="
+                        flex w-full items-start gap-3 rounded-lg border
+                        border-neutral-200 p-3 text-left transition-colors
+                        hover:border-primary-500 hover:bg-primary-50
+                        focus:outline-none
+                        focus-visible:ring-2 focus-visible:ring-primary-500
+                        dark:border-neutral-800
+                        dark:hover:border-primary-400 dark:hover:bg-primary-950
+                      "
                       @click="selectLocker(station)"
                     >
                       <UIcon
                         name="i-lucide-package"
-                        class="mt-1 size-5 shrink-0 text-primary-600 dark:text-primary-400"
+                        class="
+                          mt-1 size-5 shrink-0 text-primary-600
+                          dark:text-primary-400
+                        "
                       />
                       <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span class="break-words font-semibold">{{ station.name }}</span>
-                        <span class="text-sm text-neutral-700 dark:text-neutral-200">
+                        <span class="font-semibold wrap-break-word">{{ station.name }}</span>
+                        <span
+                          class="
+                            text-sm text-neutral-700
+                            dark:text-neutral-200
+                          "
+                        >
                           {{ station.addressLine1 }}<span v-if="station.addressLine2">, {{ station.addressLine2 }}</span>
                         </span>
-                        <span class="text-xs text-neutral-600 dark:text-neutral-300">
+                        <span
+                          class="
+                            text-xs text-neutral-600
+                            dark:text-neutral-300
+                          "
+                        >
                           {{ station.postalCode }} {{ station.city }}
                         </span>
                         <span
                           v-if="station.workingHours"
-                          class="mt-1 text-xs text-neutral-600 dark:text-neutral-300"
+                          class="
+                            mt-1 text-xs text-neutral-600
+                            dark:text-neutral-300
+                          "
                         >
                           <UIcon name="i-lucide-clock" class="-mt-0.5 size-3" />
                           {{ station.workingHours }}

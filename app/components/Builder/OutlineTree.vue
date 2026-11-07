@@ -157,15 +157,26 @@ watch(reducedMotion, () => option('animation', animation()))
           v-if="store.canEdit"
           :[HANDLE]="item.id"
           aria-hidden="true"
-          class="relative size-4 shrink-0 cursor-grab touch-none active:cursor-grabbing"
+          class="
+            relative size-4 shrink-0 cursor-grab touch-none
+            active:cursor-grabbing
+          "
         >
           <UIcon
             :name="item.icon"
-            class="size-4 group-hover:invisible pointer-coarse:invisible"
+            class="
+              size-4
+              group-hover:invisible
+              pointer-coarse:invisible
+            "
           />
           <UIcon
             name="i-lucide-grip-vertical"
-            class="invisible absolute inset-0 size-4 group-hover:visible pointer-coarse:visible"
+            class="
+              invisible absolute inset-0 size-4
+              group-hover:visible
+              pointer-coarse:visible
+            "
           />
         </span>
         <UIcon

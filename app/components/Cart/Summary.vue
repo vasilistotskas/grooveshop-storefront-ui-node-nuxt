@@ -138,9 +138,13 @@ const vatRate = computed(() => {
         <span class="font-mono tabular-nums">{{ t('delivery_next') }}</span>
       </div>
 
-      <div class="flex items-baseline justify-between gap-3 border-t border-default pt-4">
+      <div
+        class="
+          flex items-baseline justify-between gap-3 border-t border-default pt-4
+        "
+      >
         <span class="text-base font-bold text-highlighted">{{ t('total') }}</span>
-        <span class="font-mono text-lg font-bold tabular-nums text-highlighted">{{ n(total, 'currency') }}</span>
+        <span class="font-mono text-lg font-bold text-highlighted tabular-nums">{{ n(total, 'currency') }}</span>
       </div>
       <p class="text-xs text-toned">
         {{ vatRate === null ? t('vat_included') : t('vat_included_rate', { rate: vatRate }) }}

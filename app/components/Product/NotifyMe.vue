@@ -82,7 +82,11 @@ const formId = useId()
     <template #body>
       <div class="flex flex-col gap-4.5">
         <div class="flex items-center gap-3">
-          <span class="size-14 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated">
+          <span
+            class="
+              size-14 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated
+            "
+          >
             <ImgWithFallback
               :src="productImage ?? undefined"
               alt=""

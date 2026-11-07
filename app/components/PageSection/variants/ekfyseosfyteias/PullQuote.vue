@@ -53,8 +53,8 @@ defineProps<{
 
       <blockquote
         class="
-          max-w-[22em] font-display text-[length:clamp(28px,3.4vw,50px)]
-          leading-[1.22] font-medium text-balance italic
+          max-w-[22em] font-display text-[clamp(28px,3.4vw,50px)] leading-[1.22]
+          font-medium text-balance italic
         "
       >
         «{{ quote }}»

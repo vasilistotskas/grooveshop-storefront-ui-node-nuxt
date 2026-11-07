@@ -29,9 +29,9 @@ defineProps<{
   >
     <div
       class="
-        mx-auto grid w-full max-w-[1280px] items-center gap-x-[72px] gap-y-12
-        px-6 py-[clamp(64px,8vw,112px)]
-        grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))]
+        mx-auto grid w-full max-w-[1280px]
+        grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center
+        gap-x-[72px] gap-y-12 px-6 py-[clamp(64px,8vw,112px)]
       "
     >
       <div
@@ -41,7 +41,7 @@ defineProps<{
         <h2
           v-if="heading"
           class="
-            font-display text-[length:clamp(38px,4.2vw,62px)] leading-[1.02]
+            font-display text-[clamp(38px,4.2vw,62px)] leading-[1.02]
             font-extrabold tracking-[-0.015em] text-balance
           "
         >
@@ -49,7 +49,9 @@ defineProps<{
         </h2>
         <p
           v-if="subheading"
-          class="text-[18px] leading-[1.65] text-pretty text-(--fy-on-ink-muted)"
+          class="
+            text-[18px] leading-[1.65] text-pretty text-(--fy-on-ink-muted)
+          "
         >
           {{ subheading }}
         </p>

@@ -57,9 +57,7 @@ function onSelected(selected: BoxNowSelectedLocker) {
     <!-- Locker selected — show a summary card -->
     <div
       v-else
-      class="
-        flex flex-col gap-3 rounded-2xl bg-default p-4 ring ring-default
-      "
+      class="flex flex-col gap-3 rounded-2xl bg-default p-4 ring ring-default"
     >
       <div class="flex flex-wrap items-start justify-between gap-2">
         <UBadge color="secondary" variant="soft">
@@ -67,7 +65,11 @@ function onSelected(selected: BoxNowSelectedLocker) {
         </UBadge>
       </div>
       <div class="flex flex-col gap-1">
-        <p data-testid="selected-locker-name" class="font-semibold text-highlighted">
+        <p
+          data-testid="selected-locker-name" class="
+            font-semibold text-highlighted
+          "
+        >
           {{ lockerDisplayName }}
         </p>
         <div class="flex flex-col gap-0.5 text-sm text-toned">

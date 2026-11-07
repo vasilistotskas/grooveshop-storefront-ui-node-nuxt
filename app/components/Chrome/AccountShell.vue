@@ -77,18 +77,36 @@ const CHIP = 'bg-(--ui-text-inverted)/10 text-inverted ring-0'
       class="bg-inverted text-inverted"
       :class="onOverview ? '' : 'max-lg:hidden'"
     >
-      <UContainer class="flex flex-wrap items-center justify-between gap-x-10 gap-y-6 py-6 lg:py-8">
-        <div class="flex min-w-0 items-center gap-4 lg:gap-5">
+      <UContainer
+        class="
+          flex flex-wrap items-center justify-between gap-x-10 gap-y-6 py-6
+          lg:py-8
+        "
+      >
+        <div
+          class="
+            flex min-w-0 items-center gap-4
+            lg:gap-5
+          "
+        >
           <UAvatar
             :src="avatarSrc"
             :alt="name"
-            class="size-12 shrink-0 text-lg lg:size-18 lg:text-[1.75rem]"
+            class="
+              size-12 shrink-0 text-lg
+              lg:size-18 lg:text-[1.75rem]
+            "
             :ui="{ root: 'bg-volt', fallback: `
               font-display font-bold text-on-volt
             ` }"
           />
           <div class="flex min-w-0 flex-col gap-2">
-            <p class="truncate font-display text-xl/tight font-bold lg:text-[2rem]/tight">
+            <p
+              class="
+                truncate font-display text-xl/tight font-bold
+                lg:text-[2rem]/tight
+              "
+            >
               {{ name }}
             </p>
             <div class="flex flex-wrap items-center gap-1.5">
@@ -125,7 +143,10 @@ const CHIP = 'bg-(--ui-text-inverted)/10 text-inverted ring-0'
         </div>
         <dl
           v-if="stats.length"
-          class="flex gap-8 max-lg:hidden"
+          class="
+            flex gap-8
+            max-lg:hidden
+          "
         >
           <div
             v-for="stat in stats"
@@ -143,7 +164,12 @@ const CHIP = 'bg-(--ui-text-inverted)/10 text-inverted ring-0'
       </UContainer>
     </section>
 
-    <UContainer class="grid gap-8 py-8 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12 lg:py-10">
+    <UContainer
+      class="
+        grid gap-8 py-8
+        lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12 lg:py-10
+      "
+    >
       <nav
         :aria-label="t('nav_label')"
         class="max-lg:hidden"
@@ -163,7 +189,10 @@ const CHIP = 'bg-(--ui-text-inverted)/10 text-inverted ring-0'
               "
               :class="item.active
                 ? 'bg-default text-highlighted ring ring-default'
-                : 'text-toned hover:bg-elevated/60 hover:text-highlighted'"
+                : `
+                  text-toned
+                  hover:bg-elevated/60 hover:text-highlighted
+                `"
             >
               <UIcon
                 :name="item.icon"
@@ -208,7 +237,11 @@ const CHIP = 'bg-(--ui-text-inverted)/10 text-inverted ring-0'
         <ULink
           v-if="!onOverview"
           :to="localePath('account')"
-          class="inline-flex items-center gap-1 self-start text-sm font-medium text-toned lg:hidden"
+          class="
+            inline-flex items-center gap-1 self-start text-sm font-medium
+            text-toned
+            lg:hidden
+          "
         >
           <UIcon
             name="i-lucide-chevron-left"

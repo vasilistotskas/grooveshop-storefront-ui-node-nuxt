@@ -71,20 +71,32 @@ const container = computed(() =>
       surface === 'muted' && 'bg-muted',
       surface === 'default' && 'border-y border-default bg-default',
       surface === 'inverted' && 'bg-inverted text-inverted',
-      padding === 'md' && 'py-12 lg:py-22',
-      padding === 'sm' && 'py-8 lg:py-14',
+      padding === 'md' && `
+        py-12
+        lg:py-22
+      `,
+      padding === 'sm' && `
+        py-8
+        lg:py-14
+      `,
     ]"
   >
     <component
       :is="container"
-      class="flex flex-col gap-5 lg:gap-7"
+      class="
+        flex flex-col gap-5
+        lg:gap-7
+      "
     >
       <slot name="header">
         <div
           v-if="heading || subheading || eyebrow || (ctaText && ctaLink)"
           class="flex justify-between gap-4"
           :class="headingSize === 'lg'
-            ? 'flex-col items-start gap-3.5 lg:flex-row lg:items-end lg:gap-4'
+            ? `
+              flex-col items-start gap-3.5
+              lg:flex-row lg:items-end lg:gap-4
+            `
             : 'items-end'"
         >
           <div
@@ -94,7 +106,9 @@ const container = computed(() =>
             <p
               v-if="eyebrow"
               class="text-xs font-bold tracking-[0.08em] uppercase"
-              :class="surface === 'inverted' ? 'text-(--ui-volt-on-inverted)' : 'text-muted'"
+              :class="surface === 'inverted' ? 'text-(--ui-volt-on-inverted)' : `
+                text-muted
+              `"
             >
               {{ eyebrow }}
             </p>
@@ -104,15 +118,24 @@ const container = computed(() =>
               :class="[
                 surface === 'inverted' ? 'text-inverted' : 'text-highlighted',
                 headingSize === 'lg'
-                  ? 'text-[1.875rem]/[1.05] lg:text-[2.75rem]/[1.05]'
-                  : 'text-[1.625rem]/[1.1] lg:text-4xl/[1.1]',
+                  ? `
+                    text-[1.875rem]/[1.05]
+                    lg:text-[2.75rem]/[1.05]
+                  `
+                  : `
+                    text-[1.625rem]/[1.1]
+                    lg:text-4xl/[1.1]
+                  `,
               ]"
             >
               {{ heading }}
             </h2>
             <p
               v-if="subheading"
-              class="max-w-2xl text-sm lg:text-base"
+              class="
+                max-w-2xl text-sm
+                lg:text-base
+              "
               :class="surface === 'inverted' ? 'text-inverted/75' : 'text-muted'"
             >
               {{ subheading }}
@@ -127,7 +150,10 @@ const container = computed(() =>
             trailing-icon="i-heroicons-arrow-right"
             color="neutral"
             :variant="surface === 'inverted' ? 'solid' : 'outline'"
-            :class="surface === 'inverted' && 'bg-volt text-on-volt hover:bg-volt/90'"
+            :class="surface === 'inverted' && `
+              bg-volt text-on-volt
+              hover:bg-volt/90
+            `"
             class="shrink-0"
           />
         </div>

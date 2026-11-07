@@ -103,9 +103,7 @@ const { open, submitting, rows, triggerLabel, savingLabel, applyCoupon } = await
             </p>
 
             <div
-              class="
-                mt-3 flex flex-wrap items-center justify-between gap-2
-              "
+              class="mt-3 flex flex-wrap items-center justify-between gap-2"
             >
               <span
                 v-if="row.applied"

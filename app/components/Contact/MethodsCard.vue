@@ -23,7 +23,12 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
         v-if="phone"
         class="flex items-center gap-4"
       >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-elevated">
+        <span
+          class="
+            flex size-10 shrink-0 items-center justify-center rounded-xl
+            bg-elevated
+          "
+        >
           <UIcon
             name="i-lucide-smartphone"
             class="size-5 text-highlighted"
@@ -51,7 +56,12 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
         v-if="email"
         class="flex items-center gap-4"
       >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-elevated">
+        <span
+          class="
+            flex size-10 shrink-0 items-center justify-center rounded-xl
+            bg-elevated
+          "
+        >
           <UIcon
             name="i-lucide-mail"
             class="size-5 text-highlighted"
@@ -72,7 +82,12 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
         :key="place.key"
         class="flex items-center gap-4"
       >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-elevated">
+        <span
+          class="
+            flex size-10 shrink-0 items-center justify-center rounded-xl
+            bg-elevated
+          "
+        >
           <UIcon
             name="i-lucide-map-pin"
             class="size-5 text-highlighted"

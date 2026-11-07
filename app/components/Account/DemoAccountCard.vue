@@ -76,7 +76,10 @@ async function copyPassword(account: DemoAccount) {
     <section
       v-if="accounts.length"
       :aria-label="t('title')"
-      class="flex flex-col gap-3 rounded-[1.125rem] border border-(--ui-volt-edge) bg-(--ui-volt-soft) p-4.5"
+      class="
+        flex flex-col gap-3 rounded-[1.125rem] border border-(--ui-volt-edge)
+        bg-(--ui-volt-soft) p-4.5
+      "
     >
       <div class="flex flex-wrap items-center gap-2">
         <UBadge
@@ -90,7 +93,10 @@ async function copyPassword(account: DemoAccount) {
       <div
         v-for="account in accounts"
         :key="account.key"
-        class="flex items-center gap-3 rounded-[0.875rem] border border-default bg-default py-2.5 ps-3.5 pe-2.5"
+        class="
+          flex items-center gap-3 rounded-[0.875rem] border border-default
+          bg-default py-2.5 ps-3.5 pe-2.5
+        "
       >
         <div class="flex min-w-0 flex-1 flex-col">
           <span class="flex flex-wrap items-baseline gap-x-1.5">

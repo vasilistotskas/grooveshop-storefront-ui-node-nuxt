@@ -87,7 +87,7 @@ const startShare = async () => {
 <template>
   <component
     :is="as"
-    class="group relative flex h-full w-full flex-col gap-4"
+    class="group relative flex size-full flex-col gap-4"
   >
     <div class="aspect-4/3 overflow-hidden rounded-[1.25rem] bg-elevated">
       <ImgWithFallback
@@ -110,7 +110,9 @@ const startShare = async () => {
     </div>
 
     <div class="flex flex-1 flex-col gap-2.5">
-      <p class="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-toned">
+      <p
+        class="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-toned"
+      >
         <UBadge
           v-if="categoryName"
           :label="categoryName"

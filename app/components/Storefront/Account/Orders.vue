@@ -143,7 +143,10 @@ const detailsTo = (order: Order) => localePath({ name: 'account-orders-id', para
 
     <div
       v-else
-      class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
+      class="
+        flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring
+        ring-default
+      "
     >
       <p class="font-semibold text-highlighted">
         {{ t('empty.title') }}

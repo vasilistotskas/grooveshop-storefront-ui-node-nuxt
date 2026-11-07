@@ -8,7 +8,7 @@ useHead({ title: () => t('title') })
 </script>
 
 <template>
-  <WebsideAccountAreaPageWrapper class="md:!p-0">
+  <WebsideAccountAreaPageWrapper class="md:p-0!">
     <WebsidePageTitle
       :text="t('title')"
       class="sr-only"

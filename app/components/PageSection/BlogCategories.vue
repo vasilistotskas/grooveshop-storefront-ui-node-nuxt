@@ -21,6 +21,8 @@ defineProps<{
     :heading="title"
     padding="sm"
   >
-    <BlogCategoriesSlider :categories="[...categories.items]" class="w-full p-0!" />
+    <BlogCategoriesSlider
+      :categories="[...categories.items]" class="w-full p-0!"
+    />
   </PageSectionBand>
 </template>

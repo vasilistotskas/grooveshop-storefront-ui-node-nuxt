@@ -18,7 +18,10 @@ const { t } = useStoreI18n('components/Account/LoadError')
 <template>
   <div
     role="alert"
-    class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
+    class="
+      flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring
+      ring-default
+    "
   >
     <p class="font-semibold text-highlighted">
       {{ message }}
