@@ -142,8 +142,16 @@ function onSubmit() {
 
 <template>
   <div class="flex h-full flex-col overflow-hidden bg-default">
-    <div class="flex shrink-0 items-center gap-3 border-b border-default px-4 py-3.5">
-      <span class="grid size-10 shrink-0 place-items-center rounded-[0.75rem] bg-inverted">
+    <div
+      class="
+        flex shrink-0 items-center gap-3 border-b border-default px-4 py-3.5
+      "
+    >
+      <span
+        class="
+          grid size-10 shrink-0 place-items-center rounded-[0.75rem] bg-inverted
+        "
+      >
         <UIcon
           name="i-lucide-zap"
           class="size-5 text-(--ui-volt-on-inverted)"
@@ -179,9 +187,17 @@ function onSubmit() {
     <UChatPalette class="min-h-0 flex-1">
       <div
         v-if="uiMessages.length === 0 && uiStatus === 'ready'"
-        class="flex h-full flex-col items-center justify-center gap-2 px-6 text-center"
+        class="
+          flex h-full flex-col items-center justify-center gap-2 px-6
+          text-center
+        "
       >
-        <span class="grid size-12 place-items-center rounded-[0.875rem] bg-volt text-on-volt">
+        <span
+          class="
+            grid size-12 place-items-center rounded-[0.875rem] bg-volt
+            text-on-volt
+          "
+        >
           <UIcon
             name="i-lucide-zap"
             class="size-6"
@@ -217,7 +233,10 @@ function onSubmit() {
         <template #leading="{ role }">
           <span
             v-if="role === 'assistant'"
-            class="grid size-8 place-items-center rounded-[0.625rem] bg-volt text-on-volt"
+            class="
+              grid size-8 place-items-center rounded-[0.625rem] bg-volt
+              text-on-volt
+            "
           >
             <UIcon
               name="i-lucide-zap"
@@ -244,7 +263,10 @@ function onSubmit() {
                 v-if="segment.type === 'text'"
                 :value="segment.text"
                 :streaming="message.id === streamingMessageId && index === (shownMessage(message.id)?.segments.length ?? 0) - 1"
-                class="*:first:mt-0 *:last:mb-0"
+                class="
+                  *:first:mt-0
+                  *:last:mb-0
+                "
               />
               <ChromeAssistantProducts
                 v-else

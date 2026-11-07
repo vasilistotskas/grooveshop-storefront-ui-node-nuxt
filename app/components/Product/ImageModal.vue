@@ -130,8 +130,13 @@ const ARROW = 'bg-transparent text-white ring-white/20 hover:bg-white/10 disable
               :width="680"
               :height="680"
               img-loading="eager"
-              class="size-full object-cover transition-transform duration-200 select-none"
-              :class="zoomed && item === images[active] ? 'scale-[2.5] cursor-zoom-out' : 'cursor-zoom-in'"
+              class="
+                size-full object-cover transition-transform duration-200
+                select-none
+              "
+              :class="zoomed && item === images[active] ? `
+                scale-[2.5] cursor-zoom-out
+              ` : `cursor-zoom-in`"
               :style="zoomed && item === images[active] ? { transformOrigin: zoomOrigin } : undefined"
               draggable="false"
               @click="() => { zoomed = !zoomed }"
@@ -166,10 +171,10 @@ const ARROW = 'bg-transparent text-white ring-white/20 hover:bg-white/10 disable
             size-13 shrink-0 cursor-pointer overflow-hidden rounded-[0.75rem]
             opacity-50 outline-offset-2 transition-opacity
             hover:opacity-80
-            aria-[current=true]:opacity-100 aria-[current=true]:outline-2
-            aria-[current=true]:outline-white
             focus-visible:opacity-100 focus-visible:outline-2
             focus-visible:outline-white
+            aria-current:opacity-100 aria-current:outline-2
+            aria-current:outline-white
           "
           @click="go(index)"
         >

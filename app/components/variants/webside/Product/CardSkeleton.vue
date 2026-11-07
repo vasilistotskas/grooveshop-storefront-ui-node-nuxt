@@ -12,7 +12,7 @@
 <template>
   <UCard
     as="li"
-    class="relative h-full w-full max-w-full"
+    class="relative size-full max-w-full"
     :ui="{
       root: 'w-full max-w-full',
       body: `
@@ -22,7 +22,12 @@
     }"
   >
     <!-- Image Container with Shimmer -->
-    <div class="relative overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+    <div
+      class="
+        relative overflow-hidden bg-neutral-100
+        dark:bg-neutral-800
+      "
+    >
       <!-- Top-left badges placeholder -->
       <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
         <USkeleton class="h-6 w-16 rounded-md" />
@@ -35,7 +40,7 @@
       </div>
 
       <!-- Product image placeholder with proper aspect ratio (4:3) -->
-      <div class="aspect-[4/3] max-w-full">
+      <div class="aspect-4/3 max-w-full">
         <USkeleton class="size-full" />
       </div>
     </div>

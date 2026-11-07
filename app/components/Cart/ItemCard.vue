@@ -80,13 +80,21 @@ async function remove() {
 </script>
 
 <template>
-  <div :class="['flex', compact ? 'gap-3' : 'gap-4 sm:gap-5']">
+  <div
+    :class="['flex', compact ? 'gap-3' : `
+      gap-4
+      sm:gap-5
+    `]"
+  >
     <!-- A sized box around the link: Anchor is `w-full`, and as the row's
          flex item it would stretch over the name and price. -->
     <div
       :class="[
         'shrink-0 overflow-hidden rounded-[0.75rem] bg-elevated',
-        compact ? 'size-19' : 'size-20 sm:size-24',
+        compact ? 'size-19' : `
+          size-20
+          sm:size-24
+        `,
       ]"
     >
       <Anchor
@@ -112,13 +120,18 @@ async function remove() {
         <div class="flex min-w-0 flex-col gap-0.5">
           <p
             v-if="!compact && cartItem.product.brandName"
-            class="text-[0.6875rem] font-bold tracking-[0.08em] text-toned uppercase"
+            class="
+              text-[0.6875rem] font-bold tracking-[0.08em] text-toned uppercase
+            "
           >
             {{ cartItem.product.brandName }}
           </p>
           <Anchor
             :to="link"
-            class="line-clamp-2 text-sm font-semibold text-highlighted sm:text-base"
+            class="
+              line-clamp-2 text-sm font-semibold text-highlighted
+              sm:text-base
+            "
           >
             {{ name }}
           </Anchor>

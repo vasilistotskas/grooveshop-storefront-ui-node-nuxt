@@ -203,15 +203,15 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
 
     <dl
       class="
-          grid grid-cols-3 gap-2
-          @2xl:gap-3
-        "
+        grid grid-cols-3 gap-2
+        @2xl:gap-3
+      "
     >
       <div
         class="
-            rounded-lg bg-elevated/60 px-3 py-2.5
-            @2xl:px-4 @2xl:py-3
-          "
+          rounded-lg bg-elevated/60 px-3 py-2.5
+          @2xl:px-4 @2xl:py-3
+        "
       >
         <dt class="text-xs font-medium text-muted">
           {{ t('stats.change') }}
@@ -219,9 +219,9 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
         <dd class="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span
             class="
-                text-base font-semibold text-highlighted tabular-nums
-                @2xl:text-lg
-              "
+              text-base font-semibold text-highlighted tabular-nums
+              @2xl:text-lg
+            "
           >
             {{ trend.change === 0 ? formatPrice(0) : `${trend.change > 0 ? '+' : '−'}${formatPrice(Math.abs(trend.change))}` }}
           </span>
@@ -238,18 +238,18 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
         v-for="stat in stats"
         :key="stat.key"
         class="
-            rounded-lg bg-elevated/60 px-3 py-2.5
-            @2xl:px-4 @2xl:py-3
-          "
+          rounded-lg bg-elevated/60 px-3 py-2.5
+          @2xl:px-4 @2xl:py-3
+        "
       >
         <dt class="text-xs font-medium text-muted">
           {{ stat.label }}
         </dt>
         <dd
           class="
-              mt-1 text-base font-semibold text-highlighted tabular-nums
-              @2xl:text-lg
-            "
+            mt-1 text-base font-semibold text-highlighted tabular-nums
+            @2xl:text-lg
+          "
         >
           {{ stat.value }}
         </dd>

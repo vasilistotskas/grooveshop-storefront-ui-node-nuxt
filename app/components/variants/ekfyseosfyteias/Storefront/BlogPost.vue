@@ -90,9 +90,9 @@ const CARD_FOCUS = `
         <!-- min-w-0 + wrap-anywhere: a long Greek word may break rather than run under the photograph. -->
         <h1
           class="
-            min-w-0 font-display text-[length:clamp(40px,4.4vw,64px)]
-            leading-[0.98] font-extrabold tracking-[-0.025em] text-balance
-            wrap-anywhere hyphens-auto
+            min-w-0 font-display text-[clamp(40px,4.4vw,64px)] leading-[0.98]
+            font-extrabold tracking-tight text-balance wrap-anywhere
+            hyphens-auto
           "
         >
           {{ blogPostTitle }}
@@ -100,8 +100,7 @@ const CARD_FOCUS = `
         <p
           v-if="blogPostSubtitle"
           class="
-            max-w-[30em] text-[length:clamp(19px,1.6vw,22px)] leading-[1.6]
-            text-pretty
+            max-w-[30em] text-[clamp(19px,1.6vw,22px)] leading-[1.6] text-pretty
           "
         >
           {{ blogPostSubtitle }}
@@ -131,7 +130,7 @@ const CARD_FOCUS = `
       <div
         class="
           mx-auto max-w-[700px] border-t-[1.5px] border-dashed
-          border-(color:--fy-rule) py-[clamp(32px,4vw,48px)]
+          border-(--fy-rule) py-[clamp(32px,4vw,48px)]
         "
       >
         <!-- Static HTML: hydrated never. -->
@@ -157,12 +156,17 @@ const CARD_FOCUS = `
           to="blog"
           class="
             flex flex-col justify-center gap-2 rounded-3xl border-2
-            border-dashed border-(color:--fy-text) p-7 text-(--fy-text)
+            border-dashed border-(--fy-text) p-7 text-(--fy-text)
             hover:bg-(--fy-surface)
           "
           :class="CARD_FOCUS"
         >
-          <span class="text-[13px] font-bold tracking-[0.14em] text-(--fy-eyebrow) uppercase">{{ t('back') }}</span>
+          <span
+            class="
+              text-[13px] font-bold tracking-[0.14em] text-(--fy-eyebrow)
+              uppercase
+            "
+          >{{ t('back') }}</span>
           <span class="font-display text-[28px] leading-[1.1] font-bold">{{ t('all_activities') }}</span>
         </NuxtLinkLocale>
 
@@ -188,7 +192,12 @@ const CARD_FOCUS = `
             class="block size-[120px] shrink-0 rounded-2xl object-cover"
           />
           <span class="flex min-w-0 flex-col gap-1.5">
-            <span class="text-[13px] font-bold tracking-[0.14em] text-(--fy-eyebrow) uppercase">{{ t('related') }}</span>
+            <span
+              class="
+                text-[13px] font-bold tracking-[0.14em] text-(--fy-eyebrow)
+                uppercase
+              "
+            >{{ t('related') }}</span>
             <span class="font-display text-[22px] leading-[1.15] font-bold">{{ related.title }}</span>
           </span>
         </NuxtLink>

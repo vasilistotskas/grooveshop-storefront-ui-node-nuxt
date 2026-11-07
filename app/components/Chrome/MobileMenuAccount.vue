@@ -23,8 +23,7 @@ const name = computed(() =>
   <ULink
     :to="localePath('account')"
     class="
-      flex items-center gap-3 rounded-md border border-default bg-default
-      p-3.5
+      flex items-center gap-3 rounded-md border border-default bg-default p-3.5
     "
   >
     <span

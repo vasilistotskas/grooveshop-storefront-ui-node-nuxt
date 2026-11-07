@@ -375,8 +375,8 @@ describe('webside design render', () => {
         .filter(button => button.classes().includes('max-sm:pe-3'))
       expect(collapsed).toHaveLength(1)
       expect(collapsed[0]!.classes()).toEqual(expect.arrayContaining([
-        'max-sm:[&>[data-slot=trailing]]:hidden',
-        'max-sm:[&>[data-slot=value]]:hidden',
+        'max-sm:*:data-[slot=trailing]:hidden',
+        'max-sm:*:data-[slot=value]:hidden',
       ]))
       wrapper.unmount()
     })

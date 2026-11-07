@@ -24,8 +24,8 @@ defineProps<{
   >
     <div
       class="
-        mx-auto flex w-full max-w-[1280px] flex-wrap items-center
-        justify-center gap-x-5 gap-y-2.5 px-6 py-[30px]
+        mx-auto flex w-full max-w-[1280px] flex-wrap items-center justify-center
+        gap-x-5 gap-y-2.5 px-6 py-[30px]
       "
     >
       <p
@@ -39,7 +39,7 @@ defineProps<{
       <ul
         class="
           flex flex-wrap items-center justify-center gap-x-5 gap-y-2
-          font-display text-[length:clamp(20px,1.9vw,26px)] font-medium italic
+          font-display text-[clamp(20px,1.9vw,26px)] font-medium italic
         "
       >
         <li

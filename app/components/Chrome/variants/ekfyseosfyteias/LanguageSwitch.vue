@@ -40,11 +40,11 @@ const others = computed(() =>
     :aria-label="other.name"
     class="
       inline-flex size-11 items-center justify-center rounded-full border-2
-      border-(color:--fy-text) text-sm font-bold tracking-[0.04em]
-      text-(--fy-text) uppercase
+      border-(--fy-text) text-sm font-bold tracking-[0.04em] text-(--fy-text)
+      uppercase
       hover:bg-(--fy-chip)
       focus-visible:outline-3 focus-visible:outline-offset-2
-      focus-visible:outline-(color:--fy-focus)
+      focus-visible:outline-(--fy-focus)
     "
   >
     {{ other.code }}

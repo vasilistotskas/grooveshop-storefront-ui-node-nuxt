@@ -51,7 +51,11 @@ async function copyCode(code: string) {
   >
     <!-- The count beside the heading, not in it: the heading names the
          card, and a number run into its text read as one word. -->
-    <div class="flex items-center justify-between gap-2 border-b border-default py-3">
+    <div
+      class="
+        flex items-center justify-between gap-2 border-b border-default py-3
+      "
+    >
       <h2 class="flex items-center gap-2 text-sm font-bold text-highlighted">
         <UIcon
           name="i-lucide-ticket-percent"

@@ -37,7 +37,10 @@ const isNextStep = computed(() => level.value > 0 && props.trailIds[level.value 
         class="flex items-baseline justify-between gap-3"
         :class="[
           isNextStep ? 'font-medium' : 'font-semibold',
-          node.id === currentId ? 'text-accent' : 'text-highlighted hover:text-accent',
+          node.id === currentId ? 'text-accent' : `
+            text-highlighted
+            hover:text-accent
+          `,
         ]"
       >
         <span>{{ node.label }}</span>

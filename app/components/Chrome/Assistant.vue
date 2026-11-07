@@ -28,7 +28,8 @@ const chatEnabled = useStoreFeature('chatWidget')
         z-40 size-14 justify-center rounded-full bg-inverted
         text-(--ui-volt-on-inverted) shadow-lg transition
         hover:bg-inverted
-        motion-safe:hover:scale-105 motion-safe:active:scale-95
+        motion-safe:hover:scale-105
+        motion-safe:active:scale-95
         md:right-6
       "
       :icon="open ? 'i-lucide-x' : 'i-lucide-zap'"

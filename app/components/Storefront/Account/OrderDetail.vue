@@ -323,7 +323,12 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
         :status="order.status"
         labels
       />
-      <div class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+      <div
+        class="
+          grid gap-6
+          lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]
+        "
+      >
         <ol
           v-if="timeline.length || estimatedDelivery"
           class="flex flex-col gap-5"
@@ -388,9 +393,15 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
         >
           <div
             v-if="destination"
-            class="flex w-full flex-col gap-1 rounded-[0.875rem] bg-elevated p-4"
+            class="
+              flex w-full flex-col gap-1 rounded-[0.875rem] bg-elevated p-4
+            "
           >
-            <p class="text-xs font-semibold tracking-[0.08em] text-toned uppercase">
+            <p
+              class="
+                text-xs font-semibold tracking-[0.08em] text-toned uppercase
+              "
+            >
               {{ t(destination.kind === 'pickup' ? 'pickup_point' : 'delivery_address') }}
             </p>
             <p class="font-semibold text-highlighted">
@@ -444,9 +455,16 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
         <li
           v-for="item in order.items"
           :key="item.id"
-          class="flex items-center gap-4 py-3 first:pt-0"
+          class="
+            flex items-center gap-4 py-3
+            first:pt-0
+          "
         >
-          <span class="size-14 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated">
+          <span
+            class="
+              size-14 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated
+            "
+          >
             <ImgWithFallback
               :src="item.product.mainImagePath"
               alt=""
@@ -504,7 +522,12 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
       </p>
     </section>
 
-    <div class="grid gap-5 sm:grid-cols-2">
+    <div
+      class="
+        grid gap-5
+        sm:grid-cols-2
+      "
+    >
       <section
         v-if="order.documentType === 'INVOICE'"
         class="flex flex-col gap-2"
@@ -545,7 +568,10 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
       </section>
       <section
         v-if="order.customerNotes"
-        class="flex flex-col gap-2 sm:col-span-2"
+        class="
+          flex flex-col gap-2
+          sm:col-span-2
+        "
         :class="CARD"
       >
         <h2 class="text-xs font-semibold tracking-[0.08em] text-toned uppercase">

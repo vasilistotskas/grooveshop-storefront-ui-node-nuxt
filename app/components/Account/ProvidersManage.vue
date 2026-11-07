@@ -23,13 +23,23 @@ const { cards, busy, disconnect, connect } = await useProviderAccounts({
     v-if="cards.length"
     :title="t('title')"
   >
-    <ul class="grid gap-3 sm:grid-cols-2">
+    <ul
+      class="
+        grid gap-3
+        sm:grid-cols-2
+      "
+    >
       <li
         v-for="card in cards"
         :key="card.key"
         class="flex items-center gap-3 rounded-[1rem] p-3 ring ring-default"
       >
-        <span class="flex size-9 shrink-0 items-center justify-center rounded-[0.625rem] bg-elevated">
+        <span
+          class="
+            flex size-9 shrink-0 items-center justify-center rounded-[0.625rem]
+            bg-elevated
+          "
+        >
           <AccountProviderIcon
             :provider-id="card.providerId"
             class="size-4 text-highlighted"

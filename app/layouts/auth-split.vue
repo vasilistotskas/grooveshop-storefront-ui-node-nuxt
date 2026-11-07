@@ -52,8 +52,7 @@ function goBack() {
 
     <header
       class="
-        flex h-15 items-center justify-between border-b border-default ps-1
-        pe-2
+        flex h-15 items-center justify-between border-b border-default ps-1 pe-2
         lg:hidden
       "
     >
@@ -106,7 +105,10 @@ function goBack() {
       <div
         v-if="photo"
         aria-hidden="true"
-        class="absolute inset-0 bg-linear-to-t from-inverted/90 via-inverted/0 via-45% to-inverted/15"
+        class="
+          absolute inset-0 bg-linear-to-t from-inverted/90 via-inverted/0
+          via-45% to-inverted/15
+        "
       />
       <Anchor
         :to="'index'"
@@ -128,7 +130,10 @@ function goBack() {
         />
         <p
           v-if="tagline"
-          class="max-w-130 font-display text-[3.5rem]/none font-bold tracking-[-0.02em] text-balance"
+          class="
+            max-w-130 font-display text-[3.5rem]/none font-bold
+            tracking-[-0.02em] text-balance
+          "
         >
           {{ tagline }}
         </p>

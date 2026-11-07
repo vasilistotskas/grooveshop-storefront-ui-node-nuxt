@@ -33,28 +33,26 @@ async function toggleBrand(id: string) {
         :key="option.id"
         type="button"
         class="
-          cursor-pointer w-full flex items-center justify-between gap-3
-          px-3 py-2 rounded-lg
-          text-left text-sm
-          transition-colors duration-150
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500
+          flex w-full cursor-pointer items-center justify-between gap-3
+          rounded-lg px-3 py-2 text-left text-sm transition-colors duration-150
+          focus:outline-none
+          focus-visible:ring-2 focus-visible:ring-primary-500
         "
         :class="{
-          'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300': option.selected,
+          'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300': option.selected,
           'hover:bg-neutral-100 dark:hover:bg-neutral-800': !option.selected,
         }"
         :aria-pressed="option.selected"
         @click="toggleBrand(option.id)"
       >
-        <span class="flex items-center gap-2 flex-1 min-w-0">
+        <span class="flex min-w-0 flex-1 items-center gap-2">
           <span
             class="
-              flex items-center justify-center
-              size-5 rounded border
+              flex size-5 items-center justify-center rounded-[0.25rem] border
               transition-colors duration-150
             "
             :class="{
-              'bg-primary-500 border-primary-500': option.selected,
+              'border-primary-500 bg-primary-500': option.selected,
               'border-neutral-300 dark:border-neutral-600': !option.selected,
             }"
           >

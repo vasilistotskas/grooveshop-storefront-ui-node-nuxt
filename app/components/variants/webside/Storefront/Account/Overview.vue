@@ -299,9 +299,9 @@ const activityStats = computed(() => {
               >
                 <div
                   class="
-                    flex items-center justify-center rounded-xl
-                    bg-linear-to-br from-primary-100 to-primary-200 p-3
-                    transition-transform duration-200
+                    flex items-center justify-center rounded-xl bg-linear-to-br
+                    from-primary-100 to-primary-200 p-3 transition-transform
+                    duration-200
                     group-hover:scale-105
                     dark:from-primary-900 dark:to-primary-800
                   "
@@ -582,8 +582,8 @@ const activityStats = computed(() => {
               >
                 <div
                   class="
-                    flex items-center justify-center rounded-xl
-                    bg-linear-to-br from-primary-100 to-primary-200 p-2.5
+                    flex items-center justify-center rounded-xl bg-linear-to-br
+                    from-primary-100 to-primary-200 p-2.5
                     dark:from-primary-900 dark:to-primary-800
                   "
                 >
@@ -624,8 +624,8 @@ const activityStats = computed(() => {
               <div class="flex items-center gap-3">
                 <div
                   class="
-                    flex items-center justify-center rounded-xl
-                    bg-gradient-to-br from-red-100 to-red-200 p-2.5
+                    flex items-center justify-center rounded-xl bg-linear-to-br
+                    from-red-100 to-red-200 p-2.5
                     dark:from-red-900/20 dark:to-red-800/20
                   "
                 >

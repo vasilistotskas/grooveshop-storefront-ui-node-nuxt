@@ -96,7 +96,12 @@ const handleRetry = () => {
 <template>
   <div class="space-y-6">
     <!-- Loading State -->
-    <div v-if="loading" class="grid gap-6 md:grid-cols-2">
+    <div
+      v-if="loading" class="
+        grid gap-6
+        md:grid-cols-2
+      "
+    >
       <USkeleton class="h-137.5" />
       <USkeleton class="h-137.5" />
     </div>
@@ -122,19 +127,33 @@ const handleRetry = () => {
     <!-- Summary Content -->
     <template v-else-if="summary">
       <!-- Two Column Layout: Points & Level/XP -->
-      <div class="grid gap-6 md:grid-cols-2">
+      <div
+        class="
+          grid gap-6
+          md:grid-cols-2
+        "
+      >
         <!-- LEFT: LOYALTY POINTS CARD -->
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-currency-dollar" class="size-6 text-warning-600 dark:text-warning-400" />
+                <UIcon
+                  name="i-heroicons-currency-dollar" class="
+                    size-6 text-warning-600
+                    dark:text-warning-400
+                  "
+                />
                 <h3 class="text-lg font-semibold">
                   {{ t('points_section_title') }}
                 </h3>
               </div>
               <UTooltip :text="t('points_tooltip')">
-                <UIcon name="i-heroicons-information-circle" class="size-6 text-gray-400 cursor-help" />
+                <UIcon
+                  name="i-heroicons-information-circle" class="
+                    size-6 cursor-help text-gray-400
+                  "
+                />
               </UTooltip>
             </div>
           </template>
@@ -143,10 +162,23 @@ const handleRetry = () => {
             <!-- Points Display with Hexagon -->
             <div class="flex flex-col items-center justify-center py-6">
               <div class="relative mb-4">
-                <div class="absolute inset-0 bg-warning-200 dark:bg-warning-800 opacity-20 blur-2xl rounded-full" />
-                <div class="relative flex flex-col items-center justify-center w-42 h-42 bg-gradient-to-br from-warning-50 to-warning-100 dark:from-warning-950 dark:to-warning-900 rounded-full shadow-lg">
+                <div
+                  class="
+                    absolute inset-0 rounded-full bg-warning-200 opacity-20
+                    blur-2xl
+                    dark:bg-warning-800
+                  "
+                />
+                <div
+                  class="
+                    relative flex size-42 flex-col items-center justify-center
+                    rounded-full bg-linear-to-br from-warning-50 to-warning-100
+                    shadow-lg
+                    dark:from-warning-950 dark:to-warning-900
+                  "
+                >
                   <!-- Hexagon SVG -->
-                  <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+                  <svg class="absolute inset-0 size-full" viewBox="0 0 100 100">
                     <defs>
                       <linearGradient id="pointsHexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:rgb(251, 191, 36);stop-opacity:0.3" />
@@ -162,10 +194,20 @@ const handleRetry = () => {
                   </svg>
                   <!-- Points Number -->
                   <div class="relative z-10 text-center">
-                    <div class="text-5xl font-bold text-warning-700 dark:text-warning-300">
+                    <div
+                      class="
+                        text-5xl font-bold text-warning-700
+                        dark:text-warning-300
+                      "
+                    >
                       {{ summary.pointsBalance }}
                     </div>
-                    <div class="text-sm font-medium text-warning-600 dark:text-warning-400 mt-1">
+                    <div
+                      class="
+                        mt-1 text-sm font-medium text-warning-600
+                        dark:text-warning-400
+                      "
+                    >
                       {{ t('coins_label') }}
                     </div>
                   </div>
@@ -174,10 +216,20 @@ const handleRetry = () => {
 
               <!-- Points Value in EUR -->
               <div v-if="formattedEur" class="text-center">
-                <p class="text-sm text-gray-600 dark:text-gray-300">
+                <p
+                  class="
+                    text-sm text-gray-600
+                    dark:text-gray-300
+                  "
+                >
                   {{ t('points_value_label') }}
                 </p>
-                <p class="text-2xl font-bold text-warning-700 dark:text-warning-300">
+                <p
+                  class="
+                    text-2xl font-bold text-warning-700
+                    dark:text-warning-300
+                  "
+                >
                   {{ formattedEur }}
                 </p>
               </div>
@@ -187,13 +239,33 @@ const handleRetry = () => {
 
             <!-- Points Info -->
             <div class="space-y-3">
-              <div class="flex items-start gap-3 p-3 bg-warning-50 dark:bg-warning-950 rounded-lg">
-                <UIcon name="i-heroicons-light-bulb" class="size-6 text-warning-600 dark:text-warning-400 mt-0.5 shrink-0" />
-                <div class="text-sm text-gray-700 dark:text-gray-300">
-                  <p class="font-medium mb-1">
+              <div
+                class="
+                  flex items-start gap-3 rounded-lg bg-warning-50 p-3
+                  dark:bg-warning-950
+                "
+              >
+                <UIcon
+                  name="i-heroicons-light-bulb" class="
+                    mt-0.5 size-6 shrink-0 text-warning-600
+                    dark:text-warning-400
+                  "
+                />
+                <div
+                  class="
+                    text-sm text-gray-700
+                    dark:text-gray-300
+                  "
+                >
+                  <p class="mb-1 font-medium">
                     {{ t('points_info_title') }}
                   </p>
-                  <p class="text-gray-600 dark:text-gray-300">
+                  <p
+                    class="
+                      text-gray-600
+                      dark:text-gray-300
+                    "
+                  >
                     {{ t('points_info_description') }}
                     <template v-if="redemptionRatio">
                       {{ t('points_info_ratio', { points: redemptionRatio }) }}
@@ -210,13 +282,22 @@ const handleRetry = () => {
           <template #header>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-trophy" class="size-6 text-primary-600 dark:text-primary-400" />
+                <UIcon
+                  name="i-heroicons-trophy" class="
+                    size-6 text-primary-600
+                    dark:text-primary-400
+                  "
+                />
                 <h3 class="text-lg font-semibold">
                   {{ t('level_section_title') }}
                 </h3>
               </div>
               <UTooltip :text="t('level_tooltip')">
-                <UIcon name="i-heroicons-information-circle" class="size-6 text-gray-400 cursor-help" />
+                <UIcon
+                  name="i-heroicons-information-circle" class="
+                    size-6 cursor-help text-gray-400
+                  "
+                />
               </UTooltip>
             </div>
           </template>
@@ -224,16 +305,36 @@ const handleRetry = () => {
           <div class="space-y-6">
             <!-- Level Display -->
             <div class="flex flex-col items-center justify-center py-6">
-              <div class="flex items-center justify-center gap-3 mb-4">
-                <UIcon name="i-heroicons-star-solid" class="size-8 text-primary-600 dark:text-primary-400" />
-                <span class="text-5xl font-bold text-primary-700 dark:text-primary-300">
+              <div class="mb-4 flex items-center justify-center gap-3">
+                <UIcon
+                  name="i-heroicons-star-solid" class="
+                    size-8 text-primary-600
+                    dark:text-primary-400
+                  "
+                />
+                <span
+                  class="
+                    text-5xl font-bold text-primary-700
+                    dark:text-primary-300
+                  "
+                >
                   {{ summary.level }}
                 </span>
               </div>
-              <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <p
+                class="
+                  mb-2 text-lg font-medium text-gray-700
+                  dark:text-gray-300
+                "
+              >
                 {{ t('level_display', { level: summary.level }) }}
               </p>
-              <p class="text-sm text-gray-600 dark:text-gray-300">
+              <p
+                class="
+                  text-sm text-gray-600
+                  dark:text-gray-300
+                "
+              >
                 {{ t('total_xp_display', { xp: summary.totalXp.toLocaleString() }) }}
               </p>
 
@@ -261,10 +362,20 @@ const handleRetry = () => {
             <!-- XP Progress Section -->
             <div class="space-y-3">
               <div class="flex items-center justify-between text-sm">
-                <span class="font-medium text-gray-700 dark:text-gray-300">
+                <span
+                  class="
+                    font-medium text-gray-700
+                    dark:text-gray-300
+                  "
+                >
                   {{ t('progress_to_next') }}
                 </span>
-                <span class="font-semibold text-primary-600 dark:text-primary-400">
+                <span
+                  class="
+                    font-semibold text-primary-600
+                    dark:text-primary-400
+                  "
+                >
                   <template v-if="summary.pointsToNextTier !== null">
                     {{ summary.pointsToNextTier.toLocaleString() }} XP
                   </template>
@@ -288,31 +399,67 @@ const handleRetry = () => {
             <!-- Next Tier Preview -->
             <div
               v-if="nextTier && nextTierName"
-              class="flex items-start gap-3 rounded-lg bg-secondary-50 p-3 dark:bg-secondary-950"
+              class="
+                flex items-start gap-3 rounded-lg bg-secondary-50 p-3
+                dark:bg-secondary-950
+              "
             >
               <UIcon
                 name="i-heroicons-arrow-up-circle"
-                class="size-6 shrink-0 text-secondary-600 dark:text-secondary-400"
+                class="
+                  size-6 shrink-0 text-secondary-600
+                  dark:text-secondary-400
+                "
               />
               <div class="flex-1 text-sm">
-                <p class="font-medium text-gray-700 dark:text-gray-300">
+                <p
+                  class="
+                    font-medium text-gray-700
+                    dark:text-gray-300
+                  "
+                >
                   {{ t('next_tier_unlocks', { tier: nextTierName }) }}
                 </p>
-                <p v-if="nextTierMultiplierBonus" class="mt-1 text-gray-600 dark:text-gray-300">
+                <p
+                  v-if="nextTierMultiplierBonus" class="
+                    mt-1 text-gray-600
+                    dark:text-gray-300
+                  "
+                >
                   {{ t('next_tier_multiplier', { bonus: nextTierMultiplierBonus }) }}
                 </p>
               </div>
             </div>
 
             <!-- Tier Description -->
-            <div v-if="tierDescription" class="p-3 bg-primary-50 dark:bg-primary-950 rounded-lg">
+            <div
+              v-if="tierDescription" class="
+                rounded-lg bg-primary-50 p-3
+                dark:bg-primary-950
+              "
+            >
               <div class="flex items-start gap-3">
-                <UIcon name="i-heroicons-sparkles" class="size-6 text-primary-600 dark:text-primary-400 mt-0.5 shrink-0" />
+                <UIcon
+                  name="i-heroicons-sparkles" class="
+                    mt-0.5 size-6 shrink-0 text-primary-600
+                    dark:text-primary-400
+                  "
+                />
                 <div class="text-sm">
-                  <p class="font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <p
+                    class="
+                      mb-1 font-medium text-gray-700
+                      dark:text-gray-300
+                    "
+                  >
                     {{ tierName }}
                   </p>
-                  <p class="text-gray-600 dark:text-gray-300">
+                  <p
+                    class="
+                      text-gray-600
+                      dark:text-gray-300
+                    "
+                  >
                     {{ tierDescription }}
                   </p>
                 </div>
@@ -323,17 +470,43 @@ const handleRetry = () => {
       </div>
 
       <!-- Quick Actions -->
-      <div class="grid gap-4 md:grid-cols-2">
-        <UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="navigateTo(localePath('products'))">
+      <div
+        class="
+          grid gap-4
+          md:grid-cols-2
+        "
+      >
+        <UCard
+          class="
+            cursor-pointer transition-shadow
+            hover:shadow-lg
+          " @click="navigateTo(localePath('products'))"
+        >
           <div class="flex items-center gap-4">
-            <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
-              <UIcon name="i-heroicons-shopping-bag" class="size-6 text-primary-600 dark:text-primary-400" />
+            <div
+              class="
+                flex size-12 shrink-0 items-center justify-center rounded-full
+                bg-primary-100
+                dark:bg-primary-900
+              "
+            >
+              <UIcon
+                name="i-heroicons-shopping-bag" class="
+                  size-6 text-primary-600
+                  dark:text-primary-400
+                "
+              />
             </div>
             <div class="flex-1">
-              <h4 class="font-semibold mb-1">
+              <h4 class="mb-1 font-semibold">
                 {{ t('earn_more_points') }}
               </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-300">
+              <p
+                class="
+                  text-sm text-gray-600
+                  dark:text-gray-300
+                "
+              >
                 {{ t('shop_to_earn') }}
               </p>
             </div>
@@ -341,16 +514,37 @@ const handleRetry = () => {
           </div>
         </UCard>
 
-        <UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="navigateTo(localePath('loyalty-program'))">
+        <UCard
+          class="
+            cursor-pointer transition-shadow
+            hover:shadow-lg
+          " @click="navigateTo(localePath('loyalty-program'))"
+        >
           <div class="flex items-center gap-4">
-            <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-success-100 dark:bg-success-900">
-              <UIcon name="i-heroicons-information-circle" class="size-6 text-success-600 dark:text-success-400" />
+            <div
+              class="
+                flex size-12 shrink-0 items-center justify-center rounded-full
+                bg-success-100
+                dark:bg-success-900
+              "
+            >
+              <UIcon
+                name="i-heroicons-information-circle" class="
+                  size-6 text-success-600
+                  dark:text-success-400
+                "
+              />
             </div>
             <div class="flex-1">
-              <h4 class="font-semibold mb-1">
+              <h4 class="mb-1 font-semibold">
                 {{ t('learn_more') }}
               </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-300">
+              <p
+                class="
+                  text-sm text-gray-600
+                  dark:text-gray-300
+                "
+              >
                 {{ t('how_it_works') }}
               </p>
             </div>

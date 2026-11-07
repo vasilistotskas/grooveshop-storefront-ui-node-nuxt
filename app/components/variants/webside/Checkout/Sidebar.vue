@@ -231,7 +231,9 @@ defineSlots<{
             border-t border-primary-200 pt-4
             dark:border-primary-800
           "
-          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 || promotionDiscount > 0 || giftCardApplied > 0 ? 'space-y-3' : ''"
+          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 || promotionDiscount > 0 || giftCardApplied > 0 ? `
+            space-y-3
+          ` : ''"
         >
           <div class="flex items-center justify-between">
             <span

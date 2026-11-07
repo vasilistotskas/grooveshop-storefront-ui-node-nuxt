@@ -45,9 +45,9 @@ const onReplyAdd = (data: BlogComment) => {
         :key="comment.id"
         :comment="comment"
         :display-image-of="displayImageOf"
-        :class="userHasCommented(comment) ? 'border-1 border-secondary-500' : ''"
+        :class="userHasCommented(comment) ? 'border border-secondary-500' : ''"
         class="
-          rounded border bg-primary-100 p-4
+          rounded-[0.25rem] border bg-primary-100 p-4
           dark:bg-primary-900
         "
         @reply-add="onReplyAdd"

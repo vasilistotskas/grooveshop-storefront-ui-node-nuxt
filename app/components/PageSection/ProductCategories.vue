@@ -76,7 +76,11 @@ const DESK_COLUMNS = [
     <div
       v-else
       :class="[
-        'grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:gap-5',
+        `
+          grid grid-cols-2 gap-3.5
+          sm:grid-cols-3
+          lg:gap-5
+        `,
         DESK_COLUMNS[Math.min(entries.length, DESK_COLUMNS.length) - 1],
       ]"
     >

@@ -181,10 +181,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
   <component
     :is="as"
     class="
-      group relative flex h-full w-full max-w-full flex-col overflow-hidden
+      group relative flex size-full max-w-full flex-col overflow-hidden
       rounded-xl bg-default ring ring-default transition
-      hover:ring-accented
       focus-within:ring-2 focus-within:ring-secondary
+      hover:ring-accented
     "
   >
     <div class="relative bg-elevated">
@@ -197,14 +197,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         v-bind="badge"
         size="sm"
         variant="solid"
-        class="absolute start-3 top-3 z-10"
+        class="absolute inset-s-3 top-3 z-10"
       />
 
       <!-- Per-visitor controls: a cached anonymous card must not carry
            this shopper's favourites, and Web Share support is only
            knowable in the browser. -->
       <ClientOnly>
-        <div class="absolute end-3 top-3 z-10 flex gap-1.5">
+        <div class="absolute inset-e-3 top-3 z-10 flex gap-1.5">
           <UButton
             v-if="isSupported && showShareButton"
             :aria-label="t('share')"
@@ -272,7 +272,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <!-- The link stretches over the whole card, so the card is one
              target instead of three. The controls above it sit on a
              higher layer and stay clickable. -->
-        <h3 class="line-clamp-2 text-sm font-medium text-pretty md:text-base">
+        <h3
+          class="
+            line-clamp-2 text-sm font-medium text-pretty
+            md:text-base
+          "
+        >
           {{ productName }}
         </h3>
       </NuxtLink>
@@ -292,17 +297,21 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <div class="mt-auto flex flex-col gap-1 pt-1">
         <div class="flex flex-wrap items-baseline gap-x-2">
-          <span class="font-mono text-xl font-semibold tabular-nums text-highlighted">
+          <span
+            class="
+              font-mono text-xl font-semibold text-highlighted tabular-nums
+            "
+          >
             {{ $i18n.n(displayFinalPrice, 'currency') }}
           </span>
           <ProductPriorPrice
             v-if="announcement"
             :price="announcement.priorPrice"
-            class="font-mono text-sm tabular-nums text-muted"
+            class="font-mono text-sm text-muted tabular-nums"
           />
           <span
             v-else-if="wasPrice"
-            class="font-mono text-sm tabular-nums text-muted line-through"
+            class="font-mono text-sm text-muted tabular-nums line-through"
           >
             {{ $i18n.n(wasPrice, 'currency') }}
           </span>

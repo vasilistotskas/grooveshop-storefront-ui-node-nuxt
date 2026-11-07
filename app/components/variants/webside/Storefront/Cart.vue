@@ -142,7 +142,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <WebsidePageWrapper class="max-w-(--container-6xl)">
+  <WebsidePageWrapper class="max-w-6xl">
     <UBreadcrumb
       :items="breadcrumb"
       divider="chevron"
@@ -282,7 +282,7 @@ useSeoMeta({
             >
               <USkeleton
                 class="
-                  h-24 w-full flex-shrink-0 rounded-lg
+                  h-24 w-full shrink-0 rounded-lg
                   sm:w-24
                 "
               />
@@ -298,7 +298,7 @@ useSeoMeta({
                     <USkeleton class="h-5 w-48" />
                     <USkeleton class="h-4 w-32" />
                   </div>
-                  <USkeleton class="h-8 w-8" />
+                  <USkeleton class="size-8" />
                 </div>
                 <div
                   class="

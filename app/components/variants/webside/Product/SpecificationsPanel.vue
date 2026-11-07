@@ -23,22 +23,30 @@ const { t } = useStoreI18n('components/variants/webside/Product/SpecificationsPa
         v-for="spec in specifications"
         :key="spec.label"
         class="
-          flex items-center justify-between rounded-lg border
-          border-gray-200 p-4
+          flex items-center justify-between rounded-lg border border-gray-200
+          p-4
           dark:border-gray-700
         "
       >
         <dt class="flex items-center">
           <span class="font-medium">{{ spec.label }}</span>
         </dt>
-        <dd class="text-gray-600 dark:text-gray-200">
+        <dd
+          class="
+            text-gray-600
+            dark:text-gray-200
+          "
+        >
           {{ spec.value }}
         </dd>
       </div>
     </dl>
     <p
       v-else
-      class="text-gray-500 dark:text-gray-200"
+      class="
+        text-gray-500
+        dark:text-gray-200
+      "
     >
       {{ t('no_specifications_available') }}
     </p>

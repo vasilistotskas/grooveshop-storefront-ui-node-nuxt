@@ -18,7 +18,12 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
     class="shadow-lg"
   >
     <template #header>
-      <h2 class="text-lg font-semibold text-primary-950 dark:text-primary-50">
+      <h2
+        class="
+          text-lg font-semibold text-primary-950
+          dark:text-primary-50
+        "
+      >
         {{ t('title') }}
       </h2>
     </template>
@@ -30,7 +35,10 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
       >
         <UIcon
           name="i-heroicons-phone"
-          class="size-6 shrink-0 text-primary-600 dark:text-primary-300"
+          class="
+            size-6 shrink-0 text-primary-600
+            dark:text-primary-300
+          "
           aria-hidden="true"
         />
         <div class="flex min-w-0 flex-col">
@@ -44,7 +52,10 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
           >{{ phone }}</a>
           <span
             v-if="todayHours"
-            class="text-sm text-primary-600 dark:text-primary-300"
+            class="
+              text-sm text-primary-600
+              dark:text-primary-300
+            "
           >
             {{ t('today', { opens: todayHours.opens, closes: todayHours.closes }) }}
           </span>
@@ -57,7 +68,10 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
       >
         <UIcon
           name="i-heroicons-envelope"
-          class="size-6 shrink-0 text-primary-600 dark:text-primary-300"
+          class="
+            size-6 shrink-0 text-primary-600
+            dark:text-primary-300
+          "
           aria-hidden="true"
         />
         <a
@@ -77,14 +91,25 @@ const { phone, email, places, todayHours, hasAny } = useContactMethods()
       >
         <UIcon
           name="i-heroicons-map-pin"
-          class="size-6 shrink-0 text-primary-600 dark:text-primary-300"
+          class="
+            size-6 shrink-0 text-primary-600
+            dark:text-primary-300
+          "
           aria-hidden="true"
         />
         <div class="flex min-w-0 flex-col">
-          <span class="font-semibold text-primary-950 dark:text-primary-50">{{ place.title }}</span>
+          <span
+            class="
+              font-semibold text-primary-950
+              dark:text-primary-50
+            "
+          >{{ place.title }}</span>
           <span
             v-if="place.detail"
-            class="text-sm text-primary-600 dark:text-primary-300"
+            class="
+              text-sm text-primary-600
+              dark:text-primary-300
+            "
           >{{ place.detail }}</span>
         </div>
       </li>

@@ -115,16 +115,21 @@ const handleRemoveFilter = async (chip: ListingFilterChip) => {
 <template>
   <Transition
     enter-active-class="transition-all duration-300 ease-out"
-    enter-from-class="opacity-0 -translate-y-2"
-    enter-to-class="opacity-100 translate-y-0"
+    enter-from-class="-translate-y-2 opacity-0"
+    enter-to-class="translate-y-0 opacity-100"
     leave-active-class="transition-all duration-200 ease-in"
-    leave-from-class="opacity-100 translate-y-0"
-    leave-to-class="opacity-0 -translate-y-2"
+    leave-from-class="translate-y-0 opacity-100"
+    leave-to-class="-translate-y-2 opacity-0"
   >
     <div v-if="hasActiveFilters" class="space-y-3">
       <!-- Header -->
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <h3
+          class="
+            text-sm font-medium text-neutral-700
+            dark:text-neutral-300
+          "
+        >
           {{ t('active_filters') }}
         </h3>
         <UButton
@@ -151,10 +156,7 @@ const handleRemoveFilter = async (chip: ListingFilterChip) => {
           variant="soft"
           size="lg"
           class="
-            group
-            pl-2 pr-1 py-1
-            cursor-default
-            transition-all duration-200
+            group cursor-default py-1 pr-1 pl-2 transition-all duration-200
             hover:shadow-sm
           "
         >
@@ -163,7 +165,7 @@ const handleRemoveFilter = async (chip: ListingFilterChip) => {
               :name="getFilterIcon(chip.type)"
               class="size-5 opacity-60"
             />
-            <span class="text-sm font-medium max-w-32 truncate">
+            <span class="max-w-32 truncate text-sm font-medium">
               {{ formatFilterValue(chip) }}
             </span>
             <UButton
@@ -172,9 +174,8 @@ const handleRemoveFilter = async (chip: ListingFilterChip) => {
               size="sm"
               color="primary"
               class="
-                size-5 p-0
-                opacity-60 group-hover:opacity-100
-                transition-opacity duration-150
+                size-5 p-0 opacity-60 transition-opacity duration-150
+                group-hover:opacity-100
               "
               :aria-label="t('remove_filter', { filter: chip.label })"
               @click="handleRemoveFilter(chip)"

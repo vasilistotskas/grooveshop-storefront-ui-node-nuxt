@@ -48,7 +48,12 @@ const { maxCards, cardSchema, formState, submitting, cardError, applyCard } = us
       <template #description>
         <p class="text-sm">
           {{ t('balance') }}:
-          <strong class="text-success-700 dark:text-success-300">
+          <strong
+            class="
+              text-success-700
+              dark:text-success-300
+            "
+          >
             {{ $i18n.n(card.balance, 'currency') }}
           </strong>
         </p>

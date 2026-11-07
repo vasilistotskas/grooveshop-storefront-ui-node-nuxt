@@ -172,7 +172,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
       data-slot="root"
       class="
         h-(--ui-header-height) border-b border-default bg-muted/90
-        backdrop-blur
+        backdrop-blur-sm
       "
     >
       <UContainer
@@ -210,7 +210,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
           :to="'index'"
           :aria-label="appTitle"
           class="
-            !w-auto flex min-w-0 items-center
+            flex w-auto! min-w-0 items-center
             lg:max-w-60 lg:shrink-0
           "
         >

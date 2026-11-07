@@ -1,3 +1,10 @@
+## [3.330.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.4...v3.330.5) (2026-11-07)
+
+
+### Bug Fixes
+
+* **lint:** check Tailwind classes in templates ([#417](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/417)) ([43c61f3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/43c61f324e105c11dcfac7e5d87d2307d634be0d))
+
 ## [3.330.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.3...v3.330.4) (2026-11-07)
 
 

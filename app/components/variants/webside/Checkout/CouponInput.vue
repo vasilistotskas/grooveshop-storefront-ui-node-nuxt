@@ -54,19 +54,28 @@ const {
             </span>
             <strong
               v-else-if="row.amount > 0"
-              class="shrink-0 text-success-700 dark:text-success-300"
+              class="
+                shrink-0 text-success-700
+                dark:text-success-300
+              "
             >
               -{{ $i18n.n(row.amount, 'currency') }}
             </strong>
             <strong
               v-else-if="row.freeShipping"
-              class="shrink-0 text-success-700 dark:text-success-300"
+              class="
+                shrink-0 text-success-700
+                dark:text-success-300
+              "
             >
               {{ t('promotion.benefit.free_shipping') }}
             </strong>
             <strong
               v-else-if="row.gift"
-              class="shrink-0 text-success-700 dark:text-success-300"
+              class="
+                shrink-0 text-success-700
+                dark:text-success-300
+              "
             >
               {{ t('promotion.benefit.free_gift') }}
             </strong>

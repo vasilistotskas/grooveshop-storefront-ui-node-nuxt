@@ -123,7 +123,7 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
           <div
             class="
               flex size-12 shrink-0 items-center justify-center rounded-xl
-              bg-gradient-to-br from-secondary-100 to-secondary-200
+              bg-linear-to-br from-secondary-100 to-secondary-200
               transition-transform duration-200
               group-hover:scale-105
               dark:from-secondary-900 dark:to-secondary-800
@@ -131,14 +131,27 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
           >
             <UIcon
               name="i-heroicons-map"
-              class="size-6 text-secondary-700 dark:text-secondary-300"
+              class="
+                size-6 text-secondary-700
+                dark:text-secondary-300
+              "
             />
           </div>
           <div class="flex-1">
-            <h3 class="font-semibold text-primary-950 dark:text-primary-50">
+            <h3
+              class="
+                font-semibold text-primary-950
+                dark:text-primary-50
+              "
+            >
               {{ t('tier_journey') }}
             </h3>
-            <p class="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">
+            <p
+              class="
+                mt-0.5 text-sm text-neutral-600
+                dark:text-neutral-300
+              "
+            >
               {{ t('current_tier_label', { tier: currentTierName }) }} &middot; {{ t('view_all_tiers', { count: tiersWithXpRange.length }) }}
             </p>
           </div>
@@ -156,8 +169,18 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
         <!-- Tier Progression Stepper -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-map" class="size-5 text-primary-600 dark:text-primary-400" />
-            <h4 class="font-semibold text-primary-950 dark:text-primary-50">
+            <UIcon
+              name="i-heroicons-map" class="
+                size-5 text-primary-600
+                dark:text-primary-400
+              "
+            />
+            <h4
+              class="
+                font-semibold text-primary-950
+                dark:text-primary-50
+              "
+            >
               {{ t('tier_progression') }}
             </h4>
           </div>
@@ -178,8 +201,18 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
         <!-- Tier Details Accordion -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-information-circle" class="size-5 text-secondary-600 dark:text-secondary-400" />
-            <h4 class="font-semibold text-primary-950 dark:text-primary-50">
+            <UIcon
+              name="i-heroicons-information-circle" class="
+                size-5 text-secondary-600
+                dark:text-secondary-400
+              "
+            />
+            <h4
+              class="
+                font-semibold text-primary-950
+                dark:text-primary-50
+              "
+            >
               {{ t('tier_details') }}
             </h4>
           </div>
@@ -230,27 +263,62 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
 
             <template #content="{ item }">
               <div class="space-y-4 py-2">
-                <p class="text-sm text-neutral-700 dark:text-neutral-300">
+                <p
+                  class="
+                    text-sm text-neutral-700
+                    dark:text-neutral-300
+                  "
+                >
                   {{ getTierDescription(item.tier) }}
                 </p>
 
                 <!-- Requirements -->
-                <div class="rounded-lg bg-neutral-50 p-4 dark:bg-neutral-900">
-                  <h5 class="mb-3 flex items-center gap-2 text-sm font-semibold text-primary-950 dark:text-primary-50">
+                <div
+                  class="
+                    rounded-lg bg-neutral-50 p-4
+                    dark:bg-neutral-900
+                  "
+                >
+                  <h5
+                    class="
+                      mb-3 flex items-center gap-2 text-sm font-semibold
+                      text-primary-950
+                      dark:text-primary-50
+                    "
+                  >
                     <UIcon name="i-heroicons-key" class="size-4" />
                     {{ t('requirements') }}
                   </h5>
                   <div class="space-y-2 text-sm">
                     <div class="flex items-center justify-between">
-                      <span class="text-neutral-600 dark:text-neutral-300">{{ t('required_level') }}</span>
+                      <span
+                        class="
+                          text-neutral-600
+                          dark:text-neutral-300
+                        "
+                      >{{ t('required_level') }}</span>
                       <span class="font-semibold">{{ t('level_value', { level: item.tier.requiredLevel }) }}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                      <span class="text-neutral-600 dark:text-neutral-300">{{ t('min_xp') }}</span>
+                      <span
+                        class="
+                          text-neutral-600
+                          dark:text-neutral-300
+                        "
+                      >{{ t('min_xp') }}</span>
                       <span class="font-semibold">{{ item.tier.minXp.toLocaleString(locale) }} XP</span>
                     </div>
-                    <div v-if="item.tier.maxXp !== null" class="flex items-center justify-between">
-                      <span class="text-neutral-600 dark:text-neutral-300">{{ t('max_xp') }}</span>
+                    <div
+                      v-if="item.tier.maxXp !== null" class="
+                        flex items-center justify-between
+                      "
+                    >
+                      <span
+                        class="
+                          text-neutral-600
+                          dark:text-neutral-300
+                        "
+                      >{{ t('max_xp') }}</span>
                       <span class="font-semibold">{{ item.tier.maxXp.toLocaleString(locale) }} XP</span>
                     </div>
                   </div>
@@ -259,22 +327,51 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
                 <!-- Benefits: the tier's multiplier, while the store runs them. -->
                 <div
                   v-if="getMultiplierBonus(item.tier.pointsMultiplier)"
-                  class="rounded-lg bg-success-50 p-4 dark:bg-success-950"
+                  class="
+                    rounded-lg bg-success-50 p-4
+                    dark:bg-success-950
+                  "
                 >
-                  <h5 class="mb-3 flex items-center gap-2 text-sm font-semibold text-primary-950 dark:text-primary-50">
+                  <h5
+                    class="
+                      mb-3 flex items-center gap-2 text-sm font-semibold
+                      text-primary-950
+                      dark:text-primary-50
+                    "
+                  >
                     <UIcon name="i-heroicons-gift" class="size-4" />
                     {{ t('benefits') }}
                   </h5>
                   <div class="space-y-2">
                     <div class="flex items-start gap-2 text-sm">
-                      <UIcon name="i-heroicons-check-circle" class="mt-0.5 size-4 shrink-0 text-success-600 dark:text-success-400" />
-                      <span class="text-neutral-700 dark:text-neutral-300">
+                      <UIcon
+                        name="i-heroicons-check-circle" class="
+                          mt-0.5 size-4 shrink-0 text-success-600
+                          dark:text-success-400
+                        "
+                      />
+                      <span
+                        class="
+                          text-neutral-700
+                          dark:text-neutral-300
+                        "
+                      >
                         {{ t('points_multiplier', { bonus: getMultiplierBonus(item.tier.pointsMultiplier) }) }}
                       </span>
                     </div>
                     <div class="flex items-start gap-2 text-sm">
-                      <UIcon name="i-heroicons-check-circle" class="mt-0.5 size-4 shrink-0 text-success-600 dark:text-success-400" />
-                      <span class="text-neutral-700 dark:text-neutral-300">
+                      <UIcon
+                        name="i-heroicons-check-circle" class="
+                          mt-0.5 size-4 shrink-0 text-success-600
+                          dark:text-success-400
+                        "
+                      />
+                      <span
+                        class="
+                          text-neutral-700
+                          dark:text-neutral-300
+                        "
+                      >
                         {{ t('faster_earning') }}
                       </span>
                     </div>
@@ -290,36 +387,87 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
         <!-- How It Works -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-question-mark-circle" class="size-5 text-info-600 dark:text-info-400" />
-            <h4 class="font-semibold text-primary-950 dark:text-primary-50">
+            <UIcon
+              name="i-heroicons-question-mark-circle" class="
+                size-5 text-info-600
+                dark:text-info-400
+              "
+            />
+            <h4
+              class="
+                font-semibold text-primary-950
+                dark:text-primary-50
+              "
+            >
               {{ t('how_it_works_title') }}
             </h4>
           </div>
 
-          <ul class="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <ul
+            class="
+              space-y-2 text-sm text-neutral-700
+              dark:text-neutral-300
+            "
+          >
             <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-check" class="mt-0.5 size-4 shrink-0 text-primary-600 dark:text-primary-400" />
+              <UIcon
+                name="i-heroicons-check" class="
+                  mt-0.5 size-4 shrink-0 text-primary-600
+                  dark:text-primary-400
+                "
+              />
               <span>{{ t('how_it_works_1', { xp: xpPerLevelText }) }}</span>
             </li>
             <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-check" class="mt-0.5 size-4 shrink-0 text-primary-600 dark:text-primary-400" />
+              <UIcon
+                name="i-heroicons-check" class="
+                  mt-0.5 size-4 shrink-0 text-primary-600
+                  dark:text-primary-400
+                "
+              />
               <span>{{ t('how_it_works_2') }}</span>
             </li>
             <li class="flex items-start gap-2">
-              <UIcon name="i-heroicons-check" class="mt-0.5 size-4 shrink-0 text-primary-600 dark:text-primary-400" />
+              <UIcon
+                name="i-heroicons-check" class="
+                  mt-0.5 size-4 shrink-0 text-primary-600
+                  dark:text-primary-400
+                "
+              />
               <span>{{ t('how_it_works_3') }}</span>
             </li>
           </ul>
 
           <!-- Level Formula -->
-          <div class="rounded-lg bg-secondary-50 p-4 dark:bg-secondary-950">
-            <p class="mb-2 text-sm font-medium text-primary-950 dark:text-primary-50">
+          <div
+            class="
+              rounded-lg bg-secondary-50 p-4
+              dark:bg-secondary-950
+            "
+          >
+            <p
+              class="
+                mb-2 text-sm font-medium text-primary-950
+                dark:text-primary-50
+              "
+            >
               {{ t('formula') }}:
             </p>
-            <code class="block rounded bg-neutral-900 p-2 text-xs text-neutral-100 dark:bg-neutral-800">
+            <code
+              class="
+                block rounded-[0.25rem] bg-neutral-900 p-2 text-xs
+                text-neutral-100
+                dark:bg-neutral-800
+              "
+            >
               Level = 1 + (Total XP / {{ xpPerLevelText }})
             </code>
-            <div class="mt-3 space-y-1 text-xs text-neutral-600 dark:text-neutral-300">
+            <div
+              class="
+                mt-3 space-y-1 text-xs text-neutral-600
+                dark:text-neutral-300
+              "
+            >
               <div>0 XP = {{ t('level_value', { level: 1 }) }}</div>
               <div>{{ xpPerLevelText }} XP = {{ t('level_value', { level: 2 }) }}</div>
               <div>{{ xpPerFiveLevelsText }} XP = {{ t('level_value', { level: 6 }) }}</div>

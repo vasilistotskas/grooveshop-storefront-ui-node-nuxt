@@ -15,7 +15,10 @@ const { user } = useUserSession()
 <template>
   <div
     data-clarity-mask="true"
-    class="grid gap-2 md:gap-6"
+    class="
+      grid gap-2
+      md:gap-6
+    "
   >
     <div
       class="
@@ -34,8 +37,10 @@ const { user } = useUserSession()
     </div>
     <div
       class="
-        mx-auto w-full max-w-main xl:max-w-300 2xl:max-w-375
+        mx-auto w-full max-w-main
         md:p-0!
+        xl:max-w-300
+        2xl:max-w-375
       "
     >
       <div
@@ -60,7 +65,7 @@ const { user } = useUserSession()
           >
             <aside
               class="
-                hidden py-4 pl-0 relative
+                relative hidden py-4 pl-0
                 lg:block
                 xl:pl-8
               "

@@ -19,7 +19,7 @@ const { schema, state, isSubmitting, onSubmit } = useLogin()
          be the LCP at high priority (it was undiscoverable until JS ran). -->
     <div
       v-if="isMobileOrTablet"
-      class="absolute top-[-1px] z-0 h-64 w-full overflow-hidden"
+      class="absolute -top-px z-0 h-64 w-full overflow-hidden"
     >
       <NuxtImg
         src="/img/login-background.png"
@@ -39,8 +39,8 @@ const { schema, state, isSubmitting, onSubmit } = useLogin()
       :schema="schema"
       :state="state"
       class="
-        z-10 container mx-auto px-4 !pt-12 !pb-6
-        md:!p-0
+        z-10 container mx-auto px-4 pt-12! pb-6!
+        md:p-0!
       "
       @error="scrollToFirstFormError"
       @submit="onSubmit"
@@ -52,8 +52,9 @@ const { schema, state, isSubmitting, onSubmit } = useLogin()
           <div
             class="
               grid gap-6 rounded-lg bg-primary-100 px-4 py-8 shadow-lg
-              md:bg-transparent md:!p-0 md:shadow-none
-              dark:bg-primary-900 dark:md:bg-transparent
+              md:bg-transparent md:p-0! md:shadow-none
+              dark:bg-primary-900
+              dark:md:bg-transparent
             "
           >
             <div class="grid content-evenly items-center justify-center gap-1">

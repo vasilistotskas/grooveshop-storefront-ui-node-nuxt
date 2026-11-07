@@ -26,7 +26,7 @@ const shouldShow = computed(() => shouldFetch.value && productPoints.value != nu
 
 <template>
   <!-- Always render a container to prevent layout shift -->
-  <div v-if="shouldFetch" class="flex items-center gap-2 min-h-8">
+  <div v-if="shouldFetch" class="flex min-h-8 items-center gap-2">
     <!-- Skeleton placeholder during loading -->
     <USkeleton v-if="loading" class="h-8 w-32" />
 
@@ -38,7 +38,7 @@ const shouldShow = computed(() => shouldFetch.value && productPoints.value != nu
       variant="soft"
       class="flex items-center gap-1.5"
     >
-      <UIcon name="i-heroicons-star" class="h-4 w-4" />
+      <UIcon name="i-heroicons-star" class="size-4" />
       <span>{{ t('earn_points', { points: productPoints.potentialPoints }) }}</span>
     </UBadge>
   </div>

@@ -94,7 +94,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      container grid w-full gap-6 rounded-lg bg-primary-100 !p-0
+      container grid w-full gap-6 rounded-lg bg-primary-100 p-0!
       text-primary-950
       dark:bg-primary-900 dark:text-primary-50
     "
@@ -188,7 +188,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           />
           <template #fallback>
             <USkeleton
-              class="h-6 w-6"
+              class="size-6"
             />
           </template>
         </ClientOnly>

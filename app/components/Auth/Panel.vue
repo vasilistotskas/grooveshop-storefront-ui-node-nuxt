@@ -19,7 +19,10 @@ defineProps<{
   <div class="flex w-full max-w-110 flex-col gap-6">
     <span
       v-if="icon"
-      class="flex size-12 items-center justify-center rounded-[0.875rem] bg-elevated text-highlighted"
+      class="
+        flex size-12 items-center justify-center rounded-[0.875rem] bg-elevated
+        text-highlighted
+      "
     >
       <UIcon
         :name="icon"
@@ -30,7 +33,7 @@ defineProps<{
       <h1
         class="
           font-display text-[2rem]/[1.05] font-bold tracking-[-0.02em]
-          text-highlighted text-balance
+          text-balance text-highlighted
           lg:text-[2.5rem]/[1.05]
         "
       >

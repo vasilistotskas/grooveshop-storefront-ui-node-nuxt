@@ -50,7 +50,10 @@ watch(totalResults, total => emit('update:totalResults', total), { immediate: tr
 <template>
   <div
     ref="productGridRef"
-    class="flex w-full flex-col gap-4.5 lg:gap-7"
+    class="
+      flex w-full flex-col gap-4.5
+      lg:gap-7
+    "
   >
     <!-- The results' own heading, for the outline: the cards' titles are
          h3s, and the page's h1 is the listing's name. -->

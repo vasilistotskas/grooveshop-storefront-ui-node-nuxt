@@ -63,7 +63,10 @@ onMounted(() => {
         color="neutral"
         variant="outline"
         block
-        class="justify-between lg:hidden"
+        class="
+          justify-between
+          lg:hidden
+        "
       />
       <template #body>
         <ul class="flex flex-col gap-1 pb-4 text-sm">
@@ -73,7 +76,10 @@ onMounted(() => {
           >
             <a
               :href="`#${link.id}`"
-              class="block rounded-xl px-3 py-2.5 text-toned hover:bg-elevated"
+              class="
+                block rounded-xl px-3 py-2.5 text-toned
+                hover:bg-elevated
+              "
               @click="() => { isOpen = false }"
             >
               {{ link.text }}
@@ -102,7 +108,10 @@ onMounted(() => {
             class="block rounded-xl px-3 py-2.5 transition-colors"
             :class="activeId === link.id
               ? 'bg-elevated font-medium text-highlighted ring ring-default'
-              : 'text-toned hover:bg-elevated hover:text-highlighted'"
+              : `
+                text-toned
+                hover:bg-elevated hover:text-highlighted
+              `"
           >
             {{ link.text }}
           </a>

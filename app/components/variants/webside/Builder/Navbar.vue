@@ -81,8 +81,7 @@ onMounted(() => {
                 :to="'index'"
                 :aria-label="appTitle"
                 class="
-                  flex items-center gap-2 overflow-hidden text-base
-                  font-bold
+                  flex items-center gap-2 overflow-hidden text-base font-bold
                   md:w-auto
                 "
               >
@@ -120,8 +119,8 @@ onMounted(() => {
                 hydrate-on-interaction
                 class="
                   max-sm:pe-3
-                  max-sm:[&>[data-slot=trailing]]:hidden
-                  max-sm:[&>[data-slot=value]]:hidden
+                  max-sm:*:data-[slot=trailing]:hidden
+                  max-sm:*:data-[slot=value]:hidden
                 "
               />
               <UColorModeButton

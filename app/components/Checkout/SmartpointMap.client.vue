@@ -226,7 +226,10 @@ watch(lockersWithCoords, () => {
     <div
       v-if="state === 'unavailable'"
       role="status"
-      class="flex size-full flex-col items-center justify-center gap-3 p-4 text-center"
+      class="
+        flex size-full flex-col items-center justify-center gap-3 p-4
+        text-center
+      "
     >
       <UIcon name="i-lucide-map-pin-off" class="size-10 text-muted" />
       <p class="text-sm font-medium text-toned">
@@ -246,7 +249,10 @@ watch(lockersWithCoords, () => {
     <div
       v-else-if="lockersWithCoords.length === 0"
       role="status"
-      class="flex size-full flex-col items-center justify-center gap-2 p-4 text-center"
+      class="
+        flex size-full flex-col items-center justify-center gap-2 p-4
+        text-center
+      "
     >
       <UIcon name="i-lucide-map-pin-off" class="size-10 text-muted" />
       <p class="text-sm font-medium text-toned">

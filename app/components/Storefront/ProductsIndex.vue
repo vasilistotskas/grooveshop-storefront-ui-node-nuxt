@@ -18,7 +18,7 @@ const { sections: brandSections } = await useBuilderPage('products')
       href="#product-results"
       class="
         sr-only
-        focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50
+        focus:not-sr-only focus:fixed focus:inset-s-4 focus:top-4 focus:z-50
         focus:rounded-md focus:bg-inverted focus:px-4 focus:py-2
         focus:font-medium focus:text-inverted
       "
@@ -26,7 +26,12 @@ const { sections: brandSections } = await useBuilderPage('products')
       {{ t('skip_to_content') }}
     </a>
 
-    <UContainer class="pt-5 lg:pt-9">
+    <UContainer
+      class="
+        pt-5
+        lg:pt-9
+      "
+    >
       <PageBreadcrumb />
     </UContainer>
 
@@ -38,7 +43,12 @@ const { sections: brandSections } = await useBuilderPage('products')
       :section="section"
     />
 
-    <UContainer class="pt-3.5 pb-5 lg:pb-8">
+    <UContainer
+      class="
+        pt-3.5 pb-5
+        lg:pb-8
+      "
+    >
       <ProductsHeader
         :title="sectionsProvideHeading(brandSections) ? undefined : t('title')"
         :description="t('seo.description')"
@@ -48,7 +58,12 @@ const { sections: brandSections } = await useBuilderPage('products')
     <!-- The chips and the tree are the internal links into
          /products/category/**; without them those pages sit in the
          sitemap with no inbound link at all. -->
-    <UContainer class="flex flex-col gap-4.5 pb-12 lg:gap-7 lg:pb-22">
+    <UContainer
+      class="
+        flex flex-col gap-4.5 pb-12
+        lg:gap-7 lg:pb-22
+      "
+    >
       <ProductsCategoryChips />
       <ProductsBrowse />
     </UContainer>

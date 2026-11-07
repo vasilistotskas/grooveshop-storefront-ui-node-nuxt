@@ -125,7 +125,12 @@ async function copyCode(code: string) {
         </UButton>
       </UFieldGroup>
 
-      <UPageGrid class="sm:grid-cols-2 lg:grid-cols-3">
+      <UPageGrid
+        class="
+          sm:grid-cols-2
+          lg:grid-cols-3
+        "
+      >
         <WebsideOffersCard
           v-for="offer in rows"
           :key="offer.id"

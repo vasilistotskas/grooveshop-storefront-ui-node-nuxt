@@ -51,8 +51,8 @@ const { productUrl } = useUrls()
           />
           <span
             class="
-              absolute right-0 bottom-0 rounded-tl-md bg-primary-950/80
-              px-1 text-[10px] font-semibold text-white
+              absolute right-0 bottom-0 rounded-tl-md bg-primary-950/80 px-1
+              text-[10px] font-semibold text-white
             "
           >×{{ item.quantity }}</span>
         </div>

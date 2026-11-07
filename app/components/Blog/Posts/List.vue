@@ -79,7 +79,10 @@ const {
     <nav
       v-if="pills.length"
       :aria-label="t('filter_label')"
-      class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
+      class="
+        -mx-4 flex gap-2 overflow-x-auto px-4 pb-1
+        sm:mx-0 sm:flex-wrap sm:px-0
+      "
     >
       <UButton
         :to="allPill.to"

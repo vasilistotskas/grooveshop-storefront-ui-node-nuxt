@@ -87,7 +87,10 @@ async function onChanged() {
           :items="orderingItems"
           :aria-label="t('ordering.label')"
           size="lg"
-          class="min-h-11 w-full sm:w-48"
+          class="
+            min-h-11 w-full
+            sm:w-48
+          "
         />
       </template>
     </AccountPageHeader>
@@ -117,7 +120,10 @@ async function onChanged() {
       <li
         v-for="review in reviews.results"
         :key="review.id"
-        class="flex gap-3 rounded-md bg-default p-4 ring ring-default sm:gap-4 sm:p-5"
+        class="
+          flex gap-3 rounded-md bg-default p-4 ring ring-default
+          sm:gap-4 sm:p-5
+        "
       >
         <span class="size-14 shrink-0 overflow-hidden rounded-sm bg-elevated">
           <ImgWithFallback
@@ -133,7 +139,10 @@ async function onChanged() {
         <div class="flex min-w-0 flex-1 flex-col gap-1.5">
           <ULink
             :to="productUrl(review.product.id, review.product.slug)"
-            class="font-semibold text-highlighted hover:underline"
+            class="
+              font-semibold text-highlighted
+              hover:underline
+            "
           >
             {{ productName(review) }}
           </ULink>
@@ -141,7 +150,7 @@ async function onChanged() {
             <ProductReviewsStars :rate="review.rate" />
             <ProductReviewsStatusBadge :status="review.status" />
           </div>
-          <p class="wrap-anywhere text-sm text-toned">
+          <p class="text-sm wrap-anywhere text-toned">
             {{ extractTranslated(review, 'comment', locale) }}
           </p>
         </div>
@@ -160,7 +169,10 @@ async function onChanged() {
 
     <div
       v-else
-      class="flex flex-col items-start gap-2 rounded-md bg-default p-6 ring ring-default"
+      class="
+        flex flex-col items-start gap-2 rounded-md bg-default p-6 ring
+        ring-default
+      "
     >
       <p class="font-semibold text-highlighted">
         {{ t('empty.title') }}

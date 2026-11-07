@@ -69,7 +69,7 @@ const formSchema = computed(() => ({
           :description="t('alert.description')"
         />
 
-        <div class="space-y-4 pt-4 pb-4">
+        <div class="space-y-4 py-4">
           <div>
             <h3 class="mb-2 text-lg font-semibold">
               {{ t('add_key_title') }}
@@ -98,7 +98,7 @@ const formSchema = computed(() => ({
         </div>
 
         <DynamicForm
-          class="!flex flex-col"
+          class="flex! flex-col"
           :button-label="t('submit')"
           :schema="formSchema"
           :loading="loading"

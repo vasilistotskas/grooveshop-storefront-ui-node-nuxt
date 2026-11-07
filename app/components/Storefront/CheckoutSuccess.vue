@@ -169,16 +169,36 @@ async function openInvoice() {
     data-clarity-mask="true"
     class="flex flex-col"
   >
-    <UContainer class="py-8 lg:py-12">
-      <div class="mx-auto flex max-w-3xl flex-col gap-8 rounded-[1.25rem] bg-default p-6 ring ring-default sm:p-8">
+    <UContainer
+      class="
+        py-8
+        lg:py-12
+      "
+    >
+      <div
+        class="
+          mx-auto flex max-w-3xl flex-col gap-8 rounded-[1.25rem] bg-default p-6
+          ring ring-default
+          sm:p-8
+        "
+      >
         <div class="flex flex-col gap-4">
-          <span class="grid size-14 place-items-center rounded-2xl bg-volt text-on-volt">
+          <span
+            class="
+              grid size-14 place-items-center rounded-2xl bg-volt text-on-volt
+            "
+          >
             <UIcon
               name="i-lucide-check"
               class="size-7"
             />
           </span>
-          <h1 class="font-display text-3xl font-bold text-balance text-highlighted sm:text-4xl">
+          <h1
+            class="
+              font-display text-3xl font-bold text-balance text-highlighted
+              sm:text-4xl
+            "
+          >
             {{ order.firstName ? t('heading', { name: order.firstName }) : t('heading_anonymous') }}
           </h1>
           <i18n-t
@@ -207,7 +227,12 @@ async function openInvoice() {
           role="status"
         />
 
-        <div class="grid gap-8 md:grid-cols-2">
+        <div
+          class="
+            grid gap-8
+            md:grid-cols-2
+          "
+        >
           <section aria-labelledby="success-next">
             <h2
               id="success-next"
@@ -276,17 +301,25 @@ async function openInvoice() {
                   fit="cover"
                   loading="lazy"
                   densities="x1 x2"
-                  class="size-12 shrink-0 rounded-[0.625rem] bg-elevated object-cover"
+                  class="
+                    size-12 shrink-0 rounded-[0.625rem] bg-elevated object-cover
+                  "
                 />
                 <span class="min-w-0 flex-1 text-highlighted">{{ t('line', { quantity: item.quantity, name: nameOf(item) }) }}</span>
                 <span class="shrink-0 font-mono font-bold text-highlighted">{{ n(item.totalPrice || 0, 'currency') }}</span>
               </li>
             </ul>
-            <dl class="mt-4 flex flex-col gap-2.5 border-t border-default pt-4 text-sm">
+            <dl
+              class="
+                mt-4 flex flex-col gap-2.5 border-t border-default pt-4 text-sm
+              "
+            >
               <div
                 v-for="row in totals"
                 :key="row.key"
-                :class="['flex justify-between gap-3', row.saving && 'text-success']"
+                :class="['flex justify-between gap-3', row.saving && `
+                  text-success
+                `]"
               >
                 <dt :class="!row.saving && 'text-toned'">
                   {{ row.label }}
@@ -346,7 +379,10 @@ async function openInvoice() {
     <section
       v-if="recommendedPostsList.length"
       aria-labelledby="success-guides"
-      class="border-t border-default bg-default py-12 lg:py-16"
+      class="
+        border-t border-default bg-default py-12
+        lg:py-16
+      "
     >
       <UContainer class="flex flex-col gap-6">
         <div class="flex flex-col gap-1">
@@ -360,7 +396,12 @@ async function openInvoice() {
             {{ t('guides.lead') }}
           </p>
         </div>
-        <ul class="grid gap-6 sm:grid-cols-3">
+        <ul
+          class="
+            grid gap-6
+            sm:grid-cols-3
+          "
+        >
           <BlogPostCard
             v-for="post in recommendedPostsList"
             :key="post.id"

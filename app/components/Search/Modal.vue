@@ -232,13 +232,21 @@ function onPalettePointerMove(event: PointerEvent) {
         :placeholder="t('placeholder')"
         :close="isMobileOrTablet"
         :ui="{ input: '[&>input]:h-14 [&>input]:text-base' }"
-        class="max-md:h-dvh md:h-auto md:max-h-[80vh]"
+        class="
+          max-md:h-dvh
+          md:h-auto md:max-h-[80vh]
+        "
         @keydown.capture="onPaletteKeydown"
         @pointermove="onPalettePointerMove"
         @update:open="(value: boolean) => { localOpen = value }"
       >
         <template #product-leading="{ item }">
-          <span class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-elevated">
+          <span
+            class="
+              flex size-12 shrink-0 items-center justify-center overflow-hidden
+              rounded-xl bg-elevated
+            "
+          >
             <ImgWithFallback
               v-if="item.product.mainImagePath"
               :src="item.product.mainImagePath"
@@ -288,7 +296,10 @@ function onPalettePointerMove(event: PointerEvent) {
             </span>
             <span
               v-if="productAnnouncement(item.product)"
-              class="rounded-full bg-volt px-1.5 py-0.5 font-mono text-[0.6875rem] font-semibold text-on-volt"
+              class="
+                rounded-full bg-volt px-1.5 py-0.5 font-mono text-[0.6875rem]
+                font-semibold text-on-volt
+              "
             >
               −{{ productAnnouncement(item.product)!.percent }}%
             </span>
@@ -351,7 +362,10 @@ function onPalettePointerMove(event: PointerEvent) {
             <div
               v-if="statusLine && groups.length"
               role="status"
-              class="flex items-center justify-between gap-3 text-sm font-medium text-highlighted"
+              class="
+                flex items-center justify-between gap-3 text-sm font-medium
+                text-highlighted
+              "
             >
               {{ statusLine }}
               <UButton

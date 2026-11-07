@@ -16,7 +16,12 @@ const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
 </script>
 
 <template>
-  <div class="max-w-none pt-2 md:py-4">
+  <div
+    class="
+      max-w-none pt-2
+      md:py-4
+    "
+  >
     <div
       v-if="hasHtml"
       class="article"
@@ -24,7 +29,10 @@ const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
     />
     <p
       v-else
-      class="text-gray-500 dark:text-gray-200"
+      class="
+        text-gray-500
+        dark:text-gray-200
+      "
     >
       {{ t('no_description_available') }}
     </p>

@@ -90,9 +90,9 @@ const hasContent = computed(
   >
     <div
       class="
-        mx-auto grid w-full max-w-[1280px] items-end gap-x-[72px] gap-y-10
-        px-6 py-[clamp(64px,7vw,96px)]
-        grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))]
+        mx-auto grid w-full max-w-[1280px]
+        grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-end
+        gap-x-[72px] gap-y-10 px-6 py-[clamp(64px,7vw,96px)]
       "
     >
       <div class="flex flex-col items-start gap-[18px]">
@@ -108,7 +108,7 @@ const hasContent = computed(
         <h2
           v-if="heading"
           class="
-            font-display text-[length:clamp(36px,3.8vw,54px)] leading-[1.04]
+            font-display text-[clamp(36px,3.8vw,54px)] leading-[1.04]
             font-extrabold text-balance
           "
         >
@@ -124,9 +124,8 @@ const hasContent = computed(
           v-if="phone"
           :href="phoneHref"
           class="
-            font-display text-[length:clamp(44px,6vw,84px)] leading-none
-            font-extrabold tracking-[-0.02em]
-            [font-variant-numeric:lining-nums]
+            font-display text-[clamp(44px,6vw,84px)] leading-none font-extrabold
+            tracking-[-0.02em] [font-variant-numeric:lining-nums]
             focus-visible:outline-3 focus-visible:outline-offset-3
             focus-visible:outline-(--fy-focus)
           "
@@ -147,8 +146,8 @@ const hasContent = computed(
         <dl
           v-if="facts.length"
           class="
-            grid w-full gap-6
-            grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))]
+            grid w-full grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))]
+            gap-6
           "
         >
           <div

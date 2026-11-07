@@ -25,7 +25,7 @@ const tagline = computed(() =>
   <div
     v-if="photo"
     class="
-      mx-auto w-full max-w-(--container-8xl)
+      mx-auto w-full max-w-8xl
       lg:grid lg:grid-cols-2 lg:gap-8 lg:px-8
     "
   >

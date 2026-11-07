@@ -95,8 +95,8 @@ const numeral = (index: number) => index < 12 ? t(`numerals.${index + 1}`) : Str
         :aria-label="teaser ? label : undefined"
         :tabindex="teaser ? 0 : undefined"
         :class="teaser && `
-          relative -mx-6 snap-x snap-mandatory scroll-px-6 overflow-x-auto
-          px-6 [scrollbar-width:none]
+          relative -mx-6 snap-x snap-mandatory scroll-px-6 scrollbar-none
+          overflow-x-auto px-6
           focus-visible:outline-2 focus-visible:-outline-offset-2
           focus-visible:outline-(--fy-text)
           md:mx-0 md:overflow-visible md:px-0
@@ -126,8 +126,8 @@ const numeral = (index: number) => index < 12 ? t(`numerals.${index + 1}`) : Str
               <span
                 class="
                   flex items-center justify-center rounded-full border-[1.5px]
-                  border-dashed border-(--fy-text) font-display font-bold italic
-                  text-(--fy-text)
+                  border-dashed border-(--fy-text) font-display font-bold
+                  text-(--fy-text) italic
                 "
                 :class="framed
                   ? 'size-[70px] text-[34px]'
@@ -136,7 +136,8 @@ const numeral = (index: number) => index < 12 ? t(`numerals.${index + 1}`) : Str
             </div>
             <h3
               class="
-                font-display text-[26px] leading-[1.1] font-bold text-(--fy-text)
+                font-display text-[26px] leading-[1.1] font-bold
+                text-(--fy-text)
               "
             >
               {{ item.title }}

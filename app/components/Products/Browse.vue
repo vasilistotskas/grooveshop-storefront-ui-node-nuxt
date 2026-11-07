@@ -14,7 +14,12 @@ const totalResults = ref(0)
 </script>
 
 <template>
-  <div class="grid gap-x-12 lg:grid-cols-[17rem_minmax(0,1fr)]">
+  <div
+    class="
+      grid gap-x-12
+      lg:grid-cols-[17rem_minmax(0,1fr)]
+    "
+  >
     <ProductsSidebar
       ref="sidebar"
       class="lg:self-start"

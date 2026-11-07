@@ -160,7 +160,11 @@ const isCode = computed(() => props.offer.trigger === 'CODE')
       >
         <template v-if="offer.code">
           <span class="sr-only">{{ t('promotion.code_label') }}</span>
-          <code class="truncate font-mono font-bold tracking-[0.06em] text-highlighted">{{ offer.code }}</code>
+          <code
+            class="
+              truncate font-mono font-bold tracking-[0.06em] text-highlighted
+            "
+          >{{ offer.code }}</code>
           <!-- ClientOnly: `isSupported` is false during SSR and true on
                the client, so the button would appear mid-hydration and
                Vue would report a mismatch. -->

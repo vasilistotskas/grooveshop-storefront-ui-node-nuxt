@@ -62,7 +62,7 @@ const changeUserName = async () => {
 <template>
   <div
     class="
-      z-20 mx-auto grid w-full max-w-(--container-7xl) items-center p-0
+      z-20 mx-auto grid w-full max-w-7xl items-center p-0
       md:w-[calc(100%-8rem)]
     "
   >

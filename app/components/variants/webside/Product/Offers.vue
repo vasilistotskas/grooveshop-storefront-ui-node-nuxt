@@ -78,10 +78,7 @@ async function copyCode(code: string) {
         block
         size="sm"
         trailing-icon="i-heroicons-chevron-down"
-        class="
-          justify-between rounded-none border-t border-default
-          group
-        "
+        class="group justify-between rounded-none border-t border-default"
         :ui="{ trailingIcon: `
           transition-transform
           group-data-[state=open]:rotate-180
@@ -90,7 +87,9 @@ async function copyCode(code: string) {
       />
 
       <template #content>
-        <ul class="list-none divide-y divide-default border-t border-default p-0">
+        <ul
+          class="list-none divide-y divide-default border-t border-default p-0"
+        >
           <WebsideProductOfferRow
             v-for="offer in storeWide"
             :key="offer.id"

@@ -40,7 +40,10 @@ function stateOf(card: GiftCard): CardState {
 
     <div
       v-if="status === 'pending' && !data"
-      class="grid gap-4 sm:grid-cols-2"
+      class="
+        grid gap-4
+        sm:grid-cols-2
+      "
     >
       <USkeleton
         v-for="index in 2"
@@ -57,14 +60,19 @@ function stateOf(card: GiftCard): CardState {
 
     <ul
       v-else-if="cards.length"
-      class="grid gap-4 sm:grid-cols-2"
+      class="
+        grid gap-4
+        sm:grid-cols-2
+      "
     >
       <li
         v-for="card in cards"
         :key="card.uuid"
         :class="[
           'flex flex-col gap-4 rounded-[1.25rem] p-6',
-          stateOf(card) === 'usable' ? 'bg-inverted text-inverted' : 'bg-default ring ring-default',
+          stateOf(card) === 'usable' ? 'bg-inverted text-inverted' : `
+            bg-default ring ring-default
+          `,
         ]"
       >
         <div class="flex items-start justify-between gap-3">
@@ -78,7 +86,9 @@ function stateOf(card: GiftCard): CardState {
           </p>
           <UIcon
             name="i-lucide-gift"
-            :class="['size-5 shrink-0', stateOf(card) === 'usable' ? 'text-inverted' : 'text-toned']"
+            :class="['size-5 shrink-0', stateOf(card) === 'usable' ? `
+              text-inverted
+            ` : `text-toned`]"
           />
         </div>
         <p class="flex flex-wrap items-baseline gap-x-2">
@@ -88,11 +98,19 @@ function stateOf(card: GiftCard): CardState {
               stateOf(card) === 'usable' ? 'text-inverted' : 'text-highlighted',
             ]"
           >{{ n(Number(card.balance), 'currency') }}</span>
-          <span :class="['text-sm', stateOf(card) === 'usable' ? 'text-inverted/80' : 'text-toned']">
+          <span
+            :class="['text-sm', stateOf(card) === 'usable' ? `text-inverted/80` : `
+              text-toned
+            `]"
+          >
             {{ t('of', { value: n(Number(card.initialValue), 'currency') }) }}
           </span>
         </p>
-        <p :class="['text-sm', stateOf(card) === 'usable' ? 'text-inverted/80' : 'text-toned']">
+        <p
+          :class="['text-sm', stateOf(card) === 'usable' ? 'text-inverted/80' : `
+            text-toned
+          `]"
+        >
           <template v-if="stateOf(card) === 'usable' && card.expiresAt">
             <i18n-t keypath="expires">
               <template #date>
@@ -135,7 +153,13 @@ function stateOf(card: GiftCard): CardState {
       {{ t('empty') }}
     </p>
 
-    <div class="flex flex-wrap items-center justify-between gap-4 rounded-[1.25rem] bg-elevated p-5 sm:px-6">
+    <div
+      class="
+        flex flex-wrap items-center justify-between gap-4 rounded-[1.25rem]
+        bg-elevated p-5
+        sm:px-6
+      "
+    >
       <div class="flex min-w-0 flex-col gap-0.5">
         <p class="font-semibold text-highlighted">
           {{ t('send.title') }}

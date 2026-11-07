@@ -110,7 +110,12 @@ watch(() => props.serverErrors, applyServerErrors)
            address" option. Only shown when the shopper actually has
            saved addresses. Guests never see this section. -->
       <div v-if="hasSavedAddresses" class="space-y-4">
-        <h3 class="text-lg font-medium text-primary-900 dark:text-primary-100">
+        <h3
+          class="
+            text-lg font-medium text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('delivery_address') }}
         </h3>
         <WebsideCheckoutSavedAddresses
@@ -132,11 +137,21 @@ watch(() => props.serverErrors, applyServerErrors)
         <USeparator v-if="hasSavedAddresses" />
 
         <div class="space-y-4">
-          <h3 class="text-lg font-medium text-primary-900 dark:text-primary-100">
+          <h3
+            class="
+              text-lg font-medium text-primary-900
+              dark:text-primary-100
+            "
+          >
             {{ t('personal_information') }}
           </h3>
 
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div
+            class="
+              grid grid-cols-1 gap-4
+              md:grid-cols-2
+            "
+          >
             <UFormField :label="t('form.first_name')" name="firstName" required>
               <UInput
                 v-model="formState.firstName"
@@ -158,7 +173,12 @@ watch(() => props.serverErrors, applyServerErrors)
             </UFormField>
           </div>
 
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div
+            class="
+              grid grid-cols-1 gap-4
+              md:grid-cols-2
+            "
+          >
             <UFormField :label="t('form.email')" name="email" required>
               <UInput
                 v-model="formState.email"
@@ -188,7 +208,12 @@ watch(() => props.serverErrors, applyServerErrors)
 
         <!-- Address fields (country first — it sets the postcode format, the regions and the delivery options — then street → number → zipcode → city → region) -->
         <div class="space-y-4">
-          <h3 v-if="!hasSavedAddresses" class="text-lg font-medium text-primary-900 dark:text-primary-100">
+          <h3
+            v-if="!hasSavedAddresses" class="
+              text-lg font-medium text-primary-900
+              dark:text-primary-100
+            "
+          >
             {{ t('delivery_address') }}
           </h3>
 
@@ -202,8 +227,17 @@ watch(() => props.serverErrors, applyServerErrors)
             />
           </UFormField>
 
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <UFormField :label="t('form.street')" name="street" required class="md:col-span-2">
+          <div
+            class="
+              grid grid-cols-1 gap-4
+              md:grid-cols-3
+            "
+          >
+            <UFormField
+              :label="t('form.street')" name="street" required class="
+                md:col-span-2
+              "
+            >
               <UInput
                 v-model="formState.street"
                 size="xl"
@@ -224,7 +258,12 @@ watch(() => props.serverErrors, applyServerErrors)
             </UFormField>
           </div>
 
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div
+            class="
+              grid grid-cols-1 gap-4
+              md:grid-cols-2
+            "
+          >
             <UFormField :label="t('form.zipcode')" name="zipcode" required>
               <UInput
                 v-model="formState.zipcode"
@@ -327,7 +366,12 @@ watch(() => props.serverErrors, applyServerErrors)
                 class="w-full"
               />
             </UFormField>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div
+              class="
+                grid grid-cols-1 gap-4
+                md:grid-cols-2
+              "
+            >
               <UFormField
                 :label="t('form.invoice.vat_label')"
                 :help="t('form.invoice.vat_help')"
@@ -378,7 +422,12 @@ watch(() => props.serverErrors, applyServerErrors)
               color="primary"
             />
             <template v-if="!formState.billingSameAsShipping">
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div
+                class="
+                  grid grid-cols-1 gap-4
+                  md:grid-cols-2
+                "
+              >
                 <UFormField
                   :label="t('form.invoice.billing_street_label')"
                   name="billingStreet"
@@ -405,7 +454,12 @@ watch(() => props.serverErrors, applyServerErrors)
                   />
                 </UFormField>
               </div>
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div
+                class="
+                  grid grid-cols-1 gap-4
+                  md:grid-cols-2
+                "
+              >
                 <UFormField
                   :label="t('form.invoice.billing_city_label')"
                   name="billingCity"

@@ -34,8 +34,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
   <div
     v-if="available"
     class="
-      flex flex-col gap-3 rounded-[1.375rem] border border-default bg-muted
-      p-5
+      flex flex-col gap-3 rounded-[1.375rem] border border-default bg-muted p-5
       lg:p-7
     "
   >
@@ -46,8 +45,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
     >
       <p
         class="
-          font-display text-[1.375rem] font-bold tracking-tight
-          text-highlighted
+          font-display text-[1.375rem] font-bold tracking-tight text-highlighted
           lg:text-[1.625rem]
         "
       >
@@ -65,8 +63,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
     >
       <p
         class="
-          font-display text-[1.375rem] font-bold tracking-tight
-          text-highlighted
+          font-display text-[1.375rem] font-bold tracking-tight text-highlighted
           lg:text-[1.625rem]
         "
       >

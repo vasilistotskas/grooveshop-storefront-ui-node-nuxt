@@ -268,7 +268,7 @@ watch(modelValue, (isOpen) => {
                   sm:right-4
                 `,
               }"
-              class="h-full w-full"
+              class="size-full"
               @select="onSelect"
             >
               <div class="flex h-full max-h-full items-center justify-center">
@@ -380,8 +380,8 @@ watch(modelValue, (isOpen) => {
               >
                 <div
                   class="
-                    pointer-events-none h-10 w-10
-                    sm:h-12 sm:w-12
+                    pointer-events-none size-10
+                    sm:size-12
                   "
                 />
               </UTooltip>
@@ -397,8 +397,8 @@ watch(modelValue, (isOpen) => {
               >
                 <div
                   class="
-                    pointer-events-none h-10 w-10
-                    sm:h-12 sm:w-12
+                    pointer-events-none size-10
+                    sm:size-12
                   "
                 />
               </UTooltip>
@@ -437,8 +437,8 @@ watch(modelValue, (isOpen) => {
                 img-loading="lazy"
                 class="aspect-square rounded-lg object-cover"
                 :class="isMobileOrTablet ? `
-                  h-16 w-16
-                  sm:h-20 sm:w-20
+                  size-16
+                  sm:size-20
                 ` : 'w-full'"
               />
               <span
@@ -465,7 +465,7 @@ watch(modelValue, (isOpen) => {
         >
           <UIcon
             :name="isMobileOrTablet ? 'i-heroicons-arrows-pointing-in' : 'i-heroicons-magnifying-glass-plus'"
-            class="h-4 w-4"
+            class="size-4"
           />
           <span>{{ isMobileOrTablet ? t('swipeHint') : t('hoverToMagnify') }}</span>
         </div>
