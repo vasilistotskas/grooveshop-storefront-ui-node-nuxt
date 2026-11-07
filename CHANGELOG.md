@@ -1,3 +1,10 @@
+## [3.330.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.5...v3.330.6) (2026-11-07)
+
+
+### Bug Fixes
+
+* **websocket:** take the server's pong, and count rate limits per window ([#418](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/418)) ([75a7968](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/75a7968c5bfb18f765043688ab865d1eaceb7e81)), closes [#516](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/516) [#414](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/414)
+
 ## [3.330.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.4...v3.330.5) (2026-11-07)
 
 
