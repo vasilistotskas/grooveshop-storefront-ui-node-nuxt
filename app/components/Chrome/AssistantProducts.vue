@@ -92,8 +92,8 @@ onMounted(load)
     <ul
       v-else-if="products.length > 0"
       class="
-        -mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1
-        [scrollbar-width:thin]
+        -mx-1 flex snap-x snap-mandatory scrollbar-thin gap-2 overflow-x-auto
+        px-1 pb-1
       "
     >
       <ChromeAssistantProductCard

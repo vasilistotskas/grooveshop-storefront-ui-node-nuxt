@@ -88,7 +88,9 @@ const priorityAttrs = computed(() =>
        parent must also be shrinkable — see `Chrome/Navbar.vue`. -->
   <span
     v-if="!logoLightUrl"
-    :class="['min-w-0 truncate text-xl font-bold', inverted ? 'text-inverted' : 'text-highlighted']"
+    :class="['min-w-0 truncate text-xl font-bold', inverted ? 'text-inverted' : `
+      text-highlighted
+    `]"
     :style="{ lineHeight: `${height}px` }"
   >{{ tenantStore.storeName }}</span>
   <NuxtImg
@@ -98,7 +100,10 @@ const priorityAttrs = computed(() =>
     :width="width"
     :height="height"
     fit="inside"
-    :class="[imgClass, hasDistinctDark ? (inverted ? 'hidden dark:block' : 'dark:hidden') : '']"
+    :class="[imgClass, hasDistinctDark ? (inverted ? `
+      hidden
+      dark:block
+    ` : `dark:hidden`) : '']"
     alt=""
     quality="90"
     v-bind="priorityAttrs"
@@ -110,7 +115,10 @@ const priorityAttrs = computed(() =>
     :width="width"
     :height="height"
     fit="inside"
-    :class="[imgClass, inverted ? 'dark:hidden' : 'hidden dark:block']"
+    :class="[imgClass, inverted ? 'dark:hidden' : `
+      hidden
+      dark:block
+    `]"
     alt=""
     quality="90"
     v-bind="priorityAttrs"

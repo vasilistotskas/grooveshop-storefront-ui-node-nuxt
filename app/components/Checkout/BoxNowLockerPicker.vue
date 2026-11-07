@@ -166,9 +166,12 @@ watch(open, (val) => {
         <!-- Loading skeleton while iframe is loading -->
         <div
           v-if="loading"
-          class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-default"
+          class="
+            absolute inset-0 z-10 flex flex-col items-center justify-center
+            gap-4 bg-default
+          "
         >
-          <USkeleton class="h-full w-full" />
+          <USkeleton class="size-full" />
           <p class="absolute text-sm text-toned">
             {{ t('shipping.boxnow.iframe_loading') }}
           </p>
@@ -183,7 +186,10 @@ watch(open, (val) => {
              no error, which reads as "the lockers don't load". -->
         <div
           v-if="timedOut"
-          class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-default p-6 text-center"
+          class="
+            absolute inset-0 z-10 flex flex-col items-center justify-center
+            gap-3 bg-default p-6 text-center
+          "
         >
           <UIcon name="i-lucide-triangle-alert" class="size-8 text-toned" />
           <p class="text-sm text-toned">

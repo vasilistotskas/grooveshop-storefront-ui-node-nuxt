@@ -201,7 +201,8 @@ const arrowButton = {
               line-clamp-2 text-sm leading-snug font-semibold text-neutral-950
               transition-colors
               group-hover/link:text-primary-600
-              dark:text-neutral-50 dark:group-hover/link:text-primary-400
+              dark:text-neutral-50
+              dark:group-hover/link:text-primary-400
             "
           >
             {{ productName(item.product) }}

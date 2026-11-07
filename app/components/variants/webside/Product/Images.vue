@@ -116,7 +116,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
                 text-sm font-medium text-gray-900 backdrop-blur-sm
               "
             >
-              <UIcon name="i-heroicons-magnifying-glass-plus" class="h-5 w-5" />
+              <UIcon name="i-heroicons-magnifying-glass-plus" class="size-5" />
               <span
                 class="
                   hidden
@@ -199,7 +199,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
         dark:text-gray-200
       "
     >
-      <UIcon name="i-heroicons-information-circle" class="h-4 w-4" />
+      <UIcon name="i-heroicons-information-circle" class="size-4" />
       <span>{{ t('doubleTapHint') }}</span>
     </div>
 

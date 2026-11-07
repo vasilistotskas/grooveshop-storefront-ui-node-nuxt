@@ -29,7 +29,7 @@ const localePath = useLocalePath()
   >
     <div class="flex min-w-0 flex-1 flex-col">
       <span class="text-xs text-toned">{{ t('total') }}</span>
-      <span class="font-mono text-base font-bold tabular-nums text-highlighted">{{ n(total, 'currency') }}</span>
+      <span class="font-mono text-base font-bold text-highlighted tabular-nums">{{ n(total, 'currency') }}</span>
     </div>
     <UButton
       :to="localePath('checkout')"

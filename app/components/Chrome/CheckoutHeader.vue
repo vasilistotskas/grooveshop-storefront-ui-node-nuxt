@@ -19,8 +19,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
   <header class="sticky top-0 z-40 border-b border-default bg-default">
     <UContainer
       class="
-        grid h-(--ui-header-height) grid-cols-[1fr_auto_1fr] items-center
-        gap-3
+        grid h-(--ui-header-height) grid-cols-[1fr_auto_1fr] items-center gap-3
       "
     >
       <UButton
@@ -44,7 +43,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
       <Anchor
         :to="'index'"
         :aria-label="appTitle"
-        class="!w-auto flex items-center"
+        class="flex w-auto! items-center"
       >
         <TenantLogo
           :width="132"

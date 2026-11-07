@@ -69,7 +69,10 @@ const showCanvas = computed(
   >
     <div
       v-if="showEmbed"
-      class="h-64 overflow-hidden rounded-xl ring ring-default md:h-72"
+      class="
+        h-64 overflow-hidden rounded-xl ring ring-default
+        md:h-72
+      "
     >
       <iframe
         :src="embedUrl"
@@ -87,7 +90,10 @@ const showCanvas = computed(
          height when the map opens. -->
     <div
       v-else-if="showCanvas"
-      class="h-64 md:h-72"
+      class="
+        h-64
+        md:h-72
+      "
     >
       <div
         v-if="!mapRequested"

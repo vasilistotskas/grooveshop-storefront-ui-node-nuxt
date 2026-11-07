@@ -11,8 +11,18 @@ useSeoMeta({
     :title="t('title')"
     :lead="t('lead')"
   >
-    <div class="flex items-center gap-3 rounded-[1.125rem] border border-default bg-default p-4">
-      <span class="flex size-10 shrink-0 items-center justify-center rounded-[0.75rem] bg-elevated">
+    <div
+      class="
+        flex items-center gap-3 rounded-[1.125rem] border border-default
+        bg-default p-4
+      "
+    >
+      <span
+        class="
+          flex size-10 shrink-0 items-center justify-center rounded-[0.75rem]
+          bg-elevated
+        "
+      >
         <UIcon
           name="i-lucide-shield-check"
           class="size-5 text-highlighted"

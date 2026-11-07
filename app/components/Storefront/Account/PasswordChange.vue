@@ -17,7 +17,12 @@ useHead({ title })
       :title="title"
       :lead="hasCurrentPassword ? t('change.lead') : t('set.lead')"
     />
-    <div class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6">
+    <div
+      class="
+        rounded-[1.25rem] bg-default p-5 ring ring-default
+        sm:p-6
+      "
+    >
       <AccountPasswordChangeForm />
     </div>
   </div>

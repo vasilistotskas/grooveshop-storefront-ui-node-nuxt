@@ -32,7 +32,7 @@ const filterItems = computed(() => [
   <WebsideAccountAreaPageWrapper
     class="
       flex flex-col gap-4
-      md:mt-1 md:gap-6 md:!p-0
+      md:mt-1 md:gap-6 md:p-0!
     "
   >
     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -127,9 +127,9 @@ const filterItems = computed(() => [
               <div class="flex items-center gap-2">
                 <h3
                   class="
-                  truncate text-sm font-semibold text-primary-950
-                  dark:text-primary-50
-                "
+                    truncate text-sm font-semibold text-primary-950
+                    dark:text-primary-50
+                  "
                 >
                   {{ extractTranslated(row.notification, 'title', locale) }}
                 </h3>
@@ -143,17 +143,17 @@ const filterItems = computed(() => [
               </div>
               <p
                 class="
-                text-sm text-neutral-700
-                dark:text-neutral-300
-              "
+                  text-sm text-neutral-700
+                  dark:text-neutral-300
+                "
               >
                 {{ extractTranslated(row.notification, 'message', locale) }}
               </p>
               <div
                 class="
-                flex flex-wrap items-center gap-2 text-xs text-neutral-700
-                dark:text-neutral-200
-              "
+                  flex flex-wrap items-center gap-2 text-xs text-neutral-700
+                  dark:text-neutral-200
+                "
               >
                 <NuxtTime
                   :datetime="row.createdAt"
@@ -161,8 +161,14 @@ const filterItems = computed(() => [
                   relative
                   numeric="auto"
                 />
-                <span v-if="row.notification?.link" class="inline-flex items-center gap-1">
-                  <UIcon name="i-heroicons-arrow-top-right-on-square" class="size-3" />
+                <span
+                  v-if="row.notification?.link" class="
+                    inline-flex items-center gap-1
+                  "
+                >
+                  <UIcon
+                    name="i-heroicons-arrow-top-right-on-square" class="size-3"
+                  />
                   <span>{{ t('card.open') }}</span>
                 </span>
               </div>

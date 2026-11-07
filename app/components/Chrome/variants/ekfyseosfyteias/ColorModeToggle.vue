@@ -29,10 +29,10 @@ const toggle = () => {
       type="button"
       class="
         inline-flex size-11 items-center justify-center rounded-full border-2
-        border-(color:--fy-text) text-(--fy-text)
+        border-(--fy-text) text-(--fy-text)
         hover:bg-(--fy-chip)
         focus-visible:outline-3 focus-visible:outline-offset-2
-        focus-visible:outline-(color:--fy-focus)
+        focus-visible:outline-(--fy-focus)
       "
       :aria-pressed="dark"
       :aria-label="t('dark_theme')"

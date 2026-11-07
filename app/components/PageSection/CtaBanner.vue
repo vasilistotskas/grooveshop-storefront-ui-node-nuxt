@@ -64,7 +64,10 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
           <h2
             v-if="heading"
             :class="[
-              'font-display text-2xl font-semibold tracking-tight text-balance md:text-3xl',
+              `
+                font-display text-2xl font-semibold tracking-tight text-balance
+                md:text-3xl
+              `,
               !backgroundColor && 'text-highlighted',
             ]"
           >
@@ -73,7 +76,10 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
           <p
             v-if="description"
             :class="[
-              'text-base text-pretty md:text-lg',
+              `
+                text-base text-pretty
+                md:text-lg
+              `,
               !backgroundColor && 'text-muted',
             ]"
           >
@@ -87,8 +93,14 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
           :label="buttonText"
           :color="isDarkBackground ? 'neutral' : 'secondary'"
           size="xl"
-          class="shrink-0 self-start md:self-auto"
-          :class="isDarkBackground && 'bg-white text-neutral-950 hover:bg-white/90'"
+          class="
+            shrink-0 self-start
+            md:self-auto
+          "
+          :class="isDarkBackground && `
+            bg-white text-neutral-950
+            hover:bg-white/90
+          `"
         />
       </div>
     </template>

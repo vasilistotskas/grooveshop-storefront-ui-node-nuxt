@@ -82,8 +82,8 @@ onKeyStroke('Escape', () => {
 <template>
   <header
     class="
-      border-b-[1.5px] border-dashed border-(color:--fy-rule) bg-(--fy-ground)
-      text-(color:--fy-text)
+      border-b-[1.5px] border-dashed border-(--fy-rule) bg-(--fy-ground)
+      text-(--fy-text)
     "
   >
     <ChromeAccessibilityToolbar />
@@ -101,7 +101,7 @@ onKeyStroke('Escape', () => {
         class="
           flex min-w-0 items-center gap-2.5 rounded-sm
           focus-visible:outline-3 focus-visible:outline-offset-3
-          focus-visible:outline-(color:--fy-focus)
+          focus-visible:outline-(--fy-focus)
           sm:gap-3.5
         "
       >
@@ -118,7 +118,12 @@ onKeyStroke('Escape', () => {
             img-class="object-center"
           />
         </span>
-        <span class="flex min-w-0 flex-col gap-0.5 sm:gap-[3px]">
+        <span
+          class="
+            flex min-w-0 flex-col gap-0.5
+            sm:gap-[3px]
+          "
+        >
           <span
             class="
               font-display text-[19px] leading-none font-extrabold
@@ -128,7 +133,7 @@ onKeyStroke('Escape', () => {
           >{{ tenantStore.storeName }}</span>
           <span
             class="
-              text-[11.5px] font-medium text-(color:--fy-text-muted)
+              text-[11.5px] font-medium text-(--fy-text-muted)
               sm:text-[12.5px] sm:tracking-[0.02em]
             "
           >
@@ -138,7 +143,12 @@ onKeyStroke('Escape', () => {
         </span>
       </NuxtLinkLocale>
 
-      <div class="flex items-center gap-x-5 max-xl:hidden">
+      <div
+        class="
+          flex items-center gap-x-5
+          max-xl:hidden
+        "
+      >
         <nav
           v-if="links.length"
           :aria-label="t('navigation')"
@@ -155,7 +165,7 @@ onKeyStroke('Escape', () => {
                   text-[15.5px] font-semibold
                   hover:bg-(--fy-chip)
                   focus-visible:outline-3 focus-visible:outline-offset-2
-                  focus-visible:outline-(color:--fy-focus)
+                  focus-visible:outline-(--fy-focus)
                 "
                 :class="isActive(item.to) && 'bg-(--fy-chip)'"
                 :aria-current="isActive(item.to) ? 'page' : undefined"
@@ -178,10 +188,10 @@ onKeyStroke('Escape', () => {
           class="
             inline-flex min-h-[46px] items-center gap-2.5 rounded-full
             bg-(--fy-ink-band) px-5 text-[15px] font-semibold tracking-[0.01em]
-            text-(color:--fy-on-ink)
+            text-(--fy-on-ink)
             focus-visible:outline-3 focus-visible:outline-offset-2
-            focus-visible:outline-(color:--fy-focus)
-            dark:ring-1 dark:ring-(color:--fy-rule-on-ink)
+            focus-visible:outline-(--fy-focus)
+            dark:ring-1 dark:ring-(--fy-rule-on-ink)
           "
         >
           <UIcon
@@ -198,9 +208,9 @@ onKeyStroke('Escape', () => {
         type="button"
         class="
           flex size-12 shrink-0 items-center justify-center rounded-full
-          border-2 border-(color:--fy-text)
+          border-2 border-(--fy-text)
           focus-visible:outline-3 focus-visible:outline-offset-3
-          focus-visible:outline-(color:--fy-focus)
+          focus-visible:outline-(--fy-focus)
           xl:hidden
         "
         :aria-label="t('menu')"
@@ -221,8 +231,8 @@ onKeyStroke('Escape', () => {
       :id="MENU_ID"
       :aria-label="t('navigation')"
       class="
-        mx-auto flex w-full max-w-(--ui-container) flex-col gap-1 border-t-[1.5px]
-        border-dashed border-(color:--fy-rule) px-4 pt-2 pb-6
+        mx-auto flex w-full max-w-(--ui-container) flex-col gap-1
+        border-t-[1.5px] border-dashed border-(--fy-rule) px-4 pt-2 pb-6
         sm:px-6
         xl:hidden
       "
@@ -232,10 +242,10 @@ onKeyStroke('Escape', () => {
         :key="item.label"
         :to="(item.to ?? '/') as RouteLocationNamedI18n"
         class="
-          flex min-h-[52px] items-center gap-3 rounded-sm font-display text-[26px]
-          font-bold
+          flex min-h-[52px] items-center gap-3 rounded-sm font-display
+          text-[26px] font-bold
           focus-visible:outline-3 focus-visible:outline-offset-2
-          focus-visible:outline-(color:--fy-focus)
+          focus-visible:outline-(--fy-focus)
         "
         :aria-current="isActive(item.to) ? 'page' : undefined"
       >
@@ -251,10 +261,10 @@ onKeyStroke('Escape', () => {
         :href="telHref"
         class="
           mt-3 flex min-h-[54px] items-center justify-center rounded-full
-          bg-(--fy-ink-band) text-base font-semibold text-(color:--fy-on-ink)
+          bg-(--fy-ink-band) text-base font-semibold text-(--fy-on-ink)
           focus-visible:outline-3 focus-visible:outline-offset-2
-          focus-visible:outline-(color:--fy-focus)
-          dark:ring-1 dark:ring-(color:--fy-rule-on-ink)
+          focus-visible:outline-(--fy-focus)
+          dark:ring-1 dark:ring-(--fy-rule-on-ink)
         "
       >{{ t('call', { phone }) }}</a>
       <div class="mt-3 flex items-center gap-3">

@@ -31,7 +31,7 @@ const lowStockCount = computed(() => lowStockLeft(product.value))
       border-default bg-default p-2
     "
   >
-    <div class="aspect-[4/3] overflow-hidden rounded-lg bg-elevated">
+    <div class="aspect-4/3 overflow-hidden rounded-lg bg-elevated">
       <ImgWithFallback
         class="size-full object-cover"
         :class="outOfStock && 'opacity-60 grayscale'"
@@ -60,17 +60,17 @@ const lowStockCount = computed(() => lowStockLeft(product.value))
     </NuxtLink>
 
     <div class="flex flex-wrap items-baseline gap-x-1.5">
-      <span class="font-mono text-sm font-bold tabular-nums text-highlighted">
+      <span class="font-mono text-sm font-bold text-highlighted tabular-nums">
         {{ $i18n.n(displayFinalPrice, 'currency') }}
       </span>
       <ProductPriorPrice
         v-if="announcement"
         :price="announcement.priorPrice"
-        class="font-mono text-xs tabular-nums text-muted"
+        class="font-mono text-xs text-muted tabular-nums"
       />
       <s
         v-else-if="wasPrice"
-        class="font-mono text-xs tabular-nums text-muted"
+        class="font-mono text-xs text-muted tabular-nums"
       >
         {{ $i18n.n(wasPrice, 'currency') }}
       </s>

@@ -9,14 +9,13 @@ import * as z from 'zod'
  */
 export function useBlogCommentCard(options: {
   comment: Ref<BlogComment>
-  depth: Ref<number>
   paginationType: Ref<PaginationType>
   pageSize: Ref<number>
   t: ReturnType<typeof useI18n>['t']
   onReplyAdd: (comment: BlogComment) => void
   onShowMoreReplies: (commentId: number) => void
 }) {
-  const { comment, depth, paginationType, pageSize, t } = options
+  const { comment, paginationType, pageSize, t } = options
 
   const toast = useToast()
   const { notify } = useApiError()
@@ -142,16 +141,6 @@ export function useBlogCommentCard(options: {
     if (await fetchReplies(cursor.value)) showReplies.value = true
   }
 
-  const commentCardClass = computed(() => {
-    let classes = 'card'
-
-    if (depth.value > 0) {
-      classes += ' reply'
-    }
-
-    return classes
-  })
-
   const onReplyButtonClick = async () => {
     if (!loggedIn.value) {
       toast.add({
@@ -252,7 +241,6 @@ export function useBlogCommentCard(options: {
     likeClicked,
     replyCommentFormSchema,
     onReplySubmit,
-    commentCardClass,
     onReplyButtonClick,
     onShowMoreRepliesButtonClick,
     hasReplies,

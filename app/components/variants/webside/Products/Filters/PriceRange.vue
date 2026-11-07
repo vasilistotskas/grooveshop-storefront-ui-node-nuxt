@@ -137,17 +137,24 @@ watch(
     <!-- Price range display -->
     <div
       class="
-        flex items-center justify-between
-        px-3 py-2 rounded-lg
-        bg-neutral-50 dark:bg-neutral-800/50
+        flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2
+        dark:bg-neutral-800/50
       "
     >
-      <span class="text-sm text-neutral-600 dark:text-neutral-300">
+      <span
+        class="
+          text-sm text-neutral-600
+          dark:text-neutral-300
+        "
+      >
         {{ t('selected_range') }} :
       </span>
       <span
         :id="rangeTextId"
-        class="text-sm font-semibold text-primary-600 dark:text-primary-400"
+        class="
+          text-sm font-semibold text-primary-600
+          dark:text-primary-400
+        "
       >
         {{ n(currentPriceRange[0] ?? 0, 'currency') }} – {{ n(currentPriceRange[1] ?? 0, 'currency') }}
       </span>
@@ -173,7 +180,10 @@ watch(
       <div class="space-y-1.5">
         <label
           for="price-min-input"
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          class="
+            text-sm font-medium text-neutral-700
+            dark:text-neutral-300
+          "
         >
           {{ t('minimum') }}
         </label>
@@ -189,7 +199,7 @@ watch(
           @change="onMinChange"
         >
           <template #leading>
-            <span class="text-neutral-400 text-sm">{{ currencySymbol }}</span>
+            <span class="text-sm text-neutral-400">{{ currencySymbol }}</span>
           </template>
         </UInput>
       </div>
@@ -197,7 +207,10 @@ watch(
       <div class="space-y-1.5">
         <label
           for="price-max-input"
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          class="
+            text-sm font-medium text-neutral-700
+            dark:text-neutral-300
+          "
         >
           {{ t('maximum') }}
         </label>
@@ -213,7 +226,7 @@ watch(
           @change="onMaxChange"
         >
           <template #leading>
-            <span class="text-neutral-400 text-sm">{{ currencySymbol }}</span>
+            <span class="text-sm text-neutral-400">{{ currencySymbol }}</span>
           </template>
         </UInput>
       </div>

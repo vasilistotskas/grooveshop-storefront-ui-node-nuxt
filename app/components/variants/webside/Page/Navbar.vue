@@ -192,25 +192,25 @@ const items = computed(() => [
                   :aria-current="item.active ? 'page' : undefined"
                   class="
                     relative text-lg capitalize transition-colors
-                    after:absolute after:right-0 after:-bottom-1
-                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
-                    after:transition-transform after:duration-200
+                    after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5
+                    after:bg-(--ui-secondary) after:transition-transform
+                    after:duration-200
                     motion-reduce:after:transition-none
                   "
                   :class="
                     item.active
                       ? `
-                          font-bold text-primary-900
-                          dark:text-primary-50
-                          after:scale-x-100
-                        `
+                        font-bold text-primary-900
+                        after:scale-x-100
+                        dark:text-primary-50
+                      `
                       : `
-                          text-primary-700
-                          hover:text-primary-900
-                          dark:text-primary-200
-                          hover:dark:text-primary-50
-                          after:scale-x-0
-                        `
+                        text-primary-700
+                        after:scale-x-0
+                        hover:text-primary-900
+                        dark:text-primary-200
+                        hover:dark:text-primary-50
+                      `
                   "
                 >
                   {{ item.label }}
@@ -227,8 +227,7 @@ const items = computed(() => [
             <li
               v-if="tenantStore.isMultilingual"
               class="
-                relative grid items-center justify-center
-                justify-items-center
+                relative grid items-center justify-center justify-items-center
               "
             >
               <LazyWebsideLanguageSwitcher hydrate-on-interaction />
@@ -236,9 +235,9 @@ const items = computed(() => [
             <li
               v-if="blogEnabled"
               class="
-                  relative grid max-w-6 items-center justify-center
-                  justify-items-center
-                "
+                relative grid max-w-6 items-center justify-center
+                justify-items-center
+              "
             >
               <UButton
                 :aria-label="t('favourites')"
@@ -278,9 +277,9 @@ const items = computed(() => [
               <li
                 v-if="loggedIn"
                 class="
-                    relative grid max-w-6 items-center justify-center
-                    justify-items-center
-                  "
+                  relative grid max-w-6 items-center justify-center
+                  justify-items-center
+                "
               >
                 <LazyWebsideUserNotificationsBell />
               </li>
@@ -288,9 +287,9 @@ const items = computed(() => [
                 <li
                   v-if="loggedIn"
                   class="
-                      relative grid max-w-6 items-center justify-center
-                      justify-items-center
-                    "
+                    relative grid max-w-6 items-center justify-center
+                    justify-items-center
+                  "
                 >
                   <UButton
                     icon="i-heroicons-bell"
@@ -310,15 +309,18 @@ const items = computed(() => [
             </ClientOnly>
             <li
               v-if="cartEnabled"
-              class="relative grid max-w-6 items-center justify-center justify-items-center"
+              class="
+                relative grid max-w-6 items-center justify-center
+                justify-items-center
+              "
             >
               <WebsideCartButton />
             </li>
             <li
               v-if="loggedIn && user"
               class="
-                  relative grid items-center justify-center justify-items-center
-                "
+                relative grid items-center justify-center justify-items-center
+              "
             >
               <UDropdownMenu
                 :items="items"
@@ -353,9 +355,9 @@ const items = computed(() => [
                     <p>{{ t('email.title') }}</p>
                     <p
                       class="
-                          truncate font-medium text-primary-900
-                          dark:text-primary-50
-                        "
+                        truncate font-medium text-primary-900
+                        dark:text-primary-50
+                      "
                     >
                       {{ item.label }}
                     </p>
@@ -368,9 +370,9 @@ const items = computed(() => [
                     v-if="item.icon"
                     :name="item.icon"
                     class="
-                        ms-auto size-4 shrink-0 text-primary-900
-                        dark:text-primary-100
-                      "
+                      ms-auto size-4 shrink-0 text-primary-900
+                      dark:text-primary-100
+                    "
                   />
                 </template>
               </UDropdownMenu>
@@ -378,20 +380,20 @@ const items = computed(() => [
             <li
               v-else
               class="
-                  relative grid items-center justify-center justify-items-center
-                "
+                relative grid items-center justify-center justify-items-center
+              "
             >
               <Anchor
                 :title="t('login')"
                 :aria-label="t('login')"
                 :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
                 class="
-                    flex size-[30px] items-center self-center text-[1.5rem]
-                    text-primary-700
-                    hover:text-primary-900
-                    dark:text-primary-200
-                    hover:dark:text-primary-50
-                  "
+                  flex size-[30px] items-center self-center text-[1.5rem]
+                  text-primary-700
+                  hover:text-primary-900
+                  dark:text-primary-200
+                  hover:dark:text-primary-50
+                "
               >
                 <UIcon name="i-fa6-solid-circle-user" />
                 <span class="sr-only">{{ t('login') }}</span>

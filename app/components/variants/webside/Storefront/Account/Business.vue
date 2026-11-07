@@ -22,8 +22,18 @@ const statusColor = computed(() => {
 </script>
 
 <template>
-  <WebsideAccountAreaPageWrapper class="flex flex-col gap-4 md:mt-1 md:gap-8 md:p-0!">
-    <WebsidePageTitle class="text-center md:mt-0">
+  <WebsideAccountAreaPageWrapper
+    class="
+      flex flex-col gap-4
+      md:mt-1 md:gap-8 md:p-0!
+    "
+  >
+    <WebsidePageTitle
+      class="
+        text-center
+        md:mt-0
+      "
+    >
       {{ t('title') }}
     </WebsidePageTitle>
 
@@ -60,7 +70,10 @@ const statusColor = computed(() => {
         ref="form"
         :schema="schema"
         :state="state"
-        class="grid gap-4 md:grid-cols-2"
+        class="
+          grid gap-4
+          md:grid-cols-2
+        "
         @error="scrollToFirstFormError"
         @submit="onSubmit"
       >

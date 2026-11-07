@@ -87,8 +87,7 @@ const handleItemsPerPageChange = (value: unknown) => {
   <div>
     <div
       class="
-        hidden items-center justify-between gap-4 border-b border-default
-        pb-4.5
+        hidden items-center justify-between gap-4 border-b border-default pb-4.5
         lg:flex
       "
     >
@@ -121,7 +120,12 @@ const handleItemsPerPageChange = (value: unknown) => {
       </div>
     </div>
 
-    <div class="flex flex-col gap-3.5 lg:hidden">
+    <div
+      class="
+        flex flex-col gap-3.5
+        lg:hidden
+      "
+    >
       <div class="grid grid-cols-2 gap-2.5">
         <UButton
           color="neutral"

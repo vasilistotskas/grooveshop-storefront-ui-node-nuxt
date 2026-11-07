@@ -35,7 +35,7 @@ defineProps({
       </span>
       <UIcon
         name="i-heroicons-exclamation-circle"
-        class="h-6 w-6 text-red-500"
+        class="size-6 text-red-500"
       />
     </div>
   </UCard>

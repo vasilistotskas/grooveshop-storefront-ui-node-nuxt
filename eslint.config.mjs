@@ -1,4 +1,5 @@
 import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss'
+import { getDefaultSelectors } from 'eslint-plugin-better-tailwindcss/defaults'
 import vitest from '@vitest/eslint-plugin'
 // @ts-check
 import withNuxt from './.nuxt/eslint.config.mjs'
@@ -109,6 +110,18 @@ const SESSION_READ = {
   selector: 'CallExpression[callee.name=/^(getUserSession|useSession)$/]',
   message: 'This mints a session for a visitor without one. Read with readUserSession (server/utils/auth.ts); only a file that writes a session on purpose (SESSION_WRITERS in eslint.config.mjs) calls it.',
 }
+/**
+ * The better-tailwindcss default selectors minus the one that reads
+ * variables named `style` / `styles` as class lists: ours hold CSS, and its
+ * line-wrapping fix rewrote the CSS fixtures of two specs. Matched on the
+ * default's name, so a plugin release that renames it fails here, loudly,
+ * instead of linting CSS strings again.
+ */
+const TAILWIND_DEFAULT_SELECTORS = getDefaultSelectors().filter(selector => !(selector.kind === 'variable' && selector.name === '^styles?$'))
+if (TAILWIND_DEFAULT_SELECTORS.length !== getDefaultSelectors().length - 1) {
+  throw new Error('better-tailwindcss no longer has the `^styles?$` variable selector this config leaves out: update TAILWIND_DEFAULT_SELECTORS.')
+}
+
 /** Sign-in, the cart's first write, the OAuth hand-off and the auth error path: they write a session. */
 const SESSION_WRITERS = [
   'server/utils/auth.ts',
@@ -281,6 +294,18 @@ export default withNuxt(
         detectComponentClasses: true,
         ignore: [
           'article',
+          // Plain CSS hooks: a component's own `<style>` rule, or a plain
+          // rule in main.css / accessibility.css, which the plugin reads
+          // only for `@utility` and `@layer components`.
+          '^a11y-fab$',
+          '^author-bio$',
+          '^fy-prose$',
+          '^hero-glyph$',
+          '^legal-prose$',
+          '^pay-way-instructions$',
+          '^product-card$',
+          '^products-sidebar$',
+          '^woven-thread$',
           // NuxtUI
           'text-elevated*',
           'bg-elevated*',
@@ -300,6 +325,14 @@ export default withNuxt(
           'ring-secondary*',
         ],
       }],
+      // `leading-*` stays its own class, under any variant. Merging
+      // `text-base leading-relaxed` into `text-base/relaxed` drops
+      // `--tw-leading`, which a responsive size on the same element
+      // (`md:text-lg`) reads for its line height, so the merge changed
+      // webside's About and Vision text at `md`; `md:text-base
+      // md:leading-relaxed lg:text-lg` breaks the same way at `lg`. The
+      // plugin matches the pattern against the whole class, variants included.
+      'better-tailwindcss/enforce-canonical-classes': ['warn', { ignore: ['(?:^|:)leading-'] }],
       'nuxt/prefer-import-meta': 'off',
       'vue/multi-word-component-names': 'off',
       'vue/no-multiple-template-root': 'off',
@@ -364,16 +397,22 @@ export default withNuxt(
     settings: {
       'better-tailwindcss': {
         entryPoint: 'app/assets/css/main.css',
-        variables: [],
-        attributes: [
-          ['^v-bind:ui$', [
-            { match: 'objectValues' },
-          ]],
-          ['^(?:v-bind:)?(activeClass|inactiveClass)$', [
-            { match: 'strings' },
-            { match: 'objectKeys' },
-            { match: 'objectValues' },
-          ]],
+        // `settings.attributes` / `settings.variables` REPLACE the plugin's
+        // defaults, so setting them to add `ui` once dropped `class` itself:
+        // no template class list was checked until 2026-11-07. Extend the
+        // defaults here instead (TAILWIND_DEFAULT_SELECTORS).
+        selectors: [
+          ...TAILWIND_DEFAULT_SELECTORS,
+          { kind: 'attribute', name: '^v-bind:ui$', match: [{ type: 'objectValues' }] },
+          // The template names these props in kebab case (`active-class`,
+          // `enter-active-class`), `v-bind:` included; a script `h()` call
+          // may use camel case. NuxtLink's active / inactive classes and
+          // `<Transition>`'s enter / leave / appear classes.
+          {
+            kind: 'attribute',
+            name: '^(?:v-bind:)?(?:(?:in)?active|(?:enter|leave|appear)-?(?:from|active|to))-?[cC]lass$',
+            match: [{ type: 'strings' }, { type: 'objectKeys' }, { type: 'objectValues' }],
+          },
         ],
       },
     },

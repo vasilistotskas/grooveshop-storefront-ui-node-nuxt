@@ -28,7 +28,10 @@ const onRedirecting = () => {
 <template>
   <section
     :aria-labelledby="headingId"
-    class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
+    "
   >
     <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
       <div class="flex min-w-0 flex-col gap-1">

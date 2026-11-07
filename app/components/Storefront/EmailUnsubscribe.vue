@@ -39,7 +39,12 @@ async function settleFocus() {
 </script>
 
 <template>
-  <UContainer class="flex justify-center py-12 lg:py-20">
+  <UContainer
+    class="
+      flex justify-center py-12
+      lg:py-20
+    "
+  >
     <section
       class="
         flex w-full max-w-xl flex-col items-start gap-5 rounded-[1.5rem]
@@ -51,7 +56,9 @@ async function settleFocus() {
            otherwise, so the state reads before the words do. -->
       <span
         class="flex size-16 items-center justify-center rounded-2xl"
-        :class="phase === 'unsubscribed' ? 'bg-volt text-on-volt' : 'bg-elevated text-highlighted'"
+        :class="phase === 'unsubscribed' ? 'bg-volt text-on-volt' : `
+          bg-elevated text-highlighted
+        `"
       >
         <UIcon
           :name="phase === 'unsubscribed' ? 'i-lucide-mail-check' : phase === 'invalid' ? 'i-lucide-mail-x' : 'i-lucide-mail-minus'"
@@ -65,7 +72,13 @@ async function settleFocus() {
           role="status"
           class="flex flex-col gap-3"
         >
-          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
+          <h1
+            ref="heading" tabindex="-1" class="
+              font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+              text-highlighted
+              sm:text-[2.25rem]/[1.1]
+            "
+          >
             {{ t(`unsubscribed.${scope}.title`) }}
           </h1>
           <p class="text-toned">
@@ -87,7 +100,13 @@ async function settleFocus() {
           role="alert"
           class="flex flex-col gap-3"
         >
-          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
+          <h1
+            ref="heading" tabindex="-1" class="
+              font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+              text-highlighted
+              sm:text-[2.25rem]/[1.1]
+            "
+          >
             {{ t('invalid.title') }}
           </h1>
           <p class="text-toned">
@@ -106,7 +125,13 @@ async function settleFocus() {
 
       <template v-else>
         <div class="flex flex-col gap-3">
-          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
+          <h1
+            ref="heading" tabindex="-1" class="
+              font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+              text-highlighted
+              sm:text-[2.25rem]/[1.1]
+            "
+          >
             {{ t('title') }}
           </h1>
           <p class="text-toned">
@@ -117,7 +142,9 @@ async function settleFocus() {
             ref="failure"
             tabindex="-1"
             role="alert"
-            class="rounded-xl bg-(--ui-error-soft) px-4 py-3 text-sm text-highlighted"
+            class="
+              rounded-xl bg-(--ui-error-soft) px-4 py-3 text-sm text-highlighted
+            "
           >
             {{ t('failed') }}
           </p>

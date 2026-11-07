@@ -308,7 +308,11 @@ if (localQuery.value && localQuery.value.length >= 2) {
         >
           <div v-if="history.entries.value.length > 0">
             <div class="mb-3 flex items-center justify-between">
-              <span class="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+              <span
+                class="
+                  text-xs font-semibold tracking-wide text-gray-500 uppercase
+                "
+              >
                 {{ t('search.recent') }}
               </span>
               <UButton
@@ -335,7 +339,11 @@ if (localQuery.value && localQuery.value.length >= 2) {
 
           <div v-if="trending.data.value && trending.data.value.results.length > 0">
             <div class="mb-3">
-              <span class="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+              <span
+                class="
+                  text-xs font-semibold tracking-wide text-gray-500 uppercase
+                "
+              >
                 {{ t('search.trending') }}
               </span>
             </div>

@@ -142,7 +142,12 @@ useSeoMeta({
   <!-- `data-action-bar` tells the footer to keep its last line clear of
        the floating checkout bar (Chrome/Footer.vue). -->
   <div :data-action-bar="!initialLoading && cart?.items?.length ? '' : undefined">
-    <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+    <UContainer
+      class="
+        flex flex-col gap-6 pt-6 pb-14
+        lg:gap-8 lg:pb-22
+      "
+    >
       <PageBreadcrumb :items="breadcrumb" />
 
       <header class="flex flex-col gap-2">

@@ -68,7 +68,12 @@ const {
       v-if="address"
       class="rounded-[1.25rem] bg-default p-6 ring ring-default"
     >
-      <UForm ref="form" :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
+      <UForm
+        ref="form" :schema="schema" :state="state" class="
+          grid gap-4
+          md:grid-cols-2
+        " @error="scrollToFirstFormError" @submit="onSubmit"
+      >
         <!-- Title -->
         <UFormField :label="t('form.title')" name="title" required>
           <UInput

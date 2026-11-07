@@ -158,7 +158,7 @@ async function revoke(link: PreviewLink): Promise<void> {
           class="flex items-start gap-3 py-3"
         >
           <div class="min-w-0 flex-1">
-            <p class="text-sm font-medium break-words">
+            <p class="text-sm font-medium wrap-break-word">
               {{ link.note || link.documents.map(documentLabel).join(', ') }}
             </p>
             <p class="text-xs text-muted">

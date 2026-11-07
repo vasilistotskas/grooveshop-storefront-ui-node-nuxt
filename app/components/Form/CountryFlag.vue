@@ -17,7 +17,11 @@ const icon = computed(() => `i-circle-flags:${props.alpha2.toLowerCase()}`)
     the country name carry the meaning.
   -->
   <span
-    class="relative inline-flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-elevated text-[0.5rem] font-semibold leading-none text-muted"
+    class="
+      relative inline-flex size-5 shrink-0 items-center justify-center
+      overflow-hidden rounded-full bg-elevated text-[0.5rem] leading-none
+      font-semibold text-muted
+    "
     aria-hidden="true"
   >
     {{ alpha2.toUpperCase() }}

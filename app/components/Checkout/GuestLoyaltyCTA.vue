@@ -18,7 +18,9 @@ const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
 <template>
   <div
     v-if="shouldShow"
-    class="flex items-start gap-3 rounded-xl bg-(--ui-secondary-soft) p-4 text-sm"
+    class="
+      flex items-start gap-3 rounded-xl bg-(--ui-secondary-soft) p-4 text-sm
+    "
   >
     <UIcon
       name="i-lucide-sparkles"

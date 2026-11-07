@@ -62,7 +62,12 @@ defineExpose({ submit })
       <h2 class="text-xl font-semibold">
         {{ t('shipping.method.title') }}
       </h2>
-      <p class="mt-1 text-sm text-neutral-700 dark:text-neutral-200">
+      <p
+        class="
+          mt-1 text-sm text-neutral-700
+          dark:text-neutral-200
+        "
+      >
         {{ t('subtitle') }}
       </p>
     </template>
@@ -89,7 +94,9 @@ defineExpose({ submit })
          locker before our handler could pop the picker. The schema
          still drives inline error rendering for the locker field via
          the watcher below. -->
-    <UForm v-else ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError">
+    <UForm
+      v-else ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError"
+    >
       <!-- No method can carry the cart (Django would refuse the order):
            each card names its own limit, this says what to do about it.
            Advancing is already blocked — every card is disabled. -->
@@ -119,7 +126,12 @@ defineExpose({ submit })
         }"
       >
         <template #label="{ item }">
-          <div class="flex flex-1 items-start gap-2 sm:gap-3">
+          <div
+            class="
+              flex flex-1 items-start gap-2
+              sm:gap-3
+            "
+          >
             <ImgWithFallback
               :src="item.logo"
               :alt="item.altText"
@@ -128,7 +140,10 @@ defineExpose({ submit })
               fit="contain"
               format="webp"
               :modifiers="{ background: 'transparent' }"
-              class="h-8 w-16 shrink-0 object-contain sm:h-10 sm:w-24"
+              class="
+                h-8 w-16 shrink-0 object-contain
+                sm:h-10 sm:w-24
+              "
             />
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">
               <!-- ``flex-wrap`` lets the tagline badge break to a second
@@ -136,7 +151,7 @@ defineExpose({ submit })
                    ``min-w-0 + break-words`` lets the label itself wrap
                    when the brand name + tagline don't fit one row. -->
               <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span class="break-words font-semibold">{{ item.label }}</span>
+                <span class="font-semibold wrap-break-word">{{ item.label }}</span>
                 <UBadge
                   v-if="item.taglineKey"
                   size="sm"
@@ -147,7 +162,12 @@ defineExpose({ submit })
                   {{ t(item.taglineKey) }}
                 </UBadge>
               </div>
-              <span class="text-sm text-neutral-700 dark:text-neutral-200">
+              <span
+                class="
+                  text-sm text-neutral-700
+                  dark:text-neutral-200
+                "
+              >
                 {{ item.descriptionText }}
               </span>
               <!-- A payment method this delivery choice is the only way
@@ -158,7 +178,12 @@ defineExpose({ submit })
                 v-if="item.exclusivePayWays.length"
                 class="mt-1 flex flex-wrap items-center gap-1 text-sm"
               >
-                <span class="text-neutral-600 dark:text-neutral-300">
+                <span
+                  class="
+                    text-neutral-600
+                    dark:text-neutral-300
+                  "
+                >
                   {{ t('delivery_unlocks_payment') }}
                 </span>
                 <UBadge

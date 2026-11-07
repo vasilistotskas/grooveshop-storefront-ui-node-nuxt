@@ -54,7 +54,9 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
     >
       <section
         aria-labelledby="latest-order-title"
-        class="flex flex-col gap-4 rounded-[1.25rem] bg-default p-6 ring ring-default"
+        class="
+          flex flex-col gap-4 rounded-[1.25rem] bg-default p-6 ring ring-default
+        "
       >
         <div class="flex items-center justify-between gap-3">
           <h2
@@ -99,11 +101,21 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
           raw
           class="group flex flex-col gap-4"
         >
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div
+            class="
+              flex flex-col gap-3
+              sm:flex-row sm:items-center sm:gap-4
+            "
+          >
             <OrderThumbs :items="latestOrder.items" />
             <div class="flex min-w-0 flex-1 flex-col gap-1">
               <div class="flex items-center justify-between gap-3">
-                <p class="font-mono font-semibold text-highlighted group-hover:underline">
+                <p
+                  class="
+                    font-mono font-semibold text-highlighted
+                    group-hover:underline
+                  "
+                >
                   #{{ latestOrder.id }}
                 </p>
                 <OrderStatusBadge
@@ -160,8 +172,8 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
             :to="tile.to"
             raw
             class="
-              relative flex h-full flex-col gap-5 rounded-[1.125rem] bg-default p-3.5
-              text-sm font-semibold text-highlighted ring ring-default
+              relative flex h-full flex-col gap-5 rounded-[1.125rem] bg-default
+              p-3.5 text-sm font-semibold text-highlighted ring ring-default
             "
           >
             <UIcon
@@ -175,7 +187,7 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
               color="secondary"
               variant="soft"
               size="sm"
-              class="absolute end-3 top-3 rounded-full"
+              class="absolute inset-e-3 top-3 rounded-full"
             />
           </ULink>
         </li>
@@ -185,7 +197,9 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
     <section
       v-if="profile.length"
       aria-labelledby="profile-title"
-      class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-6 ring ring-default"
+      class="
+        flex flex-col gap-5 rounded-[1.25rem] bg-default p-6 ring ring-default
+      "
     >
       <div class="flex items-center justify-between gap-3">
         <h2
@@ -201,7 +215,12 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
           {{ t('edit') }}
         </ULink>
       </div>
-      <dl class="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+      <dl
+        class="
+          grid gap-x-8 gap-y-4
+          sm:grid-cols-2
+        "
+      >
         <div
           v-for="row in profile"
           :key="row.key"

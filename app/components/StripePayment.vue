@@ -282,7 +282,7 @@ defineExpose({
         <div class="space-y-2 text-center">
           <UIcon
             name="i-heroicons-arrow-path" class="
-              mx-auto h-8 w-8 animate-spin text-primary
+              mx-auto size-8 animate-spin text-primary
             "
           />
           <p
@@ -358,7 +358,7 @@ defineExpose({
           variant="subtle"
           size="sm"
         >
-          <UIcon name="i-heroicons-check" class="mr-1 h-3 w-3" />
+          <UIcon name="i-heroicons-check" class="mr-1 size-3" />
           {{ t('card_valid') }}
         </UBadge>
         <UBadge
@@ -367,7 +367,7 @@ defineExpose({
           variant="subtle"
           size="sm"
         >
-          <UIcon name="i-heroicons-shield-check" class="mr-1 h-3 w-3" />
+          <UIcon name="i-heroicons-shield-check" class="mr-1 size-3" />
           {{ t('secure_connection') }}
         </UBadge>
       </div>
@@ -380,7 +380,7 @@ defineExpose({
         dark:bg-primary-900 dark:text-primary-50
       "
     >
-      <UIcon name="i-heroicons-lock-closed" class="mt-0.5 h-4 w-4 shrink-0" />
+      <UIcon name="i-heroicons-lock-closed" class="mt-0.5 size-4 shrink-0" />
       <p>{{ t('security_notice') }}</p>
     </div>
   </div>

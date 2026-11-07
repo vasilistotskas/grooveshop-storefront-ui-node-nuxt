@@ -156,7 +156,10 @@ defineExpose({ submit })
   <div class="flex flex-col gap-6">
     <section
       :aria-labelledby="paymentHeadingId"
-      class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+      class="
+        flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+        sm:p-6
+      "
     >
       <h2
         :id="paymentHeadingId"
@@ -213,7 +216,10 @@ defineExpose({ submit })
 
                 <span
                   v-if="item.isCard"
-                  class="flex shrink-0 flex-wrap justify-end gap-1.5 max-sm:hidden"
+                  class="
+                    flex shrink-0 flex-wrap justify-end gap-1.5
+                    max-sm:hidden
+                  "
                 >
                   <UBadge
                     v-for="brand in CARD_BRANDS"
@@ -243,7 +249,7 @@ defineExpose({ submit })
               <div class="ps-8">
                 <div
                   v-if="item.description"
-                  class="pay-way-description text-sm text-toned"
+                  class="text-sm text-toned"
                   v-html="sanitize(item.description)"
                 />
                 <p
@@ -299,7 +305,10 @@ defineExpose({ submit })
 
     <section
       :aria-labelledby="reviewHeadingId"
-      class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+      class="
+        flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+        sm:p-6
+      "
     >
       <h2
         :id="reviewHeadingId"

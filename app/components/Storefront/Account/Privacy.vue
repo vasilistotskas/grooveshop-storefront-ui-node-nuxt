@@ -79,7 +79,10 @@ const fileSizeLabel = computed(() => {
 
     <section
       aria-labelledby="privacy-export-title"
-      class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+      class="
+        flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+        sm:p-6
+      "
     >
       <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <div class="flex min-w-0 items-center gap-4">
@@ -194,7 +197,10 @@ const fileSizeLabel = computed(() => {
 
     <section
       aria-labelledby="privacy-delete-title"
-      class="flex flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+      class="
+        flex flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring ring-default
+        sm:p-6
+      "
     >
       <div class="flex flex-col gap-1">
         <h2

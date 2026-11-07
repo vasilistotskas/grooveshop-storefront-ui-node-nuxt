@@ -37,9 +37,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
     data-fy-surface="ground"
   >
     <div
-      class="
-        mx-auto w-full max-w-[1280px] px-6 pb-[clamp(64px,8vw,112px)]
-      "
+      class="mx-auto w-full max-w-[1280px] px-6 pb-[clamp(64px,8vw,112px)]"
     >
       <div
         class="
@@ -54,7 +52,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
           <h2
             v-if="heading"
             class="
-              font-display text-[length:clamp(30px,3vw,44px)] leading-[1.08]
+              font-display text-[clamp(30px,3vw,44px)] leading-[1.08]
               font-extrabold text-balance text-(--fy-text)
             "
           >
@@ -62,7 +60,9 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
           </h2>
           <p
             v-if="description"
-            class="text-[18px] leading-[1.65] text-pretty text-(--fy-text-muted)"
+            class="
+              text-[18px] leading-[1.65] text-pretty text-(--fy-text-muted)
+            "
           >
             {{ description }}
           </p>

@@ -84,7 +84,8 @@ const vies = computed(() => {
         :schema="schema"
         :state="state"
         class="
-          grid gap-x-4 gap-y-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+          grid gap-x-4 gap-y-5 rounded-[1.25rem] bg-default p-5 ring
+          ring-default
           sm:grid-cols-2 sm:p-6
         "
         @error="scrollToFirstFormError"
@@ -157,7 +158,12 @@ const vies = computed(() => {
           />
         </UFormField>
 
-        <p class="text-xs font-semibold tracking-[0.06em] text-toned uppercase sm:col-span-2">
+        <p
+          class="
+            text-xs font-semibold tracking-[0.06em] text-toned uppercase
+            sm:col-span-2
+          "
+        >
           {{ t('form.billing_address') }}
         </p>
 
@@ -205,7 +211,12 @@ const vies = computed(() => {
           />
         </UFormField>
 
-        <div class="flex flex-wrap items-center gap-2 sm:col-span-2">
+        <div
+          class="
+            flex flex-wrap items-center gap-2
+            sm:col-span-2
+          "
+        >
           <UButton
             :label="profile ? t('form.update') : t('form.submit')"
             :loading="isSubmitting"

@@ -124,7 +124,13 @@ useHead({
          2026-09-22, well under AA. This page writes its own headings
          and cards, so it only ever wanted the spacing. The default tree
          was fixed this way already; this webside copy was missed. -->
-    <div class="space-y-8 md:space-y-12 xl:space-y-16">
+    <div
+      class="
+        space-y-8
+        md:space-y-12
+        xl:space-y-16
+      "
+    >
       <!-- Introduction -->
       <section class="space-y-4">
         <div class="flex items-center justify-center">
@@ -132,46 +138,95 @@ useHead({
             <svg viewBox="0 0 100 100" class="absolute inset-0 size-full">
               <polygon
                 points="50 1 95 25 95 75 50 99 5 75 5 25"
-                class="fill-warning-100 stroke-warning-500 dark:fill-warning-900 dark:stroke-warning-400"
+                class="
+                  fill-warning-100 stroke-warning-500
+                  dark:fill-warning-900 dark:stroke-warning-400
+                "
                 stroke="currentColor"
                 stroke-width="2"
               />
             </svg>
             <div class="relative z-10 flex flex-col items-center">
-              <UIcon name="i-heroicons-star-solid" class="size-12 text-warning-600 dark:text-warning-400" />
+              <UIcon
+                name="i-heroicons-star-solid" class="
+                  size-12 text-warning-600
+                  dark:text-warning-400
+                "
+              />
             </div>
           </div>
         </div>
 
-        <p class="text-center text-lg font-medium text-primary-900 dark:text-primary-100">
+        <p
+          class="
+            text-center text-lg font-medium text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('intro.subtitle') }}
         </p>
 
-        <p class="text-primary-950 dark:text-primary-50">
+        <p
+          class="
+            text-primary-950
+            dark:text-primary-50
+          "
+        >
           {{ t('intro.description') }}
         </p>
       </section>
 
       <!-- How It Works -->
       <section class="space-y-6">
-        <h2 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
+        <h2
+          class="
+            text-2xl font-bold text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('how_it_works.title') }}
         </h2>
 
-        <div class="grid gap-6 md:grid-cols-3">
+        <div
+          class="
+            grid gap-6
+            md:grid-cols-3
+          "
+        >
           <!-- Step 1: Earn Points -->
           <UCard>
             <template #header>
               <div class="flex items-center gap-3">
-                <div class="flex size-12 items-center justify-center rounded-full bg-success-100 dark:bg-success-900">
-                  <UIcon name="i-heroicons-shopping-cart" class="size-6 text-success-600 dark:text-success-400" />
+                <div
+                  class="
+                    flex size-12 items-center justify-center rounded-full
+                    bg-success-100
+                    dark:bg-success-900
+                  "
+                >
+                  <UIcon
+                    name="i-heroicons-shopping-cart" class="
+                      size-6 text-success-600
+                      dark:text-success-400
+                    "
+                  />
                 </div>
-                <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-100">
+                <h3
+                  class="
+                    text-lg font-semibold text-primary-900
+                    dark:text-primary-100
+                  "
+                >
                   {{ t('how_it_works.step1.title') }}
                 </h3>
               </div>
             </template>
-            <p class="text-sm text-primary-700 dark:text-primary-300">
+            <p
+              class="
+                text-sm text-primary-700
+                dark:text-primary-300
+              "
+            >
               {{ t('how_it_works.step1.description') }}
             </p>
           </UCard>
@@ -180,15 +235,36 @@ useHead({
           <UCard>
             <template #header>
               <div class="flex items-center gap-3">
-                <div class="flex size-12 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
-                  <UIcon name="i-heroicons-chart-bar" class="size-6 text-primary-600 dark:text-primary-400" />
+                <div
+                  class="
+                    flex size-12 items-center justify-center rounded-full
+                    bg-primary-100
+                    dark:bg-primary-900
+                  "
+                >
+                  <UIcon
+                    name="i-heroicons-chart-bar" class="
+                      size-6 text-primary-600
+                      dark:text-primary-400
+                    "
+                  />
                 </div>
-                <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-100">
+                <h3
+                  class="
+                    text-lg font-semibold text-primary-900
+                    dark:text-primary-100
+                  "
+                >
                   {{ t('how_it_works.step2.title') }}
                 </h3>
               </div>
             </template>
-            <p class="text-sm text-primary-700 dark:text-primary-300">
+            <p
+              class="
+                text-sm text-primary-700
+                dark:text-primary-300
+              "
+            >
               {{ t('how_it_works.step2.description') }}
             </p>
           </UCard>
@@ -197,15 +273,36 @@ useHead({
           <UCard>
             <template #header>
               <div class="flex items-center gap-3">
-                <div class="flex size-12 items-center justify-center rounded-full bg-warning-100 dark:bg-warning-900">
-                  <UIcon name="i-heroicons-gift" class="size-6 text-warning-600 dark:text-warning-400" />
+                <div
+                  class="
+                    flex size-12 items-center justify-center rounded-full
+                    bg-warning-100
+                    dark:bg-warning-900
+                  "
+                >
+                  <UIcon
+                    name="i-heroicons-gift" class="
+                      size-6 text-warning-600
+                      dark:text-warning-400
+                    "
+                  />
                 </div>
-                <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-100">
+                <h3
+                  class="
+                    text-lg font-semibold text-primary-900
+                    dark:text-primary-100
+                  "
+                >
                   {{ t('how_it_works.step3.title') }}
                 </h3>
               </div>
             </template>
-            <p class="text-sm text-primary-700 dark:text-primary-300">
+            <p
+              class="
+                text-sm text-primary-700
+                dark:text-primary-300
+              "
+            >
               {{ t('how_it_works.step3.description') }}
             </p>
           </UCard>
@@ -214,7 +311,12 @@ useHead({
 
       <!-- Earning Points -->
       <section class="space-y-4">
-        <h2 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
+        <h2
+          class="
+            text-2xl font-bold text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('earning.title') }}
         </h2>
 
@@ -225,14 +327,35 @@ useHead({
           </div>
           <div v-else-if="earningRate" class="space-y-4">
             <div class="flex items-start gap-4">
-              <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-success-100 dark:bg-success-900">
-                <UIcon name="i-heroicons-currency-euro" class="size-5 text-success-600 dark:text-success-400" />
+              <div
+                class="
+                  flex size-10 shrink-0 items-center justify-center rounded-full
+                  bg-success-100
+                  dark:bg-success-900
+                "
+              >
+                <UIcon
+                  name="i-heroicons-currency-euro" class="
+                    size-5 text-success-600
+                    dark:text-success-400
+                  "
+                />
               </div>
               <div class="flex-1">
-                <h3 class="mb-2 font-semibold text-primary-900 dark:text-primary-100">
+                <h3
+                  class="
+                    mb-2 font-semibold text-primary-900
+                    dark:text-primary-100
+                  "
+                >
                   {{ t('earning.purchases.title') }}
                 </h3>
-                <p class="text-sm text-primary-700 dark:text-primary-300">
+                <p
+                  class="
+                    text-sm text-primary-700
+                    dark:text-primary-300
+                  "
+                >
                   {{ t('earning.purchases.description', { euros: earningRate.euros, points: earningRate.points }) }}
                 </p>
               </div>
@@ -241,14 +364,35 @@ useHead({
             <USeparator />
 
             <div class="flex items-start gap-4">
-              <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
-                <UIcon name="i-heroicons-calendar" class="size-5 text-primary-600 dark:text-primary-400" />
+              <div
+                class="
+                  flex size-10 shrink-0 items-center justify-center rounded-full
+                  bg-primary-100
+                  dark:bg-primary-900
+                "
+              >
+                <UIcon
+                  name="i-heroicons-calendar" class="
+                    size-5 text-primary-600
+                    dark:text-primary-400
+                  "
+                />
               </div>
               <div class="flex-1">
-                <h3 class="mb-2 font-semibold text-primary-900 dark:text-primary-100">
+                <h3
+                  class="
+                    mb-2 font-semibold text-primary-900
+                    dark:text-primary-100
+                  "
+                >
                   {{ t('earning.special_events.title') }}
                 </h3>
-                <p class="text-sm text-primary-700 dark:text-primary-300">
+                <p
+                  class="
+                    text-sm text-primary-700
+                    dark:text-primary-300
+                  "
+                >
                   {{ t('earning.special_events.description') }}
                 </p>
               </div>
@@ -258,14 +402,35 @@ useHead({
             <template v-if="showNewCustomerBonus">
               <USeparator />
               <div class="flex items-start gap-4">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-warning-100 dark:bg-warning-900">
-                  <UIcon name="i-heroicons-gift" class="size-5 text-warning-600 dark:text-warning-400" />
+                <div
+                  class="
+                    flex size-10 shrink-0 items-center justify-center
+                    rounded-full bg-warning-100
+                    dark:bg-warning-900
+                  "
+                >
+                  <UIcon
+                    name="i-heroicons-gift" class="
+                      size-5 text-warning-600
+                      dark:text-warning-400
+                    "
+                  />
                 </div>
                 <div class="flex-1">
-                  <h3 class="mb-2 font-semibold text-primary-900 dark:text-primary-100">
+                  <h3
+                    class="
+                      mb-2 font-semibold text-primary-900
+                      dark:text-primary-100
+                    "
+                  >
                     {{ t('earning.new_customer_bonus.title') }}
                   </h3>
-                  <p class="text-sm text-primary-700 dark:text-primary-300">
+                  <p
+                    class="
+                      text-sm text-primary-700
+                      dark:text-primary-300
+                    "
+                  >
                     {{ t('earning.new_customer_bonus.description', { points: newCustomerBonusPoints }) }}
                   </p>
                 </div>
@@ -277,11 +442,21 @@ useHead({
 
       <!-- Redeeming Points -->
       <section class="space-y-4">
-        <h2 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
+        <h2
+          class="
+            text-2xl font-bold text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('redeeming.title') }}
         </h2>
 
-        <p class="text-primary-950 dark:text-primary-50">
+        <p
+          class="
+            text-primary-950
+            dark:text-primary-50
+          "
+        >
           {{ t('redeeming.description') }}
         </p>
 
@@ -293,13 +468,32 @@ useHead({
               <USkeleton class="h-4 w-48" />
             </div>
           </div>
-          <div v-else-if="redemptionRate && redemptionExample" class="flex items-center gap-4">
-            <UIcon name="i-heroicons-information-circle" class="size-8 text-info-600 dark:text-info-400" />
+          <div
+            v-else-if="redemptionRate && redemptionExample" class="
+              flex items-center gap-4
+            "
+          >
+            <UIcon
+              name="i-heroicons-information-circle" class="
+                size-8 text-info-600
+                dark:text-info-400
+              "
+            />
             <div>
-              <p class="font-semibold text-primary-900 dark:text-primary-100">
+              <p
+                class="
+                  font-semibold text-primary-900
+                  dark:text-primary-100
+                "
+              >
                 {{ t('redeeming.conversion.title') }}
               </p>
-              <p class="text-sm text-primary-700 dark:text-primary-300">
+              <p
+                class="
+                  text-sm text-primary-700
+                  dark:text-primary-300
+                "
+              >
                 {{ t('redeeming.conversion.description', {
                   points: redemptionRate.points,
                   euros: redemptionRate.euros,
@@ -311,15 +505,35 @@ useHead({
           </div>
         </UCard>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div
+          class="
+            grid gap-4
+            md:grid-cols-2
+          "
+        >
           <UCard>
             <div class="flex items-start gap-3">
-              <UIcon name="i-heroicons-check-circle" class="size-6 shrink-0 text-success-600 dark:text-success-400" />
+              <UIcon
+                name="i-heroicons-check-circle" class="
+                  size-6 shrink-0 text-success-600
+                  dark:text-success-400
+                "
+              />
               <div>
-                <h3 class="mb-1 font-semibold text-primary-900 dark:text-primary-100">
+                <h3
+                  class="
+                    mb-1 font-semibold text-primary-900
+                    dark:text-primary-100
+                  "
+                >
                   {{ t('redeeming.when.title') }}
                 </h3>
-                <p class="text-sm text-primary-700 dark:text-primary-300">
+                <p
+                  class="
+                    text-sm text-primary-700
+                    dark:text-primary-300
+                  "
+                >
                   {{ t('redeeming.when.description') }}
                 </p>
               </div>
@@ -328,12 +542,27 @@ useHead({
 
           <UCard>
             <div class="flex items-start gap-3">
-              <UIcon name="i-heroicons-arrow-path" class="size-6 shrink-0 text-primary-600 dark:text-primary-400" />
+              <UIcon
+                name="i-heroicons-arrow-path" class="
+                  size-6 shrink-0 text-primary-600
+                  dark:text-primary-400
+                "
+              />
               <div>
-                <h3 class="mb-1 font-semibold text-primary-900 dark:text-primary-100">
+                <h3
+                  class="
+                    mb-1 font-semibold text-primary-900
+                    dark:text-primary-100
+                  "
+                >
                   {{ t('redeeming.flexibility.title') }}
                 </h3>
-                <p class="text-sm text-primary-700 dark:text-primary-300">
+                <p
+                  class="
+                    text-sm text-primary-700
+                    dark:text-primary-300
+                  "
+                >
                   {{ t('redeeming.flexibility.description') }}
                 </p>
               </div>
@@ -344,23 +573,61 @@ useHead({
 
       <!-- Benefits -->
       <section class="space-y-4">
-        <h2 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
+        <h2
+          class="
+            text-2xl font-bold text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('benefits.title') }}
         </h2>
 
-        <div v-if="loading" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-if="loading" class="
+            grid gap-4
+            md:grid-cols-2
+            lg:grid-cols-3
+          "
+        >
           <USkeleton v-for="i in 3" :key="i" class="h-48 w-full" />
         </div>
-        <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-else class="
+            grid gap-4
+            md:grid-cols-2
+            lg:grid-cols-3
+          "
+        >
           <UCard variant="soft">
             <div class="flex flex-col items-center gap-3 text-center">
-              <div class="flex size-16 items-center justify-center rounded-full bg-success-100 dark:bg-success-900">
-                <UIcon name="i-heroicons-banknotes" class="size-8 text-success-600 dark:text-success-400" />
+              <div
+                class="
+                  flex size-16 items-center justify-center rounded-full
+                  bg-success-100
+                  dark:bg-success-900
+                "
+              >
+                <UIcon
+                  name="i-heroicons-banknotes" class="
+                    size-8 text-success-600
+                    dark:text-success-400
+                  "
+                />
               </div>
-              <h3 class="font-semibold text-primary-900 dark:text-primary-100">
+              <h3
+                class="
+                  font-semibold text-primary-900
+                  dark:text-primary-100
+                "
+              >
                 {{ t('benefits.save_money.title') }}
               </h3>
-              <p class="text-sm text-primary-700 dark:text-primary-300">
+              <p
+                class="
+                  text-sm text-primary-700
+                  dark:text-primary-300
+                "
+              >
                 {{ t('benefits.save_money.description') }}
               </p>
             </div>
@@ -368,13 +635,34 @@ useHead({
 
           <UCard variant="soft">
             <div class="flex flex-col items-center gap-3 text-center">
-              <div class="flex size-16 items-center justify-center rounded-full bg-info-100 dark:bg-info-900">
-                <UIcon name="i-heroicons-sparkles" class="size-8 text-info-600 dark:text-info-400" />
+              <div
+                class="
+                  flex size-16 items-center justify-center rounded-full
+                  bg-info-100
+                  dark:bg-info-900
+                "
+              >
+                <UIcon
+                  name="i-heroicons-sparkles" class="
+                    size-8 text-info-600
+                    dark:text-info-400
+                  "
+                />
               </div>
-              <h3 class="font-semibold text-primary-900 dark:text-primary-100">
+              <h3
+                class="
+                  font-semibold text-primary-900
+                  dark:text-primary-100
+                "
+              >
                 {{ t('benefits.exclusive_offers.title') }}
               </h3>
-              <p class="text-sm text-primary-700 dark:text-primary-300">
+              <p
+                class="
+                  text-sm text-primary-700
+                  dark:text-primary-300
+                "
+              >
                 {{ t('benefits.exclusive_offers.description') }}
               </p>
             </div>
@@ -382,13 +670,34 @@ useHead({
 
           <UCard variant="soft">
             <div class="flex flex-col items-center gap-3 text-center">
-              <div class="flex size-16 items-center justify-center rounded-full bg-warning-100 dark:bg-warning-900">
-                <UIcon name="i-heroicons-heart" class="size-8 text-warning-600 dark:text-warning-400" />
+              <div
+                class="
+                  flex size-16 items-center justify-center rounded-full
+                  bg-warning-100
+                  dark:bg-warning-900
+                "
+              >
+                <UIcon
+                  name="i-heroicons-heart" class="
+                    size-8 text-warning-600
+                    dark:text-warning-400
+                  "
+                />
               </div>
-              <h3 class="font-semibold text-primary-900 dark:text-primary-100">
+              <h3
+                class="
+                  font-semibold text-primary-900
+                  dark:text-primary-100
+                "
+              >
                 {{ t('benefits.reward_loyalty.title') }}
               </h3>
-              <p class="text-sm text-primary-700 dark:text-primary-300">
+              <p
+                class="
+                  text-sm text-primary-700
+                  dark:text-primary-300
+                "
+              >
                 {{ showTierBenefits ? t('benefits.reward_loyalty.description_with_tiers') : t('benefits.reward_loyalty.description') }}
               </p>
             </div>
@@ -398,7 +707,12 @@ useHead({
 
       <!-- FAQ -->
       <section class="space-y-4">
-        <h2 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
+        <h2
+          class="
+            text-2xl font-bold text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('faq.title') }}
         </h2>
 
@@ -415,11 +729,26 @@ useHead({
       <section class="space-y-4">
         <UCard variant="soft" color="primary" class="text-center">
           <div class="space-y-4">
-            <UIcon name="i-heroicons-rocket-launch" class="mx-auto size-16 text-warning-600 dark:text-warning-400" />
-            <h2 class="text-2xl font-bold text-primary-900 dark:text-primary-100">
+            <UIcon
+              name="i-heroicons-rocket-launch" class="
+                mx-auto size-16 text-warning-600
+                dark:text-warning-400
+              "
+            />
+            <h2
+              class="
+                text-2xl font-bold text-primary-900
+                dark:text-primary-100
+              "
+            >
               {{ t('cta.title') }}
             </h2>
-            <p class="text-primary-700 dark:text-primary-300">
+            <p
+              class="
+                text-primary-700
+                dark:text-primary-300
+              "
+            >
               {{ t('cta.description') }}
             </p>
             <div class="flex flex-wrap justify-center gap-4">

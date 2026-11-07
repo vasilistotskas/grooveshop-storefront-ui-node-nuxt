@@ -87,9 +87,7 @@ onMounted(() => {
       "
     >
       <p
-        class="
-          mb-3 text-xs font-semibold tracking-wide text-muted uppercase
-        "
+        class="mb-3 text-xs font-semibold tracking-wide text-muted uppercase"
       >
         {{ title }}
       </p>
@@ -103,9 +101,7 @@ onMounted(() => {
             :class="[
               'block rounded-md border-l-2 px-3 py-1.5 transition-colors',
               activeId === link.id
-                ? `
-                  border-primary font-medium text-primary
-                `
+                ? `border-primary font-medium text-primary`
                 : `
                   border-transparent text-muted
                   hover:text-default

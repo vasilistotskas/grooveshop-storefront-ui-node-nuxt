@@ -177,7 +177,12 @@ const clearRedemption = () => {
     <div v-else class="space-y-4">
       <!-- Header with points badge -->
       <div class="flex items-center justify-between">
-        <span class="text-sm font-medium text-primary-900 dark:text-primary-100">
+        <span
+          class="
+            text-sm font-medium text-primary-900
+            dark:text-primary-100
+          "
+        >
           {{ t('title') }}
         </span>
 
@@ -189,8 +194,20 @@ const clearRedemption = () => {
               <polygon
                 points="50 1 95 25 95 75 50 99 5 75 5 25"
                 :class="[
-                  displayedBalance > 0 ? 'fill-primary-100 dark:fill-primary-900' : 'fill-gray-100 dark:fill-gray-800',
-                  displayedBalance > 0 ? 'stroke-primary-500 dark:stroke-primary-400' : 'stroke-gray-300 dark:stroke-gray-600',
+                  displayedBalance > 0 ? `
+                    fill-primary-100
+                    dark:fill-primary-900
+                  ` : `
+                    fill-gray-100
+                    dark:fill-gray-800
+                  `,
+                  displayedBalance > 0 ? `
+                    stroke-primary-500
+                    dark:stroke-primary-400
+                  ` : `
+                    stroke-gray-300
+                    dark:stroke-gray-600
+                  `,
                 ]"
                 stroke="currentColor"
                 :stroke-width="displayedBalance > 0 ? '2' : '1'"
@@ -199,14 +216,26 @@ const clearRedemption = () => {
             <!-- Points number -->
             <div class="relative z-10 flex flex-col items-center">
               <span
-                class="text-lg font-bold leading-none"
-                :class="displayedBalance > 0 ? 'text-primary-700 dark:text-primary-300' : 'text-gray-400 dark:text-gray-500'"
+                class="text-lg leading-none font-bold"
+                :class="displayedBalance > 0 ? `
+                  text-primary-700
+                  dark:text-primary-300
+                ` : `
+                  text-gray-400
+                  dark:text-gray-500
+                `"
               >
                 {{ displayedBalance }}
               </span>
               <span
                 class="text-[11px] leading-none"
-                :class="displayedBalance > 0 ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'"
+                :class="displayedBalance > 0 ? `
+                  text-primary-600
+                  dark:text-primary-400
+                ` : `
+                  text-gray-400
+                  dark:text-gray-500
+                `"
               >
                 {{ t('points') }}
               </span>
@@ -229,13 +258,23 @@ const clearRedemption = () => {
           <div class="space-y-1 text-sm">
             <p class="flex items-center justify-between">
               <span>{{ t('discount_amount') }}:</span>
-              <strong class="text-success-700 dark:text-success-300">
+              <strong
+                class="
+                  text-success-700
+                  dark:text-success-300
+                "
+              >
                 {{ calculateDiscount(appliedPoints) }} {{ currency }}
               </strong>
             </p>
             <p class="flex items-center justify-between">
               <span>{{ t('remaining_balance') }}:</span>
-              <strong class="text-success-700 dark:text-success-300">
+              <strong
+                class="
+                  text-success-700
+                  dark:text-success-300
+                "
+              >
                 {{ displayedBalance }}
               </strong>
             </p>
@@ -247,7 +286,12 @@ const clearRedemption = () => {
       <UForm :state="formState" :schema="redemptionSchema" @error="scrollToFirstFormError" @submit="handleRedeem">
         <div class="space-y-4">
           <!-- Number input for points -->
-          <div class="space-y-2 md:space-y-0 md:flex md:items-center">
+          <div
+            class="
+              space-y-2
+              md:flex md:items-center md:space-y-0
+            "
+          >
             <UFormField
               :label="t('points_to_redeem')"
               name="pointsToRedeem"
@@ -290,7 +334,12 @@ const clearRedemption = () => {
           </div>
 
           <!-- Error message -->
-          <p v-if="redemptionError" class="text-sm text-error-600 dark:text-error-400">
+          <p
+            v-if="redemptionError" class="
+              text-sm text-error-600
+              dark:text-error-400
+            "
+          >
             {{ redemptionError }}
           </p>
 
@@ -306,7 +355,12 @@ const clearRedemption = () => {
           </UButton>
 
           <!-- Info text -->
-          <p class="text-center text-xs text-primary-600 dark:text-primary-400">
+          <p
+            class="
+              text-center text-xs text-primary-600
+              dark:text-primary-400
+            "
+          >
             {{ t('redemption_info') }}
           </p>
         </div>

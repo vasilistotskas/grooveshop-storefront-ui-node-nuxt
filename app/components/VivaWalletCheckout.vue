@@ -93,7 +93,7 @@ onMounted(() => {
     >
       <UIcon
         name="i-heroicons-arrow-path"
-        class="h-12 w-12 animate-spin text-primary"
+        class="size-12 animate-spin text-primary"
       />
       <div class="text-center">
         <h3 class="mb-2 text-lg font-semibold">
@@ -145,7 +145,7 @@ onMounted(() => {
         dark:bg-primary-900 dark:text-primary-50
       "
     >
-      <UIcon name="i-heroicons-shield-check" class="h-4 w-4 shrink-0" />
+      <UIcon name="i-heroicons-shield-check" class="size-4 shrink-0" />
       <p>{{ t('secure_redirect_notice') }}</p>
     </div>
   </div>

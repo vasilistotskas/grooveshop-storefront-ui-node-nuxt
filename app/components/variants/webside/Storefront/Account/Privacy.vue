@@ -68,7 +68,7 @@ const fileSizeLabel = computed(() => {
   <WebsideAccountAreaPageWrapper
     class="
       flex flex-col gap-4
-      md:gap-8 md:!p-0
+      md:gap-8 md:p-0!
     "
   >
     <WebsidePageTitle

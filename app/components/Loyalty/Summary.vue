@@ -70,7 +70,10 @@ const tierName = (tier: LoyaltyTier) => extractTranslated(tier, 'name', locale.v
 <template>
   <div
     v-if="loading"
-    class="grid gap-4 lg:grid-cols-2"
+    class="
+      grid gap-4
+      lg:grid-cols-2
+    "
   >
     <USkeleton class="h-44 rounded-[1.25rem]" />
     <USkeleton class="h-44 rounded-[1.25rem]" />

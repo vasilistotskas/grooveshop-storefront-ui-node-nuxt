@@ -54,7 +54,7 @@ function onSelected(picked: Locker): void {
           class="mt-0.5 size-5 shrink-0 text-highlighted"
         />
         <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span class="font-semibold break-words text-highlighted">{{ locker.name }}</span>
+          <span class="font-semibold wrap-break-word text-highlighted">{{ locker.name }}</span>
           <span class="text-sm text-toned">
             {{ locker.addressLine1 }}<span v-if="locker.addressLine2">, {{ locker.addressLine2 }}</span>
           </span>

@@ -29,9 +29,7 @@ const headingId = useId()
   >
     <template #header>
       <div
-        class="
-          flex flex-wrap items-start justify-between gap-x-4 gap-y-3
-        "
+        class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3"
       >
         <div class="flex min-w-0 items-center gap-3">
           <div

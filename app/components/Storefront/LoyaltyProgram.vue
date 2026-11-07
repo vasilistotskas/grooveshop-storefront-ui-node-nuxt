@@ -159,8 +159,7 @@ useHead({
       <UContainer>
         <div
           class="
-            grid items-center gap-8 rounded-[2rem] bg-volt px-5.5 py-7
-            text-on-volt
+            grid items-center gap-8 rounded-4xl bg-volt px-5.5 py-7 text-on-volt
             lg:grid-cols-[1.1fr_1fr] lg:gap-12 lg:p-14
           "
         >
@@ -236,7 +235,9 @@ useHead({
 
           <div
             v-if="example"
-            class="flex flex-col gap-3 rounded-[1.25rem] bg-default p-6 text-default"
+            class="
+              flex flex-col gap-3 rounded-[1.25rem] bg-default p-6 text-default
+            "
           >
             <p class="text-xs font-semibold tracking-wider text-muted uppercase">
               {{ t('example.eyebrow') }}
@@ -244,7 +245,12 @@ useHead({
             <p class="text-sm text-toned">
               {{ t('example.order', { amount: example.order }) }}
             </p>
-            <p class="font-mono text-[3rem]/none font-bold tracking-tight text-highlighted">
+            <p
+              class="
+                font-mono text-[3rem]/none font-bold tracking-tight
+                text-highlighted
+              "
+            >
               {{ t('example.points', { points: example.points }) }}
             </p>
             <p
@@ -270,7 +276,11 @@ useHead({
     >
       <ol
         :aria-label="t('how.title')"
-        class="grid gap-8 sm:grid-cols-2 lg:grid-flow-col lg:auto-cols-fr"
+        class="
+          grid gap-8
+          sm:grid-cols-2
+          lg:auto-cols-fr lg:grid-flow-col
+        "
       >
         <li
           v-for="(step, index) in steps"
@@ -307,7 +317,11 @@ useHead({
     >
       <ol
         :aria-label="t('tiers.title')"
-        class="grid gap-4 sm:grid-cols-2 lg:grid-flow-col lg:auto-cols-fr"
+        class="
+          grid gap-4
+          sm:grid-cols-2
+          lg:auto-cols-fr lg:grid-flow-col
+        "
       >
         <LoyaltyTierCard
           v-for="(tier, index) in ladder"

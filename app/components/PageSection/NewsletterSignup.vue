@@ -55,19 +55,29 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
         <div class="flex max-w-2xl flex-col gap-2">
           <h2
             class="
-              font-display text-2xl font-semibold tracking-tight
-              text-highlighted text-balance
+              font-display text-2xl font-semibold tracking-tight text-balance
+              text-highlighted
               md:text-3xl
             "
           >
             {{ heading || t('heading') }}
           </h2>
-          <p class="text-base text-pretty text-muted md:text-lg">
+          <p
+            class="
+              text-base text-pretty text-muted
+              md:text-lg
+            "
+          >
             {{ description || t('description') }}
           </p>
         </div>
 
-        <div class="w-full md:max-w-md">
+        <div
+          class="
+            w-full
+            md:max-w-md
+          "
+        >
           <div
             v-if="outcome === 'pending_confirmation'"
             role="status"
@@ -122,7 +132,12 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
             class="flex flex-col gap-3"
             @submit="onSubmit"
           >
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-start">
+            <div
+              class="
+                flex flex-col gap-2
+                sm:flex-row sm:items-start
+              "
+            >
               <UFormField
                 name="email"
                 :label="t('email_label')"

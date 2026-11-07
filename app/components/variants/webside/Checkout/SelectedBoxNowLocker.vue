@@ -61,7 +61,9 @@ function onSelected(selected: BoxNowSelectedLocker) {
         <template #header>
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-2 font-semibold">
-              <UIcon name="i-lucide-map-pin" class="size-5 shrink-0 text-primary" />
+              <UIcon
+                name="i-lucide-map-pin" class="size-5 shrink-0 text-primary"
+              />
               <span>{{ lockerDisplayName }}</span>
             </div>
             <UBadge color="success" variant="soft">
@@ -70,7 +72,12 @@ function onSelected(selected: BoxNowSelectedLocker) {
           </div>
         </template>
 
-        <div class="space-y-1 text-sm text-neutral-600 dark:text-neutral-200">
+        <div
+          class="
+            space-y-1 text-sm text-neutral-600
+            dark:text-neutral-200
+          "
+        >
           <p>{{ locker?.boxnowLockerAddressLine1 }}</p>
           <p v-if="locker?.boxnowLockerAddressLine2">
             {{ locker.boxnowLockerAddressLine2 }}
@@ -79,7 +86,12 @@ function onSelected(selected: BoxNowSelectedLocker) {
           <p v-if="locker?.boxnowLockerNote" class="italic">
             {{ locker.boxnowLockerNote }}
           </p>
-          <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-200">
+          <p
+            class="
+              mt-2 text-xs text-neutral-600
+              dark:text-neutral-200
+            "
+          >
             <span class="font-medium">{{ t('shipping.boxnow.selected_locker.id_label') }}:</span>
             {{ formState.boxnowLockerId }}
           </p>
