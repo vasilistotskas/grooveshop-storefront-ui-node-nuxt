@@ -17297,10 +17297,6 @@ export const zSetMainUserAddressPath = z.object({
 
 export const zSetMainUserAddressResponse = zUserAddressDetail
 
-export const zDownloadUserDataExportPath = z.object({
-  token: z.string(),
-})
-
 export const zGetEmailPreferencesResponse = zEmailPreferences
 
 export const zUpdateEmailPreferencesBody = zPatchedEmailPreferencesWriteRequest
