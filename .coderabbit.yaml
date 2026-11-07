@@ -1,9 +1,12 @@
 # yaml-language-server: $schema=https://www.coderabbit.ai/integrations/schema.v2.json
 #
 # CodeRabbit reviews this repository on its free open-source tier, which allows
-# only a few pull request reviews an hour per author and counts every push as a
-# review. So a pull request is reviewed once, when it is opened or marked ready
-# (drafts wait), and again only when its author asks with `@coderabbitai review`.
+# a small hourly number of pull request reviews (one an hour per repository in
+# November 2026) and counts every push as a review. So a pull request is
+# reviewed when it is opened or marked ready (drafts wait), and again only when
+# its author comments `@coderabbitai review`. Ask the same way if no review
+# starts (CodeRabbit's docs say repositories under 10 stars need a manual
+# trigger) or if a push drops a review in progress.
 #
 # `inheritance: true` keeps every setting not named here from the organisation
 # settings in the CodeRabbit app. `@coderabbitai configuration` on a pull
@@ -12,3 +15,6 @@ inheritance: true
 reviews:
   auto_review:
     auto_incremental_review: false
+    # The draft-first rule saves reviews only while drafts are skipped, so this
+    # is stated here rather than left to a default.
+    drafts: false
