@@ -1,3 +1,10 @@
+## [3.332.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.332.0...v3.332.1) (2026-11-07)
+
+
+### Bug Fixes
+
+* **deps:** Node 26 LTS, pnpm 12.18, Nuxt 4.6.4 and current tooling ([#421](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/421)) ([3826cfc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3826cfc9f5269a21c0a29ea2313162c4292e477c))
+
 # [3.332.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.331.0...v3.332.0) (2026-11-07)
 
 
