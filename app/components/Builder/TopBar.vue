@@ -33,7 +33,7 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
     <UTooltip :text="t('exit')">
       <!-- A full page load: the storefront gets its own palette back. -->
       <UButton
-        :to="localePath('/')"
+        :to="localePath('index')"
         external
         icon="i-lucide-arrow-left"
         color="neutral"
