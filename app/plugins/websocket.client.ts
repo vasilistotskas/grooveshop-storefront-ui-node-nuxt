@@ -5,10 +5,10 @@ import type { Composer } from 'vue-i18n'
 /**
  * The socket's heartbeat, a contract with Django's `NotificationConsumer`
  * (`notification/consumers.py`), which answers HEARTBEAT_PING with
- * HEARTBEAT_PONG. An answer keeps the socket open. No answer within
- * HEARTBEAT_PONG_TIMEOUT_MS closes it and a new one opens, which is how a
- * connection a proxy dropped without a word is found. While Django answered
- * nothing, every signed-in tab reconnected about every 36 seconds
+ * HEARTBEAT_PONG from django-api #516 on. An answer keeps the socket open.
+ * No answer within HEARTBEAT_PONG_TIMEOUT_MS closes it and a new one opens,
+ * which is how a connection a proxy dropped without a word is found. Until
+ * Django answers, every signed-in tab reconnects about every 36 seconds
  * (storefront #414).
  */
 const HEARTBEAT_PING = 'ping'

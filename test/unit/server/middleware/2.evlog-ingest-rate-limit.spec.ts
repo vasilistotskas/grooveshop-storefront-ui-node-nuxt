@@ -52,7 +52,7 @@ describe('server/middleware/2.evlog-ingest-rate-limit', () => {
     await expect(hit('/api/cart', { ip: '203.0.113.24' })).resolves.toBeUndefined()
   })
 
-  it('takes a new minute\'s 60 events once the minute turns', async () => {
+  it('accepts events again once the minute turns', async () => {
     await spend(60, '203.0.113.25')
     await expect(hit(INGEST, { ip: '203.0.113.25' })).rejects.toMatchObject({ statusCode: 429 })
 

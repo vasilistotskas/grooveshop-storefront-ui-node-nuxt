@@ -32,9 +32,10 @@ interface WindowCount {
  * minutes and were then refused a minute at a time, around the clock
  * (storefront #414). One key per IP, store and name, never one per window:
  * the memory driver the cache mount falls back to ignores TTLs, so a key per
- * window would pile up there. The TTL lets an idle counter go from Redis; it
- * is written explicitly because the driver default for the cache mount is
- * the hour-long `NUXT_REDIS_TTL`.
+ * window would pile up there. That fallback still keeps one key per IP, store
+ * and name for the pod's life (storefront #419). The TTL lets an idle counter
+ * go from Redis; it is written explicitly because the cache mount's default
+ * TTL (`NUXT_REDIS_TTL`) is far longer than any window.
  *
  * The count is read, then written, so requests that arrive together can each
  * pass at the edge of a budget. It blunts a flood; it is not an exact quota.
