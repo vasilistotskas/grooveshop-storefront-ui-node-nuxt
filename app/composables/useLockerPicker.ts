@@ -73,6 +73,8 @@ export function useLockerPicker(options: {
   const place = shallowRef<(GeocodedPlace & { query: string }) | null>(null)
   const placing = ref(false)
   let placeAbort: AbortController | null = null
+  let placingText: string | null = null
+  const misses = reactive(new Set<string>())
 
   async function loadCatalogue(): Promise<void> {
     if (!props.carrier.fetchAll) {
@@ -123,6 +125,7 @@ export function useLockerPicker(options: {
       activeTab.value = 'map'
       query.value = ''
       place.value = null
+      misses.clear()
       void loadCatalogue()
       if (location.permission.value === 'granted' && location.status.value !== 'located') location.locate()
       return
@@ -130,8 +133,7 @@ export function useLockerPicker(options: {
     abort?.abort()
     abort = null
     loading.value = false
-    placeAbort?.abort()
-    placing.value = false
+    stopPlacing()
     location.cancel()
   }, { immediate: true })
 
@@ -164,12 +166,20 @@ export function useLockerPicker(options: {
     ? searchable.value.filter(entry => matchesQuery(entry.words, queryWords.value)).map(entry => entry.locker)
     : [])
 
+  function stopPlacing(): void {
+    placeAbort?.abort()
+    placeAbort = null
+    placingText = null
+    placing.value = false
+  }
+
   async function placeAddress(text: string): Promise<void> {
     placeAbort?.abort()
     const geocode = props.carrier.geocode?.bind(props.carrier)
     if (!geocode) return
     const controller = new AbortController()
     placeAbort = controller
+    placingText = text
     placing.value = true
     try {
       const city = props.initialCity?.trim()
@@ -182,27 +192,53 @@ export function useLockerPicker(options: {
           return
         }
       }
+      misses.add(text)
     }
     catch (err: unknown) {
-      if (err instanceof DOMException && err.name === 'AbortError') return
+      // An abort (a newer text, a close) is no failure; ofetch wraps it, so
+      // the controller tells, not the error's type.
+      if (placeAbort !== controller) return
       // A failed lookup leaves the search as it is: nothing to say beyond
       // "no points found".
       log.warn({ tag: 'shipping/picker', message: 'address lookup failed', error: err })
     }
     finally {
-      if (placeAbort === controller) placing.value = false
+      if (placeAbort === controller) {
+        placeAbort = null
+        placingText = null
+        placing.value = false
+      }
     }
   }
 
+  // A lookup for text the shopper has already changed stops at once,
+  // before its city retry, rather than at the next pause.
+  watch(query, (text) => {
+    if (placingText !== null && placingText !== text.trim()) stopPlacing()
+  })
+
+  // Whether the text in the box will be looked up after the pause: the
+  // list waits for it instead of saying "nothing found".
+  const lookupPending = computed(() => {
+    const trimmed = query.value.trim()
+    return Boolean(props.carrier.geocode)
+      && open.value
+      && searching.value
+      && trimmed.length >= GEOCODE_MIN_LENGTH
+      && textMatches.value.length === 0
+      && place.value?.query !== trimmed
+      && !misses.has(trimmed)
+  })
+
   watchDebounced(query, (text) => {
+    if (!open.value) return
     const trimmed = text.trim()
     if (place.value && place.value.query !== trimmed) place.value = null
     if (trimmed.length < GEOCODE_MIN_LENGTH || textMatches.value.length > 0) {
-      placeAbort?.abort()
-      placing.value = false
+      stopPlacing()
       return
     }
-    if (place.value?.query === trimmed) return
+    if (place.value?.query === trimmed || misses.has(trimmed)) return
     void placeAddress(trimmed)
   }, { debounce: GEOCODE_DEBOUNCE_MS })
 
@@ -294,9 +330,16 @@ export function useLockerPicker(options: {
     location.locate()
   }
 
-  /** The shopper's position, or the address they searched for, for the
-   *  map's dot; a postcode draws none. */
-  const here = computed<GeoPoint | null>(() => (origin.value && origin.value.kind !== 'postcode' ? origin.value : null))
+  /** The map's dot and what a screen reader calls it: the shopper's
+   *  position, or the address they searched for; a postcode draws none. */
+  const here = computed<(GeoPoint & { label: string }) | null>(() => {
+    const from = origin.value
+    if (!from || from.kind === 'postcode') return null
+    const label = from.kind === 'address' && placed.value
+      ? placed.value.label
+      : t('shipping.locker_picker.your_location')
+    return { lat: from.lat, lng: from.lng, label }
+  })
 
   /** What the list says it is showing, above the rows. */
   const resultsCaption = computed<string | null>(() => {
@@ -346,7 +389,7 @@ export function useLockerPicker(options: {
     resultsCaption,
     focus,
     here,
-    placing,
+    placing: computed(() => placing.value || lookupPending.value),
     canLocate: location.supported,
     locating: computed(() => location.status.value === 'locating'),
     locate,

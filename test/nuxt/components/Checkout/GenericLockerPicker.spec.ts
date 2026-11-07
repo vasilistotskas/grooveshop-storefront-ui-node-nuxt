@@ -407,7 +407,58 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
       expect(geocode.mock.calls.map(([address]) => address)).toEqual(['kalama 25', 'kalama 25 Αθήνα'])
       expect(inBody(tp('nearest_to_address', { address: KALAMA.label }))).toBe(true)
       expect(rowNames()).toEqual([SYNTAGMA.name, KOLONAKI.name, KIFISIA.name, THESSALONIKI.name])
-      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ lat: KALAMA.lat, lng: KALAMA.lng, kind: 'address' })
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ lat: KALAMA.lat, lng: KALAMA.lng, label: KALAMA.label })
+    })
+
+    it('stops a lookup the moment the text changes, before its retry with the city', async () => {
+      const signals: AbortSignal[] = []
+      const geocode = vi.fn((_address: string, signal?: AbortSignal) => {
+        signals.push(signal!)
+        return new Promise<null>((resolve, reject) => {
+          signal?.addEventListener('abort', () => reject(new Error('aborted, as ofetch wraps it')))
+        })
+      })
+      await openPicker(fakeCarrier({ geocode }), { initialCity: 'Αθήνα' })
+      await searchAddress('kalama 25')
+      expect(geocode).toHaveBeenCalledTimes(1)
+
+      await searchInput().setValue('kalama 2')
+      await flushPromises()
+
+      expect(signals[0]!.aborted).toBe(true)
+      expect(geocode).toHaveBeenCalledTimes(1)
+    })
+
+    it('asks nothing once the picker is closed, even for text typed just before', async () => {
+      const geocode = vi.fn(() => Promise.resolve(KALAMA))
+      const wrapper = await openPicker(fakeCarrier({ geocode }))
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      await searchInput().setValue('kalama 25')
+
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(GEOCODE_WAIT_MS)
+
+      expect(geocode).not.toHaveBeenCalled()
+    })
+
+    it('asks once per text: a miss is remembered for the opening', async () => {
+      const geocode = vi.fn((_address: string, _signal?: AbortSignal) => Promise.resolve(null))
+      await openPicker(fakeCarrier({ geocode }))
+
+      await searchAddress('αβγδε 99')
+      await searchAddress('αβγδε 9')
+      await searchAddress('αβγδε 99')
+
+      expect(geocode.mock.calls.map(([address]) => address)).toEqual(['αβγδε 99', 'αβγδε 9'])
+    })
+
+    it('waits for the lookup instead of saying nothing was found', async () => {
+      await openPicker(fakeCarrier({ geocode: vi.fn(() => new Promise<null>(() => {})) }))
+      await showList()
+
+      await search('kalama 25')
+
+      expect(inBody(tp('empty_title'))).toBe(false)
     })
 
     it('is not looked up while the search names lockers', async () => {
@@ -477,7 +528,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
       expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1)
       expect(inBody(tp('nearest_to_you'))).toBe(true)
       expect(rowNames()[0]).toBe(KIFISIA.name)
-      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, kind: 'location' })
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, label: tp('your_location') })
     })
 
     it('centres on its own when the shopper already allowed it', async () => {
@@ -488,7 +539,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
       await vi.waitFor(() => expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1))
       await flushPromises()
 
-      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, kind: 'location' })
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, label: tp('your_location') })
     })
 
     it.each([
