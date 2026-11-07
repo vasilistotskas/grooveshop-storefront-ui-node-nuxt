@@ -31,7 +31,7 @@ import {
   createRequestLogger,
   runWithEvent,
   testSession,
-  USER_SESSION_COOKIE_NAME,
+  useRuntimeConfig,
 } from './runtime'
 import type { NitroApp, NitroAppPlugin } from 'nitropack/types'
 import { defineEventHandler as defineRouteHandler } from 'nuxt/server'
@@ -99,7 +99,7 @@ function requestHeaders(req: TestRequest): Record<string, string> {
   // The visitor's browser sends the session it holds (`testSession`), as
   // it does once a write has set the cookie; a visitor with none sends none.
   if (Object.keys(testSession.data).length) {
-    const name = USER_SESSION_COOKIE_NAME
+    const name = String(useRuntimeConfig().session.name)
     const cookies = headers.cookie ? headers.cookie.split(';').map(part => part.trim()) : []
     if (!cookies.some(part => part.startsWith(`${name}=`))) {
       headers.cookie = [...cookies, `${name}=sealed`].join('; ')

@@ -31,6 +31,9 @@ import { vi } from 'vitest'
 
 // ── useRuntimeConfig (nitropack/runtime/internal/config) ──────────────
 
+/** nuxt-auth-utils' default cookie (`dist/runtime/server/lib/session.js`). */
+const USER_SESSION_COOKIE_NAME = 'nuxt-auth-session'
+
 /** A 32+ character `appSecret`, which `deriveSecret` requires. */
 const TEST_APP_SECRET = 'unit-test-app-secret-0123456789abcdef'
 
@@ -45,6 +48,8 @@ export function defaultRuntimeConfig() {
     mediaStreamPath: '',
     cacheBase: 'memory',
     appSecret: TEST_APP_SECRET,
+    // What nuxt-auth-utils declares (its module.mjs), so a spec can rename it.
+    session: { name: USER_SESSION_COOKIE_NAME },
     cachePurgeToken: '',
     contactAttachmentMaxBytes: 25 * 1024 * 1024,
     // Nuxt's own `runtimeConfig.app` defaults, which `nuxt/server`'s
@@ -351,9 +356,6 @@ export const testSession = {
   },
 }
 
-/** nuxt-auth-utils' cookie (`dist/runtime/server/lib/session.js`). */
-export const USER_SESSION_COOKIE_NAME = 'nuxt-auth-session'
-
 type AnyEvent = H3Event | { req: Request, res: { headers: Headers } }
 
 function isPortable(event: AnyEvent): event is { req: Request, res: { headers: Headers } } {
@@ -366,17 +368,35 @@ function isPortable(event: AnyEvent): event is { req: Request, res: { headers: H
  * request already put on the response. Either event kind: h3's carries
  * `headers`, the portable `nuxt/server` one `req.headers`.
  */
+function sessionName(): string {
+  return String((runtimeConfig.session as { name: string }).name)
+}
+
 function carriesSession(event: AnyEvent): boolean {
-  const name = USER_SESSION_COOKIE_NAME
+  const name = sessionName()
   const headers = isPortable(event) ? event.req.headers : (event as H3Event).headers
   if ((headers.get('cookie') ?? '').split(';').some(part => part.trim().startsWith(`${name}=`))) return true
-  return isPortable(event) && event.res.headers.getSetCookie().some(cookie => cookie.startsWith(`${name}=`))
+  return isPortable(event) && event.res.headers.getSetCookie()
+    .some(cookie => cookie.startsWith(`${name}=`) && !cookie.startsWith(`${name}=;`))
+}
+
+/**
+ * Put the session's cookie on the response, as `nuxt/server`'s
+ * `setSessionCookie` does: one per name, a later write replacing it.
+ */
+function setSessionCookie(event: AnyEvent, value: string): void {
+  if (!isPortable(event)) return
+  const name = sessionName()
+  const others = event.res.headers.getSetCookie().filter(cookie => !cookie.startsWith(`${name}=`))
+  event.res.headers.delete('set-cookie')
+  for (const cookie of others) event.res.headers.append('set-cookie', cookie)
+  event.res.headers.append('set-cookie', value ? `${name}=${value}; Path=/; HttpOnly; SameSite=Lax` : `${name}=; Max-Age=0; Path=/`)
 }
 
 /** Seal the session into the response, as `nuxt/server`'s `useSession` does. */
 function sealOnResponse(event: AnyEvent): void {
-  if (!isPortable(event) || carriesSession(event)) return
-  event.res.headers.append('set-cookie', `${USER_SESSION_COOKIE_NAME}=sealed; Path=/; HttpOnly; SameSite=Lax`)
+  if (carriesSession(event)) return
+  setSessionCookie(event, 'sealed')
 }
 
 /** A request without the session gets a new, empty one, as h3 mints it. */
@@ -405,8 +425,9 @@ export async function replaceUserSession(event: AnyEvent, data: Record<string, u
   return sessionData
 }
 
-export async function clearUserSession(_event: H3Event) {
+export async function clearUserSession(event: AnyEvent) {
   sessionData = {}
+  setSessionCookie(event, '')
   return true
 }
 

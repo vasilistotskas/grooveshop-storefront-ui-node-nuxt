@@ -103,11 +103,16 @@ export async function processAllAuthSession(event: RequestEvent, response: AllAu
  * response that sets a cookie is never cached at the edge.
  */
 export function requestHasSession(event: RequestEvent): boolean {
-  const name = USER_SESSION_COOKIE_NAME
+  // The name nuxt-auth-utils seals under: it declares
+  // `runtimeConfig.session.name` (default `nuxt-auth-session`) so
+  // NUXT_SESSION_NAME can rename the cookie at runtime.
+  const { name } = useRuntimeConfig().session
+  if (!name) throw new Error('runtimeConfig.session.name is not set')
   if (getCookie(event, name)) return true
   // A session written earlier in this request is its session too: the
   // cart's first write, read again before the response goes out. Its
-  // sealed cookie is already on the response.
+  // sealed cookie is already on the response; a cleared session's
+  // expiring `name=;` cookie is not a session.
   return event.res.headers.getSetCookie().some(cookie => cookie.startsWith(`${name}=`) && !cookie.startsWith(`${name}=;`))
 }
 

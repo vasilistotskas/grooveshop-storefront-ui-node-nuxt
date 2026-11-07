@@ -13,6 +13,7 @@ import {
 import { updateCartSession } from '~~/server/utils/cartSession'
 import type { RequestEvent } from 'nuxt/server'
 import { backend, createRequestEvent, jsonResponse, setRuntimeConfig, testSession } from '~~/test/helpers/nitro'
+import { clearUserSession } from '~~/test/helpers/nitro/runtime'
 import type { TestRequest } from '~~/test/helpers/nitro'
 import { zAllAuthAuthenticatedResponse } from '~~/shared/openapi-allauth/zod.gen'
 import type { AllAuthResponse } from '~~/shared/types/allAuth'
@@ -147,6 +148,30 @@ describe('requestHasSession', () => {
     await updateCartSession(event, { cartId: '11111111-1111-4111-8111-111111111111' })
 
     expect(requestHasSession(event)).toBe(true)
+  })
+
+  it('does not count a session cleared earlier in the same request: its cookie is the expiring one', async () => {
+    const event = createRequestEvent()
+    await updateCartSession(event, { cartId: '11111111-1111-4111-8111-111111111111' })
+
+    await clearUserSession(event)
+
+    const sessionCookies = event.res.headers.getSetCookie().filter(cookie => cookie.startsWith('nuxt-auth-session='))
+    expect(sessionCookies).toEqual([expect.stringMatching(/^nuxt-auth-session=;/)])
+    expect(requestHasSession(event)).toBe(false)
+  })
+
+  it('finds the cookie under the name runtimeConfig.session.name gives it (NUXT_SESSION_NAME)', () => {
+    setRuntimeConfig({ session: { name: 'shop-session' } })
+
+    expect(requestHasSession(createRequestEvent({ headers: { cookie: 'shop-session=Fe26.2**sealed' } }))).toBe(true)
+    expect(requestHasSession(createRequestEvent({ headers: { cookie: 'nuxt-auth-session=Fe26.2**sealed' } }))).toBe(false)
+  })
+
+  it('fails loudly when the session is not configured, rather than guessing a name', () => {
+    setRuntimeConfig({ session: { name: '' } })
+
+    expect(() => requestHasSession(createRequestEvent())).toThrow('runtimeConfig.session.name is not set')
   })
 })
 
