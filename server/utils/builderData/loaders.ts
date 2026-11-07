@@ -136,6 +136,8 @@ export const RECORD_LOADERS: { [Kind in DataRecordKind]: (context: LoaderContext
     ids,
     mediaQueries,
   ),
+  // The offers endpoint has no filter by id and a short list: an offer that ended or is not listed is simply absent.
+  promotion: async ({ tenantHost, locale }, ids) => (await readPromotions(tenantHost, locale, {})).filter(({ id }) => ids.includes(id)),
 }
 
 const answerOf = <Item>({ results, count }: { results: Item[], count: number }): QueryAnswer<Item> => ({ items: results, total: count })

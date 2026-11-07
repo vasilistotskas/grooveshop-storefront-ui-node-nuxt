@@ -77,8 +77,9 @@ function setHref(next: string): void {
   emit('update', value ? { href: value } : undefined)
 }
 
-function setRecord(next: BuilderLinkRef | undefined): void {
-  emit('update', next ? { ref: next } : undefined)
+/** The picker here offers only `LINK_REF_KINDS`, so what it hands back is a record a link may name. */
+function setRecord(next: BuilderPickerRef | undefined): void {
+  emit('update', next ? { ref: next as BuilderLinkRef } : undefined)
 }
 
 function setRoute(next: unknown): void {

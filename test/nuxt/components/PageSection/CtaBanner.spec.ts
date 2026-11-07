@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import CtaBanner from '~/components/PageSection/CtaBanner.vue'
+import { makeProductCard } from '~~/test/fixtures/product'
 
 const mountBanner = (props: Record<string, unknown>) => mountSuspended(CtaBanner, { route: false, props })
 
@@ -36,7 +37,7 @@ describe('PageSection/CtaBanner', () => {
   })
 
   it('links the button to the operator\'s target', async () => {
-    const wrapper = await mountBanner({ heading: 'Τίτλος', buttonText: 'Αγόρασε', buttonLink: '/products' })
+    const wrapper = await mountBanner({ heading: 'Τίτλος', buttonText: 'Αγόρασε', buttonAction: { kind: 'link', to: '/products' } })
 
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual(['Αγόρασε', '/products'])
@@ -44,12 +45,23 @@ describe('PageSection/CtaBanner', () => {
 
   it.each([
     { name: 'button text without a link', props: { heading: 'Τίτλος', buttonText: 'Αγόρασε' } },
-    { name: 'a link without button text', props: { heading: 'Τίτλος', buttonLink: '/products' } },
+    { name: 'a link without button text', props: { heading: 'Τίτλος', buttonAction: { kind: 'link', to: '/products' } } },
   ])('draws no button for $name', async ({ props }) => {
     const wrapper = await mountBanner(props)
 
     expect(wrapper.find('h2').text()).toBe('Τίτλος')
     expect(wrapper.find('a').exists()).toBe(false)
+  })
+
+  it('draws a button, not a link, for an action that stays on the page', async () => {
+    const wrapper = await mountBanner({
+      heading: 'Τίτλος',
+      buttonText: 'Στο καλάθι',
+      buttonAction: { kind: 'addToCart', product: { status: 'ok', value: makeProductCard({ stock: 3, active: true }) } },
+    })
+
+    expect(wrapper.find('a').exists()).toBe(false)
+    expect(wrapper.get('button').text()).toBe('Στο καλάθι')
   })
 
   it('renders nothing without a heading, a description or a link', async () => {

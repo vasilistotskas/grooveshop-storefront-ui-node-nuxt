@@ -1504,6 +1504,8 @@ export const zInvoiceDownloadResponse = z.object({
  * * `blogCategory` - Blog category
  * * `page` - Page
  * * `contentPage` - Content page
+ * * `promotion` - Promotion
+ * * `topic` - Subscription Topic
  */
 export const zLinkKindEnum = z.enum([
   'product',
@@ -1512,6 +1514,8 @@ export const zLinkKindEnum = z.enum([
   'blogCategory',
   'page',
   'contentPage',
+  'promotion',
+  'topic',
 ])
 
 export const zLinkLabel = z.object({
@@ -1530,6 +1534,8 @@ export const zLinkLabelsResponse = z.object({
   blogCategory: z.record(z.string(), zLinkLabel).optional(),
   page: z.record(z.string(), zLinkLabel).optional(),
   contentPage: z.record(z.string(), zLinkLabel).optional(),
+  promotion: z.record(z.string(), zLinkLabel).optional(),
+  topic: z.record(z.string(), zLinkLabel).optional(),
 })
 
 export const zLinkSearchResult = z.object({
@@ -1649,6 +1655,7 @@ export const zNewsletterSubscribeRequest = z.object({
   email: z.email().min(1).max(254),
   consent: z.boolean(),
   consentText: z.string().min(1).max(500),
+  topic: z.int().gte(1).optional(),
 })
 
 /**
@@ -11536,6 +11543,8 @@ export const zApiV1BuilderLinkLabelsRetrieveQuery = z.object({
   locale: z.string().optional(),
   page: z.string().optional(),
   product: z.string().optional(),
+  promotion: z.string().optional(),
+  topic: z.string().optional(),
 })
 
 export const zApiV1BuilderLinkLabelsRetrieveResponse = zLinkLabelsResponse
@@ -17466,6 +17475,13 @@ export const zConfirmSubscriptionByTokenPath = z.object({
 })
 
 export const zConfirmSubscriptionByTokenResponse = zConfirmResponse
+
+export const zGetNewsletterAvailabilityQuery = z.object({
+  topic: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+})
 
 export const zGetNewsletterAvailabilityResponse = zNewsletterAvailability
 

@@ -90,3 +90,38 @@ describe('useNewsletterSignup', () => {
     expect(signup.outcome.value).toBe('pending_confirmation')
   })
 })
+
+describe('a form that names a newsletter', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ newsletter: true })
+    api.routes({ [NEWSLETTER_URL]: { detail: 'Thank you.', status: 'pending_confirmation' } })
+  })
+
+  async function setupFor(topic?: number) {
+    let signup!: Awaited<ReturnType<typeof useNewsletterSignup>>
+    await mountSuspended(defineComponent({
+      async setup() {
+        signup = await useNewsletterSignup({ consentRequired: () => 'tick the box', ...(topic !== undefined && { topic }) })
+        return () => null
+      },
+    }), { route: false })
+    return signup
+  }
+
+  it('asks to subscribe to that one', async () => {
+    const signup = await setupFor(7)
+
+    await signup.subscribe(BODY)
+
+    expect(api.callsTo(NEWSLETTER_URL)[0]?.options.body).toEqual({ ...BODY, topic: 7 })
+  })
+
+  it('names none otherwise, which is the store\'s default', async () => {
+    const signup = await setupFor()
+
+    await signup.subscribe(BODY)
+
+    expect(api.callsTo(NEWSLETTER_URL)[0]?.options.body).toEqual(BODY)
+  })
+})

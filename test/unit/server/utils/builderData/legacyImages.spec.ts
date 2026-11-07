@@ -20,7 +20,7 @@ const only = (document: BuilderDocument) => document.sections.a!
 const ok = (path: string, alt = '') => ({ status: 'ok', value: { path, alt } })
 
 const noRecords = (media: Map<number, unknown> = new Map()): DataResolution => ({
-  records: { product: new Map(), blogPost: new Map(), category: new Map(), blogCategory: new Map(), media },
+  records: { product: new Map(), blogPost: new Map(), category: new Map(), blogCategory: new Map(), promotion: new Map(), media },
   queries: new Map(),
 })
 

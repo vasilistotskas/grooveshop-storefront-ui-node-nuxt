@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 const props = defineProps<{
   /** The kinds of record it offers, in the order the results are grouped. */
-  kinds: readonly LinkRefKind[]
+  kinds: readonly BuilderPickerKind[]
   /** The record chosen, or none. */
-  value: BuilderLinkRef | undefined
+  value: BuilderPickerRef | undefined
   /** The setting's name, for the control's accessible name. */
   label: string
   /** Whether the choice may be cleared: a setting that may be left empty. */
@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  update: [value: BuilderLinkRef | undefined]
+  update: [value: BuilderPickerRef | undefined]
 }>()
 
 const { t } = useStoreI18n('components/Builder/RecordPicker')
@@ -23,7 +23,7 @@ interface RecordItem {
   value: string
   label: string
   description?: string
-  ref: BuilderLinkRef
+  ref: BuilderPickerRef
 }
 
 const searchTerm = ref('')
@@ -119,6 +119,8 @@ el:
     blogCategory: Κατηγορίες ιστολογίου
     page: Σελίδες
     contentPage: Σελίδες περιεχομένου
+    promotion: Προσφορές
+    topic: Ενημερωτικά δελτία
   record:
     product: "Προϊόν #{id}"
     category: "Κατηγορία #{id}"
@@ -126,6 +128,8 @@ el:
     blogCategory: "Κατηγορία ιστολογίου #{id}"
     page: "Σελίδα «{id}»"
     contentPage: "Σελίδα περιεχομένου «{id}»"
+    promotion: "Προσφορά #{id}"
+    topic: "Ενημερωτικό δελτίο #{id}"
 en:
   placeholder: Choose…
   search: Search by name or address
@@ -139,6 +143,8 @@ en:
     blogCategory: Blog categories
     page: Pages
     contentPage: Content pages
+    promotion: Offers
+    topic: Newsletters
   record:
     product: "Product #{id}"
     category: "Category #{id}"
@@ -146,4 +152,6 @@ en:
     blogCategory: "Blog category #{id}"
     page: "Page “{id}”"
     contentPage: "Content page “{id}”"
+    promotion: "Offer #{id}"
+    topic: "Newsletter #{id}"
 </i18n>

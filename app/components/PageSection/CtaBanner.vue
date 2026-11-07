@@ -20,7 +20,7 @@ const props = defineProps<{
   heading?: string
   description?: string
   buttonText?: string
-  buttonLink?: string
+  buttonAction?: ReadyAction
   backgroundColor?: string
   surface?: 'default' | 'muted'
 }>()
@@ -44,7 +44,8 @@ const isDarkBackground = computed(() =>
   && relativeLuminance(copyColor.value) > relativeLuminance(props.backgroundColor),
 )
 
-const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
+const cta = reactive(useSectionAction(() => props.buttonAction, () => props.buttonText))
+const hasLink = computed(() => !!(props.buttonText && props.buttonAction))
 </script>
 
 <template>
@@ -83,8 +84,9 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 
         <UButton
           v-if="hasLink"
-          :to="localePath(pathLocation(buttonLink!))"
-          :label="buttonText"
+          :to="cta.to && localePath(pathLocation(cta.to))"
+          :label="cta.label"
+          v-bind="cta.control"
           :color="isDarkBackground ? 'neutral' : 'secondary'"
           size="xl"
           class="shrink-0 self-start md:self-auto"

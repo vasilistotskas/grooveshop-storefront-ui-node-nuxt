@@ -32,7 +32,7 @@ const rows = computed(() => props.ids.map((id) => {
 
 const full = computed(() => props.ids.length >= props.max)
 
-function add(ref: BuilderLinkRef | undefined): void {
+function add(ref: BuilderPickerRef | undefined): void {
   if (ref && typeof ref.id === 'number' && !props.ids.includes(ref.id)) emit('update', [...props.ids, ref.id])
 }
 

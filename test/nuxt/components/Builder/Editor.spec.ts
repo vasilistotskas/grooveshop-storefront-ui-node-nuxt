@@ -1042,7 +1042,7 @@ describe('editing the structure of a page', () => {
 
       expect(wrapper.get('#builder-inspector-title').text()).toBe('Ενέργεια για όλη τη μέρα')
       expect((control(wrapper, 'Επικεφαλίδα').element as HTMLInputElement).value).toBe('Ενέργεια για όλη τη μέρα')
-      expect(wrapper.text()).toContain('Σύνδεσμος κουμπιού')
+      expect(wrapper.text()).toContain('Τι κάνει το κουμπί')
     })
 
     it('changes a setting as it is typed, and saves it', async () => {

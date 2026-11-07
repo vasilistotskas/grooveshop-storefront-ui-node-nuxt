@@ -8,12 +8,13 @@ import { makeResolvedAsset } from '~~/test/fixtures/media'
 import { makeProductCard, makeProductCategory } from '~~/test/fixtures/product'
 import { DATA_LIMITS, DATA_MEDIA_MAX_IDS } from '~~/shared/constants/builder'
 import { makePromotion } from '~~/test/fixtures/promotion'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { zListProductResponse } from '~~/shared/openapi/zod.gen'
 import type { DataPlan, DataResolution, QueryAnswer } from '~~/shared/types/builderData'
 
 const page = (results: unknown[]) => ({ count: results.length, results })
 const context = { tenantHost: 'shop-a.test', locale: 'en' }
-const emptyIds = { product: [], blogPost: [], category: [], blogCategory: [], media: [] }
+const emptyIds = { product: [], blogPost: [], category: [], blogCategory: [], media: [], promotion: [] }
 const newest = { mode: 'filter', ordering: 'newest', limit: 4 }
 
 /** A list the reads answered, which is not a failed one. */
@@ -203,6 +204,19 @@ describe('readData', () => {
   })
 })
 
+describe('readData, an offer by id', () => {
+  it('reads the offers the store lists and keeps the ones asked for', async () => {
+    backend.reply(() => [makePromotion({ id: 1 }), makePromotion({ id: 3 })])
+
+    const resolution = await readData(context, planOf({ ids: { ...emptyIds, promotion: [3, 9] } }))
+
+    expect(backend.requests).toHaveLength(1)
+    expect(backend.lastRequest.url.pathname).toBe('/api/v1/promotion')
+    // 9 is not in the answer: an offer that ended or is not listed is simply absent.
+    expect([...(resolution.records.promotion as ReadonlyMap<number, unknown>).keys()]).toEqual([3])
+  })
+})
+
 describe('readData, media', () => {
   const media = (resolution: DataResolution) => resolution.records.media as ReadonlyMap<number, unknown>
   const staffHeaders = { Authorization: 'StaffBearer knox-secret-token' }
@@ -341,6 +355,48 @@ describe('the cache of a read', () => {
     expect(cacheKeyBelongsToHost(key, 'shop-a.test')).toBe(true)
     expect(cacheKeyBelongsToHost(key, 'shop-b.test')).toBe(false)
     expect(cacheKeyBelongsToHost(key, 'a.test')).toBe(false)
+  })
+})
+
+describe('resolveBuilderData, a button that acts on a record', () => {
+  const on = { cart: true, catalogue: true, favourites: true, promotions: true }
+  const eventWith = (features: Partial<typeof on>) => {
+    const event = createRequestEvent({ url: '/' })
+    const tenant = validTenantConfig('shop-a.test')
+    event.context.tenant = { ...tenant, features: { ...tenant.features, ...on, ...features } }
+    return event
+  }
+  const band = (ctaAction: Record<string, unknown>) => ({ sections: { a: { type: 'promo_cta@1', settings: { ctaAction } } }, order: ['a'] })
+
+  it('reads the product a cart button adds, and keeps the section', async () => {
+    backend.reply(() => page([makeProductCard({ id: 5 })]))
+
+    const { document } = await resolveBuilderData(eventWith({}), band({ kind: 'addToCart', product: 5 }))
+
+    expect(backend.lastRequest.url.pathname).toBe('/api/v1/product')
+    expect(document.sections.a!.settings.ctaAction).toMatchObject({ kind: 'addToCart', product: { status: 'ok', value: { id: 5 } } })
+  })
+
+  it('keeps the section when the product is gone', async () => {
+    backend.reply(() => page([]))
+
+    const { document } = await resolveBuilderData(eventWith({}), band({ kind: 'addToCart', product: 5 }))
+
+    expect(document.order).toEqual(['a'])
+    expect(document.sections.a!.settings.ctaAction).toEqual({ kind: 'addToCart', product: { status: 'missing' } })
+  })
+
+  it.each([
+    { name: 'the catalogue', features: { catalogue: false }, action: { kind: 'addToCart', product: 5 } },
+    { name: 'the cart', features: { cart: false }, action: { kind: 'addToCart', product: 5 } },
+    { name: 'favourites', features: { favourites: false }, action: { kind: 'addToWishlist', product: 5 } },
+    { name: 'promotions', features: { promotions: false }, action: { kind: 'copyCode', promotion: 3 } },
+  ])('asks nothing of a store with $name off, and takes the button out', async ({ features, action }) => {
+    const { document } = await resolveBuilderData(eventWith(features), band(action))
+
+    expect(backend.requests).toEqual([])
+    expect(document.order).toEqual(['a'])
+    expect(document.sections.a!.settings).toEqual({})
   })
 })
 

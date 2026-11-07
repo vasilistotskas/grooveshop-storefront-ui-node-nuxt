@@ -40,7 +40,7 @@ const props = defineProps<{
   /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
   imageDecorative?: boolean
   ctaText?: string
-  ctaLink?: string
+  ctaAction?: ReadyAction
   secondaryCtaText?: string
   secondaryCtaLink?: string
   stats?: Array<{ value: string, label: string }>
@@ -64,7 +64,8 @@ const hasContent = computed(
   () => !!picture.value || !!props.heading || !!props.subheading,
 )
 
-const primary = computed(() => !!(props.ctaText && props.ctaLink))
+const cta = reactive(useSectionAction(() => props.ctaAction, () => props.ctaText))
+const primary = computed(() => !!(props.ctaText && props.ctaAction))
 const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCtaLink))
 </script>
 
@@ -147,11 +148,12 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         >
           <PageSectionVariantsEkfyseosfyteiasLink
             v-if="primary"
-            :to="ctaLink!"
+            :to="cta.to"
             look="ink"
             arrow
+            v-bind="cta.control"
           >
-            {{ ctaText }}
+            {{ cta.label }}
           </PageSectionVariantsEkfyseosfyteiasLink>
           <PageSectionVariantsEkfyseosfyteiasLink
             v-if="secondary"
@@ -265,10 +267,11 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         </p>
         <PageSectionVariantsEkfyseosfyteiasLink
           v-if="primary"
-          :to="ctaLink!"
+          :to="cta.to"
           arrow
+          v-bind="cta.control"
         >
-          {{ ctaText }}
+          {{ cta.label }}
         </PageSectionVariantsEkfyseosfyteiasLink>
       </div>
     </div>
@@ -319,11 +322,12 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
       >
         <PageSectionVariantsEkfyseosfyteiasLink
           v-if="primary"
-          :to="ctaLink!"
+          :to="cta.to"
           look="ink"
           arrow
+          v-bind="cta.control"
         >
-          {{ ctaText }}
+          {{ cta.label }}
         </PageSectionVariantsEkfyseosfyteiasLink>
         <PageSectionVariantsEkfyseosfyteiasLink
           v-if="secondary"

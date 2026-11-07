@@ -134,7 +134,7 @@ function setCategories(ids: number[]): void {
             :label="t('blogCategory')"
             clearable
             :disabled="disabled"
-            @update="(next: BuilderLinkRef | undefined) => patch({ category: next?.id })"
+            @update="(next: BuilderPickerRef | undefined) => patch({ category: next?.id })"
           />
         </UFormField>
         <UFormField :label="t('featured.label')">
@@ -172,7 +172,7 @@ function setCategories(ids: number[]): void {
         :label="t('parent')"
         :clearable="false"
         :disabled="disabled"
-        @update="(next: BuilderLinkRef | undefined) => patch({ parent: next?.id })"
+        @update="(next: BuilderPickerRef | undefined) => patch({ parent: next?.id })"
       />
     </UFormField>
 

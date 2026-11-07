@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** A picture beside a text, with bullets and spec cards under it. `emphasis` is a substring of `body` set in the emphasis weight, not markup: an HTML setting would be an injection surface for one bold phrase. */
 export default defineBlock({
   type: 'media_text',
-  version: 2,
+  version: 3,
   kinds: ['section'],
   schema: z.object({
     surface: builderField.surface().optional(),
@@ -18,11 +18,11 @@ export default defineBlock({
     imageDecorative: builderField.boolean().optional(),
     imagePosition: z.enum(['left', 'right']).optional(),
     ctaText: builderField.text(100).optional(),
-    ctaLink: builderField.link().optional(),
+    ctaAction: builderField.action(['link', 'addToCart', 'addToWishlist', 'copyCode']).optional(),
     decor: z.enum(['none', 'orbs', 'gradient']).optional(),
   }),
   translatable: ['/heading', '/body', '/eyebrow', '/note', '/emphasis', '/ctaText'],
-  upgrade: { 1: upgradeTitleIntoHeading },
+  upgrade: { 1: upgradeTitleIntoHeading, 2: upgradeLinkIntoAction('ctaLink', 'ctaAction') },
   legacyImages: [{ from: '/imageUrl', to: '/image' }],
   limits: { maxBlocks: 10 },
   children: { allowed: ['bullet', 'spec_card'], maxDepth: 2 },

@@ -29,12 +29,13 @@ const props = defineProps<{
   imageDecorative?: boolean
   imagePosition?: 'left' | 'right'
   ctaText?: string
-  ctaLink?: string
+  ctaAction?: ReadyAction
   decor?: 'none' | 'orbs' | 'gradient'
   surface?: 'default' | 'muted'
 }>()
 
 const localePath = useLocalePath()
+const cta = reactive(useSectionAction(() => props.ctaAction, () => props.ctaText))
 
 const imageFirst = computed(() => props.imagePosition !== 'right')
 
@@ -227,9 +228,10 @@ const bodyParts = computed(() => {
         </p>
 
         <UButton
-          v-if="ctaText && ctaLink"
-          :to="localePath(pathLocation(ctaLink))"
-          :label="ctaText"
+          v-if="ctaText && ctaAction"
+          :to="cta.to && localePath(pathLocation(cta.to))"
+          :label="cta.label"
+          v-bind="cta.control"
           color="secondary"
           size="lg"
           class="mt-1 self-start"

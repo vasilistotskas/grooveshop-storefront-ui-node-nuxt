@@ -16,7 +16,7 @@ const PROPS = {
   image: makeResolvedImage('https://assets.example.test/team.jpg'),
   note: 'Στον πάγκο μας, στη γιορτή του κάστανου.',
   ctaText: 'Η ιστορία μας',
-  ctaLink: '/about',
+  ctaAction: { kind: 'link', to: '/about' } as const,
 }
 
 const mountSplit = (props: Record<string, unknown> = {}) =>

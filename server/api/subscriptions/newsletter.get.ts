@@ -1,8 +1,10 @@
-import { useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Whether the newsletter band can offer its form: true when the store
- * has a default newsletter topic for a submission to land in.
+ * has a default newsletter topic for a submission to land in, or, for a
+ * band that names one, when that topic is still on offer.
  *
  * Cached per tenant — the answer is store configuration, never
  * per-visitor — with a short window so a topic the merchant just
@@ -13,11 +15,12 @@ import { useRuntimeConfig } from 'nuxt/server'
 export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
+    const query = await getValidatedQuery(event, zGetNewsletterAvailabilityQuery)
     // useBackendFetch: the answer is per tenant, so Django must see
     // X-Forwarded-Host — including on an SWR revalidation.
     const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/subscription/newsletter`,
-      { method: 'GET' },
+      { method: 'GET', query },
     )
     return await parseDataAs(response, zGetNewsletterAvailabilityResponse)
   }
@@ -29,5 +32,9 @@ export default defineCachedRoute(async (event) => {
   maxAge: 60,
   staleMaxAge: 60 * 10,
   swr: true,
-  getKey: event => tenantCacheKey(event, 'newsletter:availability'),
+  // Only digits reach the key: anything else is refused above, and an unbounded key is not left to the caller.
+  getKey: (event) => {
+    const { topic } = getQuery(event)
+    return tenantCacheKey(event, typeof topic === 'string' && /^\d+$/.test(topic) ? `newsletter:availability:${topic}` : 'newsletter:availability')
+  },
 })

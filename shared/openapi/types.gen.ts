@@ -3124,8 +3124,10 @@ export type InvoiceDownloadResponse = {
  * * `blogCategory` - Blog category
  * * `page` - Page
  * * `contentPage` - Content page
+ * * `promotion` - Promotion
+ * * `topic` - Subscription Topic
  */
-export type LinkKindEnum = 'product' | 'category' | 'blogPost' | 'blogCategory' | 'page' | 'contentPage'
+export type LinkKindEnum = 'product' | 'category' | 'blogPost' | 'blogCategory' | 'page' | 'contentPage' | 'promotion' | 'topic'
 
 export type LinkLabel = {
   label: string | null
@@ -3153,6 +3155,12 @@ export type LinkLabelsResponse = {
     [key: string]: LinkLabel
   }
   contentPage?: {
+    [key: string]: LinkLabel
+  }
+  promotion?: {
+    [key: string]: LinkLabel
+  }
+  topic?: {
     [key: string]: LinkLabel
   }
 }
@@ -3308,6 +3316,10 @@ export type NewsletterSubscribeRequest = {
      * The exact consent sentence shown to the visitor.
      */
   consentText: string
+  /**
+     * The newsletter topic to subscribe to. The store's default when left out.
+     */
+  topic?: number
 }
 
 export type NewsletterSubscribeResponse = {
@@ -15307,6 +15319,14 @@ export type ApiV1BuilderLinkLabelsRetrieveData = {
          * Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
          */
     product?: string
+    /**
+         * Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    promotion?: string
+    /**
+         * Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+         */
+    topic?: string
   }
   url: '/api/v1/builder/link-labels'
 }
@@ -15328,7 +15348,7 @@ export type ApiV1BuilderLinkSearchRetrieveData = {
   path?: never
   query?: {
     /**
-         * Comma-separated kinds to search, in the order of the answer: product, category, blogPost, blogCategory, page, contentPage. All when omitted.
+         * Comma-separated kinds to search, in the order of the answer: product, category, blogPost, blogCategory, page, contentPage, promotion, topic. When omitted, what a link may point at: product, category, blogPost, blogCategory, page, contentPage.
          */
     kinds?: string
     /**
@@ -27017,7 +27037,12 @@ export type ConfirmSubscriptionByTokenResponse = ConfirmSubscriptionByTokenRespo
 export type GetNewsletterAvailabilityData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+         * A newsletter topic to ask about, instead of the store's default.
+         */
+    topic?: string | number
+  }
   url: '/api/v1/user/subscription/newsletter'
 }
 

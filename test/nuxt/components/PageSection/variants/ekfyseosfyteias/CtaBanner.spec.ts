@@ -10,7 +10,7 @@ const PROPS = {
   heading: 'Θέλετε να συνεργαστούμε σε μια δράση ή εκδήλωση;',
   description: 'Γράψτε μας.',
   buttonText: 'Επικοινωνήστε μαζί μας',
-  buttonLink: '/contact',
+  buttonAction: { kind: 'link', to: '/contact' } as const,
 }
 
 describe('ekfyseosfyteias cta_banner', () => {
@@ -49,7 +49,7 @@ describe('ekfyseosfyteias cta_banner', () => {
   it('draws no button without both its text and its link', async () => {
     const wrapper = await mountSuspended(CtaBanner, {
       route: false,
-      props: { ...PROPS, buttonLink: undefined },
+      props: { ...PROPS, buttonAction: undefined },
     })
 
     expect(wrapper.find('a').exists()).toBe(false)

@@ -11,12 +11,14 @@
  */
 import type { FormSubmitEvent } from '@nuxt/ui'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   heading?: string
   description?: string
   placeholder?: string
   buttonText?: string
   surface?: 'default' | 'muted'
+  /** The newsletter it subscribes to, when it is not the store's default. */
+  topic?: number
 }>(), {
   surface: 'muted',
 })
@@ -25,7 +27,7 @@ const { t } = useStoreI18n('components/PageSection/NewsletterSignup')
 const localePath = useLocalePath()
 
 const { available, consent, schema, state, submitting, outcome, failure, subscribe }
-  = await useNewsletterSignup({ consentRequired: () => t('consent_required') })
+  = await useNewsletterSignup({ consentRequired: () => t('consent_required'), topic: props.topic })
 
 const errorMessage = computed(() => {
   const value = failure.value

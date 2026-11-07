@@ -72,4 +72,12 @@ export const promoPicture = defineBlock({
   legacyImages: [{ from: '/imageUrl', to: '/image', alt: '/imageAlt' }],
 })
 
-export const fixtureBlocks = [promoBanner, promoItem, promoRail, promoPicture]
+/** A band with a button that can do more than link, to run the resolver over. */
+export const promoCta = defineBlock({
+  type: 'promo_cta',
+  version: 1,
+  kinds: ['section'],
+  schema: z.object({ ctaAction: builderField.action(['link', 'addToCart', 'addToWishlist', 'copyCode']).optional() }),
+})
+
+export const fixtureBlocks = [promoBanner, promoItem, promoRail, promoPicture, promoCta]

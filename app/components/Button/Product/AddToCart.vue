@@ -57,106 +57,17 @@ const props = defineProps({
 // A browse-only store takes no orders: there is nothing to buy, so no
 // buying control renders (every add-to-cart button routes through here).
 const cartEnabled = useStoreFeature('cart')
-const cartStore = useCartStore()
-const { getCartItemByProductId } = cartStore
 const { product, quantity, text } = toRefs(props)
-const { t, locale } = useStoreI18n('components/Button/Product/AddToCart')
-const toast = useToast()
-const drawer = useCartDrawer()
-const img = useMediaStreamImage()
+const { t } = useStoreI18n('components/Button/Product/AddToCart')
 
-const productName = computed(() => {
-  if ('name' in product.value && typeof product.value.name === 'string') {
-    return product.value.name
-  }
-  return extractTranslated(product.value, 'name', locale.value)
-})
+const { disabled, addToCart } = useAddToCartControl({ t, product, quantity })
 
-// Get the correct product ID for URLs and API calls
-// For search results (ProductMeiliSearchResult), use 'master' field
-// For regular Product objects, use 'id' field
-const productId = computed(() => {
-  if ('master' in product.value && typeof product.value.master === 'number') {
-    return product.value.master
-  }
-  return product.value.id
-})
-
-const cartItem = computed(() => {
-  return getCartItemByProductId(productId.value)
-})
-const disabled = computed(() => {
-  if (product.value.active === false) {
-    return true
-  }
-  if (product.value.stock === 0 || (product.value.stock && quantity.value > product.value.stock)) {
-    return true
-  }
-  if (cartItem.value && cartItem.value.quantity && product.value.stock && cartItem.value.quantity + quantity.value > product.value.stock) {
-    return true
-  }
-  return false
-})
 const visibleLabel = computed(() => {
   if (disabled.value) {
     return t('unavailable')
   }
   return props.label ?? text.value
 })
-
-const { addToCart } = useAddToCart({
-  t,
-  productId,
-  quantity,
-  name: productName,
-  onAdded: () => announceAdded(),
-})
-
-// Adds since the toast last opened, across every add-to-cart button.
-const addedWhileOpen = useState('cart-added-toast-count', () => 0)
-
-/**
- * How an added line is announced, as the boards draw it: on a desktop
- * the cart drawer opens with it; on a phone a toast shows the product's
- * photograph and "View", which opens the drawer.
- *
- * One toast, updated in place: a new toast per tap stacked up to five
- * over half a phone screen (owner review, 2026-10-16). Updating it
- * restarts its timer, so it closes a few seconds after the LAST add, and
- * counts the adds while it is open.
- */
-function announceAdded() {
-  const name = productName.value ?? ''
-  if (drawer.desktop.value) {
-    // The drawer is the confirmation: the "Adding…" toast has done its part.
-    toast.remove(CART_ADD_TOAST_ID)
-    drawer.show(name)
-    return
-  }
-  addedWhileOpen.value += 1
-  const imagePath = 'mainImagePath' in product.value ? product.value.mainImagePath : undefined
-  const content = {
-    'title': addedWhileOpen.value > 1
-      ? t('toast.added_many', { count: addedWhileOpen.value })
-      : t('toast.added_title'),
-    'description': name,
-    'icon': imagePath ? undefined : 'i-lucide-circle-check',
-    'avatar': imagePath
-      ? { src: img(imagePath, { width: 96, height: 96, fit: 'cover' }, { provider: 'mediaStream' }), alt: name }
-      : undefined,
-    'color': 'success' as const,
-    'actions': [{
-      label: t('toast.view'),
-      color: 'neutral' as const,
-      variant: 'solid' as const,
-      onClick: () => drawer.show(name),
-    }],
-    'onUpdate:open': (open: boolean) => {
-      if (!open) addedWhileOpen.value = 0
-    },
-  }
-  showOrUpdateToast(toast, CART_ADD_TOAST_ID, content)
-}
 </script>
 
 <template>

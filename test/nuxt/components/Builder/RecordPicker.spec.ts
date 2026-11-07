@@ -36,7 +36,7 @@ afterEach(() => {
 })
 
 async function mount(value: BuilderLinkRef | undefined, kinds: readonly LinkRefKind[] = ['product', 'category']) {
-  const updates: Array<BuilderLinkRef | undefined> = []
+  const updates: Array<BuilderPickerRef | undefined> = []
   const wrapper = await mountSuspended(defineComponent({
     render: () => h(UApp, null, {
       default: () => h(BuilderRecordPicker, {
@@ -45,7 +45,7 @@ async function mount(value: BuilderLinkRef | undefined, kinds: readonly LinkRefK
         label: 'Προϊόν της διαφάνειας',
         clearable: true,
         disabled: false,
-        onUpdate: (next: BuilderLinkRef | undefined) => updates.push(next),
+        onUpdate: (next: BuilderPickerRef | undefined) => updates.push(next),
       }),
     }),
   }), { attachTo: document.body })

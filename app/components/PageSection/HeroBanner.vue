@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{
   /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
   imageDecorative?: boolean
   ctaText?: string
-  ctaLink?: string
+  ctaAction?: ReadyAction
   secondaryCtaText?: string
   secondaryCtaLink?: string
   /** Proof under the copy — "500+ orders", "24h delivery". */
@@ -38,6 +38,7 @@ const props = withDefaults(defineProps<{
 
 const localePath = useLocalePath()
 const leadsPage = useLeadsPage()
+const cta = reactive(useSectionAction(() => props.ctaAction, () => props.ctaText))
 const { isMobileOrTablet } = useDevice()
 
 const picture = computed(() => readyImage(props.image))
@@ -173,14 +174,15 @@ const hasContent = computed(
       </p>
 
       <div
-        v-if="(ctaText && ctaLink) || (secondaryCtaText && secondaryCtaLink)"
+        v-if="(ctaText && ctaAction) || (secondaryCtaText && secondaryCtaLink)"
         class="mt-2 flex flex-wrap gap-3"
         :class="centred && 'justify-center'"
       >
         <UButton
-          v-if="ctaText && ctaLink"
-          :to="localePath(pathLocation(ctaLink))"
-          :label="ctaText"
+          v-if="ctaText && ctaAction"
+          :to="cta.to && localePath(pathLocation(cta.to))"
+          :label="cta.label"
+          v-bind="cta.control"
           color="secondary"
           size="xl"
         />

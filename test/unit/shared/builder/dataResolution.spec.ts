@@ -39,7 +39,7 @@ const documentOf = (sections: Record<string, BuilderNode>): BuilderDocument => (
 const newest = { mode: 'filter', ordering: 'newest', limit: 4 }
 
 const resolution = (overrides: Partial<{ [K in keyof DataResolution['records']]: DataResolution['records'][K] }> = {}, queries: Record<string, readonly unknown[] | 'failed'> = {}): DataResolution => ({
-  records: { product: new Map(), blogPost: new Map(), category: new Map(), blogCategory: new Map(), media: new Map(), ...overrides },
+  records: { product: new Map(), blogPost: new Map(), category: new Map(), blogCategory: new Map(), media: new Map(), promotion: new Map(), ...overrides },
   queries: new Map(Object.entries(queries).map(([key, items]) => [key, items === 'failed' ? items : { items, total: items.length }])),
 })
 
@@ -94,7 +94,7 @@ describe('planData', () => {
 
     const plan = planData(dataSites(document, registry))
 
-    expect(plan.ids).toEqual({ product: [2, 4, 7], blogPost: [9], category: [5], blogCategory: [], media: [] })
+    expect(plan.ids).toEqual({ product: [2, 4, 7], blogPost: [9], promotion: [], category: [5], blogCategory: [], media: [] })
     expect([...plan.queries.keys()]).toEqual([canonicalQuery('product', newest)])
   })
 })

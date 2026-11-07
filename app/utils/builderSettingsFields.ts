@@ -18,7 +18,8 @@
  * - `mediaList`: a list of media ids, each entry an image of the media library
  *   (`builderField.ref('media', ...)` as the items of an array: the `*` data pointer);
  * - `list`: a list of strings;
- * - `group`: an object, with fields of its own;
+ * - `group`: an object, with fields of its own; `action` when it is a
+ *   `builderField.action`, whose form shows its `kind` and the one target of that kind;
  * - `richText`: HTML (`contentMediaType: text/html`).
  */
 export type BuilderSettingField
@@ -29,7 +30,7 @@ export type BuilderSettingField
     | { kind: 'record', path: string, pointer: SettingsPointer, required: boolean, refKind: BlockRefKind }
     | { kind: 'query', path: string, pointer: SettingsPointer, required: boolean, source: DataSource, maxLimit: number }
     | { kind: 'list' | 'mediaList', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
-    | { kind: 'group', path: string, pointer: SettingsPointer, required: boolean, fields: BuilderSettingField[] }
+    | { kind: 'group', path: string, pointer: SettingsPointer, required: boolean, fields: BuilderSettingField[], action?: true }
 
 export interface BuilderTextField {
   kind: 'text' | 'textarea'
@@ -56,7 +57,7 @@ function fieldOf(
   schema: JsonSchema,
   path: string[],
   required: boolean,
-  definition: Pick<BlockDefinition, 'refs' | 'linkRefs' | 'data'>,
+  definition: Pick<BlockDefinition, 'refs' | 'linkRefs' | 'data' | 'actions'>,
 ): BuilderSettingField {
   const pointer = `/${path.join('/')}` as SettingsPointer
   const base = { path: path.join('.'), pointer, required }
@@ -96,12 +97,9 @@ function fieldOf(
     case 'object': {
       const properties = isSchema(schema.properties) ? schema.properties : {}
       const requiredKeys = new Set(Array.isArray(schema.required) ? schema.required : [])
-      return {
-        ...base,
-        kind: 'group',
-        fields: Object.entries(properties).flatMap(([key, child]) =>
-          isSchema(child) ? [fieldOf(child, [...path, key], requiredKeys.has(key), definition)] : []),
-      }
+      const fields = Object.entries(properties).flatMap(([key, child]) =>
+        isSchema(child) ? [fieldOf(child, [...path, key], requiredKeys.has(key), definition)] : [])
+      return { ...base, kind: 'group', fields, ...(definition.actions.includes(pointer) && { action: true as const }) }
     }
     default: {
       const format = typeof schema.pattern === 'string' ? FORMAT_OF_PATTERN.get(schema.pattern) : undefined

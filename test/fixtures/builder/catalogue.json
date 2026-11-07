@@ -1,5 +1,5 @@
 {
-  "hash": "43ce1e7a51adbe8f",
+  "hash": "8e57e9d6551afcfe",
   "blocks": [
     {
       "type": "about_content",
@@ -1182,9 +1182,9 @@
     },
     {
       "type": "cta_banner",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1202,176 +1202,265 @@
             "type": "string",
             "maxLength": 100
           },
-          "buttonLink": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "href": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "pattern": "^https:\\/\\/"
-                  }
-                },
-                "required": [
-                  "href"
-                ],
-                "additionalProperties": false
+          "buttonAction": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "link",
+                  "addToCart",
+                  "addToWishlist",
+                  "copyCode"
+                ]
               },
-              {
-                "type": "object",
-                "properties": {
-                  "route": {
-                    "type": "string",
-                    "enum": [
-                      "/",
-                      "/products",
-                      "/blog",
-                      "/contact",
-                      "/offers",
-                      "/gift-cards",
-                      "/loyalty-program",
-                      "/feedback",
-                      "/account/login",
-                      "/account/signup"
-                    ]
-                  }
-                },
-                "required": [
-                  "route"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "ref": {
-                    "oneOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "product"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "category"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogCategory"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogPost"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "page"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "contentPage"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64,
-                            "pattern": "^[-a-zA-Z0-9_]+$"
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "href": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "pattern": "^https:\\/\\/"
                       }
-                    ]
+                    },
+                    "required": [
+                      "href"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "route": {
+                        "type": "string",
+                        "enum": [
+                          "/",
+                          "/products",
+                          "/blog",
+                          "/contact",
+                          "/offers",
+                          "/gift-cards",
+                          "/loyalty-program",
+                          "/feedback",
+                          "/account/login",
+                          "/account/signup"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "route"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "ref": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "product"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "category"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "blogCategory"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "blogPost"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "page"
+                              },
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "contentPage"
+                              },
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64,
+                                "pattern": "^[-a-zA-Z0-9_]+$"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "ref"
+                    ],
+                    "additionalProperties": false
                   }
+                ],
+                "x-builder-link": true
+              },
+              "product": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "x-builder-data": {
+                  "field": "ref",
+                  "kind": "product",
+                  "onMissing": "empty"
+                }
+              },
+              "promotion": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "x-builder-data": {
+                  "field": "ref",
+                  "kind": "promotion",
+                  "onMissing": "empty"
+                }
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false,
+            "x-builder-action": true,
+            "oneOf": [
+              {
+                "properties": {
+                  "kind": {
+                    "const": "link"
+                  },
+                  "product": false,
+                  "promotion": false
                 },
                 "required": [
-                  "ref"
-                ],
-                "additionalProperties": false
+                  "to"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "addToCart"
+                  },
+                  "to": false,
+                  "promotion": false
+                },
+                "required": [
+                  "product"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "addToWishlist"
+                  },
+                  "to": false,
+                  "promotion": false
+                },
+                "required": [
+                  "product"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "copyCode"
+                  },
+                  "to": false,
+                  "product": false
+                },
+                "required": [
+                  "promotion"
+                ]
               }
-            ],
-            "x-builder-link": true
+            ]
           },
           "backgroundColor": {
             "type": "string",
@@ -1394,8 +1483,20 @@
       ],
       "refs": {},
       "linkRefs": [
-        "/buttonLink"
+        "/buttonAction/to"
       ],
+      "data": {
+        "/buttonAction/product": {
+          "field": "ref",
+          "kind": "product",
+          "onMissing": "empty"
+        },
+        "/buttonAction/promotion": {
+          "field": "ref",
+          "kind": "promotion",
+          "onMissing": "empty"
+        }
+      },
       "limits": {},
       "children": {
         "allowed": []
@@ -2605,9 +2706,9 @@
     },
     {
       "type": "hero_banner",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2664,176 +2765,265 @@
             "type": "string",
             "maxLength": 100
           },
-          "ctaLink": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "href": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "pattern": "^https:\\/\\/"
-                  }
-                },
-                "required": [
-                  "href"
-                ],
-                "additionalProperties": false
+          "ctaAction": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "link",
+                  "addToCart",
+                  "addToWishlist",
+                  "copyCode"
+                ]
               },
-              {
-                "type": "object",
-                "properties": {
-                  "route": {
-                    "type": "string",
-                    "enum": [
-                      "/",
-                      "/products",
-                      "/blog",
-                      "/contact",
-                      "/offers",
-                      "/gift-cards",
-                      "/loyalty-program",
-                      "/feedback",
-                      "/account/login",
-                      "/account/signup"
-                    ]
-                  }
-                },
-                "required": [
-                  "route"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "ref": {
-                    "oneOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "product"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "category"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogCategory"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogPost"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "page"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "contentPage"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64,
-                            "pattern": "^[-a-zA-Z0-9_]+$"
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "href": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "pattern": "^https:\\/\\/"
                       }
-                    ]
+                    },
+                    "required": [
+                      "href"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "route": {
+                        "type": "string",
+                        "enum": [
+                          "/",
+                          "/products",
+                          "/blog",
+                          "/contact",
+                          "/offers",
+                          "/gift-cards",
+                          "/loyalty-program",
+                          "/feedback",
+                          "/account/login",
+                          "/account/signup"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "route"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "ref": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "product"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "category"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "blogCategory"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "blogPost"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "page"
+                              },
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "contentPage"
+                              },
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64,
+                                "pattern": "^[-a-zA-Z0-9_]+$"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "ref"
+                    ],
+                    "additionalProperties": false
                   }
+                ],
+                "x-builder-link": true
+              },
+              "product": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "x-builder-data": {
+                  "field": "ref",
+                  "kind": "product",
+                  "onMissing": "empty"
+                }
+              },
+              "promotion": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "x-builder-data": {
+                  "field": "ref",
+                  "kind": "promotion",
+                  "onMissing": "empty"
+                }
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false,
+            "x-builder-action": true,
+            "oneOf": [
+              {
+                "properties": {
+                  "kind": {
+                    "const": "link"
+                  },
+                  "product": false,
+                  "promotion": false
                 },
                 "required": [
-                  "ref"
-                ],
-                "additionalProperties": false
+                  "to"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "addToCart"
+                  },
+                  "to": false,
+                  "promotion": false
+                },
+                "required": [
+                  "product"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "addToWishlist"
+                  },
+                  "to": false,
+                  "promotion": false
+                },
+                "required": [
+                  "product"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "copyCode"
+                  },
+                  "to": false,
+                  "product": false
+                },
+                "required": [
+                  "promotion"
+                ]
               }
-            ],
-            "x-builder-link": true
+            ]
           },
           "secondaryCtaText": {
             "type": "string",
@@ -3051,7 +3241,7 @@
       ],
       "refs": {},
       "linkRefs": [
-        "/ctaLink",
+        "/ctaAction/to",
         "/secondaryCtaLink"
       ],
       "data": {
@@ -3063,6 +3253,16 @@
         "/mobileImage": {
           "field": "ref",
           "kind": "media",
+          "onMissing": "empty"
+        },
+        "/ctaAction/product": {
+          "field": "ref",
+          "kind": "product",
+          "onMissing": "empty"
+        },
+        "/ctaAction/promotion": {
+          "field": "ref",
+          "kind": "promotion",
           "onMissing": "empty"
         }
       },
@@ -4352,9 +4552,9 @@
     },
     {
       "type": "media_text",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4415,176 +4615,265 @@
             "type": "string",
             "maxLength": 100
           },
-          "ctaLink": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "href": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "pattern": "^https:\\/\\/"
-                  }
-                },
-                "required": [
-                  "href"
-                ],
-                "additionalProperties": false
+          "ctaAction": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "link",
+                  "addToCart",
+                  "addToWishlist",
+                  "copyCode"
+                ]
               },
-              {
-                "type": "object",
-                "properties": {
-                  "route": {
-                    "type": "string",
-                    "enum": [
-                      "/",
-                      "/products",
-                      "/blog",
-                      "/contact",
-                      "/offers",
-                      "/gift-cards",
-                      "/loyalty-program",
-                      "/feedback",
-                      "/account/login",
-                      "/account/signup"
-                    ]
-                  }
-                },
-                "required": [
-                  "route"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "ref": {
-                    "oneOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "product"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "category"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogCategory"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogPost"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "page"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "contentPage"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64,
-                            "pattern": "^[-a-zA-Z0-9_]+$"
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "href": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "pattern": "^https:\\/\\/"
                       }
-                    ]
+                    },
+                    "required": [
+                      "href"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "route": {
+                        "type": "string",
+                        "enum": [
+                          "/",
+                          "/products",
+                          "/blog",
+                          "/contact",
+                          "/offers",
+                          "/gift-cards",
+                          "/loyalty-program",
+                          "/feedback",
+                          "/account/login",
+                          "/account/signup"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "route"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "ref": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "product"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "category"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "blogCategory"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "blogPost"
+                              },
+                              "id": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2147483647
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "page"
+                              },
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "contentPage"
+                              },
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64,
+                                "pattern": "^[-a-zA-Z0-9_]+$"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "ref"
+                    ],
+                    "additionalProperties": false
                   }
+                ],
+                "x-builder-link": true
+              },
+              "product": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "x-builder-data": {
+                  "field": "ref",
+                  "kind": "product",
+                  "onMissing": "empty"
+                }
+              },
+              "promotion": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "x-builder-data": {
+                  "field": "ref",
+                  "kind": "promotion",
+                  "onMissing": "empty"
+                }
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false,
+            "x-builder-action": true,
+            "oneOf": [
+              {
+                "properties": {
+                  "kind": {
+                    "const": "link"
+                  },
+                  "product": false,
+                  "promotion": false
                 },
                 "required": [
-                  "ref"
-                ],
-                "additionalProperties": false
+                  "to"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "addToCart"
+                  },
+                  "to": false,
+                  "promotion": false
+                },
+                "required": [
+                  "product"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "addToWishlist"
+                  },
+                  "to": false,
+                  "promotion": false
+                },
+                "required": [
+                  "product"
+                ]
+              },
+              {
+                "properties": {
+                  "kind": {
+                    "const": "copyCode"
+                  },
+                  "to": false,
+                  "product": false
+                },
+                "required": [
+                  "promotion"
+                ]
               }
-            ],
-            "x-builder-link": true
+            ]
           },
           "decor": {
             "type": "string",
@@ -4607,12 +4896,22 @@
       ],
       "refs": {},
       "linkRefs": [
-        "/ctaLink"
+        "/ctaAction/to"
       ],
       "data": {
         "/image": {
           "field": "ref",
           "kind": "media",
+          "onMissing": "empty"
+        },
+        "/ctaAction/product": {
+          "field": "ref",
+          "kind": "product",
+          "onMissing": "empty"
+        },
+        "/ctaAction/promotion": {
+          "field": "ref",
+          "kind": "promotion",
           "onMissing": "empty"
         }
       },
@@ -4813,6 +5112,11 @@
               "default",
               "muted"
             ]
+          },
+          "topic": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
           }
         },
         "additionalProperties": false
@@ -4823,7 +5127,9 @@
         "/placeholder",
         "/buttonText"
       ],
-      "refs": {},
+      "refs": {
+        "/topic": "topic"
+      },
       "linkRefs": [],
       "limits": {},
       "children": {

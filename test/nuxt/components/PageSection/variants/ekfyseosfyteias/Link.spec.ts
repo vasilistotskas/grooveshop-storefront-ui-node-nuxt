@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import Link from '~/components/PageSection/variants/ekfyseosfyteias/Link.vue'
 
@@ -8,6 +8,26 @@ import Link from '~/components/PageSection/variants/ekfyseosfyteias/Link.vue'
  */
 const mountLink = (props: { to: string, arrow?: boolean }) =>
   mountSuspended(Link, { route: false, props, slots: { default: 'Διαβάστε' } })
+
+describe('with no address', () => {
+  it('is a button in the same look, with the arrow, that says when it is busy', async () => {
+    const wrapper = await mountSuspended(Link, { route: false, props: { look: 'ink', arrow: true, loading: true }, slots: { default: () => 'Στο καλάθι' } })
+
+    const button = wrapper.get('button')
+    expect(wrapper.find('a').exists()).toBe(false)
+    expect(button.text()).toBe('Στο καλάθι')
+    expect(button.attributes('type')).toBe('button')
+    expect(button.attributes('aria-busy')).toBe('true')
+    expect(button.find('[aria-hidden="true"]').exists()).toBe(true)
+  })
+
+  it('takes what the action hands it: its click and disabled', async () => {
+    const onClick = vi.fn()
+    const wrapper = await mountSuspended(Link, { route: false, props: { look: 'ink', disabled: true, onClick }, slots: { default: () => 'Στο καλάθι' } })
+
+    expect(wrapper.get('button').attributes('disabled')).toBeDefined()
+  })
+})
 
 describe('ekfyseosfyteias Link', () => {
   it('keeps the query and hash of a CMS path', async () => {

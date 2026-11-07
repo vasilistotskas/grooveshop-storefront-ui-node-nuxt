@@ -1,7 +1,7 @@
 import { LINK_SLUG_KINDS } from '../constants/builder'
 import type { BlockDefinition, BuilderDocument, BuilderLink, BuilderLinkRef, BuilderNode, LinkSlugKind, LinkTargets } from '../types/builder'
 import { blogCategoryPath, blogPostPath, categoryPath, contentPagePath, pagePath, productPath } from '../utils/entityPaths'
-import { mapLinkSettings, REMOVE_LINK } from './linkSettings'
+import { mapSettingsAt, REMOVE_SETTING } from './settingsAt'
 import { parseVersionedType } from './upgrade'
 
 /** Whether a link names a record whose address needs its current slug. */
@@ -14,7 +14,7 @@ export function collectLinkRefs(
 ): BuilderLinkRef[] {
   const found = new Map<string, BuilderLinkRef>()
   forEachNode(document, registry, (node, definition) => {
-    mapLinkSettings(node.settings, definition.linkRefs, (link) => {
+    mapSettingsAt(node.settings, definition.linkRefs, (link) => {
       if (isLinkRef(link)) found.set(`${link.ref.kind}:${link.ref.id}`, link.ref)
       return link
     })
@@ -22,9 +22,9 @@ export function collectLinkRefs(
   return [...found.values()]
 }
 
-/** A record's address, or `REMOVE_LINK` when the record is not there (it has no slug). */
-const withSlug = (slug: string | undefined, path: (slug: string) => string): string | typeof REMOVE_LINK =>
-  slug === undefined ? REMOVE_LINK : path(slug)
+/** A record's address, or `REMOVE_SETTING` when the record is not there (it has no slug). */
+const withSlug = (slug: string | undefined, path: (slug: string) => string): string | typeof REMOVE_SETTING =>
+  slug === undefined ? REMOVE_SETTING : path(slug)
 
 /**
  * The document with every link setting turned into the path (or URL) it
@@ -39,14 +39,14 @@ export function resolveLinks(
   targets: LinkTargets,
   registry: ReadonlyMap<string, BlockDefinition>,
 ): BuilderDocument {
-  const address = (link: unknown): string | typeof REMOVE_LINK => {
-    if (!isBuilderLink(link)) return REMOVE_LINK
+  const address = (link: unknown): string | typeof REMOVE_SETTING => {
+    if (!isBuilderLink(link)) return REMOVE_SETTING
     if ('href' in link) return link.href
     if ('route' in link) return link.route
     const { ref } = link
     switch (ref.kind) {
-      case 'page': return targets.published.pages.has(ref.id) ? pagePath(ref.id) : REMOVE_LINK
-      case 'contentPage': return targets.published.contentPages.has(ref.id) ? contentPagePath(ref.id) : REMOVE_LINK
+      case 'page': return targets.published.pages.has(ref.id) ? pagePath(ref.id) : REMOVE_SETTING
+      case 'contentPage': return targets.published.contentPages.has(ref.id) ? contentPagePath(ref.id) : REMOVE_SETTING
       case 'product': return withSlug(targets.slugs.product.get(ref.id), slug => productPath(ref.id, slug))
       case 'category': return withSlug(targets.slugs.category.get(ref.id), slug => categoryPath(ref.id, slug))
       case 'blogPost': return withSlug(targets.slugs.blogPost.get(ref.id), slug => blogPostPath(ref.id, slug))
@@ -76,12 +76,12 @@ function forEachNode(
 function mapNode(
   node: BuilderNode,
   registry: ReadonlyMap<string, BlockDefinition>,
-  address: (link: unknown) => string | typeof REMOVE_LINK,
+  address: (link: unknown) => string | typeof REMOVE_SETTING,
 ): BuilderNode {
   const definition = registry.get(parseVersionedType(node.type)?.type ?? '')
   return {
     ...node,
-    settings: definition ? mapLinkSettings(node.settings, definition.linkRefs, address) : node.settings,
+    settings: definition ? mapSettingsAt(node.settings, definition.linkRefs, address) : node.settings,
     ...(node.blocks && {
       blocks: Object.fromEntries(Object.entries(node.blocks).map(([id, child]) => [id, mapNode(child, registry, address)])),
     }),

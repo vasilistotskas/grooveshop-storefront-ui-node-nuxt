@@ -209,8 +209,21 @@
     "body": {
       "label": "Text"
     },
-    "buttonLink": {
-      "label": "Button link"
+    "buttonAction": {
+      "label": "What the button does",
+      "kind": {
+        "label": "Action"
+      },
+      "to": {
+        "label": "Link to"
+      },
+      "product": {
+        "label": "Product"
+      },
+      "promotion": {
+        "label": "Offer",
+        "help": "A code comes from a running offer, so the button goes when the offer ends."
+      }
     },
     "buttonText": {
       "label": "Button text"
@@ -229,6 +242,22 @@
     },
     "contentPage": {
       "label": "Content page"
+    },
+    "ctaAction": {
+      "label": "What the button does",
+      "kind": {
+        "label": "Action"
+      },
+      "to": {
+        "label": "Link to"
+      },
+      "product": {
+        "label": "Product"
+      },
+      "promotion": {
+        "label": "Offer",
+        "help": "A code comes from a running offer, so the button goes when the offer ends."
+      }
     },
     "ctaLink": {
       "label": "Button link"
@@ -396,6 +425,10 @@
     "title": {
       "label": "Title"
     },
+    "topic": {
+      "label": "Newsletter",
+      "help": "Leave empty for the store's default newsletter."
+    },
     "value": {
       "label": "Value"
     },
@@ -453,7 +486,11 @@
       "payment": "Payment",
       "shipping": "Shipping",
       "ai": "AI assistants",
-      "custom": "Your own"
+      "custom": "Your own",
+      "link": "Open a link",
+      "addToCart": "Add to cart",
+      "addToWishlist": "Add to favourites",
+      "copyCode": "Copy a code"
     }
   },
   "routes": {

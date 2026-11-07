@@ -75,7 +75,7 @@ const hasRoom = computed(() => {
  */
 const recordKind = computed(() => {
   const field = props.field
-  return field.kind === 'record' ? LINK_REF_KINDS.find(kind => kind === field.refKind) : undefined
+  return field.kind === 'record' ? BUILDER_PICKER_KINDS.find(kind => kind === field.refKind) : undefined
 })
 const record = computed(() => {
   const kind = recordKind.value
@@ -156,8 +156,17 @@ function addMediaItem(id: number | undefined): void {
 </script>
 
 <template>
+  <BuilderActionField
+    v-if="field.kind === 'group' && field.action"
+    :field="field"
+    :settings="settings"
+    :errors="errors"
+    :disabled="disabled"
+    :translation="translation"
+    @update="(path, next) => emit('update', path, next)"
+  />
   <fieldset
-    v-if="field.kind === 'group'"
+    v-else-if="field.kind === 'group'"
     class="flex flex-col gap-4 rounded-md border border-default p-3"
   >
     <legend class="px-1 text-sm font-medium">
@@ -263,7 +272,7 @@ function addMediaItem(id: number | undefined): void {
       :label="label"
       :clearable="!field.required"
       :disabled="locked"
-      @update="(next: BuilderLinkRef | undefined) => set(next?.id)"
+      @update="(next: BuilderPickerRef | undefined) => set(next?.id)"
     />
     <BuilderMediaField
       v-else-if="field.kind === 'media'"

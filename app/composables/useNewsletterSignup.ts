@@ -19,6 +19,8 @@ export type NewsletterFailure
 interface NewsletterSignupOptions {
   /** The form's own wording for an unticked consent box. */
   consentRequired: () => string
+  /** The newsletter the form subscribes to, when it is not the store's default. */
+  topic?: number
 }
 
 /**
@@ -28,21 +30,22 @@ interface NewsletterSignupOptions {
  * A form is offered only when the merchant toggle is on AND the store
  * has a default newsletter topic. The availability request itself is
  * gated, not just the render — Django 404s it while the toggle is off.
- * Every form reads the one `newsletter-availability` key through here,
- * which is what keeps their request options identical.
+ * Every form of one topic reads the one key through here, which is what
+ * keeps their request options identical.
  *
  * The consent sentence comes from `shared/i18n/newsletterConsent.ts` —
  * the module the server route also reads, so the sentence Django stores
  * as proof of consent is the sentence the label showed.
  */
-export async function useNewsletterAvailability() {
+export async function useNewsletterAvailability(topic?: number) {
   const { $i18n } = useNuxtApp()
   const newsletterEnabled = useStoreFeature('newsletter')
 
   const { data: availability } = await useApi('/api/subscriptions/newsletter', {
-    key: 'newsletter-availability',
+    key: topic === undefined ? 'newsletter-availability' : `newsletter-availability-${topic}`,
     dedupe: 'defer',
     enabled: newsletterEnabled,
+    ...(topic !== undefined && { query: { topic } }),
     // The band hydrates when it scrolls into view, after the app has
     // finished hydrating — see app/utils/payloadCachedData.ts.
     getCachedData: payloadCachedData,
@@ -65,7 +68,7 @@ export async function useNewsletterAvailability() {
  * locale on the request (`pageLocaleHeader`) — the locale the consent
  * label was rendered in — so the server stores the same sentence.
  */
-export function requestNewsletterSubscription(body: { email: string, consent: boolean }) {
+export function requestNewsletterSubscription(body: { email: string, consent: boolean, topic?: number }) {
   return $api('/api/subscriptions/newsletter', {
     method: 'POST',
     body,
@@ -91,7 +94,7 @@ export function requestNewsletterSubscription(body: { email: string, consent: bo
 export async function useNewsletterSignup(options: NewsletterSignupOptions) {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
-  const { available, consent } = await useNewsletterAvailability()
+  const { available, consent } = await useNewsletterAvailability(options.topic)
 
   const schema = z.object({
     email: z.email({ error: () => t('validation.email.valid') }).max(254),
@@ -114,7 +117,10 @@ export async function useNewsletterSignup(options: NewsletterSignupOptions) {
     submitting.value = true
     failure.value = null
     try {
-      const response = await requestNewsletterSubscription(body)
+      const response = await requestNewsletterSubscription({
+        ...body,
+        ...(options.topic !== undefined && { topic: options.topic }),
+      })
       outcome.value = response.status
     }
     catch (error) {

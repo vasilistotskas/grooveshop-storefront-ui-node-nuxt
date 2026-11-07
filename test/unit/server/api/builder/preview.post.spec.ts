@@ -111,7 +111,7 @@ describe('POST /api/builder/preview', () => {
 
     expect(response.status).toBe(200)
     expect(response.body.pages['template:home'].sections).toEqual([
-      { id: 'hero', componentType: 'hero_banner', props: expect.objectContaining({ heading: 'Καλώς ήρθατε', ctaText: 'Δείτε', ctaLink: '/about' }) },
+      { id: 'hero', componentType: 'hero_banner', props: expect.objectContaining({ heading: 'Καλώς ήρθατε', ctaText: 'Δείτε', ctaAction: { kind: 'link', to: '/about' } }) },
     ])
     expect(response.headers.get('cache-control')).toBe('private, no-store')
   })
@@ -119,7 +119,7 @@ describe('POST /api/builder/preview', () => {
   it('hides a link to a page the store has not published, as publishing would', async () => {
     const { body } = await post(HOME_AND_HEADER, { pages: [] })
 
-    expect(body.pages['template:home'].sections[0].props).not.toHaveProperty('ctaLink')
+    expect(body.pages['template:home'].sections[0].props).not.toHaveProperty('ctaAction')
   })
 
   it('draws the menus of the groups Django resolved', async () => {

@@ -509,5 +509,21 @@
     "gestures_windows": "Use Ctrl + scroll to zoom the map",
     "gestures_mac": "Use ⌘ + scroll to zoom the map",
     "gestures_mobile": "Use two fingers to move the map"
+  },
+  "section_action": {
+    "unavailable": "Unavailable",
+    "copied": "Code {code} copied",
+    "toast": {
+      "adding_title": "Adding to cart…",
+      "added_title": "Added to cart",
+      "added_many": "{count} items added to cart",
+      "view": "View",
+      "failed_title": "Not added to your basket",
+      "failed_description": "Something went wrong. Try again in a moment."
+    },
+    "not_authenticated": "You have to be signed in to add favourites",
+    "added": "Added to your favourites",
+    "removed": "Removed from your favourites",
+    "error_occurred": "Something went wrong"
   }
 }

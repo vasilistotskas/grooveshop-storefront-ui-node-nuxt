@@ -9,6 +9,9 @@ export type BlockKind = (typeof BLOCK_KINDS)[number]
 export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
 export type BuilderDocumentKind = (typeof BUILDER_DOCUMENT_KINDS)[number]
 export type LinkRefKind = (typeof LINK_REF_KINDS)[number]
+export type BuilderPickerKind = (typeof BUILDER_PICKER_KINDS)[number]
+export type BuilderActionKind = keyof typeof BUILDER_ACTION_TARGETS
+export type BuilderActionFeature = (typeof BUILDER_ACTION_FEATURES)[BuilderActionKind][number]
 export type DataSource = (typeof DATA_SOURCES)[number]
 export type DataRecordKind = (typeof DATA_RECORD_KINDS)[number]
 export type DataMissing = (typeof DATA_MISSING)[number]
@@ -26,6 +29,9 @@ export type DataDeclaration
 export type BuilderLinkRef
   = | { kind: Exclude<LinkRefKind, 'page' | 'contentPage'>, id: number }
     | { kind: 'page' | 'contentPage', id: string }
+
+/** A record the editor's picker can name: what a link points at, an offer, a newsletter. */
+export type BuilderPickerRef = BuilderLinkRef | { kind: 'promotion' | 'topic', id: number }
 
 /** A link setting as a document stores it: where it goes, never a typed internal path. */
 export type BuilderLink
@@ -177,6 +183,8 @@ export interface BlockDefinition<Schema extends ZodObject = ZodObject> extends B
   refs: Readonly<Partial<Record<SettingsPointer, BlockRefKind>>>
   /** The link settings of the schema (`builderField.link()`), derived by `defineBlock`: Django checks the records they name. */
   linkRefs: readonly SettingsPointer[]
+  /** The settings that are actions (`builderField.action`): what `useSectionAction` runs. Never in the catalogue: Django checks their targets as links and data. */
+  actions: readonly SettingsPointer[]
   /** The data settings of the schema (`builderField.ref`, `builderField.query`), derived by `defineBlock`. */
   data: Readonly<Record<SettingsPointer, DataDeclaration>>
   limits: BlockLimits

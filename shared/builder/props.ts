@@ -1,4 +1,5 @@
 import type { BlockDefinition, BuilderNode } from '../types/builder'
+import { readyActions } from './actions'
 import { parseVersionedType } from './upgrade'
 
 /**
@@ -10,7 +11,8 @@ import { parseVersionedType } from './upgrade'
  * A disabled child is left out, as a hidden slide would be. A block with no
  * children has no list prop at all (an empty list and none render alike).
  * The node must come from `parseDocument`: its types are known and its
- * settings already match their schemas.
+ * settings already match their schemas. An action with nothing to act on is
+ * left out (`readyActions`), so a component's own test for a button holds.
  */
 export function sectionProps(
   node: BuilderNode,
@@ -27,5 +29,5 @@ export function sectionProps(
       (lists[list] ??= []).push(sectionProps(child, registry))
     }
   }
-  return { ...node.settings, ...lists }
+  return { ...(definition ? readyActions(node.settings, definition) : node.settings), ...lists }
 }

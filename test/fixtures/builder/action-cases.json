@@ -1,0 +1,21 @@
+[
+  { "name": "a link to a fixed route", "settings": { "ctaAction": { "kind": "link", "to": { "route": "/products" } } }, "valid": true },
+  { "name": "a link to an external address", "settings": { "ctaAction": { "kind": "link", "to": { "href": "https://example.com/a" } } }, "valid": true },
+  { "name": "a link to a record", "settings": { "ctaAction": { "kind": "link", "to": { "ref": { "kind": "category", "id": 7 } } } }, "valid": true },
+  { "name": "add a product to the cart", "settings": { "ctaAction": { "kind": "addToCart", "product": 5 } }, "valid": true },
+  { "name": "add a product to the wishlist", "settings": { "ctaAction": { "kind": "addToWishlist", "product": 5 } }, "valid": true },
+  { "name": "copy the code of an offer", "settings": { "ctaAction": { "kind": "copyCode", "promotion": 3 } }, "valid": true },
+  { "name": "no action at all", "settings": {}, "valid": true },
+  { "name": "a link that goes nowhere", "settings": { "ctaAction": { "kind": "link" } }, "valid": false },
+  { "name": "a cart button with no product", "settings": { "ctaAction": { "kind": "addToCart" } }, "valid": false },
+  { "name": "a wishlist button with no product", "settings": { "ctaAction": { "kind": "addToWishlist" } }, "valid": false },
+  { "name": "a code button with no offer", "settings": { "ctaAction": { "kind": "copyCode" } }, "valid": false },
+  { "name": "a link holding a product left behind", "settings": { "ctaAction": { "kind": "link", "to": { "route": "/" }, "product": 5 } }, "valid": false },
+  { "name": "a cart button holding a link left behind", "settings": { "ctaAction": { "kind": "addToCart", "product": 5, "to": { "route": "/" } } }, "valid": false },
+  { "name": "a code button holding a product instead of an offer", "settings": { "ctaAction": { "kind": "copyCode", "product": 5 } }, "valid": false },
+  { "name": "a kind outside the closed set", "settings": { "ctaAction": { "kind": "runScript", "to": { "route": "/" } } }, "valid": false },
+  { "name": "a setting an action does not have", "settings": { "ctaAction": { "kind": "link", "to": { "route": "/" }, "code": "SUMMER" } }, "valid": false },
+  { "name": "a code typed in instead of an offer", "settings": { "ctaAction": { "kind": "copyCode", "promotion": "SUMMER" } }, "valid": false },
+  { "name": "an id that is no record", "settings": { "ctaAction": { "kind": "addToCart", "product": 0 } }, "valid": false },
+  { "name": "the old link setting, which the action replaced", "settings": { "ctaLink": { "route": "/" } }, "valid": false }
+]

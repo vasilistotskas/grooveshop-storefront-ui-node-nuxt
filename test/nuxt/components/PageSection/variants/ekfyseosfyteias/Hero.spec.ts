@@ -19,7 +19,7 @@ const PROPS = {
   subheading: 'Έντεκα γυναίκες στη Φυτειά Ημαθίας.',
   image: makeResolvedImage('https://assets.example.test/jars.jpg', 'Βάζα με μαρμελάδες'),
   ctaText: 'Δείτε το κελάρι μας',
-  ctaLink: '/products',
+  ctaAction: { kind: 'link', to: '/products' } as const,
   secondaryCtaText: 'Ποιες είμαστε',
   secondaryCtaLink: '/about',
 }

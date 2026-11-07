@@ -9246,6 +9246,16 @@ paths:
           schema:
             type: string
           description: Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+        - in: query
+          name: promotion
+          schema:
+            type: string
+          description: Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
+        - in: query
+          name: topic
+          schema:
+            type: string
+          description: Comma-separated ids (at most `BUILDER_LINK_TARGETS_MAX_IDS`).
       tags:
         - Builder
       security:
@@ -9268,13 +9278,13 @@ paths:
   /api/v1/builder/link-search:
     get:
       operationId: api_v1_builder_link_search_retrieve
-      description: '`{results: [{kind, id, label, slug, active}]}`, grouped by kind and ordered by label, at most `BUILDER_LINK_SEARCH_LIMIT` of each kind. Only what a link may point at (the rule a publish checks references with), so `active` is always true. `id` is a number for products, categories, posts and blog categories and the key or slug for pages and content pages; a page result also has `source` (`page` or `template`). The label is in `locale`, else the default language, else the slug. The storefront builds the path from the slug.'
+      description: '`{results: [{kind, id, label, slug, active}]}`, grouped by kind and ordered by label, at most `BUILDER_LINK_SEARCH_LIMIT` of each kind. Only what a setting may point at (the rule a publish checks references with), so `active` is always true. `id` is a number for products, categories, posts, blog categories, promotions and topics, and the key or slug for pages and content pages; a page result also has `source` (`page` or `template`). The label is in `locale`, else the default language, else the slug. The storefront builds the path from the slug. A promotion''s `slug` is its code.'
       parameters:
         - in: query
           name: kinds
           schema:
             type: string
-          description: 'Comma-separated kinds to search, in the order of the answer: product, category, blogPost, blogCategory, page, contentPage. All when omitted.'
+          description: 'Comma-separated kinds to search, in the order of the answer: product, category, blogPost, blogCategory, page, contentPage, promotion, topic. When omitted, what a link may point at: product, category, blogPost, blogCategory, page, contentPage.'
         - in: query
           name: locale
           schema:
@@ -33603,6 +33613,15 @@ paths:
       operationId: getNewsletterAvailability
       description: True when the store has a default newsletter topic, i.e. when a newsletter form submission can be honoured.
       summary: Whether the newsletter form can be offered
+      parameters:
+        - in: query
+          name: topic
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: A newsletter topic to ask about, instead of the store's default.
       tags:
         - User Subscriptions
       security:
@@ -40275,6 +40294,8 @@ components:
         - blogCategory
         - page
         - contentPage
+        - promotion
+        - topic
       type: string
       description: |-
         * `product` - Product
@@ -40283,6 +40304,8 @@ components:
         * `blogCategory` - Blog category
         * `page` - Page
         * `contentPage` - Content page
+        * `promotion` - Promotion
+        * `topic` - Subscription Topic
     LinkLabel:
       type: object
       properties:
@@ -40321,6 +40344,14 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/LinkLabel'
         contentPage:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+        promotion:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LinkLabel'
+        topic:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/LinkLabel'
@@ -40592,6 +40623,10 @@ components:
           minLength: 1
           description: The exact consent sentence shown to the visitor.
           maxLength: 500
+        topic:
+          type: integer
+          minimum: 1
+          description: The newsletter topic to subscribe to. The store's default when left out.
       required:
         - consent
         - consentText

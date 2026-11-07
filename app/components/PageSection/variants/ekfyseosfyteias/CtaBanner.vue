@@ -21,10 +21,11 @@ const props = defineProps<{
   heading?: string
   description?: string
   buttonText?: string
-  buttonLink?: string
+  buttonAction?: ReadyAction
 }>()
 
-const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
+const cta = reactive(useSectionAction(() => props.buttonAction, () => props.buttonText))
+const hasLink = computed(() => !!(props.buttonText && props.buttonAction))
 </script>
 
 <template>
@@ -70,12 +71,13 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 
         <PageSectionVariantsEkfyseosfyteiasLink
           v-if="hasLink"
-          :to="buttonLink!"
+          :to="cta.to"
           look="apricot"
           class="justify-self-start"
           arrow
+          v-bind="cta.control"
         >
-          {{ buttonText }}
+          {{ cta.label }}
         </PageSectionVariantsEkfyseosfyteiasLink>
       </div>
     </div>

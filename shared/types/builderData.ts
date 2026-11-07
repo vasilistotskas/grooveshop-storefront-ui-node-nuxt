@@ -16,13 +16,12 @@ export interface DataRecords {
   blogCategory: BlogCategory
   /** An image of the media library: where it is served from, its size, its alt text in the page's language. */
   media: ResolvedAsset
-}
-
-/** What a list of each source holds. */
-export interface DataItems extends DataRecords {
   /** As the schema parses it: the offers endpoint marks fields read-only, which the hand-shaped type does not. */
   promotion: z.output<typeof zPublicPromotion>
 }
+
+/** What a list of each source holds. */
+export type DataItems = DataRecords
 
 /**
  * What a section component receives for a `ref` setting: the record, or why
@@ -31,6 +30,16 @@ export interface DataItems extends DataRecords {
  * never taken for an absence.
  */
 export type ResolvedRef<T> = { status: 'ok', value: T } | { status: 'missing' | 'failed' }
+
+/**
+ * What a section component receives for a `builderField.action` it can draw
+ * (`readyActions`): an action with nothing to act on, or a feature the store
+ * has off, never reaches it.
+ */
+export type ReadyAction
+  = | { kind: 'link', to: string }
+    | { kind: 'addToCart' | 'addToWishlist', product: { status: 'ok', value: DataRecords['product'] } }
+    | { kind: 'copyCode', promotion: { status: 'ok', value: DataRecords['promotion'] & { code: string } } }
 
 /**
  * The image a section component draws, from a `media` ref: what it reads of a

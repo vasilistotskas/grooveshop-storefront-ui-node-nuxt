@@ -2,10 +2,13 @@
 export const BLOCK_KINDS = ['section', 'block'] as const
 
 /** What a setting that names another record refers to; Django checks the record exists. */
-export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage', 'media'] as const
+export const BLOCK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage', 'media', 'promotion', 'topic'] as const
 
 /** The records a link may point at: the reference kinds that have a page of their own. */
 export const LINK_REF_KINDS = ['product', 'category', 'blogCategory', 'blogPost', 'page', 'contentPage'] as const
+
+/** What the editor's record picker can find: what a link may point at, and what has no page of its own to link to. */
+export const BUILDER_PICKER_KINDS = [...LINK_REF_KINDS, 'promotion', 'topic'] as const
 
 /**
  * How deep a document nests: a section is level 1, a block inside it 2,
@@ -54,6 +57,29 @@ export const LINK_TARGETS_MAX_IDS = 100
 export const LINK_SCHEMA_MARKER = 'x-builder-link'
 
 /**
+ * What a section's button can do: a closed set, each implemented once
+ * (`useSectionAction`). Each names one target, the setting of the action that
+ * says what it acts on (`builderField.action`).
+ */
+export const BUILDER_ACTION_TARGETS = {
+  link: 'to',
+  addToCart: 'product',
+  addToWishlist: 'product',
+  copyCode: 'promotion',
+} as const
+
+/** The store features an action needs. With one off, the action is taken out before anything is read for it. */
+export const BUILDER_ACTION_FEATURES = {
+  link: [],
+  addToCart: ['cart', 'catalogue'],
+  addToWishlist: ['favourites', 'catalogue'],
+  copyCode: ['promotions'],
+} as const
+
+/** Marks a `builderField.action` in a block's JSON Schema, so `defineBlock` can list a block's actions. */
+export const ACTION_SCHEMA_MARKER = 'x-builder-action'
+
+/**
  * The JSON Schema keyword that marks a data setting (`builderField.ref`,
  * `builderField.query`) in a block's schema. Its value is the declaration
  * (`DataDeclaration`); `defineBlock` lists the marked settings as `data`.
@@ -64,7 +90,7 @@ export const DATA_SCHEMA_MARKER = 'x-builder-data'
 export const DATA_SOURCES = ['product', 'blogPost', 'category', 'blogCategory', 'promotion'] as const
 
 /** The records a page can resolve by id: a `ref` of one of these, or a hand-picked list of its source, is read from the list endpoint of the same name (a `media` ref, from the media library's resolve endpoint). */
-export const DATA_RECORD_KINDS = ['product', 'blogPost', 'category', 'blogCategory', 'media'] as const
+export const DATA_RECORD_KINDS = ['product', 'blogPost', 'category', 'blogCategory', 'media', 'promotion'] as const
 
 /** What a data setting does when the page has nothing to show for it: leave its node out, or hand the component an empty status. */
 export const DATA_MISSING = ['hide', 'empty'] as const

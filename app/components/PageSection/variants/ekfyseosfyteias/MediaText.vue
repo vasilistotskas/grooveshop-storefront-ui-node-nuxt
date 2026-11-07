@@ -36,9 +36,11 @@ const props = defineProps<{
   imageDecorative?: boolean
   imagePosition?: 'left' | 'right'
   ctaText?: string
-  ctaLink?: string
+  ctaAction?: ReadyAction
   surface?: 'default' | 'muted'
 }>()
+
+const cta = reactive(useSectionAction(() => props.ctaAction, () => props.ctaText))
 
 const LONG_HEADING = 60
 
@@ -210,12 +212,13 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         </p>
 
         <PageSectionVariantsEkfyseosfyteiasLink
-          v-if="ctaText && ctaLink"
-          :to="ctaLink"
+          v-if="ctaText && ctaAction"
+          :to="cta.to"
           look="ink"
           arrow
+          v-bind="cta.control"
         >
-          {{ ctaText }}
+          {{ cta.label }}
         </PageSectionVariantsEkfyseosfyteiasLink>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import * as z from 'zod'
 
-import { BLOCK_REF_KINDS, DATA_LIMITS, DATA_SCHEMA_MARKER, LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
-import type { BlockRefKind, DataDeclaration, DataMissing, DataSource } from '../types/builder'
+import { ACTION_SCHEMA_MARKER, BLOCK_REF_KINDS, BUILDER_ACTION_TARGETS, DATA_LIMITS, DATA_SCHEMA_MARKER, LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
+import type { BlockRefKind, BuilderActionKind, DataDeclaration, DataMissing, DataSource } from '../types/builder'
 import { DATA_DESCRIPTORS } from './dataSources'
 import { recordId } from './recordId'
 
@@ -99,6 +99,46 @@ function productRail(maxLimit: number) {
   }
 }
 
+/**
+ * What a button does: one of the `kinds` a block offers, and the one target
+ * that kind names. A closed object rather than a union, because `linkPointers`
+ * and `dataPointers` read `properties`: inside a `oneOf`, Django would neither
+ * check nor index the record an action names. The rule is stated twice, as
+ * `nav_link` states its own: for the parse, and in the catalogue, so Django
+ * refuses a save that breaks it. A target left behind by another kind is
+ * refused too: it would hold a reference nobody can see.
+ *
+ * A record that is gone draws no button and leaves the section alone, so its
+ * reference is `empty`, never `hide`.
+ */
+function action<const Kinds extends readonly [BuilderActionKind, ...BuilderActionKind[]]>(kinds: Kinds) {
+  const targetOf = (kind: BuilderActionKind): string => BUILDER_ACTION_TARGETS[kind]
+  const makers: Record<string, () => z.ZodType> = {
+    to: link,
+    product: () => ref('product', { onMissing: 'empty' }),
+    promotion: () => ref('promotion', { onMissing: 'empty' }),
+  }
+  const targets = [...new Set(kinds.map(targetOf))]
+  return z.strictObject({
+    kind: z.enum(kinds),
+    ...Object.fromEntries(targets.map(target => [target, makers[target]!().optional()])),
+  })
+    .refine(
+      value => targets.every(target => ((value as Record<string, unknown>)[target] !== undefined) === (target === targetOf(value.kind as BuilderActionKind))),
+      { message: 'needs its own target and no other' },
+    )
+    .meta({
+      [ACTION_SCHEMA_MARKER]: true,
+      oneOf: kinds.map(kind => ({
+        properties: {
+          kind: { const: kind },
+          ...Object.fromEntries(targets.filter(target => target !== targetOf(kind)).map(target => [target, false])),
+        },
+        required: [targetOf(kind)],
+      })),
+    })
+}
+
 /** The settings of a band of blog posts: what it lists is its `posts`, a rule (a category, featured or not, how many) or a hand-picked list. */
 function blogRail(maxLimit: number) {
   return {
@@ -114,6 +154,7 @@ function blogRail(maxLimit: number) {
 export const builderField = {
   ref,
   query,
+  action,
   productRail,
   blogRail,
   text,

@@ -8,6 +8,7 @@ import {
   BUILDER_MAX_NODE_DEPTH,
 } from '../constants/builder'
 import type { BlockConfig, BlockDefinition, SettingsPointer } from '../types/builder'
+import { actionPointers } from './actionPointers'
 import { dataPointers } from './dataPointers'
 import { linkPointers } from './linkPointers'
 
@@ -129,6 +130,7 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     translatable: config.translatable ?? [],
     refs: config.refs ?? {},
     linkRefs: linkPointers(config.schema),
+    actions: actionPointers(config.schema),
     data,
     limits: config.limits ?? {},
     children: config.children ?? { allowed: [] },
