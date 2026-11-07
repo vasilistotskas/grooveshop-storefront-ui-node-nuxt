@@ -1,3 +1,10 @@
+## [3.330.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.1...v3.330.2) (2026-11-07)
+
+
+### Bug Fixes
+
+* **account:** download a data export through the shopper's session ([#412](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/412)) ([867f4cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/867f4cd0bcc7c96dadeb001d7c466b42fb4e2e20))
+
 ## [3.330.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.0...v3.330.1) (2026-11-07)
 
 
