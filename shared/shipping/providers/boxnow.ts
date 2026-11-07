@@ -12,7 +12,7 @@
  * keys this carrier writes.
  *
  * If/when BoxNow exposes a public locker API, flip
- * ``usesGenericPicker`` to ``true`` and wire ``fetchByPostal``;
+ * ``usesGenericPicker`` to ``true`` and wire ``fetchAll``;
  * the rest of the abstraction takes care of itself.
  */
 import type { Locker, ShippingCarrier } from '../interfaces'

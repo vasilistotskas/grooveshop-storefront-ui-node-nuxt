@@ -5,6 +5,13 @@ import type { GeoJSONSource, Map as MapLibreMap, Marker, Popup } from 'maplibre-
  * The locker picker's map: every locker of the carrier's catalogue on
  * the platform basemap (`useMapLibre`), clustered.
  *
+ * The picker steers the camera: `focus` is the box to show (the
+ * search's matches, or the shopper's area), and `null` the whole
+ * catalogue. `here` is the shopper's own position, drawn as a dot. A
+ * focus that changes before the map can take it (its style still
+ * loading, or hidden on the list tab with no size to fit) is applied as
+ * soon as it can.
+ *
  * Clusters and lockers are HTML `<button>` markers over a clustered
  * GeoJSON source (MapLibre's HTML-cluster pattern), so each one is in
  * the tab order with an accessible name. Enter on a cluster zooms into
@@ -20,6 +27,10 @@ const props = defineProps<{
   lockers: Locker[]
   /** ``true`` while the parent is fetching the catalogue. */
   loading?: boolean
+  /** The box the camera shows; `null` frames the whole catalogue. */
+  focus?: LngLatBox | null
+  /** The shopper's position, once they shared it. */
+  here?: GeoPoint | null
 }>()
 
 const emit = defineEmits<{
@@ -34,6 +45,9 @@ const LOCKER_SOURCE = 'lockers'
 const LOCKER_ANCHOR_LAYER = 'lockers-anchor'
 const CLUSTER_MAX_ZOOM = 14
 const CLUSTER_RADIUS = 60
+// A focus on a few lockers in one street must not zoom to the doorstep.
+const FOCUS_MAX_ZOOM = 15
+const FIT_PADDING = 48
 
 const { t } = useI18n()
 
@@ -46,13 +60,14 @@ const lockersWithCoords = computed(() =>
 )
 const lockersByKey = computed(() => new Map(lockersWithCoords.value.map(l => [l.key, l])))
 const bounds = computed(() => boundsOf(lockersWithCoords.value))
+const camera = computed(() => props.focus ?? bounds.value)
 
 const container = useTemplateRef<HTMLElement>('container')
 
 const { map, state } = useMapLibre(container, {
   mapOptions: () => ({
-    bounds: bounds.value ?? undefined,
-    fitBoundsOptions: { padding: 40, maxZoom: CLUSTER_MAX_ZOOM },
+    bounds: camera.value ?? undefined,
+    fitBoundsOptions: { padding: FIT_PADDING, maxZoom: FOCUS_MAX_ZOOM },
     dragRotate: false,
     pitchWithRotate: false,
     touchPitch: false,
@@ -61,10 +76,6 @@ const { map, state } = useMapLibre(container, {
   onLoad: (instance, maplibre) => {
     instance.touchZoomRotate.disableRotation()
     instance.addControl(new maplibre.NavigationControl({ showCompass: false }))
-    instance.addControl(new maplibre.GeolocateControl({
-      positionOptions: { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
-      fitBoundsOptions: { maxZoom: CLUSTER_MAX_ZOOM },
-    }))
     instance.addSource(LOCKER_SOURCE, {
       type: 'geojson',
       data: lockerFeatures(),
@@ -80,6 +91,8 @@ const { map, state } = useMapLibre(container, {
     })
     popup = new maplibre.Popup({ className: 'locker-popup', offset: 20, maxWidth: '18rem', focusAfterOpen: true })
     makeMarker = element => new maplibre.Marker({ element })
+    drawHere()
+    if (fitPending) fitCamera()
     instance.on('render', () => {
       if (instance.isSourceLoaded(LOCKER_SOURCE)) syncMarkers(instance)
     })
@@ -204,20 +217,65 @@ function syncMarkers(instance: MapLibreMap): void {
   }
 }
 
+const HERE_CLASS = 'block size-4 rounded-full bg-secondary ring-4 ring-(--ui-secondary)/25 shadow-md'
+let hereMarker: Marker | null = null
+
+// The shopper's dot: no button, nothing to choose, so out of the tab
+// order, but named for a screen reader that reads the map's markers.
+function drawHere(): void {
+  const instance = map.value
+  hereMarker?.remove()
+  hereMarker = null
+  if (!instance || !makeMarker || !props.here) return
+  const dot = document.createElement('span')
+  dot.className = HERE_CLASS
+  dot.setAttribute('role', 'img')
+  dot.setAttribute('aria-label', t('shipping.locker_picker.your_location'))
+  hereMarker = makeMarker(dot).setLngLat([props.here.lng, props.here.lat]).addTo(instance)
+}
+
+let fitPending = false
+
+// A camera the map cannot take yet (its style still loading, or hidden
+// on the list tab with no size to fit) is taken when it can.
+function fitCamera(): void {
+  const instance = map.value
+  if (!camera.value) return
+  if (!instance || state.value !== 'ready') {
+    fitPending = true
+    return
+  }
+  const canvas = instance.getContainer()
+  if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
+    fitPending = true
+    return
+  }
+  fitPending = false
+  instance.fitBounds(camera.value, { padding: FIT_PADDING, maxZoom: FOCUS_MAX_ZOOM })
+}
+
+watch(camera, fitCamera)
+watch(() => props.here, drawHere)
+
+useResizeObserver(container, ([entry]) => {
+  if (!fitPending || !entry || entry.contentRect.width === 0 || entry.contentRect.height === 0) return
+  map.value?.resize()
+  fitCamera()
+})
+
 function clearMarkers(): void {
   for (const marker of markers.values()) marker.remove()
   markers.clear()
 }
 
-// A new catalogue (another country, a refresh) replaces the data and
-// the camera; the markers rebuild from the new clusters.
+// A new catalogue (another country, a refresh) replaces the data, and
+// the markers rebuild from the new clusters; `camera` follows it.
 watch(lockersWithCoords, () => {
   const instance = map.value
   if (!instance || state.value !== 'ready') return
   popup?.remove()
   clearMarkers()
   instance.getSource<GeoJSONSource>(LOCKER_SOURCE)?.setData(lockerFeatures())
-  if (bounds.value) instance.fitBounds(bounds.value, { padding: 40, maxZoom: CLUSTER_MAX_ZOOM })
 })
 </script>
 

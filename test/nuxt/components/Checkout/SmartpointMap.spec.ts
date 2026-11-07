@@ -3,6 +3,7 @@ import { DOMWrapper, flushPromises } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SmartpointMap from '~/components/Checkout/SmartpointMap.client.vue'
 import type { Locker } from '~~/shared/shipping/interfaces'
+import type { LngLatBox } from '~/utils/basemap'
 import { acsLockerKey } from '~~/shared/shipping/providers/acs'
 
 /**
@@ -20,6 +21,11 @@ const sim = vi.hoisted(() => ({
   expansionZoom: 12,
   easedTo: [] as Array<Record<string, unknown>>,
   appended: [] as HTMLElement[],
+  fitted: [] as unknown[],
+  // The map container's size: 0 stands for a map on a hidden tab.
+  size: 400,
+  deferLoad: false,
+  fireLoad: null as (() => void) | null,
 }))
 
 vi.mock('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url', () => ({ default: '/_nuxt/maplibre-worker.js' }))
@@ -33,10 +39,13 @@ vi.mock('maplibre-gl', () => {
     constructor(options: Record<string, unknown>) {
       if (sim.failWebGl) throw new GPUInitializationError('WebGL2 is required')
       sim.options.push(options)
-      queueMicrotask(() => {
+      const load = () => {
         this.emit('load')
         this.emit('render')
-      })
+      }
+      // `deferLoad` holds the style load back until the test fires it.
+      if (sim.deferLoad) sim.fireLoad = load
+      else queueMicrotask(load)
     }
 
     on(type: string, handler: (event?: unknown) => void) {
@@ -71,13 +80,21 @@ vi.mock('maplibre-gl', () => {
     }
 
     getCanvas() { return this.canvas }
+    getContainer() { return { clientWidth: sim.size, clientHeight: sim.size } }
+    fitBounds(box: unknown) { sim.fitted.push(box) }
+    resize() {}
     setStyle() {}
     remove() {}
   }
   class Marker {
     private element: HTMLElement
     constructor({ element }: { element: HTMLElement }) { this.element = element }
-    setLngLat() { return this }
+    // Where the marker stands, on its element, for the test to read.
+    setLngLat(lngLat: [number, number]) {
+      this.element.dataset.lngLat = JSON.stringify(lngLat)
+      return this
+    }
+
     addTo() {
       document.body.append(this.element)
       sim.appended.push(this.element)
@@ -110,7 +127,6 @@ vi.mock('maplibre-gl', () => {
     Popup,
     GPUInitializationError,
     NavigationControl: class { readonly control = 'navigation' },
-    GeolocateControl: class { readonly control = 'geolocate' },
     setWorkerUrl: () => {},
   }
 })
@@ -147,8 +163,8 @@ const t = (key: string, params: Record<string, unknown> = {}) => useNuxtApp().$i
 const body = () => new DOMWrapper(document.body)
 const button = (name: string) => body().findAll('button').find(b => (b.attributes('aria-label') ?? b.text()).includes(name))
 
-async function mountMap(lockers: Locker[]) {
-  const wrapper = await mountSuspended(SmartpointMap, { route: false, props: { lockers } })
+async function mountMap(lockers: Locker[], props: Record<string, unknown> = {}) {
+  const wrapper = await mountSuspended(SmartpointMap, { route: false, props: { lockers, ...props } })
   await vi.waitFor(() => expect(sim.options.length + (sim.failWebGl ? 1 : 0)).toBeGreaterThan(0))
   await flushPromises()
   return wrapper
@@ -159,7 +175,7 @@ describe('Checkout/SmartpointMap', () => {
   beforeEach(() => {
     originalUrl = useRuntimeConfig().public.mapsTileJsonUrl
     useRuntimeConfig().public.mapsTileJsonUrl = 'https://maps.platform.test/basemap.json'
-    Object.assign(sim, { features: [], failWebGl: false, options: [], easedTo: [], appended: [] })
+    Object.assign(sim, { features: [], failWebGl: false, options: [], easedTo: [], appended: [], fitted: [], size: 400, deferLoad: false, fireLoad: null })
   })
   afterEach(() => {
     useRuntimeConfig().public.mapsTileJsonUrl = originalUrl as string
@@ -203,6 +219,69 @@ describe('Checkout/SmartpointMap', () => {
     await flushPromises()
 
     expect(sim.easedTo).toEqual([{ center: [23.725, 37.97], zoom: 12 }])
+  })
+
+  describe('the camera the picker steers', () => {
+    const FOCUS: LngLatBox = [23.8, 38.0, 23.82, 38.1]
+
+    it('opens on the picker\'s focus when it has one', async () => {
+      await mountMap([FIRST, SECOND], { focus: FOCUS })
+
+      expect(sim.options[0]!.bounds).toEqual(FOCUS)
+    })
+
+    it('moves to a new focus, and back to every locker when the focus clears', async () => {
+      const wrapper = await mountMap([FIRST, SECOND])
+
+      await wrapper.setProps({ focus: FOCUS })
+      await wrapper.setProps({ focus: null })
+
+      expect(sim.fitted).toEqual([FOCUS, [23.72, 37.97, 23.73, 37.97]])
+    })
+
+    it('takes a focus that arrived while its style was still loading', async () => {
+      sim.deferLoad = true
+      const wrapper = await mountSuspended(SmartpointMap, { route: false, props: { lockers: [FIRST, SECOND] } })
+      await vi.waitFor(() => expect(sim.fireLoad).not.toBeNull())
+
+      await wrapper.setProps({ focus: FOCUS })
+      expect(sim.fitted).toEqual([])
+      sim.fireLoad!()
+
+      expect(sim.fitted).toEqual([FOCUS])
+    })
+
+    it('waits until a hidden map is shown again before it moves', async () => {
+      let onResize: ResizeObserverCallback = () => {}
+      vi.stubGlobal('ResizeObserver', class {
+        constructor(callback: ResizeObserverCallback) { onResize = callback }
+        observe() {}
+        disconnect() {}
+      })
+      const wrapper = await mountMap([FIRST, SECOND])
+      sim.size = 0
+
+      await wrapper.setProps({ focus: FOCUS })
+      expect(sim.fitted).toEqual([])
+
+      sim.size = 400
+      onResize([{ contentRect: { width: 400, height: 400 } } as ResizeObserverEntry], {} as ResizeObserver)
+
+      expect(sim.fitted).toEqual([FOCUS])
+    })
+  })
+
+  it('marks the shopper\'s position once they share it, and moves the mark with it', async () => {
+    const wrapper = await mountMap([FIRST, SECOND])
+    const dots = () => body().findAll(`[role="img"][aria-label="${t('shipping.locker_picker.your_location')}"]`)
+    expect(dots()).toHaveLength(0)
+
+    await wrapper.setProps({ here: { lat: 37.98, lng: 23.74 } })
+    expect(JSON.parse(dots()[0]!.attributes('data-lng-lat')!)).toEqual([23.74, 37.98])
+    await wrapper.setProps({ here: { lat: 37.99, lng: 23.75 } })
+
+    expect(dots()).toHaveLength(1)
+    expect(JSON.parse(dots()[0]!.attributes('data-lng-lat')!)).toEqual([23.75, 37.99])
   })
 
   it('says the map is unavailable without WebGL2, and offers the list', async () => {
