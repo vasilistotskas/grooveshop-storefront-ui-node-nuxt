@@ -31269,6 +31269,78 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/user/account/{id}/data_exports/{export_id}/download:
+    get:
+      operationId: downloadUserAccountDataExport
+      description: 'Streams the JSON bundle of one of this user''s data exports. Only the account''s owner can read it, signed in: the address holds no credential.'
+      summary: Download a GDPR data export
+      parameters:
+        - in: path
+          name: exportId
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+      tags:
+        - User Accounts
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No such export, or it is not ready
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: The export has expired
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/user/account/{id}/delete_account:
     post:
       operationId: deleteUserAccountGdpr
@@ -51560,9 +51632,6 @@ components:
         status:
           type: string
           readOnly: true
-        token:
-          type: string
-          readOnly: true
         fileSize:
           type: integer
           readOnly: true
@@ -51576,18 +51645,12 @@ components:
           type: string
           format: date-time
           readOnly: true
-        downloadUrl:
-          type: string
-          nullable: true
-          readOnly: true
       required:
         - createdAt
-        - downloadUrl
         - expiresAt
         - fileSize
         - id
         - status
-        - token
     UserDetails:
       type: object
       properties:

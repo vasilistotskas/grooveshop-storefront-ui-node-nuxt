@@ -8525,11 +8525,9 @@ export type UserAddressWriteRequest = {
 export type UserDataExport = {
   readonly id: number
   readonly status: string
-  readonly token: string
   readonly fileSize: number | null
   readonly expiresAt: string | null
   readonly createdAt: string
-  readonly downloadUrl: string | null
 }
 
 export type UserDetails = {
@@ -25909,6 +25907,39 @@ export type ListUserAccountDataExportsResponses = {
 }
 
 export type ListUserAccountDataExportsResponse = ListUserAccountDataExportsResponses[keyof ListUserAccountDataExportsResponses]
+
+export type DownloadUserAccountDataExportData = {
+  body?: never
+  path: {
+    exportId: string | number
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/user/account/{id}/data_exports/{export_id}/download'
+}
+
+export type DownloadUserAccountDataExportErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  /**
+     * No such export, or it is not ready
+     */
+  404: ErrorResponse
+  /**
+     * The export has expired
+     */
+  410: ErrorResponse
+  500: ErrorResponse
+}
+
+export type DownloadUserAccountDataExportError = DownloadUserAccountDataExportErrors[keyof DownloadUserAccountDataExportErrors]
+
+export type DownloadUserAccountDataExportResponses = {
+  200: Blob | File
+}
+
+export type DownloadUserAccountDataExportResponse = DownloadUserAccountDataExportResponses[keyof DownloadUserAccountDataExportResponses]
 
 export type DeleteUserAccountGdprData = {
   body: DeleteAccountRequestRequest

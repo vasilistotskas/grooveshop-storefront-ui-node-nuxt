@@ -6225,11 +6225,9 @@ export const zUserAddressWriteRequest = z.object({
 export const zUserDataExport = z.object({
   id: z.int().readonly(),
   status: z.string().readonly(),
-  token: z.string().readonly(),
   fileSize: z.int().readonly().nullable(),
   expiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
-  downloadUrl: z.string().readonly().nullable(),
 })
 
 export const zPaginatedUserDataExportList = z.object({
@@ -16950,6 +16948,19 @@ export const zListUserAccountDataExportsQuery = z.object({
 })
 
 export const zListUserAccountDataExportsResponse = zPaginatedUserDataExportList
+
+export const zDownloadUserAccountDataExportPath = z.object({
+  exportId: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zDownloadUserAccountDataExportResponse = z.string()
 
 export const zDeleteUserAccountGdprBody = zDeleteAccountRequestRequest
 

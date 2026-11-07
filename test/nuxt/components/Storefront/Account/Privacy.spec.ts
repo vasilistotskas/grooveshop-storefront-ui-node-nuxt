@@ -21,6 +21,9 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
+const toastAdd = vi.hoisted(() => vi.fn())
+mockNuxtImport('useToast', () => () => ({ add: toastAdd, update: vi.fn(), remove: vi.fn(), toasts: ref([]) }))
+
 const session = vi.hoisted(() => ({ clear: vi.fn(() => Promise.resolve()) }))
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(true),
@@ -32,6 +35,7 @@ mockNuxtImport('useUserSession', () => () => ({
 }))
 
 const EXPORTS = '/api/user/account/7/data-exports'
+const DOWNLOAD = '/api/user/account/7/data-exports/1/download'
 const REQUEST = '/api/user/account/7/request-data-export'
 const DELETE = '/api/user/account/7/delete-account'
 const SUMMARY = '/api/user/account/summary'
@@ -60,11 +64,9 @@ function makeExport(overrides: Partial<UserDataExport> = {}): UserDataExport {
   return {
     id: 1,
     status: 'ready',
-    token: 'tok',
     fileSize: 2048,
     expiresAt: '2026-10-11T10:00:00Z',
     createdAt: '2026-10-04T10:00:00Z',
-    downloadUrl: 'https://api.example.test/export/tok',
     ...overrides,
   }
 }
@@ -79,10 +81,15 @@ function makeSummary(overrides: Partial<AccountSummary> = {}): AccountSummary {
   }
 }
 
-function given({ exports = [] as UserDataExport[], summary = makeSummary() } = {}) {
+function given({
+  exports = [] as UserDataExport[],
+  summary = makeSummary(),
+  download = (() => new Blob(['{}'])) as Parameters<typeof api.routes>[0][string],
+} = {}) {
   api.routes({
     [EXPORTS]: () => ({ results: exports }),
     [SUMMARY]: () => summary,
+    [DOWNLOAD]: download,
   })
 }
 
@@ -132,7 +139,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
   it('requests an export, then shows it as pending', async () => {
     const wrapper = await mountPage()
     api.routes({
-      [EXPORTS]: () => ({ results: [makeExport({ status: 'pending', downloadUrl: null, fileSize: null, expiresAt: null })] }),
+      [EXPORTS]: () => ({ results: [makeExport({ status: 'pending', fileSize: null, expiresAt: null })] }),
       [REQUEST]: () => ({}),
       [SUMMARY]: () => makeSummary(),
     })
@@ -148,7 +155,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
 
   it('polls while the export is processing and stops once it is ready', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
-    given({ exports: [makeExport({ status: 'processing', downloadUrl: null, fileSize: null, expiresAt: null })] })
+    given({ exports: [makeExport({ status: 'processing', fileSize: null, expiresAt: null })] })
     const wrapper = await mountPage()
     expect(wrapper.text()).toContain(text('export.status.processing'))
     expect(api.callsTo(EXPORTS)).toHaveLength(1)
@@ -176,9 +183,15 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
     expect(buttonByText(wrapper.element, text('export.request_again'))).toBeTruthy()
   })
 
-  it('shows a ready export with a download that opens the file', async () => {
-    given({ exports: [makeExport()] })
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+  it('shows a ready export with a download that saves the file', async () => {
+    const bundle = new Blob(['{}'], { type: 'application/json' })
+    given({ exports: [makeExport()], download: () => bundle })
+    const createObjectURL = vi.fn(() => 'blob:bundle')
+    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() }))
+    const saved: { href: string, download: string }[] = []
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      saved.push({ href: this.href, download: this.download })
+    })
     const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain(text('export.status.ready'))
@@ -186,11 +199,26 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
 
     await wrapper.findAll('button').find(button => button.text() === text('export.download'))!.trigger('click')
 
-    expect(open).toHaveBeenCalledWith('https://api.example.test/export/tok', '_blank', 'noopener,noreferrer')
+    await flushPromises()
+
+    expect(createObjectURL).toHaveBeenCalledWith(bundle)
+    expect(saved).toEqual([{ href: 'blob:bundle', download: 'data-export-1.json' }])
+  })
+
+  it('tells the shopper on the page when the download is refused', async () => {
+    given({ exports: [makeExport()], download: failWith(410, { detail: 'gone', code: 'download_expired' }) })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    const wrapper = await mountPage()
+
+    await wrapper.findAll('button').find(button => button.text() === text('export.download'))!.trigger('click')
+    await flushPromises()
+
+    expect(click).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: text('export.download_error_title') }))
   })
 
   it('says a failed export failed and lets the shopper ask again', async () => {
-    given({ exports: [makeExport({ status: 'failed', downloadUrl: null, fileSize: null, expiresAt: null })] })
+    given({ exports: [makeExport({ status: 'failed', fileSize: null, expiresAt: null })] })
 
     const wrapper = await mountPage()
 
@@ -200,7 +228,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
   })
 
   it.runIf(tree === 'default')('explains a failed export in an alert', async () => {
-    given({ exports: [makeExport({ status: 'failed', downloadUrl: null, fileSize: null, expiresAt: null })] })
+    given({ exports: [makeExport({ status: 'failed', fileSize: null, expiresAt: null })] })
 
     const wrapper = await mountPage()
 
@@ -208,7 +236,7 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
   })
 
   it('says an expired export expired and offers no download', async () => {
-    given({ exports: [makeExport({ status: 'expired', downloadUrl: null })] })
+    given({ exports: [makeExport({ status: 'expired' })] })
 
     const wrapper = await mountPage()
 
