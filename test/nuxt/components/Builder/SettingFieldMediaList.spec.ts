@@ -181,6 +181,7 @@ describe('BuilderSettingField, a list of images', () => {
     expect(api.callsTo(`${LIBRARY}/8`)).toHaveLength(1)
     expect(api.callsTo(`${LIBRARY}/4`)).toHaveLength(2)
     expect(wrapper.text()).toContain('banner.png')
+    expect(wrapper.text().match(/hero\.jpg/g)).toHaveLength(1)
   })
 
   it('takes out an entry whose image is deleted from the library, since a list holds no empty slot', async () => {
