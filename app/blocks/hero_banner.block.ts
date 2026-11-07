@@ -28,7 +28,7 @@ export default defineBlock({
   translatable: ['/heading', '/subheading', '/eyebrow', '/imageAlt', '/ctaText', '/secondaryCtaText'],
   upgrade: { 1: upgradeTitleIntoHeading },
   legacyImages: [
-    { from: '/imageUrl', to: '/image', alt: '/imageAlt', decorative: '/imageDecorative' },
+    { from: '/imageUrl', to: '/image', alt: '/imageAlt' },
     { from: '/mobileImageUrl', to: '/mobileImage' },
   ],
   limits: { maxBlocks: 4 },

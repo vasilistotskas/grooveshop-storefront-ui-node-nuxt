@@ -156,8 +156,6 @@ export interface LegacyImage {
   to: SettingsPointer
   /** The old alt text setting, when the block had one of its own; the adapter hands it on as the image's alt. */
   alt?: SettingsPointer
-  /** The boolean setting the migration sets for a use that deliberately has no alt text. */
-  decorative?: SettingsPointer
 }
 
 /** How the editor presents a block (`BlockConfig.editor`). */

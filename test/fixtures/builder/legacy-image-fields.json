@@ -4,7 +4,6 @@
     "from": "/src",
     "to": "/image",
     "alt": "/alt",
-    "decorative": "/imageDecorative",
     "list": false
   },
   {
@@ -12,7 +11,6 @@
     "from": "/imageUrl",
     "to": "/image",
     "alt": "/imageAlt",
-    "decorative": "/imageDecorative",
     "list": false
   },
   {
@@ -38,7 +36,6 @@
     "from": "/imageUrl",
     "to": "/image",
     "alt": "/alt",
-    "decorative": "/imageDecorative",
     "list": false
   },
   {
@@ -51,7 +48,6 @@
     "block": "media_text",
     "from": "/imageUrl",
     "to": "/image",
-    "decorative": "/imageDecorative",
     "list": false
   },
   {

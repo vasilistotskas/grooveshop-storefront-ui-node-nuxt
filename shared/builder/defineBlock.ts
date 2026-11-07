@@ -75,12 +75,12 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
       fail(`${pointer} is a data setting, which is the same in every language`)
     }
   }
-  for (const { from, to, alt, decorative } of config.legacyImages ?? []) {
+  for (const { from, to, alt } of config.legacyImages ?? []) {
     const isList = from.endsWith('/*')
     if (!LEGACY_IMAGE_POINTER.test(from) || !LEGACY_IMAGE_POINTER.test(to) || to.endsWith('/*') !== isList) {
       fail(`legacyImages ${from} to ${to}: both name a top-level setting, or both every entry of a list setting`)
     }
-    const names = [from, to, alt, decorative].flatMap(pointer => pointer === undefined ? [] : [pointer.split('/')[1]!])
+    const names = [from, to, alt].flatMap(pointer => pointer === undefined ? [] : [pointer.split('/')[1]!])
     if (names.some(name => !settings.has(name))) {
       fail(`legacyImages ${from} to ${to} names a setting the schema does not have`)
     }

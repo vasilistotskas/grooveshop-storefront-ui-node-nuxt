@@ -23,7 +23,7 @@ export default defineBlock({
   }),
   translatable: ['/heading', '/body', '/eyebrow', '/note', '/emphasis', '/ctaText'],
   upgrade: { 1: upgradeTitleIntoHeading },
-  legacyImages: [{ from: '/imageUrl', to: '/image', decorative: '/imageDecorative' }],
+  legacyImages: [{ from: '/imageUrl', to: '/image' }],
   limits: { maxBlocks: 10 },
   children: { allowed: ['bullet', 'spec_card'], maxDepth: 2 },
   childList: { bullet: 'bullets', spec_card: 'specs' },

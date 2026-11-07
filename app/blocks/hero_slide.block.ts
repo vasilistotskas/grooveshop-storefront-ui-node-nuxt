@@ -29,7 +29,7 @@ export default defineBlock({
   translatable: ['/alt', '/eyebrow', '/heading', '/subheading', '/ctaText', '/secondaryCtaText'],
   upgrade: { 1: upgradeHeroSlide },
   legacyImages: [
-    { from: '/imageUrl', to: '/image', alt: '/alt', decorative: '/imageDecorative' },
+    { from: '/imageUrl', to: '/image', alt: '/alt' },
     { from: '/mobileImageUrl', to: '/mobileImage' },
   ],
   editor: { title: ['heading'] },

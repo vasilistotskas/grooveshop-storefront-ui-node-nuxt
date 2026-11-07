@@ -17,6 +17,6 @@ export default defineBlock({
     .refine(picture => picture.image !== undefined || Boolean(picture.src), { message: 'needs image or src' })
     .meta({ anyOf: [{ required: ['image'] }, { required: ['src'] }] }),
   translatable: ['/alt', '/caption'],
-  legacyImages: [{ from: '/src', to: '/image', alt: '/alt', decorative: '/imageDecorative' }],
+  legacyImages: [{ from: '/src', to: '/image', alt: '/alt' }],
   editor: { title: ['caption'] },
 })

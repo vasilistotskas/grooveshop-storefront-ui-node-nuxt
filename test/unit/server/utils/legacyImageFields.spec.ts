@@ -8,8 +8,7 @@ import type { BlockDefinition } from '~~/shared/types/builder'
  * still accepts an old image URL, where it is and what replaces it. Django
  * vendors it, pinned, and its `migrate_builder_media` reads it: block type,
  * the old pointer (`from`), the media reference setting that takes its place
- * (`to`), the old alt text (`alt`) and the boolean for a deliberately
- * undescribed picture (`decorative`) when the block has them, and whether the
+ * (`to`), the old alt text (`alt`) when the block has one, and whether the
  * pointer is a list (`list`: then `from` and `to` end in `/*`, one entry each).
  *
  * Generated from the blocks' own `legacyImages`, so it cannot drift: a change
@@ -21,12 +20,11 @@ const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/
 const definitions = Object.values(modules).map(({ default: block }) => block)
 
 const fields = definitions
-  .flatMap(({ type, legacyImages = [] }) => legacyImages.map(({ from, to, alt, decorative }) => ({
+  .flatMap(({ type, legacyImages = [] }) => legacyImages.map(({ from, to, alt }) => ({
     block: type,
     from,
     to,
     ...(alt && { alt }),
-    ...(decorative && { decorative }),
     list: from.endsWith('/*'),
   })))
   .sort((a, b) => a.block.localeCompare(b.block) || a.from.localeCompare(b.from))
