@@ -20,9 +20,9 @@
  * it, and a previous/next pair — and the badge says "1 / 3"; autoplay
  * runs only where a pointer can pause it (`hover: hover`), pauses on
  * hover and stops for good once the visitor touches a control; a phone
- * never autorotates, swipes, and reads its own crop (`mobileImageUrl`).
+ * never autorotates, swipes, and reads its own crop (`mobileImage`).
  *
- * `slides` wins when present. The flat `images`/`mobileImages`/`link`
+ * `slides` wins when present. The flat `artworks`/`mobileArtworks`/`link`
  * triple is the artwork-only carousel — wording baked into the
  * artwork, one link for the whole thing — and draws the photograph
  * alone at the chosen `aspect`.
@@ -37,9 +37,10 @@
  * high priority and the rest do not.
  */
 interface HeroSlide {
-  imageUrl: string
-  mobileImageUrl?: string
-  alt?: string
+  image?: ResolvedImage
+  mobileImage?: ResolvedImage
+  /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
+  imageDecorative?: boolean
   eyebrow?: string
   heading?: string
   subheading?: string
@@ -54,9 +55,9 @@ const props = withDefaults(defineProps<{
   title?: string
   /** Full editorial slides; wins over the flat props below. */
   slides?: HeroSlide[]
-  images?: string[]
-  /** Mobile/tablet variants (matching indices); falls back to `images`. */
-  mobileImages?: string[]
+  artworks?: ResolvedImage[]
+  /** Mobile/tablet variants (matching indices); falls back to `artworks`. */
+  mobileArtworks?: ResolvedImage[]
   /** Deep-link for the flat form, where a slide carries no link of its own. */
   link?: string
   /** 0 = no autoplay. */
@@ -85,14 +86,14 @@ const carousel = useTemplateRef('carousel')
  * nothing else, so the template never asks which form it was given.
  */
 const items = computed<HeroSlide[]>(() => {
-  if (props.slides?.length) return props.slides
-  const flat = props.images ?? []
-  const mobile = props.mobileImages ?? []
-  return flat.map((imageUrl, index) => ({
-    imageUrl,
-    mobileImageUrl: mobile[index],
-    ctaLink: props.link,
-  }))
+  // A slide keeps its editorial copy without artwork; one with neither has nothing to show.
+  if (props.slides?.length) return props.slides.filter(slide => drawnImage(slide) || hasCopy(slide))
+  const flat = props.artworks ?? []
+  const mobile = props.mobileArtworks ?? []
+  // Paired by position BEFORE any is left out; an artwork with no image to draw is not a slide.
+  return flat
+    .map((image, index) => ({ image, mobileImage: mobile[index], ctaLink: props.link }))
+    .filter(slide => drawnImage(slide))
 })
 
 const several = computed(() => items.value.length > 1)
@@ -111,8 +112,15 @@ const chips = computed(() => items.value.map((slide) => {
   }
 }))
 
-const artwork = (slide: HeroSlide) =>
-  (isMobileOrTablet.value && slide.mobileImageUrl) || slide.imageUrl
+/** The image a slide draws on this device: its phone image on a phone, else its own. */
+const drawnImage = (slide: Pick<HeroSlide, 'image' | 'mobileImage'>) =>
+  (isMobileOrTablet.value && readyImage(slide.mobileImage)?.path ? readyImage(slide.mobileImage) : undefined) ?? readyImage(slide.image)
+
+const artwork = (slide: HeroSlide) => drawnImage(slide)?.path
+
+/** The description of the image drawn, else the desk image's, else the slide's heading, else the store's name. */
+const altOf = (slide: HeroSlide) =>
+  slide.imageDecorative ? '' : drawnImage(slide)?.alt || readyImage(slide.image)?.alt || slide.heading || appTitle.value
 
 const hasCopy = (slide: HeroSlide) =>
   !!(slide.eyebrow || slide.heading?.trim() || slide.subheading || slide.ctaText)
@@ -271,10 +279,11 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
           <div
             :class="[
               'grid h-full w-full grid-rows-[auto_1fr]',
-              hasCopy(item) && 'lg:min-h-150 lg:grid-cols-[5fr_7fr] lg:grid-rows-1',
+              hasCopy(item) && artwork(item) && 'lg:min-h-150 lg:grid-cols-[5fr_7fr] lg:grid-rows-1',
             ]"
           >
             <div
+              v-if="artwork(item)"
               :class="[
                 'relative overflow-hidden bg-elevated',
                 aspect.class,
@@ -283,7 +292,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
             >
               <ImgWithFallback
                 :src="artwork(item)"
-                :alt="item.alt || item.heading || appTitle"
+                :alt="altOf(item)"
                 :width="crop(item)[0]"
                 :height="crop(item)[1]"
                 :sizes="imageSizes(item)"

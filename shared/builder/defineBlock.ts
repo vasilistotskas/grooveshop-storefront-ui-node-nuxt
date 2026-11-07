@@ -11,6 +11,9 @@ import type { BlockConfig, BlockDefinition, SettingsPointer } from '../types/bui
 import { dataPointers } from './dataPointers'
 import { linkPointers } from './linkPointers'
 
+/** A `legacyImages` pointer: a top-level setting (`/imageUrl`), or every entry of a list setting (`/images/*`). */
+const LEGACY_IMAGE_POINTER = /^\/[A-Za-z][A-Za-z0-9]*(\/\*)?$/
+
 /**
  * Declares a section or block of the page builder: its settings schema and
  * everything the catalogue, the editor and the renderer need to know about
@@ -70,6 +73,22 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     }
     if ((config.translatable ?? []).some(translatable => translatable === pointer || translatable.startsWith(`${pointer}/`))) {
       fail(`${pointer} is a data setting, which is the same in every language`)
+    }
+  }
+  for (const { from, to, alt } of config.legacyImages ?? []) {
+    const isList = from.endsWith('/*')
+    if (!LEGACY_IMAGE_POINTER.test(from) || !LEGACY_IMAGE_POINTER.test(to) || to.endsWith('/*') !== isList) {
+      fail(`legacyImages ${from} to ${to}: both name a top-level setting, or both every entry of a list setting`)
+    }
+    const names = [from, to, alt].flatMap(pointer => pointer === undefined ? [] : [pointer.split('/')[1]!])
+    if (names.some(name => !settings.has(name))) {
+      fail(`legacyImages ${from} to ${to} names a setting the schema does not have`)
+    }
+    if (data[to as SettingsPointer]?.field !== 'ref' || (data[to as SettingsPointer] as { kind: string }).kind !== 'media') {
+      fail(`legacyImages: ${to} must be a media reference (builderField.ref('media'))`)
+    }
+    if (alt !== undefined && isList) {
+      fail(`legacyImages ${from}: a list of images has no alt text of its own`)
     }
   }
   for (const kind of Object.values(config.refs ?? {})) {

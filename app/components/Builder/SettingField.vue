@@ -45,6 +45,29 @@ const error = computed(() => props.errors.get(props.field.path))
 const text = computed(() => typeof value.value === 'string' ? value.value : '')
 const number = computed(() => typeof value.value === 'number' ? value.value : undefined)
 const list = computed(() => Array.isArray(value.value) ? value.value.map(String) : [])
+/** The image ids of a list of images, in order. */
+const mediaIds = computed(() => Array.isArray(value.value) ? value.value.filter((id): id is number => typeof id === 'number') : [])
+/**
+ * The rows of a list of images with a key of their own: the image's id and
+ * which time it appears, so a row that moves keeps its lookup, a row given
+ * another image starts a new one (and never shows the previous image while it
+ * waits), and an image listed twice has two distinct rows.
+ */
+const mediaRows = computed(() => {
+  const seen = new Map<number, number>()
+  return mediaIds.value.map((id, index) => {
+    const nth = seen.get(id) ?? 0
+    seen.set(id, nth + 1)
+    return { id, index, key: `${id}:${nth}` }
+  })
+})
+/** Whether a list may take one more entry: the schema's own `maxItems`. */
+const hasRoom = computed(() => {
+  const field = props.field
+  if (field.kind !== 'list' && field.kind !== 'mediaList') return true
+  const count = field.kind === 'mediaList' ? mediaIds.value.length : list.value.length
+  return field.maxItems === undefined || count < field.maxItems
+})
 
 /**
  * The kind of record a record setting names (`refs`): always one a link may
@@ -104,11 +127,31 @@ function setListItem(index: number, item: string): void {
   set(list.value.map((current, at) => at === index ? item : current))
 }
 
-function moveListItem(index: number, delta: -1 | 1): void {
-  const next = [...list.value]
+/** `items` with the entry at `index` moved by `delta`. */
+function moved<T>(items: readonly T[], index: number, delta: -1 | 1): T[] {
+  const next = [...items]
   const [item] = next.splice(index, 1)
   next.splice(index + delta, 0, item!)
-  set(next)
+  return next
+}
+
+function moveListItem(index: number, delta: -1 | 1): void {
+  set(moved(list.value, index, delta))
+}
+
+/**
+ * An image of a list of images: chosen, or taken out when it is `undefined`,
+ * which is also what the field emits when the library deletes the image it
+ * holds. A list cannot keep an empty slot (the schema takes ids only, and
+ * Django refuses anything else), so that entry goes and the ones after it move up.
+ */
+function setMediaItem(index: number, id: number | undefined): void {
+  set(id === undefined ? mediaIds.value.filter((_, at) => at !== index) : mediaIds.value.map((current, at) => at === index ? id : current))
+}
+
+/** A new last image; the control for it stays empty, so there is never an entry without one. */
+function addMediaItem(id: number | undefined): void {
+  if (id !== undefined) set([...mediaIds.value, id])
 }
 </script>
 
@@ -298,6 +341,60 @@ function moveListItem(index: number, delta: -1 | 1): void {
       @update="set"
     />
     <div
+      v-else-if="field.kind === 'mediaList'"
+      class="flex flex-col gap-3"
+    >
+      <div
+        v-for="{ id, index, key } in mediaRows"
+        :key="key"
+        class="flex items-start gap-1"
+      >
+        <BuilderMediaField
+          :value="id"
+          :label="t('item', { name: label, number: index + 1 })"
+          :clearable="false"
+          :disabled="locked"
+          class="min-w-0 flex-1"
+          @update="(next: number | undefined) => setMediaItem(index, next)"
+        />
+        <UButton
+          icon="i-lucide-arrow-up"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          :aria-label="t('itemUp', { number: index + 1 })"
+          :disabled="locked || index === 0"
+          @click="() => set(moved(mediaIds, index, -1))"
+        />
+        <UButton
+          icon="i-lucide-arrow-down"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          :aria-label="t('itemDown', { number: index + 1 })"
+          :disabled="locked || index === mediaIds.length - 1"
+          @click="() => set(moved(mediaIds, index, 1))"
+        />
+        <UButton
+          icon="i-lucide-x"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          :aria-label="t('itemRemove', { number: index + 1 })"
+          :disabled="locked"
+          @click="() => set(mediaIds.filter((_, at) => at !== index))"
+        />
+      </div>
+      <BuilderMediaField
+        v-if="hasRoom"
+        :value="undefined"
+        :label="t('item', { name: label, number: mediaIds.length + 1 })"
+        :clearable="false"
+        :disabled="locked"
+        @update="addMediaItem"
+      />
+    </div>
+    <div
       v-else-if="field.kind === 'list'"
       class="flex flex-col gap-2"
     >
@@ -348,7 +445,7 @@ function moveListItem(index: number, delta: -1 | 1): void {
         size="sm"
         class="self-start"
         :label="t('itemAdd')"
-        :disabled="locked || (field.maxItems !== undefined && list.length >= field.maxItems)"
+        :disabled="locked || !hasRoom"
         @click="() => set([...list, ''])"
       />
     </div>

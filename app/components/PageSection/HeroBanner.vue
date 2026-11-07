@@ -8,7 +8,7 @@
  * - without, the band is typographic on the raised surface, and `decor`
  *   adds the orbs or the gradient wash behind it.
  *
- * A phone crops a hero differently from a desk, so `mobileImageUrl` is
+ * A phone crops a hero differently from a desk, so `mobileImage` is
  * a separate artwork rather than the same one squeezed. This is the
  * page's LCP: the image loads eagerly at high priority and carries
  * explicit dimensions.
@@ -17,9 +17,10 @@ const props = withDefaults(defineProps<{
   heading?: string
   subheading?: string
   eyebrow?: string
-  imageUrl?: string
-  mobileImageUrl?: string
-  imageAlt?: string
+  image?: ResolvedImage
+  mobileImage?: ResolvedImage
+  /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
+  imageDecorative?: boolean
   ctaText?: string
   ctaLink?: string
   secondaryCtaText?: string
@@ -39,10 +40,21 @@ const localePath = useLocalePath()
 const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 
-const hasImage = computed(() => !!props.imageUrl)
+const picture = computed(() => readyImage(props.image))
+const mobilePicture = computed(() => readyImage(props.mobileImage))
 
-const artwork = computed(() =>
-  (isMobileOrTablet.value && props.mobileImageUrl) || props.imageUrl,
+const shown = computed(() =>
+  (isMobileOrTablet.value && mobilePicture.value?.path ? mobilePicture.value : undefined) ?? picture.value,
+)
+
+const artwork = computed(() => shown.value?.path)
+
+/** Whether there is an image to draw: the one selected for this device, so a phone with only its own image still has one. */
+const hasImage = computed(() => !!artwork.value)
+
+/** The description of the picture shown, else the desk picture's, else the heading. */
+const alt = computed(() =>
+  props.imageDecorative ? '' : shown.value?.alt || picture.value?.alt || props.heading || '',
 )
 
 /**
@@ -66,7 +78,7 @@ const hasContent = computed(
   <!-- The photograph spans the viewport, so `sizes` is the full width
        and the browser picks its `srcset` candidate by device pixels;
        the device class only chooses the crop (a phone frames it 4:5, a
-       desk 12:5) and the artwork (`mobileImageUrl`). -->
+       desk 12:5) and the artwork (`mobileImage`). -->
   <section
     v-if="hasContent"
     :class="[
@@ -77,7 +89,7 @@ const hasContent = computed(
     <template v-if="hasImage">
       <ImgWithFallback
         :src="artwork"
-        :alt="imageAlt || heading || ''"
+        :alt="alt"
         :width="isMobileOrTablet ? 768 : 1536"
         :height="isMobileOrTablet ? 960 : 640"
         sizes="xs:100vw"

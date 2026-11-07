@@ -10,12 +10,23 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 const props = withDefaults(defineProps<{
   /** The operator's section title, from the section row itself. */
   title?: string
-  items?: Array<{ src: string, alt: string, caption?: string }>
+  items?: Array<{
+    image?: ResolvedImage
+    /** The picture is decoration: an explicit choice, so an empty description alone never means it. */
+    imageDecorative?: boolean
+    caption?: string
+  }>
   columns?: number
   surface?: 'default' | 'muted'
 }>(), {
   columns: 3,
 })
+
+/** What is drawn: a picture whose image is gone or unreadable has nothing to show, so it is left out. */
+const tiles = computed(() => (props.items ?? []).flatMap((item) => {
+  const image = readyImage(item.image)
+  return image ? [{ src: image.path, alt: item.imageDecorative ? '' : image.alt, caption: item.caption }] : []
+}))
 
 // Static class map so Tailwind sees every variant at build time.
 const TRACK_CLASSES: Record<number, string> = {
@@ -29,7 +40,7 @@ const trackClass = computed(() => TRACK_CLASSES[props.columns] ?? TRACK_CLASSES[
 
 <template>
   <section
-    v-if="items?.length"
+    v-if="tiles.length"
     :class="surface === 'muted' ? 'bg-(--fy-raised)' : 'bg-(--fy-ground)'"
     :data-fy-surface="surface === 'muted' ? undefined : 'ground'"
   >
@@ -54,7 +65,7 @@ const trackClass = computed(() => TRACK_CLASSES[props.columns] ?? TRACK_CLASSES[
         :class="trackClass"
       >
         <li
-          v-for="(item, index) in items"
+          v-for="(item, index) in tiles"
           :key="index"
         >
           <figure class="flex flex-col gap-2">

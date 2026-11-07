@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import Hero from '~/components/PageSection/variants/ekfyseosfyteias/Hero.vue'
+import { makeResolvedImage } from '~~/test/fixtures/media'
 
 /**
  * One section type, three presentations, chosen by the props the section
@@ -10,12 +11,13 @@ import Hero from '~/components/PageSection/variants/ekfyseosfyteias/Hero.vue'
  * pinning: where the h1 is, that the photo has a real alt, and that the
  * calls to action are links.
  */
+const ALT = 'Βάζα με μαρμελάδες'
+
 const PROPS = {
   eyebrow: 'Κοινωνική Συνεταιριστική Επιχείρηση Γυναικών',
   heading: 'Ό,τι απλόχερα μας χαρίζει η φύση.',
   subheading: 'Έντεκα γυναίκες στη Φυτειά Ημαθίας.',
-  imageUrl: 'https://assets.example.test/jars.jpg',
-  imageAlt: 'Βάζα με μαρμελάδες',
+  image: makeResolvedImage('https://assets.example.test/jars.jpg', 'Βάζα με μαρμελάδες'),
   ctaText: 'Δείτε το κελάρι μας',
   ctaLink: '/products',
   secondaryCtaText: 'Ποιες είμαστε',
@@ -31,7 +33,7 @@ describe('ekfyseosfyteias hero_banner', () => {
       const wrapper = await mountHero()
 
       expect(wrapper.findAll('h1').map(h => h.text())).toEqual([PROPS.heading])
-      expect(wrapper.find('img').attributes('alt')).toBe(PROPS.imageAlt)
+      expect(wrapper.find('img').attributes('alt')).toBe(ALT)
     })
 
     it('links both calls to action', async () => {
@@ -81,9 +83,17 @@ describe('ekfyseosfyteias hero_banner', () => {
     })
 
     it('falls back to the heading as the photo\'s alt when none is given', async () => {
-      const wrapper = await mountHero({ imageAlt: undefined })
+      const wrapper = await mountHero({ image: makeResolvedImage('https://assets.example.test/jars.jpg') })
 
       expect(wrapper.find('img').attributes('alt')).toBe(PROPS.heading)
+    })
+  })
+
+  describe('with a decorative image', () => {
+    it('gives the photo an empty alt, whatever the asset says', async () => {
+      const wrapper = await mountHero({ imageDecorative: true })
+
+      expect(wrapper.find('img').attributes('alt')).toBe('')
     })
   })
 
@@ -93,7 +103,7 @@ describe('ekfyseosfyteias hero_banner', () => {
 
       expect(wrapper.find('h1').exists()).toBe(false)
       expect(wrapper.findAll('h2').map(h => h.text())).toEqual([PROPS.heading])
-      expect(wrapper.find('img').attributes('alt')).toBe(PROPS.imageAlt)
+      expect(wrapper.find('img').attributes('alt')).toBe(ALT)
       // The photo is a sibling of the card, never its container.
       expect(wrapper.find('h2').element.closest('figure, picture')).toBeNull()
     })
@@ -129,7 +139,7 @@ describe('ekfyseosfyteias hero_banner', () => {
 
   describe('without artwork (the typographic page hero)', () => {
     it('is an h1 on a plain ground, with no photo', async () => {
-      const wrapper = await mountHero({ imageUrl: undefined, imageAlt: undefined })
+      const wrapper = await mountHero({ image: undefined })
 
       expect(wrapper.findAll('h1').map(h => h.text())).toEqual([PROPS.heading])
       expect(wrapper.find('img').exists()).toBe(false)

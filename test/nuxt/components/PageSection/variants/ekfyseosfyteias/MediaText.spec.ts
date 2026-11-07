@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import MediaText from '~/components/PageSection/variants/ekfyseosfyteias/MediaText.vue'
+import { makeResolvedImage } from '~~/test/fixtures/media'
 
 /**
  * The split band. The body is plain text: blank lines make paragraphs
@@ -12,7 +13,7 @@ const PROPS = {
   eyebrow: 'Ποιες είμαστε',
   heading: 'Γυναίκες της Φυτειάς, μαζί.',
   body: 'Η πρώτη παράγραφος, με μαρμελάδες.\n\nΗ δεύτερη παράγραφος, επίσης με μαρμελάδες.',
-  imageUrl: 'https://assets.example.test/team.jpg',
+  image: makeResolvedImage('https://assets.example.test/team.jpg'),
   note: 'Στον πάγκο μας, στη γιορτή του κάστανου.',
   ctaText: 'Η ιστορία μας',
   ctaLink: '/about',
@@ -32,6 +33,24 @@ describe('ekfyseosfyteias media_text', () => {
     expect(wrapper.find('figcaption').attributes('aria-hidden')).toBe('true')
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual([PROPS.ctaText, '/about'])
+  })
+
+  it('gives a decorative photograph an empty alt, and names a described one by its asset', async () => {
+    const decorative = await mountSplit({ imageDecorative: true })
+    const described = await mountSplit({ image: makeResolvedImage('https://assets.example.test/team.jpg', 'Η ομάδα') })
+
+    expect(decorative.find('img').attributes('alt')).toBe('')
+    expect(described.find('img').attributes('alt')).toBe('Η ομάδα')
+  })
+
+  it('hides the caption from screen readers only while it is the photograph\'s own description', async () => {
+    const same = await mountSplit()
+    const described = await mountSplit({ image: makeResolvedImage('https://assets.example.test/team.jpg', 'Η ομάδα') })
+    const decorative = await mountSplit({ imageDecorative: true })
+
+    expect(same.find('figcaption').attributes('aria-hidden')).toBe('true')
+    expect(described.find('figcaption').attributes('aria-hidden')).toBeUndefined()
+    expect(decorative.find('figcaption').attributes('aria-hidden')).toBeUndefined()
   })
 
   it('sets an operation-length title at the smaller heading scale', async () => {
@@ -97,7 +116,7 @@ describe('ekfyseosfyteias media_text', () => {
   })
 
   it('runs as a single text column without a photo, and prints the note under the text', async () => {
-    const wrapper = await mountSplit({ imageUrl: undefined })
+    const wrapper = await mountSplit({ image: undefined })
 
     expect(wrapper.find('img').exists()).toBe(false)
     expect(wrapper.find('figure').exists()).toBe(false)

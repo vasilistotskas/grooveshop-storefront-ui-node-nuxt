@@ -1,5 +1,5 @@
 {
-  "hash": "1fd48a64714530ce",
+  "hash": "43ce1e7a51adbe8f",
   "blocks": [
     {
       "type": "about_content",
@@ -2494,22 +2494,46 @@
         "properties": {
           "src": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 1000
           },
           "alt": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 200
+          },
+          "image": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "imageDecorative": {
+            "type": "boolean"
           },
           "caption": {
             "type": "string",
             "maxLength": 200
           }
         },
-        "required": [
-          "src",
-          "alt"
+        "anyOf": [
+          {
+            "required": [
+              "image"
+            ]
+          },
+          {
+            "required": [
+              "src"
+            ],
+            "properties": {
+              "src": {
+                "minLength": 1
+              }
+            }
+          }
         ],
         "additionalProperties": false
       },
@@ -2519,6 +2543,13 @@
       ],
       "refs": {},
       "linkRefs": [],
+      "data": {
+        "/image": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        }
+      },
       "limits": {},
       "children": {
         "allowed": []
@@ -2605,6 +2636,29 @@
           "imageAlt": {
             "type": "string",
             "maxLength": 200
+          },
+          "image": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "mobileImage": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "imageDecorative": {
+            "type": "boolean"
           },
           "ctaText": {
             "type": "string",
@@ -3000,6 +3054,18 @@
         "/ctaLink",
         "/secondaryCtaLink"
       ],
+      "data": {
+        "/image": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        },
+        "/mobileImage": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        }
+      },
       "limits": {
         "maxBlocks": 4
       },
@@ -3063,6 +3129,34 @@
             "items": {
               "type": "string",
               "maxLength": 1000
+            }
+          },
+          "artworks": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647,
+              "x-builder-data": {
+                "field": "ref",
+                "kind": "media",
+                "onMissing": "empty"
+              }
+            }
+          },
+          "mobileArtworks": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647,
+              "x-builder-data": {
+                "field": "ref",
+                "kind": "media",
+                "onMissing": "empty"
+              }
             }
           },
           "link": {
@@ -3244,6 +3338,18 @@
       "linkRefs": [
         "/link"
       ],
+      "data": {
+        "/artworks/*": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        },
+        "/mobileArtworks/*": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        }
+      },
       "limits": {
         "maxBlocks": 8
       },
@@ -3274,7 +3380,6 @@
         "properties": {
           "imageUrl": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 1000
           },
           "mobileImageUrl": {
@@ -3284,6 +3389,29 @@
           "alt": {
             "type": "string",
             "maxLength": 200
+          },
+          "image": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "mobileImage": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "imageDecorative": {
+            "type": "boolean"
           },
           "eyebrow": {
             "type": "string",
@@ -3658,8 +3786,22 @@
             }
           }
         },
-        "required": [
-          "imageUrl"
+        "anyOf": [
+          {
+            "required": [
+              "image"
+            ]
+          },
+          {
+            "required": [
+              "imageUrl"
+            ],
+            "properties": {
+              "imageUrl": {
+                "minLength": 1
+              }
+            }
+          }
         ],
         "additionalProperties": false
       },
@@ -3677,6 +3819,16 @@
         "/secondaryCtaLink"
       ],
       "data": {
+        "/image": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        },
+        "/mobileImage": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        },
         "/product": {
           "field": "ref",
           "kind": "product",
@@ -4239,6 +4391,19 @@
             "type": "string",
             "maxLength": 1000
           },
+          "image": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "imageDecorative": {
+            "type": "boolean"
+          },
           "imagePosition": {
             "type": "string",
             "enum": [
@@ -4444,6 +4609,13 @@
       "linkRefs": [
         "/ctaLink"
       ],
+      "data": {
+        "/image": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        }
+      },
       "limits": {
         "maxBlocks": 10
       },
@@ -6467,6 +6639,16 @@
             "type": "string",
             "maxLength": 1000
           },
+          "avatarImage": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
           "role": {
             "type": "string",
             "maxLength": 100
@@ -6486,6 +6668,13 @@
       ],
       "refs": {},
       "linkRefs": [],
+      "data": {
+        "/avatarImage": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        }
+      },
       "limits": {},
       "children": {
         "allowed": []
@@ -6638,6 +6827,16 @@
           "imageUrl": {
             "type": "string",
             "maxLength": 1000
+          },
+          "image": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
           },
           "icon": {
             "type": "string",
@@ -6822,8 +7021,18 @@
         "anyOf": [
           {
             "required": [
-              "imageUrl"
+              "image"
             ]
+          },
+          {
+            "required": [
+              "imageUrl"
+            ],
+            "properties": {
+              "imageUrl": {
+                "minLength": 1
+              }
+            }
           },
           {
             "required": [
@@ -6840,6 +7049,13 @@
       "linkRefs": [
         "/href"
       ],
+      "data": {
+        "/image": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        }
+      },
       "limits": {},
       "children": {
         "allowed": []
