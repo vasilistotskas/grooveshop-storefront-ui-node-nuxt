@@ -1,16 +1,17 @@
 # yaml-language-server: $schema=https://www.coderabbit.ai/integrations/schema.v2.json
 #
-# CodeRabbit reviews this repository on its free open-source tier, which allows
-# a small hourly number of pull request reviews (one an hour per repository in
-# November 2026) and counts every push as a review. So a pull request is
-# reviewed when it is opened or marked ready (drafts wait), and again only when
-# its author comments `@coderabbitai review`. Ask the same way if no review
-# starts (CodeRabbit's docs say repositories under 10 stars need a manual
-# trigger) or if a push drops a review in progress.
+# CodeRabbit reviews this repository on its free open-source tier: 1 to 10 pull
+# request reviews an hour depending on the repository's stars, for each author
+# and separately for each repository (https://docs.coderabbit.ai/management/plans;
+# each review's "Review info" shows what is left), and every push counts as a
+# review. So a pull request is reviewed when it is opened or marked ready (drafts
+# wait), and again only when its author comments `@coderabbitai review`. Ask the
+# same way if no review starts (the plans page says repositories under 10 stars
+# need a manual trigger) or if a push drops a review in progress.
 #
-# `inheritance: true` keeps every setting not named here from the organisation
-# settings in the CodeRabbit app. `@coderabbitai configuration` on a pull
-# request shows what applies and where each value comes from.
+# `inheritance: true` lets settings made in the CodeRabbit app fill in what this
+# file leaves out. `@coderabbitai configuration` on a pull request shows what
+# applies and where each value comes from.
 inheritance: true
 reviews:
   auto_review:
