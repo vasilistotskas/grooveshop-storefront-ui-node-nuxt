@@ -3,7 +3,7 @@ import {
   EMBED_IFRAME_ORIGINS,
   isAllowedEmbedUrl,
   parseYouTubeEmbed,
-  youTubePlayerUrl,
+  embedPlayerUrl,
 } from '~~/shared/utils/embeds'
 
 /**
@@ -70,11 +70,11 @@ describe('parseYouTubeEmbed', () => {
   })
 })
 
-describe('youTubePlayerUrl', () => {
+describe('embedPlayerUrl', () => {
   it('plays from the privacy-enhanced host, at once, from the start time', () => {
-    expect(youTubePlayerUrl({ id: 'eIiZ-JHL5aw', start: 0 }))
+    expect(embedPlayerUrl('https://www.youtube.com/embed/eIiZ-JHL5aw'))
       .toBe('https://www.youtube-nocookie.com/embed/eIiZ-JHL5aw?autoplay=1')
-    expect(youTubePlayerUrl({ id: 'eIiZ-JHL5aw', start: 65 }))
+    expect(embedPlayerUrl('https://www.youtube.com/embed/eIiZ-JHL5aw?t=1m5s'))
       .toBe('https://www.youtube-nocookie.com/embed/eIiZ-JHL5aw?autoplay=1&start=65')
   })
 })

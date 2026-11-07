@@ -13,7 +13,7 @@ import {
   transformHtmlImages,
 } from '~~/shared/utils/html'
 
-const OPTIONS = { videoPlayLabel: 'Αναπαραγωγή βίντεο' }
+const OPTIONS = { videoPlayLabel: 'Αναπαραγωγή βίντεο', mediaStreamBaseUrl: 'https://assets.example.gr/media_stream-image' }
 
 /** The text a reader gets from sanitised HTML. */
 const textOf = (html: string): string => new Window().document.createRange().createContextualFragment(html).textContent ?? ''
@@ -185,7 +185,7 @@ describe('sanitizeRichHtml', () => {
     expect(sanitize(html)).toBe(html)
   })
 
-  it('keeps an allow-listed video embed', () => {
+  it('keeps an allow-listed video embed, behind its play button', () => {
     const html
       = '<p>before</p>'
         + '<iframe src="https://player.vimeo.com/video/76979871" '
@@ -194,7 +194,7 @@ describe('sanitizeRichHtml', () => {
 
     const out = sanitize(html)
 
-    expect(out).toContain('<iframe')
+    expect(out).not.toContain('<iframe')
     expect(out).toContain('https://player.vimeo.com/video/76979871')
     expect(out).toContain('before')
     expect(out).toContain('after')
@@ -431,7 +431,7 @@ describe('sanitizeRichHtml', () => {
   })
 })
 
-describe('sanitizeRichHtml: YouTube facades', () => {
+describe('sanitizeRichHtml: embed facades', () => {
   /** The sanitised HTML in a detached element, to query like a page. */
   function render(html: string) {
     const document = new Window().document
@@ -453,8 +453,8 @@ describe('sanitizeRichHtml: YouTube facades', () => {
     const button = root.querySelector('button')
     expect(button?.getAttribute('type')).toBe('button')
     expect(button?.getAttribute('aria-label')).toBe(OPTIONS.videoPlayLabel)
-    expect(button?.dataset.youtubeId).toBe('eIiZ-JHL5aw')
-    expect(button?.dataset.youtubeTitle).toBe('YouTube video player')
+    expect(button?.dataset.embedSrc).toBe('https://www.youtube-nocookie.com/embed/eIiZ-JHL5aw?autoplay=1')
+    expect(button?.dataset.embedTitle).toBe('YouTube video player')
   })
 
   it('gives the facade the iframe\'s box and the video\'s poster', () => {
@@ -462,7 +462,7 @@ describe('sanitizeRichHtml: YouTube facades', () => {
 
     expect(style).toContain('--embed-w: 315px')
     expect(style).toContain('--embed-h: 560px')
-    expect(style).toContain('url("https://i.ytimg.com/vi/eIiZ-JHL5aw/hqdefault.jpg")')
+    expect(style).toContain('url("https://assets.example.gr/media_stream-image/youtube/eIiZ-JHL5aw/480/360/cover/centre/transparent/0/80.webp")')
   })
 
   it('keeps the author\'s own style and class on the facade', () => {
@@ -480,32 +480,35 @@ describe('sanitizeRichHtml: YouTube facades', () => {
     const root = render('<iframe src="https://www.youtube-nocookie.com/embed/frC_MO1lVaE"></iframe>')
 
     expect(root.querySelector('iframe')).toBeNull()
-    expect(root.querySelector('button')?.dataset.youtubeId).toBe('frC_MO1lVaE')
+    expect(root.querySelector('button')?.dataset.embedSrc).toBe('https://www.youtube-nocookie.com/embed/frC_MO1lVaE?autoplay=1')
   })
 
   it('carries the start time, from `start` or a share link\'s `t`', () => {
     expect(render('<iframe src="https://www.youtube.com/embed/frC_MO1lVaE?start=42"></iframe>')
-      .querySelector('button')?.dataset.youtubeStart).toBe('42')
+      .querySelector('button')?.dataset.embedSrc).toContain('start=42')
     expect(render('<iframe src="https://www.youtube.com/embed/frC_MO1lVaE?t=1m5s"></iframe>')
-      .querySelector('button')?.dataset.youtubeStart).toBe('65')
+      .querySelector('button')?.dataset.embedSrc).toContain('start=65')
     expect(render('<iframe src="https://www.youtube.com/embed/frC_MO1lVaE"></iframe>')
-      .querySelector('button')?.dataset.youtubeStart).toBeUndefined()
+      .querySelector('button')?.dataset.embedSrc).not.toContain('start=')
   })
 
-  it('moves a YouTube embed it cannot read to the privacy-enhanced host, loaded lazily', () => {
-    const frame = render('<iframe src="https://www.youtube.com/embed/videoseries?list=PL123"></iframe>')
-      .querySelector('iframe')
+  it('gives a playlist a plain facade on the privacy-enhanced host', () => {
+    const root = render('<iframe src="https://www.youtube.com/embed/videoseries?list=PL123"></iframe>')
+    const button = root.querySelector('button')
 
-    expect(frame?.getAttribute('src')).toBe('https://www.youtube-nocookie.com/embed/videoseries?list=PL123')
-    expect(frame?.getAttribute('loading')).toBe('lazy')
+    expect(root.querySelector('iframe')).toBeNull()
+    expect(button?.dataset.embedSrc).toBe('https://www.youtube-nocookie.com/embed/videoseries?list=PL123&autoplay=1')
+    expect(button?.getAttribute('style')).not.toContain('background-image')
   })
 
-  it('leaves a Vimeo embed as it was', () => {
-    const frame = render('<iframe src="https://player.vimeo.com/video/76979871" width="640" height="360"></iframe>')
-      .querySelector('iframe')
+  it('gives a Vimeo embed a plain facade, keeping its box', () => {
+    const root = render('<iframe src="https://player.vimeo.com/video/76979871" width="640" height="360"></iframe>')
+    const button = root.querySelector('button')
 
-    expect(frame?.getAttribute('src')).toBe('https://player.vimeo.com/video/76979871')
-    expect(frame?.getAttribute('width')).toBe('640')
+    expect(root.querySelector('iframe')).toBeNull()
+    expect(button?.dataset.embedSrc).toBe('https://player.vimeo.com/video/76979871?autoplay=1')
+    expect(button?.getAttribute('style')).toContain('--embed-w: 640px')
+    expect(button?.getAttribute('style')).not.toContain('background-image')
   })
 
   it('still strips a look-alike host instead of building a facade for it', () => {
@@ -523,7 +526,7 @@ describe('sanitizeRichHtml: YouTube facades', () => {
     )
 
     expect(root.querySelectorAll('img, script')).toHaveLength(0)
-    expect(root.querySelector('button')?.dataset.youtubeTitle).toBe('"><img src=x onerror=alert(1)>')
+    expect(root.querySelector('button')?.dataset.embedTitle).toBe('"><img src=x onerror=alert(1)>')
   })
 })
 

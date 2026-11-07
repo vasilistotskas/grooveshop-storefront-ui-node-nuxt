@@ -125,7 +125,7 @@ el:
       description: Μέτρηση και εξατομίκευση διαφημίσεων.
     personalization:
       label: Εξατομίκευση
-      description: Προτάσεις με βάση όσα βλέπεις.
+      description: Θυμάται τα προϊόντα που είδες και όσα αναζήτησες, σε αυτή τη συσκευή.
     security:
       label: Ασφάλεια
       description: Πρόληψη απάτης και προστασία του λογαριασμού σου.
@@ -150,7 +150,7 @@ en:
       description: Measuring and personalising ads.
     personalization:
       label: Personalisation
-      description: Recommendations based on what you browse.
+      description: Remembers the products you viewed and what you searched for, on this device.
     security:
       label: Security
       description: Fraud prevention and protecting your account.

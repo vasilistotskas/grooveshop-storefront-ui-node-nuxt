@@ -56,9 +56,20 @@ function writeToStorage(next: RecentlyViewedProduct[]) {
   }
 }
 
+function removeFromStorage() {
+  if (!import.meta.client) return
+  try {
+    window.localStorage.removeItem(STORAGE_KEY)
+  }
+  catch (error) {
+    log.warn({ tag: 'recently-viewed', message: 'remove failed', error })
+  }
+}
+
 /**
  * Tracks and exposes the user's recently-viewed products, persisted to
- * localStorage.
+ * localStorage for a visitor who agreed to personalisation
+ * (`usePersonalizationConsent`); without that the list stays empty.
  *
  * Implementation: we intentionally re-read localStorage every time the
  * composable is invoked on the client instead of trusting an in-memory
@@ -69,22 +80,23 @@ function writeToStorage(next: RecentlyViewedProduct[]) {
  * calls, so a fresh reload is always idempotent.
  */
 export function useRecentlyViewed() {
+  const allowed = usePersonalizationConsent()
   const items = useState<RecentlyViewedProduct[]>(
     'recently-viewed:items',
-    () => readFromStorage(),
+    () => allowed.value ? readFromStorage() : [],
   )
 
   // The very first client-side invocation may have received the SSR
   // payload's empty default instead of the factory result. Refresh
   // from localStorage once we know we're on the client — subsequent
   // calls keep whatever's in memory (respecting in-flight mutations).
-  if (import.meta.client && items.value.length === 0) {
+  if (import.meta.client && allowed.value && items.value.length === 0) {
     const stored = readFromStorage()
     if (stored.length) items.value = stored
   }
 
   const add = (product: RecentlyViewedProduct) => {
-    if (!import.meta.client) return
+    if (!import.meta.client || !allowed.value) return
     // Merge against the freshest stored copy so a stale in-memory ref
     // (e.g. from a lazy-hydrated component) can't wipe newer history.
     const baseline = readFromStorage()
@@ -97,7 +109,7 @@ export function useRecentlyViewed() {
   }
 
   const remove = (productId: number) => {
-    if (!import.meta.client) return
+    if (!import.meta.client || !allowed.value) return
     const next = readFromStorage().filter(p => p.id !== productId)
     items.value = next
     writeToStorage(next)
@@ -106,7 +118,7 @@ export function useRecentlyViewed() {
   const clear = () => {
     if (!import.meta.client) return
     items.value = []
-    writeToStorage([])
+    removeFromStorage()
   }
 
   /**
