@@ -1,3 +1,10 @@
+# [3.331.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.6...v3.331.0) (2026-11-07)
+
+
+### Features
+
+* **builder:** image blocks read media references, old URLs through one adapter ([#410](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/410)) ([55fd212](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/55fd2121fb90c534232763f2f75d1bf8cf9fd65a))
+
 ## [3.330.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.5...v3.330.6) (2026-11-07)
 
 
