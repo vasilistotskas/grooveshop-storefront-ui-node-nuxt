@@ -13,7 +13,7 @@
  * keys on the checkout form. Renaming any of those is a breaking
  * change against persisted drafts and the order-create payload.
  */
-import type { Locker, ShippingCarrier } from '../interfaces'
+import type { GeocodedPlace, Locker, ShippingCarrier } from '../interfaces'
 
 function _toNumber(value: string | null | undefined): number | null {
   if (value === null || value === undefined || value === '') return null
@@ -73,6 +73,23 @@ const acsCarrier: ShippingCarrier = {
       },
     )
     return (rows ?? []).map(_normalize).filter(Boolean) as Locker[]
+  },
+
+  // ACS_Address_Validation: it places a street and number once it also
+  // has the city or the postcode, Greek or Greeklish; anything it cannot
+  // place is an empty answer.
+  async geocode(address: string, signal?: AbortSignal): Promise<GeocodedPlace | null> {
+    const row = await $fetch<AcsAddressValidationResponse>(
+      '/api/shipping/acs/address-validation',
+      { method: 'POST', body: { address }, signal },
+    )
+    if (typeof row?.resolvedLat !== 'number' || typeof row.resolvedLong !== 'number') return null
+    const street = [row.resolvedStreet, row.resolvedStreetNum].filter(Boolean).join(' ')
+    return {
+      lat: row.resolvedLat,
+      lng: row.resolvedLong,
+      label: [street, row.resolvedArea].filter(Boolean).join(', '),
+    }
   },
 
   applyToFormState(formState: Record<string, unknown>, locker: Locker): void {

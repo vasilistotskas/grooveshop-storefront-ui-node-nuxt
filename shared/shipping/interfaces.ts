@@ -61,6 +61,14 @@ export interface Locker {
   raw: unknown
 }
 
+/** A place a carrier's own geocoder found for an address. */
+export interface GeocodedPlace {
+  lat: number
+  lng: number
+  /** The address as the carrier read it, for the shopper to check. */
+  label: string
+}
+
 /** Strategy contract — every carrier (ACS, BoxNow, future ELTA…)
  *  ships an instance of this. Unimplemented hooks are optional;
  *  the registry never crashes for a missing capability. */
@@ -85,6 +93,12 @@ export interface ShippingCarrier {
    *  generic picker reads. Required when ``usesGenericPicker`` is true;
    *  a carrier with its own picker leaves it out. */
   fetchAll?(country: string, signal?: AbortSignal): Promise<Locker[]>
+
+  /** Place a free-text address with the carrier's own geocoder, so the
+   *  picker can show the lockers nearest it. `null` when the carrier
+   *  cannot place it. Optional: without it the picker searches the
+   *  catalogue's own text only. */
+  geocode?(address: string, signal?: AbortSignal): Promise<GeocodedPlace | null>
 
   /** Commit a picked locker to the checkout form state. The
    *  carrier writes its own provider-specific keys (BoxNow's

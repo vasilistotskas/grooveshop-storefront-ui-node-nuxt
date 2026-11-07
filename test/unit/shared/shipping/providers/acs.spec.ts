@@ -130,6 +130,36 @@ describe('the ACS adapter', () => {
     expect(lockers.map(l => l.id)).toEqual(['ATH'])
   })
 
+  describe('geocode', () => {
+    it('asks ACS to place the address and names it as ACS read it', async () => {
+      fetchMock.mockResolvedValue({
+        geoId: 828142,
+        resolvedStreet: 'ΚΑΛΑΜΑ',
+        resolvedStreetNum: '25',
+        resolvedZip: '10443',
+        resolvedArea: 'ΑΘΗΝΑ',
+        resolvedLong: 23.71865,
+        resolvedLat: 38.00785,
+      })
+      const signal = new AbortController().signal
+
+      const place = await acsCarrier.geocode!('kalama 25 Αθήνα', signal)
+
+      expect(fetchMock).toHaveBeenCalledWith('/api/shipping/acs/address-validation', {
+        method: 'POST',
+        body: { address: 'kalama 25 Αθήνα' },
+        signal,
+      })
+      expect(place).toEqual({ lat: 38.00785, lng: 23.71865, label: 'ΚΑΛΑΜΑ 25, ΑΘΗΝΑ' })
+    })
+
+    it('has no place when ACS cannot read the address', async () => {
+      fetchMock.mockResolvedValue({})
+
+      expect(await acsCarrier.geocode!('kalama 25')).toBeNull()
+    })
+  })
+
   describe('on the checkout form', () => {
     it('writes the station under the keys the order payload sends', () => {
       const form: Record<string, unknown> = {}
