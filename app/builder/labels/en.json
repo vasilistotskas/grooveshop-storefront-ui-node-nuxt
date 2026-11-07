@@ -184,12 +184,11 @@
     "align": {
       "label": "Alignment"
     },
-    "alt": {
-      "label": "Image description",
-      "help": "Read aloud to people who can't see the image."
-    },
     "answer": {
       "label": "Answer"
+    },
+    "artworks": {
+      "label": "Images"
     },
     "aspect": {
       "label": "Shape"
@@ -201,7 +200,7 @@
       "label": "Autoplay (milliseconds)",
       "help": "0 for no autoplay."
     },
-    "avatar": {
+    "avatarImage": {
       "label": "Photo"
     },
     "backgroundColor": {
@@ -271,18 +270,15 @@
     "icon": {
       "label": "Icon"
     },
-    "imageAlt": {
-      "label": "Image description",
-      "help": "Read aloud to people who can't see the image."
+    "image": {
+      "label": "Image"
+    },
+    "imageDecorative": {
+      "label": "Decorative image",
+      "help": "Turn on when the image adds nothing a screen reader user needs. Leaving the description empty does not do this: choose it here."
     },
     "imagePosition": {
       "label": "Image position"
-    },
-    "imageUrl": {
-      "label": "Image"
-    },
-    "images": {
-      "label": "Images"
     },
     "kind": {
       "label": "Kind"
@@ -303,11 +299,11 @@
     "marquee": {
       "label": "Scrolling row"
     },
-    "mobileImageUrl": {
-      "label": "Image on phones"
-    },
-    "mobileImages": {
+    "mobileArtworks": {
       "label": "Images on phones"
+    },
+    "mobileImage": {
+      "label": "Image on phones"
     },
     "multiple": {
       "label": "Several open at once"
@@ -381,9 +377,6 @@
     },
     "showsMerchantIdentity": {
       "label": "Business details"
-    },
-    "src": {
-      "label": "Image"
     },
     "subheading": {
       "label": "Subheading"

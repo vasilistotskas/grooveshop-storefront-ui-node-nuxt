@@ -5,6 +5,7 @@ import CtaBanner from '~/components/PageSection/CtaBanner.vue'
 import FyteiaCtaBanner from '~/components/PageSection/variants/ekfyseosfyteias/CtaBanner.vue'
 import { makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { setTenant } from '~~/test/helpers/tenant'
+import { makeResolvedImage } from '~~/test/fixtures/media'
 
 const { surface } = vi.hoisted(() => ({ surface: vi.fn<() => BuilderSurface | null>(() => null) }))
 mockNuxtImport('useBuilderSurface', () => surface)
@@ -71,7 +72,7 @@ describe('PageSection/Renderer', () => {
     ['the default design', 'test'],
     ['webside', 'webside'],
   ])('a hero in %s', (_design, schemaName) => {
-    const hero = section('hero_carousel', { images: ['/img/a.png', '/img/b.png'], link: '/products' })
+    const hero = section('hero_carousel', { artworks: [makeResolvedImage('/img/a.png'), makeResolvedImage('/img/b.png')], link: '/products' })
     const mountAt = (placement?: 'top' | 'below-content') =>
       mountSuspended(Renderer, { route: false, props: { section: hero, ...(placement ? { placement } : {}) } })
     const firstImage = async (wrapper: Awaited<ReturnType<typeof mountAt>>) => {

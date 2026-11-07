@@ -15,6 +15,8 @@
  * - `media`: an id of an image of the media library, a `record` of kind `media`;
  * - `query`: a descriptor of a list to read (`builderField.query`), which the
  *   storefront resolves when the page is read;
+ * - `mediaList`: a list of media ids, each entry an image of the media library
+ *   (`builderField.ref('media', ...)` as the items of an array: the `*` data pointer);
  * - `list`: a list of strings;
  * - `group`: an object, with fields of its own;
  * - `richText`: HTML (`contentMediaType: text/html`).
@@ -26,7 +28,7 @@ export type BuilderSettingField
     | { kind: 'boolean' | 'color' | 'icon' | 'url' | 'link' | 'richText' | 'media', path: string, pointer: SettingsPointer, required: boolean }
     | { kind: 'record', path: string, pointer: SettingsPointer, required: boolean, refKind: BlockRefKind }
     | { kind: 'query', path: string, pointer: SettingsPointer, required: boolean, source: DataSource, maxLimit: number }
-    | { kind: 'list', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
+    | { kind: 'list' | 'mediaList', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
     | { kind: 'group', path: string, pointer: SettingsPointer, required: boolean, fields: BuilderSettingField[] }
 
 export interface BuilderTextField {
@@ -85,8 +87,12 @@ function fieldOf(
         ...(numberOf(schema.minimum) !== undefined && { min: numberOf(schema.minimum) }),
         ...(numberOf(schema.maximum) !== undefined && { max: numberOf(schema.maximum) }),
       }
-    case 'array':
-      return { ...base, kind: 'list', ...(numberOf(schema.maxItems) !== undefined && { maxItems: numberOf(schema.maxItems) }) }
+    case 'array': {
+      // A list whose entries are media references (the `*` data pointer): a list of images, not of strings.
+      const entries = definition.data[`${pointer}/*` as SettingsPointer]
+      const kind = entries?.field === 'ref' && entries.kind === 'media' ? 'mediaList' : 'list'
+      return { ...base, kind, ...(numberOf(schema.maxItems) !== undefined && { maxItems: numberOf(schema.maxItems) }) }
+    }
     case 'object': {
       const properties = isSchema(schema.properties) ? schema.properties : {}
       const requiredKeys = new Set(Array.isArray(schema.required) ? schema.required : [])
@@ -112,10 +118,30 @@ function fieldOf(
   }
 }
 
-/** The fields of a block's settings form, in the order its schema declares them. */
+/**
+ * The fields of a block's settings form, in the order its schema declares them.
+ * TRANSITIONAL (P15 stage 2): the old image settings a block still accepts
+ * (`legacyImages`: the URL and its alt text) are not in the form, since their
+ * media-reference successors are.
+ */
 export function builderSettingsFields(definition: BlockDefinition): BuilderSettingField[] {
   const root = fieldOf(blockSettingsJsonSchema(definition.schema), [], true, definition)
-  return root.kind === 'group' ? root.fields : []
+  const legacy = new Set((definition.legacyImages ?? []).flatMap(({ from, alt }) => [from, alt].flatMap(pointer => pointer === undefined ? [] : [`/${pointer.split('/')[1]}`])))
+  return root.kind === 'group' ? root.fields.filter(field => !legacy.has(field.pointer)) : []
+}
+
+/**
+ * TRANSITIONAL (P15 stage 2, with `legacyImages`): the old settings (the URL
+ * or list of URLs, and its alt text) that a change to the setting at `path`
+ * replaces. A node that still holds only a URL shows an empty image field,
+ * and a URL left behind would come back the moment the image is cleared, so
+ * choosing, changing or clearing an image takes the old settings out with it.
+ */
+export function builderLegacySettingsReplacedBy(definition: Pick<BlockDefinition, 'legacyImages'>, path: string): string[] {
+  const name = path.split('.')[0]
+  return (definition.legacyImages ?? [])
+    .filter(({ to }) => to.split('/')[1] === name)
+    .flatMap(({ from, alt }) => [from, alt].flatMap(pointer => pointer === undefined ? [] : [pointer.split('/')[1]!]))
 }
 
 /** Every field of a form, the fields of its groups included, depth first. */

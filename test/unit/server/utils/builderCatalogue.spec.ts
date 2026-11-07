@@ -225,7 +225,7 @@ describe('buildBlockCatalogue', () => {
 
 describe('this build\'s catalogue', () => {
   it('registers the blocks of the build by type', () => {
-    expect([...builderBlocks.keys()]).toEqual(['promo_banner', 'promo_item', 'promo_rail'])
+    expect([...builderBlocks.keys()]).toEqual(['promo_banner', 'promo_item', 'promo_rail', 'promo_picture'])
   })
 
   it('serves the catalogue as JSON with its hash', () => {

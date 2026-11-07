@@ -68,9 +68,11 @@ function issueKind(code: string): 'tooLong' | 'tooShort' | 'missing' | 'invalid'
 function update(path: string, value: unknown): void {
   const document = store.opened[props.documentKey]
   if (!document) return
+  // TRANSITIONAL (P15 stage 2): an image setting that replaces an old URL takes the URL (and its alt text) out with it.
+  const replaced = !translations.value && definition.value ? builderLegacySettingsReplacedBy(definition.value, path) : []
   const next = translations.value
     ? setNodeTranslation(document.copy, locale.value, props.nodeId, `/${path.split('.').join('/')}`, value)
-    : setNodeSetting(document.copy, props.nodeId, path, value)
+    : replaced.reduce((copy, old) => setNodeSetting(copy, props.nodeId, old, undefined), setNodeSetting(document.copy, props.nodeId, path, value))
   store.change(props.documentKey, next, { coalesce: `${locale.value}/${props.nodeId}/${path}` })
 }
 </script>

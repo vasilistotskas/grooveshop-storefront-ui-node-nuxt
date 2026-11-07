@@ -353,4 +353,24 @@ describe('resolveBuilderData', () => {
     expect(resolved).toEqual({ document, issues: [] })
     expect(backend.requests).toEqual([])
   })
+
+  describe('a picture that still stores its image as a URL', () => {
+    const old = { type: 'promo_picture@1', settings: { imageUrl: 'https://cdn.test/a.jpg', imageAlt: 'Μια βιτρίνα' } }
+
+    it('reads it as a resolved reference without a single request, since the page holds no data setting', async () => {
+      const resolved = await resolveBuilderData(createRequestEvent({ url: '/' }), { sections: { a: old }, order: ['a'] })
+
+      expect(resolved.document.sections.a!.settings).toEqual({ image: { status: 'ok', value: { path: 'https://cdn.test/a.jpg', alt: 'Μια βιτρίνα' } } })
+      expect(backend.requests).toEqual([])
+    })
+
+    it('reads the reference of a picture that has one, and ignores its old URL', async () => {
+      backend.reply(() => page([makeResolvedAsset({ id: 5, path: 'media/new.jpg' })]))
+      const both = { type: 'promo_picture@1', settings: { ...old.settings, image: 5 } }
+
+      const resolved = await resolveBuilderData(createRequestEvent({ url: '/' }), { sections: { a: both }, order: ['a'] })
+
+      expect(resolved.document.sections.a!.settings).toEqual({ image: { status: 'ok', value: makeResolvedAsset({ id: 5, path: 'media/new.jpg' }) } })
+    })
+  })
 })
