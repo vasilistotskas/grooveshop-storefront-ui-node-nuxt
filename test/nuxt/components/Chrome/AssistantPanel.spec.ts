@@ -61,6 +61,22 @@ describe('Chrome/AssistantPanel', () => {
     expect(wrapper.find('img').exists()).toBe(false)
   })
 
+  // comark links a full URL in the answer, so the shopper can open what
+  // the assistant names; a bare domain stays text (since 0.9 linkify is
+  // a default plugin with fuzzy matching off by default).
+  it('links a full URL in the reply, and leaves a bare domain as text', async () => {
+    stubReply(
+      'event: delta\ndata: {"text":"Δείτε https://shop.test/products/7 ή shop.test."}\n\n'
+      + 'event: done\ndata: {"conversationId":"c1","cartMutated":false}\n\n',
+    )
+    const wrapper = await mountPanel()
+
+    await useShopChat().send('Πού το βρίσκω;')
+    await vi.waitFor(() => expect(wrapper.find('a[href="https://shop.test/products/7"]').exists()).toBe(true))
+
+    expect(wrapper.findAll('a').some(a => a.attributes('href')?.endsWith('//shop.test'))).toBe(false)
+  })
+
   it('renders the products a tool surfaced after the words that introduce them, from the product API', async () => {
     api.routes({ '/api/products/*': makeProduct({ id: 5 }) })
     stubReply(
