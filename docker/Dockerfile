@@ -1,4 +1,8 @@
-ARG NODE_VERSION=24.19.0
+ARG NODE_VERSION=26.13.0
+# Keep in step with "packageManager" in package.json.
+ARG PNPM_VERSION=12.18.0
+
+FROM ghcr.io/pnpm/pnpm:${PNPM_VERSION}-alpine AS pnpm
 
 FROM node:${NODE_VERSION}-alpine AS build
 
@@ -7,7 +11,11 @@ ENV PATH="$PNPM_HOME:$PATH"
 
 RUN apk add --no-cache python3 make g++
 
-RUN npm install -g pnpm@latest
+# The pnpm that "packageManager" names, from its official image
+# (pnpm.io/docker; Node 25+ ships no corepack). The whole directory is
+# copied: it carries node-gyp.
+COPY --from=pnpm /opt/pnpm /opt/pnpm
+RUN for bin in pnpm pnpx pnx; do ln -s "/opt/pnpm/$bin" "/usr/local/bin/$bin"; done
 
 WORKDIR /app
 

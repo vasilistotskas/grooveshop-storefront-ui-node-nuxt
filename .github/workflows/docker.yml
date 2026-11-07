@@ -112,7 +112,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           target: production
           build-args: |
-            NODE_VERSION=24.19.0
+            NODE_VERSION=26.13.0
           sbom: true
           provenance: mode=max
 

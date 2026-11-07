@@ -278,7 +278,7 @@ const onClickCookieSettings = () => {
               :ui="{
                 link: `
                   gap-3 px-6 py-2 text-sm
-                  data-[active=true]:text-(--ui-secondary)
+                  data-active:text-(--ui-secondary)
                 `,
                 linkLeadingIcon: 'size-4',
                 linkLabel: 'text-sm capitalize',

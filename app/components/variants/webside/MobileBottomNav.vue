@@ -44,8 +44,8 @@ onMounted(() => {
         link: `
           relative flex min-h-12 flex-col items-center justify-center gap-0.5
           before:bg-transparent
-          data-[active=true]:text-(--ui-secondary)
-          data-[active=true]:before:bg-(--ui-secondary)/10
+          data-active:text-(--ui-secondary)
+          data-active:before:bg-secondary/10
           dark:before:bg-transparent
         `,
         linkLabel: 'text-[10px] leading-tight font-medium',
