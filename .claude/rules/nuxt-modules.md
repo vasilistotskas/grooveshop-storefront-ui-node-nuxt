@@ -12,7 +12,7 @@ The modules in `nuxt.config.ts` and the custom local modules in `modules/`.
 
 Active modules in `nuxt.config.ts` (the `modules` array, in order):
 1. `evlog/nuxt` — Structured logging (`log` auto-import on client + Nitro; see Structured Logging)
-2. `@comark/nuxt` — Markdown rendering (used by blog/CMS content)
+2. `@comark/nuxt` — Markdown rendering, as it streams in, for the chat answers' `<Markdown>` (`Chat/Panel.vue`, `Chrome/AssistantPanel.vue`). Blog, CMS and page-builder rich text are sanitized HTML (`useHtmlContent().sanitize` + `v-html`), not Markdown
 3. `@nuxt/image` — Image optimization with IPX + custom mediaStream provider
 4. `@nuxt/ui` — Component library (v4, with experimental component detection)
 5. `@nuxt/eslint` — ESLint integration with checker enabled
