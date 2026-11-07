@@ -26,7 +26,7 @@ describe('GET /api/user/account/:id/data-exports/:exportId/download', () => {
 
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toBe('application/json')
-    expect(response.headers.get('content-disposition')).toBe('attachment; filename="data-export-7.json"')
+    expect(response.headers.get('content-disposition')).toBe('attachment; filename="data-export-3.json"')
     expect(response.body).toEqual(JSON.parse(BUNDLE))
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/user/account/7/data_exports/3/download')
     expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer knox-1')

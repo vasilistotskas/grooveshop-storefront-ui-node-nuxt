@@ -21,6 +21,9 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
+const toastAdd = vi.hoisted(() => vi.fn())
+mockNuxtImport('useToast', () => () => ({ add: toastAdd, update: vi.fn(), remove: vi.fn(), toasts: ref([]) }))
+
 const session = vi.hoisted(() => ({ clear: vi.fn(() => Promise.resolve()) }))
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(true),
@@ -32,6 +35,7 @@ mockNuxtImport('useUserSession', () => () => ({
 }))
 
 const EXPORTS = '/api/user/account/7/data-exports'
+const DOWNLOAD = '/api/user/account/7/data-exports/1/download'
 const REQUEST = '/api/user/account/7/request-data-export'
 const DELETE = '/api/user/account/7/delete-account'
 const SUMMARY = '/api/user/account/summary'
@@ -77,10 +81,15 @@ function makeSummary(overrides: Partial<AccountSummary> = {}): AccountSummary {
   }
 }
 
-function given({ exports = [] as UserDataExport[], summary = makeSummary() } = {}) {
+function given({
+  exports = [] as UserDataExport[],
+  summary = makeSummary(),
+  download = (() => new Blob(['{}'])) as Parameters<typeof api.routes>[0][string],
+} = {}) {
   api.routes({
     [EXPORTS]: () => ({ results: exports }),
     [SUMMARY]: () => summary,
+    [DOWNLOAD]: download,
   })
 }
 
@@ -174,9 +183,15 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
     expect(buttonByText(wrapper.element, text('export.request_again'))).toBeTruthy()
   })
 
-  it('shows a ready export with a download that opens the file', async () => {
-    given({ exports: [makeExport()] })
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+  it('shows a ready export with a download that saves the file', async () => {
+    const bundle = new Blob(['{}'], { type: 'application/json' })
+    given({ exports: [makeExport()], download: () => bundle })
+    const createObjectURL = vi.fn(() => 'blob:bundle')
+    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() }))
+    const saved: { href: string, download: string }[] = []
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      saved.push({ href: this.href, download: this.download })
+    })
     const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain(text('export.status.ready'))
@@ -184,7 +199,22 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
 
     await wrapper.findAll('button').find(button => button.text() === text('export.download'))!.trigger('click')
 
-    expect(open).toHaveBeenCalledWith('/api/user/account/7/data-exports/1/download', '_blank', 'noopener,noreferrer')
+    await flushPromises()
+
+    expect(createObjectURL).toHaveBeenCalledWith(bundle)
+    expect(saved).toEqual([{ href: 'blob:bundle', download: 'data-export-1.json' }])
+  })
+
+  it('tells the shopper on the page when the download is refused', async () => {
+    given({ exports: [makeExport()], download: failWith(410, { detail: 'gone', code: 'download_expired' }) })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    const wrapper = await mountPage()
+
+    await wrapper.findAll('button').find(button => button.text() === text('export.download'))!.trigger('click')
+    await flushPromises()
+
+    expect(click).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: text('export.download_error_title') }))
   })
 
   it('says a failed export failed and lets the shopper ask again', async () => {

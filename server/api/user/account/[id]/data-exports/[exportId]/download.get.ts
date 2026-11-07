@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     }
 
     event.res.headers.set('Content-Type', 'application/json')
-    event.res.headers.set('Content-Disposition', `attachment; filename="data-export-${params.id}.json"`)
+    event.res.headers.set('Content-Disposition', `attachment; filename="data-export-${params.exportId}.json"`)
     return Buffer.from(response._data)
   }
   catch (error) {

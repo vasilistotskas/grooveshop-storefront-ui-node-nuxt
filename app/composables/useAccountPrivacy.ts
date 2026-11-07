@@ -16,7 +16,8 @@ const EXPORT_POLL_MS = 3000
  * - the shopper's data export: the latest one (`latest`), asked for with
  *   `requestExport` (the mail with the link follows), looked at again every
  *   few seconds while it is pending or being made (`isProcessing`), and
- *   opened with `openDownload` once it is ready (`isReady`);
+ *   saved with `openDownload` once it is ready (`isReady`), fetched through
+ *   the session so a refusal is told on this page;
  * - deleting the account: a dialog (`isDeleteModalOpen`) the shopper
  *   confirms by typing `DELETE` (`canConfirmDelete`); the session is
  *   cleared and the shopper goes to the home page.
@@ -26,7 +27,7 @@ const EXPORT_POLL_MS = 3000
  */
 export function useAccountPrivacy(options: {
   toasts: { exportRequested: () => ToastInput, deletionScheduled: () => ToastInput }
-  titles: { exportFailed: () => string, deleteFailed: () => string }
+  titles: { exportFailed: () => string, downloadFailed: () => string, deleteFailed: () => string }
 }) {
   const toast = useToast()
   const { notify } = useApiError()
@@ -100,13 +101,24 @@ export function useAccountPrivacy(options: {
     }
   }
 
-  const openDownload = () => {
-    if (!uid.value || !latest.value) return
-    window.open(
-      `/api/user/account/${uid.value}/data-exports/${latest.value.id}/download`,
-      '_blank',
-      'noopener,noreferrer',
-    )
+  const openDownload = async () => {
+    const exportId = latest.value?.id
+    if (!uid.value || exportId === undefined) return
+    try {
+      const bundle = await $api<Blob>(
+        `/api/user/account/${uid.value}/data-exports/${exportId}/download`,
+        { responseType: 'blob' },
+      )
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(bundle)
+      link.download = `data-export-${exportId}.json`
+      link.click()
+      URL.revokeObjectURL(link.href)
+    }
+    catch (error) {
+      log.error({ action: 'privacy:downloadExport', error })
+      notify('privacy:download-export', error, { title: options.titles.downloadFailed() })
+    }
   }
 
   const isDeleteModalOpen = ref(false)
