@@ -1,3 +1,10 @@
+## [3.330.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.2...v3.330.3) (2026-11-07)
+
+
+### Bug Fixes
+
+* **account:** say why a data export could not be downloaded, drop the public path ([#413](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/413)) ([c0a1d45](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c0a1d45202b4913b81aee95c93da0232f71f7d7b))
+
 ## [3.330.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.1...v3.330.2) (2026-11-07)
 
 
