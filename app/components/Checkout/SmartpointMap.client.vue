@@ -7,7 +7,7 @@ import type { GeoJSONSource, Map as MapLibreMap, Marker, Popup } from 'maplibre-
  *
  * The picker steers the camera: `focus` is the box to show (the
  * search's matches, or the shopper's area), and `null` the whole
- * catalogue. `here` is the shopper's own position, drawn as a dot. A
+ * catalogue. `here` is the point the picker measures from (the\n * shopper's position or a searched address), drawn as a dot. A
  * focus that changes before the map can take it (its style still
  * loading, or hidden on the list tab with no size to fit) is applied as
  * soon as it can.
@@ -29,8 +29,9 @@ const props = defineProps<{
   loading?: boolean
   /** The box the camera shows; `null` frames the whole catalogue. */
   focus?: LngLatBox | null
-  /** The shopper's position, once they shared it. */
-  here?: GeoPoint | null
+  /** The point the lockers are nearest to (the shopper's position, or
+   *  an address they searched for), drawn as a dot named `label`. */
+  here?: (GeoPoint & { label: string }) | null
 }>()
 
 const emit = defineEmits<{
@@ -230,7 +231,7 @@ function drawHere(): void {
   const dot = document.createElement('span')
   dot.className = HERE_CLASS
   dot.setAttribute('role', 'img')
-  dot.setAttribute('aria-label', t('shipping.locker_picker.your_location'))
+  dot.setAttribute('aria-label', props.here.label)
   hereMarker = makeMarker(dot).setLngLat([props.here.lng, props.here.lat]).addTo(instance)
 }
 

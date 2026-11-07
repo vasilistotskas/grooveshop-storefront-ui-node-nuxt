@@ -384,7 +384,136 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(tab(tp('tab_list')).attributes('aria-selected')).toBe('true')
   })
 
+  describe('an address that names no locker', () => {
+    const GEOCODE_WAIT_MS = 700
+    const KALAMA = { lat: 38.00785, lng: 23.71865, label: 'ΚΑΛΑΜΑ 25, ΑΘΗΝΑ' }
+
+    async function searchAddress(text: string): Promise<void> {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      await searchInput().setValue(text)
+      await vi.advanceTimersByTimeAsync(GEOCODE_WAIT_MS)
+      vi.useRealTimers()
+      await flushPromises()
+    }
+
+    it('is placed by the carrier, with the checkout city when it needs one, and lists the lockers nearest it', async () => {
+      const geocode = vi.fn((address: string, _signal?: AbortSignal) =>
+        Promise.resolve(address.endsWith('Αθήνα') ? KALAMA : null))
+      await openPicker(fakeCarrier({ geocode }), { initialPostalCode: '54622', initialCity: 'Αθήνα' })
+      await showList()
+
+      await searchAddress('kalama 25')
+
+      expect(geocode.mock.calls.map(([address]) => address)).toEqual(['kalama 25', 'kalama 25 Αθήνα'])
+      expect(inBody(tp('nearest_to_address', { address: KALAMA.label }))).toBe(true)
+      expect(rowNames()).toEqual([SYNTAGMA.name, KOLONAKI.name, KIFISIA.name, THESSALONIKI.name])
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ lat: KALAMA.lat, lng: KALAMA.lng, label: KALAMA.label })
+    })
+
+    it('stops a lookup the moment the text changes, before its retry with the city', async () => {
+      const signals: AbortSignal[] = []
+      const geocode = vi.fn((_address: string, signal?: AbortSignal) => {
+        signals.push(signal!)
+        return new Promise<null>((resolve, reject) => {
+          signal?.addEventListener('abort', () => reject(new Error('aborted, as ofetch wraps it')))
+        })
+      })
+      await openPicker(fakeCarrier({ geocode }), { initialCity: 'Αθήνα' })
+      await searchAddress('kalama 25')
+      expect(geocode).toHaveBeenCalledTimes(1)
+
+      await searchInput().setValue('kalama 2')
+      await flushPromises()
+
+      expect(signals[0]!.aborted).toBe(true)
+      expect(geocode).toHaveBeenCalledTimes(1)
+    })
+
+    it('asks nothing once the picker is closed, even for text typed just before', async () => {
+      const geocode = vi.fn(() => Promise.resolve(KALAMA))
+      const wrapper = await openPicker(fakeCarrier({ geocode }))
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      await searchInput().setValue('kalama 25')
+
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(GEOCODE_WAIT_MS)
+
+      expect(geocode).not.toHaveBeenCalled()
+    })
+
+    it('asks once per text: a miss is remembered for the opening', async () => {
+      const geocode = vi.fn((_address: string, _signal?: AbortSignal) => Promise.resolve(null))
+      await openPicker(fakeCarrier({ geocode }))
+
+      await searchAddress('αβγδε 99')
+      await searchAddress('αβγδε 9')
+      await searchAddress('αβγδε 99')
+
+      expect(geocode.mock.calls.map(([address]) => address)).toEqual(['αβγδε 99', 'αβγδε 9'])
+    })
+
+    it('waits for the lookup instead of saying nothing was found', async () => {
+      await openPicker(fakeCarrier({ geocode: vi.fn(() => new Promise<null>(() => {})) }))
+      await showList()
+
+      await search('kalama 25')
+
+      expect(inBody(tp('empty_title'))).toBe(false)
+    })
+
+    it('is not looked up while the search names lockers', async () => {
+      const geocode = vi.fn(() => Promise.resolve(KALAMA))
+      await openPicker(fakeCarrier({ geocode }))
+      await showList()
+
+      await searchAddress('κολωνακι')
+
+      expect(geocode).not.toHaveBeenCalled()
+      expect(rowNames()).toEqual([KOLONAKI.name])
+    })
+
+    it('keeps the map where it was when nothing is found', async () => {
+      await openPicker(fakeCarrier({ geocode: vi.fn(() => Promise.resolve(null)) }), { initialPostalCode: '10557' })
+      await vi.waitFor(() => expect(mapStub().exists()).toBe(true))
+      const before = mapStub().attributes('data-focus')
+      expect(JSON.parse(before!)).not.toBeNull()
+
+      await searchAddress('αβγδε 99')
+
+      expect(mapStub().attributes('data-focus')).toBe(before)
+      await showList()
+      expect(inBody(tp('empty_title'))).toBe(true)
+    })
+
+    it('keeps the map on the last search when nothing is found and there is nothing to start from', async () => {
+      await openPicker(fakeCarrier({ geocode: vi.fn(() => Promise.resolve(null)) }))
+      await vi.waitFor(() => expect(mapStub().exists()).toBe(true))
+      await searchAddress('κηφισια')
+      const onKifisia = mapStub().attributes('data-focus')
+      expect(JSON.parse(onKifisia!)).toEqual([KIFISIA.lng, KIFISIA.lat, KIFISIA.lng, KIFISIA.lat])
+
+      await searchAddress('αβγδε 99')
+
+      expect(mapStub().attributes('data-focus')).toBe(onKifisia)
+    })
+  })
+
   describe('the shopper\'s location', () => {
+    it('replaces the search: the map and the list follow the shopper', async () => {
+      answerWith({ at: { lat: 38.07, lng: 23.81 } })
+      await openPicker(fakeCarrier())
+      await showList()
+      await search('θεσσαλονικη')
+      expect(rowNames()).toEqual([THESSALONIKI.name])
+
+      await locationButton()!.trigger('click')
+      await flushPromises()
+
+      expect((searchInput().element as HTMLInputElement).value).toBe('')
+      expect(inBody(tp('nearest_to_you'))).toBe(true)
+      expect(rowNames()[0]).toBe(KIFISIA.name)
+    })
+
     const NEAR_KIFISIA = { lat: 38.07, lng: 23.81 }
 
     it('asks for it only on the shopper\'s click, then shows the nearest lockers around them', async () => {
@@ -399,7 +528,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
       expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1)
       expect(inBody(tp('nearest_to_you'))).toBe(true)
       expect(rowNames()[0]).toBe(KIFISIA.name)
-      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, kind: 'location' })
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, label: tp('your_location') })
     })
 
     it('centres on its own when the shopper already allowed it', async () => {
@@ -410,7 +539,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
       await vi.waitFor(() => expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1))
       await flushPromises()
 
-      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, kind: 'location' })
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, label: tp('your_location') })
     })
 
     it.each([

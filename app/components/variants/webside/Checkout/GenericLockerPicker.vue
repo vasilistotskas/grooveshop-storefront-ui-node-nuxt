@@ -14,6 +14,7 @@ const open = defineModel<boolean>('open', { required: true })
 const props = defineProps<{
   carrier: ShippingCarrier
   initialPostalCode?: string
+  initialCity?: string
   countryCode?: string
 }>()
 
@@ -29,6 +30,7 @@ const {
   tabs,
   query,
   searching,
+  placing,
   lockers,
   loading,
   errorMessage,
@@ -100,6 +102,7 @@ function onClose(): void {
               type="search"
               autocomplete="off"
               icon="i-lucide-search"
+              :loading="placing"
               :placeholder="t('shipping.locker_picker.search_placeholder')"
               :aria-label="t('shipping.locker_picker.search_label')"
               class="min-w-0 flex-1"
@@ -188,7 +191,7 @@ function onClose(): void {
               <!-- Loading skeleton — five rows matching the row geometry
                    so there's no layout shift when results arrive. -->
               <ul
-                v-if="loading"
+                v-if="loading || (placing && results.length === 0)"
                 class="flex flex-col gap-2 p-4"
                 :aria-label="t('shipping.locker_picker.loading')"
               >

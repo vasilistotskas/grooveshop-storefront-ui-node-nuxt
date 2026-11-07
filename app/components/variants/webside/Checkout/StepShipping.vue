@@ -245,6 +245,7 @@ defineExpose({ submit })
             v-model:open="pickerOpen"
             :carrier="activeCarrier"
             :initial-postal-code="formState.zipcode"
+            :initial-city="formState.city"
             :country-code="formState.country"
           />
         </UFormField>

@@ -271,16 +271,17 @@ describe('Checkout/SmartpointMap', () => {
     })
   })
 
-  it('marks the shopper\'s position once they share it, and moves the mark with it', async () => {
+  it('marks the point it is given under that point\'s own name, and moves the mark with it', async () => {
     const wrapper = await mountMap([FIRST, SECOND])
-    const dots = () => body().findAll(`[role="img"][aria-label="${t('shipping.locker_picker.your_location')}"]`)
+    const dots = () => body().findAll('[role="img"]')
     expect(dots()).toHaveLength(0)
 
-    await wrapper.setProps({ here: { lat: 37.98, lng: 23.74 } })
+    await wrapper.setProps({ here: { lat: 37.98, lng: 23.74, label: 'Η θέση σας' } })
+    expect(dots().map(dot => dot.attributes('aria-label'))).toEqual(['Η θέση σας'])
     expect(JSON.parse(dots()[0]!.attributes('data-lng-lat')!)).toEqual([23.74, 37.98])
-    await wrapper.setProps({ here: { lat: 37.99, lng: 23.75 } })
+    await wrapper.setProps({ here: { lat: 37.99, lng: 23.75, label: 'ΚΑΛΑΜΑ 25, ΑΘΗΝΑ' } })
 
-    expect(dots()).toHaveLength(1)
+    expect(dots().map(dot => dot.attributes('aria-label'))).toEqual(['ΚΑΛΑΜΑ 25, ΑΘΗΝΑ'])
     expect(JSON.parse(dots()[0]!.attributes('data-lng-lat')!)).toEqual([23.75, 37.99])
   })
 
