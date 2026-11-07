@@ -43,13 +43,14 @@ const { isMobileOrTablet } = useDevice()
 const picture = computed(() => readyImage(props.image))
 const mobilePicture = computed(() => readyImage(props.mobileImage))
 
-const hasImage = computed(() => !!picture.value?.path)
-
 const shown = computed(() =>
   (isMobileOrTablet.value && mobilePicture.value?.path ? mobilePicture.value : undefined) ?? picture.value,
 )
 
 const artwork = computed(() => shown.value?.path)
+
+/** Whether there is an image to draw: the one selected for this device, so a phone with only its own image still has one. */
+const hasImage = computed(() => !!artwork.value)
 
 /** The description of the picture shown, else the desk picture's, else the heading. */
 const alt = computed(() =>

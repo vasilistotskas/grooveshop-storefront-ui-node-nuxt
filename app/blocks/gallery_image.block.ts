@@ -15,7 +15,7 @@ export default defineBlock({
   })
     // A picture needs a picture. The rule is stated in the catalogue too, so Django refuses it on save.
     .refine(picture => picture.image !== undefined || Boolean(picture.src), { message: 'needs image or src' })
-    .meta({ anyOf: [{ required: ['image'] }, { required: ['src'] }] }),
+    .meta({ anyOf: [{ required: ['image'] }, { required: ['src'], properties: { src: { minLength: 1 } } }] }),
   translatable: ['/alt', '/caption'],
   legacyImages: [{ from: '/src', to: '/image', alt: '/alt' }],
   editor: { title: ['caption'] },

@@ -34,8 +34,10 @@ describe.each([['default', ImageGallery], ['ekfyseosfyteias', EkfyGallery]])('%s
   })
 
   it('is absent when no picture can be drawn', async () => {
-    const wrapper = await mountGallery([{ image: { status: 'failed' } }])
+    const wrapper = await mountGallery([{ image: { status: 'failed' }, caption: 'Χαμένη' }])
 
-    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.find('section').exists()).toBe(false)
+    expect(wrapper.find('figure').exists()).toBe(false)
+    expect(wrapper.text().trim()).toBe('')
   })
 })

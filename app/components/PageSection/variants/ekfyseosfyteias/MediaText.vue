@@ -120,7 +120,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         />
         <figcaption
           v-if="note"
-          aria-hidden="true"
+          :aria-hidden="alt === note ? 'true' : undefined"
           class="text-sm text-(--fy-text-muted)"
         >
           {{ note }}

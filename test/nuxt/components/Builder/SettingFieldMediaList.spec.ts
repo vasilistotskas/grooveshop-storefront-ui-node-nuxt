@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import * as z from 'zod'
 import { UApp } from '#components'
 import BuilderSettingField from '~/components/Builder/SettingField.vue'
@@ -158,6 +158,29 @@ describe('BuilderSettingField, a list of images', () => {
 
     expect(wrapper.findAll('button').filter(node => node.attributes('aria-label')?.startsWith('Επιλογή εικόνας'))).toHaveLength(0)
     expect(control('Αλλαγή εικόνας: Εικόνες, 3')).not.toBeUndefined()
+  })
+
+  it('keeps a row that moves, and gives an image listed twice a row each', async () => {
+    const [field] = builderSettingsFields(gallery)
+    const settings = ref<Record<string, unknown>>({ artworks: [4, 8, 4] })
+    const wrapper = await mountSuspended(defineComponent({
+      render: () => h(UApp, null, {
+        default: () => h(BuilderSettingField, { field: field!, settings: settings.value, errors: new Map(), disabled: false }),
+      }),
+    }), { attachTo: document.body })
+    await flushPromises()
+
+    expect(wrapper.text().match(/hero\.jpg/g)).toHaveLength(2)
+    expect(api.callsTo(`${LIBRARY}/4`)).toHaveLength(2)
+    expect(api.callsTo(`${LIBRARY}/8`)).toHaveLength(1)
+
+    // The first image goes: the others move up one place, and none asks again.
+    settings.value = { artworks: [8, 4] }
+    await flushPromises()
+
+    expect(api.callsTo(`${LIBRARY}/8`)).toHaveLength(1)
+    expect(api.callsTo(`${LIBRARY}/4`)).toHaveLength(2)
+    expect(wrapper.text()).toContain('banner.png')
   })
 
   it('takes out an entry whose image is deleted from the library, since a list holds no empty slot', async () => {

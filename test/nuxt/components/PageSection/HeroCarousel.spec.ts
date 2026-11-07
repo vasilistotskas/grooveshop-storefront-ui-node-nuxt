@@ -291,11 +291,32 @@ describe('PageSectionHeroCarousel images', () => {
     expect(wrapper.findAll('img').map(img => img.attributes('alt'))).toEqual(['Ένας φορτιστής', 'Ακουστικά', ''])
   })
 
-  it('draws a slide whose image is gone without one, and keeps its copy', async () => {
-    const wrapper = await mountHero({ slides: [{ image: { status: 'missing' }, heading: 'Γρήγορη φόρτιση' }] })
+  it('keeps the copy of a slide whose image is gone, with no picture and no placeholder', async () => {
+    const wrapper = await mountHero({ slides: [{ image: { status: 'missing' }, heading: 'Γρήγορη φόρτιση', ctaText: 'Αγορά', ctaLink: '/products' }] })
 
     expect(wrapper.get('h1').text()).toBe('Γρήγορη φόρτιση')
-    expect(wrapper.get('img').attributes('src')).not.toContain('desk.avif')
+    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.get('a[href="/products"]').text()).toContain('Αγορά')
+    // The copy has the whole card: the two-column grid is for copy beside a photograph.
+    expect(wrapper.get('[data-slot="item"] > div').classes()).not.toContain('lg:grid-cols-[5fr_7fr]')
+  })
+
+  it('leaves out a slide with neither an image nor copy, and the band with it when none is left', async () => {
+    const mixed = await mountHero({ slides: [{ image: { status: 'failed' } }, { image: makeResolvedImage(DESK), heading: 'Ακουστικά' }] })
+    const none = await mountHero({ slides: [{ image: { status: 'missing' } }] })
+
+    expect(mixed.findAll('[data-slot="item"]')).toHaveLength(1)
+    expect(mixed.findAll('img')).toHaveLength(1)
+    expect(mixed.findAll('h1, h2').map(heading => heading.text())).toEqual(['Ακουστικά'])
+    expect(none.text().trim()).toBe('')
+    expect(none.find('img').exists()).toBe(false)
+  })
+
+  it('describes a slide by the image drawn on a phone, not the desk one', async () => {
+    device.mobile.value = true
+    const wrapper = await mountHero({ slides: [{ image: makeResolvedImage(DESK, 'Στο γραφείο'), mobileImage: makeResolvedImage(PHONE, 'Στο κινητό'), heading: 'Φόρτιση' }] })
+
+    expect(wrapper.get('img').attributes('alt')).toBe('Στο κινητό')
   })
 
   it('draws the phone image of a slide on a phone, else the desk one', async () => {
@@ -324,11 +345,26 @@ describe('PageSectionHeroCarousel images', () => {
     expect(wrapper.findAll('img').map(img => img.attributes('src')?.includes('phone.avif'))).toEqual([true, false])
   })
 
-  it('pairs the flat lists by position, a gone desk image drawing without one', async () => {
-    const wrapper = await mountHero({ artworks: [makeResolvedImage(DESK), { status: 'missing' }], mobileArtworks: [makeResolvedImage(PHONE)] })
+  it('leaves a gone artwork out of the flat list and links only those it draws', async () => {
+    const wrapper = await mountHero({ artworks: [makeResolvedImage(DESK), { status: 'missing' }], link: '/products' })
 
-    expect(wrapper.findAll('img')).toHaveLength(2)
-    expect(wrapper.findAll('img')[0]!.attributes('src')).toContain('desk.avif')
-    expect(wrapper.findAll('img')[1]!.attributes('src')).not.toContain('avif')
+    expect(wrapper.findAll('[data-slot="item"]')).toHaveLength(1)
+    expect(wrapper.findAll('img')).toHaveLength(1)
+    expect(wrapper.findAll('a[href="/products"]')).toHaveLength(1)
+  })
+
+  it('pairs the flat lists by position before leaving any out, so a phone keeps its own image of a gone desk one', async () => {
+    device.mobile.value = true
+    const wrapper = await mountHero({ artworks: [{ status: 'missing' }, makeResolvedImage(DESK)], mobileArtworks: [makeResolvedImage(PHONE), makeResolvedImage(PHONE)] })
+
+    expect(wrapper.findAll('img').map(img => img.attributes('src')?.includes('phone.avif'))).toEqual([true, true])
+  })
+
+  it('draws nothing when every flat artwork is gone', async () => {
+    const wrapper = await mountHero({ artworks: [{ status: 'missing' }, { status: 'failed' }], link: '/products' })
+
+    expect(wrapper.text().trim()).toBe('')
+    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.find('a').exists()).toBe(false)
   })
 })

@@ -27,10 +27,21 @@ const props = defineProps<{
 
 const { t } = useStoreI18n('components/PageSection/Testimonials')
 
-/** Each quote with its photograph, described by the asset's own text, else the person's name. */
+const img = useMediaStreamImage()
+
+/**
+ * Each quote with its photograph, described by the asset's own text, else the
+ * person's name. `UAvatar` draws through IPX, which serves `public/` and not
+ * the store's uploaded media, so a library image is handed over as the media
+ * service's own URL (at twice the 40px it is drawn at, for dense screens),
+ * as `User/Avatar` does.
+ */
 const cards = computed(() => (props.items ?? []).map((item) => {
   const photo = readyImage(item.avatarImage)
-  return { ...item, avatar: photo ? { src: photo.path, alt: photo.alt || item.name } : undefined }
+  const src = photo && isMediaStreamSrc(photo.path)
+    ? img(photo.path, { width: 80, height: 80, fit: 'cover' }, { provider: 'mediaStream' })
+    : photo?.path
+  return { ...item, avatar: photo ? { src, alt: photo.alt || item.name } : undefined }
 }))
 </script>
 

@@ -6,6 +6,7 @@ import { NAVIGATION_ROUTES } from '~~/shared/constants/builder'
 import { BUILDER_TEXTAREA_MIN_LENGTH } from '~~/shared/constants/builderEditor'
 import {
   builderProblemSettingPath,
+  builderLegacySettingsReplacedBy,
   builderRouteLabelKey,
   builderSettingsFields,
   fieldForSettingPath,
@@ -162,6 +163,28 @@ describe('builderSettingsFields, data settings', () => {
 
   it('finds the field a problem under a descriptor falls under', () => {
     expect(fieldForSettingPath([...fields.values()], 'products.ids')?.path).toBe('products')
+  })
+})
+
+describe('builderLegacySettingsReplacedBy', () => {
+  const definition = {
+    legacyImages: [
+      { from: '/imageUrl', to: '/image', alt: '/imageAlt' },
+      { from: '/mobileImageUrl', to: '/mobileImage' },
+      { from: '/images/*', to: '/artworks/*' },
+    ],
+  } as const
+
+  it('names the URL and the alt text that the image setting replaces', () => {
+    expect(builderLegacySettingsReplacedBy(definition, 'image')).toEqual(['imageUrl', 'imageAlt'])
+    expect(builderLegacySettingsReplacedBy(definition, 'mobileImage')).toEqual(['mobileImageUrl'])
+    expect(builderLegacySettingsReplacedBy(definition, 'artworks')).toEqual(['images'])
+  })
+
+  it('names nothing for any other setting, or a block with no legacy images', () => {
+    expect(builderLegacySettingsReplacedBy(definition, 'heading')).toEqual([])
+    expect(builderLegacySettingsReplacedBy(definition, 'imageUrl')).toEqual([])
+    expect(builderLegacySettingsReplacedBy({}, 'image')).toEqual([])
   })
 })
 

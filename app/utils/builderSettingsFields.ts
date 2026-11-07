@@ -130,6 +130,20 @@ export function builderSettingsFields(definition: BlockDefinition): BuilderSetti
   return root.kind === 'group' ? root.fields.filter(field => !legacy.has(field.pointer)) : []
 }
 
+/**
+ * TRANSITIONAL (P15 stage 2, with `legacyImages`): the old settings (the URL
+ * or list of URLs, and its alt text) that a change to the setting at `path`
+ * replaces. A node that still holds only a URL shows an empty image field,
+ * and a URL left behind would come back the moment the image is cleared, so
+ * choosing, changing or clearing an image takes the old settings out with it.
+ */
+export function builderLegacySettingsReplacedBy(definition: Pick<BlockDefinition, 'legacyImages'>, path: string): string[] {
+  const name = path.split('.')[0]
+  return (definition.legacyImages ?? [])
+    .filter(({ to }) => to.split('/')[1] === name)
+    .flatMap(({ from, alt }) => [from, alt].flatMap(pointer => pointer === undefined ? [] : [pointer.split('/')[1]!]))
+}
+
 /** Every field of a form, the fields of its groups included, depth first. */
 export function flattenSettingsFields(fields: readonly BuilderSettingField[]): BuilderSettingField[] {
   return fields.flatMap(field => field.kind === 'group' ? [field, ...flattenSettingsFields(field.fields)] : [field])

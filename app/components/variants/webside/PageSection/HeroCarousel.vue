@@ -22,13 +22,6 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 // deliberately no built-in default image: a hardcoded fallback here
 // would put one store's promo on every tenant whose layout carries a
 // prop-less hero_carousel. Empty props render nothing.
-const items = computed(() => {
-  if (isMobileOrTablet.value && props.mobileArtworks?.length) {
-    return props.mobileArtworks
-  }
-  return props.artworks ?? []
-})
-
 const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 
 /**
@@ -37,7 +30,7 @@ const mediaStreamBaseUrl = useMediaStreamBaseUrl()
  * served by the media service, absolutized against the store's own origin
  * (`useMediaStreamBaseUrl`) so the preload names the URL the image uses; an
  * app image (`/img/...`) stays with IPX, as it always was. An artwork that is
- * gone has no source, and the slot draws no picture for it.
+ * gone has no source.
  */
 const drawn = (item: ResolvedImage): { src: string, provider?: 'mediaStream', alt: string } => {
   const image = readyImage(item)
@@ -46,7 +39,17 @@ const drawn = (item: ResolvedImage): { src: string, provider?: 'mediaStream', al
   if (!isMediaStreamSrc(image.path)) return { src: image.path, alt }
   return { src: hasProtocol(image.path) ? image.path : joinURL(mediaStreamBaseUrl.value, image.path), provider: 'mediaStream', alt }
 }
-const slides = computed(() => items.value.map(drawn))
+
+/**
+ * The slides: the phone's artworks on a phone that has any to draw, else the
+ * desk's. An artwork that is gone is left out (an empty slide would hide the
+ * ones after it and keep its link), and with none left the band draws nothing.
+ */
+const drawable = (list: readonly ResolvedImage[] | undefined) => (list ?? []).map(drawn).filter(slide => slide.src)
+const slides = computed(() => {
+  const mobile = isMobileOrTablet.value ? drawable(props.mobileArtworks) : []
+  return mobile.length ? mobile : drawable(props.artworks)
+})
 
 const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
@@ -54,7 +57,7 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
 
 <template>
   <UCarousel
-    v-if="items.length"
+    v-if="slides.length"
     v-slot="{ item }"
     :items="slides"
     :ui="{ item: 'basis-full place-items-center justify-center' }"
@@ -63,7 +66,7 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
     indicators
   >
     <NuxtLink
-      v-if="item.src && link"
+      v-if="link"
       :to="link"
       :aria-label="t('carousel.bannerLink')"
       class="block"
@@ -87,7 +90,7 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
       />
     </NuxtLink>
     <NuxtImg
-      v-else-if="item.src"
+      v-else
       :alt="item.alt"
       :src="item.src"
       :provider="item.provider"

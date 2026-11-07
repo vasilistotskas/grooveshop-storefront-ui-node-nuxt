@@ -27,6 +27,19 @@ describe('PageSection/HeroBanner image', () => {
     expect(phone.get('img').attributes('alt')).toBe('Desk')
   })
 
+  it('draws the phone image alone on a phone when the desk image is gone, and the typographic band on a desk', async () => {
+    const props = { heading: 'Καλώς ήρθατε', image: { status: 'missing' }, mobileImage: makeResolvedImage('https://assets.example.test/phone.jpg', 'Στο κινητό') }
+
+    device.mobile.value = true
+    const phone = await mountBanner(props)
+    device.mobile.value = false
+    const desk = await mountBanner(props)
+
+    expect(phone.get('img').attributes('src')).toContain('phone.jpg')
+    expect(phone.get('img').attributes('alt')).toBe('Στο κινητό')
+    expect(desk.find('img').exists()).toBe(false)
+  })
+
   it('draws the desk image on a phone when the phone image is gone', async () => {
     device.mobile.value = true
     const wrapper = await mountBanner({ heading: 'H', image: makeResolvedImage(ART), mobileImage: { status: 'missing' } })

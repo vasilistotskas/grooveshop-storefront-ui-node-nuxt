@@ -15,10 +15,20 @@ describe('PageSection/TrustBadges image', () => {
     expect(wrapper.get('img').attributes('alt')).toBe('Visa')
   })
 
-  it('falls back to the icon when the logo is gone', async () => {
-    const wrapper = await mountBadges([{ kind: 'payment', label: 'Visa', icon: 'i-lucide-credit-card', image: { status: 'missing' } }])
+  it.each([[false], [true]])('falls back to the icon when the logo is gone (scrolling row: %s)', async (marquee) => {
+    const items: Item[] = [{ kind: 'payment', label: 'Visa', icon: 'i-lucide-credit-card', image: { status: 'missing' } }]
+    const wrapper = await mountSuspended(TrustBadges, { route: false, props: { marquee, items } })
 
     expect(wrapper.find('img').exists()).toBe(false)
-    expect(wrapper.text()).toContain('Visa')
+    expect(wrapper.findComponent({ name: 'UIcon' }).props('name')).toBe('i-lucide-credit-card')
+  })
+
+  it('draws the logo on both paths', async () => {
+    const items: Item[] = [{ kind: 'payment', label: 'Visa', image: makeResolvedImage('https://assets.example.test/visa.svg') }]
+    const row = await mountSuspended(TrustBadges, { route: false, props: { items } })
+    const marquee = await mountSuspended(TrustBadges, { route: false, props: { items, marquee: true } })
+
+    expect(row.find('img').exists()).toBe(true)
+    expect(marquee.find('img').exists()).toBe(true)
   })
 })

@@ -47,6 +47,20 @@ const number = computed(() => typeof value.value === 'number' ? value.value : un
 const list = computed(() => Array.isArray(value.value) ? value.value.map(String) : [])
 /** The image ids of a list of images, in order. */
 const mediaIds = computed(() => Array.isArray(value.value) ? value.value.filter((id): id is number => typeof id === 'number') : [])
+/**
+ * The rows of a list of images with a key of their own: the image's id and
+ * which time it appears, so a row that moves keeps its lookup, a row given
+ * another image starts a new one (and never shows the previous image while it
+ * waits), and an image listed twice has two distinct rows.
+ */
+const mediaRows = computed(() => {
+  const seen = new Map<number, number>()
+  return mediaIds.value.map((id, index) => {
+    const nth = seen.get(id) ?? 0
+    seen.set(id, nth + 1)
+    return { id, index, key: `${id}:${nth}` }
+  })
+})
 /** Whether a list may take one more entry: the schema's own `maxItems`. */
 const hasRoom = computed(() => {
   const field = props.field
@@ -331,8 +345,8 @@ function addMediaItem(id: number | undefined): void {
       class="flex flex-col gap-3"
     >
       <div
-        v-for="(id, index) in mediaIds"
-        :key="index"
+        v-for="{ id, index, key } in mediaRows"
+        :key="key"
         class="flex items-start gap-1"
       >
         <BuilderMediaField

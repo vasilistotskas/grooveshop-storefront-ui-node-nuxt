@@ -88,6 +88,23 @@ describe('webside hero_carousel images', () => {
     expect(wrapper.get('a[href="/products"] img').attributes('src')).toBe(DESK[0])
   })
 
+  it('draws nothing when every artwork is gone, and does not let a gone first one hide the rest', async () => {
+    const none = await mountCarousel({ artworks: [{ status: 'missing' }, { status: 'failed' }], link: '/products' })
+    const rest = await mountCarousel({ artworks: [{ status: 'missing' }, makeResolvedImage(DESK[0]!), makeResolvedImage(DESK[1]!)] })
+
+    expect(none.text().trim()).toBe('')
+    expect(none.find('img').exists()).toBe(false)
+    expect(none.find('a').exists()).toBe(false)
+    expect(rest.findAll('img').map(img => img.attributes('src'))).toEqual(DESK)
+  })
+
+  it('draws the desk artworks on a phone whose own are all gone', async () => {
+    device.mobile.value = true
+    const wrapper = await mountCarousel({ artworks: DESK.map(path => makeResolvedImage(path)), mobileArtworks: [{ status: 'missing' }] })
+
+    expect(wrapper.findAll('img').map(img => img.attributes('src'))).toEqual(DESK)
+  })
+
   it('draws nothing for an artwork that is gone', async () => {
     const wrapper = await mountCarousel({ artworks: [{ status: 'missing' }, makeResolvedImage(DESK[1]!)] })
 

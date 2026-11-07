@@ -50,11 +50,21 @@ describe('the real blocks', () => {
     expect(richText.schema).toMatchObject({ properties: { content: { contentMediaType: 'text/html' } } })
   })
 
+  it.each([
+    ['gallery_image', 'src'],
+    ['hero_slide', 'imageUrl'],
+    ['trust_badge', 'imageUrl'],
+  ])('refuse an empty %s %s in the catalogue, as the parse does', (type, old) => {
+    const block = buildBlockCatalogue(definitions).blocks.find(candidate => candidate.type === type)!
+
+    expect(block.schema.anyOf).toContainEqual({ required: [old], properties: { [old]: { minLength: 1 } } })
+  })
+
   it('state the rule that a trust badge needs a logo or an icon, for Django and for the parse alike', () => {
     const badge = buildBlockCatalogue(definitions).blocks.find(block => block.type === 'trust_badge')!
     const bare = { type: 'trust_badges@1', settings: {}, blocks: { a: { type: 'trust_badge@1', settings: { kind: 'custom', label: 'Bare' } } }, blockOrder: ['a'] }
 
-    expect(badge.schema.anyOf).toEqual([{ required: ['image'] }, { required: ['imageUrl'] }, { required: ['icon'] }])
+    expect(badge.schema.anyOf).toEqual([{ required: ['image'] }, { required: ['imageUrl'], properties: { imageUrl: { minLength: 1 } } }, { required: ['icon'] }])
     expect(parseDocument({ sections: { s1: bare }, order: ['s1'] }, 'page', registry, { featureOn: () => true }).sections.s1).not.toHaveProperty('blocks')
   })
 

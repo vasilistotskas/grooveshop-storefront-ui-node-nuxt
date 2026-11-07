@@ -25,7 +25,7 @@ export default defineBlock({
   })
     // A slide with no artwork would be a bare caption. The rule is stated in the catalogue too, so Django refuses it on save.
     .refine(slide => slide.image !== undefined || Boolean(slide.imageUrl), { message: 'needs image or imageUrl' })
-    .meta({ anyOf: [{ required: ['image'] }, { required: ['imageUrl'] }] }),
+    .meta({ anyOf: [{ required: ['image'] }, { required: ['imageUrl'], properties: { imageUrl: { minLength: 1 } } }] }),
   translatable: ['/alt', '/eyebrow', '/heading', '/subheading', '/ctaText', '/secondaryCtaText'],
   upgrade: { 1: upgradeHeroSlide },
   legacyImages: [

@@ -43,6 +43,16 @@ describe('ekfyseosfyteias media_text', () => {
     expect(described.find('img').attributes('alt')).toBe('Η ομάδα')
   })
 
+  it('hides the caption from screen readers only while it is the photograph\'s own description', async () => {
+    const same = await mountSplit()
+    const described = await mountSplit({ image: makeResolvedImage('https://assets.example.test/team.jpg', 'Η ομάδα') })
+    const decorative = await mountSplit({ imageDecorative: true })
+
+    expect(same.find('figcaption').attributes('aria-hidden')).toBe('true')
+    expect(described.find('figcaption').attributes('aria-hidden')).toBeUndefined()
+    expect(decorative.find('figcaption').attributes('aria-hidden')).toBeUndefined()
+  })
+
   it('sets an operation-length title at the smaller heading scale', async () => {
     const short = await mountSplit()
     const long = await mountSplit({

@@ -1,5 +1,5 @@
 {
-  "hash": "047d05d4fbea28b4",
+  "hash": "43ce1e7a51adbe8f",
   "blocks": [
     {
       "type": "about_content",
@@ -2527,7 +2527,12 @@
           {
             "required": [
               "src"
-            ]
+            ],
+            "properties": {
+              "src": {
+                "minLength": 1
+              }
+            }
           }
         ],
         "additionalProperties": false
@@ -3790,7 +3795,12 @@
           {
             "required": [
               "imageUrl"
-            ]
+            ],
+            "properties": {
+              "imageUrl": {
+                "minLength": 1
+              }
+            }
           }
         ],
         "additionalProperties": false
@@ -7017,7 +7027,12 @@
           {
             "required": [
               "imageUrl"
-            ]
+            ],
+            "properties": {
+              "imageUrl": {
+                "minLength": 1
+              }
+            }
           },
           {
             "required": [
