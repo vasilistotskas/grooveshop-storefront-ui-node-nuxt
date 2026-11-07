@@ -126,6 +126,10 @@ export function useAccountPrivacy(options: {
       log.error({ action: 'privacy:downloadExport', error })
       // A blob response holds Django's reason as a Blob, so the status names it.
       const status = (error as { statusCode?: number }).statusCode
+      // The page loaded it as ready; show what it is now, with "request again".
+      if (status === 410) {
+        exports.value = exports.value.map(row => row.id === exportId ? { ...row, status: 'expired' } : row)
+      }
       notify('privacy:download-export', error, {
         title: options.titles.downloadFailed(),
         fallback: status === 410 ? options.titles.downloadExpired() : undefined,

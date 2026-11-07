@@ -219,6 +219,8 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
       title: text('export.download_error_title'),
       description: text('export.download_expired'),
     }))
+    expect(wrapper.text()).toContain(text('export.status.expired'))
+    expect(buttonByText(wrapper.element, text('export.download'))).toBeUndefined()
   })
 
   it('says a failed export failed and lets the shopper ask again', async () => {
