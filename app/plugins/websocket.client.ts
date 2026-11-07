@@ -2,6 +2,20 @@ import { withQuery } from 'ufo'
 import type { UseWebNotificationOptions } from '@vueuse/core'
 import type { Composer } from 'vue-i18n'
 
+/**
+ * The socket's heartbeat, a contract with Django's `NotificationConsumer`
+ * (`notification/consumers.py`), which answers HEARTBEAT_PING with
+ * HEARTBEAT_PONG. An answer keeps the socket open. No answer within
+ * HEARTBEAT_PONG_TIMEOUT_MS closes it and a new one opens, which is how a
+ * connection a proxy dropped without a word is found. While Django answered
+ * nothing, every signed-in tab reconnected about every 36 seconds
+ * (storefront #414).
+ */
+const HEARTBEAT_PING = 'ping'
+const HEARTBEAT_PONG = 'pong'
+const HEARTBEAT_INTERVAL_MS = 30000
+const HEARTBEAT_PONG_TIMEOUT_MS = 5000
+
 export default defineNuxtPlugin({
   name: 'websocket',
   parallel: true,
@@ -89,9 +103,12 @@ export default defineNuxtPlugin({
           // manually via onDisconnected so each attempt fetches a fresh ticket.
           autoReconnect: false,
           heartbeat: {
-            message: 'ping',
-            scheduler: ping => useIntervalFn(ping, 30000, { immediate: false }),
-            pongTimeout: 5000,
+            message: HEARTBEAT_PING,
+            // VueUse keeps this answer from `onMessage`, which reads JSON
+            // notifications only.
+            responseMessage: HEARTBEAT_PONG,
+            scheduler: ping => useIntervalFn(ping, HEARTBEAT_INTERVAL_MS, { immediate: false }),
+            pongTimeout: HEARTBEAT_PONG_TIMEOUT_MS,
           },
           onConnected: () => {
             reconnectAttempt = 0
