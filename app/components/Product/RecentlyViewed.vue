@@ -110,14 +110,19 @@ const carouselUI = {
         <NuxtLinkLocale
           :to="{ path: productUrl(item.id, item.slug ?? '') }"
           class="
-            group flex h-full flex-col gap-2 rounded-lg border border-neutral-200
-            bg-white p-3 transition-shadow
+            group flex h-full flex-col gap-2 rounded-lg border
+            border-neutral-200 bg-white p-3 transition-shadow
             hover:shadow-md
             focus-visible:outline-2 focus-visible:outline-primary-500
             dark:border-neutral-800 dark:bg-neutral-900
           "
         >
-          <div class="relative aspect-square overflow-hidden rounded-md bg-neutral-50 dark:bg-neutral-800">
+          <div
+            class="
+              relative aspect-square overflow-hidden rounded-md bg-neutral-50
+              dark:bg-neutral-800
+            "
+          >
             <ImgWithFallback
               :src="item.mainImagePath ?? undefined"
               :alt="item.name"
@@ -127,7 +132,10 @@ const carouselUI = {
               :background="'ffffff'"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
               loading="lazy"
-              class="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105"
+              class="
+                size-full object-contain transition-transform duration-200
+                group-hover:scale-105
+              "
             />
           </div>
           <p
@@ -140,7 +148,10 @@ const carouselUI = {
           </p>
           <p
             v-if="item.finalPrice != null"
-            class="text-sm font-semibold text-secondary-600 dark:text-secondary-400"
+            class="
+              text-sm font-semibold text-secondary-600
+              dark:text-secondary-400
+            "
           >
             {{ $i18n.n(displayPrice(item) ?? 0, 'currency') }}
           </p>

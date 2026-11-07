@@ -25,7 +25,10 @@ defineProps<{
     </h1>
     <p
       v-if="description"
-      class="max-w-160 text-[0.9375rem] text-muted lg:text-[1.0625rem]"
+      class="
+        max-w-160 text-[0.9375rem] text-muted
+        lg:text-[1.0625rem]
+      "
     >
       {{ description }}
     </p>

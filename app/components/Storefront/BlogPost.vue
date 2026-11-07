@@ -105,15 +105,18 @@ onReactivated(async () => {
 <template>
   <UContainer
     v-if="blogPost"
-    class="flex flex-col gap-8 pt-6 pb-14 lg:gap-10 lg:pb-22"
+    class="
+      flex flex-col gap-8 pt-6 pb-14
+      lg:gap-10 lg:pb-22
+    "
   >
     <PageBreadcrumb :items="breadcrumb" />
 
     <header class="flex flex-col gap-5">
       <h1
         class="
-          max-w-4xl font-display text-[2rem]/[1.08] font-bold
-          tracking-[-0.02em] text-balance text-highlighted
+          max-w-4xl font-display text-[2rem]/[1.08] font-bold tracking-[-0.02em]
+          text-balance text-highlighted
           lg:text-[3rem]/[1.05]
         "
       >
@@ -224,7 +227,12 @@ onReactivated(async () => {
       </div>
     </header>
 
-    <div class="aspect-4/3 overflow-hidden rounded-[1.25rem] bg-elevated sm:aspect-21/9">
+    <div
+      class="
+        aspect-4/3 overflow-hidden rounded-[1.25rem] bg-elevated
+        sm:aspect-21/9
+      "
+    >
       <ImgWithFallback
         id="blog-post-image"
         :alt="blogPostTitle"
@@ -248,7 +256,9 @@ onReactivated(async () => {
         grid gap-x-14 gap-y-10
         lg:items-start
       "
-      :class="article.links.length ? 'lg:grid-cols-[13rem_minmax(0,44rem)]' : 'lg:grid-cols-[minmax(0,44rem)]'"
+      :class="article.links.length ? 'lg:grid-cols-[13rem_minmax(0,44rem)]' : `
+        lg:grid-cols-[minmax(0,44rem)]
+      `"
     >
       <aside
         v-if="article.links.length"

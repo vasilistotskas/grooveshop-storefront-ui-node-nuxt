@@ -133,7 +133,12 @@ function again() {
       v-if="sent"
       class="flex flex-col items-start gap-3 py-4"
     >
-      <span class="flex size-12 items-center justify-center rounded-xl bg-(--ui-success-soft)">
+      <span
+        class="
+          flex size-12 items-center justify-center rounded-xl
+          bg-(--ui-success-soft)
+        "
+      >
         <UIcon
           name="i-lucide-check"
           class="size-6 text-highlighted"
@@ -156,7 +161,12 @@ function again() {
 
     <template v-else>
       <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between text-sm font-medium text-highlighted">
+        <div
+          class="
+            flex items-center justify-between text-sm font-medium
+            text-highlighted
+          "
+        >
           <span>{{ t('progress', { current: index + 1, total: STEPS.length }) }}</span>
           <span class="font-mono text-xs text-toned">{{ percent }}%</span>
         </div>

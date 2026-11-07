@@ -59,7 +59,10 @@ const status = computed(() => STATUS[autosave.overall])
       <UIcon
         :name="status.icon"
         class="size-4 shrink-0"
-        :class="[status.tone, autosave.overall === 'saving' ? 'animate-spin motion-reduce:animate-none' : '']"
+        :class="[status.tone, autosave.overall === 'saving' ? `
+          animate-spin
+          motion-reduce:animate-none
+        ` : '']"
       />
       <span class="max-md:sr-only">{{ t(`status.${autosave.overall}`) }}</span>
     </span>

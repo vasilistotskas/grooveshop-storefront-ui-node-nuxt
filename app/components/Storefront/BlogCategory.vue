@@ -24,7 +24,12 @@ const breadcrumb = computed(() => [
 </script>
 
 <template>
-  <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+  <UContainer
+    class="
+      flex flex-col gap-6 pt-6 pb-14
+      lg:gap-8 lg:pb-22
+    "
+  >
     <PageBreadcrumb :items="breadcrumb" />
 
     <header class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">

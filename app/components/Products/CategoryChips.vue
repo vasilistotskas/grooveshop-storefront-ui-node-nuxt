@@ -79,7 +79,7 @@ const chips = computed<Chip[]>(() => {
          edge; wrapped lines on a wide screen. -->
     <ul
       class="
-        -mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]
+        -mx-4 flex scrollbar-none gap-2 overflow-x-auto px-4
         sm:-mx-6 sm:px-6
         lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0
       "

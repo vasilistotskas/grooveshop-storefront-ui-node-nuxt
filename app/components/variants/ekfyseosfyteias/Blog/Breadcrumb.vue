@@ -34,7 +34,7 @@ const { t } = useStoreI18n('components/variants/ekfyseosfyteias/Blog/Breadcrumb'
             underline underline-offset-3
             hover:text-(--fy-eyebrow)
             focus-visible:outline-3 focus-visible:outline-offset-3
-            focus-visible:outline-(color:--fy-focus)
+            focus-visible:outline-(--fy-focus)
           "
         >
           {{ item.label }}

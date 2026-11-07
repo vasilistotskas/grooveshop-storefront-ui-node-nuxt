@@ -113,7 +113,10 @@ defineExpose({ submit })
                 "
               >
                 <ImgWithFallback
-                  class="size-full object-contain dark:invert"
+                  class="
+                    size-full object-contain
+                    dark:invert
+                  "
                   :style="{ contentVisibility: 'auto' }"
                   :src="item.mainImagePath"
                   :width="48"
@@ -136,7 +139,7 @@ defineExpose({ submit })
           <template #description="{ item }">
             <div
               v-if="item.description"
-              class="pay-way-description text-sm"
+              class="text-sm"
               v-html="sanitize(item.description)"
             />
             <p

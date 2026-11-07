@@ -93,14 +93,14 @@ const formSchema = computed(() => ({
   <section
     class="
       container mx-auto
-      sm:px-6 sm:py-6
+      sm:p-6
       lg:px-8
     "
   >
     <div class="mx-auto max-w-xl">
       <UCard class="shadow-lg">
         <DynamicForm
-          class="!flex flex-col"
+          class="flex! flex-col"
           :button-label="t('submit')"
           :schema="formSchema"
           :loading="loading"

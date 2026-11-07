@@ -25,10 +25,11 @@ const chatEnabled = useStoreFeature('chatWidget')
       :aria-expanded="open"
       class="
         fixed right-4 bottom-20 z-40 rounded-full bg-linear-to-br
-        from-(--ui-secondary) to-(--ui-chat-gradient-to) p-3.5 text-white shadow-lg
-        transition
+        from-(--ui-secondary) to-(--ui-chat-gradient-to) p-3.5 text-white
+        shadow-lg transition
         hover:shadow-xl
-        motion-safe:hover:scale-105 motion-safe:active:scale-95
+        motion-safe:hover:scale-105
+        motion-safe:active:scale-95
         md:bottom-6
       "
       @click="open = !open"
@@ -65,8 +66,8 @@ const chatEnabled = useStoreFeature('chatWidget')
         :aria-label="t('chat.title')"
         class="
           fixed right-4 bottom-36 z-50 flex w-[min(26rem,calc(100vw-2rem))]
-          origin-bottom-right flex-col overflow-hidden rounded-3xl
-          shadow-2xl ring ring-default
+          origin-bottom-right flex-col overflow-hidden rounded-3xl shadow-2xl
+          ring ring-default
           md:bottom-24
         "
         :style="{ height: 'min(40rem, calc(100dvh - 11rem))' }"

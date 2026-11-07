@@ -58,7 +58,10 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
 <template>
   <div
     id="checkout-sidebar"
-    class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
+    "
   >
     <div class="flex items-baseline justify-between gap-3">
       <h2 class="font-display text-xl font-bold text-highlighted">

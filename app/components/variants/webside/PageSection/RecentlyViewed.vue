@@ -22,6 +22,9 @@ const recentlyViewedEnabled = useStorePreference('recentlyViewed')
        read localStorage and populate the carousel. -->
   <WebsideProductRecentlyViewed
     v-if="recentlyViewedEnabled"
-    class="w-full md:p-0!"
+    class="
+      w-full
+      md:p-0!
+    "
   />
 </template>

@@ -33,8 +33,8 @@ const items = computed(() => [
 <template>
   <WebsidePageWrapper
     class="
-      !mt-0 flex flex-col gap-0 p-0
-      md:!mt-4
+      mt-0! flex flex-col gap-0 p-0
+      md:mt-4!
     "
   >
     <UBreadcrumb
@@ -53,9 +53,8 @@ const items = computed(() => [
         `,
       }"
       class="
-        relative mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
-        !pt-2
-        md:mb-5 md:w-full md:!pt-0
+        relative mx-auto w-auto max-w-xl bg-transparent px-4! pt-2!
+        md:mb-5 md:w-full md:pt-0!
         dark:bg-transparent
       "
     />

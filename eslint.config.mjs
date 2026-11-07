@@ -1,4 +1,5 @@
 import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss'
+import { getDefaultSelectors } from 'eslint-plugin-better-tailwindcss/defaults'
 import vitest from '@vitest/eslint-plugin'
 // @ts-check
 import withNuxt from './.nuxt/eslint.config.mjs'
@@ -281,6 +282,18 @@ export default withNuxt(
         detectComponentClasses: true,
         ignore: [
           'article',
+          // Plain CSS hooks: a component's own `<style>` rule, or a plain
+          // rule in main.css / accessibility.css, which the plugin reads
+          // only for `@utility` and `@layer components`.
+          '^a11y-fab$',
+          '^author-bio$',
+          '^fy-prose$',
+          '^hero-glyph$',
+          '^legal-prose$',
+          '^pay-way-instructions$',
+          '^product-card$',
+          '^products-sidebar$',
+          '^woven-thread$',
           // NuxtUI
           'text-elevated*',
           'bg-elevated*',
@@ -300,6 +313,11 @@ export default withNuxt(
           'ring-secondary*',
         ],
       }],
+      // `leading-*` stays its own class. Merging `text-base leading-relaxed`
+      // into `text-base/relaxed` drops `--tw-leading`, which a responsive
+      // size on the same element (`md:text-lg`) reads for its line height,
+      // so the merge changed webside's About and Vision text at `md`.
+      'better-tailwindcss/enforce-canonical-classes': ['warn', { ignore: ['^leading-'] }],
       'nuxt/prefer-import-meta': 'off',
       'vue/multi-word-component-names': 'off',
       'vue/no-multiple-template-root': 'off',
@@ -364,16 +382,16 @@ export default withNuxt(
     settings: {
       'better-tailwindcss': {
         entryPoint: 'app/assets/css/main.css',
-        variables: [],
-        attributes: [
-          ['^v-bind:ui$', [
-            { match: 'objectValues' },
-          ]],
-          ['^(?:v-bind:)?(activeClass|inactiveClass)$', [
-            { match: 'strings' },
-            { match: 'objectKeys' },
-            { match: 'objectValues' },
-          ]],
+        // `settings.attributes` / `settings.variables` REPLACE the plugin's
+        // defaults, so setting them to add `ui` once dropped `class` itself:
+        // no template class list was checked until 2026-11-07. Extend the
+        // defaults here instead. The one default left out reads variables
+        // named `style` / `styles` as class lists; ours hold CSS, and its
+        // line-wrapping fix rewrote the CSS fixtures of two specs.
+        selectors: [
+          ...getDefaultSelectors().filter(selector => !(selector.kind === 'variable' && selector.name === '^styles?$')),
+          { kind: 'attribute', name: '^v-bind:ui$', match: [{ type: 'objectValues' }] },
+          { kind: 'attribute', name: '^(?:v-bind:)?(activeClass|inactiveClass)$', match: [{ type: 'strings' }, { type: 'objectKeys' }, { type: 'objectValues' }] },
         ],
       },
     },

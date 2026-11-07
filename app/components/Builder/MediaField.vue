@@ -49,7 +49,12 @@ function choose(chosen: Asset): void {
       v-if="id !== undefined"
       class="flex items-center gap-3"
     >
-      <div class="size-14 shrink-0 overflow-hidden rounded-md bg-elevated ring ring-default">
+      <div
+        class="
+          size-14 shrink-0 overflow-hidden rounded-md bg-elevated ring
+          ring-default
+        "
+      >
         <ImgWithFallback
           v-if="asset"
           :src="asset.path"

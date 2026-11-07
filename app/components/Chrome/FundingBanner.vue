@@ -162,8 +162,8 @@ const aspectRatio = computed(() =>
       data-funding-floating
       aria-hidden="true"
       class="
-        fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white
-        px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]
+        fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white px-4
+        pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]
         shadow-[0_-8px_24px_-12px_rgb(0_0_0/25%)]
         sm:inset-x-auto sm:bottom-4 sm:left-4 sm:rounded-xl sm:border sm:p-2
         sm:shadow-lg
@@ -185,7 +185,10 @@ const aspectRatio = computed(() =>
           format="webp"
           quality="90"
           fallback=""
-          class="block h-auto w-[min(420px,100%)] sm:w-[340px]"
+          class="
+            block h-auto w-[min(420px,100%)]
+            sm:w-[340px]
+          "
           :style="{ aspectRatio }"
         />
         <span

@@ -49,7 +49,10 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
     <span
       :aria-hidden="href ? undefined : 'true'"
       class="text-[0.8125rem] font-semibold text-muted"
-      :class="href ? 'underline-offset-2 hover:underline' : undefined"
+      :class="href ? `
+        underline-offset-2
+        hover:underline
+      ` : undefined"
     >
       {{ figure }} · {{ verbose ? t('n_reviews', { count: reviews }, reviews) : reviews }}
     </span>

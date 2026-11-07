@@ -23,7 +23,13 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
 
 <template>
   <!-- Two rows below `lg`: one row of every control is wider than a phone or a tablet. -->
-  <header class="flex shrink-0 flex-wrap items-center gap-2 border-b border-default px-3 py-2 lg:h-14 lg:flex-nowrap lg:py-0">
+  <header
+    class="
+      flex shrink-0 flex-wrap items-center gap-2 border-b border-default px-3
+      py-2
+      lg:h-14 lg:flex-nowrap lg:py-0
+    "
+  >
     <UTooltip :text="t('exit')">
       <!-- A full page load: the storefront gets its own palette back. -->
       <UButton
@@ -35,12 +41,20 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
         :aria-label="t('exit')"
       />
     </UTooltip>
-    <span class="hidden truncate font-semibold sm:inline">
+    <span
+      class="
+        hidden truncate font-semibold
+        sm:inline
+      "
+    >
       {{ tenantStore.storeName }}
     </span>
     <USeparator
       orientation="vertical"
-      class="hidden h-6 sm:flex"
+      class="
+        hidden h-6
+        sm:flex
+      "
     />
     <UButton
       icon="i-lucide-list-tree"
@@ -50,7 +64,12 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       :aria-label="t('outline')"
       @click="() => emit('openOutline')"
     />
-    <BuilderDocumentSwitcher class="min-w-0 flex-1 lg:w-64 lg:flex-none" />
+    <BuilderDocumentSwitcher
+      class="
+        min-w-0 flex-1
+        lg:w-64 lg:flex-none
+      "
+    />
     <BuilderLocaleSwitcher />
 
     <UPopover v-if="!store.canEdit">
@@ -68,7 +87,12 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
       </template>
     </UPopover>
 
-    <div class="ms-auto flex items-center gap-1 max-lg:w-full max-lg:justify-end">
+    <div
+      class="
+        ms-auto flex items-center gap-1
+        max-lg:w-full max-lg:justify-end
+      "
+    >
       <BuilderHistory />
       <BuilderShareDialog v-if="store.status === 'ready' && store.canEdit" />
       <BuilderVersionHistory v-if="store.status === 'ready'" />
@@ -96,7 +120,12 @@ const accountItems = computed<DropdownMenuItem[][]>(() => [
             :alt="session.staff.name"
             size="sm"
           />
-          <span class="hidden min-w-0 text-start lg:block">
+          <span
+            class="
+              hidden min-w-0 text-start
+              lg:block
+            "
+          >
             <span class="block truncate text-sm font-medium">{{ session.staff.name }}</span>
             <span class="block truncate text-xs text-muted">{{ t(`role.${session.staff.role}`) }}</span>
           </span>

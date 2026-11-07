@@ -103,11 +103,14 @@ const formattedTotal = computed(() => {
        thing that can disagree with the cache. -->
   <div
     v-if="cartItem"
-    class="flex gap-4 sm:gap-6"
+    class="
+      flex gap-4
+      sm:gap-6
+    "
   >
     <div
       class="
-        relative size-20 flex-shrink-0 overflow-hidden rounded-lg
+        relative size-20 shrink-0 overflow-hidden rounded-lg
         sm:size-24
       "
     >
@@ -117,7 +120,7 @@ const formattedTotal = computed(() => {
       >
         <ImgWithFallback
           loading="lazy"
-          class="h-full w-full bg-transparent object-contain"
+          class="size-full bg-transparent object-contain"
           :width="96"
           :height="96"
           fit="contain"

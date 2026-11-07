@@ -74,7 +74,10 @@ defineShortcuts({
       variant="outline"
       :class="[
         'h-10.5 justify-start gap-2 px-3.5 text-sm font-medium text-muted',
-        compact ? 'hidden w-75 min-w-36 lg:flex' : 'w-full',
+        compact ? `
+          hidden w-75 min-w-36
+          lg:flex
+        ` : 'w-full',
       ]"
       aria-keyshortcuts="Control+K Meta+K /"
       @click="openSearchModal"

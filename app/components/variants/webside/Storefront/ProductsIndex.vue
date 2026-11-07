@@ -21,16 +21,17 @@ const { sections: brandSections } = await useBuilderPage('products')
 <template>
   <WebsidePageWrapper class="flex flex-col">
     <!-- Skip Links for Keyboard Navigation -->
-    <div class="sr-only focus-within:not-sr-only">
+    <div
+      class="
+        sr-only
+        focus-within:not-sr-only
+      "
+    >
       <a
         href="#main-content"
         class="
-          skip-link
-          fixed top-4 left-4 z-50
-          bg-primary text-white
-          px-4 py-2 rounded-lg
-          font-semibold
-          transition-all
+          fixed top-4 left-4 z-50 rounded-lg bg-primary px-4 py-2 font-semibold
+          text-white transition-all
         "
       >
         {{ t('skip_to_content') }}
@@ -38,12 +39,8 @@ const { sections: brandSections } = await useBuilderPage('products')
       <a
         href="#filters"
         class="
-          skip-link
-          fixed top-4 left-32 z-50
-          bg-primary text-white
-          px-4 py-2 rounded-lg
-          font-semibold
-          transition-all
+          fixed top-4 left-32 z-50 rounded-lg bg-primary px-4 py-2 font-semibold
+          text-white transition-all
         "
       >
         {{ t('skip_to_filters') }}

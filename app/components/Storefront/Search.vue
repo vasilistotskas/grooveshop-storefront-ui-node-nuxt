@@ -53,13 +53,23 @@ useHead({
 </script>
 
 <template>
-  <UContainer class="flex flex-col pt-5 pb-12 lg:pt-10 lg:pb-22">
+  <UContainer
+    class="
+      flex flex-col pt-5 pb-12
+      lg:pt-10 lg:pb-22
+    "
+  >
     <PageBreadcrumb :items="[{ label: t('title') }]" />
     <h1 class="sr-only">
       {{ query ? t('title_query', { query }) : t('title') }}
     </h1>
 
-    <div class="mx-auto mt-5 w-full max-w-205 lg:mt-7">
+    <div
+      class="
+        mx-auto mt-5 w-full max-w-205
+        lg:mt-7
+      "
+    >
       <UInput
         v-model="draft"
         icon="i-heroicons-magnifying-glass"
@@ -143,7 +153,12 @@ useHead({
           </template>
         </UTabs>
 
-        <div class="hidden items-center gap-2 pb-2 lg:flex">
+        <div
+          class="
+            hidden items-center gap-2 pb-2
+            lg:flex
+          "
+        >
           <p class="text-sm text-muted">
             <i18n-t
               keypath="results"
@@ -189,7 +204,10 @@ useHead({
 
       <div
         v-if="pending && !openCount"
-        class="mt-6 grid grid-cols-2 gap-3.5 lg:grid-cols-3 lg:gap-6"
+        class="
+          mt-6 grid grid-cols-2 gap-3.5
+          lg:grid-cols-3 lg:gap-6
+        "
       >
         <ProductCardSkeleton
           v-for="i in 6"
@@ -213,7 +231,12 @@ useHead({
         "
       >
         <div class="flex flex-col gap-10">
-          <ol class="grid grid-cols-2 gap-3.5 lg:grid-cols-3 lg:gap-6">
+          <ol
+            class="
+              grid grid-cols-2 gap-3.5
+              lg:grid-cols-3 lg:gap-6
+            "
+          >
             <ProductCard
               v-for="(product, index) in products?.results ?? []"
               :key="product.id"
@@ -233,7 +256,10 @@ useHead({
 
         <aside
           v-if="guides?.results.length"
-          class="hidden flex-col gap-3 lg:flex"
+          class="
+            hidden flex-col gap-3
+            lg:flex
+          "
           :aria-labelledby="'search-guides-heading'"
         >
           <h2
@@ -255,7 +281,12 @@ useHead({
         v-else
         class="mt-6 flex flex-col gap-10"
       >
-        <ul class="grid gap-3 lg:grid-cols-2">
+        <ul
+          class="
+            grid gap-3
+            lg:grid-cols-2
+          "
+        >
           <li
             v-for="(post, index) in guides?.results ?? []"
             :key="post.id"

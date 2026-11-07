@@ -86,7 +86,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     @error="scrollToFirstFormError"
     @submit="onSubmit"
   >
-    <div class="grid gap-5 sm:grid-cols-2">
+    <div
+      class="
+        grid gap-5
+        sm:grid-cols-2
+      "
+    >
       <UFormField
         :label="t('name')"
         name="name"

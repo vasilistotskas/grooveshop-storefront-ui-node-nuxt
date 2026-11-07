@@ -116,7 +116,10 @@ watch(() => props.firstPage, restart)
       :items="sortItems"
       :aria-label="t('sort.label')"
       size="lg"
-      class="min-h-11 w-full self-end sm:w-56"
+      class="
+        min-h-11 w-full self-end
+        sm:w-56
+      "
     />
 
     <div
@@ -146,7 +149,10 @@ watch(() => props.firstPage, restart)
     <div
       v-if="failed"
       role="alert"
-      class="flex flex-wrap items-center justify-between gap-3 rounded-md bg-error/10 p-4 text-sm text-highlighted"
+      class="
+        flex flex-wrap items-center justify-between gap-3 rounded-md bg-error/10
+        p-4 text-sm text-highlighted
+      "
     >
       <span>{{ t('error') }}</span>
       <UButton
@@ -165,7 +171,10 @@ watch(() => props.firstPage, restart)
       color="neutral"
       variant="outline"
       :loading="loading"
-      class="min-h-11 justify-center self-stretch sm:self-start"
+      class="
+        min-h-11 justify-center self-stretch
+        sm:self-start
+      "
       @click="showMore"
     />
   </div>

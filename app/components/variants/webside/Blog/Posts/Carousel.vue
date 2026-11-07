@@ -76,7 +76,7 @@ const BlogPostCard = computed(() =>
       wheel-gestures
       class="
         relative mx-auto max-w-4xl
-        md:w-[43rem]
+        md:w-172
       "
     >
       <Component

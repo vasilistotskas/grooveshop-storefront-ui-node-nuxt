@@ -10,8 +10,8 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 <template>
   <header
     class="
-      sticky top-0 z-40 w-full border-b border-primary-200
-      bg-transparent backdrop-blur-md
+      sticky top-0 z-40 w-full border-b border-primary-200 bg-transparent
+      backdrop-blur-md
       dark:border-primary-800
     "
   >
@@ -20,8 +20,8 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
          Desktop: single flex row with the logo at the top-left. -->
     <div
       class="
-        mx-auto grid w-full max-w-(--ui-container)
-        grid-cols-[auto_1fr_auto] items-center px-4 py-3
+        mx-auto grid w-full max-w-(--ui-container) grid-cols-[auto_1fr_auto]
+        items-center px-4 py-3
         sm:px-6
         md:py-4
         lg:flex lg:px-8
@@ -37,7 +37,7 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
         size="lg"
         square
         class="
-          rounded-full justify-self-start
+          justify-self-start rounded-full
           lg:hidden
         "
       />

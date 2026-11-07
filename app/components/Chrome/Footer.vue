@@ -97,7 +97,9 @@ const storeName = computed(() => tenantStore.storeName || '')
           max-lg:pb-[calc(6.5rem+env(safe-area-inset-bottom))]
           max-lg:[body:has([data-action-bar])_&]:pb-[calc(11.25rem+env(safe-area-inset-bottom))]
         `
-        : 'max-lg:[body:has([data-action-bar])_&]:pb-[calc(6.5rem+env(safe-area-inset-bottom))]',
+        : `
+          max-lg:[body:has([data-action-bar])_&]:pb-[calc(6.5rem+env(safe-area-inset-bottom))]
+        `,
       'lg:[body:has([data-action-bar])_&]:pb-22',
     ]"
     :ui="{
@@ -119,8 +121,18 @@ const storeName = computed(() => tenantStore.storeName || '')
     }"
   >
     <template #top>
-      <UContainer class="flex flex-col gap-5 lg:gap-11">
-        <div class="grid items-start gap-5 lg:grid-cols-[2fr_2.3fr] lg:gap-8">
+      <UContainer
+        class="
+          flex flex-col gap-5
+          lg:gap-11
+        "
+      >
+        <div
+          class="
+            grid items-start gap-5
+            lg:grid-cols-[2fr_2.3fr] lg:gap-8
+          "
+        >
           <div
             class="
               hidden flex-col items-start gap-5
@@ -133,7 +145,7 @@ const storeName = computed(() => tenantStore.storeName || '')
             <Anchor
               :to="'index'"
               :aria-label="storeName"
-              class="!w-auto"
+              class="w-auto!"
             >
               <TenantLogo
                 :width="132"
@@ -145,7 +157,7 @@ const storeName = computed(() => tenantStore.storeName || '')
               v-if="storeDescription"
               class="
                 max-w-110 font-display text-3xl/[1.15] font-bold tracking-tight
-                text-highlighted text-balance
+                text-balance text-highlighted
               "
             >
               {{ storeDescription }}

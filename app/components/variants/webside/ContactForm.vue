@@ -41,7 +41,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   <section
     class="
       container mx-auto
-      sm:px-6 sm:py-6
+      sm:p-6
       lg:px-8
     "
   >
@@ -133,8 +133,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 transition-colors
               "
               :class="isDropTarget
-                ? 'border-primary-500 bg-primary-100 dark:bg-primary-900'
-                : 'border-primary-300 dark:border-primary-700'"
+                ? `
+                  border-primary-500 bg-primary-100
+                  dark:bg-primary-900
+                `
+                : `
+                  border-primary-300
+                  dark:border-primary-700
+                `"
               @dragover.prevent="isDropTarget = true"
               @dragenter.prevent="isDropTarget = true"
               @dragleave="isDropTarget = false"
@@ -142,16 +148,27 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             >
               <UIcon
                 name="i-heroicons-paper-clip"
-                class="size-6 shrink-0 text-primary-600 dark:text-primary-300"
+                class="
+                  size-6 shrink-0 text-primary-600
+                  dark:text-primary-300
+                "
                 aria-hidden="true"
               />
               <div class="min-w-0 flex-1">
-                <p class="text-sm font-medium text-primary-950 dark:text-primary-50">
+                <p
+                  class="
+                    text-sm font-medium text-primary-950
+                    dark:text-primary-50
+                  "
+                >
                   {{ t('files.prompt') }}
                 </p>
                 <p
                   v-if="attachments.maxMegabytes.value !== null"
-                  class="text-xs text-primary-600 dark:text-primary-300"
+                  class="
+                    text-xs text-primary-600
+                    dark:text-primary-300
+                  "
                 >
                   {{ t('files.limit', { count: attachments.maxCount.value, mb: attachments.maxMegabytes.value }) }}
                 </p>
@@ -193,8 +210,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                     :class="upload.status === 'uploading' ? 'animate-spin' : ''"
                     aria-hidden="true"
                   />
-                  <span class="min-w-0 flex-1 truncate text-primary-950 dark:text-primary-50">{{ upload.name }}</span>
-                  <span class="shrink-0 font-mono text-xs text-primary-600 dark:text-primary-300">
+                  <span
+                    class="
+                      min-w-0 flex-1 truncate text-primary-950
+                      dark:text-primary-50
+                    "
+                  >{{ upload.name }}</span>
+                  <span
+                    class="
+                      shrink-0 font-mono text-xs text-primary-600
+                      dark:text-primary-300
+                    "
+                  >
                     {{ formatAttachmentSize(upload.size, locale) }}
                   </span>
                   <UButton
@@ -227,7 +254,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 />
                 <p
                   v-else-if="upload.status === 'error' && upload.error"
-                  class="mt-2 text-xs text-primary-600 dark:text-primary-300"
+                  class="
+                    mt-2 text-xs text-primary-600
+                    dark:text-primary-300
+                  "
                 >
                   {{ attachmentMessage(upload.error) }}
                 </p>

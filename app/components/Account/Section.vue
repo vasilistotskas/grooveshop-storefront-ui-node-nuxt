@@ -24,7 +24,11 @@ const headingId = useId()
 <template>
   <section
     :aria-labelledby="headingId"
-    class="flex scroll-mt-24 flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      flex scroll-mt-24 flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring
+      ring-default
+      sm:p-6
+    "
   >
     <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
       <div class="flex min-w-0 flex-col gap-1">
@@ -45,7 +49,8 @@ const headingId = useId()
         v-if="$slots.actions"
         class="
           flex flex-wrap items-center gap-2
-          max-sm:w-full max-sm:*:flex-1 max-sm:*:justify-center
+          max-sm:w-full
+          max-sm:*:flex-1 max-sm:*:justify-center
         "
       >
         <slot name="actions" />

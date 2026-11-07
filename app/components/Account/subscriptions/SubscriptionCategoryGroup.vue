@@ -39,7 +39,10 @@ const handleUnsubscribe = (topicId: number) => {
 <template>
   <section
     :aria-labelledby="headingId"
-    class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    class="
+      rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
+    "
   >
     <h2
       :id="headingId"

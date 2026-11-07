@@ -118,7 +118,10 @@ const visible = computed(() => socials.value.filter(s => !!s.to))
     :aria-label="s.label"
     :title="s.label"
     :class="[
-      'transition-colors motion-reduce:transition-none',
+      `
+        transition-colors
+        motion-reduce:transition-none
+      `,
       s.colorClass,
     ]"
   >

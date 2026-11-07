@@ -53,7 +53,10 @@ async function add(event: FormSubmitEvent<z.output<typeof schema>>) {
       v-if="adding"
       :schema="schema"
       :state="state"
-      class="flex flex-col gap-3 sm:flex-row sm:items-start"
+      class="
+        flex flex-col gap-3
+        sm:flex-row sm:items-start
+      "
       @submit="add"
     >
       <UFormField
@@ -69,7 +72,12 @@ async function add(event: FormSubmitEvent<z.output<typeof schema>>) {
           autofocus
         />
       </UFormField>
-      <div class="flex gap-2 sm:pt-6">
+      <div
+        class="
+          flex gap-2
+          sm:pt-6
+        "
+      >
         <UButton
           :label="t('add_submit')"
           :loading="busy === 'add'"
@@ -131,7 +139,12 @@ async function add(event: FormSubmitEvent<z.output<typeof schema>>) {
                 size="sm"
               />
             </span>
-            <span class="flex w-44 items-center justify-end gap-1 max-sm:w-auto max-sm:justify-start">
+            <span
+              class="
+                flex w-44 items-center justify-end gap-1
+                max-sm:w-auto max-sm:justify-start
+              "
+            >
               <UButton
                 v-if="!row.verified"
                 :label="t('resend')"

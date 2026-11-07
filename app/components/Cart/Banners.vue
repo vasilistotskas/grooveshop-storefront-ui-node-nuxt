@@ -46,8 +46,8 @@ const qualified = computed(() => props.progress?.free === true)
       v-for="miss in nearMisses"
       :key="`miss-${miss.promotionId}`"
       class="
-        flex items-center gap-3 rounded-xl bg-volt px-4 py-3 text-sm
-        font-medium text-on-volt
+        flex items-center gap-3 rounded-xl bg-volt px-4 py-3 text-sm font-medium
+        text-on-volt
       "
     >
       <UIcon

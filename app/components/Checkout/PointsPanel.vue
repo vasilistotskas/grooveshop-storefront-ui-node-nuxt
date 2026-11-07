@@ -109,7 +109,10 @@ const redeem = (event: FormSubmitEvent<z.output<typeof schema.value>>) => {
     <div
       v-if="redemption"
       role="status"
-      class="flex items-center gap-3 rounded-lg bg-default px-3 py-2.5 text-sm text-highlighted"
+      class="
+        flex items-center gap-3 rounded-lg bg-default px-3 py-2.5 text-sm
+        text-highlighted
+      "
     >
       <UIcon
         name="i-lucide-check"

@@ -136,9 +136,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
   <UCard
     :as="as"
     class="
-      product-card group relative h-full w-full max-w-full transition-all duration-300
-      hover:shadow-xl hover:scale-[1.02]
+      product-card group relative size-full max-w-full transition-all
+      duration-300
       focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1
+      hover:scale-[1.02] hover:shadow-xl
     "
     :ui="{
       root: 'w-full max-w-full',
@@ -263,10 +264,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       >
         <h3
           class="
-            line-clamp-2 text-lg leading-snug font-bold text-neutral-950 min-h-12
-            transition-colors
+            line-clamp-2 min-h-12 text-lg leading-snug font-bold
+            text-neutral-950 transition-colors
             group-hover/link:text-primary-600
-            dark:text-neutral-50 dark:group-hover/link:text-primary-400
+            dark:text-neutral-50
+            dark:group-hover/link:text-primary-400
           "
         >
           {{ productName }}

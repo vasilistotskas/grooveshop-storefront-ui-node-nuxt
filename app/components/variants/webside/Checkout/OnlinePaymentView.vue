@@ -32,7 +32,12 @@ const onRedirecting = () => {
           <h2 class="text-lg font-semibold">
             {{ t('complete_payment') }}
           </h2>
-          <p class="text-sm text-primary-950 dark:text-primary-50">
+          <p
+            class="
+              text-sm text-primary-950
+              dark:text-primary-50
+            "
+          >
             {{ t('order_created_complete_payment') }}
           </p>
         </div>

@@ -67,7 +67,10 @@ const root = computed(() => (props.band ? resolveComponent('PageSectionBand') : 
     <h2
       v-if="!band && !hideTitle"
       :id="titleId"
-      class="font-display text-[1.625rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted"
+      class="
+        font-display text-[1.625rem]/[1.1] font-bold tracking-[-0.02em]
+        text-highlighted
+      "
     >
       {{ title }}
     </h2>

@@ -23,7 +23,7 @@
     "start": "node .output/server/index.mjs",
     "serve": "serve dist/",
     "lint": "eslint . --fix",
-    "lint:ci": "eslint . --cache",
+    "lint:ci": "eslint . --cache --concurrency=auto",
     "typecheck": "nuxt typecheck",
     "cleanup": "nuxt cleanup",
     "analyze": "npx nuxt analyze",

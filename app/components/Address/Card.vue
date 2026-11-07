@@ -66,7 +66,10 @@ async function makeDefault() {
 
 <template>
   <article
-    class="flex h-full flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring ring-default"
+    class="
+      flex h-full flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring
+      ring-default
+    "
     :aria-label="address.title"
   >
     <div class="flex items-center justify-between gap-3">

@@ -60,7 +60,10 @@ defineExpose({ score, color })
         v-for="(req, index) in requirements"
         :key="index"
         class="flex items-center gap-2 text-xs"
-        :class="req.met ? 'text-success' : 'text-gray-500 dark:text-gray-200'"
+        :class="req.met ? 'text-success' : `
+          text-gray-500
+          dark:text-gray-200
+        `"
       >
         <UIcon
           :name="req.met ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"

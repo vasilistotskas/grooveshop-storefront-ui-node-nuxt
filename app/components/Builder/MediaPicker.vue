@@ -186,7 +186,11 @@ function use(): void {
         </p>
         <ul
           v-else
-          class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6"
+          class="
+            grid grid-cols-3 gap-2
+            sm:grid-cols-4
+            md:grid-cols-6
+          "
         >
           <li
             v-for="asset in library.results"
@@ -194,8 +198,14 @@ function use(): void {
           >
             <button
               type="button"
-              class="relative block aspect-square w-full overflow-hidden rounded-md bg-elevated ring focus-visible:outline-2 focus-visible:outline-primary"
-              :class="current?.id === asset.id ? 'ring-2 ring-primary' : 'ring-default'"
+              class="
+                relative block aspect-square w-full overflow-hidden rounded-md
+                bg-elevated ring
+                focus-visible:outline-2 focus-visible:outline-primary
+              "
+              :class="current?.id === asset.id ? 'ring-2 ring-primary' : `
+                ring-default
+              `"
               :aria-label="builderMediaName(asset.path)"
               :aria-pressed="current?.id === asset.id"
               :disabled="busy"
@@ -212,7 +222,10 @@ function use(): void {
               <UIcon
                 v-if="asset.id === selected"
                 name="i-lucide-circle-check"
-                class="absolute end-1 top-1 size-5 rounded-full bg-default text-primary"
+                class="
+                  absolute inset-e-1 top-1 size-5 rounded-full bg-default
+                  text-primary
+                "
               />
             </button>
           </li>
@@ -230,7 +243,7 @@ function use(): void {
           class="flex flex-col gap-3 rounded-md border border-default p-3"
           @submit.prevent="saveAlt"
         >
-          <p class="text-sm font-medium break-words">
+          <p class="text-sm font-medium wrap-break-word">
             {{ builderMediaName(current.path) }}
             <span class="font-normal text-muted">
               · {{ t('size', { width: current.width, height: current.height }) }}

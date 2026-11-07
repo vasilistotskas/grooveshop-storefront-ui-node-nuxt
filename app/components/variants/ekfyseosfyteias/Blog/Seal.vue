@@ -19,8 +19,8 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
     <span
       class="
         flex size-[70px] items-center justify-center rounded-full border-[1.5px]
-        border-dashed border-(color:--fy-text) font-display text-[32px]
-        font-bold text-(--fy-text) italic
+        border-dashed border-(--fy-text) font-display text-[32px] font-bold
+        text-(--fy-text) italic
       "
     >φ</span>
   </span>

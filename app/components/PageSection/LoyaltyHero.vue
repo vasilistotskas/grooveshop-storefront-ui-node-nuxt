@@ -110,8 +110,7 @@ const tierTerms = (tier: LoyaltyTier) =>
       <UContainer>
         <div
           class="
-            grid items-center gap-6 rounded-[2rem] bg-volt px-5.5 py-7
-            text-on-volt
+            grid items-center gap-6 rounded-4xl bg-volt px-5.5 py-7 text-on-volt
             lg:grid-cols-[1.1fr_1fr] lg:gap-12 lg:p-14
           "
         >
@@ -174,7 +173,9 @@ const tierTerms = (tier: LoyaltyTier) =>
                 flex flex-col gap-4.5 rounded-[1.25rem] p-3.5
                 lg:gap-10 lg:p-5.5
               "
-              :class="index === ladder.length - 1 ? 'bg-on-volt text-white' : 'bg-white/70 text-on-volt'"
+              :class="index === ladder.length - 1 ? 'bg-on-volt text-white' : `
+                bg-white/70 text-on-volt
+              `"
             >
               <UIcon
                 name="i-heroicons-trophy"

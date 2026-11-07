@@ -177,7 +177,10 @@ const panelUi = { body: 'p-0 sm:p-0' }
         >
           <h3
             :id="`builder-history-${day.day}`"
-            class="sticky top-0 z-10 border-b border-default bg-elevated px-4 py-2 text-xs font-semibold text-toned"
+            class="
+              sticky top-0 z-10 border-b border-default bg-elevated px-4 py-2
+              text-xs font-semibold text-toned
+            "
           >
             <NuxtTime
               :datetime="day.at"
@@ -218,7 +221,7 @@ const panelUi = { body: 'p-0 sm:p-0' }
                 </p>
                 <p
                   v-if="row.note"
-                  class="text-sm break-words text-toned"
+                  class="text-sm wrap-break-word text-toned"
                 >
                   {{ row.note }}
                 </p>

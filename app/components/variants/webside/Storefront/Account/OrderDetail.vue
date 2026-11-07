@@ -469,9 +469,7 @@ async function handleReorder() {
     />
 
     <div
-      class="
-        flex flex-wrap gap-3
-      "
+      class="flex flex-wrap gap-3"
     >
       <UButton
         v-if="order.canBeCanceled"
@@ -572,7 +570,7 @@ async function handleReorder() {
             />
 
             <template #content>
-              <div class="mt-4 max-h-[32rem] space-y-4 overflow-y-auto pr-1">
+              <div class="mt-4 max-h-128 space-y-4 overflow-y-auto pr-1">
                 <div
                   v-for="item in order.items"
                   :key="`product-${item.product.id}`"
@@ -592,9 +590,9 @@ async function handleReorder() {
                       >
                         <div
                           class="
-                            relative h-28 w-28 overflow-hidden rounded-lg
+                            relative size-28 overflow-hidden rounded-lg
                             bg-gray-100
-                            sm:h-32 sm:w-32
+                            sm:size-32
                             dark:bg-gray-700
                           "
                         >
@@ -605,7 +603,7 @@ async function handleReorder() {
                             :src="item.product.mainImagePath"
                             :width="128"
                             class="
-                              h-full w-full object-cover transition-transform
+                              size-full object-cover transition-transform
                               duration-200
                               group-hover:scale-105
                             "
@@ -653,7 +651,7 @@ async function handleReorder() {
                           v-if="item.product.weight?.value"
                           class="flex items-center gap-1"
                         >
-                          <UIcon name="i-heroicons-scale" class="h-3 w-3" />
+                          <UIcon name="i-heroicons-scale" class="size-3" />
                           {{ item.product.weight.value }}{{ item.product.weight.unit || 'kg' }}
                         </span>
                       </div>
@@ -698,7 +696,7 @@ async function handleReorder() {
                             dark:text-gray-200
                           "
                         >
-                          <UIcon name="i-heroicons-archive-box" class="h-4 w-4" />
+                          <UIcon name="i-heroicons-archive-box" class="size-4" />
                           <span>{{ t('quantity') }}: {{ item.quantity }}</span>
                         </div>
 
@@ -975,7 +973,11 @@ async function handleReorder() {
                         dark:text-gray-100
                       "
                     >
-                      <span v-if="order.billingCompanyName" class="block font-medium">
+                      <span
+                        v-if="order.billingCompanyName" class="
+                          block font-medium
+                        "
+                      >
                         {{ order.billingCompanyName }}
                       </span>
                       <span class="block">{{ t('billing_vat', { vat: order.billingVatId }) }}</span>
