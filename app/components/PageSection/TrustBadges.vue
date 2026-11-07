@@ -64,7 +64,7 @@ const visible = computed(() =>
         <ImgWithFallback
           v-if="badge.picture"
           :src="badge.picture.path"
-          :alt="badge.label"
+          :alt="badge.picture?.alt || badge.label"
           :width="72"
           :height="24"
           fit="contain"
@@ -114,7 +114,7 @@ const visible = computed(() =>
           <ImgWithFallback
             v-if="badge.picture"
             :src="badge.picture.path"
-            :alt="badge.label"
+            :alt="badge.picture?.alt || badge.label"
             :width="72"
             :height="24"
             fit="contain"

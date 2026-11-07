@@ -9,8 +9,8 @@ type Item = { kind: 'payment' | 'shipping' | 'ai' | 'custom', label: string, ico
 const mountBadges = (items: Item[]) => mountSuspended(TrustBadges, { route: false, props: { items } })
 
 describe('PageSection/TrustBadges image', () => {
-  it('draws the logo, named by the badge label', async () => {
-    const wrapper = await mountBadges([{ kind: 'payment', label: 'Visa', image: makeResolvedImage('https://assets.example.test/visa.svg', 'ignored') }])
+  it('draws the logo, named by the badge label when the image says nothing', async () => {
+    const wrapper = await mountBadges([{ kind: 'payment', label: 'Visa', image: makeResolvedImage('https://assets.example.test/visa.svg') }])
 
     expect(wrapper.get('img').attributes('alt')).toBe('Visa')
   })
@@ -21,6 +21,13 @@ describe('PageSection/TrustBadges image', () => {
 
     expect(wrapper.find('img').exists()).toBe(false)
     expect(wrapper.findComponent({ name: 'UIcon' }).props('name')).toBe('i-lucide-credit-card')
+  })
+
+  it.each([[false], [true]])('names a logo by what the image says, over the label (scrolling row: %s)', async (marquee) => {
+    const image: ResolvedImage = makeResolvedImage('https://assets.example.test/visa.png', 'Λογότυπο Visa')
+    const wrapper = await mountSuspended(TrustBadges, { route: false, props: { marquee, items: [{ kind: 'payment', label: 'Visa', image }] } })
+
+    expect(wrapper.get('img').attributes('alt')).toBe('Λογότυπο Visa')
   })
 
   it('draws the logo on both paths', async () => {
