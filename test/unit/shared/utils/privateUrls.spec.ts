@@ -14,9 +14,7 @@ describe('isPrivateUrl', () => {
     '/en/account/password/reset/key/abc-123',
     '/en/checkout/success/00000000-0000-4000-8000-000000000000',
     '/checkout/success/abc/',
-    '/account/settings/privacy?export=a-token',
-    '/en/account/settings/privacy?export=a-token',
-    '/account/login?next=%2Faccount%2Fsettings%2Fprivacy%3Fexport%3Da-token',
+    '/account/login?next=%2Fcart%2Frecover%2Fabc',
     '/account/login?next=/cart/recover/abc',
     '/account/login?redirect=/checkout/success/abc',
   ])('holds %s private', (path) => {
@@ -35,6 +33,8 @@ describe('isPrivateUrl', () => {
     '/account/password/reset',
     '/account/orders/12',
     '/account/settings/privacy',
+    // The data export is downloaded signed in; no address holds its key.
+    '/account/settings/privacy?export=a-token',
     '/account/login?next=/products',
     '/products?page=2&ordering=price',
     '/gift-cards?purchase=abc',

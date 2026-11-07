@@ -274,7 +274,7 @@ describe('setupGoogleAnalyticsConsent', () => {
 
   it('holds the tag while the query holds a secret', async () => {
     const address = window.location.pathname
-    window.history.replaceState(null, '', '/account/settings/privacy?export=a-token')
+    window.history.replaceState(null, '', '/account/login?next=%2Fcart%2Frecover%2Fabc')
     try {
       decide(true, 'analytics_storage')
 

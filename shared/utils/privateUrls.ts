@@ -24,9 +24,6 @@ const PRIVATE_PATHS: readonly RegExp[] = [
   /^\/newsletter\/confirm\/[^/]+$/,
 ]
 
-/** Query parameters that are secrets: `export` opens a shopper's data export. */
-const PRIVATE_QUERY_PARAMS: readonly string[] = ['export']
-
 /** Query parameters holding the address to go to next, as login's do. */
 const NEXT_ADDRESS_PARAMS: readonly string[] = ['next', 'redirect']
 
@@ -38,9 +35,8 @@ export function isPrivateUrl(url: string): boolean {
   if (PRIVATE_PATHS.some(pattern => pattern.test(route))) return true
   if (queryAt === -1) return false
   const query = new URLSearchParams(url.slice(queryAt + 1))
-  return PRIVATE_QUERY_PARAMS.some(name => query.has(name))
-    || NEXT_ADDRESS_PARAMS.some((name) => {
-      const next = query.get(name)
-      return next !== null && isPrivateUrl(next)
-    })
+  return NEXT_ADDRESS_PARAMS.some((name) => {
+    const next = query.get(name)
+    return next !== null && isPrivateUrl(next)
+  })
 }
