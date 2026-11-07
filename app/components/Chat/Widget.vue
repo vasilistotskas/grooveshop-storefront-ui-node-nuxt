@@ -54,9 +54,13 @@ const chatEnabled = useStoreFeature('chatWidget')
     <!-- Larger screens get a floating, non-modal assistant panel anchored
          to the launcher — the shopper keeps browsing while chatting. -->
     <Transition
-      enter-active-class="motion-safe:transition motion-safe:duration-200 motion-safe:ease-out"
+      enter-active-class="
+        motion-safe:transition motion-safe:duration-200 motion-safe:ease-out
+      "
       enter-from-class="translate-y-2 scale-95 opacity-0"
-      leave-active-class="motion-safe:transition motion-safe:duration-150 motion-safe:ease-in"
+      leave-active-class="
+        motion-safe:transition motion-safe:duration-150 motion-safe:ease-in
+      "
       leave-to-class="translate-y-2 scale-95 opacity-0"
     >
       <div

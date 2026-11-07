@@ -48,7 +48,10 @@ const openCookieModal = () => {
                 <ULink
                   :to="link.to"
                   active-class="font-medium text-primary"
-                  inactive-class="text-muted transition-colors hover:text-default"
+                  inactive-class="
+                    text-muted transition-colors
+                    hover:text-default
+                  "
                   class="
                     group flex items-center gap-1.5 rounded-sm text-sm
                     outline-primary/25

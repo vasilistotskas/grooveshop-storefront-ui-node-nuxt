@@ -42,15 +42,31 @@ import type { AstNode, ElementNode } from '../../helpers/sourceText'
  */
 // `size-full` is `h-full` plus `w-full`: the lint's canonical form of the pair.
 const H_FULL = /(?:^|[\s'"`:])(?:h|size)-full(?:$|[\s'"`])/
-const OWN_HEIGHT = /(?:^|\s)aspect-\S+/
+// A box with its own aspect ratio (`aspect-auto` has none) fixes its height
+// whatever the slide does, so an `h-full` INSIDE it (the lightbox's image in
+// `Product/ImageModal`) never needs the slide stretched. Its own `h-full`
+// still counts: with both, the height is the slide's.
+const OWN_HEIGHT = /(?:^|\s)aspect-(?!auto(?:\s|$))\S+/
 
-/** Does this file's own template declare `h-full` on any element? */
+/**
+ * Walk the elements under `root` that size against the slide: `visit` sees
+ * each one, and the descendants of a box with its own aspect ratio are
+ * skipped. The inline scan and the one-level component scan both use it.
+ */
+function walkSlideContent(root: Parameters<typeof walkElements>[0], visit: (node: ElementNode) => void): void {
+  walkElements(root, (node) => {
+    visit(node)
+    if (OWN_HEIGHT.test(classesOf(node))) return false
+  })
+}
+
+/** Does this file's own template declare `h-full` on any element that sizes against the slide? */
 const fillsCache = new Map<string, boolean>()
 function fileDeclaresHFull(file: string): boolean {
   let found = fillsCache.get(file)
   if (found === undefined) {
     found = false
-    walkElements(sfcTemplate(file), (node) => {
+    walkSlideContent(sfcTemplate(file), (node) => {
       if (H_FULL.test(classesOf(node))) found = true
     })
     fillsCache.set(file, found)
@@ -101,11 +117,7 @@ beforeAll(() => {
       if (!/^(Lazy)?UCarousel$/.test(node.tag)) return
       const names = new Set<string>(resolved)
       let inlineFill = false
-      walkElements(node, (child) => {
-        // A box with its own aspect ratio fixes its height whatever the
-        // slide does, so an `h-full` inside it (the lightbox's image in
-        // `Product/ImageModal`) never needs the slide stretched.
-        if (OWN_HEIGHT.test(classesOf(child))) return false
+      walkSlideContent(node, (child) => {
         if (H_FULL.test(classesOf(child))) inlineFill = true
         const name = child.tag.replace(/^Lazy/, '')
         if (byName.has(name)) names.add(name)

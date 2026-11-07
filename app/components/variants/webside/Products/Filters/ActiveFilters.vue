@@ -115,11 +115,11 @@ const handleRemoveFilter = async (chip: ListingFilterChip) => {
 <template>
   <Transition
     enter-active-class="transition-all duration-300 ease-out"
-    enter-from-class="opacity-0 -translate-y-2"
-    enter-to-class="opacity-100 translate-y-0"
+    enter-from-class="-translate-y-2 opacity-0"
+    enter-to-class="translate-y-0 opacity-100"
     leave-active-class="transition-all duration-200 ease-in"
-    leave-from-class="opacity-100 translate-y-0"
-    leave-to-class="opacity-0 -translate-y-2"
+    leave-from-class="translate-y-0 opacity-100"
+    leave-to-class="-translate-y-2 opacity-0"
   >
     <div v-if="hasActiveFilters" class="space-y-3">
       <!-- Header -->
