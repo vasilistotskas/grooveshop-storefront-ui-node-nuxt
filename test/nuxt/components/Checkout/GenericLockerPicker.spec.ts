@@ -1,40 +1,46 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import CheckoutGenericLockerPicker from '~/components/Checkout/GenericLockerPicker.vue'
 import WebsideCheckoutGenericLockerPicker from '~/components/variants/webside/Checkout/GenericLockerPicker.vue'
-import type { Locker, LockerQuery, ShippingCarrier } from '~~/shared/shipping/interfaces'
+import type { Locker, ShippingCarrier } from '~~/shared/shipping/interfaces'
 import { acsLockerKey } from '~~/shared/shipping/providers/acs'
+import { LOCKER_LIST_LIMIT } from '~/composables/useLockerPicker'
 import { trees } from '~~/test/helpers/trees'
 
 /**
- * The carrier-agnostic locker picker (ACS today). It talks to the
- * carrier only through the adapter's `fetchByPostal` / `fetchAll`, so a
- * fake carrier is the boundary here. The modal teleports to `body`,
- * which is why its content is read from the document. The trees differ
- * only in the `en:` block.
+ * The carrier-agnostic locker picker (ACS today). It reads the carrier's
+ * whole catalogue through the adapter's `fetchAll`, so a fake carrier is
+ * the boundary here, and the browser's Geolocation and Permissions APIs
+ * are the other one. The modal teleports to `body`, which is why its
+ * content is read from the document.
  */
 
 /**
  * The map is its own client-only component, rendered as
  * `<LazyCheckoutSmartpointMap>` — a direct async import no stub key
  * matches — so its module is mocked to keep MapLibre out of the run. The
- * stub's one button stands for the map's own "show the list".
+ * stub shows what the picker tells the map (where to look, where the
+ * shopper is), and its one button stands for the map's "show the list".
  */
 vi.mock('~/components/Checkout/SmartpointMap.client.vue', () => ({
   default: {
+    props: ['lockers', 'loading', 'focus', 'here'],
     emits: ['showList'],
-    template: `<div data-test="map"><button type="button" data-test="map-show-list" @click="$emit('showList')" /></div>`,
+    template: `<div data-test="map" :data-focus="JSON.stringify(focus ?? null)" :data-here="JSON.stringify(here ?? null)" :data-count="lockers.length">
+      <button type="button" data-test="map-show-list" @click="$emit('showList')" />
+    </div>`,
   },
 }))
 
 const t = (key: string, params: Record<string, unknown> = {}) => useNuxtApp().$i18n.t(key, params)
 const tp = (key: string, params: Record<string, unknown> = {}) => t(`shipping.locker_picker.${key}`, params)
 
-const DEBOUNCE_MS = 300
+const DEBOUNCE_MS = 200
 
-function locker(id: string, name: string, branchCode: string | null = null): Locker {
+function locker(id: string, name: string, place: { city?: string, postalCode?: string, lat?: number, lng?: number, branchCode?: string } = {}): Locker {
+  const branchCode = place.branchCode ?? null
   return {
     key: acsLockerKey(id, branchCode),
     id,
@@ -42,17 +48,22 @@ function locker(id: string, name: string, branchCode: string | null = null): Loc
     name,
     addressLine1: 'Φιλελλήνων 4',
     addressLine2: null,
-    city: 'Αθήνα',
-    postalCode: '10557',
+    city: place.city ?? 'Αθήνα',
+    postalCode: place.postalCode ?? '10557',
     countryCode: 'GR',
-    lat: null,
-    lng: null,
+    lat: place.lat ?? 37.97,
+    lng: place.lng ?? 23.73,
     workingHours: null,
+    maxWeightKg: null,
     raw: {},
   }
 }
 
-const ROWS = [locker('GR-1', 'Smartpoint Σύνταγμα'), locker('GR-2', 'Smartpoint Κολωνάκι')]
+const SYNTAGMA = locker('GR-1', 'Smartpoint Σύνταγμα', { postalCode: '10557', lat: 37.9755, lng: 23.7348 })
+const KOLONAKI = locker('GR-2', 'Smartpoint Κολωνάκι', { city: 'Κολωνάκι', postalCode: '10673', lat: 37.9779, lng: 23.7433 })
+const KIFISIA = locker('GR-3', 'Smartpoint Κηφισιά', { city: 'Κηφισιά', postalCode: '14561', lat: 38.0736, lng: 23.8114 })
+const THESSALONIKI = locker('GR-4', 'Smartpoint Καμάρα', { city: 'Θεσσαλονίκη', postalCode: '54622', lat: 40.6325, lng: 22.9517 })
+const CATALOGUE = [KIFISIA, THESSALONIKI, KOLONAKI, SYNTAGMA]
 
 function fakeCarrier(overrides: Partial<ShippingCarrier> = {}): ShippingCarrier {
   return {
@@ -60,7 +71,7 @@ function fakeCarrier(overrides: Partial<ShippingCarrier> = {}): ShippingCarrier 
     label: 'ACS Courier',
     usesGenericPicker: true,
     formFieldName: 'acsStationExternalId',
-    fetchByPostal: vi.fn((_query: LockerQuery) => Promise.resolve(ROWS)),
+    fetchAll: vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(CATALOGUE)),
     applyToFormState: vi.fn(),
     readLockerId: () => null,
     readSelectedLocker: () => null,
@@ -68,109 +79,222 @@ function fakeCarrier(overrides: Partial<ShippingCarrier> = {}): ShippingCarrier 
   }
 }
 
+// The browser's location APIs, as the test sets them per case.
+const geo = vi.hoisted(() => ({
+  permission: 'prompt' as PermissionState,
+  getCurrentPosition: null as unknown as ReturnType<typeof vi.fn>,
+}))
+
+function answerWith(outcome: { at: { lat: number, lng: number } } | { error: number }): void {
+  geo.getCurrentPosition.mockImplementation((ok: PositionCallback, fail: PositionErrorCallback) => {
+    if ('at' in outcome) {
+      ok({ coords: { latitude: outcome.at.lat, longitude: outcome.at.lng } } as GeolocationPosition)
+      return
+    }
+    fail({ code: outcome.error, PERMISSION_DENIED: 1, POSITION_UNAVAILABLE: 2, TIMEOUT: 3 } as GeolocationPositionError)
+  })
+}
+
+function installLocation(): void {
+  geo.getCurrentPosition = vi.fn()
+  Object.defineProperty(navigator, 'geolocation', {
+    configurable: true,
+    value: { getCurrentPosition: geo.getCurrentPosition },
+  })
+  Object.defineProperty(navigator, 'permissions', {
+    configurable: true,
+    value: { query: () => Promise.resolve(Object.assign(new EventTarget(), { state: geo.permission })) },
+  })
+}
+
+function removeLocation(): void {
+  Reflect.deleteProperty(navigator, 'geolocation')
+  Reflect.deleteProperty(navigator, 'permissions')
+}
+
 const body = () => new DOMWrapper(document.body)
 const inBody = (text: string) => document.body.textContent?.includes(text) ?? false
-const postalInput = () => body().find(`input[placeholder="${tp('postal_placeholder')}"]`)
-const rowButton = (name: string) => body().findAll('button').find(b => b.text().includes(name))
+const searchInput = () => body().find(`input[aria-label="${tp('search_label')}"]`)
+const locationButton = () => body().findAll('button').find(b => b.attributes('aria-label') === tp('use_location'))
+const tab = (label: string) => body().findAll('[role="tab"]').find(item => item.text().includes(label))!
+const mapStub = () => body().find('[data-test="map"]')
+const rowNames = () => body().findAll('#locker-list li button .font-semibold').map(row => row.text())
+const rowButton = (name: string) => body().findAll('#locker-list button').find(b => b.text().includes(name))
 
 describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPicker))('$tree Checkout/GenericLockerPicker', ({ C }) => {
-  afterEach(() => {
-    vi.useRealTimers()
+  beforeEach(() => {
+    geo.permission = 'prompt'
+    installLocation()
   })
 
-  /** Mounted closed, then opened — the search runs on the open transition. */
+  afterEach(() => {
+    vi.useRealTimers()
+    removeLocation()
+  })
+
+  /** Mounted closed, then opened: the catalogue loads on the open transition. */
   async function openPicker(carrier: ShippingCarrier, props: Record<string, unknown> = {}): Promise<VueWrapper> {
     const wrapper = await mountSuspended(C, {
       route: false,
-      props: { open: false, carrier, initialPostalCode: '10557', initialCity: 'Αθήνα', countryCode: 'GR', ...props },
+      props: { open: false, carrier, countryCode: 'GR', ...props },
     })
     await wrapper.setProps({ open: true })
     await flushPromises()
     return wrapper
   }
 
-  it('searches the checkout address as soon as it opens and lists the lockers', async () => {
-    const carrier = fakeCarrier()
+  async function showList(): Promise<void> {
+    await tab(tp('tab_list')).trigger('mousedown', { button: 0 })
+    await tab(tp('tab_list')).trigger('click')
+    await flushPromises()
+  }
 
-    await openPicker(carrier)
-
-    expect(carrier.fetchByPostal).toHaveBeenCalledTimes(1)
-    expect(carrier.fetchByPostal).toHaveBeenCalledWith(expect.objectContaining({
-      postalCode: '10557',
-      city: 'Αθήνα',
-      country: 'GR',
-    }))
-    expect(rowButton('Smartpoint Σύνταγμα')).toBeDefined()
-    expect(rowButton('Smartpoint Κολωνάκι')).toBeDefined()
-  })
-
-  it('hands back the locker the shopper picks and closes', async () => {
-    const wrapper = await openPicker(fakeCarrier())
-
-    await rowButton('Smartpoint Κολωνάκι')!.trigger('click')
-
-    expect(wrapper.emitted('selected')).toEqual([[ROWS[1]]])
-    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
-  })
-
-  it('searches again, debounced, when the shopper types a postcode', async () => {
-    const carrier = fakeCarrier()
-    await openPicker(carrier)
+  async function search(text: string): Promise<void> {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    await searchInput().setValue(text)
+    await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+    vi.useRealTimers()
+    await flushPromises()
+  }
 
-    await postalInput().setValue('5462')
-    await postalInput().setValue('54624')
-    await vi.advanceTimersByTimeAsync(DEBOUNCE_MS - 1)
-    expect(carrier.fetchByPostal).toHaveBeenCalledTimes(1)
+  it('opens on the map with the search above it, loading the catalogue once for the country', async () => {
+    const carrier = fakeCarrier()
 
-    await vi.advanceTimersByTimeAsync(1)
+    await openPicker(carrier, { countryCode: 'cy' })
+
+    expect(tab(tp('tab_map')).attributes('aria-selected')).toBe('true')
+    expect(searchInput().exists()).toBe(true)
+    expect(carrier.fetchAll).toHaveBeenCalledTimes(1)
+    expect(carrier.fetchAll).toHaveBeenCalledWith('CY', expect.any(AbortSignal))
+    await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
+  })
+
+  // The picker is mounted, closed, with the selected-locker card on
+  // every shipping step; only an open picker may pay for the catalogue.
+  it('loads nothing and asks for no position while it is closed', async () => {
+    geo.permission = 'granted'
+    const carrier = fakeCarrier()
+
+    await mountSuspended(C, { route: false, props: { open: false, carrier, countryCode: 'GR' } })
     await flushPromises()
 
-    expect(carrier.fetchByPostal).toHaveBeenCalledTimes(2)
-    expect(carrier.fetchByPostal).toHaveBeenLastCalledWith(expect.objectContaining({ postalCode: '54624' }))
+    expect(carrier.fetchAll).not.toHaveBeenCalled()
+    expect(geo.getCurrentPosition).not.toHaveBeenCalled()
   })
 
-  it('cancels a search still in flight when a newer one starts', async () => {
-    const signals: AbortSignal[] = []
-    const carrier = fakeCarrier({
-      fetchByPostal: vi.fn(({ signal }: LockerQuery) => {
-        signals.push(signal!)
-        return new Promise<Locker[]>(() => {})
-      }),
-    })
-    await openPicker(carrier)
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  it('loads the catalogue again after a close cut the first load short', async () => {
+    const fetchAll = vi.fn((_country: string, signal?: AbortSignal) => new Promise<Locker[]>((resolve, reject) => {
+      if (fetchAll.mock.calls.length > 1) return resolve(CATALOGUE)
+      signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
+    }))
+    const wrapper = await openPicker(fakeCarrier({ fetchAll }))
 
-    await postalInput().setValue('54624')
-    await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+    await wrapper.setProps({ open: false })
+    await flushPromises()
+    await wrapper.setProps({ open: true })
+    await flushPromises()
 
-    expect(signals).toHaveLength(2)
-    expect(signals[0]!.aborted).toBe(true)
-    expect(signals[1]!.aborted).toBe(false)
+    expect(fetchAll).toHaveBeenCalledTimes(2)
   })
 
-  it('does not search a postcode shorter than four digits', async () => {
-    const carrier = fakeCarrier()
+  it('finds lockers by what the shopper types, whatever its case and accents', async () => {
+    await openPicker(fakeCarrier())
+    await showList()
 
-    await openPicker(carrier, { initialPostalCode: '105', initialCity: '' })
+    await search('ΚΟΛΩΝΑΚΙ')
+    expect(rowNames()).toEqual([KOLONAKI.name])
 
-    expect(carrier.fetchByPostal).not.toHaveBeenCalled()
+    await search('θεσσαλονικη')
+    expect(rowNames()).toEqual([THESSALONIKI.name])
+
+    await search('105')
+    expect(rowNames()).toEqual([SYNTAGMA.name])
   })
 
-  it('says so when nothing is found', async () => {
-    await openPicker(fakeCarrier({ fetchByPostal: vi.fn(() => Promise.resolve([])) }))
+  it('moves the map to the matching lockers', async () => {
+    await openPicker(fakeCarrier())
+    await vi.waitFor(() => expect(mapStub().exists()).toBe(true))
+    expect(JSON.parse(mapStub().attributes('data-focus')!)).toBeNull()
 
+    await search('Κηφισιά')
+
+    expect(JSON.parse(mapStub().attributes('data-focus')!)).toEqual([KIFISIA.lng, KIFISIA.lat, KIFISIA.lng, KIFISIA.lat])
+  })
+
+  it('says so when nothing matches', async () => {
+    await openPicker(fakeCarrier())
+    await showList()
+
+    await search('Πάτρα')
+
+    expect(rowNames()).toEqual([])
     expect(inBody(tp('empty_title'))).toBe(true)
   })
 
-  it('shows an error when the search fails', async () => {
-    await openPicker(fakeCarrier({ fetchByPostal: vi.fn(() => Promise.reject(new Error('502'))) }))
+  it('starts from the checkout postcode: the nearest lockers first, and the map around them', async () => {
+    await openPicker(fakeCarrier(), { initialPostalCode: '10557' })
+    await showList()
 
-    expect(inBody(tp('error'))).toBe(true)
+    expect(inBody(tp('nearest_to_postcode', { postalCode: '10557' }))).toBe(true)
+    expect(rowNames()).toEqual([SYNTAGMA.name, KOLONAKI.name, KIFISIA.name, THESSALONIKI.name])
+    const [west, south, east, north] = JSON.parse(mapStub().attributes('data-focus')!) as number[]
+    expect(south).toBeCloseTo(SYNTAGMA.lat!, 6)
+    expect(north).toBeCloseTo(THESSALONIKI.lat!, 6)
+    expect(west).toBeCloseTo(THESSALONIKI.lng!, 6)
+    expect(east).toBeCloseTo(KIFISIA.lng!, 6)
+    // A postcode is an area, not the shopper: no "you are here" dot.
+    expect(JSON.parse(mapStub().attributes('data-here')!)).toBeNull()
   })
 
-  it('explains a carrier that cannot search by postcode', async () => {
-    await openPicker(fakeCarrier({ fetchByPostal: undefined }))
+  it('asks the shopper to search when it has nothing to start from', async () => {
+    await openPicker(fakeCarrier())
+    await showList()
+
+    expect(rowNames()).toEqual([])
+    expect(inBody(tp('search_prompt_title'))).toBe(true)
+  })
+
+  it('says how many it left out when a search matches more than the list shows', async () => {
+    const many = Array.from({ length: LOCKER_LIST_LIMIT + 5 }, (_, i) => locker('ATH', `Smartpoint Αθήνα ${i}`, { branchCode: String(i) }))
+    await openPicker(fakeCarrier({ fetchAll: vi.fn(() => Promise.resolve(many)) }))
+    await showList()
+
+    await search('αθηνα')
+
+    expect(rowNames()).toHaveLength(LOCKER_LIST_LIMIT)
+    expect(inBody(tp('results_more', { shown: LOCKER_LIST_LIMIT, total: many.length }))).toBe(true)
+  })
+
+  it('hands back the locker the shopper picks and closes, among lockers of one ACS area', async () => {
+    const sameArea = [
+      locker('ATH', 'Smartpoint Σύνταγμα', { branchCode: '001' }),
+      locker('ATH', 'Smartpoint Μοναστηράκι', { branchCode: '002' }),
+    ]
+    const wrapper = await openPicker(fakeCarrier({ fetchAll: vi.fn(() => Promise.resolve(sameArea)) }))
+    await showList()
+    await search('smartpoint')
+
+    await rowButton('Smartpoint Μοναστηράκι')!.trigger('click')
+
+    expect(wrapper.emitted('selected')).toEqual([[sameArea[1]]])
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+  })
+
+  it('shows the error with a retry that loads the catalogue again', async () => {
+    const fetchAll = vi.fn((_country: string, _signal?: AbortSignal) =>
+      fetchAll.mock.calls.length === 1 ? Promise.reject(new Error('503')) : Promise.resolve(CATALOGUE))
+    await openPicker(fakeCarrier({ fetchAll }))
+    expect(inBody(tp('error'))).toBe(true)
+
+    await body().findAll('button').find(b => b.text() === tp('retry'))!.trigger('click')
+    await flushPromises()
+
+    expect(fetchAll).toHaveBeenCalledTimes(2)
+    expect(inBody(tp('error'))).toBe(false)
+  })
+
+  it('explains a carrier with no catalogue', async () => {
+    await openPicker(fakeCarrier({ fetchAll: undefined }))
 
     expect(inBody(tp('unsupported'))).toBe(true)
   })
@@ -187,90 +311,71 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
   })
 
-  it('offers the map only for a carrier with a bulk catalogue, loading it once for the country', async () => {
-    const listOnly = await openPicker(fakeCarrier())
-    expect(inBody(tp('tab_map'))).toBe(false)
-    listOnly.unmount()
-
-    const fetchAll = vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(ROWS))
-    await openPicker(fakeCarrier({ fetchAll }), { countryCode: 'cy' })
-
-    expect(inBody(tp('tab_map'))).toBe(true)
-    expect(fetchAll).toHaveBeenCalledTimes(1)
-    expect(fetchAll).toHaveBeenCalledWith('CY', expect.any(AbortSignal))
-  })
-
   it('switches to the list when the map asks for it', async () => {
-    const fetchAll = vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(ROWS))
-    await openPicker(fakeCarrier({ fetchAll }))
-    const listTab = () => body().findAll('[role="tab"]').find(tab => tab.text().includes(tp('tab_list')))!
-    expect(listTab().attributes('aria-selected')).toBe('false')
+    await openPicker(fakeCarrier())
+    expect(tab(tp('tab_list')).attributes('aria-selected')).toBe('false')
 
     await vi.waitFor(() => expect(body().find('[data-test="map-show-list"]').exists()).toBe(true))
     await body().find('[data-test="map-show-list"]').trigger('click')
     await flushPromises()
 
-    expect(listTab().attributes('aria-selected')).toBe('true')
+    expect(tab(tp('tab_list')).attributes('aria-selected')).toBe('true')
   })
 
-  // The picker is mounted, closed, with the selected-locker card on
-  // every shipping step; only an open picker may pay for the catalogue.
-  it('loads nothing while it is closed', async () => {
-    const fetchAll = vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(ROWS))
-    const carrier = fakeCarrier({ fetchAll })
+  describe('the shopper\'s location', () => {
+    const NEAR_KIFISIA = { lat: 38.07, lng: 23.81 }
 
-    await mountSuspended(C, { route: false, props: { open: false, carrier, countryCode: 'GR' } })
-    await flushPromises()
+    it('asks for it only on the shopper\'s click, then shows the nearest lockers around them', async () => {
+      answerWith({ at: NEAR_KIFISIA })
+      await openPicker(fakeCarrier(), { initialPostalCode: '10557' })
+      expect(geo.getCurrentPosition).not.toHaveBeenCalled()
 
-    expect(fetchAll).not.toHaveBeenCalled()
-    expect(carrier.fetchByPostal).not.toHaveBeenCalled()
-  })
+      await locationButton()!.trigger('click')
+      await flushPromises()
+      await showList()
 
-  it('loads the catalogue again after a close cut the first load short', async () => {
-    const fetchAll = vi.fn((_country: string, signal?: AbortSignal) => new Promise<Locker[]>((resolve, reject) => {
-      if (fetchAll.mock.calls.length > 1) return resolve(ROWS)
-      signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
-    }))
-    const wrapper = await openPicker(fakeCarrier({ fetchAll }))
+      expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1)
+      expect(inBody(tp('nearest_to_you'))).toBe(true)
+      expect(rowNames()[0]).toBe(KIFISIA.name)
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, kind: 'location' })
+    })
 
-    await wrapper.setProps({ open: false })
-    await flushPromises()
-    await wrapper.setProps({ open: true })
-    await flushPromises()
+    it('centres on its own when the shopper already allowed it', async () => {
+      geo.permission = 'granted'
+      answerWith({ at: NEAR_KIFISIA })
 
-    expect(fetchAll).toHaveBeenCalledTimes(2)
-  })
+      await openPicker(fakeCarrier())
+      await vi.waitFor(() => expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1))
+      await flushPromises()
 
-  it('keeps showing the newer search as loading when an older one it replaced settles', async () => {
-    let finishNewer: (rows: Locker[]) => void = () => {}
-    const fetchByPostal = vi.fn((query: LockerQuery) => new Promise<Locker[]>((resolve, reject) => {
-      if (fetchByPostal.mock.calls.length === 1) {
-        query.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
-        return
-      }
-      finishNewer = resolve
-    }))
-    await openPicker(fakeCarrier({ fetchByPostal }))
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      expect(JSON.parse(mapStub().attributes('data-here')!)).toEqual({ ...NEAR_KIFISIA, kind: 'location' })
+    })
 
-    await postalInput().setValue('54624')
-    await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
-    await flushPromises()
+    it.each([
+      ['denied', 1, 'location_denied'],
+      ['unavailable', 2, 'location_unavailable'],
+      ['timed out', 3, 'location_unavailable'],
+    ])('explains a location that was %s and keeps the search working', async (_case, code, message) => {
+      answerWith({ error: code })
+      await openPicker(fakeCarrier())
 
-    // The first search was aborted and settled; the second is in flight.
-    expect(fetchByPostal).toHaveBeenCalledTimes(2)
-    expect(inBody(tp('empty_title'))).toBe(false)
-    finishNewer(ROWS)
-    await flushPromises()
-    expect(rowButton('Smartpoint Κολωνάκι')).toBeDefined()
-  })
+      await locationButton()!.trigger('click')
+      await flushPromises()
 
-  it('lists two lockers of one ACS area as two rows, and hands back the one picked', async () => {
-    const sameArea = [locker('ATH', 'Smartpoint Σύνταγμα', '001'), locker('ATH', 'Smartpoint Μοναστηράκι', '002')]
-    const wrapper = await openPicker(fakeCarrier({ fetchByPostal: vi.fn(() => Promise.resolve(sameArea)) }))
+      expect(inBody(tp(message))).toBe(true)
+      await showList()
+      await search('κολωνακι')
+      expect(rowNames()).toEqual([KOLONAKI.name])
+    })
 
-    await rowButton('Smartpoint Μοναστηράκι')!.trigger('click')
+    it('offers no location button in a browser without geolocation, and the search still works', async () => {
+      removeLocation()
+      await openPicker(fakeCarrier())
 
-    expect(wrapper.emitted('selected')).toEqual([[sameArea[1]]])
+      expect(locationButton()).toBeUndefined()
+      await showList()
+      await search('κολωνακι')
+      expect(rowNames()).toEqual([KOLONAKI.name])
+    })
   })
 })

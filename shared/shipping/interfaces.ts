@@ -61,22 +61,6 @@ export interface Locker {
   raw: unknown
 }
 
-/** Query parameters accepted by {@link ShippingCarrier.fetchByPostal}. */
-export interface LockerQuery {
-  /** 5-digit Greek postal code. */
-  postalCode: string
-  /** Optional city fallback when the postal-code prefix returns 0. */
-  city?: string
-  /** ISO-2 country code; defaults to the carrier's primary country. */
-  country?: string
-  /** Optional shop_kind override (rarely used; carrier picks the
-   *  right default by reading provider metadata server-side). */
-  shopKind?: number
-  /** AbortSignal for in-flight cancellation when the user types
-   *  a fresh postcode while a previous fetch is pending. */
-  signal?: AbortSignal
-}
-
 /** Strategy contract — every carrier (ACS, BoxNow, future ELTA…)
  *  ships an instance of this. Unimplemented hooks are optional;
  *  the registry never crashes for a missing capability. */
@@ -90,20 +74,16 @@ export interface ShippingCarrier {
 
   /**
    * ``true`` → the {@link GenericLockerPicker} renders for this
-   *   carrier. Required when the carrier exposes a server-side
-   *   locker catalogue (ACS).
+   *   carrier, which must then expose ``fetchAll``: the picker searches,
+   *   maps and measures distances over that catalogue (ACS).
    * ``false`` → the carrier brings its own picker (BoxNow's iframe
    *   widget). The generic UI sits this one out.
    */
   readonly usesGenericPicker: boolean
 
-  /** Search by postal code (debounced from the picker). Required
-   *  when ``usesGenericPicker`` is true. */
-  fetchByPostal?(query: LockerQuery): Promise<Locker[]>
-
-  /** Bulk fetch — backs the map view. Returns every active locker
-   *  for the country in one call. Optional; carriers that don't
-   *  expose this should fall back to ``fetchByPostal``-only UI. */
+  /** Every active locker for the country in one call: what the
+   *  generic picker reads. Required when ``usesGenericPicker`` is true;
+   *  a carrier with its own picker leaves it out. */
   fetchAll?(country: string, signal?: AbortSignal): Promise<Locker[]>
 
   /** Commit a picked locker to the checkout form state. The

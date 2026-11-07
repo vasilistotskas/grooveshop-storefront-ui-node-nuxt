@@ -143,10 +143,9 @@ export default defineCachedRoute(
       // pods came up before the AcsStation table was synced) used to
       // be cached for the full 1h+6h SWR window — leaving the picker
       // map blank long after the next sync had populated rows. Throw
-      // so the Nitro cache wrapper does NOT store the empty result;
-      // the picker's component-level error state then redirects the
-      // user to the postal-code list view, which hits the live
-      // ``/nearest`` endpoint (uncached) and works.
+      // so the Nitro cache wrapper does NOT store the empty result:
+      // the picker shows its error with a retry, and the first request
+      // after the sync fills the cache.
       if (rows.length === 0) {
         throw createError({
           status: 503,

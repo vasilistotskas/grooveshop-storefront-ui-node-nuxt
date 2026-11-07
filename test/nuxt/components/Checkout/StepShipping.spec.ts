@@ -214,7 +214,6 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       const picker = wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') })
       expect(picker.props()).toMatchObject({
         initialPostalCode: '15234',
-        initialCity: 'Χαλάνδρι',
         countryCode: 'GR',
       })
       expect(picker.props('carrier').code).toBe('acs')
