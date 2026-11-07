@@ -88,7 +88,8 @@ const acsCarrier: ShippingCarrier = {
     return {
       lat: row.resolvedLat,
       lng: row.resolvedLong,
-      label: [street, row.resolvedArea].filter(Boolean).join(', '),
+      // Coordinates without a street or an area still need a name.
+      label: [street, row.resolvedArea].filter(Boolean).join(', ') || address,
     }
   },
 

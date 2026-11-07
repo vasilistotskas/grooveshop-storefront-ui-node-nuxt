@@ -153,6 +153,12 @@ describe('the ACS adapter', () => {
       expect(place).toEqual({ lat: 38.00785, lng: 23.71865, label: 'ΚΑΛΑΜΑ 25, ΑΘΗΝΑ' })
     })
 
+    it('names a place ACS gave no street or area for by the text it was asked', async () => {
+      fetchMock.mockResolvedValue({ resolvedLat: 38.0, resolvedLong: 23.7 })
+
+      expect(await acsCarrier.geocode!('Καλαμά 25 Αθήνα')).toEqual({ lat: 38.0, lng: 23.7, label: 'Καλαμά 25 Αθήνα' })
+    })
+
     it('has no place when ACS cannot read the address', async () => {
       fetchMock.mockResolvedValue({})
 
