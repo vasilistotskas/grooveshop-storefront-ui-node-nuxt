@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { BOXNOW_FRAME_ORIGINS } from '~~/shared/utils/boxnow-widget'
 import { buildCspDirectives } from '~~/shared/utils/csp'
-import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from '~~/shared/utils/embeds'
+import { EMBED_FRAME_ORIGINS } from '~~/shared/utils/embeds'
 
 /**
  * The origins the storefront's Content-Security-Policy must allow for
@@ -119,8 +119,8 @@ describe('frame-src', () => {
 })
 
 describe('img-src', () => {
-  it('allows a YouTube facade\'s poster', () => {
-    expect(pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'img-src')).toContain(YOUTUBE_THUMBNAIL_ORIGIN)
+  it('leaves out YouTube\'s image host: a facade\'s poster is the store\'s own', () => {
+    expect(pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'img-src')).not.toContain('ytimg')
   })
 })
 

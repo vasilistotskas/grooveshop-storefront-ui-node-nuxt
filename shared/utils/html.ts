@@ -7,16 +7,14 @@
 
 import DOMPurify, { type ElementHook } from 'isomorphic-dompurify'
 
-import { buildMediaStreamImageUrl } from './mediaStream'
+import { buildMediaStreamImageUrl, type MediaStreamVariant } from './mediaStream'
 
 import {
   EMBED_IFRAME_ATTRS,
+  embedPlayerUrl,
   isAllowedEmbedUrl,
-  isYouTubeEmbedUrl,
   parseYouTubeEmbed,
-  YOUTUBE_PLAYER_ORIGIN,
-  youTubeThumbnailUrl,
-  type YouTubeEmbed,
+  youTubePosterSource,
 } from './embeds'
 
 /**
@@ -58,10 +56,24 @@ type PurifiedNode = PurifiedElement['childNodes'][number]
 
 export interface RichHtmlOptions {
   /**
-   * Accessible name of a YouTube facade's play button, in the page's
+   * Accessible name of a video facade's play button, in the page's
    * language. Supplied by ``useHtmlContent().sanitize``.
    */
   videoPlayLabel: string
+  /** The store's Media Stream base URL, which serves a video's poster. */
+  mediaStreamBaseUrl: string
+}
+
+/** YouTube's poster, the 480x360 frame every video has, as it fills a facade. */
+const VIDEO_POSTER_VARIANT: MediaStreamVariant = {
+  width: 480,
+  height: 360,
+  fit: 'cover',
+  position: 'center',
+  background: 'transparent',
+  trimThreshold: 0,
+  quality: 80,
+  format: 'webp',
 }
 
 /**
@@ -77,9 +89,10 @@ function embedLength(value: string | null): string | null {
 }
 
 /**
- * The facade a YouTube iframe is replaced with: a button the size of
- * the iframe, showing the video's poster, that loads the player only
- * when pressed (``app/plugins/youtube-facade.client.ts``).
+ * The facade an embedded player is replaced with: a button the size of
+ * the iframe, showing a YouTube video's poster, that loads the player only
+ * when pressed (``app/plugins/embed-facade.client.ts``). A player any
+ * other embed names has no poster we can serve, so its facade is plain.
  *
  * The box is carried as ``--embed-w`` / ``--embed-h`` beside the
  * author's own ``style`` and ``class``, and ``.rich-embed``
@@ -89,33 +102,39 @@ function embedLength(value: string | null): string | null {
  * body (radius, margins, ``height: auto``), and none of that may reach
  * the poster.
  */
-function buildYouTubeFacade(
+function buildEmbedFacade(
   frame: PurifiedElement,
-  video: YouTubeEmbed,
+  src: string,
   options: RichHtmlOptions,
 ) {
   const button = frame.ownerDocument.createElement('button')
   button.type = 'button'
-  button.className = ['rich-embed', 'youtube-facade', frame.getAttribute('class')]
+  button.className = ['rich-embed', 'embed-facade', frame.getAttribute('class')]
     .filter(Boolean)
     .join(' ')
-  button.dataset.youtubeId = video.id
-  if (video.start > 0) button.dataset.youtubeStart = String(video.start)
+  button.dataset.embedSrc = embedPlayerUrl(src)
   const title = frame.getAttribute('title')
-  if (title) button.dataset.youtubeTitle = title
+  if (title) button.dataset.embedTitle = title
   button.setAttribute('aria-label', options.videoPlayLabel)
+
+  const video = parseYouTubeEmbed(src)
+  const poster = video && buildMediaStreamImageUrl(
+    options.mediaStreamBaseUrl,
+    youTubePosterSource(video.id),
+    VIDEO_POSTER_VARIANT,
+  )
 
   const width = embedLength(frame.getAttribute('width'))
   const height = embedLength(frame.getAttribute('height'))
   button.setAttribute('style', [
     width && `--embed-w: ${width}`,
     height && `--embed-h: ${height}`,
-    `background-image: url("${youTubeThumbnailUrl(video.id)}")`,
+    poster && `background-image: url("${poster}")`,
     frame.getAttribute('style'),
   ].filter(Boolean).join('; '))
 
   const icon = frame.ownerDocument.createElement('span')
-  icon.className = 'youtube-facade__play'
+  icon.className = 'embed-facade__play'
   icon.setAttribute('aria-hidden', 'true')
   button.append(icon)
 
@@ -123,24 +142,14 @@ function buildYouTubeFacade(
 }
 
 /**
- * Turn every YouTube iframe under ``root`` into a facade. One whose
- * video cannot be read (a playlist) keeps its iframe, moved to the
- * privacy-enhanced host and loaded lazily, since ``frame-src`` allows
- * no other YouTube host.
+ * Turn every embedded player under ``root`` into a facade: a player contacts
+ * its host as soon as it loads, so none loads before the visitor asks for it.
+ * The sanitiser has already removed any iframe on another origin.
  */
-function replaceYouTubeEmbeds(root: PurifiedElement, options: RichHtmlOptions): void {
+function replaceEmbeds(root: PurifiedElement, options: RichHtmlOptions): void {
   for (const frame of root.querySelectorAll('iframe')) {
     const src = frame.getAttribute('src')
-    const video = parseYouTubeEmbed(src)
-    if (video) {
-      frame.replaceWith(buildYouTubeFacade(frame, video, options))
-      continue
-    }
-    if (src && isYouTubeEmbedUrl(src)) {
-      const url = new URL(src)
-      frame.setAttribute('src', new URL(`${url.pathname}${url.search}`, YOUTUBE_PLAYER_ORIGIN).href)
-      frame.setAttribute('loading', 'lazy')
-    }
+    if (src) frame.replaceWith(buildEmbedFacade(frame, src, options))
   }
 }
 
@@ -327,10 +336,10 @@ function cleanAnchors(root: PurifiedElement): void {
  * Video embeds are permitted, but only from
  * ``EMBED_IFRAME_ORIGINS`` and never with ``srcdoc`` — an iframe from
  * an arbitrary origin, or one carrying its own inline document, is the
- * reason DOMPurify forbids the tag by default. A YouTube video becomes
- * a click-to-load facade: the player weighs 0.5 MB of script per
- * video and sets YouTube and DoubleClick cookies the moment it loads,
- * before the visitor has answered the cookie banner.
+ * reason DOMPurify forbids the tag by default. Every embed becomes a
+ * click-to-load facade: a player weighs 0.5 MB of script per video and
+ * contacts its host the moment it loads, before the visitor has answered
+ * the cookie banner.
  *
  * Text pasted from Word loses what only Word reads or what overrides the
  * store's typeface (``FORBIDDEN_STYLE_PROPERTY_RE``), its ``Mso*``
@@ -367,7 +376,7 @@ export function sanitizeRichHtml(
     cleaningRichText = false
   }
   cleanAnchors(body)
-  replaceYouTubeEmbeds(body, options)
+  replaceEmbeds(body, options)
   return body.innerHTML
 }
 

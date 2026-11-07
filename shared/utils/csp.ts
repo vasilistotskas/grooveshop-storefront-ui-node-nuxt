@@ -11,7 +11,7 @@
  * tests share the exact same output.
  */
 
-import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from './embeds'
+import { EMBED_FRAME_ORIGINS } from './embeds'
 import { BOXNOW_FRAME_ORIGINS } from './boxnow-widget'
 
 /**
@@ -214,7 +214,6 @@ export function buildCspDirectives(options: CspOptions): string[] {
   const embedFrameSrc = EMBED_FRAME_ORIGINS.length
     ? ` ${EMBED_FRAME_ORIGINS.join(' ')}`
     : ''
-  const embedImgSrc = ` ${YOUTUBE_THUMBNAIL_ORIGIN}`
 
   // Meta Pixel runtime origins: the script comes from
   // ``connect.facebook.net``; pixel beacons are sent to
@@ -331,7 +330,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${clarityOrigins}${tenantExtra}${nonceScriptSrc}`,
     ...(nonceScriptSrcAttr ? [nonceScriptSrcAttr] : []),
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com${gsiStyleSrc}`,
-    `img-src 'self'${dev ? DEVTOOLS_IMG_SRC : ''} data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${clarityOrigins}${tenantExtra}`,
+    `img-src 'self'${dev ? DEVTOOLS_IMG_SRC : ''} data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins}${metaImgSrc}${tiktokImgSrc}${clarityOrigins}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
     // MapLibre draws in a dedicated worker that Vite emits as a
     // same-origin ``/_nuxt/`` file; ``worker-src 'self'`` is the directive

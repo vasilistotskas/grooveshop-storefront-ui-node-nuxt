@@ -26,6 +26,7 @@ const {
   },
   titles: {
     exportFailed: () => t('export.error_title'),
+    downloadFailed: () => t('export.download_error_title'),
     deleteFailed: () => t('delete.error_title'),
   },
 })
@@ -298,6 +299,7 @@ el:
     requested_at: "Αίτημα:"
     expires_at: "Λήγει:"
     error_title: Δεν ήταν δυνατή η αίτηση εξαγωγής.
+    download_error_title: Δεν ήταν δυνατή η λήψη του αρχείου.
     failed_description: Κάτι πήγε στραβά κατά τη δημιουργία του αρχείου. Μπορείς να το ξαναδοκιμάσεις.
     status:
       pending: Σε αναμονή
@@ -337,6 +339,7 @@ en:
     requested_at: "Requested:"
     expires_at: "Expires:"
     error_title: The export could not be requested.
+    download_error_title: The file could not be downloaded.
     failed_description: Something went wrong while building the file. You can try again.
     status:
       pending: Pending

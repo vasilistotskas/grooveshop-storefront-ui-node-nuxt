@@ -1,5 +1,6 @@
 /**
- * Recent-searches history, persisted in localStorage.
+ * Recent-searches history, persisted in localStorage for a visitor who agreed
+ * to personalisation (`usePersonalizationConsent`); without that it stays empty.
  *
  * Keyed per locale so Greek and English history stay separate when the
  * English locale is eventually enabled. FIFO cap keeps the list cheap to
@@ -38,15 +39,33 @@ function writeRaw(locale: string, entries: string[]): void {
   }
 }
 
+/** Remove the history of every locale from this browser. */
+export function forgetSearchHistory(): void {
+  if (!import.meta.client) return
+  try {
+    const keys = Array.from({ length: window.localStorage.length }, (_, index) => window.localStorage.key(index))
+    for (const key of keys) {
+      if (key?.startsWith(`${STORAGE_KEY_PREFIX}:`)) window.localStorage.removeItem(key)
+    }
+  }
+  catch {
+    // Storage blocked: then nothing was kept in it.
+  }
+}
+
 export function useSearchHistory() {
   const { $i18n } = useNuxtApp()
-  const entries = ref<string[]>([])
+  const allowed = usePersonalizationConsent()
+  // Shared: a page can hold two search modals, and clearing in one must not
+  // leave the queries showing in the other.
+  const entries = useState<string[]>('search-history:entries', () => [])
 
   function refresh(): void {
-    entries.value = readRaw($i18n.locale.value)
+    entries.value = allowed.value ? readRaw($i18n.locale.value) : []
   }
 
   function add(query: string): void {
+    if (!allowed.value) return
     const trimmed = (query ?? '').trim()
     if (trimmed.length < MIN_QUERY_LENGTH) return
     const normalized = trimmed.toLowerCase()
@@ -59,12 +78,13 @@ export function useSearchHistory() {
   }
 
   function clear(): void {
-    writeRaw($i18n.locale.value, [])
+    forgetSearchHistory()
     entries.value = []
   }
 
   if (import.meta.client) {
     refresh()
+    watch(allowed, refresh)
   }
 
   return { entries, refresh, add, clear }

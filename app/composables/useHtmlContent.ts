@@ -128,7 +128,13 @@ export function useHtmlContent() {
    * naming a video facade's play button in the page's language.
    */
   const sanitize = (html: string | null | undefined): string => {
-    return sanitizeRichHtml(html, { videoPlayLabel: $i18n.t('a11y.play_video') })
+    return sanitizeRichHtml(html, {
+      videoPlayLabel: $i18n.t('a11y.play_video'),
+      mediaStreamBaseUrl: mediaStreamBaseUrl(
+        tenantStore.assetsDomain,
+        config.public.mediaStreamPath as string | undefined,
+      ),
+    })
   }
 
   /**
