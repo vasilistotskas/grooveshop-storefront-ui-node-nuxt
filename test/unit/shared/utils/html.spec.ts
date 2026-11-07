@@ -462,7 +462,7 @@ describe('sanitizeRichHtml: embed facades', () => {
 
     expect(style).toContain('--embed-w: 315px')
     expect(style).toContain('--embed-h: 560px')
-    expect(style).toContain('url("https://assets.example.gr/media_stream-image/youtube/eIiZ-JHL5aw/480/360/cover/centre/transparent/0/80.webp")')
+    expect(style).toContain('url("https://assets.example.gr/media_stream-image/youtube/eIiZ-JHL5aw/480/360/cover/center/transparent/0/80.webp")')
   })
 
   it('keeps the author\'s own style and class on the facade', () => {

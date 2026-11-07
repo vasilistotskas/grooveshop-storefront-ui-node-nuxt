@@ -33,7 +33,7 @@ describe.each(trees(BlogContent, WebsideBlogContent))('embed-facade plugin, $tre
     const wrapper = await render()
 
     const style = wrapper.get('button').attributes('style')
-    expect(style).toContain('youtube/eIiZ-JHL5aw/480/360/cover/centre/transparent/0/80.webp')
+    expect(style).toContain('youtube/eIiZ-JHL5aw/480/360/cover/center/transparent/0/80.webp')
     expect(style).not.toContain('ytimg')
   })
 

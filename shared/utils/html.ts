@@ -69,7 +69,7 @@ const VIDEO_POSTER_VARIANT: MediaStreamVariant = {
   width: 480,
   height: 360,
   fit: 'cover',
-  position: 'centre',
+  position: 'center',
   background: 'transparent',
   trimThreshold: 0,
   quality: 80,

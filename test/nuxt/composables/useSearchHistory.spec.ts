@@ -84,6 +84,16 @@ describe('useSearchHistory', () => {
     expect(stored()).toBeNull()
   })
 
+  it('shares one list between search modals, so clearing in one clears both', () => {
+    window.localStorage.setItem(KEY, JSON.stringify(['boots']))
+    const first = useSearchHistory()
+    const second = useSearchHistory()
+
+    first.clear()
+
+    expect(second.entries.value).toEqual([])
+  })
+
   it('leaves the rest of the browser\'s storage alone when forgetting', () => {
     window.localStorage.setItem(KEY, JSON.stringify(['boots']))
     window.localStorage.setItem('search:recent:en', JSON.stringify(['shoes']))

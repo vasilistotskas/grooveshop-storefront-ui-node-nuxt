@@ -41,6 +41,7 @@ function writeRaw(locale: string, entries: string[]): void {
 
 /** Remove the history of every locale from this browser. */
 export function forgetSearchHistory(): void {
+  if (!import.meta.client) return
   try {
     const keys = Array.from({ length: window.localStorage.length }, (_, index) => window.localStorage.key(index))
     for (const key of keys) {
@@ -55,7 +56,9 @@ export function forgetSearchHistory(): void {
 export function useSearchHistory() {
   const { $i18n } = useNuxtApp()
   const allowed = usePersonalizationConsent()
-  const entries = ref<string[]>([])
+  // Shared: a page can hold two search modals, and clearing in one must not
+  // leave the queries showing in the other.
+  const entries = useState<string[]>('search-history:entries', () => [])
 
   function refresh(): void {
     entries.value = allowed.value ? readRaw($i18n.locale.value) : []
