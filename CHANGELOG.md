@@ -1,3 +1,10 @@
+## [3.330.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.3...v3.330.4) (2026-11-07)
+
+
+### Bug Fixes
+
+* **privacy:** stop treating ?export= as a secret ([#416](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/416)) ([e92d4ff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e92d4ff437991c28dc06ab313d03ad757b37a2b4))
+
 ## [3.330.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.2...v3.330.3) (2026-11-07)
 
 
