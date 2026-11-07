@@ -73,7 +73,9 @@ Live demo store: <https://demo.grooveshop.space>
 ### Prerequisites
 
 - Node.js at the major pinned in `docker/Dockerfile` and `.github/workflows/ci.yml`
-- pnpm through `corepack enable`
+- pnpm at the version `packageManager` names in `package.json`: Node 25 and later
+  ship no Corepack, so install it first (`npm install -g corepack`), then
+  `corepack enable`
 - Redis, or `NUXT_CACHE_BASE=memory`
 - A running [Django API](https://github.com/vasilistotskas/grooveshop-django-api)
   with a tenant whose domain matches the host you browse the storefront on;
