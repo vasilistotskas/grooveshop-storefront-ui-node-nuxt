@@ -39,7 +39,7 @@ export interface Locker {
   addressLine1: string
   /** Optional second address line — floor, building, etc. */
   addressLine2?: string | null
-  /** City / municipality — used for the city-fallback search path. */
+  /** City / municipality. */
   city: string
   /** 5-digit postal code (Greek/Cypriot). */
   postalCode: string

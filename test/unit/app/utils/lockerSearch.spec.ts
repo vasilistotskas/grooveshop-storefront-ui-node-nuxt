@@ -56,6 +56,19 @@ describe('foldSearchText', () => {
     ['Θεσσαλονίκη', 'thesaloniki'],
     ['Κηφισιά', 'kifissia'],
     ['Κοιλάδα', 'kilada'],
+    ['Ναύπλιο', 'nafplio'],
+    ['Ναύπλιο', 'navplio'],
+    ['Ταύρος', 'tavros'],
+    ['Λαύριο', 'lavrio'],
+    ['Εύοσμος', 'evosmos'],
+    ['Ευκαρπία', 'efkarpia'],
+    ['Χαλάνδρι', 'halandri'],
+    ['Ψυχικό', 'psihiko'],
+    ['Αμπελόκηποι', 'ambelokipi'],
+    ['Αμπελόκηποι', 'ampelokipoi'],
+    ['Παγκράτι', 'pangrati'],
+    ['Παγκράτι', 'pagkrati'],
+    ['Κέντρο', 'kendro'],
     ['Πατήσια', 'πατησια'],
   ])('folds %s and %s to one form', (a, b) => {
     expect(foldSearchText(a)).toBe(foldSearchText(b))
@@ -112,6 +125,10 @@ describe('matching a locker', () => {
 
   it.each(['Πειρα', 'Πειραι', 'peira', 'Πειραιά'])('finds Πειραιάς while %j is still being typed', (query) => {
     expect(finds(query, locker({ city: 'Πειραιάς' }))).toBe(true)
+  })
+
+  it('lets a finished word match no more than itself', () => {
+    expect(finds('athina', locker({ city: 'Αθηνών', name: 'Smartpoint', addressLine1: 'Λεωφ. Αθηνών 10' }))).toBe(false)
   })
 
   it('has no words for a blank query', () => {

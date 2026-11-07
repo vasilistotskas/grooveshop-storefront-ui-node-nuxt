@@ -136,7 +136,9 @@ export function useLockerPicker(options: {
 
   // Each locker's search words, folded once per catalogue.
   const searchable = computed(() => lockers.value.map(locker => ({ locker, words: lockerSearchWords(locker) })))
-  const queryWords = computed(() => searchQueryWords(debouncedQuery.value))
+  // Typing waits for the pause; clearing (and every opening, which
+  // clears) takes effect at once, so no earlier search outlives it.
+  const queryWords = computed(() => searchQueryWords(query.value.trim() ? debouncedQuery.value : ''))
   const searching = computed(() => queryWords.value.length > 0)
 
   const origin = computed<LockerOrigin | null>(() => {

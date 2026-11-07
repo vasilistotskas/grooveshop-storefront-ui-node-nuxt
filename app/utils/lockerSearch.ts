@@ -9,9 +9,9 @@
  * so the shopper's half-typed «πειρ» already matches. The Greek-to-Latin
  * letters follow the canonical Greeklish of Django's search index
  * (`grooveshop-django-api/search/transliteration.py`), with the sounds
- * shoppers spell several ways collapsed to one (η/ι/υ/ει/οι, αι/ε, χ/ξ,
- * ου, μπ/ντ/γκ, a doubled consonant), since a filter has no typo
- * tolerance to absorb them.
+ * shoppers spell several ways collapsed to one (η/ι/υ/ει/οι, αι/ε, χ/ξ
+ * and h for χ, ου, αυ/av/af, ευ/ev/ef, μπ/mb, ντ/nd, γκ/ng, a doubled
+ * consonant), since a filter has no typo tolerance to absorb them.
  */
 
 export interface GeoPoint {
@@ -21,6 +21,9 @@ export interface GeoPoint {
 
 const GREEK_DIGRAPHS: ReadonlyArray<[string, string]> = [
   ['ου', 'u'],
+  // αυ / ευ sound av, ev (or af, ef): Greeklish writes the consonant.
+  ['αυ', 'av'],
+  ['ευ', 'ev'],
   ['ει', 'i'],
   ['οι', 'i'],
   ['υι', 'i'],
@@ -63,15 +66,19 @@ const GREEK_LETTERS: Readonly<Record<string, string>> = {
 // letters so both sides end in one spelling.
 const LATIN_SPELLINGS: ReadonlyArray<[RegExp, string]> = [
   [/ch/g, 'x'],
+  // A lone h is χ («halandri»); th stays θ.
+  [/(?<!t)h/g, 'x'],
   [/ks/g, 'x'],
   [/ou/g, 'u'],
-  [/mp/g, 'b'],
-  [/nt/g, 'd'],
-  [/gk|gg/g, 'g'],
+  [/mp|mb/g, 'b'],
+  [/nt|nd/g, 'd'],
+  [/gk|gg|ng/g, 'g'],
   [/y/g, 'i'],
   [/w/g, 'o'],
   [/ei|oi/g, 'i'],
   [/ai/g, 'e'],
+  [/af/g, 'av'],
+  [/ef/g, 'ev'],
   // «Κηφισσιά» / «kifisia»: a doubled letter, never a doubled digit,
   // which a postcode keeps.
   [/([a-z])\1+/g, '$1'],
@@ -105,27 +112,44 @@ function postcodeDigits(postalCode: string): string {
   return postalCode.replace(/\D/g, '')
 }
 
-// A letter that can start a pair the fold rewrites (ει, ου, μπ, ch, ks…):
-// the word being typed may stop half way through that pair.
-const PAIR_START = /[αεουμνγaeomngck]$/
+// The letters that finish a pair the fold rewrites, by the letter that
+// starts it (αι, αυ, μπ, ντ, γκ, ch, ks…): the word being typed may stop
+// half way through one.
+const PAIR_ENDS: Readonly<Record<string, ReadonlyArray<string>>> = {
+  α: ['ι', 'υ'],
+  ε: ['ι', 'υ'],
+  ο: ['ι', 'υ'],
+  υ: ['ι'],
+  μ: ['π'],
+  ν: ['τ'],
+  γ: ['κ', 'γ'],
+  a: ['i', 'f'],
+  e: ['i', 'f'],
+  o: ['i', 'u'],
+  m: ['p', 'b'],
+  n: ['t', 'd', 'g'],
+  g: ['k', 'g'],
+  c: ['h'],
+  k: ['s'],
+}
 
 /**
  * The words of what the shopper typed, each with the forms it may match,
  * or none for a blank query. A Greek postcode typed with its space
  * («546 22») is one word, as stored; other numbers stay apart («50»,
- * then «10433»). The word still being typed also matches without its
- * last letter when that letter can start a folded pair, so «Πειρα» finds
- * «Πειραιάς» before the «ι» that makes «αι» is typed.
+ * then «10433»). The word still being typed ends with each way its last
+ * pair could finish, so «Πειρα» finds «Πειραιάς» before the «ι» that
+ * makes «αι» is typed, without matching more than the finished word would.
  */
 export function searchQueryWords(query: string): string[][] {
   const text = query.replace(/\b(\d{3})\s+(\d{2})\b/g, '$1$2')
   const typed = words(text).map(word => [word])
   const last = typed.at(-1)
   const lastLetter = text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().at(-1) ?? ''
-  if (last && PAIR_START.test(lastLetter)) {
-    const before = words(text.slice(0, -1))
-    const stem = before.length === typed.length ? before.at(-1) : undefined
-    if (stem && stem !== last[0]) last.push(stem)
+  if (!last) return typed
+  for (const end of PAIR_ENDS[lastLetter] ?? []) {
+    const finished = words(text + end).at(-1)
+    if (finished && !last.includes(finished)) last.push(finished)
   }
   return typed
 }

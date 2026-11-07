@@ -246,6 +246,24 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(JSON.parse(mapStub().attributes('data-here')!)).toBeNull()
   })
 
+  it('opens again on the postcode view at once, not on the previous search', async () => {
+    const wrapper = await openPicker(fakeCarrier(), { initialPostalCode: '10557' })
+    await showList()
+    await search('κηφισια')
+    expect(rowNames()).toEqual([KIFISIA.name])
+
+    // The debounce stands still: nothing may wait for it.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    await wrapper.setProps({ open: false })
+    await flushPromises()
+    await wrapper.setProps({ open: true })
+    await flushPromises()
+    await showList()
+
+    expect(inBody(tp('nearest_to_postcode', { postalCode: '10557' }))).toBe(true)
+    expect(rowNames()).toEqual([SYNTAGMA.name, KOLONAKI.name, KIFISIA.name, THESSALONIKI.name])
+  })
+
   it('asks the shopper to search when it has nothing to start from', async () => {
     await openPicker(fakeCarrier())
     await showList()
