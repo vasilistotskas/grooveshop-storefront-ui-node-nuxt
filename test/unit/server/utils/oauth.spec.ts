@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
 import { describe, expect, it } from 'vitest'
 import {
   captureOAuthProcess,
@@ -7,18 +7,17 @@ import {
   redirectOAuthError,
   storeOAuthTokensAndRedirect,
 } from '~~/server/utils/oauth'
-import { createTestEvent, testSession } from '~~/test/helpers/nitro'
+import { createRequestEvent, testSession } from '~~/test/helpers/nitro'
 
-function processCookie(event: H3Event): string | undefined {
-  const header = event.node.res.getHeader('set-cookie')
-  return ([] as string[]).concat((header ?? []) as string[]).find(cookie => cookie.startsWith(`${OAUTH_PROCESS_COOKIE}=`))
+function processCookie(event: RequestEvent): string | undefined {
+  return event.res.headers.getSetCookie().find(cookie => cookie.startsWith(`${OAUTH_PROCESS_COOKIE}=`))
 }
 
-function redirectOf(event: H3Event) {
-  return { status: event.node.res.statusCode, location: new URL(String(event.node.res.getHeader('location')), 'https://shop.test') }
+function redirectOf(event: RequestEvent) {
+  return { status: event.res.status, location: new URL(String(event.res.headers.get('location')), 'https://shop.test') }
 }
 
-const withProcessCookie = (value: string) => createTestEvent({ headers: { cookie: `${OAUTH_PROCESS_COOKIE}=${value}` } })
+const withProcessCookie = (value: string) => createRequestEvent({ headers: { cookie: `${OAUTH_PROCESS_COOKIE}=${value}` } })
 
 describe('captureOAuthProcess', () => {
   it.each([
@@ -27,7 +26,7 @@ describe('captureOAuthProcess', () => {
     [{}, 'login'],
     [{ process: 'signup-as-admin' }, 'login'],
   ])('remembers %j as "%s" for five minutes, httpOnly', (query, stored) => {
-    const event = createTestEvent()
+    const event = createRequestEvent()
 
     captureOAuthProcess(event, query)
 
@@ -42,7 +41,7 @@ describe('captureOAuthProcess', () => {
     ['the provider callback (code)', { code: 'auth-code' }],
     ['a provider error', { error: 'access_denied' }],
   ])('leaves the cookie alone on %s', (_label, query) => {
-    const event = createTestEvent()
+    const event = createRequestEvent()
 
     captureOAuthProcess(event, { ...query, process: 'connect' })
 
@@ -59,7 +58,7 @@ describe('readAndClearOAuthProcess', () => {
   })
 
   it('answers "login" when nothing was remembered', () => {
-    expect(readAndClearOAuthProcess(createTestEvent())).toBe('login')
+    expect(readAndClearOAuthProcess(createRequestEvent())).toBe('login')
   })
 
   // The cookie is httpOnly and ours, but a client (or a sibling
@@ -71,7 +70,7 @@ describe('readAndClearOAuthProcess', () => {
 
 describe('storeOAuthTokensAndRedirect', () => {
   it('stores the provider tokens in the encrypted session and redirects to the callback page', async () => {
-    const event = createTestEvent()
+    const event = createRequestEvent()
 
     await storeOAuthTokensAndRedirect(event, 'google', { access_token: 'acc', id_token: 'id' }, 'client-1', 'login')
 
@@ -87,7 +86,7 @@ describe('storeOAuthTokensAndRedirect', () => {
   })
 
   it('drops null tokens and a missing client id instead of storing them', async () => {
-    await storeOAuthTokensAndRedirect(createTestEvent(), 'facebook', { access_token: 'acc', id_token: null }, undefined, 'connect')
+    await storeOAuthTokensAndRedirect(createRequestEvent(), 'facebook', { access_token: 'acc', id_token: null }, undefined, 'connect')
 
     expect(testSession.data.secure.oauthParams).toEqual({ provider: 'facebook', access_token: 'acc', process: 'connect' })
   })
@@ -95,7 +94,7 @@ describe('storeOAuthTokensAndRedirect', () => {
   it('keeps a signed-in user\'s session for a connect flow (a bare replace forced a re-login)', async () => {
     testSession.set({ user: { id: 7 }, secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 
-    await storeOAuthTokensAndRedirect(createTestEvent(), 'google', { access_token: 'acc' }, 'client-1', 'connect')
+    await storeOAuthTokensAndRedirect(createRequestEvent(), 'google', { access_token: 'acc' }, 'client-1', 'connect')
 
     expect(testSession.data).toMatchObject({
       user: { id: 7 },

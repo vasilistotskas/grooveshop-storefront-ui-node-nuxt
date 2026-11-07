@@ -140,7 +140,7 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_CACHE_PURGE_TOKEN` — shared secret for the `/api/admin/cache/purge` route (`runtimeConfig.cachePurgeToken`); Django's Cache Management admin sends it to invalidate the Nitro SSR cache
 - `NUXT_CACHE_BASE` — `redis` or `memory`
 - `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` / `NUXT_REDIS_PASSWORD` / `NUXT_REDIS_DB` — Redis config
-- `NUXT_SESSION_PASSWORD` — Session encryption password
+- `NUXT_APP_SECRET` — Nuxt's root secret (`runtimeConfig.appSecret`, at least 32 characters): the shopper session (nuxt-auth-utils, cookie `nuxt-auth-session`) and the builder's staff session are sealed with keys `nuxt/server` derives from it
 - `NUXT_OAUTH_GOOGLE_*` / `NUXT_OAUTH_FACEBOOK_*` — the two providers the storefront signs in itself (`server/routes/auth/`), read from `process.env` at request time so no build bakes them into `.output`. GitHub and Discord sign-in is Django's alone: the browser is redirected through allauth, which holds their credentials (`tenant/allauth_adapter.py`), and the storefront has none
 - `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
 

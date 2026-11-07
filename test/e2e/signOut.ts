@@ -7,7 +7,7 @@ import { makeUserDetails } from '../fixtures/user'
 /**
  * Does signing out let the visitor sign in again?
  *
- * It did not. The cart id lives in the same `nuxt-session` cookie as the
+ * It did not. The cart id lives in the same `nuxt-auth-session` cookie as the
  * allauth session token, and the sign-out cleared the two side by side:
  * the cart clear read the session before the user clear emptied it and
  * wrote it back, old token included. The next sign-in sent that dead

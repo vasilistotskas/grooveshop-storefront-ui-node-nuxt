@@ -6,7 +6,7 @@ import { BROWSER_ACCEPT, requestWithHost, sendJson } from '../helpers/e2e'
 /**
  * A visitor who has not signed in or added to a cart is given no session.
  *
- * On 2026-10-15 every visitor to every store got a `nuxt-session` cookie
+ * On 2026-10-15 every visitor to every store got a session cookie
  * on their first page: the allauth config the app loads on start, and
  * nuxt-auth-utils' session route its client plugin calls on every cached
  * page, both read the session with `getUserSession`, which creates one
@@ -27,8 +27,10 @@ export function anonymousVisitorUpstream(req: IncomingMessage, res: ServerRespon
   return true
 }
 
+// nuxt-auth-utils' shopper session, and `nuxt/server`'s own default
+// session cookie: an anonymous page sets neither.
 const sessionCookies = (setCookie: string[] | undefined) =>
-  (setCookie ?? []).filter(cookie => cookie.startsWith('nuxt-session='))
+  (setCookie ?? []).filter(cookie => cookie.startsWith('nuxt-auth-session=') || cookie.startsWith('nuxt-session='))
 
 /** Registered after the page renders, whose `beforeAll` waits for the server. */
 export function describeAnonymousVisitor(): void {

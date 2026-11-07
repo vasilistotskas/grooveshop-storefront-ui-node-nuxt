@@ -4,13 +4,13 @@ import { runNitroPlugin, setRuntimeConfig } from '~~/test/helpers/nitro'
 
 /** A misconfigured deployment must fail at boot, not on the first sealed session. */
 describe('server/plugins/startup-validation', () => {
-  it('boots with a 32+ character session password and a secret key', async () => {
+  it('boots with a 32+ character app secret', async () => {
     await expect(runNitroPlugin(plugin)).resolves.toEqual({ hooks: expect.any(Object) })
   })
 
   it.each([
-    ['the session password is unset', { session: { password: '' } }, 'NUXT_SESSION_PASSWORD is not set'],
-    ['the session password is shorter than 32 characters', { session: { password: 'x'.repeat(31) } }, 'at least 32 characters'],
+    ['the app secret is unset', { appSecret: '' }, 'NUXT_APP_SECRET must be set'],
+    ['the app secret is shorter than 32 characters', { appSecret: 'x'.repeat(31) }, 'at least 32 characters'],
     // What decides which calls carry the edge secret: a value that is
     // not an absolute URL must stop the boot, not silently match nothing.
     ['the API base URL is unset', { apiBaseUrl: '' }, 'NUXT_API_BASE_URL'],

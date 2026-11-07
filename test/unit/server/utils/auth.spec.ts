@@ -120,41 +120,25 @@ describe('createHeaders', () => {
 
 describe('requestHasSession', () => {
   // Reading a session on a request that has none MINTS one and sets a
-  // cookie (h3 getSession), which put `nuxt-session` on every anonymous
-  // page and kept every page out of the edge cache. It looks where h3
-  // looks: header first, then cookie.
-  it('is false for a request with neither the cookie nor the header, and sets no cookie', () => {
+  // cookie (`nuxt/server` getSession), which put a session cookie on every
+  // anonymous page and kept every page out of the edge cache.
+  it('is false for a request without the session cookie, and sets no cookie', () => {
     const event = createRequestEvent()
 
     expect(requestHasSession(event)).toBe(false)
     expect(event.res.headers.get('set-cookie')).toBeNull()
   })
 
-  it('finds the session cookie named in runtimeConfig.session', () => {
-    expect(requestHasSession(createRequestEvent({ headers: { cookie: 'nuxt-session=Fe26.2**sealed' } }))).toBe(true)
+  it('finds nuxt-auth-utils\' session cookie', () => {
+    expect(requestHasSession(createRequestEvent({ headers: { cookie: 'nuxt-auth-session=Fe26.2**sealed' } }))).toBe(true)
   })
 
-  it('finds the header h3 derives from the session name (x-<name>-session)', () => {
-    expect(requestHasSession(createRequestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(true)
+  it('does not take a session from a request header: nuxt-auth-utils 0.6 reads only the cookie', () => {
+    expect(requestHasSession(createRequestEvent({ headers: { 'x-nuxt-auth-session-session': 'Fe26.2**sealed' } }))).toBe(false)
   })
 
-  it('honours a custom session header', () => {
-    setRuntimeConfig({ session: { sessionHeader: 'x-custom' } })
-
-    expect(requestHasSession(createRequestEvent({ headers: { 'x-custom': 'Fe26.2**sealed' } }))).toBe(true)
-    expect(requestHasSession(createRequestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
-  })
-
-  it('ignores headers when sessionHeader is false, as h3 does', () => {
-    setRuntimeConfig({ session: { sessionHeader: false } })
-
-    expect(requestHasSession(createRequestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
-  })
-
-  it('fails loudly when the session is not configured, rather than guessing a name', () => {
-    setRuntimeConfig({ session: { name: '' } })
-
-    expect(() => requestHasSession(createRequestEvent())).toThrow('runtimeConfig.session.name is not set')
+  it('does not take the app\'s own `nuxt-session` cookie for the shopper\'s session', () => {
+    expect(requestHasSession(createRequestEvent({ headers: { cookie: 'nuxt-session=Fe26.2**sealed' } }))).toBe(false)
   })
 
   it('counts a session written earlier in the same request, before its cookie is sent', async () => {

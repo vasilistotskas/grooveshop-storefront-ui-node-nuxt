@@ -73,6 +73,6 @@ describe('the builder staff session', () => {
   it('is not the cookie of the customer session', () => {
     const { source } = sourceFiles.find(({ path }) => path === 'shared/constants/builderSession.ts')!
 
-    expect(source).not.toContain('nuxt-session')
+    expect(source).not.toContain('nuxt-auth-session')
   })
 })

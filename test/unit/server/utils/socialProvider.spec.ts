@@ -8,7 +8,7 @@
 import { describe, expect, it } from 'vitest'
 import { requireSocialProvider } from '~~/server/utils/socialProvider'
 import { makeAllAuthConfig } from '~~/test/fixtures/allauth'
-import { backend, createTestEvent, jsonResponse } from '~~/test/helpers/nitro'
+import { backend, createRequestEvent, jsonResponse } from '~~/test/helpers/nitro'
 
 const GOOGLE = { id: 'google', name: 'Google', flows: ['provider_redirect' as const] }
 const FACEBOOK = { id: 'facebook', name: 'Facebook', flows: ['provider_redirect' as const] }
@@ -17,7 +17,7 @@ function offering(...providers: Array<typeof GOOGLE & { client_id?: string }>) {
   backend.reply(makeAllAuthConfig({ socialaccount: { providers } }))
 }
 
-const check = (provider: string) => requireSocialProvider(createTestEvent({ host: 'demo.test' }), provider)
+const check = (provider: string) => requireSocialProvider(createRequestEvent({ host: 'demo.test' }), provider)
 
 describe('requireSocialProvider', () => {
   it('lets the flow start for a provider the store offers', async () => {

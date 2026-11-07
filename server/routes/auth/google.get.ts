@@ -1,4 +1,4 @@
-import { defineEventHandler, getQuery } from 'h3'
+import { defineEventHandler, getQuery } from 'nuxt/server'
 
 const googleHandler = defineOAuthGoogleEventHandler({
   config: {

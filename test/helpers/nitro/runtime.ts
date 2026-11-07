@@ -31,8 +31,8 @@ import { vi } from 'vitest'
 
 // ── useRuntimeConfig (nitropack/runtime/internal/config) ──────────────
 
-/** A 32+ character password, as h3 sealed sessions require. */
-const TEST_SESSION_PASSWORD = 'unit-test-session-password-0123456789'
+/** A 32+ character `appSecret`, which `deriveSecret` requires. */
+const TEST_APP_SECRET = 'unit-test-app-secret-0123456789abcdef'
 
 /**
  * The runtime config every test starts from: the keys of
@@ -44,10 +44,7 @@ export function defaultRuntimeConfig() {
     djangoUrl: 'http://backend.test',
     mediaStreamPath: '',
     cacheBase: 'memory',
-    session: {
-      name: 'nuxt-session',
-      password: TEST_SESSION_PASSWORD,
-    },
+    appSecret: TEST_APP_SECRET,
     cachePurgeToken: '',
     contactAttachmentMaxBytes: 25 * 1024 * 1024,
     // Nuxt's own `runtimeConfig.app` defaults, which `nuxt/server`'s
@@ -354,35 +351,38 @@ export const testSession = {
   },
 }
 
-function sessionName(): string {
-  return String((runtimeConfig.session as { name: string }).name)
+/** nuxt-auth-utils' cookie (`dist/runtime/server/lib/session.js`). */
+export const USER_SESSION_COOKIE_NAME = 'nuxt-auth-session'
+
+type AnyEvent = H3Event | { req: Request, res: { headers: Headers } }
+
+function isPortable(event: AnyEvent): event is { req: Request, res: { headers: Headers } } {
+  return 'req' in event && event.req instanceof Request
 }
 
 /**
- * Whether `event` has the session the way h3 finds it: one already on
- * the event (`context.sessions`, where h3 keeps a session it loaded or
- * created), the `x-<name>-session` header, then the `<name>` cookie.
- * Either event kind: h3's carries `headers`, the portable `nuxt/server`
- * one `req.headers`.
+ * Whether `event` has the session the way `nuxt/server` finds it: the
+ * cookie the browser sent, or the sealed cookie a write earlier in the
+ * request already put on the response. Either event kind: h3's carries
+ * `headers`, the portable `nuxt/server` one `req.headers`.
  */
-function carriesSession(event: H3Event | { req: Request, context: H3Event['context'] }): boolean {
-  const name = sessionName()
-  if (event.context.sessions?.[name]) return true
-  const headers = 'req' in event && event.req instanceof Request ? event.req.headers : (event as H3Event).headers
-  if (headers.get(`x-${name}-session`)) return true
-  return (headers.get('cookie') ?? '').split(';').some(part => part.trim().startsWith(`${name}=`))
+function carriesSession(event: AnyEvent): boolean {
+  const name = USER_SESSION_COOKIE_NAME
+  const headers = isPortable(event) ? event.req.headers : (event as H3Event).headers
+  if ((headers.get('cookie') ?? '').split(';').some(part => part.trim().startsWith(`${name}=`))) return true
+  return isPortable(event) && event.res.headers.getSetCookie().some(cookie => cookie.startsWith(`${name}=`))
 }
 
-/** Keep the session on the event, as h3's `useSession` does. */
-function keepOnEvent(event: H3Event): void {
-  event.context.sessions ??= Object.create(null)
-  event.context.sessions![sessionName()] ??= { id: TEST_SESSION_ID, createdAt: 0, data: {} }
+/** Seal the session into the response, as `nuxt/server`'s `useSession` does. */
+function sealOnResponse(event: AnyEvent): void {
+  if (!isPortable(event) || carriesSession(event)) return
+  event.res.headers.append('set-cookie', `${USER_SESSION_COOKIE_NAME}=sealed; Path=/; HttpOnly; SameSite=Lax`)
 }
 
 /** A request without the session gets a new, empty one, as h3 mints it. */
-export async function getUserSession(event: H3Event): Promise<Record<string, any>> {
+export async function getUserSession(event: AnyEvent): Promise<Record<string, any>> {
   const minted = !carriesSession(event)
-  keepOnEvent(event)
+  sealOnResponse(event)
   if (minted) {
     sessionsMinted += 1
     return { id: TEST_SESSION_ID }
@@ -390,15 +390,15 @@ export async function getUserSession(event: H3Event): Promise<Record<string, any
   return { ...structuredClone(sessionData), id: TEST_SESSION_ID }
 }
 
-export async function setUserSession(event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
-  keepOnEvent(event)
+export async function setUserSession(event: AnyEvent, data: Record<string, unknown>, config?: Record<string, unknown>) {
+  sealOnResponse(event)
   sessionWriteConfig = config
   sessionData = defu(structuredClone(data), sessionData)
   return sessionData
 }
 
-export async function replaceUserSession(event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
-  keepOnEvent(event)
+export async function replaceUserSession(event: AnyEvent, data: Record<string, unknown>, config?: Record<string, unknown>) {
+  sealOnResponse(event)
   sessionWriteConfig = config
   const { id: _id, ...rest } = data
   sessionData = structuredClone(rest)

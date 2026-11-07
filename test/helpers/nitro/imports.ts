@@ -39,6 +39,7 @@ export const NITRO_SHIM_IMPORTS = [
   'replaceUserSession',
   'clearUserSession',
   'requireUserSession',
+  'USER_SESSION_COOKIE_NAME',
   // nuxt-site-config
   'getSiteConfig',
   'updateSiteConfig',

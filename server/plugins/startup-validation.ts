@@ -8,17 +8,13 @@ import { useRuntimeConfig } from 'nuxt/server'
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig()
 
-  if (!config.session?.password) {
+  // nuxt-auth-utils and the builder session seal their cookies with keys
+  // `nuxt/server` derives from `appSecret` (`deriveSecret` refuses a
+  // missing or short one at the first request; this refuses it at boot).
+  if (!config.appSecret || config.appSecret.length < 32) {
     throw new Error(
-      '[startup] NUXT_SESSION_PASSWORD is not set. '
-      + 'Session encryption requires a strong secret. '
+      '[startup] NUXT_APP_SECRET must be set, at least 32 characters. '
       + 'Generate one with: openssl rand -base64 32',
-    )
-  }
-
-  if (config.session.password.length < 32) {
-    throw new Error(
-      '[startup] NUXT_SESSION_PASSWORD must be at least 32 characters long.',
     )
   }
 
