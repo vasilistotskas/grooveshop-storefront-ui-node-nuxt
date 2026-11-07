@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enforceRateLimit } from '~~/server/utils/rateLimit'
-import { createRequestEvent } from '~~/test/helpers/nitro'
+import { createRequestEvent, useStorage } from '~~/test/helpers/nitro'
 
 /**
  * The per-IP, per-store budget in front of the browser-log ingest, the
@@ -64,6 +64,17 @@ describe('enforceRateLimit', () => {
     }
 
     expect(refused).toBe(0)
+  })
+
+  it('keeps one counter per visitor however many windows pass', async () => {
+    // The memory driver the cache mount falls back to ignores TTLs, so a
+    // counter per window would pile up there for as long as the pod lives.
+    for (let minute = 0; minute < 30; minute++) {
+      vi.setSystemTime(new Date(Date.UTC(2026, 10, 7, 12, minute, 0)))
+      await refusedOf(1)
+    }
+
+    expect(await useStorage('cache').getKeys()).toHaveLength(1)
   })
 
   it('keeps one visitor\'s budget apart from another\'s, and one store\'s from another\'s', async () => {
