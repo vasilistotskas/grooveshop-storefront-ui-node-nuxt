@@ -1,3 +1,10 @@
+# [3.332.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.331.0...v3.332.0) (2026-11-07)
+
+
+### Features
+
+* **checkout:** search the ACS pickup points and find the nearest to the shopper ([#420](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/420)) ([90afbe3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/90afbe33a47e5bc427bd724f1b57ecf689ceed4f))
+
 # [3.331.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.330.6...v3.331.0) (2026-11-07)
 
 
