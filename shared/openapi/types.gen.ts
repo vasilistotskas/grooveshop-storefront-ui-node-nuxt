@@ -26614,33 +26614,6 @@ export type SetMainUserAddressResponses = {
 
 export type SetMainUserAddressResponse = SetMainUserAddressResponses[keyof SetMainUserAddressResponses]
 
-export type DownloadUserDataExportData = {
-  body?: never
-  path: {
-    token: string
-  }
-  query?: never
-  url: '/api/v1/user/data_export/{token}/download'
-}
-
-export type DownloadUserDataExportErrors = {
-  /**
-     * No response body
-     */
-  404: unknown
-  /**
-     * No response body
-     */
-  410: unknown
-}
-
-export type DownloadUserDataExportResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
-}
-
 export type GetEmailPreferencesData = {
   body?: never
   path?: never

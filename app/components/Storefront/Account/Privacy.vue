@@ -27,6 +27,7 @@ const {
   titles: {
     exportFailed: () => t('export.error_title'),
     downloadFailed: () => t('export.download_error_title'),
+    downloadExpired: () => t('export.download_expired'),
     deleteFailed: () => t('delete.error_title'),
   },
 })
@@ -300,6 +301,7 @@ el:
     expires_at: "Λήγει:"
     error_title: Δεν ήταν δυνατή η αίτηση εξαγωγής.
     download_error_title: Δεν ήταν δυνατή η λήψη του αρχείου.
+    download_expired: Η εξαγωγή έχει λήξει. Ζήτησε μια νέα.
     failed_description: Κάτι πήγε στραβά κατά τη δημιουργία του αρχείου. Μπορείς να το ξαναδοκιμάσεις.
     status:
       pending: Σε αναμονή
@@ -340,6 +342,7 @@ en:
     expires_at: "Expires:"
     error_title: The export could not be requested.
     download_error_title: The file could not be downloaded.
+    download_expired: This export has expired. Request a new one.
     failed_description: Something went wrong while building the file. You can try again.
     status:
       pending: Pending

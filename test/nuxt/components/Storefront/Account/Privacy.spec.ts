@@ -206,7 +206,8 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
   })
 
   it('tells the shopper on the page when the download is refused', async () => {
-    given({ exports: [makeExport()], download: failWith(410, { detail: 'gone', code: 'download_expired' }) })
+    // As the browser's fetch holds it: Django's body is a Blob, not its fields.
+    given({ exports: [makeExport()], download: failWith(410, new Blob(['{}'])) })
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     const wrapper = await mountPage()
 
@@ -214,7 +215,12 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
     await flushPromises()
 
     expect(click).not.toHaveBeenCalled()
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: text('export.download_error_title') }))
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      title: text('export.download_error_title'),
+      description: text('export.download_expired'),
+    }))
+    expect(wrapper.text()).toContain(text('export.status.expired'))
+    expect(buttonByText(wrapper.element, text('export.download'))).toBeUndefined()
   })
 
   it('says a failed export failed and lets the shopper ask again', async () => {
