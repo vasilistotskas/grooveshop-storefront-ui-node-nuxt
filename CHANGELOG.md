@@ -1,3 +1,10 @@
+# [3.334.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.333.0...v3.334.0) (2026-11-08)
+
+
+### Features
+
+* **order:** show the name an order line was sold under ([#424](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/424)) ([09f12c0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/09f12c04c8cdcd5bb422b2f8fbd79fe483c5ca5c))
+
 # [3.333.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.332.2...v3.333.0) (2026-11-08)
 
 
