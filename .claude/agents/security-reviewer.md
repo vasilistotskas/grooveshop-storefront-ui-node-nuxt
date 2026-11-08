@@ -32,7 +32,7 @@ Review code changes for security vulnerabilities specific to this Nuxt 4 SSR e-c
 - **Zod schema completeness**: Check that response validation via `parseDataAs()` covers all route responses
 
 ### Cart Session Security
-- **httpOnly cookies**: The sealed `nuxt-session` cart cookie must be httpOnly, secure (in production), sameSite lax. The plain `cart-id` spare cookie is deliberately not httpOnly, but must stay secure in production and sameSite lax. Its UUID reaches a guest cart through `X-Cart-Id`, so flag anything that logs it or sends it to a third party
+- **httpOnly cookies**: The sealed `nuxt-auth-session` cart cookie must be httpOnly, secure (in production), sameSite lax. The plain `cart-id` spare cookie is deliberately not httpOnly, but must stay secure in production and sameSite lax. Its UUID reaches a guest cart through `X-Cart-Id`, so flag anything that logs it or sends it to a third party
 - **Cart ID in headers**: `X-Cart-Id` header sent to Django — verify it comes from session, not from client input
 - **Session isolation**: Cart data in session must be separate from auth tokens
 

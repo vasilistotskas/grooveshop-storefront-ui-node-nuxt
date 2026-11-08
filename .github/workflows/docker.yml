@@ -49,7 +49,7 @@ jobs:
       # SECURITY: no real secret may enter the build context. `nuxt build`
       # bakes runtimeConfig defaults into `.output`, and the production image
       # ships `.output` — so any real secret written here would be extractable
-      # from the published (public) image. Real values (NUXT_SESSION_PASSWORD,
+      # from the published (public) image. Real values (NUXT_APP_SECRET,
       # OAuth client secrets) are supplied ONLY at runtime by the K8s sealed
       # secret, which overrides the baked placeholder below.
       - name: Create .env file (public build config + placeholder secrets)
@@ -60,10 +60,10 @@ jobs:
           echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
           echo "NUXT_CACHE_BASE=memory" >> .env
           # Build-only placeholder: the prerender-time startup-validation Nitro
-          # plugin requires NUXT_SESSION_PASSWORD (>=32 chars). This dummy value
+          # plugin requires NUXT_APP_SECRET (>=32 chars). This dummy value
           # is intentionally NOT a secret and is overridden by the real K8s env
           # var at runtime.
-          echo "NUXT_SESSION_PASSWORD=build-only-placeholder-overridden-at-runtime-00" >> .env
+          echo "NUXT_APP_SECRET=build-only-placeholder-overridden-at-runtime-00" >> .env
           echo "=== .env file created (keys only) ==="
           cut -d'=' -f1 .env
 

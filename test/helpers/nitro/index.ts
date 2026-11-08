@@ -101,7 +101,7 @@ function requestHeaders(req: TestRequest): Record<string, string> {
   if (Object.keys(testSession.data).length) {
     const name = String(useRuntimeConfig().session.name)
     const cookies = headers.cookie ? headers.cookie.split(';').map(part => part.trim()) : []
-    if (!cookies.some(part => part.startsWith(`${name}=`)) && !headers[`x-${name.toLowerCase()}-session`]) {
+    if (!cookies.some(part => part.startsWith(`${name}=`))) {
       headers.cookie = [...cookies, `${name}=sealed`].join('; ')
     }
   }

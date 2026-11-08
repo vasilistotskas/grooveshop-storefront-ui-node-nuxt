@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 import middleware from '~~/server/middleware/2.evlog-auth'
 import { callHandler, createTestEvent, loggerOf, testSession } from '~~/test/helpers/nitro'
 
-const SESSION_COOKIE = { cookie: 'nuxt-session=sealed' }
+const SESSION_COOKIE = { cookie: 'nuxt-auth-session=sealed' }
 
 async function run(url: string, headers: Record<string, string> = {}) {
   const event = createTestEvent({ url, headers })
@@ -25,12 +25,6 @@ describe('server/middleware/2.evlog-auth', () => {
     testSession.set({ user: { id: 42, email: 'a@b.test' } })
 
     expect(await run('/', SESSION_COOKIE)).toEqual({ user: { id: 42 } })
-  })
-
-  it('reads a session sent in the session header too', async () => {
-    testSession.set({ user: { id: 7 } })
-
-    expect(await run('/', { 'x-nuxt-session-session': 'sealed' })).toEqual({ user: { id: 7 } })
   })
 
   it('records nothing for a session without a user (a cart-only visitor)', async () => {

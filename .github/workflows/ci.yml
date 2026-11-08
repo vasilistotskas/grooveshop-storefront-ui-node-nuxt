@@ -329,8 +329,8 @@ jobs:
             echo "NUXT_REDIS_HOST=localhost"
             echo "NUXT_REDIS_PORT=6379"
             # Build-only placeholder so the prerender-time startup-validation
-            # Nitro plugin passes (session password >=32 chars).
-            echo "NUXT_SESSION_PASSWORD=build-only-placeholder-overridden-at-runtime-00"
+            # Nitro plugin passes (app secret >=32 chars).
+            echo "NUXT_APP_SECRET=build-only-placeholder-overridden-at-runtime-00"
           } > .env
 
       # The built ``.output`` is deliberately NOT uploaded anywhere: the

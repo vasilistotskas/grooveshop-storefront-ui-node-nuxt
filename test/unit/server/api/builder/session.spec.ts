@@ -97,7 +97,7 @@ describe('POST /api/builder/session', () => {
 
       const response = await post()
 
-      expect(cookieOf(response, 'nuxt-session')).toBeUndefined()
+      expect(cookieOf(response, 'nuxt-auth-session')).toBeUndefined()
     })
   })
 
@@ -158,7 +158,7 @@ describe('GET /api/builder/session', () => {
   })
 
   it('is a 401 for a customer session: that cookie is not this one', async () => {
-    const response = await get('nuxt-session=sealed-customer-session')
+    const response = await get('nuxt-auth-session=sealed-customer-session')
 
     expect(response.status).toBe(401)
   })

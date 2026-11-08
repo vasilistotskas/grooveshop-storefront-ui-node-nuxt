@@ -25,7 +25,7 @@ export function useSubscriptionTopics() {
    */
   const fetchTopics = () => {
     // The forwarded cookie is what lets the SSR-side call inherit the
-    // encrypted nuxt-session cookie; without it the request lands
+    // encrypted nuxt-auth-session cookie; without it the request lands
     // anonymously and ``requireAllAuthAccessToken`` throws 401 even
     // though the browser is logged in.
     return useAsyncData<SubscriptionTopic[]>(
