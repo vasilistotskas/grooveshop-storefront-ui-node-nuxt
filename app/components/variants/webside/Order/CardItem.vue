@@ -9,7 +9,6 @@ const props = defineProps({
 })
 
 const { item } = toRefs(props)
-const { locale } = useI18n()
 </script>
 
 <template>
@@ -22,6 +21,6 @@ const { locale } = useI18n()
     fit="contain"
     :background="'transparent'"
     :src="item.product.mainImagePath"
-    :alt="extractTranslated(item.product, 'name', locale)"
+    :alt="item.productName"
   />
 </template>

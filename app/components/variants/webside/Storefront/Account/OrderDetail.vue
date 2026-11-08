@@ -597,7 +597,7 @@ async function handleReorder() {
                           "
                         >
                           <ImgWithFallback
-                            :alt="extractTranslated(item.product, 'name', locale)"
+                            :alt="item.productName"
                             fit="cover"
                             :height="128"
                             :src="item.product.mainImagePath"
@@ -635,7 +635,7 @@ async function handleReorder() {
                             dark:group-hover/link:text-primary-400
                           "
                         >
-                          {{ extractTranslated(item.product, 'name', locale) }}
+                          {{ item.productName }}
                         </h3>
                       </Anchor>
 

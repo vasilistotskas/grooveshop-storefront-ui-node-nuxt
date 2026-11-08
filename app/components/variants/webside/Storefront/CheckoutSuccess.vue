@@ -3,7 +3,7 @@ import type { TableColumn } from '#ui/types'
 
 const UAvatar = resolveComponent('UAvatar')
 
-const { t, locale } = useStoreI18n('components/variants/webside/Storefront/CheckoutSuccess')
+const { t } = useStoreI18n('components/variants/webside/Storefront/CheckoutSuccess')
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 const img = useMediaStreamImage()
@@ -90,7 +90,7 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
       const item = row.original
       return h(UAvatar, {
         src: getImage(item.product?.mainImagePath),
-        alt: `${extractTranslated(item.product, 'name', locale.value)} ${t('image')}`,
+        alt: `${item.productName} ${t('image')}`,
         size: '3xl',
         class: 'rounded-md',
       })
@@ -103,7 +103,7 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
       const item = row.original
       return h('div', { class: 'space-y-1' }, [
         h('p', { class: 'font-medium text-highlighted' },
-          extractTranslated(item.product, 'name', locale.value),
+          item.productName,
         ),
         item.notes && h('p', { class: 'text-sm text-muted' }, item.notes),
       ])

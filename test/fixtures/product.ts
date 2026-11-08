@@ -76,7 +76,7 @@ export function makeProduct(overrides: ProductOverrides = {}): Product {
     brand: null,
     brandName: null,
     price,
-    vat: vatPercent > 0 ? 1 : null,
+    vat: 1,
     viewCount: 0,
     stock: 10,
     lowStockThreshold: 0,

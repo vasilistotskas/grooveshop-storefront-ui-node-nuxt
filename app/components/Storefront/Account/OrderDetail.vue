@@ -477,7 +477,7 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
           </span>
           <div class="flex min-w-0 flex-1 flex-col gap-0.5">
             <p class="font-medium text-highlighted">
-              {{ extractTranslated(item.product, 'name', locale) }}
+              {{ item.productName }}
             </p>
             <p class="text-sm text-toned">
               {{ t('quantity', { quantity: item.quantity ?? 0 }) }}

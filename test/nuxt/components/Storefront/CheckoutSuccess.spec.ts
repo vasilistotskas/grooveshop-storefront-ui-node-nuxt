@@ -340,6 +340,19 @@ describe.each([
     })
   })
 
+  describe('order lines', () => {
+    it('names each line as it was sold, not by the product it points at today', async () => {
+      const line = makeOrderItem({ id: 5, productName: 'Αρχική ονομασία', sku: 'OLD-SKU' })
+      line.product.translations = { el: { name: 'Νέα ονομασία' }, en: { name: 'New name' } } as typeof line.product.translations
+      serveOrders(order({ items: [line] }))
+
+      const text = (await mount()).text()
+
+      expect(text).toContain('Αρχική ονομασία')
+      expect(text).not.toContain('Νέα ονομασία')
+    })
+  })
+
   describe('missing order', () => {
     it('shows the error page when the order does not exist', async () => {
       serveOrders(failWith(404))

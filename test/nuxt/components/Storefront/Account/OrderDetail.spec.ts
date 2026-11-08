@@ -88,6 +88,17 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
     expect(wrapper.get('h1').text()).toContain('#3')
   })
 
+  it('names each line as it was sold, not by the product it points at today', async () => {
+    const line = makeOrderItem({ id: 5, productName: 'Αρχική ονομασία' })
+    line.product.translations = { el: { name: 'Νέα ονομασία' }, en: { name: 'New name' } } as typeof line.product.translations
+    state.order = makeOrder({ id: 3, items: [line] })
+
+    const text = (await mountPage(C)).text()
+
+    expect(text).toContain('Αρχική ονομασία')
+    expect(text).not.toContain('Νέα ονομασία')
+  })
+
   it.each([{ cart: true, offered: true }, { cart: false, offered: false }])('offers "Buy again": $offered when the cart is $cart', async ({ cart, offered }) => {
     setTenantFeatures({ cart })
     const wrapper = await mountPage(C)

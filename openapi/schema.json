@@ -6,6 +6,39 @@
         "description": "GrooveShop API"
     },
     "paths": {
+        "/api/v1/agent/internal/order/{uuid}": {
+            "get": {
+                "operationId": "getAgentInternalOrder",
+                "description": "An order the agent gateway placed. Requires the gateway's shared secret in `X-Internal-Token`; any other caller or order gets 404.",
+                "summary": "Read an order (agent gateway only)",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Agent"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/agent/me": {
             "get": {
                 "operationId": "getAgentProfile",
@@ -29072,123 +29105,6 @@
                         "description": ""
                     }
                 }
-            },
-            "post": {
-                "operationId": "createOrderItem",
-                "description": "Create a new Order Item. Requires authentication.",
-                "summary": "Create a Order Item",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "languageCode",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "el",
-                                "en"
-                            ],
-                            "default": "el"
-                        },
-                        "description": "Language code for translations (el, en)"
-                    }
-                ],
-                "tags": [
-                    "Order Items"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrderItemWriteRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrderItemWriteRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrderItemWriteRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/ApiValidationError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/ApiError"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OrderItemDetail"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
             }
         },
         "/api/v1/order-items/{id}": {
@@ -29281,337 +29197,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/OrderItemDetail"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            },
-            "put": {
-                "operationId": "updateOrderItem",
-                "description": "Update Order Item information. Requires authentication.",
-                "summary": "Update a Order Item",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    },
-                    {
-                        "in": "query",
-                        "name": "languageCode",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "el",
-                                "en"
-                            ],
-                            "default": "el"
-                        },
-                        "description": "Language code for translations (el, en)"
-                    }
-                ],
-                "tags": [
-                    "Order Items"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrderItemWriteRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrderItemWriteRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/OrderItemWriteRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/ApiValidationError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/ApiError"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OrderItemDetail"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            },
-            "patch": {
-                "operationId": "partialUpdateOrderItem",
-                "description": "Partially update Order Item information. Requires authentication.",
-                "summary": "Partially update a Order Item",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    },
-                    {
-                        "in": "query",
-                        "name": "languageCode",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "el",
-                                "en"
-                            ],
-                            "default": "el"
-                        },
-                        "description": "Language code for translations (el, en)"
-                    }
-                ],
-                "tags": [
-                    "Order Items"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PatchedOrderItemWriteRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PatchedOrderItemWriteRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PatchedOrderItemWriteRequest"
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/ApiValidationError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/ApiError"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OrderItemDetail"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            },
-            "delete": {
-                "operationId": "destroyOrderItem",
-                "description": "Delete a Order Item. Requires authentication.",
-                "summary": "Delete a Order Item",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    }
-                ],
-                "tags": [
-                    "Order Items"
-                ],
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No response body"
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -53717,7 +53302,7 @@
         "/api/v1/user/account/{id}/data_exports": {
             "get": {
                 "operationId": "listUserAccountDataExports",
-                "description": "List recent data-export requests for this user so the UI can show progress and the last download link.",
+                "description": "List recent data-export requests for this user so the UI can show their progress.",
                 "summary": "List GDPR data exports",
                 "parameters": [
                     {
@@ -55139,7 +54724,7 @@
         "/api/v1/user/account/{id}/request_data_export": {
             "post": {
                 "operationId": "requestUserAccountDataExport",
-                "description": "Queue a job that compiles the user's personal data and emails a one-off download link. Returns the new UserDataExport record.",
+                "description": "Queue a job that compiles the user's personal data and emails them when it is ready. Returns the new UserDataExport record.",
                 "summary": "Request GDPR data export",
                 "parameters": [
                     {
@@ -68906,6 +68491,16 @@
                     "product": {
                         "type": "integer"
                     },
+                    "productName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The product's name when the line was created, in the order's language. Invoices and emails use it, never the product's current name."
+                    },
+                    "sku": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The product's SKU when the line was created. Invoices use it, never the product's current SKU."
+                    },
                     "price": {
                         "type": "number",
                         "format": "double",
@@ -68960,7 +68555,9 @@
                     "order",
                     "price",
                     "product",
+                    "productName",
                     "refundedQuantity",
+                    "sku",
                     "totalPrice",
                     "updatedAt",
                     "uuid"
@@ -69007,6 +68604,16 @@
                             }
                         ],
                         "readOnly": true
+                    },
+                    "productName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The product's name when the line was created, in the order's language. Invoices and emails use it, never the product's current name."
+                    },
+                    "sku": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The product's SKU when the line was created. Invoices use it, never the product's current SKU."
                     },
                     "price": {
                         "type": "number",
@@ -69095,8 +68702,10 @@
                     "originalQuantity",
                     "price",
                     "product",
+                    "productName",
                     "refundedAmount",
                     "refundedQuantity",
+                    "sku",
                     "sortOrder",
                     "totalPrice",
                     "updatedAt",
@@ -69131,29 +68740,6 @@
                 "required": [
                     "detail",
                     "item"
-                ]
-            },
-            "OrderItemWriteRequest": {
-                "type": "object",
-                "properties": {
-                    "order": {
-                        "type": "integer"
-                    },
-                    "product": {
-                        "type": "integer"
-                    },
-                    "quantity": {
-                        "type": "integer",
-                        "maximum": 2147483647,
-                        "minimum": -2147483648
-                    },
-                    "notes": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "order",
-                    "product"
                 ]
             },
             "OrderSourceType": {
@@ -71874,25 +71460,6 @@
                     }
                 }
             },
-            "PatchedOrderItemWriteRequest": {
-                "type": "object",
-                "properties": {
-                    "order": {
-                        "type": "integer"
-                    },
-                    "product": {
-                        "type": "integer"
-                    },
-                    "quantity": {
-                        "type": "integer",
-                        "maximum": 2147483647,
-                        "minimum": -2147483648
-                    },
-                    "notes": {
-                        "type": "string"
-                    }
-                }
-            },
             "PatchedOrderWriteRequest": {
                 "type": "object",
                 "properties": {
@@ -72359,8 +71926,7 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "integer"
                     },
                     "stock": {
                         "type": "integer",
@@ -73561,8 +73127,7 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "integer"
                     },
                     "viewCount": {
                         "type": "integer",
@@ -73754,6 +73319,7 @@
                     "uuid",
                     "variantGroup",
                     "variantGroupTitle",
+                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -74786,8 +74352,7 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "integer"
                     },
                     "viewCount": {
                         "type": "integer",
@@ -74985,6 +74550,7 @@
                     "uuid",
                     "variantGroup",
                     "variantGroupTitle",
+                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -75094,8 +74660,7 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "integer"
                     },
                     "viewCount": {
                         "type": "integer",
@@ -75293,6 +74858,7 @@
                     "uuid",
                     "variantGroup",
                     "variantGroupTitle",
+                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -75568,8 +75134,7 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "integer"
                     },
                     "viewCount": {
                         "type": "integer",
@@ -75769,6 +75334,7 @@
                     "uuid",
                     "variantGroup",
                     "variantGroupTitle",
+                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -76590,8 +76156,7 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "integer"
                     },
                     "viewCount": {
                         "type": "integer",
@@ -76797,6 +76362,7 @@
                     "uuid",
                     "variantGroup",
                     "variantGroupTitle",
+                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -77313,8 +76879,7 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "integer"
                     },
                     "stock": {
                         "type": "integer",
@@ -77352,7 +76917,8 @@
                 "required": [
                     "price",
                     "slug",
-                    "translations"
+                    "translations",
+                    "vat"
                 ]
             },
             "PromotionCategoryRef": {
