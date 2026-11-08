@@ -558,7 +558,7 @@ export const zAllAuthParameterSessionToken = z.string()
 
 /**
  * When present (regardless of its value), enables passwordless sign-in via a WebAuthn credential (Passkey),
- * but may enforce additional multi-factor authentication (MFA) requirements. Omit the parameter to disable.
+ * which requires PIN, biometric, or equivalent user verification. Omit the parameter to disable.
  *
  */
 export const zAllAuthParameterPasswordLess = z.boolean()

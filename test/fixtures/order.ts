@@ -163,7 +163,9 @@ export function makeOrderListItem(overrides: Partial<Order> = {}): Order {
  * `zOrderItemDetail` (proved by `test/unit/fixtures/order.spec.ts`).
  *
  * Defaults: line 1 of order 1, one unit of `makeProduct({ id })` at
- * 20 EUR, nothing refunded. `uuid` follows `id`. Like the order's money
+ * 20 EUR, nothing refunded, sold under the name `Προϊόν <id>` and SKU
+ * `SKU-<id>` (the snapshot the line keeps, not the live product). `uuid`
+ * follows `id`. Like the order's money
  * fields, the line's are NOT derived from each other.
  */
 export function makeOrderItem(overrides: Partial<OrderItemDetail> = {}): OrderItemDetail {
@@ -174,6 +176,8 @@ export function makeOrderItem(overrides: Partial<OrderItemDetail> = {}): OrderIt
     uuid: fixtureUuid(27, id),
     order: 1,
     product: makeProduct({ id }),
+    productName: `Προϊόν ${id}`,
+    sku: `SKU-${id}`,
     price: 20,
     quantity: 1,
     isRefunded: false,

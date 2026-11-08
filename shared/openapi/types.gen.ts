@@ -4198,6 +4198,14 @@ export type OrderItem = {
   readonly uuid: string
   order: number
   product: number
+  /**
+     * The product's name when the line was created, in the order's language. Invoices and emails use it, never the product's current name.
+     */
+  readonly productName: string
+  /**
+     * The product's SKU when the line was created. Invoices use it, never the product's current SKU.
+     */
+  readonly sku: string
   readonly price: number
   quantity?: number
   readonly isRefunded: boolean
@@ -4219,6 +4227,14 @@ export type OrderItemDetail = {
   readonly uuid: string
   order: number
   product: Product
+  /**
+     * The product's name when the line was created, in the order's language. Invoices and emails use it, never the product's current name.
+     */
+  readonly productName: string
+  /**
+     * The product's SKU when the line was created. Invoices use it, never the product's current SKU.
+     */
+  readonly sku: string
   readonly price: number
   quantity?: number
   readonly isRefunded: boolean
@@ -4248,13 +4264,6 @@ export type OrderItemRestockRequest = {
 export type OrderItemRestockResponse = {
   detail: string
   item: OrderItem
-}
-
-export type OrderItemWriteRequest = {
-  order: number
-  product: number
-  quantity?: number
-  notes?: string
 }
 
 /**
@@ -5040,13 +5049,6 @@ export type PatchedNotificationUserWriteRequest = {
   seen?: boolean
 }
 
-export type PatchedOrderItemWriteRequest = {
-  order?: number
-  product?: number
-  quantity?: number
-  notes?: string
-}
-
 export type PatchedOrderWriteRequest = {
   /**
      * Country Code Alpha 2
@@ -5240,7 +5242,7 @@ export type PatchedProductWriteRequest = {
   category?: number | null
   brand?: number | null
   price?: number
-  vat?: number | null
+  vat?: number
   stock?: number
   weight?: {
     unit?: string
@@ -5779,7 +5781,7 @@ export type Product = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat?: number | null
+  vat: number
   readonly viewCount: number
   readonly stock: number
   /**
@@ -6141,7 +6143,7 @@ export type ProductDetail = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat?: number | null
+  vat: number
   readonly viewCount: number
   readonly stock: number
   /**
@@ -6227,7 +6229,7 @@ export type ProductDetailResponse = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat?: number | null
+  vat: number
   readonly viewCount: number
   readonly stock: number
   /**
@@ -6359,7 +6361,7 @@ export type ProductFeed = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat?: number | null
+  vat: number
   readonly viewCount: number
   readonly stock: number
   /**
@@ -6725,7 +6727,7 @@ export type ProductRetrieve = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat?: number | null
+  vat: number
   readonly viewCount: number
   readonly stock: number
   /**
@@ -6922,7 +6924,7 @@ export type ProductWriteRequest = {
   category?: number | null
   brand?: number | null
   price: number
-  vat?: number | null
+  vat: number
   stock?: number
   weight?: {
     unit?: string
@@ -10359,7 +10361,7 @@ export type ProductWritable = {
   }
   slug: string
   price: number
-  vat?: number | null
+  vat: number
   weight?: {
     unit?: string
     value?: number
@@ -10524,7 +10526,7 @@ export type ProductDetailWritable = {
   }
   slug: string
   price: number
-  vat?: number | null
+  vat: number
   weight?: {
     unit?: string
     value?: number
@@ -10556,7 +10558,7 @@ export type ProductDetailResponseWritable = {
   }
   slug: string
   price: number
-  vat?: number | null
+  vat: number
   weight?: {
     unit?: string
     value?: number
@@ -10603,7 +10605,7 @@ export type ProductFeedWritable = {
   }
   slug: string
   price: number
-  vat?: number | null
+  vat: number
   weight?: {
     unit?: string
     value?: number
@@ -10671,7 +10673,7 @@ export type ProductRetrieveWritable = {
   }
   slug: string
   price: number
-  vat?: number | null
+  vat: number
   weight?: {
     unit?: string
     value?: number
@@ -11112,6 +11114,21 @@ export type VersionDetailWritable = {
 export type VersionListWritable = {
   kind: BuilderVersionKindEnum
 }
+
+export type GetAgentInternalOrderData = {
+  body?: never
+  path: {
+    uuid: string
+  }
+  query?: never
+  url: '/api/v1/agent/internal/order/{uuid}'
+}
+
+export type GetAgentInternalOrderResponses = {
+  200: OrderDetail
+}
+
+export type GetAgentInternalOrderResponse = GetAgentInternalOrderResponses[keyof GetAgentInternalOrderResponses]
 
 export type GetAgentProfileData = {
   body?: never
@@ -19057,60 +19074,6 @@ export type ListOrderItemResponses = {
 
 export type ListOrderItemResponse = ListOrderItemResponses[keyof ListOrderItemResponses]
 
-export type CreateOrderItemData = {
-  body: OrderItemWriteRequest
-  path?: never
-  query?: {
-    /**
-         * Language code for translations (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/order-items'
-}
-
-export type CreateOrderItemErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CreateOrderItemError = CreateOrderItemErrors[keyof CreateOrderItemErrors]
-
-export type CreateOrderItemResponses = {
-  201: OrderItemDetail
-}
-
-export type CreateOrderItemResponse = CreateOrderItemResponses[keyof CreateOrderItemResponses]
-
-export type DestroyOrderItemData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/order-items/{id}'
-}
-
-export type DestroyOrderItemErrors = {
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-}
-
-export type DestroyOrderItemError = DestroyOrderItemErrors[keyof DestroyOrderItemErrors]
-
-export type DestroyOrderItemResponses = {
-  /**
-     * No response body
-     */
-  204: void
-}
-
-export type DestroyOrderItemResponse = DestroyOrderItemResponses[keyof DestroyOrderItemResponses]
-
 export type RetrieveOrderItemData = {
   body?: never
   path: {
@@ -19139,66 +19102,6 @@ export type RetrieveOrderItemResponses = {
 }
 
 export type RetrieveOrderItemResponse = RetrieveOrderItemResponses[keyof RetrieveOrderItemResponses]
-
-export type PartialUpdateOrderItemData = {
-  body?: PatchedOrderItemWriteRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Language code for translations (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/order-items/{id}'
-}
-
-export type PartialUpdateOrderItemErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type PartialUpdateOrderItemError = PartialUpdateOrderItemErrors[keyof PartialUpdateOrderItemErrors]
-
-export type PartialUpdateOrderItemResponses = {
-  200: OrderItemDetail
-}
-
-export type PartialUpdateOrderItemResponse = PartialUpdateOrderItemResponses[keyof PartialUpdateOrderItemResponses]
-
-export type UpdateOrderItemData = {
-  body: OrderItemWriteRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Language code for translations (el, en)
-         */
-    languageCode?: 'el' | 'en'
-  }
-  url: '/api/v1/order-items/{id}'
-}
-
-export type UpdateOrderItemErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type UpdateOrderItemError = UpdateOrderItemErrors[keyof UpdateOrderItemErrors]
-
-export type UpdateOrderItemResponses = {
-  200: OrderItemDetail
-}
-
-export type UpdateOrderItemResponse = UpdateOrderItemResponses[keyof UpdateOrderItemResponses]
 
 export type RestockOrderItemData = {
   body?: OrderItemRestockRequest

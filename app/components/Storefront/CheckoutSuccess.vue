@@ -146,7 +146,7 @@ const totals = computed(() => {
   ]
 })
 
-const nameOf = (item: OrderItemDetail) => extractTranslated(item.product, 'name', locale.value) ?? ''
+const nameOf = (item: OrderItemDetail) => item.productName
 
 const { fetching: fetchingInvoice, open: openOrderInvoice } = useOrderInvoice()
 const { notify } = useApiError()

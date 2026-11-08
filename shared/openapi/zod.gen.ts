@@ -1913,6 +1913,8 @@ export const zOrderItem = z.object({
   uuid: z.uuid().readonly(),
   order: z.int(),
   product: z.int(),
+  productName: z.string().readonly(),
+  sku: z.string().readonly(),
   price: z.number().gt(-1000000000).lt(1000000000).readonly(),
   quantity: z.int().gte(-2147483648).lte(2147483647).optional(),
   isRefunded: z.boolean().readonly(),
@@ -1937,13 +1939,6 @@ export const zOrderItemRestockRequest = z.object({
 export const zOrderItemRestockResponse = z.object({
   detail: z.string(),
   item: zOrderItem,
-})
-
-export const zOrderItemWriteRequest = z.object({
-  order: z.int(),
-  product: z.int(),
-  quantity: z.int().gte(-2147483648).lte(2147483647).optional(),
-  notes: z.string().optional(),
 })
 
 /**
@@ -2335,13 +2330,6 @@ export const zPatchedNotificationUserWriteRequest = z.object({
   seen: z.boolean().optional(),
 })
 
-export const zPatchedOrderItemWriteRequest = z.object({
-  order: z.int().optional(),
-  product: z.int().optional(),
-  quantity: z.int().gte(-2147483648).lte(2147483647).optional(),
-  notes: z.string().optional(),
-})
-
 export const zPatchedOrderWriteRequest = z.object({
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
@@ -2465,7 +2453,7 @@ export const zPatchedProductWriteRequest = z.object({
   category: z.int().nullish(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000).optional(),
-  vat: z.int().nullish(),
+  vat: z.int().optional(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   weight: z.object({
     unit: z.string().optional(),
@@ -3344,7 +3332,7 @@ export const zProductWriteRequest = z.object({
   category: z.int().nullish(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   weight: z.object({
     unit: z.string().optional(),
@@ -3860,7 +3848,7 @@ export const zProduct = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
@@ -4033,6 +4021,8 @@ export const zOrderItemDetail = z.object({
   uuid: z.uuid().readonly(),
   order: z.int(),
   product: zProduct,
+  productName: z.string().readonly(),
+  sku: z.string().readonly(),
   price: z.number().gt(-1000000000).lt(1000000000).readonly(),
   quantity: z.int().gte(-2147483648).lte(2147483647).optional(),
   isRefunded: z.boolean().readonly(),
@@ -4105,7 +4095,7 @@ export const zProductDetail = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
@@ -4170,7 +4160,7 @@ export const zProductDetailResponse = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
@@ -4271,7 +4261,7 @@ export const zProductFeed = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
@@ -4389,7 +4379,7 @@ export const zProductRetrieve = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
@@ -7870,7 +7860,7 @@ export const zProductWritable = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -8090,7 +8080,7 @@ export const zProductDetailWritable = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -8125,7 +8115,7 @@ export const zProductDetailResponseWritable = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -8184,7 +8174,7 @@ export const zProductFeedWritable = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -8281,7 +8271,7 @@ export const zProductRetrieveWritable = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int().nullish(),
+  vat: z.int(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -8763,6 +8753,12 @@ export const zPaginatedVersionListListWritable = z.object({
   page: z.int().optional(),
   results: z.array(zVersionListWritable),
 })
+
+export const zGetAgentInternalOrderPath = z.object({
+  uuid: z.uuid(),
+})
+
+export const zGetAgentInternalOrderResponse = zOrderDetail
 
 export const zGetAgentProfileResponse = zAgentProfile
 
@@ -13363,26 +13359,6 @@ export const zListOrderItemQuery = z.object({
 
 export const zListOrderItemResponse = zPaginatedOrderItemList
 
-export const zCreateOrderItemBody = zOrderItemWriteRequest
-
-export const zCreateOrderItemQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zCreateOrderItemResponse = zOrderItemDetail
-
-export const zDestroyOrderItemPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-/**
- * No response body
- */
-export const zDestroyOrderItemResponse = z.void()
-
 export const zRetrieveOrderItemPath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13395,36 +13371,6 @@ export const zRetrieveOrderItemQuery = z.object({
 })
 
 export const zRetrieveOrderItemResponse = zOrderItemDetail
-
-export const zPartialUpdateOrderItemBody = zPatchedOrderItemWriteRequest
-
-export const zPartialUpdateOrderItemPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zPartialUpdateOrderItemQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zPartialUpdateOrderItemResponse = zOrderItemDetail
-
-export const zUpdateOrderItemBody = zOrderItemWriteRequest
-
-export const zUpdateOrderItemPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zUpdateOrderItemQuery = z.object({
-  languageCode: z.enum(['el', 'en']).optional().default('el'),
-})
-
-export const zUpdateOrderItemResponse = zOrderItemDetail
 
 export const zRestockOrderItemBody = zOrderItemRestockRequest
 
