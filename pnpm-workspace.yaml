@@ -35,7 +35,12 @@ overrides:
   # Mar-2026 cluster: GHSA-q67f-28xg-22rw (Ed25519 forgery),
   # GHSA-ppp5-5v6c-4jwp (RSA-PKCS forgery), GHSA-5m6q-g25r-mvwx
   # (modInverse DoS). All fixed in node-forge@1.4.0.
-  node-forge: '>=1.4.0'
+  #
+  # Floor raised to 1.4.1 for the Oct-2026 cluster (GHSA-86w9-cpqp-85rv
+  # RSA PKCS#1 v1.5 signature malleability, plus GHSA-5x38/7wch/8hrf/hqq3/
+  # jc66/4487/4642/h6cr/525v/5cwg/6wvx): every advisory covers <=1.4.0.
+  # listhen (devtools / Nitro dev server) declares ^1.4.0, so in range.
+  node-forge: '>=1.4.1'
 
   # GHSA-c2c7-rcm5-vvqj (extglob ReDoS) +
   # GHSA-3v7f-55p6-f55p (POSIX class injection). Patched in
@@ -116,6 +121,17 @@ overrides:
   # exactly the shape of input this parses, so the floor is not
   # optional. Capped <4 so a future major is a deliberate bump.
   '@tiptap/core@<3.30.5': '>=3.30.5 <4'
+
+  # GHSA-g7r4-m6w7-qqqr — esbuild's dev server reads any file on Windows,
+  # fixed in 0.28.1. Our copy is fontless's (@nuxt/fonts, under @nuxt/ui),
+  # which declares ^0.27 and uses only the transform API, unchanged in
+  # 0.28; the build proves it. Capped <0.29.
+  'esbuild@>=0.27.3 <0.28.1': '>=0.28.1 <0.29'
+
+  # GHSA-3g3m-2fjr-6pw4 — glob's AbortSignal cancellation bypass, fixed
+  # only on the 14 line (14.0.2). @vercel/nft (Nitro's file tracer, build
+  # time) declares ^13; the build's trace proves 14 works. Capped <15.
+  'glob@>=9.0.0 <14.0.2': '>=14.0.2 <15'
 
   # Peer floor, not a CVE: h3 2.0.2 (dev tooling: @devframes, under
   # @nuxt/devtools) wants crossws ^0.4.12, while devframe 0.8.2 (under
