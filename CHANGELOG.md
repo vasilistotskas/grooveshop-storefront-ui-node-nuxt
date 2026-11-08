@@ -1,3 +1,10 @@
+## [3.334.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.334.0...v3.334.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* **deps:** node-forge 1.4.1+, esbuild 0.28.1+ and glob 14.0.2+ for 14 advisories ([#425](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/425)) ([2b74bb2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2b74bb22711d1f97eda8423c9ba1b644903ea330)), closes [PKCS#1](https://github.com/PKCS/issues/1)
+
 # [3.334.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.333.0...v3.334.0) (2026-11-08)
 
 
