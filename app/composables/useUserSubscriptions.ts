@@ -30,7 +30,7 @@ export function useUserSubscriptions() {
    */
   const fetchSubscriptions = () => {
     // Forward the browser cookie during SSR so the internal $fetch to
-    // /api/subscriptions/user inherits the encrypted nuxt-session
+    // /api/subscriptions/user inherits the encrypted nuxt-auth-session
     // cookie. See useSubscriptionTopics.fetchTopics for the same fix.
     return useAsyncData<UserSubscription[]>(
       'subscription:user:list',

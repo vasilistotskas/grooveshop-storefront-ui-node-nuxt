@@ -12,7 +12,7 @@ import { createRequestEvent, testSession } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
 /**
- * The cart id lives in nuxt-auth-utils' session (`nuxt-session`, the
+ * The cart id lives in nuxt-auth-utils' session (`nuxt-auth-session`, the
  * signed-in user's cookie too; `testSession` here) plus a plain
  * `cart-id` spare cookie. A "next request" is a new event carrying the
  * spare cookie the previous response set, as a browser would send it.
@@ -94,7 +94,7 @@ describe('cart session', () => {
   })
 
   it('clearing the cart keeps the rest of the shared session, so the shopper stays signed in', async () => {
-    // `nuxt-session` is nuxt-auth-utils' cookie as well: clearing the
+    // `nuxt-auth-session` is nuxt-auth-utils' cookie as well: clearing the
     // whole session instead of the one key would sign the shopper out.
     testSession.set({ user: { id: 7 } })
     const withCart = await visitorWithCart(CART_A)

@@ -164,10 +164,6 @@ export default defineNuxtConfig({
     mediaStreamPath: process.env.NUXT_MEDIA_STREAM_PATH,
     cacheBase: process.env.NUXT_CACHE_BASE,
     djangoUrl: process.env.NUXT_DJANGO_URL,
-    session: {
-      name: 'nuxt-session',
-      password: process.env.NUXT_SESSION_PASSWORD || '',
-    },
     cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN,
     // Upper bound on ONE contact-attachment upload streamed through
     // `server/api/contact/attachment.post.ts`. It bounds the SSR hop,

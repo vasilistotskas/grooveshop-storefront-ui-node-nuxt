@@ -139,7 +139,7 @@ export async function setupDevServer(
       NUXT_API_BASE_URL: `http://127.0.0.1:${fakeDjango.port}/api/v1`,
       NUXT_DJANGO_URL: `http://127.0.0.1:${fakeDjango.port}`,
       NUXT_CACHE_BASE: 'memory',
-      NUXT_SESSION_PASSWORD: 'e2e-test-session-password-32-chars-minimum-abcdef',
+      NUXT_APP_SECRET: 'e2e-test-app-secret-32-chars-minimum-abcdef0123',
       ...env,
     },
   })

@@ -9,7 +9,7 @@ interface CartSessionData {
 }
 
 // Fallback cookie stores the bare cart UUID so we can recover if the
-// encrypted ``nuxt-session`` cookie is cleared/rotated mid-browse. The
+// encrypted ``nuxt-auth-session`` cookie is cleared/rotated mid-browse. The
 // value is non-sensitive — it's just a lookup key the backend already
 // validates against the X-Cart-Id permission path.
 const CART_ID_FALLBACK_COOKIE = 'cart-id'
@@ -25,8 +25,8 @@ function isValidCartUuid(value: unknown): value is string {
   return typeof value === 'string' && UUID_RE.test(value)
 }
 
-// The cart lives in nuxt-auth-utils' `nuxt-session`, beside the signed-in
-// user: one sealed cookie, one password (`runtimeConfig.session`). A cart
+// The cart lives in nuxt-auth-utils' `nuxt-auth-session`, beside the signed-in
+// user: one sealed cookie, one key derived from `appSecret`. A cart
 // write seals it with the cart's own cookie lifetime.
 const CART_SESSION_CONFIG = {
   cookie: {
@@ -73,7 +73,7 @@ export async function updateCartSession(event: RequestEvent, updates: Partial<Ca
   if ('cartId' in updates && updates.cartId === undefined) {
     // `setUserSession` merges with defu, which skips an undefined value
     // and so keeps the old id; the session is rewritten without it. It
-    // must stay otherwise intact: `nuxt-session` also holds the
+    // must stay otherwise intact: `nuxt-auth-session` also holds the
     // signed-in user.
     const current = await getUserSession(event)
     await replaceUserSession(event, { ...current, cartId: undefined }, CART_SESSION_CONFIG)

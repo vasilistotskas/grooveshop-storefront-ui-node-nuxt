@@ -16,7 +16,7 @@
  */
 export const useLoyalty = () => {
   // Forwards the browser cookie during SSR so internal calls to our own
-  // /api/loyalty/* routes inherit the encrypted nuxt-session cookie —
+  // /api/loyalty/* routes inherit the encrypted nuxt-auth-session cookie —
   // without it they land anonymously, ``requireAllAuthAccessToken``
   // returns nothing and Django replies 401.
   // useRequestFetch instead of a bare $fetch with hand-picked headers:

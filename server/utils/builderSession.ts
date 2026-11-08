@@ -1,4 +1,4 @@
-import { clearSession, createError, getCookie, getSession, updateSession, useRuntimeConfig } from 'nuxt/server'
+import { clearSession, createError, getCookie, getSession, updateSession } from 'nuxt/server'
 import type { RequestEvent, SessionConfig } from 'nuxt/server'
 
 /**
@@ -6,8 +6,10 @@ import type { RequestEvent, SessionConfig } from 'nuxt/server'
  * after Django accepted a ticket, and what every `/api/builder/**` route
  * reads to act as that staff member.
  *
- * Its own cookie, sealed with the app's session password but named and
- * scoped apart from the customer session (`BUILDER_SESSION_COOKIE`).
+ * Its own cookie, named and scoped apart from the customer session
+ * (`BUILDER_SESSION_COOKIE`). With no `password`, `nuxt/server` seals it
+ * with a key it derives from `appSecret` for this cookie name, so it shares
+ * no key with the customer session either.
  * SameSite=Strict: only a page of this store sends it, never a link from
  * another site. Its lifetime is the token's (`expiresAt`), nothing longer.
  *
@@ -19,7 +21,6 @@ import type { RequestEvent, SessionConfig } from 'nuxt/server'
 function sessionConfig(maxAge?: number): SessionConfig {
   return {
     name: BUILDER_SESSION_COOKIE,
-    password: useRuntimeConfig().session.password,
     ...(maxAge !== undefined && { maxAge }),
     cookie: { httpOnly: true, secure: true, sameSite: 'strict', path: '/' },
   }

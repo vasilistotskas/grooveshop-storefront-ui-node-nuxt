@@ -72,14 +72,14 @@ the workspace root. Symptom triage that stays on the Nuxt side works either way.
 **"Can't log in / 401 on login"**
 - Check `server/api/_allauth/app/v1/auth/login.post.ts` — is `getAllAuthHeaders()` called?
 - Check Django: is `ACCOUNT_LOGIN_METHODS = {"email"}` set? Only email login works.
-- Check if `NUXT_SESSION_PASSWORD` is set and ≥32 chars (startup-validation.ts will throw if not).
+- Check if `NUXT_APP_SECRET` is set and ≥32 chars (startup-validation.ts will throw if not).
 - Check Django rate limit: `AllAuthRateLimitMiddleware` blocks after 10 login attempts/min.
 
 **"Session expires / 410 errors"**
 - Knox token TTL: 7 days. After expiry Django returns 410.
 - `handleAllAuthError` in `server/utils/error.ts` handles 410 by calling `clearUserSession`.
 - The auth plugin fires `LOGGED_OUT` → `handleLoggedOut()` → redirect to home.
-- Check: is `NUXT_SESSION_PASSWORD` the same across server restarts? Changing it invalidates all sessions.
+- Check: is `NUXT_APP_SECRET` the same across server restarts and pods? Changing it invalidates all sessions (the session keys are derived from it).
 
 **"OAuth login broken"**
 - Flow: browser → `/auth/google?process=login` → Google → `/auth/google?code=...` → `/account/provider/callback?provider=google&process=login`
@@ -140,7 +140,7 @@ Error responses (401, 410, 403, 404, 409):
 grep -E "ACCOUNT_|SOCIALACCOUNT_|MFA_|HEADLESS_|REST_KNOX" settings.py
 
 # Nuxt — verify env vars are set (names only; never print the values)
-grep -oE "^(NUXT_SESSION_PASSWORD|NUXT_OAUTH_[A-Z_]+)=" .env
+grep -oE "^(NUXT_APP_SECRET|NUXT_OAUTH_[A-Z_]+)=" .env
 
 # Check allauth rate limit isn't blocking (look for 429s)
 # AllAuthRateLimitMiddleware is disabled when DEBUG=True or DISABLE_CACHE=True
@@ -161,7 +161,7 @@ grep -oE "^(NUXT_SESSION_PASSWORD|NUXT_OAUTH_[A-Z_]+)=" .env
 
 ### 5. Fix checklist
 
-- [ ] `NUXT_SESSION_PASSWORD` ≥ 32 chars and consistent across restarts
+- [ ] `NUXT_APP_SECRET` ≥ 32 chars and consistent across restarts
 - [ ] Each tenant's primary domain is set (WebAuthn RP ID, `_webauthn_rp_id()` in `core/adapter.py`; `APP_MAIN_HOST_NAME` is only the platform fallback)
 - [ ] `ALLOWED_HOSTS` set in production (not wildcarded)
 - [ ] `DEBUG=False` in production (enables SSL, CSRF, CORS restrictions)

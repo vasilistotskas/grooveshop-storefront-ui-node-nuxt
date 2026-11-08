@@ -41,8 +41,9 @@ const alias = {
  * `nuxt/server` as a Nitro 2 build provides it. A build replaces the
  * package's portable module with `@nuxt/nitro-server`'s implementation,
  * which runs on h3 v1 events, so the unit project points the import at
- * that same file. It and `nuxt/dist/server` are inlined so these aliases
- * reach their imports too, and the Nitro runtime they import (virtual
+ * that same file. It, `nuxt/dist/server` and `nuxt/dist/runtime/server`
+ * (`deriveSecret`, the session keys) are inlined so these aliases reach
+ * their imports too, and the Nitro runtime they import (virtual
  * modules that exist only inside a build) resolves to the test shim.
  */
 const nuxtRequire = createRequire(realpathSync(path('./node_modules/nuxt/package.json')))
@@ -52,6 +53,9 @@ const serverAlias = [
   ...Object.entries(alias).map(([find, replacement]) => ({ find, replacement })),
   { find: /^nuxt\/server$/, replacement: nitroServerRuntime },
   { find: /^(?:nitropack\/runtime|#internal\/nuxt\/route-rules\.mjs)$/, replacement: nitroShim },
+  // `deriveSecret` (the session keys) reads `appSecret` through Nuxt's own
+  // runtime-config entry, which a build points at Nitro's config.
+  { find: /^nuxt\/internal\/server-runtime-config$/, replacement: nitroShim },
   // The text catalogue is a Nitro virtual module a build provides
   // (`modules/text-catalogue`); the unit project reads a fixture tree.
   { find: /^#text-catalogue$/, replacement: path('./test/helpers/nitro/textCatalogue.ts') },
@@ -203,7 +207,7 @@ export default defineConfig({
           include: ['test/unit/**/*.spec.ts'],
           environment: 'node',
           setupFiles: ['./test/fixtures/setup/nitro.ts'],
-          server: { deps: { inline: ['@nuxt/nitro-server', /[\\/]nuxt[\\/]dist[\\/]server[\\/]/] } },
+          server: { deps: { inline: ['@nuxt/nitro-server', /[\\/]nuxt[\\/]dist[\\/](?:runtime[\\/])?server[\\/]/] } },
           ...isolation,
         },
       },

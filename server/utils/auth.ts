@@ -1,5 +1,4 @@
-import type { SessionConfig } from 'h3'
-import { createError, getCookie, getRequestHeader, getRequestProtocol, useRuntimeConfig } from 'nuxt/server'
+import { createError, getCookie, getRequestProtocol, useRuntimeConfig } from 'nuxt/server'
 import type { RequestEvent } from 'nuxt/server'
 import type { UserSession } from '#auth-utils'
 import { clientIdentityHeaders } from './clientIdentity'
@@ -98,31 +97,23 @@ export async function processAllAuthSession(event: RequestEvent, response: AllAu
  * Whether the request carries a session, WITHOUT creating one.
  *
  * `getUserSession` on a request with no session mints one and sends it
- * back as a `Set-Cookie` (h3 `getSession`: "creating a new session if one
- * doesn't exist"), so reading it just to find out turns every anonymous
- * request into a sealed cookie write, and a response that sets a cookie is
- * never cached at the edge. h3 takes the sealed session from the
- * `x-<name>-session` header first, then the `<name>` cookie; both names
- * come from the same `runtimeConfig.session` nuxt-auth-utils uses.
+ * back as a `Set-Cookie` (`nuxt/server` `getSession`: "created empty and
+ * sealed into the response when there is no cookie"), so reading it just to
+ * find out turns every anonymous request into a sealed cookie write, and a
+ * response that sets a cookie is never cached at the edge.
  */
 export function requestHasSession(event: RequestEvent): boolean {
-  // Read through h3's own `SessionConfig`, the contract this mirrors:
-  // nuxt-auth-utils seals its session with h3, and nuxt.config declares
-  // no `sessionHeader`, so the inferred runtime config type has none,
-  // though h3 honours one when it is set.
-  const { name, sessionHeader }: Pick<SessionConfig, 'name' | 'sessionHeader'> = useRuntimeConfig().session
-  // nuxt-auth-utils defaults it (`nuxt-session`); absent means the module is not configured.
+  // The name nuxt-auth-utils seals under: it declares
+  // `runtimeConfig.session.name` (default `nuxt-auth-session`) so
+  // NUXT_SESSION_NAME can rename the cookie at runtime.
+  const { name } = useRuntimeConfig().session
   if (!name) throw new Error('runtimeConfig.session.name is not set')
-  // A session written earlier in this request is its session too (h3
-  // keeps it on the event): the cart's first write, read again before
-  // the response sets the cookie.
-  const sessions = event.context.sessions
-  if (typeof sessions === 'object' && sessions !== null && name in sessions) return true
-  if (sessionHeader !== false) {
-    const header = typeof sessionHeader === 'string' ? sessionHeader : `x-${name.toLowerCase()}-session`
-    if (getRequestHeader(event, header)) return true
-  }
-  return Boolean(getCookie(event, name))
+  if (getCookie(event, name)) return true
+  // A session written earlier in this request is its session too: the
+  // cart's first write, read again before the response goes out. Its
+  // sealed cookie is already on the response; a cleared session's
+  // expiring `name=;` cookie is not a session.
+  return event.res.headers.getSetCookie().some(cookie => cookie.startsWith(`${name}=`) && !cookie.startsWith(`${name}=;`))
 }
 
 /**
@@ -130,7 +121,7 @@ export function requestHasSession(event: RequestEvent): boolean {
  * session when the request carries none. Every read goes through here.
  * `getUserSession` is for the writes that create a session on purpose
  * (sign-in, the cart), because on a request without one it mints a
- * session and sends `nuxt-session` back: the allauth config, the cart and
+ * session and sends `nuxt-auth-session` back: the allauth config, the cart and
  * the blog view count did that for every visitor before they signed in
  * or added anything (2026-10-15).
  */

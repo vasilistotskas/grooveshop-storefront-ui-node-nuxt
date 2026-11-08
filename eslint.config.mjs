@@ -99,8 +99,8 @@ const RETURN_AWAITED_IN_TRY = ['', 'TSAsExpression > ', 'TSNonNullExpression > '
 }))
 
 /**
- * Reading a session must not create one. `getUserSession` (and h3's
- * `useSession` under it) mints a session and sets `nuxt-session` for a
+ * Reading a session must not create one. `getUserSession` (and `nuxt/server`
+ * `useSession` under it) mints a session and sets `nuxt-auth-session` for a
  * request that has none, which gave every visitor a session cookie before
  * they signed in or added to a cart (2026-10-15). Reads go through
  * `readUserSession`; the writers that create a session on purpose are the

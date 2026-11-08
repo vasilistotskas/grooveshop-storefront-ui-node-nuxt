@@ -1,3 +1,10 @@
+# [3.333.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.332.2...v3.333.0) (2026-11-08)
+
+
+### Features
+
+* **auth:** nuxt-auth-utils 0.6, sessions sealed from NUXT_APP_SECRET ([#422](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/422)) ([26cb4fd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/26cb4fd50f8b7d587c75b00b37dcd15dea454c81))
+
 ## [3.332.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.332.1...v3.332.2) (2026-11-07)
 
 

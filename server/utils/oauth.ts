@@ -1,9 +1,8 @@
 import { withQuery } from 'ufo'
-// The OAuth callbacks run inside nuxt-auth-utils' handler factories
-// (`defineOAuth*EventHandler`), which hand them h3's event, so these use
-// h3's own helpers.
-import { deleteCookie, getCookie, sendRedirect, setCookie } from 'h3'
-import type { H3Event } from 'h3'
+// nuxt-auth-utils' handler factories (`defineOAuth*EventHandler`) hand the
+// callbacks a `nuxt/server` event, so these use its helpers.
+import { deleteCookie, getCookie, sendRedirect, setCookie } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
 
 export const OAUTH_PROCESS_COOKIE = 'oauth_process'
 
@@ -26,7 +25,7 @@ function oauthProcessOf(value: unknown): OAuthProcess {
   return zPostAllauthAppV1AuthProviderTokenBody.shape.process.safeParse(value).data ?? 'login'
 }
 
-export function captureOAuthProcess(event: H3Event, query: Record<string, string | string[]>) {
+export function captureOAuthProcess(event: RequestEvent, query: Record<string, string | string[]>) {
   if (!query.code && !query.error) {
     setCookie(event, OAUTH_PROCESS_COOKIE, oauthProcessOf(query.process), OAUTH_COOKIE_OPTIONS)
   }
@@ -37,14 +36,14 @@ export function captureOAuthProcess(event: H3Event, query: Record<string, string
  * came from: the cookie is httpOnly and set here, but a client (or a
  * sibling subdomain's cookie on the parent domain) can send any value.
  */
-export function readAndClearOAuthProcess(event: H3Event): OAuthProcess {
+export function readAndClearOAuthProcess(event: RequestEvent): OAuthProcess {
   const process = oauthProcessOf(getCookie(event, OAUTH_PROCESS_COOKIE))
   deleteCookie(event, OAUTH_PROCESS_COOKIE)
   return process
 }
 
 export async function storeOAuthTokensAndRedirect(
-  event: H3Event,
+  event: RequestEvent,
   provider: string,
   tokens: { access_token?: string | null, id_token?: string | null },
   clientId: string | undefined,
@@ -76,7 +75,7 @@ export async function storeOAuthTokensAndRedirect(
   return sendRedirect(event, redirectUrl)
 }
 
-export async function redirectOAuthError(event: H3Event, provider: string) {
+export async function redirectOAuthError(event: RequestEvent, provider: string) {
   deleteCookie(event, OAUTH_PROCESS_COOKIE)
   const redirectUrl = withQuery('/account/provider/callback', {
     provider,

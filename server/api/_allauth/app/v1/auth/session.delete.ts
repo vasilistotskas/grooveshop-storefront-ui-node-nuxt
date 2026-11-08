@@ -19,12 +19,12 @@ export default defineEventHandler(async (event) => {
   }
   finally {
     // One after the other, user last: the cart id lives in the same
-    // `nuxt-session` cookie, and clearing the cart rewrites that session.
+    // `nuxt-auth-session` cookie, and clearing the cart rewrites that session.
     // Run side by side, the cart clear read the session before the user
     // clear emptied it and wrote it back with the old session token, so the
     // sign-out undid itself and the next sign-in was refused (410). Each
     // runs even if the other throws (e.g. a seal failure during a
-    // NUXT_SESSION_PASSWORD rotation), so no stale cookie stays behind.
+    // NUXT_APP_SECRET rotation), so no stale cookie stays behind.
     for (const clear of [clearCartSession, clearUserSession]) {
       try {
         await clear(event)
