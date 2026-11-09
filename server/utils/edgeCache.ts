@@ -37,6 +37,21 @@ export function edgeCacheTenantTag(schemaName: string): string {
 }
 
 /**
+ * The headers that let Cloudflare keep a store's response and Django purge
+ * it: the edge directive, ``no-cache`` for browsers (they revalidate
+ * against the edge), and both purge tags. Pages Nitro served from its page
+ * cache get them from ``server/plugins/edge-cache.ts``; a route whose
+ * answer is the same for every visitor (the RSS feeds) sets them itself.
+ */
+export function edgeCacheHeaders(schemaName: string): Record<string, string> {
+  return {
+    'cache-control': 'no-cache',
+    'cloudflare-cdn-cache-control': EDGE_CACHE_CONTROL,
+    'cache-tag': `${EDGE_CACHE_TAG},${edgeCacheTenantTag(schemaName)}`,
+  }
+}
+
+/**
  * Whether the render marked itself as a fallback (`event.context.degradedRender`,
  * `shared/constants/degradedRender.ts`) and its page-cache veto status is
  * still the response's: the real status is then put back and the response

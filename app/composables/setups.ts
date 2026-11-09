@@ -80,6 +80,27 @@ export function setupPageHeader() {
     return href ? [{ rel: 'preconnect' as const, href }] : []
   })
 
+  // RSS autodiscovery (RSS Board): the store's feeds, each with a title of
+  // its own so a reader can tell them apart. Both are blog feeds first
+  // (`server/utils/rssFeed.ts` answers 404 without the blog); the store
+  // feed is advertised only with the catalogue, where it adds products and
+  // so differs from the blog feed.
+  const blogEnabled = useStoreFeature('blog')
+  const catalogueEnabled = useStoreFeature('catalogue')
+  const feedLinks = computed(() => {
+    if (!blogEnabled.value) return []
+    const feed = (path: string, key: string) => ({
+      rel: 'alternate' as const,
+      type: 'application/rss+xml',
+      title: $i18n.t(key, { name: siteConfig.name }),
+      href: `${siteUrl}${path}`,
+    })
+    return [
+      ...(catalogueEnabled.value ? [feed('/rss.xml', 'feeds.store')] : []),
+      feed('/blog/rss.xml', 'feeds.blog'),
+    ]
+  })
+
   const colorMode = useColorMode()
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
   // Prefer the locale's full BCP-47 `language` (e.g. `el-GR`) so screen
@@ -169,6 +190,7 @@ export function setupPageHeader() {
             ]
           : []),
       ...assetOriginLinks.value,
+      ...feedLinks.value,
     ],
     meta: [...(i18nHead.value.meta || []),
       ...(tenantStore.pinterestDomainVerify

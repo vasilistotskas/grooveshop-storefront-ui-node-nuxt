@@ -104,6 +104,10 @@ export function createCachedFetcher<T>(
     {
       maxAge,
       name,
+      // An expired entry is read again, never served as it is: with
+      // `swr` Nitro serves a stale entry without an age limit and keeps
+      // it with no TTL, so the sitemap and the feeds ran builds behind.
+      swr: false,
       // hashedCacheKey: nitropack escapes custom keys down to word
       // characters — without the hash suffix, punctuation-equivalent
       // tenant hosts/urls would share one cache entry (cross-tenant

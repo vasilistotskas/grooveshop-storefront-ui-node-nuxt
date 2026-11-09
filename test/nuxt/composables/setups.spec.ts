@@ -434,6 +434,65 @@ describe('setupPageHeader connection hints', () => {
       { rel: 'preconnect', href: 'https://assets.shop.test', crossorigin: null },
     ])
   })
+
+  /**
+   * RSS autodiscovery: each feed a reader can subscribe to, each with its
+   * own title (RSS Board). The store feed adds products, so it is offered
+   * only with the catalogue; both need the blog.
+   */
+  describe('feed links', () => {
+    async function feedLinks() {
+      const head = injectHead()
+      const before = new Set(head.entries.keys())
+      await mountSuspended(HeaderHarness, { route: false })
+      await flushPromises()
+      vi.useFakeTimers({ toFake: ['setTimeout'] })
+      try {
+        head.render()
+        vi.runOnlyPendingTimers()
+      }
+      finally {
+        vi.useRealTimers()
+      }
+      const links = [...document.querySelectorAll('link[type="application/rss+xml"]')]
+        .map(link => ({
+          rel: link.getAttribute('rel'),
+          title: link.getAttribute('title'),
+          href: link.getAttribute('href'),
+        }))
+      for (const key of head.entries.keys()) {
+        if (!before.has(key)) head.entries.delete(key)
+      }
+      return links
+    }
+
+    const features = (on: { blog: boolean, catalogue: boolean }) =>
+      ({ features: { ...useTenantStore().config!.features, ...on } })
+
+    it('offers the store feed and the blog feed with the catalogue', async () => {
+      setTenant(features({ blog: true, catalogue: true }))
+      const { $i18n } = useNuxtApp()
+      const { name, url } = useSiteConfig()
+      expect($i18n.te('feeds.store') && $i18n.te('feeds.blog')).toBe(true)
+
+      expect(await feedLinks()).toEqual([
+        { rel: 'alternate', title: $i18n.t('feeds.store', { name }), href: `${url}/rss.xml` },
+        { rel: 'alternate', title: $i18n.t('feeds.blog', { name }), href: `${url}/blog/rss.xml` },
+      ])
+    })
+
+    it('offers only the blog feed without the catalogue', async () => {
+      setTenant(features({ blog: true, catalogue: false }))
+
+      expect((await feedLinks()).map(link => link.href)).toEqual([`${useSiteConfig().url}/blog/rss.xml`])
+    })
+
+    it('offers no feed without the blog', async () => {
+      setTenant(features({ blog: false, catalogue: true }))
+
+      expect(await feedLinks()).toEqual([])
+    })
+  })
 })
 
 /**

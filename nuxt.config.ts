@@ -235,6 +235,12 @@ export default defineNuxtConfig({
     // see `sitemap.cacheMaxAgeSeconds` below for why the module's own
     // cache is off.
     '/sitemap.xml': { swr: 60 * 60 * 24, cache: { varies: ['host', 'x-tenant-epoch'] } },
+    // The blog feed sits under the `/blog/**` page-cache rule below, which
+    // would wrap its handler in a second, stale-serving cache. Nitro takes
+    // the most specific rule first (`getRouteRulesForPath`: defu over
+    // `matchAll().reverse()`), so this keeps the feed on its own bounded
+    // caches (`server/utils/rssFeed.ts`).
+    '/blog/rss.xml': { cache: false },
     '/__sitemap__/el-GR.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
     // A page type a static route renders, asked for at its own name. The
     // catch-all used to render the home layout at `/home` as well, a
