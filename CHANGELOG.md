@@ -1,3 +1,10 @@
+## [3.336.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.336.1...v3.336.2) (2026-11-09)
+
+
+### Bug Fixes
+
+* **rich-text:** keep the editor's new tab, open external links per store, FAQ questions at the body's size ([#438](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/438)) ([0e1f7bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0e1f7bd2dda6479bb3c3453d053b42b9b8cad7a8)), closes [#430](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/430)
+
 ## [3.336.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.336.0...v3.336.1) (2026-11-09)
 
 

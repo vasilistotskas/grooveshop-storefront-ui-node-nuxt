@@ -62,6 +62,13 @@ export interface RichHtmlOptions {
   videoPlayLabel: string
   /** The store's Media Stream base URL, which serves a video's poster. */
   mediaStreamBaseUrl: string
+  /**
+   * The store's ``externalLinksNewTab`` preference: every link to a host
+   * not in ``storeHosts`` opens in a new tab.
+   */
+  externalLinksNewTab: boolean
+  /** The store's own hosts (``TenantConfig`` domains); a link to one keeps the editor's choice. */
+  storeHosts: readonly string[]
 }
 
 /** YouTube's poster, the 480x360 frame every video has, as it fills a facade. */
@@ -322,6 +329,49 @@ function cleanAnchors(root: PurifiedElement): void {
   }
 }
 
+/** A host as the store names it: lower case, without a leading ``www.`` (redirected to the bare host). */
+const bareHost = (host: string): string => host.toLowerCase().replace(/^www\./, '')
+
+/** True for an absolute http(s) link to a host that is not one of the store's own. */
+function linksElsewhere(href: string | null, storeHosts: ReadonlySet<string>): boolean {
+  if (!href || !URL.canParse(href)) return false
+  const url = new URL(href)
+  return (url.protocol === 'http:' || url.protocol === 'https:') && !storeHosts.has(bareHost(url.hostname))
+}
+
+const NEW_TAB_REL = ['noopener', 'noreferrer'] as const
+
+/**
+ * Where each link opens. DOMPurify keeps ``target`` only because it is
+ * added to its allow-list, and its threat model asks for ``noopener``
+ * downstream: so the only value kept is ``_blank`` (the editor's "open in
+ * a new tab"), only on a link, and always with ``rel="noopener
+ * noreferrer"``, whatever ``rel`` the body carried. With the store's
+ * ``externalLinksNewTab`` preference on, a link to another host opens in
+ * a new tab too; a link to the store's own hosts, or a relative one, keeps
+ * what the editor chose.
+ *
+ * Run on the sanitised tree, after ``cleanAnchors``.
+ */
+function setLinkTargets(root: PurifiedElement, options: RichHtmlOptions): void {
+  for (const element of root.querySelectorAll('[target]')) {
+    if (element.tagName !== 'A' || element.getAttribute('target')!.toLowerCase() !== '_blank') {
+      element.removeAttribute('target')
+    }
+  }
+  const storeHosts = new Set(options.storeHosts.filter(Boolean).map(bareHost))
+  for (const anchor of root.querySelectorAll('a[href]')) {
+    if (options.externalLinksNewTab && linksElsewhere(anchor.getAttribute('href'), storeHosts)) {
+      anchor.setAttribute('target', '_blank')
+    }
+    if (!anchor.hasAttribute('target')) continue
+    anchor.setAttribute('target', '_blank')
+    const rel = new Set(anchor.getAttribute('rel')?.split(/\s+/).filter(Boolean))
+    for (const token of NEW_TAB_REL) rel.add(token)
+    anchor.setAttribute('rel', [...rel].join(' '))
+  }
+}
+
 /**
  * Sanitise admin-authored rich text for rendering with ``v-html``.
  *
@@ -364,7 +414,10 @@ export function sanitizeRichHtml(
   try {
     body = DOMPurify.sanitize(html, {
       ADD_TAGS: ['iframe'],
-      ADD_ATTR: [...EMBED_IFRAME_ATTRS],
+      // ``target`` for the editor's "open in a new tab": DOMPurify's
+      // default list leaves it out, and ``setLinkTargets`` keeps only
+      // ``_blank`` on a link, with ``noopener noreferrer``.
+      ADD_ATTR: [...EMBED_IFRAME_ATTRS, 'target'],
       // Belt and braces: ``srcdoc`` is not in the default allow-list and
       // is not added above, but forbidding it explicitly means a future
       // widening of ADD_ATTR cannot quietly let it back in.
@@ -376,6 +429,7 @@ export function sanitizeRichHtml(
     cleaningRichText = false
   }
   cleanAnchors(body)
+  setLinkTargets(body, options)
   replaceEmbeds(body, options)
   return body.innerHTML
 }

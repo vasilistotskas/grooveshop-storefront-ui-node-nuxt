@@ -612,8 +612,9 @@ button:disabled:active,
    <details> opens and closes with no JavaScript at all.
 
    The look is the mobile footer's accordion
-   (variants/webside/Footer/Mobile.vue): a solid secondary bar, medium
-   `text-base` label in the on-secondary colour, `px-3 py-2.5`, `gap-3`,
+   (variants/webside/Footer/Mobile.vue): a solid secondary bar, a
+   semibold label at the body's own size (an `.article-lg` post's 18/20px,
+   not a fixed 16px under it) in the on-secondary colour, `px-3 py-2.5`, `gap-3`,
    `rounded-md`, a `size-4` chevron that turns 180° in 200ms ease-out,
    and a `border-default` rule between items. The chevron is drawn here
    (a lucide chevron-down mask), because an icon class typed into CMS
@@ -629,7 +630,7 @@ button:disabled:active,
 
   & > summary {
     @apply flex cursor-pointer list-none items-center gap-3 rounded-md
-      bg-(--ui-secondary) px-3 py-2.5 text-base font-medium
+      bg-(--ui-secondary) px-3 py-2.5 font-semibold
       text-(--ui-on-secondary) outline-primary/25 focus-visible:outline-3;
 
     &::-webkit-details-marker {

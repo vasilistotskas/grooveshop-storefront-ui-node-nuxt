@@ -7956,6 +7956,7 @@ export type StorePreferences = {
   readonly recentlyViewed: boolean
   readonly productAssurances: boolean
   readonly demoAccount: boolean
+  readonly externalLinksNewTab: boolean
 }
 
 /**
