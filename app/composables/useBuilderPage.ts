@@ -89,5 +89,9 @@ export async function useBuilderPage(
     }
   }, { tagPriority: 'high' })
 
-  return { page, sections, seoTitle, seoDescription, status, error }
+  // The page's h1 text where its body would otherwise draw the store's name
+  // (`BUILDER_HEADING_DOCUMENTS`); empty when the page sets none.
+  const heading = computed(() => settingText(page.value, 'heading'))
+
+  return { page, sections, seoTitle, seoDescription, heading, status, error }
 }

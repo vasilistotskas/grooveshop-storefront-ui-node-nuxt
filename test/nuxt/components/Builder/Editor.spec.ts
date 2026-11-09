@@ -1383,3 +1383,98 @@ describe('editing the structure of a page', () => {
     })
   })
 })
+
+/**
+ * The open page's own settings (#431): its search-engine copy, and on the
+ * home page the heading its body draws in place of the store's name, each
+ * written in the language being edited and saved like any other change.
+ */
+describe('the page\'s own settings', () => {
+  const DRAFT_URL = `${documentUrl('template:home')}/draft`
+  let saved: { draft: Record<string, unknown>, i18n: Record<string, unknown> } | undefined
+
+  beforeEach(() => {
+    saved = undefined
+    api.routes({
+      '/api/builder/documents': LIST,
+      '/api/builder/presence': NOBODY_ELSE,
+      [documentUrl('template:home')]: () => saved ? { ...HOME, draftRevision: 3, ...saved } : HOME,
+      [documentUrl('group:header')]: HEADER,
+      [documentUrl('group:footer')]: FOOTER,
+      [documentUrl('page:summer-sale')]: ABOUT,
+      [DRAFT_URL]: (_url: string, options: { body: { draft: Record<string, unknown>, i18n: Record<string, unknown> } }) => {
+        saved = { draft: options.body.draft, i18n: options.body.i18n }
+        return { ...HOME, draftRevision: 3, ...saved }
+      },
+    })
+  })
+
+  afterEach(() => {
+    setTenant()
+  })
+
+  async function saveNow() {
+    useBuilderAutosaveStore().flush()
+    await flushPromises()
+  }
+
+  /** The text control of the field labelled `label`. */
+  const control = (wrapper: Awaited<ReturnType<typeof open>>, label: string) => {
+    const field = wrapper.findAll('[data-slot="root"]').find(element => element.find('label').exists() && element.get('label').text().startsWith(label))
+    return field!.get<HTMLInputElement | HTMLTextAreaElement>('input, textarea')
+  }
+
+  it('is offered under the outline and opens in place of the selection', async () => {
+    const wrapper = await open()
+
+    await wrapper.findAll('button').find(item => item.text() === 'Ρυθμίσεις σελίδας: τίτλος και περιγραφή στην αναζήτηση')!.trigger('click')
+    await vi.waitFor(() => expect(useRoute().query.panel).toBe('page'))
+    await flushPromises()
+
+    expect(wrapper.get('#builder-inspector-title').text()).toBe('Ρυθμίσεις σελίδας')
+  })
+
+  it('saves the search title and the home page\'s heading in the draft, and shows them after a reload', async () => {
+    const wrapper = await open('/_builder?panel=page')
+
+    await control(wrapper, 'Τίτλος για τις μηχανές αναζήτησης').setValue('Webside: τεχνολογία με νόημα')
+    await control(wrapper, 'Κύρια επικεφαλίδα (h1)').setValue('Τεχνολογία με νόημα')
+    await saveNow()
+
+    expect(saved!.draft.settings).toEqual({ seoTitle: 'Webside: τεχνολογία με νόημα', heading: 'Τεχνολογία με νόημα' })
+
+    wrapper.unmount()
+    resetBuilderEditorStores()
+    const reloaded = await open('/_builder?panel=page')
+
+    expect(control(reloaded, 'Κύρια επικεφαλίδα (h1)').element.value).toBe('Τεχνολογία με νόημα')
+  })
+
+  it('writes English as a translation, with the draft\'s text as its placeholder', async () => {
+    setTenant({ defaultLocale: 'el', availableLocales: ['el', 'en'] })
+    const wrapper = await open('/_builder?panel=page&locale=en')
+    // The draft's heading, written in Greek before English is opened.
+    useBuilderEditorStore().change('template:home', setBuilderPageSetting(useBuilderEditorStore().opened['template:home']!.copy, 'heading', 'Τεχνολογία με νόημα'))
+    await flushPromises()
+
+    expect(control(wrapper, 'Κύρια επικεφαλίδα (h1)').attributes('placeholder')).toBe('Τεχνολογία με νόημα')
+    await control(wrapper, 'Κύρια επικεφαλίδα (h1)').setValue('Technology that makes sense')
+    await saveNow()
+
+    expect(saved!.draft.settings).toEqual({ heading: 'Τεχνολογία με νόημα' })
+    expect(saved!.i18n).toEqual({ en: { [BUILDER_DOCUMENT_NODE_ID]: { '/heading': 'Technology that makes sense' } } })
+  })
+
+  it('offers no heading on a page whose body draws its own title', async () => {
+    const wrapper = await open('/_builder?doc=page:summer-sale&panel=page')
+
+    expect(wrapper.text()).toContain('Τίτλος για τις μηχανές αναζήτησης')
+    expect(wrapper.text()).not.toContain('Κύρια επικεφαλίδα (h1)')
+  })
+
+  it('shows STAFF the settings, but lets them change none', async () => {
+    const wrapper = await open('/_builder?panel=page', { ...session, staff: { ...session.staff, role: 'staff' } })
+
+    expect(control(wrapper, 'Τίτλος για τις μηχανές αναζήτησης').element.disabled).toBe(true)
+  })
+})

@@ -403,6 +403,24 @@
       "label": "Style"
     }
   },
+  "documentSettings": {
+    "seoTitle": {
+      "label": "Search engine title",
+      "help": "The title of the browser tab and of search results. Empty: the title the page sets."
+    },
+    "seoDescription": {
+      "label": "Search engine description",
+      "help": "The text under the title in search results. Empty: the description the page sets."
+    },
+    "seoKeywords": {
+      "label": "Keywords",
+      "help": "Not put on the page: search engines ignore them."
+    },
+    "heading": {
+      "label": "Main heading (h1)",
+      "help": "The page’s main heading, when no section has one of its own. Empty: the store’s name."
+    }
+  },
   "options": {
     "surface": {
       "default": "Basic",

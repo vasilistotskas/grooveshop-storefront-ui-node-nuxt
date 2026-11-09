@@ -8,7 +8,10 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 // Per-tenant homepage composition: the store's published `home` page drives
 // which sections render in which order. A new store gets the platform's
 // default home as its first release, so there is no code-level layout here.
-const { sections } = await useBuilderPage('home')
+const { sections, heading } = await useBuilderPage('home')
+
+// The page's h1: the heading the store wrote for its homepage, or its name.
+const pageHeading = computed(() => heading.value || appTitle.value)
 
 useHead({
   titleTemplate: '%s',
@@ -31,13 +34,13 @@ useSeoMeta({
 <template>
   <WebsidePageSectionsShell :sections="sections">
     <template #title>
-      <!-- Every page owns exactly one h1. The homepage's is the store
-           name — the same text the navbar logo's h1 carried before it
-           stopped being a heading. Visually hidden: the hero sections
-           own the visible top of the page. -->
+      <!-- Every page owns exactly one h1. The homepage's is the heading
+           the store set in the editor's page settings, or else its name.
+           Visually hidden: the hero sections own the visible top of the
+           page. -->
       <WebsidePageTitle
         v-if="!sectionsProvideHeading(sections)"
-        :text="appTitle"
+        :text="pageHeading"
         class="sr-only"
       />
     </template>

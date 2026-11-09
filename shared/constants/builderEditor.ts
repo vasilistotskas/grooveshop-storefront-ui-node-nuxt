@@ -47,8 +47,8 @@ export const BUILDER_EDITOR_QUERY = {
 /** The store's theme document: one per store, its root settings only (`zThemeSettings`). */
 export const BUILDER_THEME_DOCUMENT = 'theme'
 
-/** The panels the editor's settings pane shows instead of a node's settings. */
-export const BUILDER_EDITOR_PANELS = ['theme'] as const
+/** The panels the editor's settings pane shows instead of a node's settings: the theme, and the open page's own settings. */
+export const BUILDER_EDITOR_PANELS = ['theme', 'page'] as const
 export type BuilderEditorPanel = (typeof BUILDER_EDITOR_PANELS)[number]
 
 /** The tabs of the editor's add-section library, in the order it shows them; each section block names one (`editor.category`). */

@@ -76,6 +76,35 @@ const translating = computed(() => locale.value === DEFAULT_LOCALE ? undefined :
     <BuilderThemePanel />
   </section>
   <section
+    v-else-if="panel === 'page'"
+    class="flex flex-col gap-4"
+    aria-labelledby="builder-inspector-title"
+  >
+    <header>
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-xs text-muted">
+          {{ t('page') }}
+        </p>
+        <UBadge
+          v-if="translating"
+          color="info"
+          variant="subtle"
+          size="sm"
+          icon="i-lucide-languages"
+          :label="t('translating', { language: translating })"
+        />
+      </div>
+      <h2
+        id="builder-inspector-title"
+        tabindex="-1"
+        class="truncate text-base font-semibold"
+      >
+        {{ t('pageSettings') }}
+      </h2>
+    </header>
+    <BuilderPageSettings />
+  </section>
+  <section
     v-else-if="selection"
     class="flex flex-col gap-4"
     aria-labelledby="builder-inspector-title"
@@ -129,6 +158,7 @@ const translating = computed(() => locale.value === DEFAULT_LOCALE ? undefined :
 <i18n lang="yaml">
 el:
   page: Αυτή η σελίδα
+  pageSettings: Ρυθμίσεις σελίδας
   theme: Θέμα του καταστήματος
   translating: "Μετάφραση: {language}"
   featureOff:
@@ -142,6 +172,7 @@ el:
     description: Διαλέξτε μια ενότητα ή ένα στοιχείο στη δομή της σελίδας για να αλλάξετε τις ρυθμίσεις του.
 en:
   page: This page
+  pageSettings: Page settings
   theme: Store theme
   translating: "Translating: {language}"
   featureOff:
