@@ -1,3 +1,10 @@
+# [3.335.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.334.2...v3.335.0) (2026-11-09)
+
+
+### Features
+
+* **blog:** one schema.org Person per author, with public profiles ([#435](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/435)) ([30631ab](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/30631ab53bf408526ab40b537b0a6e73375aefc7)), closes [#person](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/person) [#428](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/428)
+
 ## [3.334.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.334.1...v3.334.2) (2026-11-09)
 
 
