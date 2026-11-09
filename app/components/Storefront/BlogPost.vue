@@ -5,6 +5,7 @@ const { blogAuthorUrl, blogCategoryUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 
 const {
+  canonicalUrl,
   blogPostId,
   blogPost,
   refresh,
@@ -61,6 +62,19 @@ const breadcrumb = computed(() => {
     { label: blogPostTitle.value },
   ]
 })
+
+// The trail the page shows, Home first as PageBreadcrumb draws it.
+useSchemaOrg([
+  defineBreadcrumb(computed(() => ({
+    itemListElement: [
+      { name: t('breadcrumb.items.index.label'), item: localePath('index') },
+      ...breadcrumb.value.map(crumb => ({
+        name: crumb.label,
+        item: crumb.to ? localePath(pathLocation(crumb.to)) : canonicalUrl.value,
+      })),
+    ],
+  }))),
+])
 
 const shareOptions = computed(() => ({
   title: blogPostTitle.value,

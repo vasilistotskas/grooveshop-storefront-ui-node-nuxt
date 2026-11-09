@@ -112,6 +112,9 @@ interface Head {
   description: string | null | undefined
   canonicals: string[]
   alternates: Record<string, string>
+  author: string | null | undefined
+  /** The schema.org graph's nodes. */
+  graph: Record<string, unknown>[]
 }
 
 /** Mount the page under the real head pipeline and read what a crawler would. */
@@ -145,6 +148,9 @@ async function headOf(page: Component): Promise<Head> {
         path(l.getAttribute('href')),
       ]),
     ),
+    author: document.querySelector('meta[name="author"]')?.getAttribute('content'),
+    graph: [...document.querySelectorAll('script[type="application/ld+json"]')]
+      .flatMap(script => (JSON.parse(script.textContent || '{}')['@graph'] ?? []) as Record<string, unknown>[]),
   }
   wrapper.unmount()
   for (const key of head.entries.keys()) {
@@ -237,6 +243,49 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
     expect(head.title).toContain('Spring guide SEO')
     expect(head.title).not.toContain('Page title')
     expect(head.description).toBe('The own description of the article.')
+  })
+
+  it('names the post author, not the store, as its author', async () => {
+    setTenant({ blogEnabled: true, availableLocales: ['el', 'en'], seoAuthor: 'store-owner' })
+    serve(GREEK_AND_ENGLISH)
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    const head = await headOf(Component)
+
+    const { firstName, lastName } = post({}).author.user
+    expect(head.author).toBe(`${firstName} ${lastName}`.trim())
+  })
+
+  it('makes the cover the primary image of the page and draws the trail it shows as a BreadcrumbList', async () => {
+    // An earlier test's category is still cached under its key.
+    clearNuxtData(['blogCategory-2'])
+    api.routes({
+      '/api/blog/posts/7': { ...post(GREEK_AND_ENGLISH), mainImagePath: 'media/shop/uploads/blog/cover.jpg' },
+      '/api/blog/categories/2': { ...post({}).category, translations: { en: { name: 'Guides' } } },
+      '/api/shipping/policy': [],
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    const head = await headOf(Component)
+
+    // The cover, the image the Article names, not the store's logo.
+    const webPage = head.graph.find(node => [node['@type']].flat().includes('WebPage'))
+    const article = head.graph.find(node => node['@type'] === 'Article')
+    const primary = (webPage?.primaryImageOfPage as { url: string }).url
+    const articleImage = head.graph.find(node => node['@id'] === (article?.image as { '@id': string })['@id'])
+    expect(primary).toContain('/media/shop/uploads/blog/cover.jpg/')
+    expect(articleImage?.url).toBe(primary)
+
+    const list = head.graph.find(node => node['@type'] === 'BreadcrumbList')
+    const crumbs = (list?.itemListElement as { name: string, item?: string }[])
+      .map(crumb => [crumb.name, crumb.item && new URL(crumb.item, ORIGIN).pathname])
+    expect(crumbs).toEqual([
+      [useNuxtApp().$i18n.t('breadcrumb.items.index.label'), '/en'],
+      ['Blog', '/en/blog'],
+      ['Guides', '/en/blog/category/2/guides'],
+      ['Spring guide', '/en/blog/post/7/spring-guide'],
+    ])
   })
 
   it('canonicalises to the Greek post, and offers no English version, when it is not written in English', async () => {

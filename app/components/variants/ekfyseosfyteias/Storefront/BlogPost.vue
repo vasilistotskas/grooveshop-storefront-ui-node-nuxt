@@ -17,6 +17,7 @@ const localePath = useLocalePath()
 const { blogPostUrl } = useUrls()
 
 const {
+  canonicalUrl,
   blogPost,
   refresh,
   blogPostCategoryName,
@@ -34,6 +35,16 @@ const breadcrumb = computed(() => [
   { label: t('breadcrumb.home'), to: 'index' as const },
   { label: t('breadcrumb.activities'), to: 'blog' as const },
   { label: blogPostTitle.value },
+])
+
+// The trail the page shows.
+useSchemaOrg([
+  defineBreadcrumb(computed(() => ({
+    itemListElement: breadcrumb.value.map(crumb => ({
+      name: crumb.label,
+      item: crumb.to ? localePath(crumb.to) : canonicalUrl.value,
+    })),
+  }))),
 ])
 
 const related = computed(() => {
