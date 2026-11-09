@@ -492,6 +492,23 @@ describe('setupPageHeader connection hints', () => {
 
       expect(await feedLinks()).toEqual([])
     })
+
+    it('offers the feeds in the page\'s language', async () => {
+      setTenant(features({ blog: true, catalogue: true }))
+      const { $i18n } = useNuxtApp()
+      const { url } = useSiteConfig()
+      const before = $i18n.locale.value
+      $i18n.locale.value = 'en'
+      try {
+        expect((await feedLinks()).map(link => link.href)).toEqual([
+          `${url}/en/rss.xml`,
+          `${url}/en/blog/rss.xml`,
+        ])
+      }
+      finally {
+        $i18n.locale.value = before
+      }
+    })
   })
 })
 

@@ -89,15 +89,16 @@ export function setupPageHeader() {
   const catalogueEnabled = useStoreFeature('catalogue')
   const feedLinks = computed(() => {
     if (!blogEnabled.value) return []
-    const feed = (path: string, key: string) => ({
+    // In the page's language: an English page offers the English feeds.
+    const feed = (kind: RssFeedKind) => ({
       rel: 'alternate' as const,
       type: 'application/rss+xml',
-      title: $i18n.t(key, { name: siteConfig.name }),
-      href: `${siteUrl}${path}`,
+      title: $i18n.t(`feeds.${kind}`, { name: siteConfig.name }),
+      href: `${siteUrl}${localizedPath($i18n.locale.value, RSS_FEED_PATHS[kind])}`,
     })
     return [
-      ...(catalogueEnabled.value ? [feed('/rss.xml', 'feeds.store')] : []),
-      feed('/blog/rss.xml', 'feeds.blog'),
+      ...(catalogueEnabled.value ? [feed('store')] : []),
+      feed('blog'),
     ]
   })
 

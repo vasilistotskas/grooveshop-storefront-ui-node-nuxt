@@ -2,6 +2,7 @@ import { createSiteConfigStack } from 'site-config-stack'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import type { BackendRequest } from '~~/test/helpers/nitro'
+import { pageLocale } from '~~/server/utils/locale'
 import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 
 /**
@@ -84,26 +85,32 @@ export function rssSiteConfig() {
   return stack
 }
 
-/** A store with its blog on, in English, pricing in dollars, with its own asset host. */
+/** A store with its blog on, serving Greek and English, pricing in dollars, with its own asset host. */
 export function rssTenant(overrides: Record<string, unknown> = {}) {
   return validTenantConfig('shop.test', {
     features: { ...validTenantConfig('shop.test').features, blog: true },
+    availableLocales: ['el', 'en'],
     defaultCurrency: 'USD',
     assetsDomain: 'assets.shop.test',
     ...overrides,
   })
 }
 
-/** Request a feed route as that store. */
+/**
+ * Request a feed path as that store. The language is the one the locale
+ * middleware gives the path (`pageLocale`): its prefix, when the store
+ * serves it, else the default.
+ */
 export function requestFeed(
   handler: Parameters<typeof callRoute>[0],
-  route: string,
+  path: string,
   tenant: Record<string, unknown> = {},
   headers?: Record<string, string>,
 ) {
+  const config = rssTenant(tenant)
   return callRoute(handler, {
-    route,
+    url: path,
     headers,
-    context: { locale: 'en', siteConfig: rssSiteConfig(), tenant: rssTenant(tenant) },
+    context: { locale: pageLocale(path, undefined, config), siteConfig: rssSiteConfig(), tenant: config },
   })
 }

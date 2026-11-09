@@ -1,6 +1,6 @@
 /**
- * The store's RSS feeds: `/rss.xml` (posts and products) and
- * `/blog/rss.xml` (posts only), built here for both routes.
+ * The store's RSS feeds (`RSS_FEED_PATHS`, `shared/constants/feeds.ts`),
+ * built here for `server/handlers/rss-feed.ts`.
  *
  * **Freshness.** Every cached read is a function named `rss:<what>`, with
  * `swr: false`: Nitro gives a stored entry a TTL only without `swr`, and
@@ -18,23 +18,15 @@
  * follows the origin's headers.
  */
 import RSS from 'rss'
-import { H3Error, createError, setHeaders } from 'h3'
+import { createError, setHeaders } from 'h3'
 import type { H3Event } from 'h3'
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
 import type { SupportedLocale } from '~~/i18n/locales'
 import { defineCachedFunction } from 'nitropack/runtime'
 import { useRuntimeConfig } from 'nuxt/server'
 
 /** How long a feed's reads are kept when no purge reaches them. */
 export const RSS_CACHE_SECONDS = 5 * 60
-
-/** Which feed: the store's whole feed or its blog's alone. */
-export type RssFeedKind = 'store' | 'blog'
-
-/** Where each feed is served, which is also its `atom:link rel="self"`. */
-export const RSS_FEED_PATHS: Record<RssFeedKind, string> = {
-  store: '/rss.xml',
-  blog: '/blog/rss.xml',
-}
 
 // The thumbnail each feed item carries (`<img>`, media:content, enclosure).
 const RSS_IMAGE_VARIANT: MediaStreamVariant = {
@@ -107,6 +99,8 @@ const cachedProducts = createCachedFetcher<ProductCard>('rss:products', RSS_CACH
 interface RssFeedSource {
   kind: RssFeedKind
   tenantKey: string
+  /** The store's tenant-config epoch: a settings change (logo, asset host) moves it. */
+  epoch: string
   locale: SupportedLocale
   siteUrl: string
   siteName: string
@@ -125,8 +119,8 @@ const generateRssFeed = defineCachedFunction(
     const feed = new RSS({
       title: source.siteName,
       description: source.siteDescription,
-      site_url: kind === 'blog' ? `${siteUrl}/blog` : siteUrl,
-      feed_url: `${siteUrl}${RSS_FEED_PATHS[kind]}`,
+      site_url: `${siteUrl}${localizedPath(locale, kind === 'blog' ? '/blog' : '/')}`.replace(/\/$/, ''),
+      feed_url: `${siteUrl}${localizedPath(locale, RSS_FEED_PATHS[kind])}`,
       language: locale,
       pubDate: new Date().toISOString(),
       // Tenant logo, falling back to the platform screenshot ONLY for the
@@ -176,16 +170,31 @@ const generateRssFeed = defineCachedFunction(
     maxAge: RSS_CACHE_SECONDS,
     swr: false,
     getKey: (source: RssFeedSource) =>
-      `${source.tenantKey}:${source.locale}:${source.kind}:${source.currency}:${source.withProducts ? 'catalogue' : 'blog'}`,
+      `${source.tenantKey}:${source.locale}:${source.kind}:${source.currency}:${source.withProducts ? 'catalogue' : 'blog'}:e${source.epoch}`,
   },
 )
 
 /**
- * Answer one feed for the request's store: 404 when its blog is off (both
- * feeds are blog feeds first), the XML with the store's edge headers
- * otherwise, and a logged generic 500 when Django cannot be read.
+ * Answer one feed for the request's store, in the language of its path:
+ * `/rss.xml` in the default language, `/<locale>/rss.xml` in a language
+ * the store serves (`pathLocale`, the route's `[locale]` param). 404 for a
+ * language the store does not serve, and when its blog is off (both feeds
+ * are blog feeds first), with no work done and nothing a cache may keep.
+ * Every other failure is a logged generic 500.
  */
-export async function respondWithRssFeed(event: H3Event, kind: RssFeedKind): Promise<string> {
+export async function respondWithRssFeed(
+  event: H3Event,
+  kind: RssFeedKind,
+  pathLocale?: string,
+): Promise<string> {
+  const locale = requestLocale(event)
+  const unservedLanguage = pathLocale !== undefined
+    && (pathLocale === DEFAULT_LOCALE || pathLocale !== locale)
+  if (unservedLanguage || !eventStoreFeature(event, 'blog')) {
+    setHeaders(event, { 'Cache-Control': PRIVATE_CACHE_CONTROL })
+    throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+  }
+
   try {
     const config = useRuntimeConfig()
     const siteConfig = getSiteConfig(event)
@@ -199,10 +208,6 @@ export async function respondWithRssFeed(event: H3Event, kind: RssFeedKind): Pro
     const tenantDomain = tenant?.primaryDomain || host
     const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
 
-    if (!eventStoreFeature(event, 'blog')) {
-      throw createError({ statusCode: 404, statusMessage: 'Not Found' })
-    }
-
     // Whether this IS the platform's own storefront — gates the
     // platform-only ``/screenshots/**`` fallback asset below, which does
     // not exist on another tenant's origin.
@@ -212,7 +217,8 @@ export async function respondWithRssFeed(event: H3Event, kind: RssFeedKind): Pro
     const feed = await generateRssFeed({
       kind,
       tenantKey: host,
-      locale: (event.context.locale || siteConfig.defaultLocale).split('-')[0] as SupportedLocale,
+      epoch: tenantConfigEpoch(host),
+      locale,
       siteUrl: siteConfig.url,
       siteName: siteConfig.name,
       siteDescription: siteConfig.description,
@@ -237,12 +243,10 @@ export async function respondWithRssFeed(event: H3Event, kind: RssFeedKind): Pro
     return feed
   }
   catch (error) {
-    // Preserve intentional HTTP errors (e.g. the blog-off 404) — without
-    // this guard h3 wraps them as a generic 500.
-    if (error instanceof H3Error) {
-      throw error
-    }
+    // Django unreachable, a response that fails its schema, anything:
+    // the reader gets one generic failure, the log gets the cause.
     log.error({ action: 'rss:generate', feed: kind, error })
+    setHeaders(event, { 'Cache-Control': PRIVATE_CACHE_CONTROL })
     throw createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }
 }
@@ -285,7 +289,7 @@ async function processBlogPosts(
     const fullContent = translation.body || ''
 
     if (mainImageUrl) {
-      description = `<img src="${mainImageUrl}" alt="${translation.title}" />\n` + description
+      description = `<img src="${mainImageUrl}" alt="${escapeHtmlAttribute(translation.title || '')}" />\n` + description
     }
 
     let pubDate = new Date()
@@ -314,7 +318,7 @@ async function processBlogPosts(
 
     items.push({
       title: translation.title || 'Untitled Post',
-      url: baseUrl + '/blog/post/' + post.id + '/' + post.slug,
+      url: baseUrl + localizedPath(locale, `/blog/post/${post.id}/${post.slug}`),
       description,
       date: pubDate,
       guid: post.uuid || post.id.toString(),
@@ -364,7 +368,7 @@ async function processProducts(
 
     let description = translation.description || translation.name || ''
     if (mainImageUrl) {
-      description = `<img src="${mainImageUrl}" alt="${translation.name}" />\n` + description
+      description = `<img src="${mainImageUrl}" alt="${escapeHtmlAttribute(translation.name || '')}" />\n` + description
     }
 
     const pubDate = new Date(product.createdAt)
@@ -407,7 +411,7 @@ async function processProducts(
 
     items.push({
       title: translation.name || `Product #${product.id}`,
-      url: baseUrl + '/products/' + product.id + '/' + product.slug,
+      url: baseUrl + localizedPath(locale, `/products/${product.id}/${product.slug}`),
       description,
       date: pubDate,
       guid: `product-${product.uuid || product.id}`,

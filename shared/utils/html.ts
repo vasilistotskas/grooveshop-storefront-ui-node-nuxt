@@ -947,6 +947,21 @@ export function decodeHtmlEntities(html: string): string {
 }
 
 /** An opening or closing tag of an element that breaks a line, and `<br>` / `<hr>`. */
+/**
+ * Text made safe to place inside a double-quoted HTML attribute: `&`
+ * first, so an existing reference is not decoded later, then the quotes
+ * and angle brackets. For HTML built as a string (the RSS feed's
+ * descriptions), where a title with a `"` cut the `alt` short.
+ */
+export function escapeHtmlAttribute(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('\'', '&#39;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+}
+
 const BLOCK_BOUNDARY = /<\/?(?:address|article|aside|blockquote|br|dd|details|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|li|main|nav|ol|p|pre|section|summary|table|tbody|td|tfoot|th|thead|tr|ul)\b[^>]*>/gi
 
 /**
