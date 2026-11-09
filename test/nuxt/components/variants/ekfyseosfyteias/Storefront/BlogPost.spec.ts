@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import type { Ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import BlogPost from '~/components/variants/ekfyseosfyteias/Storefront/BlogPost.vue'
@@ -29,6 +30,13 @@ mockNuxtImport('useRoute', () => () => ({
   matched: [],
   meta: {},
 }))
+
+/** What the page hands the schema as its breadcrumb. */
+const { breadcrumbInputs } = vi.hoisted(() => ({ breadcrumbInputs: [] as unknown[] }))
+mockNuxtImport('defineBreadcrumb', () => (input: unknown) => {
+  breadcrumbInputs.push(input)
+  return input
+})
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
 const COPY = { home: 'Αρχική', activities: 'Δράσεις', back: 'Πίσω', allActivities: 'Όλες οι δράσεις', related: 'Σχετική δράση' }
@@ -79,6 +87,7 @@ async function mountPost() {
 }
 
 beforeEach(() => {
+  breadcrumbInputs.length = 0
   clearNuxtData()
   setTenant({ blogEnabled: true })
   serve()
@@ -94,6 +103,17 @@ describe('ekfyseosfyteias Storefront/BlogPost', () => {
       [COPY.activities, '/blog'],
     ])
     expect(trail.get('[aria-current="page"]').text()).toBe('Το ροζ χωράφι')
+  })
+
+  it('gives the schema the trail it draws, the post as the canonical page', async () => {
+    await mountPost()
+
+    const input = breadcrumbInputs.at(-1) as Ref<{ itemListElement: { name: string, item: string }[] }>
+    expect(input.value.itemListElement).toEqual([
+      { name: COPY.home, item: '/' },
+      { name: COPY.activities, item: '/blog' },
+      { name: 'Το ροζ χωράφι', item: `${useSiteConfig().url}/blog/post/7/to-rozo-chorafi` },
+    ])
   })
 
   it('sets the title as the one h1, with the subtitle as its lead', async () => {
