@@ -92,12 +92,19 @@ describe('useBlogAuthorPerson', () => {
     expect(person.description).toBeUndefined()
   })
 
+  it('leaves out sameAs for a website saved empty', async () => {
+    const { person } = await personOf(makeBlogAuthor({ website: '', sameAs: [] }))
+
+    expect(person.sameAs).toBeUndefined()
+  })
+
   it('serves the photo as an absolute URL on the store\'s media host', async () => {
     setTenant({ assetsDomain: 'assets.shop.test' })
     const { person } = await personOf(makeBlogAuthor({
       user: { id: 3, username: null, firstName: 'Νάρεκ', lastName: 'Α', mainImagePath: 'media/webside/uploads/users/narek.png' },
     }))
 
-    expect(person.image).toMatch(/^https:\/\/assets\.shop\.test\/.*narek\.png/)
+    // Square, cropped, as PNG: the media service's path segments.
+    expect(person.image).toMatch(/^https:\/\/assets\.shop\.test\/.*narek\.png\/512\/512\/cover\/.*\.png$/)
   })
 })
