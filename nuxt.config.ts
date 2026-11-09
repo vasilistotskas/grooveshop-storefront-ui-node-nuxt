@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE, LOCALE_FILES } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { CLIENT_CHUNK_BUDGET_BYTES, ROUTE_BOOT_CHUNK_NAME, SHARED_CHUNK_MAX_MODULE_BYTES, SHARED_CHUNK_MIN_ENTRIES, SHARED_CHUNK_NAME, isRouteBootModule, isStyleModuleId } from './shared/constants/clientChunks.ts'
+import { RSS_FEED_PATHS } from './shared/constants/feeds.ts'
 import { CACHED_PAGE_VARIES, CUSTOM_PAGE_ROUTES, PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
 import { FONT_FAMILY_NAMES, FONT_STYLES, FONT_WEIGHTS } from './shared/theme/constants.ts'
 import { STATIC_LAYOUT_ROUTES } from './shared/utils/staticLayoutRoutes.ts'
@@ -235,6 +236,12 @@ export default defineNuxtConfig({
     // see `sitemap.cacheMaxAgeSeconds` below for why the module's own
     // cache is off.
     '/sitemap.xml': { swr: 60 * 60 * 24, cache: { varies: ['host', 'x-tenant-epoch'] } },
+    // The blog feed sits under the `/blog/**` page-cache rule below, which
+    // would wrap its handler in a second, stale-serving cache. Nitro takes
+    // the most specific rule first (`getRouteRulesForPath`: defu over
+    // `matchAll().reverse()`), so this keeps the feed on its own bounded
+    // caches (`server/utils/rssFeed.ts`).
+    ...Object.fromEntries(withLocalePrefixes(RSS_FEED_PATHS.blog).map(route => [route, { cache: false }])),
     '/__sitemap__/el-GR.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
     // A page type a static route renders, asked for at its own name. The
     // catch-all used to render the home layout at `/home` as well, a
@@ -404,11 +411,22 @@ export default defineNuxtConfig({
     // The renderer, cached for a merchant's custom pages
     // (`CUSTOM_PAGE_ROUTES` in shared/constants/prerender.ts says why no
     // route rule can do it). Not scanned: it answers exactly these routes.
-    handlers: CUSTOM_PAGE_ROUTES.map(route => ({
-      route,
-      lazy: true,
-      handler: '~~/server/handlers/custom-page',
-    })),
+    // The RSS feeds in every language of the build, as static routes: a
+    // `[locale]` param route loses to the `/en/blog/**` page rule, whose
+    // static `en` segment the router prefers (`shared/constants/feeds.ts`).
+    handlers: [
+      ...CUSTOM_PAGE_ROUTES.map(route => ({
+        route,
+        lazy: true,
+        handler: '~~/server/handlers/custom-page',
+      })),
+      ...Object.values(RSS_FEED_PATHS).flatMap(withLocalePrefixes).map(route => ({
+        route,
+        method: 'get' as const,
+        lazy: true,
+        handler: '~~/server/handlers/rss-feed',
+      })),
+    ],
     // Dev only (ignored in production builds): same-origin `/chat` is
     // served by the agent gateway — Traefik path-routes it on the
     // storefront host in production — so proxy it to a locally running

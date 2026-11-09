@@ -1,108 +1,32 @@
-import { createSiteConfigStack } from 'site-config-stack'
 import { describe, expect, it } from 'vitest'
-import handler from '~~/server/routes/rss.xml.get'
+import handler from '~~/server/handlers/rss-feed'
 import { zBlogCategoryDetail, zBlogPostFeed, zProductCategoryDetail } from '~~/shared/openapi/zod.gen'
-import { makeProductCard } from '~~/test/fixtures/product'
-import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import {
+  RSS_API as API,
+  djangoServesTheCatalogue,
+  requestFeed,
+  rssSiteConfig as siteConfig,
+  rssTenant,
+  rssBlogCategory as blogCategory,
+  rssOnSale as onSale,
+  rssPost as post,
+  rssProductCategory as productCategory,
+} from '~~/test/fixtures/rssFeed'
 import type { BackendRequest } from '~~/test/helpers/nitro'
 import { backend, callRoute, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
 
 /**
- * GET /rss.xml: the store's blog-and-products feed. Every link and image
+ * GET /rss.xml, /<locale>/rss.xml: the store's blog-and-products feed,
+ * here in English (`/en/rss.xml`). Every link and image
  * in it must point at THIS store's own domains (a second tenant's feed
  * once served its images from the platform host), and every backend
  * call made for it is sent as this store, in the page's language.
  */
 
-const route = '/rss.xml'
-const API = 'http://backend.test/api/v1'
-const TIMESTAMP = '2026-01-01T00:00:00Z'
+const route = '/en/rss.xml'
 
-const post = {
-  id: 3,
-  uuid: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-  slug: 'summer-news',
-  translations: { en: { title: 'Summer news', subtitle: 'What is new', body: 'word '.repeat(400) } },
-  category: 1,
-  publishedAt: '2026-06-01T00:00:00Z',
-  createdAt: TIMESTAMP,
-  updatedAt: TIMESTAMP,
-  mainImagePath: 'uploads/blog/summer.jpg',
-}
-
-const blogCategory = {
-  id: 1,
-  translations: { en: { name: 'Announcements' } },
-  slug: 'announcements',
-  level: 0,
-  sortOrder: null,
-  postCount: 1,
-  hasChildren: false,
-  mainImagePath: '',
-  createdAt: TIMESTAMP,
-  updatedAt: TIMESTAMP,
-  children: [],
-  ancestors: [],
-  siblingsCount: 0,
-  descendantsCount: 0,
-  recursivePostCount: 1,
-  categoryPath: 'announcements',
-  treeId: 1,
-  uuid: '6a2f41a3-c54c-4fce-8e63-4a7a3b1c5a4e',
-}
-
-const productCategory = {
-  id: 1,
-  translations: { en: { name: 'Shoes' } },
-  slug: 'shoes',
-  level: 0,
-  treeId: 1,
-  mainImagePath: '',
-  mainImageAlt: '',
-  createdAt: TIMESTAMP,
-  updatedAt: TIMESTAMP,
-  uuid: '0b4f4c8e-7f2d-4d0a-9c1e-5b6a7d8e9f00',
-  children: [],
-  recursiveProductCount: 1,
-}
-
-const onSale = makeProductCard({ id: 1, finalPrice: 110, effectivePrice: 110, priorPrice: 150, announcedDiscountPercent: 26, mainImagePath: 'uploads/products/shoe.png', reviewCount: 2, reviewAverage: 4.5 })
-const retired = makeProductCard({ id: 2, active: false })
-
-/** Django: one blog post, two products (one retired) and their categories. */
-function djangoServesTheCatalogue(products = [onSale, retired]) {
-  backend.reply((request: BackendRequest) => {
-    switch (request.path) {
-      // The feed: the posts with their bodies, which a list no longer carries
-      case `${API}/blog/post/feed`: return [post]
-      case `${API}/product`: return { count: products.length, results: products }
-      case `${API}/blog/category/1`: return blogCategory
-      case `${API}/product/category/1`: return productCategory
-      default: return jsonResponse({ detail: 'Not found.' }, 404)
-    }
-  })
-}
-
-function siteConfig() {
-  const stack = createSiteConfigStack()
-  stack.push({ url: 'https://shop.test', name: 'Shop', description: 'A shop' })
-  return stack
-}
-
-const feed = (tenant: Record<string, unknown> = {}, headers?: Record<string, string>) => callRoute(handler, {
-  route,
-  headers,
-  context: {
-    locale: 'en',
-    siteConfig: siteConfig(),
-    tenant: validTenantConfig('shop.test', {
-      features: { ...validTenantConfig('shop.test').features, blog: true },
-      defaultCurrency: 'USD',
-      assetsDomain: 'assets.shop.test',
-      ...tenant,
-    }),
-  },
-})
+const feed = (tenant: Record<string, unknown> = {}, headers?: Record<string, string>) =>
+  requestFeed(handler, route, tenant, headers)
 
 describe('GET /rss.xml', () => {
   it('uses fixtures the generated schemas accept', () => {
@@ -120,19 +44,40 @@ describe('GET /rss.xml', () => {
     expect(response.headers.get('content-type')).toBe('application/rss+xml; charset=UTF-8')
     const xml: string = response.body
     expect(xml).toContain('<title><![CDATA[Summer news]]></title>')
-    expect(xml).toContain('<link>https://shop.test/blog/post/3/summer-news</link>')
+    expect(xml).toContain('<link>https://shop.test/en/blog/post/3/summer-news</link>')
     expect(xml).toContain('<category><![CDATA[Announcements]]></category>')
     expect(xml).toContain('<category><![CDATA[Shoes]]></category>')
     expect(xml).toContain('<readingTime>2 min read</readingTime>')
     expect(xml).toContain(`<content:encoded><![CDATA[${post.translations.en.body}]]></content:encoded>`)
-    expect(xml).toContain('<link>https://shop.test/products/1/product-1</link>')
+    expect(xml).toContain('<link>https://shop.test/en/products/1/product-1</link>')
     expect(xml).not.toContain('/products/2/')
+  })
+
+  // Django's store purge after an edit names these tags (core/cache/edge.py),
+  // so the edge never keeps a feed the purge cannot reach.
+  it('is kept at the edge under the store\'s purge tags, and revalidated by browsers', async () => {
+    djangoServesTheCatalogue()
+
+    const response = await feed()
+
+    expect(response.headers.get('cache-tag')).toBe(`storefront-html,storefront-html-${rssTenant().schemaName}`)
+    expect(response.headers.get('cloudflare-cdn-cache-control')).toBe('max-age=60, stale-while-revalidate=86400')
+    expect(response.headers.get('cache-control')).toBe('no-cache')
+  })
+
+  it('names itself as its own feed URL', async () => {
+    djangoServesTheCatalogue()
+
+    const xml: string = (await feed()).body
+
+    expect(xml).toContain('<atom:link href="https://shop.test/en/rss.xml" rel="self" type="application/rss+xml"/>')
+    expect(xml).toContain('<link>https://shop.test/en</link>')
   })
 
   it('syndicates the blog alone, and never asks for products, on a store without the catalogue', async () => {
     djangoServesTheCatalogue()
 
-    const response = await feed({ features: { ...validTenantConfig('shop.test').features, blog: true, catalogue: false } })
+    const response = await feed({ features: { ...rssTenant().features, catalogue: false } })
 
     const xml: string = response.body
     expect(xml).toContain('<title><![CDATA[Summer news]]></title>')
@@ -160,7 +105,9 @@ describe('GET /rss.xml', () => {
     const xml: string = (await feed()).body
 
     expect(xml).toContain('url="https://assets.shop.test/media_stream-image/uploads/products/shoe.png/472/311/cover/attention/transparent/0/100.webp"')
-    expect(xml).toContain('type="image/png"')
+    // The type of what the URL serves (the WebP rendition), not of the upload.
+    expect(xml).toContain('type="image/webp"')
+    expect(xml).not.toContain('type="image/png"')
     expect(xml).not.toContain('assets.platform.test')
   })
 
@@ -170,7 +117,7 @@ describe('GET /rss.xml', () => {
 
     const xml: string = (await feed()).body
 
-    expect(xml).toContain('<link>https://shop.test/products/1/product-1</link>')
+    expect(xml).toContain('<link>https://shop.test/en/products/1/product-1</link>')
     expect(xml).not.toContain('<category><![CDATA[Shoes]]></category>')
     expect(backend.requests.some(request => request.path.includes('/product/category/'))).toBe(false)
   })
@@ -208,9 +155,9 @@ describe('GET /rss.xml', () => {
     djangoServesTheCatalogue()
 
     await callRoute(handler, {
-      route,
+      url: route,
       host: 'Shop.TEST:443',
-      context: { locale: 'en', siteConfig: siteConfig(), tenant: validTenantConfig('shop.test', { features: { ...validTenantConfig('shop.test').features, blog: true } }) },
+      context: { locale: 'en', siteConfig: siteConfig(), tenant: rssTenant() },
     })
 
     expect(backend.requests.length).toBeGreaterThan(0)
@@ -247,7 +194,7 @@ describe('GET /rss.xml', () => {
   })
 
   it('answers 404 without fetching when the store has no blog', async () => {
-    const response = await feed({ blogEnabled: true, features: { ...validTenantConfig('shop.test').features, blog: false } })
+    const response = await feed({ blogEnabled: true, features: { ...rssTenant().features, blog: false } })
 
     expect(response.status).toBe(404)
     expect(backend.requests).toEqual([])
@@ -261,5 +208,106 @@ describe('GET /rss.xml', () => {
     expect(response.status).toBe(500)
     expect(response.body.statusMessage).toBe('Failed to generate RSS feed')
     expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'rss:generate' }))
+  })
+})
+
+describe('GET /<locale>/blog/rss.xml', () => {
+  const route = '/en/blog/rss.xml'
+  const feed = (tenant: Record<string, unknown> = {}) => requestFeed(handler, route, tenant)
+
+  it('lists the store\'s posts and never asks Django for products', async () => {
+    djangoServesTheCatalogue()
+
+    const response = await feed()
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('application/rss+xml; charset=UTF-8')
+    const xml: string = response.body
+    expect(xml).toContain('<title><![CDATA[Summer news]]></title>')
+    expect(xml).toContain('<link>https://shop.test/en/blog/post/3/summer-news</link>')
+    expect(xml).not.toContain('/products/')
+    expect(backend.requests.map(request => request.path)).not.toContain(`${API}/product`)
+  })
+
+  it('carries each post\'s cover as its enclosure, typed as the image it serves', async () => {
+    djangoServesTheCatalogue()
+
+    const xml: string = (await feed()).body
+
+    expect(xml).toContain(`<enclosure url="https://assets.shop.test/media_stream-image/${post.mainImagePath}/472/311/cover/attention/transparent/0/100.webp" length="0" type="image/webp"/>`)
+  })
+
+  it('names the blog as its channel and itself as its feed URL', async () => {
+    djangoServesTheCatalogue()
+
+    const xml: string = (await feed()).body
+
+    expect(xml).toContain('<link>https://shop.test/en/blog</link>')
+    expect(xml).toContain('<atom:link href="https://shop.test/en/blog/rss.xml" rel="self" type="application/rss+xml"/>')
+  })
+
+  it('is kept at the edge under the store\'s purge tags', async () => {
+    djangoServesTheCatalogue()
+
+    const response = await feed()
+
+    expect(response.headers.get('cache-tag')).toBe(`storefront-html,storefront-html-${rssTenant().schemaName}`)
+  })
+
+  it('answers 404 without fetching when the store has no blog', async () => {
+    const response = await feed({ features: { ...rssTenant().features, blog: false } })
+
+    expect(response.status).toBe(404)
+    expect(backend.requests).toEqual([])
+  })
+})
+
+describe('the feeds\' languages and failures', () => {
+  it('serves the default language at an unprefixed path, with unprefixed links', async () => {
+    djangoServesTheCatalogue()
+
+    const xml: string = (await requestFeed(handler, '/rss.xml')).body
+
+    expect(xml).toContain('<link>https://shop.test/blog/post/3/summer-news</link>')
+    expect(xml).toContain('<atom:link href="https://shop.test/rss.xml" rel="self" type="application/rss+xml"/>')
+  })
+
+  it.each([
+    ['a language the store does not serve', '/en/rss.xml', { availableLocales: ['el'] }],
+    ['a blog feed in a language the store does not serve', '/en/blog/rss.xml', { availableLocales: ['el'] }],
+  ])('answers 404 for %s, fetching nothing', async (_label, path, tenant) => {
+    const response = await requestFeed(handler, path, tenant)
+
+    expect(response.status).toBe(404)
+    expect(backend.requests).toEqual([])
+  })
+
+  it('keeps the blog-off 404 out of every cache', async () => {
+    const response = await requestFeed(handler, '/rss.xml', { features: { ...rssTenant().features, blog: false } })
+
+    expect(response.status).toBe(404)
+    expect(response.headers.get('cache-control')).toBe('private, no-store')
+  })
+
+  it('answers a logged generic 500 when Django\'s feed fails its schema', async () => {
+    backend.reply((request: BackendRequest) =>
+      request.path === `${API}/blog/post/feed` ? [{ id: 'not a post' }] : jsonResponse({ detail: 'Not found.' }, 404))
+
+    const response = await requestFeed(handler, '/en/blog/rss.xml')
+
+    expect(response.status).toBe(500)
+    expect(response.headers.get('cache-control')).toBe('private, no-store')
+    expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'rss:generate' }))
+  })
+
+  it('escapes a title placed in the image\'s alt text', async () => {
+    backend.reply((request: BackendRequest) =>
+      request.path === `${API}/blog/post/feed`
+        ? [{ ...post, translations: { en: { ...post.translations.en, title: 'Say "hi" & <wave>' } } }]
+        : request.path === `${API}/blog/category/1` ? blogCategory : jsonResponse({ detail: 'Not found.' }, 404))
+
+    const xml: string = (await requestFeed(handler, '/en/blog/rss.xml')).body
+
+    expect(xml).toContain('alt="Say &quot;hi&quot; &amp; &lt;wave&gt;"')
   })
 })

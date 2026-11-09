@@ -28,7 +28,7 @@ describe('createCachedFetcher', () => {
   it('fetches one page as the tenant, in the caller\'s language', async () => {
     backend.reply(page([1, 2]))
 
-    const result = await createCachedFetcher('test', 60)('tenant-a.test', 'en', 'http://backend.test/api/v1/data')
+    const result = await createCachedFetcher('test', 60, { swr: false })('tenant-a.test', 'en', 'http://backend.test/api/v1/data')
 
     expect(result).toEqual([{ id: 1 }, { id: 2 }])
     // The tenantKey is forwarded as X-Forwarded-Host so Django resolves
@@ -43,7 +43,7 @@ describe('createCachedFetcher', () => {
     backend.replyOnce(page([1, 2], 'http://backend.test/api/v1/data?page=2'))
     backend.replyOnce(page([3]))
 
-    const result = await createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend.test/api/v1/data')
+    const result = await createCachedFetcher('test', 60, { swr: false })('tenant-a.test', 'el', 'http://backend.test/api/v1/data')
 
     expect(result).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }])
     expect(backend.requests.map(request => request.url.href)).toEqual([
@@ -58,7 +58,7 @@ describe('createCachedFetcher', () => {
     backend.replyOnce(page([1], 'https://tenant-a.test/api/v1/blog/post?languageCode=el&page=2'))
     backend.replyOnce(page([2]))
 
-    await createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend-service:8000/api/v1/blog/post?languageCode=el')
+    await createCachedFetcher('test', 60, { swr: false })('tenant-a.test', 'el', 'http://backend-service:8000/api/v1/blog/post?languageCode=el')
 
     expect(backend.requests[1]!.url.href).toBe('http://backend-service:8000/api/v1/blog/post?languageCode=el&page=2')
   })
@@ -66,7 +66,7 @@ describe('createCachedFetcher', () => {
   it('stops after 100 pages even if the backend keeps linking', async () => {
     backend.reply(page([1], 'http://backend.test/api/v1/data?page=next'))
 
-    const result = await createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend.test/api/v1/data')
+    const result = await createCachedFetcher('test', 60, { swr: false })('tenant-a.test', 'el', 'http://backend.test/api/v1/data')
 
     expect(backend.requests).toHaveLength(100)
     expect(result).toHaveLength(100)
@@ -75,15 +75,19 @@ describe('createCachedFetcher', () => {
   it('treats a page without results as empty', async () => {
     backend.reply({ links: { next: null } })
 
-    await expect(createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend.test/api/v1/data')).resolves.toEqual([])
+    await expect(createCachedFetcher('test', 60, { swr: false })('tenant-a.test', 'el', 'http://backend.test/api/v1/data')).resolves.toEqual([])
   })
 
   it('is cached under its name and maxAge', () => {
-    expect(cacheOptionsOf(createCachedFetcher('sitemap-products', 3600))).toMatchObject({ name: 'sitemap-products', maxAge: 3600 })
+    expect(cacheOptionsOf(createCachedFetcher('sitemap-products', 3600, { swr: false }))).toMatchObject({ name: 'sitemap-products', maxAge: 3600 })
+  })
+
+  it.each([true, false])('serves stale while refreshing only when its caller says so (swr: %s)', (swr) => {
+    expect(cacheOptionsOf(createCachedFetcher('test', 60, { swr })).swr).toBe(swr)
   })
 
   it('keys by tenant, locale and url, and a store-scoped purge still finds the entry', () => {
-    const { getKey } = cacheOptionsOf(createCachedFetcher('test', 60))
+    const { getKey } = cacheOptionsOf(createCachedFetcher('test', 60, { swr: false }))
     const key = getKey!('tenant-a.test', 'el', '/product')
 
     expect(new Set([

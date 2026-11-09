@@ -8,21 +8,32 @@ const SITEMAP_CACHE_AGE = 60 * 60
 // into Nitro's cache registry (harmless, but wasteful + fragile).
 // Callers pass the request host and locale for per-tenant,
 // per-language cache scoping.
+//
+// Stale-serving (`swr: true`): the sitemap is rebuilt once a day
+// (`/sitemap.xml`'s route rule), and a rebuild during a Django outage
+// would otherwise drop the store's pages from it for that day. Freshness
+// comes from Django's purge: its `sitemap_seo` surface removes these
+// entries when a post, product, category or content page changes or goes
+// live.
 const cachedBlogPosts = createCachedFetcher<BlogPost>(
   'sitemap:blog-posts',
   SITEMAP_CACHE_AGE,
+  { swr: true },
 )
 const cachedBlogCategories = createCachedFetcher<BlogCategory>(
   'sitemap:blog-categories',
   SITEMAP_CACHE_AGE,
+  { swr: true },
 )
 const cachedProducts = createCachedFetcher<ProductCard>(
   'sitemap:products',
   SITEMAP_CACHE_AGE,
+  { swr: true },
 )
 const cachedProductCategories = createCachedFetcher<ProductCategory>(
   'sitemap:product-categories',
   SITEMAP_CACHE_AGE,
+  { swr: true },
 )
 // Published ContentPages — the merchant's own policy pages. These were
 // the one indexable surface the sitemap never listed: static routes come
@@ -32,6 +43,7 @@ const cachedProductCategories = createCachedFetcher<ProductCategory>(
 const cachedContentPages = createCachedFetcher<ContentPage>(
   'sitemap:content-pages',
   SITEMAP_CACHE_AGE,
+  { swr: true },
 )
 
 export default defineSitemapEventHandler(async (event) => {

@@ -80,6 +80,28 @@ export function setupPageHeader() {
     return href ? [{ rel: 'preconnect' as const, href }] : []
   })
 
+  // RSS autodiscovery (RSS Board): the store's feeds, each with a title of
+  // its own so a reader can tell them apart. Both are blog feeds first
+  // (`server/utils/rssFeed.ts` answers 404 without the blog); the store
+  // feed is advertised only with the catalogue, where it adds products and
+  // so differs from the blog feed.
+  const blogEnabled = useStoreFeature('blog')
+  const catalogueEnabled = useStoreFeature('catalogue')
+  const feedLinks = computed(() => {
+    if (!blogEnabled.value) return []
+    // In the page's language: an English page offers the English feeds.
+    const feed = (kind: RssFeedKind) => ({
+      rel: 'alternate' as const,
+      type: 'application/rss+xml',
+      title: $i18n.t(`feeds.${kind}`, { name: siteConfig.name }),
+      href: `${siteUrl}${localizedPath($i18n.locale.value, RSS_FEED_PATHS[kind])}`,
+    })
+    return [
+      ...(catalogueEnabled.value ? [feed('store')] : []),
+      feed('blog'),
+    ]
+  })
+
   const colorMode = useColorMode()
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
   // Prefer the locale's full BCP-47 `language` (e.g. `el-GR`) so screen
@@ -169,6 +191,7 @@ export function setupPageHeader() {
             ]
           : []),
       ...assetOriginLinks.value,
+      ...feedLinks.value,
     ],
     meta: [...(i18nHead.value.meta || []),
       ...(tenantStore.pinterestDomainVerify

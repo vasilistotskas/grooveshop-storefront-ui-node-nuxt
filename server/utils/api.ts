@@ -55,11 +55,17 @@ function rebaseNextLink(next: string, baseUrl: string): string {
  *
  * @param name - The unique name for the cache entry.
  * @param maxAge - The maximum age (in seconds) for the cached data.
+ * @param options.swr - Whether an expired entry is served as it is while
+ *   it refreshes (Nitro's `swr`, with no age limit and no storage TTL), or
+ *   read again first. Stale-serving keeps the last good data through a
+ *   Django outage; reading again keeps what is served no older than
+ *   `maxAge`. The caller decides which matters more.
  * @returns A cached function that fetches all paginated data of type T.
  */
 export function createCachedFetcher<T>(
   name: string,
   maxAge: number,
+  options: { swr: boolean },
 ): (tenantKey: string, locale: string, url: string) => Promise<T[]> {
   return defineCachedFunction(
     async (tenantKey: string, locale: string, url: string): Promise<T[]> => {
@@ -104,6 +110,7 @@ export function createCachedFetcher<T>(
     {
       maxAge,
       name,
+      swr: options.swr,
       // hashedCacheKey: nitropack escapes custom keys down to word
       // characters — without the hash suffix, punctuation-equivalent
       // tenant hosts/urls would share one cache entry (cross-tenant

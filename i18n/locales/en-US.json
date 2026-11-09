@@ -509,5 +509,9 @@
     "gestures_windows": "Use Ctrl + scroll to zoom the map",
     "gestures_mac": "Use ⌘ + scroll to zoom the map",
     "gestures_mobile": "Use two fingers to move the map"
+  },
+  "feeds": {
+    "store": "{name}: articles and products",
+    "blog": "{name}: articles"
   }
 }

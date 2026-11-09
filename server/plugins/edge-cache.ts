@@ -32,9 +32,9 @@ export default defineNitroPlugin((nitroApp) => {
           res.setHeader('cache-control', PRIVATE_CACHE_CONTROL)
         }
         else if (isEdgeCacheableResponse(event)) {
-          res.setHeader('cache-control', 'no-cache')
-          res.setHeader('cloudflare-cdn-cache-control', EDGE_CACHE_CONTROL)
-          res.setHeader('cache-tag', `${EDGE_CACHE_TAG},${edgeCacheTenantTag(event.context.tenant!.schemaName)}`)
+          for (const [name, value] of Object.entries(edgeCacheHeaders(event.context.tenant!.schemaName))) {
+            res.setHeader(name, value)
+          }
         }
         else if (isPrivatePageResponse(event) || isPrivateApiResponse(event)) {
           res.setHeader('cache-control', PRIVATE_CACHE_CONTROL)

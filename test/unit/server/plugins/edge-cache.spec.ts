@@ -94,6 +94,8 @@ describe('server/plugins/edge-cache', () => {
     ['a 404 Nitro stamped with its SWR header', '/products/999/gone', { status: 404 }],
     ['a 500 on a cached route', '/', { status: 500 }],
     ['a cached route of a tenant-less request', '/', { tenant: null }],
+    ['a feed\'s 404, which Nitro\'s error handler stamps no-cache', '/en/blog/rss.xml', { status: 404, headers: { 'content-type': 'application/json', 'cache-control': 'no-cache' } }],
+    ['any other error a route answers with no HTML', '/rss.xml', { status: 500, headers: { 'content-type': 'application/xml' } }],
   ])('marks %s private', async (_label, url, options) => {
     expect(await respond(url, options)).toEqual({
       'cache-control': 'private, no-store',
