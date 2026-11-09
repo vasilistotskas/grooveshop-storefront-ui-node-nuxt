@@ -27,13 +27,16 @@ const filePath = input.tool_input?.file_path || ''
 if (!filePath) process.exit(0)
 
 // Matched in lower case: on a case-insensitive disk `UV.LOCK` opens `uv.lock`.
-const p = filePath.split('\\').join('/').toLowerCase()
+// The one exception, `.env.example`, holds only as spelled: on a
+// case-sensitive disk `.env.EXAMPLE` is a different file.
+const given = filePath.split('\\').join('/')
+const p = given.toLowerCase()
 const base = p.split('/').pop()
 
 /** [test, reason] pairs. First match wins. */
 const RULES = [
   // ---- universal: every repo in the workspace has these ----
-  [() => /(^|\/)\.env($|\.)/.test(p) && base !== '.env.example',
+  [() => /(^|\/)\.env($|\.)/.test(p) && given.split('/').pop() !== '.env.example',
     'Environment files hold live credentials. Edit .env.example instead.'],
   [() => base === 'settings.local.json',
     'settings.local.json is per-machine. Put shared config in settings.json.'],
