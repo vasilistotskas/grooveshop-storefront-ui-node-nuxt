@@ -1,3 +1,10 @@
+## [3.334.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.334.1...v3.334.2) (2026-11-09)
+
+
+### Bug Fixes
+
+* **feeds:** bound the RSS feed's caches, put it under the store purge, add the blog-only feed ([#433](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/433)) ([10ace84](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/10ace8447253ec422f393d9e69f3d7baaa352f29)), closes [#427](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/427)
+
 ## [3.334.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.334.0...v3.334.1) (2026-11-08)
 
 
