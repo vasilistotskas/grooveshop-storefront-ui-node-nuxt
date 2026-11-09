@@ -293,29 +293,33 @@ onReactivated(async () => {
                 dark:text-primary-300
               "
             >
-              <span class="flex gap-1.5">
-                <span class="font-semibold">{{ t('published') }}:</span>
+              <!-- Each date a block with a real space after its label:
+                   the page's Markdown copy reads text, not the flex gap,
+                   and ran the labels and dates together. Flex drops the
+                   space, so the look is the same. -->
+              <p class="flex gap-1.5">
+                <span class="font-semibold">{{ t('published') }}:</span>{{ ' ' }}
                 <NuxtTime
                   :locale="locale"
                   :date-style="'long'"
                   :datetime="blogPost.publishedAt"
                 />
-              </span>
+              </p>
               <!-- Only when the content actually changed after
                    publication. Rendering it unconditionally would put
                    "updated" on every brand-new post, where the two
                    stamps are the same instant. -->
-              <span
+              <p
                 v-if="hasBeenUpdatedSincePublish"
                 class="flex gap-1.5"
               >
-                <span class="font-semibold">{{ t('updated') }}:</span>
+                <span class="font-semibold">{{ t('updated') }}:</span>{{ ' ' }}
                 <NuxtTime
                   :locale="locale"
                   :date-style="'long'"
                   :datetime="blogPost.updatedAt!"
                 />
-              </span>
+              </p>
             </div>
           </div>
 

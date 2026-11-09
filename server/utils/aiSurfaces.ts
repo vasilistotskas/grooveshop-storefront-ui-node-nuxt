@@ -1,11 +1,10 @@
 /**
- * nuxt-ai-ready's discovery surfaces: `/llms.txt`, `/llms-full.txt` and a
- * page's `.md` mirror. Only the platform storefront serves them
+ * nuxt-ai-ready's discovery surfaces: `/llms.txt` and a page's `.md`
+ * mirror. Only the platform storefront serves them
  * (`server/middleware/1.ai-ready-gate.ts`); every other store answers 404.
  */
 export function isAiSurfacePath(path: string): boolean {
   return path === '/llms.txt'
-    || path === '/llms-full.txt'
     || (path.endsWith('.md') && !path.startsWith('/api/'))
 }
 

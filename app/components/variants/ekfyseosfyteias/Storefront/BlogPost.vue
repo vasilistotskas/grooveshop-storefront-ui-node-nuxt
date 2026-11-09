@@ -87,7 +87,9 @@ const CARD_FOCUS = `
               font-semibold text-(--fy-eyebrow)
             "
           >{{ blogPostCategoryName }}</span>
-          <NuxtTime
+          <!-- A real space: the page's Markdown copy reads text, not the
+               flex gap, and glued the category to the date. -->
+          {{ ' ' }}<NuxtTime
             v-if="blogPost.publishedAt"
             :datetime="blogPost.publishedAt"
             :locale="locale"

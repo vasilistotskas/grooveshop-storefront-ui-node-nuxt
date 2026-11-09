@@ -31,7 +31,6 @@ describe('server/middleware/0.tenant', () => {
     '/manifest.webmanifest',
     '/_health',
     '/llms.txt',
-    '/llms-full.txt',
     // Django's cache purge arrives with no tenant Host; resolving it
     // 404'd before the route's own token check and silently killed SSR
     // cache invalidation in production.

@@ -683,7 +683,7 @@ export default defineNuxtConfig({
     },
   },
   // ``nuxt-ai-ready`` exposes site content to AI agents and crawlers via:
-  //   /llms.txt, /llms-full.txt   — site overview + per-page markdown
+  //   /llms.txt                    — site overview + per-page markdown
   //   /<route>.md                  — on-demand markdown of any HTML page
   //   /__ai-ready/*                — optional MCP/runtime sync endpoints
   //
@@ -722,12 +722,14 @@ export default defineNuxtConfig({
     // re-enable once the module can take a per-REQUEST locale set rather
     // than a build-time one.
     autoI18n: false,
-    // ``contentSignal`` (Cloudflare's Content Signals Policy, CC0 — not RFC
-    // 9309) would emit ``Content-Signal:`` / ``Content-Usage:`` lines into
-    // robots.txt. Google added both to its unsupported-directives list in
-    // April 2026, and PageSpeed/Lighthouse flags every occurrence as
-    // "Unknown directive". The 25-bot user-agent groups in ``robots.groups``
-    // below already gate AI access via standards-compliant Allow/Disallow.
+    // No ``Content-Signal:`` line in robots.txt (Cloudflare's Content
+    // Signals Policy, CC0, not RFC 9309). Since 3.1.0 the module writes
+    // ``Content-Signal: search=yes, ai-input=yes`` when this is unset.
+    // Google added it to its unsupported-directives list in April 2026,
+    // and PageSpeed/Lighthouse flags every occurrence as "Unknown
+    // directive". The 25-bot user-agent groups in ``robots.groups`` below
+    // already gate AI access via standards-compliant Allow/Disallow.
+    contentSignal: false,
     // Accept negotiation is done by server/middleware/0.markdown-negotiation.ts
     // (one hop, 200 + text/markdown, before the module's middleware). The
     // module's own negotiation cannot run on our cached routes anyway: v3
@@ -774,6 +776,19 @@ export default defineNuxtConfig({
     // root ``skills/`` both apply with no further change. Flip this on
     // together with the gate, not before.
     agentSkills: false,
+    // No ``/llms-full.txt`` and no ``/sitemap.md``: both are built from
+    // prerendered pages or the page database, and we have neither (above),
+    // so every store served an empty file that ``/llms.txt`` and each
+    // ``.md`` page linked to. The database cannot be a store's: its page
+    // table keys on the route alone, with no host. ``/llms.txt`` and the
+    // per-page ``.md`` twins stay.
+    llmsFullTxt: false,
+    sitemapMd: false,
+    // The module's default (``minimal`` + ``clean``) without the Tailwind
+    // conversion ``minimal`` turns on: it reads utility classes as
+    // Markdown, so a ``font-bold`` h1 became ``# **title**`` and every
+    // ``font-semibold`` label turned bold.
+    mdreamOptions: { minimal: true, clean: true, tailwind: false },
   },
   cookieControl: {
     isControlButtonEnabled: false,

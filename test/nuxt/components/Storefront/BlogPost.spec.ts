@@ -390,3 +390,48 @@ describe.each([
     wrapper.unmount()
   })
 })
+
+/**
+ * The page's Markdown copy (nuxt-ai-ready) reads the header as text, so
+ * the gaps flex draws must be real characters: before, it read
+ * «Δημοσιεύθηκε:29 Νοεμβρίου 2025Ενημερώθηκε στις:…» on webside and the
+ * author's name glued to the date on the default design.
+ */
+describe.each([
+  ['default', BlogPost],
+  ['webside', WebsideBlogPost],
+] as const)('BlogPost dates as text (%s tree)', (tree, Component) => {
+  beforeEach(() => {
+    clearNuxtData()
+    clearCursorState()
+    setTenant({ blogEnabled: true })
+    setTenantFeatures({ blog: true, blogComments: true })
+    api.routes({
+      '/api/blog/posts/7': { ...POST, readingTime: 6, publishedAt: '2026-05-01T10:00:00Z', updatedAt: '2026-06-01T10:00:00Z' },
+      '/api/blog/categories/2': POST.category,
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+  })
+
+  /** Each paragraph that holds a date, as the text a converter reads. */
+  async function dateLines() {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+    return wrapper.findAll('p').filter(p => p.find('time').exists()).map(p => p.element.textContent!.replace(/\s+/g, ' ').trim())
+  }
+
+  it.runIf(tree === 'webside')('puts each date on a line of its own, a space after its label', async () => {
+    const lines = await dateLines()
+
+    expect(lines).toHaveLength(2)
+    expect(lines[0]).toMatch(/^Δημοσιεύθηκε: \d/)
+    expect(lines[1]).toMatch(/^Ενημερώθηκε στις: \d/)
+  })
+
+  it.runIf(tree === 'default')('puts the date line in a block of its own, its parts spaced around the dots', async () => {
+    const lines = await dateLines()
+
+    expect(lines).toHaveLength(1)
+    expect(lines[0]).toMatch(/^\S.* · 6 λεπτά ανάγνωσης · Ενημερώθηκε στις \S/)
+  })
+})
