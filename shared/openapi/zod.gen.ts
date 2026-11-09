@@ -240,6 +240,7 @@ export const zBlogAuthor = z.object({
   uuid: z.uuid().readonly(),
   user: z.int().readonly(),
   website: z.string().max(200).readonly().nullable(),
+  sameAs: z.array(z.url().max(500)).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   numberOfPosts: z.int().readonly(),
@@ -263,6 +264,7 @@ export const zBlogAuthorWriteRequest = z.object({
     z.url().max(200),
     z.string().max(0),
   ]).optional(),
+  sameAs: z.array(z.url().min(1).max(500)).optional(),
 })
 
 /**
@@ -2180,6 +2182,7 @@ export const zPatchedBlogAuthorWriteRequest = z.object({
     z.url().max(200),
     z.string().max(0),
   ]).optional(),
+  sameAs: z.array(z.url().min(1).max(500)).optional(),
 })
 
 /**
@@ -6333,6 +6336,7 @@ export const zBlogAuthorDetail = z.object({
   uuid: z.uuid().readonly(),
   user: zUserPublic,
   website: z.string().max(200).readonly().nullable(),
+  sameAs: z.array(z.url().max(500)).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   numberOfPosts: z.int().readonly(),

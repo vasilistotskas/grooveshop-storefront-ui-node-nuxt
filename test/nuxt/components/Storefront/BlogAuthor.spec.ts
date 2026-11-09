@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import BlogAuthor from '~/components/Storefront/BlogAuthor.vue'
 import WebsideBlogAuthor from '~/components/variants/webside/Storefront/BlogAuthor.vue'
+import { makeBlogAuthor } from '~~/test/fixtures/blog'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
 
 /**
@@ -23,13 +24,11 @@ mockNuxtImport('useRoute', () => () => ({
   hash: '',
 }))
 
-const makeAuthor = (overrides: Record<string, unknown> = {}) => ({
+const makeAuthor = (overrides: Partial<BlogAuthorDetail> = {}) => makeBlogAuthor({
   id: 2,
-  user: { id: 7, firstName: 'Mike', lastName: 'Ganos', mainImagePath: null },
+  user: { id: 7, username: null, firstName: 'Mike', lastName: 'Ganos', mainImagePath: '' },
   website: '',
-  numberOfPosts: 0,
-  totalLikesReceived: 0,
-  translations: { el: { bio: null as string | null } },
+  translations: { el: {} },
   ...overrides,
 })
 
@@ -299,7 +298,7 @@ describe('Storefront/BlogAuthor', () => {
     })
 
     it('falls back to the full name for an author without a first name', async () => {
-      author.data.value = makeAuthor({ user: { id: 7, firstName: '', lastName: 'Ganos', mainImagePath: null } })
+      author.data.value = makeAuthor({ user: { id: 7, username: null, firstName: '', lastName: 'Ganos', mainImagePath: '' } })
 
       const wrapper = await mount()
 

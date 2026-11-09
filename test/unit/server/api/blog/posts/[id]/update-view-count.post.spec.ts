@@ -24,6 +24,7 @@ const postDetail = {
     uuid: '1b4e28ba-2fa1-41d2-883f-0016d3cca427',
     user: { id: 1, username: null, firstName: '', lastName: '', mainImagePath: '' },
     website: null,
+    sameAs: [],
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
     numberOfPosts: 1,
