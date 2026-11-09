@@ -37,7 +37,7 @@ describe('GET /api/builder/catalogue', () => {
     const response = await get()
 
     expect(Object.keys(response.body.documentKinds)).toEqual(['page', 'template', 'theme'])
-    expect(response.body.documentKinds.page.translatable).toEqual(['/seoTitle', '/seoDescription', '/seoKeywords'])
+    expect(response.body.documentKinds.page.translatable).toEqual(['/seoTitle', '/seoDescription', '/seoKeywords', '/heading'])
   })
 
   it('is the same for every store and needs no tenant: it asks nothing of the request', async () => {
