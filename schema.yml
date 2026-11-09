@@ -35562,6 +35562,7 @@ components:
             format: uri
             minLength: 1
             maxLength: 500
+          maxItems: 10
       required:
         - translations
         - user
@@ -43934,6 +43935,7 @@ components:
             format: uri
             minLength: 1
             maxLength: 500
+          maxItems: 10
     PatchedBlogCategoryWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
