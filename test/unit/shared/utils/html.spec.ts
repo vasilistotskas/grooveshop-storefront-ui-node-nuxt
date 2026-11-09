@@ -262,7 +262,7 @@ describe('sanitizeRichHtml', () => {
     it('drops any other target, and a target on anything but a link', () => {
       const out = sanitize('<a href="https://a.test/" target="frame1">a</a><span target="_blank">s</span>')
 
-      expect(out).not.toContain('target')
+      expect(out).toBe('<a href="https://a.test/">a</a><span>s</span>')
     })
 
     it('leaves links alone while the store has not asked for new tabs', () => {
