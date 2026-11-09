@@ -3,7 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import BlogPost from '~/components/variants/ekfyseosfyteias/Storefront/BlogPost.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
-import { makeBlogPost } from '~~/test/fixtures/blog'
+import { makeBlogAuthor, makeBlogPost } from '~~/test/fixtures/blog'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
@@ -42,7 +42,7 @@ const POST = {
   slug: 'to-rozo-chorafi',
   likes: [],
   translations: { el: { title: 'Το ροζ χωράφι', subtitle: 'Ανθισμένες ροδακινιές στην Ημαθία.', body: BODY } },
-  author: { id: 3, uuid: fixtureUuid(9, 3), translations: { el: { bio: '' } } },
+  author: makeBlogAuthor({ id: 3 }),
   category: { id: 2, uuid: fixtureUuid(9, 2), slug: 'expo', translations: { el: { name: 'Εκθέσεις & γεύσεις' } } },
   tags: [],
   viewCount: 0,

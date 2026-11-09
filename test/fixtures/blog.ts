@@ -1,4 +1,4 @@
-import type { BlogCategory, BlogComment, BlogPost, BlogTag } from '~~/shared/openapi/types.gen'
+import type { BlogAuthorDetail, BlogCategory, BlogComment, BlogPost, BlogTag } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -113,6 +113,34 @@ export function makeBlogTag(overrides: Partial<BlogTag> = {}): BlogTag {
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(31, id),
+    ...overrides,
+  }
+}
+
+/**
+ * A `BlogAuthorDetail` as Django serialises it (an author's page, and the
+ * `author` of a post's detail), valid against the generated
+ * `zBlogAuthorDetail` (proved by `test/unit/fixtures/blog.spec.ts`).
+ *
+ * Defaults: an author with a name and no photo, website, public profiles,
+ * bio or posts; the uuid and the user follow `id`. An explicit override wins.
+ */
+export function makeBlogAuthor(overrides: Partial<BlogAuthorDetail> = {}): BlogAuthorDetail {
+  const id = overrides.id ?? 1
+
+  return {
+    id,
+    uuid: fixtureUuid(32, id),
+    translations: { el: { bio: '' } },
+    user: { id, username: null, firstName: 'Νίκος', lastName: `Συντάκτης ${id}`, mainImagePath: '' },
+    website: null,
+    sameAs: [],
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
+    numberOfPosts: 0,
+    totalLikesReceived: 0,
+    recentPosts: [],
+    topPosts: [],
     ...overrides,
   }
 }

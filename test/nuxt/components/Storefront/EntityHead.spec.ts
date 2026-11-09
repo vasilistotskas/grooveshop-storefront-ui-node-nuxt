@@ -8,6 +8,7 @@ import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.v
 import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from '~~/test/fixtures/product'
+import { makeBlogAuthor } from '~~/test/fixtures/blog'
 import { makeBuilderPage } from '~~/test/fixtures/builderPage'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
@@ -88,7 +89,7 @@ function post(translations: Record<string, unknown>) {
     slug: 'spring-guide',
     likes: [],
     translations,
-    author: { id: 3, uuid: fixtureUuid(9, 3), translations: { el: { bio: '' } } },
+    author: makeBlogAuthor({ id: 3 }),
     category: { id: 2, uuid: fixtureUuid(9, 2), slug: 'guides', translations: { el: { name: 'Οδηγοί' } } },
     tags: [],
     viewCount: 0,

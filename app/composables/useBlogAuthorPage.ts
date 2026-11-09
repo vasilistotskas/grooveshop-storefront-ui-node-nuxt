@@ -59,7 +59,7 @@ export async function useBlogAuthorPage(options: {
     },
   )
 
-  const { data: author, error } = await useApi(
+  const authorRequest = useApi(
     `/api/blog/authors/${authorId}`,
     {
       key: `blogAuthor${authorId}`,
@@ -70,6 +70,21 @@ export async function useBlogAuthorPage(options: {
       },
     },
   )
+  const author = authorRequest.data
+
+  // The bio is rich text (a Django `RichTextField`, like a post body):
+  // sanitised for the page, reduced to plain text for meta and schema.org.
+  const authorBioHtml = computed(() =>
+    sanitize(extractTranslated(author.value, 'bio', locale.value)),
+  )
+  const authorBioText = computed(() => htmlToPlainText(authorBioHtml.value))
+
+  // The author as the Person every one of their posts names. Before the
+  // await: it reads the i18n and tenant state through the component's
+  // injection context, which an await inside a composable loses.
+  useBlogAuthorPerson(author, { description: authorBioText })
+
+  const { error } = await authorRequest
 
   if (error.value || !author.value) {
     throw createError({
@@ -83,13 +98,6 @@ export async function useBlogAuthorPage(options: {
     if (!user) return ''
     return `${user.firstName || ''} ${user.lastName || ''}`.trim()
   })
-
-  // The bio is rich text (a Django `RichTextField`, like a post body):
-  // sanitised for the page, reduced to plain text for meta and schema.org.
-  const authorBioHtml = computed(() =>
-    sanitize(extractTranslated(author.value, 'bio', locale.value)),
-  )
-  const authorBioText = computed(() => htmlToPlainText(authorBioHtml.value))
 
   // `undefined`, never '': an empty value still emits
   // `<meta name="description" content>`, which is strictly worse than no
@@ -153,20 +161,6 @@ export async function useBlogAuthorPage(options: {
     ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
     ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
   })
-
-  // A Person entity for the page, so a search engine can attribute this
-  // author's articles. The @id is absolute and page-scoped rather than
-  // the post page's bare `#author`, so the entity belongs to THIS url
-  // instead of floating and merging with a same-named author elsewhere.
-  useSchemaOrg([
-    definePerson({
-      '@id': `${canonicalUrl.value}#author`,
-      'name': authorName.value || undefined,
-      'description': authorBioText.value || undefined,
-      'image': ogImage.value || undefined,
-      'url': canonicalUrl.value,
-    }),
-  ])
 
   useHead({
     title: documentTitle,

@@ -6,7 +6,7 @@ import BlogPost from '~/components/Storefront/BlogPost.vue'
 import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
-import { makeBlogPost } from '~~/test/fixtures/blog'
+import { makeBlogAuthor, makeBlogPost } from '~~/test/fixtures/blog'
 import { makeBuilderPage, makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { ARTICLE_COLUMN_MAX_WIDTH, WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH } from '~~/shared/utils/html'
 
@@ -52,7 +52,7 @@ const POST = {
   slug: 'spring-guide',
   likes: [],
   translations: { el: { title: 'Οδηγός άνοιξης', subtitle: '', body: '<p>Κείμενο</p>' } },
-  author: { id: 3, uuid: fixtureUuid(9, 3), translations: { el: { bio: '' } } },
+  author: makeBlogAuthor({ id: 3 }),
   category: { id: 2, uuid: fixtureUuid(9, 2), slug: 'guides', translations: { el: { name: 'Οδηγοί' } } },
   tags: [],
   viewCount: 0,

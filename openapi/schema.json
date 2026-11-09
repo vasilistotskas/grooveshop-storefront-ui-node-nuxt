@@ -60368,6 +60368,16 @@
                         "description": "URL link or empty string",
                         "readOnly": true
                     },
+                    "sameAs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uri",
+                            "maxLength": 500
+                        },
+                        "readOnly": true,
+                        "description": "Links to the author's public profiles on other sites, such as LinkedIn, X or Instagram. Search engines use them to tell who wrote the article."
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -60391,6 +60401,7 @@
                     "createdAt",
                     "id",
                     "numberOfPosts",
+                    "sameAs",
                     "totalLikesReceived",
                     "translations",
                     "updatedAt",
@@ -60448,6 +60459,16 @@
                         "description": "URL link or empty string",
                         "readOnly": true
                     },
+                    "sameAs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uri",
+                            "maxLength": 500
+                        },
+                        "readOnly": true,
+                        "description": "Links to the author's public profiles on other sites, such as LinkedIn, X or Instagram. Search engines use them to tell who wrote the article."
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -60486,6 +60507,7 @@
                     "id",
                     "numberOfPosts",
                     "recentPosts",
+                    "sameAs",
                     "topPosts",
                     "totalLikesReceived",
                     "translations",
@@ -60535,6 +60557,15 @@
                                 "maxLength": 0
                             }
                         ]
+                    },
+                    "sameAs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uri",
+                            "minLength": 1,
+                            "maxLength": 500
+                        }
                     }
                 },
                 "required": [
@@ -71105,6 +71136,15 @@
                                 "maxLength": 0
                             }
                         ]
+                    },
+                    "sameAs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uri",
+                            "minLength": 1,
+                            "maxLength": 500
+                        }
                     }
                 }
             },

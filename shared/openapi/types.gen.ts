@@ -602,6 +602,10 @@ export type BlogAuthor = {
      * URL link or empty string
      */
   readonly website: string | null
+  /**
+     * Links to the author's public profiles on other sites, such as LinkedIn, X or Instagram. Search engines use them to tell who wrote the article.
+     */
+  readonly sameAs: Array<string>
   readonly createdAt: string
   readonly updatedAt: string
   readonly numberOfPosts: number
@@ -627,6 +631,10 @@ export type BlogAuthorDetail = {
      * URL link or empty string
      */
   readonly website: string | null
+  /**
+     * Links to the author's public profiles on other sites, such as LinkedIn, X or Instagram. Search engines use them to tell who wrote the article.
+     */
+  readonly sameAs: Array<string>
   readonly createdAt: string
   readonly updatedAt: string
   readonly numberOfPosts: number
@@ -649,6 +657,7 @@ export type BlogAuthorWriteRequest = {
   }
   user: number
   website?: string | string
+  sameAs?: Array<string>
 }
 
 /**
@@ -4881,6 +4890,7 @@ export type PatchedBlogAuthorWriteRequest = {
   }
   user?: number
   website?: string | string
+  sameAs?: Array<string>
 }
 
 /**

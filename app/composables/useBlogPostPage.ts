@@ -50,7 +50,7 @@ export async function useBlogPostPage(options: {
     method: 'GET',
   })
 
-  const { data: blogPost, refresh, error: blogPostError } = await useApi(
+  const blogPostRequest = useApi(
     `/api/blog/posts/${blogPostId.value}`,
     {
       key: `blogPost${blogPostId.value}`,
@@ -61,6 +61,14 @@ export async function useBlogPostPage(options: {
       },
     },
   )
+  const { data: blogPost, refresh } = blogPostRequest
+
+  // The post's author as the Person their page names too. Before the
+  // await: it reads the i18n and tenant state through the component's
+  // injection context, which an await inside a composable loses.
+  const authorPersonId = useBlogAuthorPerson(() => blogPost.value?.author)
+
+  const { error: blogPostError } = await blogPostRequest
 
   if (blogPostError.value || !blogPost.value) {
     // Normalize upstream 5xx to 503 (see products/[id]/[slug].vue):
@@ -210,14 +218,8 @@ export async function useBlogPostPage(options: {
   })
 
   useSchemaOrg([
-    definePerson({
-      '@id': '#author',
-      'name': blogAuthorFullName.value || undefined,
-      'url': blogPostAuthor.value?.website || undefined,
-      'image': blogPostAuthor.value?.user?.mainImagePath || undefined,
-    }),
     defineArticle({
-      author: { '@id': '#author' },
+      author: { '@id': authorPersonId.value },
       keywords: blogPostSeoKeywords.value ? [blogPostSeoKeywords.value] : undefined,
       headline: () => blogPostSeoTitle.value,
       description: () => blogPostDescription.value,

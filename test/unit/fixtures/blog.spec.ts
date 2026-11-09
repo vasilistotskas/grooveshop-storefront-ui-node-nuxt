@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zBlogCategory, zBlogComment, zBlogPost, zBlogTag } from '~~/shared/openapi/zod.gen'
-import { makeBlogCategory, makeBlogComment, makeBlogPost, makeBlogTag } from '~~/test/fixtures/blog'
+import { zBlogAuthorDetail, zBlogCategory, zBlogComment, zBlogPost, zBlogTag } from '~~/shared/openapi/zod.gen'
+import { makeBlogAuthor, makeBlogCategory, makeBlogComment, makeBlogPost, makeBlogTag } from '~~/test/fixtures/blog'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -59,5 +59,19 @@ describe('makeBlogTag', () => {
     expect(problems(zBlogTag, tag)).toEqual([])
     expect(tag.translations.el?.name).toBe('Ετικέτα 5')
     expect(tag.uuid).not.toBe(makeBlogTag().uuid)
+  })
+})
+
+describe('makeBlogAuthor', () => {
+  it('builds a default author that parses through zBlogAuthorDetail', () => {
+    expect(problems(zBlogAuthorDetail, makeBlogAuthor())).toEqual([])
+  })
+
+  it('derives the uuid and the user from the id', () => {
+    const author = makeBlogAuthor({ id: 4 })
+
+    expect(problems(zBlogAuthorDetail, author)).toEqual([])
+    expect(author.user).toMatchObject({ id: 4, lastName: 'Συντάκτης 4' })
+    expect(author.uuid).not.toBe(makeBlogAuthor().uuid)
   })
 })
