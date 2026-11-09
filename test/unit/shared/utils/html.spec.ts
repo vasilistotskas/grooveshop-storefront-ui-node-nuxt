@@ -13,7 +13,12 @@ import {
   transformHtmlImages,
 } from '~~/shared/utils/html'
 
-const OPTIONS = { videoPlayLabel: 'Αναπαραγωγή βίντεο', mediaStreamBaseUrl: 'https://assets.example.gr/media_stream-image' }
+const OPTIONS = {
+  videoPlayLabel: 'Αναπαραγωγή βίντεο',
+  mediaStreamBaseUrl: 'https://assets.example.gr/media_stream-image',
+  externalLinksNewTab: false,
+  storeHosts: ['example.gr', 'api.example.gr', 'assets.example.gr', 'static.example.gr'],
+}
 
 /** The text a reader gets from sanitised HTML. */
 const textOf = (html: string): string => new Window().document.createRange().createContextualFragment(html).textContent ?? ''
@@ -232,6 +237,61 @@ describe('sanitizeRichHtml', () => {
     expect(out).not.toContain('<script')
     expect(out).not.toContain('onerror')
     expect(out).not.toContain('javascript:')
+  })
+
+  describe('where a link opens', () => {
+    /** Each link's target and rel, as the page gets them. */
+    const linksOf = (html: string, options = OPTIONS) => [
+      ...new Window().document.createRange().createContextualFragment(sanitizeRichHtml(html, options)).querySelectorAll('a'),
+    ].map(a => ({ href: a.getAttribute('href'), target: a.getAttribute('target'), rel: a.getAttribute('rel') }))
+
+    // Post 78 on webside: the editor saved target="_blank", the page showed only rel.
+    it('keeps the new tab the editor set, with noopener noreferrer', () => {
+      expect(linksOf('<p><a href="https://netive.gr/" target="_blank" rel="noopener noreferrer">netive</a></p>')).toEqual([
+        { href: 'https://netive.gr/', target: '_blank', rel: 'noopener noreferrer' },
+      ])
+    })
+
+    it('adds noopener noreferrer to a new tab whatever rel the body carried, keeping its own tokens', () => {
+      expect(linksOf('<a href="https://a.test/" target="_BLANK" rel="nofollow">a</a><a href="https://b.test/" target="_blank">b</a>')).toEqual([
+        { href: 'https://a.test/', target: '_blank', rel: 'nofollow noopener noreferrer' },
+        { href: 'https://b.test/', target: '_blank', rel: 'noopener noreferrer' },
+      ])
+    })
+
+    it('drops any other target, and a target on anything but a link', () => {
+      const out = sanitize('<a href="https://a.test/" target="frame1">a</a><span target="_blank">s</span>')
+
+      expect(out).toBe('<a href="https://a.test/">a</a><span>s</span>')
+    })
+
+    it('leaves links alone while the store has not asked for new tabs', () => {
+      expect(linksOf('<a href="https://other.test/x">x</a>')).toEqual([
+        { href: 'https://other.test/x', target: null, rel: null },
+      ])
+    })
+
+    it('opens every link to another host in a new tab when the store asks for it', () => {
+      const on = { ...OPTIONS, externalLinksNewTab: true }
+
+      expect(linksOf('<a href="https://other.test/x">x</a><a href="http://Other2.test">y</a>', on)).toEqual([
+        { href: 'https://other.test/x', target: '_blank', rel: 'noopener noreferrer' },
+        { href: 'http://Other2.test', target: '_blank', rel: 'noopener noreferrer' },
+      ])
+    })
+
+    it('keeps what the editor chose on links to the own hosts of the store, relative links and non-web links', () => {
+      const on = { ...OPTIONS, externalLinksNewTab: true }
+
+      expect(linksOf(
+        '<a href="https://example.gr/blog">own</a>'
+        + '<a href="https://www.EXAMPLE.gr/">www</a>'
+        + '<a href="https://assets.example.gr/file.pdf" target="_blank">asset</a>'
+        + '<a href="/products">relative</a>'
+        + '<a href="mailto:info@example.gr">mail</a>',
+        on,
+      ).map(({ target }) => target)).toEqual([null, null, '_blank', null, null])
+    })
   })
 
   it('keeps ordinary links and images', () => {

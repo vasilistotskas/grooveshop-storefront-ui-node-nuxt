@@ -79411,10 +79411,15 @@
                     "demoAccount": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "externalLinksNewTab": {
+                        "type": "boolean",
+                        "readOnly": true
                     }
                 },
                 "required": [
                     "demoAccount",
+                    "externalLinksNewTab",
                     "mobileBottomNav",
                     "productAssurances",
                     "recentlyViewed",
