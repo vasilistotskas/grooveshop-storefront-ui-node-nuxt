@@ -5294,6 +5294,7 @@ export const zStorePreferences = z.object({
   recentlyViewed: z.boolean().readonly(),
   productAssurances: z.boolean().readonly(),
   demoAccount: z.boolean().readonly(),
+  externalLinksNewTab: z.boolean().readonly(),
 })
 
 /**

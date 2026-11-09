@@ -97,6 +97,7 @@ export function validTenantConfig(
       recentlyViewed: true,
       productAssurances: true,
       demoAccount: false,
+      externalLinksNewTab: false,
     },
     // Spread last so a caller can turn on the flags its own scenario
     // needs (a second locale, the blog) without restating the other

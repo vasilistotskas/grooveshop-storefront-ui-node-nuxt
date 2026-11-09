@@ -24,6 +24,7 @@
 export function useHtmlContent() {
   const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
+  const externalLinksNewTab = useStorePreference('externalLinksNewTab')
   const { $i18n } = useNuxtApp()
 
   /**
@@ -125,7 +126,8 @@ export function useHtmlContent() {
 
   /**
    * Sanitise admin-authored rich text for ``v-html`` (``sanitizeRichHtml``),
-   * naming a video facade's play button in the page's language.
+   * naming a video facade's play button in the page's language, and
+   * opening links to other sites in a new tab where the store asks for it.
    */
   const sanitize = (html: string | null | undefined): string => {
     return sanitizeRichHtml(html, {
@@ -134,6 +136,13 @@ export function useHtmlContent() {
         tenantStore.assetsDomain,
         config.public.mediaStreamPath as string | undefined,
       ),
+      externalLinksNewTab: externalLinksNewTab.value,
+      storeHosts: [
+        tenantStore.primaryDomain,
+        tenantStore.apiDomain,
+        tenantStore.assetsDomain,
+        tenantStore.staticDomain,
+      ],
     })
   }
 
