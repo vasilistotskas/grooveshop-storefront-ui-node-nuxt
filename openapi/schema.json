@@ -60565,7 +60565,8 @@
                             "format": "uri",
                             "minLength": 1,
                             "maxLength": 500
-                        }
+                        },
+                        "maxItems": 10
                     }
                 },
                 "required": [
@@ -71144,7 +71145,8 @@
                             "format": "uri",
                             "minLength": 1,
                             "maxLength": 500
-                        }
+                        },
+                        "maxItems": 10
                     }
                 }
             },

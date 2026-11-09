@@ -1,3 +1,17 @@
+## [3.336.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.336.0...v3.336.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **ai-ready:** stop advertising empty llms-full.txt and sitemap.md, plain Markdown headers ([#437](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/437)) ([c619592](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c6195928a5c5d126991eb2b18b9bf5693ab40b7e))
+
+# [3.336.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.335.0...v3.336.0) (2026-11-09)
+
+
+### Features
+
+* **blog:** post author meta, BreadcrumbList and the cover as primary image ([#436](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/436)) ([4cd195e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4cd195e240cb9e61373f3e721087af46a283bc30))
+
 # [3.335.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.334.2...v3.335.0) (2026-11-09)
 
 

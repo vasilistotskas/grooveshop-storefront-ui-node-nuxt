@@ -2,8 +2,9 @@
  * Everything a blog post page needs that is not its drawing: the post,
  * its category and author, the 404/503 a missing or failing post
  * becomes, the title, subtitle and sanitised-for-media body, the head
- * (title, description, canonical, Open Graph, schema.org), the view
- * count and the related posts.
+ * (title, description, author, canonical, Open Graph, schema.org), the
+ * view count and the related posts. The breadcrumb's schema is each
+ * drawing's own, from the trail it draws.
  *
  * Shared by every drawing of the post (`Storefront/BlogPost.vue` and the
  * tenants' own), so the request, its keys and the SEO are decided once.
@@ -215,9 +216,16 @@ export async function useBlogPostPage(options: {
     ogType: 'article',
     ogUrl: () => canonicalUrl.value,
     twitterCard: 'summary_large_image',
+    // The post's author, over the store's `seoAuthor` that
+    // setupPageHeader writes on every page; the page's Markdown copy
+    // (nuxt-ai-ready) reads its `author` from this tag too.
+    author: () => blogAuthorFullName.value || undefined,
   })
 
   useSchemaOrg([
+    // The post's cover, the Article's image, not the store's logo, which
+    // the schema module puts there when the page names nothing.
+    defineWebPage(computed(() => ({ primaryImageOfPage: ogImage.value || undefined }))),
     defineArticle({
       author: { '@id': authorPersonId.value },
       keywords: blogPostSeoKeywords.value ? [blogPostSeoKeywords.value] : undefined,
@@ -232,6 +240,7 @@ export async function useBlogPostPage(options: {
   useFaqSchema(extractTranslated(blogPost.value, 'body', locale.value))
 
   return {
+    canonicalUrl,
     blogPostId,
     blogPost,
     refresh,

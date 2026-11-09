@@ -4,15 +4,17 @@
 // same as the default page's; only webside's own column width differs.
 const { t, locale } = useStoreI18n('components/variants/webside/Storefront/BlogPost')
 const localePath = useLocalePath()
-const { blogAuthorUrl } = useUrls()
+const { blogAuthorUrl, blogCategoryUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 
 const {
+  canonicalUrl,
   blogPostId,
   blogPost,
   refresh,
   blogPostAuthor,
   blogAuthorFullName,
+  blogPostCategoryName,
   blogPostTitle,
   blogPostSubtitle,
   blogPostBody,
@@ -55,6 +57,14 @@ const items = computed(() => [
     to: localePath('blog'),
     label: t('breadcrumb.items.blog.label'),
   },
+  // The post's category, linked to its page; one with no name in this
+  // language is left out rather than shown as an empty link.
+  ...(blogPost.value?.category && blogPostCategoryName.value
+    ? [{
+        to: localePath(pathLocation(blogCategoryUrl(blogPost.value.category))),
+        label: blogPostCategoryName.value,
+      }]
+    : []),
   {
     to: localePath({
       name: 'blog-post-id-slug',
@@ -65,6 +75,16 @@ const items = computed(() => [
     }),
     label: blogPostTitle.value,
   },
+])
+
+// The trail the page shows.
+useSchemaOrg([
+  defineBreadcrumb(computed(() => ({
+    itemListElement: items.value.map((crumb, index) => ({
+      name: crumb.label,
+      item: index === items.value.length - 1 ? canonicalUrl.value : crumb.to,
+    })),
+  }))),
 ])
 
 const shareOptions = computed(() => ({
@@ -273,29 +293,33 @@ onReactivated(async () => {
                 dark:text-primary-300
               "
             >
-              <span class="flex gap-1.5">
-                <span class="font-semibold">{{ t('published') }}:</span>
+              <!-- Each date a block with a real space after its label:
+                   the page's Markdown copy reads text, not the flex gap,
+                   and ran the labels and dates together. Flex drops the
+                   space, so the look is the same. -->
+              <p class="flex gap-1.5">
+                <span class="font-semibold">{{ t('published') }}:</span>{{ ' ' }}
                 <NuxtTime
                   :locale="locale"
                   :date-style="'long'"
                   :datetime="blogPost.publishedAt"
                 />
-              </span>
+              </p>
               <!-- Only when the content actually changed after
                    publication. Rendering it unconditionally would put
                    "updated" on every brand-new post, where the two
                    stamps are the same instant. -->
-              <span
+              <p
                 v-if="hasBeenUpdatedSincePublish"
                 class="flex gap-1.5"
               >
-                <span class="font-semibold">{{ t('updated') }}:</span>
+                <span class="font-semibold">{{ t('updated') }}:</span>{{ ' ' }}
                 <NuxtTime
                   :locale="locale"
                   :date-style="'long'"
                   :datetime="blogPost.updatedAt!"
                 />
-              </span>
+              </p>
             </div>
           </div>
 
