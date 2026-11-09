@@ -264,7 +264,7 @@ export const zBlogAuthorWriteRequest = z.object({
     z.url().max(200),
     z.string().max(0),
   ]).optional(),
-  sameAs: z.array(z.url().min(1).max(500)).optional(),
+  sameAs: z.array(z.url().min(1).max(500)).max(10).optional(),
 })
 
 /**
@@ -2182,7 +2182,7 @@ export const zPatchedBlogAuthorWriteRequest = z.object({
     z.url().max(200),
     z.string().max(0),
   ]).optional(),
-  sameAs: z.array(z.url().min(1).max(500)).optional(),
+  sameAs: z.array(z.url().min(1).max(500)).max(10).optional(),
 })
 
 /**
