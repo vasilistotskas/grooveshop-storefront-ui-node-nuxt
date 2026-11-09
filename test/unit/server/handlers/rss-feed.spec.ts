@@ -274,7 +274,6 @@ describe('the feeds\' languages and failures', () => {
 
   it.each([
     ['a language the store does not serve', '/en/rss.xml', { availableLocales: ['el'] }],
-    ['the default language under a prefix', '/el/rss.xml', {}],
     ['a blog feed in a language the store does not serve', '/en/blog/rss.xml', { availableLocales: ['el'] }],
   ])('answers 404 for %s, fetching nothing', async (_label, path, tenant) => {
     const response = await requestFeed(handler, path, tenant)

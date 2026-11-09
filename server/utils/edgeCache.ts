@@ -115,16 +115,20 @@ export function isEdgeCacheableResponse(event: H3Event): boolean {
 }
 
 /**
- * Whether this response is a page (an HTML document or the payload a
- * client-side navigation fetches) that ``isEdgeCacheableResponse``
- * refused, and so gets ``PRIVATE_CACHE_CONTROL``. Redirects and
- * revalidations keep their own headers.
+ * Whether this response gets ``PRIVATE_CACHE_CONTROL`` after
+ * ``isEdgeCacheableResponse`` refused it: a page (an HTML document or the
+ * payload a client-side navigation fetches), and an error on any route.
+ * Nitro's error handler stamps every 404 ``no-cache`` over whatever the
+ * route set, JSON included (``nitropack`` ``runtime/internal/error/prod``),
+ * which a shared cache may store; a feed's 404 went out that way.
+ * Redirects and revalidations keep their own headers.
  */
 export function isPrivatePageResponse(event: H3Event): boolean {
   const method = event.method
   if (method !== 'GET' && method !== 'HEAD') return false
   const status = getResponseStatus(event)
   if (status >= 300 && status < 400) return false
+  if (status >= 400) return true
   if (PAYLOAD_SUFFIX.test(requestPath(event))) return true
   return String(getResponseHeader(event, 'content-type') ?? '').startsWith('text/html')
 }

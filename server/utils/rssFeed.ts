@@ -20,7 +20,6 @@
 import RSS from 'rss'
 import { createError, setHeaders } from 'h3'
 import type { H3Event } from 'h3'
-import { DEFAULT_LOCALE } from '~~/i18n/locales'
 import type { SupportedLocale } from '~~/i18n/locales'
 import { defineCachedFunction } from 'nitropack/runtime'
 import { useRuntimeConfig } from 'nuxt/server'
@@ -49,7 +48,7 @@ const RSS_IMAGE_TYPE = getMimeType(`image.${RSS_IMAGE_VARIANT.format}`)
 // *property* readonly and keeps the array itself mutable. The two
 // generated artifacts disagree structurally on this one point — the value
 // is identical at runtime, so the cast is safe.
-const cachedBlogCategory = defineCachedFunction(
+export const cachedRssBlogCategory = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string): Promise<BlogCategoryDetail> => {
     // The store and language the entry is keyed by: a cached function
     // revalidates with no request of its own.
@@ -67,7 +66,7 @@ const cachedBlogCategory = defineCachedFunction(
 // The feed carries each article in full, which the list a card is drawn
 // from no longer does: Django serves the feed's posts, newest first, with
 // their bodies, from its own endpoint.
-const cachedBlogPostFeed = defineCachedFunction(
+export const cachedRssBlogPosts = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string) => {
     const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
     return await parseDataAs(raw, zListBlogPostFeedResponse)
@@ -80,7 +79,7 @@ const cachedBlogPostFeed = defineCachedFunction(
   },
 )
 
-const cachedProductCategoryDetail = defineCachedFunction(
+export const cachedRssProductCategory = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string): Promise<ProductCategoryDetail> => {
     const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
     return await parseDataAs(raw, zProductCategoryDetail) as ProductCategoryDetail
@@ -93,7 +92,7 @@ const cachedProductCategoryDetail = defineCachedFunction(
   },
 )
 
-const cachedProducts = createCachedFetcher<ProductCard>('rss:products', RSS_CACHE_SECONDS)
+const cachedProducts = createCachedFetcher<ProductCard>('rss:products', RSS_CACHE_SECONDS, { swr: false })
 
 /** What one feed is built from: the store, its language and its addresses. */
 interface RssFeedSource {
@@ -113,7 +112,7 @@ interface RssFeedSource {
   withProducts: boolean
 }
 
-const generateRssFeed = defineCachedFunction(
+export const generateRssFeed = defineCachedFunction(
   async (source: RssFeedSource): Promise<string> => {
     const { kind, tenantKey, locale, siteUrl, baseUrl, apiBaseUrl, mediaStreamPath } = source
     const feed = new RSS({
@@ -140,7 +139,7 @@ const generateRssFeed = defineCachedFunction(
     // The blog feed never asks for products, and a store without the
     // catalogue has none to syndicate: Django refuses the list.
     const [blogPosts, allProducts] = await Promise.all([
-      cachedBlogPostFeed(tenantKey, locale, `${apiBaseUrl}/blog/post/feed`),
+      cachedRssBlogPosts(tenantKey, locale, `${apiBaseUrl}/blog/post/feed`),
       source.withProducts
         ? cachedProducts(tenantKey, locale, `${apiBaseUrl}/product`)
         : Promise.resolve([]),
@@ -176,10 +175,11 @@ const generateRssFeed = defineCachedFunction(
 
 /**
  * Answer one feed for the request's store, in the language of its path:
- * `/rss.xml` in the default language, `/<locale>/rss.xml` in a language
- * the store serves (`pathLocale`, the route's `[locale]` param). 404 for a
- * language the store does not serve, and when its blog is off (both feeds
- * are blog feeds first), with no work done and nothing a cache may keep.
+ * `/rss.xml` in the default language, `/<locale>/rss.xml` in another
+ * language (`pathLocale`, from the path; `nitro.handlers` registers no
+ * prefix for the default language). 404 for a language the store does not
+ * serve, and when its blog is off (both feeds are blog feeds first), with
+ * no work done and nothing a cache may keep.
  * Every other failure is a logged generic 500.
  */
 export async function respondWithRssFeed(
@@ -188,8 +188,7 @@ export async function respondWithRssFeed(
   pathLocale?: string,
 ): Promise<string> {
   const locale = requestLocale(event)
-  const unservedLanguage = pathLocale !== undefined
-    && (pathLocale === DEFAULT_LOCALE || pathLocale !== locale)
+  const unservedLanguage = pathLocale !== undefined && pathLocale !== locale
   if (unservedLanguage || !eventStoreFeature(event, 'blog')) {
     setHeaders(event, { 'Cache-Control': PRIVATE_CACHE_CONTROL })
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
@@ -264,7 +263,7 @@ async function processBlogPosts(
   // Pre-fetch all unique category IDs in parallel
   const uniqueCategoryIds = [...new Set(blogPosts.map(p => p.category).filter(Boolean))]
   const categoryResults = await Promise.allSettled(
-    uniqueCategoryIds.map(id => cachedBlogCategory(tenantKey, locale, `${apiBaseUrl}/blog/category/${id}`)),
+    uniqueCategoryIds.map(id => cachedRssBlogCategory(tenantKey, locale, `${apiBaseUrl}/blog/category/${id}`)),
   )
   const categoryMap = new Map(
     uniqueCategoryIds.map((id, i) => {
@@ -345,7 +344,7 @@ async function processProducts(
   // Pre-fetch all unique category IDs in parallel
   const uniqueCategoryIds = [...new Set(products.map(p => p.category).filter(id => id !== null))]
   const categoryResults = await Promise.allSettled(
-    uniqueCategoryIds.map(id => cachedProductCategoryDetail(tenantKey, locale, `${apiBaseUrl}/product/category/${id}`)),
+    uniqueCategoryIds.map(id => cachedRssProductCategory(tenantKey, locale, `${apiBaseUrl}/product/category/${id}`)),
   )
   const categoryMap = new Map(
     uniqueCategoryIds.map((id, i) => {
