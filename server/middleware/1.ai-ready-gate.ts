@@ -3,7 +3,7 @@ import { createError, defineEventHandler, getRequestHeader } from 'nuxt/server'
 /**
  * Interim multi-tenant gate for nuxt-ai-ready's discovery surfaces.
  *
- * `/llms.txt`, `/llms-full.txt` and the direct `.md` page mirrors
+ * `/llms.txt` and the direct `.md` page mirrors
  * (`isAiSurfacePath`) name the store they are served for, since the
  * site config is the store's from the start of each request
  * (`server/plugins/tenant-site-config.ts`). They are still not opened to

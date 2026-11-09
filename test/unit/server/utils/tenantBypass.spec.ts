@@ -31,7 +31,6 @@ describe('isTenantFreePath', () => {
     '/assets/main.css',
     '/openapi',
     '/llms.txt',
-    '/llms-full.txt',
     '/robots.txt',
     '/manifest.webmanifest',
     '/favicon.ico',

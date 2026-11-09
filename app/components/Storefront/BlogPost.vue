@@ -155,7 +155,11 @@ onReactivated(async () => {
                  set by `Model.save()` only, which view counts (a queryset
                  update) and likes (an m2m) never call. Shown only when the
                  post really changed after going live. -->
-            <span
+            <!-- A block of its own, with real spaces around the dots: the
+                 page's Markdown copy reads text, not the flex gap, and ran
+                 the author's name and every part of this line together.
+                 Flex drops the spaces, so the look is the same. -->
+            <p
               v-if="blogPost.isPublished && blogPost.publishedAt"
               class="flex flex-wrap items-center gap-x-2 text-toned"
             >
@@ -165,11 +169,11 @@ onReactivated(async () => {
                 :datetime="blogPost.publishedAt"
               />
               <template v-if="blogPost.readingTime">
-                <span aria-hidden="true">·</span>
+                {{ ' ' }}<span aria-hidden="true">·</span>{{ ' ' }}
                 <span>{{ t('reading_time', { minutes: blogPost.readingTime }, blogPost.readingTime) }}</span>
               </template>
               <template v-if="hasBeenUpdatedSincePublish">
-                <span aria-hidden="true">·</span>
+                {{ ' ' }}<span aria-hidden="true">·</span>{{ ' ' }}
                 <span>
                   {{ t('updated') }}
                   <NuxtTime
@@ -179,7 +183,7 @@ onReactivated(async () => {
                   />
                 </span>
               </template>
-            </span>
+            </p>
           </div>
         </div>
 

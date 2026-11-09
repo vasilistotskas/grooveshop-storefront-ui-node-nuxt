@@ -12,7 +12,7 @@ import type { TestRequest } from '~~/test/helpers/nitro'
 const run = (req: TestRequest) => callHandler(middleware, createTestEvent(req))
 
 describe('server/middleware/1.ai-ready-gate', () => {
-  it.each(['/llms.txt', '/llms-full.txt', '/products/1/slug.md'])('serves %s on the platform storefront', async (url) => {
+  it.each(['/llms.txt', '/products/1/slug.md'])('serves %s on the platform storefront', async (url) => {
     backend.reply(validTenantConfig('shop.test', { isPlatformStorefront: true }))
 
     await expect(run({ url })).resolves.toBeUndefined()

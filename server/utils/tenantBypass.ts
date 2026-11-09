@@ -93,7 +93,6 @@ const SELF_RESOLVING_EXACT: readonly string[] = [
   // tenant-specific content lives at ``<route>.md``, bypassed by suffix
   // below.
   '/llms.txt',
-  '/llms-full.txt',
 ] as const
 
 // nuxt-ai-ready emits a content-negotiated ``.md`` mirror for every

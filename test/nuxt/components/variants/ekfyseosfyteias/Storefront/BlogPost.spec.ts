@@ -110,6 +110,8 @@ describe('ekfyseosfyteias Storefront/BlogPost', () => {
     const time = wrapper.get('header time')
     expect(time.text()).toBe('22 Μαρτίου 2026')
     expect(time.attributes('datetime')).toContain('2026-03-22')
+    // As text (the page's Markdown copy), a space apart, not glued by the flex gap.
+    expect(time.element.parentElement!.textContent!.replace(/\s+/g, ' ').trim()).toBe('Εκθέσεις & γεύσεις 22 Μαρτίου 2026')
   })
 
   it('draws the main photograph beside the title, described by it', async () => {
