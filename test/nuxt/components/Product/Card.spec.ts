@@ -105,8 +105,7 @@ describe('Product/Card', () => {
 
   it.each([
     ['at the product\'s own threshold', { stock: 5, lowStockThreshold: 5 }, 'Μόνο 5 απέμειναν'],
-    ['up to 10 left when the product sets no threshold', { stock: 10, lowStockThreshold: 0 }, 'Μόνο 10 απέμειναν'],
-    ['one left, in the singular', { stock: 1, lowStockThreshold: 0 }, 'Μόνο 1 απέμεινε'],
+    ['one left, in the singular', { stock: 1, lowStockThreshold: 5 }, 'Μόνο 1 απέμεινε'],
   ])('says how few are left under the price %s', async (_case, overrides, line) => {
     const wrapper = await mountCard(makeProduct(overrides))
 
@@ -114,7 +113,7 @@ describe('Product/Card', () => {
   })
 
   it('says nothing about stock while there is plenty', async () => {
-    const wrapper = await mountCard(makeProduct({ stock: 11, lowStockThreshold: 0 }))
+    const wrapper = await mountCard(makeProduct({ stock: 11, lowStockThreshold: 10 }))
 
     expect(wrapper.text()).not.toContain('Μόνο')
   })

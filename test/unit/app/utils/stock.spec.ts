@@ -7,10 +7,13 @@ describe('lowStockLeft', () => {
     { stock: -2, lowStockThreshold: 5, left: null },
     { stock: 5, lowStockThreshold: 5, left: 5 },
     { stock: 6, lowStockThreshold: 5, left: null },
-    // No threshold of the merchant's: low is 10 or fewer.
-    { stock: 10, lowStockThreshold: 0, left: 10 },
-    { stock: 11, lowStockThreshold: 0, left: null },
-    { stock: 3, lowStockThreshold: null, left: 3 },
+    // A threshold of 0 switches the hint off: never low.
+    { stock: 3, lowStockThreshold: 0, left: null },
+    { stock: 1, lowStockThreshold: 0, left: null },
+    { stock: 0, lowStockThreshold: 0, left: null },
+    // No threshold at all (a search hit may carry null): nothing to compare.
+    { stock: 3, lowStockThreshold: null, left: null },
+    { stock: 3, lowStockThreshold: undefined, left: null },
   ])('warns of $left for $stock in stock against a threshold of $lowStockThreshold', ({ stock, lowStockThreshold, left }) => {
     expect(lowStockLeft({ stock, lowStockThreshold })).toBe(left)
   })

@@ -577,7 +577,7 @@ describe('webside design render', () => {
       id: 1,
       userId: USER.id,
       userUsername: USER.username ?? '',
-      product: { ...makeProduct({ id: 2, translations: { el: { name: 'Mini Power Bank 5000mAh' } } }), priceDropAlertsEnabled: false },
+      product: { ...makeProduct({ id: 2, lowStockThreshold: 10, translations: { el: { name: 'Mini Power Bank 5000mAh' } } }), priceDropAlertsEnabled: false },
       createdAt: '2026-09-01T09:00:00Z',
       uuid: 'f0000000-0000-4000-8000-000000000001',
     }

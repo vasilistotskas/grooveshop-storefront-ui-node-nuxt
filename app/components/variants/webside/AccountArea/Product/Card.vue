@@ -94,12 +94,7 @@ const to = computed(() => localePath({ path: productUrl(productId.value, product
 
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 
-const isLowStock = computed(() => {
-  const stock = product.value?.stock ?? 0
-  if (stock <= 0) return false
-  const threshold = product.value?.lowStockThreshold
-  return stock <= (typeof threshold === 'number' && threshold > 0 ? threshold : 10)
-})
+const isLowStock = computed(() => lowStockLeft(product.value) !== null)
 
 const isNew = computed(() => {
   const createdAt = (product.value as { createdAt?: string })?.createdAt
