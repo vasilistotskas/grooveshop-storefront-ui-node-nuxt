@@ -461,8 +461,6 @@ export function getSiteConfig(event: H3Event, options?: Record<string, unknown>)
 
 // ── @nuxtjs/sitemap (dist/runtime/server/composables/*) ───────────────
 
-export const defineSitemapEventHandler = defineEventHandler
-
 export function asSitemapUrl<T>(url: T): T {
   return url
 }

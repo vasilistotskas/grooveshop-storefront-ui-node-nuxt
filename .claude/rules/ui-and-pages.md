@@ -196,7 +196,7 @@ Components in `app/components/` organized by domain:
 
 ## SEO & Performance
 
-- **`@nuxtjs/seo`** suite: sitemap (dynamic via `/api/__sitemap__/urls`, excludes account/cart/checkout routes, cached per host in Redis by the `/sitemap.xml` route rule, purged by Django), OG Image disabled, Schema.org (minified), link checker (non-production). The module's canonical redirect is off (`seo.redirectToCanonicalSiteUrl: false`); `server/middleware/5.tenant-canonical.ts` enforces each tenant's canonical host
+- **`@nuxtjs/seo`** suite: sitemap (the store's URLs added in-process by `server/plugins/sitemap-store-urls.ts`, an incomplete one answered 503, excludes account/cart/checkout routes, cached per host in Redis by the `/sitemap.xml` route rule, purged by Django), OG Image disabled, Schema.org (minified), link checker (non-production). The module's canonical redirect is off (`seo.redirectToCanonicalSiteUrl: false`); `server/middleware/5.tenant-canonical.ts` enforces each tenant's canonical host
 - **Route rules**: Immutable caching for `/_nuxt/**`, static assets, images, CSS/JS. CORS (`Access-Control-Allow-Origin: *`) only on `/_nuxt/**`. Custom headers for manifest, favicons. `/_ipx/` is excluded from prerender.
 - **Experimental features**: `typedPages`, `asyncContext`, `inlineRouteRules`, `crossOriginPrefetch`, `nitroAutoImports` (kept until evlog's `log` works without it), `emitRouteChunkError: 'automatic-immediate'`.
 - **Build-time version injection**: `runtimeConfig.public.version` is set from `packageJson.version` (imported from `package.json`) in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.

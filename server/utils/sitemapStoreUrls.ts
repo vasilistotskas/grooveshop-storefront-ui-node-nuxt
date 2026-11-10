@@ -1,4 +1,16 @@
 import { useRuntimeConfig } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
+
+/**
+ * The store's own sitemap URLs: its blog posts and categories, products
+ * and categories, content pages and custom pages.
+ * `server/plugins/sitemap-store-urls.ts` adds them to the sitemap as an
+ * in-process source, inside the `/sitemap.xml` request, so a read that
+ * failed is known there (`complete: false`). As an HTTP source it was
+ * lost inside @nuxtjs/sitemap, which builds the sitemap without a failed
+ * source's URLs and answers 200, and the `/sitemap.xml` route rule then
+ * kept that sitemap for a day.
+ */
 
 const SITEMAP_CACHE_AGE = 60 * 60
 
@@ -46,17 +58,21 @@ const cachedContentPages = createCachedFetcher<ContentPage>(
   { swr: true },
 )
 
-export default defineSitemapEventHandler(async (event) => {
+export interface StoreSitemapUrls {
+  urls: ReturnType<typeof asSitemapUrl>[]
+  /** False when a read failed and its URLs are missing from `urls`. */
+  complete: boolean
+}
+
+export async function storeSitemapUrls(event: RequestEvent): Promise<StoreSitemapUrls> {
   const config = useRuntimeConfig()
   const host = requestTenantHost(event)
   const locale = requestLocale(event)
 
-  // This route is bypassed in server/middleware/0.tenant.ts (hit by
-  // @nuxtjs/sitemap at build/SWR time without a real tenant Host), so
-  // `event.context.tenant` is never populated here. Resolve it ourselves
-  // when a real Host is present; any resolution failure (404/5xx/no host)
-  // just falls back to platform-wide behavior below (the same behavior
-  // this route already had before this fix).
+  // `/sitemap.xml` is bypassed in server/middleware/0.tenant.ts, so
+  // `event.context.tenant` may be unset here. Resolve the store
+  // ourselves; none (404, no host) falls back to the platform-wide
+  // behaviour below.
   const tenant = (await requestTenantResult(event)).config
 
   // Use the tenant's primary domain for public URLs so the sitemap reflects
@@ -84,7 +100,20 @@ export default defineSitemapEventHandler(async (event) => {
   // is passed so each tenant's sitemap has its own cache entry.
   // languageCode ensures Django returns translations for the active locale.
   // Blog data is skipped entirely when the blog feature is off so disabled
-  // tenants don't leak blog URL surface in the sitemap.
+  // tenants don't leak blog URL surface in the sitemap. A read that fails
+  // (a cold cache during a Django outage; a warm one serves its last good
+  // list) lists nothing and makes the result incomplete.
+  let complete = true
+  const settled = <T>(read: Promise<T[]>): Promise<T[]> => read.catch((error: unknown) => {
+    complete = false
+    log.warn({
+      tag: 'sitemap',
+      message: 'Sitemap read failed; its URLs are left out',
+      host,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return []
+  })
   const [
     allPosts,
     allBlogCategories,
@@ -94,32 +123,33 @@ export default defineSitemapEventHandler(async (event) => {
     publishedPages,
   ] = await Promise.all([
     blogEnabled
-      ? cachedBlogPosts(host, locale, `${apiBaseUrl}/blog/post?languageCode=${locale}`)
+      ? settled(cachedBlogPosts(host, locale, `${apiBaseUrl}/blog/post?languageCode=${locale}`))
       : Promise.resolve([]),
     blogEnabled
-      ? cachedBlogCategories(host, locale, `${apiBaseUrl}/blog/category?languageCode=${locale}`)
+      ? settled(cachedBlogCategories(host, locale, `${apiBaseUrl}/blog/category?languageCode=${locale}`))
       : Promise.resolve([]),
     catalogueEnabled
-      ? cachedProducts(host, locale, `${apiBaseUrl}/product?languageCode=${locale}`)
+      ? settled(cachedProducts(host, locale, `${apiBaseUrl}/product?languageCode=${locale}`))
       : Promise.resolve([]),
     catalogueEnabled
-      ? cachedProductCategories(host, locale, `${apiBaseUrl}/product/category?languageCode=${locale}`)
+      ? settled(cachedProductCategories(host, locale, `${apiBaseUrl}/product/category?languageCode=${locale}`))
       : Promise.resolve([]),
     // Ungated: a content page is published or it is not, and the API
     // returns only published rows to an anonymous caller. pageSize is
     // explicit because the endpoint's default page is 12 — a store with
     // more policy pages than that would have silently listed a subset.
-    cachedContentPages(
+    settled(cachedContentPages(
       host,
       locale,
       `${apiBaseUrl}/content-page?languageCode=${locale}&pageSize=100`,
-    ),
+    )),
     // A store's own layouts: there are none without one. Fails closed
-    // (`null`), so a failed read lists no custom page.
+    // (`null`, logged there), so a failed read lists no custom page.
     tenant ? publishedPagesForHost(host, apiBaseUrl) : Promise.resolve(null),
   ])
+  if (tenant && publishedPages === null) complete = false
 
-  return [
+  const urls = [
     // Blog categories — omitted when blog is disabled for this tenant
     ...allBlogCategories.map(category => asSitemapUrl({
       loc: baseUrl + '/blog/category/' + category.id + '/' + category.slug,
@@ -196,4 +226,5 @@ export default defineSitemapEventHandler(async (event) => {
         : undefined,
     })),
   ]
-})
+  return { urls, complete }
+}

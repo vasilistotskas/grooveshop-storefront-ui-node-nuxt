@@ -1,33 +1,36 @@
 /**
- * The dynamic sitemap source. What it must keep true:
+ * The store's own sitemap URLs, added as an in-process source by the
+ * `sitemap:sources` hook. What it must keep true:
  *
  * - a gated surface is left out — blog URLs when the tenant has
  *   no `blog` feature, catalogue URLs when its `catalogue` preference
  *   is off — so the sitemap never advertises a URL its own route
  *   middleware answers with a 404;
- * - it resolves the tenant ITSELF (the route is bypassed in
- *   `0.tenant.ts`) and every backend read names the request's store;
+ * - it resolves the tenant ITSELF when the request has none bound, and
+ *   every backend read names the request's store;
+ * - a read that failed leaves the response at 503 with a Retry-After, so
+ *   no cache keeps a sitemap missing the store's pages;
  * - URLs and images point at the tenant's own domains.
  */
 import { describe, expect, it } from 'vitest'
-import handler from '~~/server/api/__sitemap__/urls'
+import plugin from '~~/server/plugins/sitemap-store-urls'
+import { SITEMAP_RETRY_AFTER_SECONDS } from '~~/server/utils/sitemapIncomplete'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
-import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
+import { backend, createRequestEvent, jsonResponse, runNitroPlugin } from '~~/test/helpers/nitro'
 import type { BackendRequest } from '~~/test/helpers/nitro'
 
-const route = '/api/__sitemap__/urls'
 const HOST = 'acme.test'
 const UPDATED = '2026-01-01T00:00:00Z'
 
 interface Catalogue {
   tenant?: Record<string, unknown> | null
-  posts?: unknown[]
+  posts?: unknown[] | 'down'
   blogCategories?: unknown[]
   products?: unknown[]
   productCategories?: unknown[]
   contentPages?: unknown[]
-  /** Published layouts by page type, or `'down'` for a failed read. */
+  /** What a list read answers, or `'down'` for a failed read. */
   layouts?: string[] | 'down'
 }
 
@@ -48,7 +51,7 @@ function serve(catalogue: Catalogue = {}) {
     switch (url.pathname.replace('/api/v1', '')) {
       case '/tenant/resolve':
         return tenant ?? jsonResponse({ detail: 'Not found.' }, 404)
-      case '/blog/post': return page(posts)
+      case '/blog/post': return posts === 'down' ? jsonResponse({ detail: 'upstream down' }, 500) : page(posts)
       case '/blog/category': return page(blogCategories)
       case '/product': return page(products)
       case '/product/category': return page(productCategories)
@@ -69,10 +72,20 @@ type SitemapUrl = {
   images?: Array<{ loc: string, title?: string, caption?: string }>
 }
 
+/** The store's source as the hook adds it to a `/sitemap.xml` request, and that response. */
+async function build(context: Record<string, unknown> = {}) {
+  const nitroApp = await runNitroPlugin(plugin)
+  const event = createRequestEvent({ url: '/sitemap.xml', host: HOST, headers: { 'x-forwarded-host': 'evil.example' }, context })
+  const ctx = { event, sitemapName: 'sitemap', sources: [] as Array<{ context: { name: string }, urls: SitemapUrl[] }> }
+  await nitroApp.hooks.callHook('sitemap:sources', ctx)
+  expect(ctx.sources).toHaveLength(1)
+  return { urls: ctx.sources[0]!.urls, response: event.res }
+}
+
 async function sitemap(context: Record<string, unknown> = {}): Promise<SitemapUrl[]> {
-  const response = await callRoute(handler, { route, host: HOST, headers: { 'x-forwarded-host': 'evil.example' }, context })
+  const { urls, response } = await build(context)
   expect(response.status).toBe(200)
-  return response.body
+  return urls
 }
 
 const locs = (urls: SitemapUrl[]) => urls.map(url => url.loc)
@@ -80,7 +93,7 @@ const locs = (urls: SitemapUrl[]) => urls.map(url => url.loc)
 const withBlog = (on: boolean) => ({ features: { ...validTenantConfig(HOST).features, blog: on } })
 const tenantContext = (overrides: Record<string, unknown> = {}) => ({ tenant: validTenantConfig(HOST, { ...withBlog(true), ...overrides }) })
 
-describe('server/api/__sitemap__/urls — blog feature gating', () => {
+describe('server/plugins/sitemap-store-urls — blog feature gating', () => {
   it('includes blog and catalogue URLs when both are on', async () => {
     serve()
 
@@ -105,7 +118,7 @@ describe('server/api/__sitemap__/urls — blog feature gating', () => {
   })
 })
 
-describe('server/api/__sitemap__/urls — catalogue gating', () => {
+describe('server/plugins/sitemap-store-urls — catalogue gating', () => {
   const withCatalogue = (catalogue: boolean) => ({
     features: { ...validTenantConfig(HOST).features, blog: true, catalogue },
   })
@@ -138,7 +151,7 @@ describe('server/api/__sitemap__/urls — catalogue gating', () => {
   })
 })
 
-describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', () => {
+describe('server/plugins/sitemap-store-urls — tenant resolution', () => {
   it('resolves the tenant for the request host when the context has none, honouring its features', async () => {
     serve({ tenant: validTenantConfig(HOST, withBlog(false)) })
 
@@ -188,7 +201,7 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
   })
 })
 
-describe('server/api/__sitemap__/urls — content pages', () => {
+describe('server/plugins/sitemap-store-urls — content pages', () => {
   it('lists published content pages under /info/, minus the ones a legal route already serves', async () => {
     // `/info/terms` 301s to `/terms-of-use`; listing it would put a
     // redirect in the sitemap and advertise two addresses for one page.
@@ -210,7 +223,7 @@ describe('server/api/__sitemap__/urls — content pages', () => {
   })
 })
 
-describe('server/api/__sitemap__/urls — product images', () => {
+describe('server/plugins/sitemap-store-urls — product images', () => {
   const productWithImage = (translations?: Record<string, unknown>) => makeProductCard({
     id: 100,
     slug: 'my-product',
@@ -302,7 +315,7 @@ describe('server/api/__sitemap__/urls — product images', () => {
   })
 })
 
-describe('server/api/__sitemap__/urls — custom pages', () => {
+describe('server/plugins/sitemap-store-urls — custom pages', () => {
   it('lists every published layout no static route renders, at its own path, in every locale', async () => {
     serve({ layouts: ['kelari', 'poies-eimaste'] })
 
@@ -344,12 +357,35 @@ describe('server/api/__sitemap__/urls — custom pages', () => {
     expect(backend.requests.some(request => request.url.pathname.endsWith('/builder/published'))).toBe(false)
   })
 
-  it('lists no custom page when the read fails, and everything else still', async () => {
+  it('lists no custom page when the read fails, everything else still, and keeps it out of every cache', async () => {
     serve({ layouts: 'down' })
 
-    const urls = locs(await sitemap(tenantContext()))
+    const { urls, response } = await build(tenantContext())
 
-    expect(urls.some(loc => loc.startsWith('/'))).toBe(false)
-    expect(urls).toContain('https://acme.test/blog/post/1/my-post')
+    expect(locs(urls).some(loc => loc.startsWith('/'))).toBe(false)
+    expect(locs(urls)).toContain('https://acme.test/blog/post/1/my-post')
+    expect(response.status).toBe(503)
+  })
+})
+
+describe('server/plugins/sitemap-store-urls — a read that fails', () => {
+  it('leaves its URLs out and answers 503 with a Retry-After, so no cache keeps the sitemap', async () => {
+    serve({ posts: 'down' })
+
+    const { urls, response } = await build(tenantContext())
+
+    expect(locs(urls).some(loc => loc.includes('/blog/post/'))).toBe(false)
+    expect(locs(urls)).toContain('https://acme.test/products/100/my-product')
+    expect(response.status).toBe(503)
+    expect(response.headers.get('retry-after')).toBe(String(SITEMAP_RETRY_AFTER_SECONDS))
+  })
+
+  it('leaves the response alone when every read succeeds', async () => {
+    serve()
+
+    const { response } = await build(tenantContext())
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('retry-after')).toBeNull()
   })
 })

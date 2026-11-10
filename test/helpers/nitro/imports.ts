@@ -43,6 +43,5 @@ export const NITRO_SHIM_IMPORTS = [
   'getSiteConfig',
   'updateSiteConfig',
   // @nuxtjs/sitemap
-  'defineSitemapEventHandler',
   'asSitemapUrl',
 ] as const
