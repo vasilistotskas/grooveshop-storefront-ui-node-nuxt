@@ -1,3 +1,10 @@
+## [3.337.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.0...v3.337.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* **sitemap:** a sitemap built while a read fails answers 503 and is cached nowhere ([#441](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/441)) ([ef0f3db](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ef0f3db274f181536b2e555c6b2d4e2e96353a8d))
+
 # [3.337.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.336.2...v3.337.0) (2026-11-10)
 
 
