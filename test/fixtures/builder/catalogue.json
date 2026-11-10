@@ -1,5 +1,5 @@
 {
-  "hash": "43ce1e7a51adbe8f",
+  "hash": "2230382a4038a1f5",
   "blocks": [
     {
       "type": "about_content",
@@ -7251,6 +7251,10 @@
           "seoKeywords": {
             "type": "string",
             "maxLength": 255
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 120
           }
         },
         "additionalProperties": false
@@ -7258,7 +7262,8 @@
       "translatable": [
         "/seoTitle",
         "/seoDescription",
-        "/seoKeywords"
+        "/seoKeywords",
+        "/heading"
       ],
       "linkRefs": []
     },
@@ -7278,6 +7283,10 @@
           "seoKeywords": {
             "type": "string",
             "maxLength": 255
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 120
           }
         },
         "additionalProperties": false
@@ -7285,7 +7294,8 @@
       "translatable": [
         "/seoTitle",
         "/seoDescription",
-        "/seoKeywords"
+        "/seoKeywords",
+        "/heading"
       ],
       "linkRefs": []
     },

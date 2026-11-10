@@ -31,6 +31,16 @@ export const BUILDER_DOCUMENT_KINDS = ['page', 'template', 'theme', 'group'] as 
 /** The node id the translation overlay uses for a document's own (root) settings. */
 export const BUILDER_DOCUMENT_NODE_ID = '@document'
 
+/** The longest heading a page's `heading` root setting holds: a page title, not a paragraph. */
+export const BUILDER_PAGE_HEADING_MAX_LENGTH = 120
+
+/**
+ * The documents whose body draws the store's name as the page's h1 when no
+ * section owns one (`Home.vue`, both designs): the ones the `heading` root
+ * setting has a place on, so the editor offers it there only.
+ */
+export const BUILDER_HEADING_DOCUMENTS: ReadonlySet<string> = new Set(['template:home'])
+
 /**
  * The storefront routes a navigation link may name: the same eight paths
  * Django's `BuiltInRoute` lists, which carry no session and no `robots: false`.

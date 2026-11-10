@@ -6,6 +6,7 @@ import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { builderField } from '~~/shared/builder/fields'
 import { builderBlocks, builderCatalogueDocument, buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { fixtureBlocks, promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
+import { BUILDER_PAGE_HEADING_MAX_LENGTH } from '~~/shared/constants/builder'
 
 const blockOf = (type: string) => buildBlockCatalogue([promoBanner, promoItem]).blocks.find(block => block.type === type)!
 
@@ -149,7 +150,7 @@ describe('buildBlockCatalogue', () => {
   describe('documentKinds', () => {
     const { documentKinds } = buildBlockCatalogue([])
 
-    it('states the root settings of a page and a template: their SEO copy, all translatable, limits as the model sets them', () => {
+    it('states the root settings of a page and a template: their SEO copy and heading, all translatable, limits as the model sets them', () => {
       expect(Object.keys(documentKinds)).toEqual(['page', 'template', 'theme'])
       expect(documentKinds.page).toEqual({
         schema: {
@@ -159,10 +160,11 @@ describe('buildBlockCatalogue', () => {
             seoTitle: { type: 'string', maxLength: 70 },
             seoDescription: { type: 'string', maxLength: 300 },
             seoKeywords: { type: 'string', maxLength: 255 },
+            heading: { type: 'string', maxLength: BUILDER_PAGE_HEADING_MAX_LENGTH },
           },
           additionalProperties: false,
         },
-        translatable: ['/seoTitle', '/seoDescription', '/seoKeywords'],
+        translatable: ['/seoTitle', '/seoDescription', '/seoKeywords', '/heading'],
         linkRefs: [],
       })
       expect(documentKinds.template).toEqual(documentKinds.page)

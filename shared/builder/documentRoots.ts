@@ -1,5 +1,6 @@
 import * as z from 'zod'
 
+import { BUILDER_PAGE_HEADING_MAX_LENGTH } from '../constants/builder'
 import { themeDefaultsFor } from '../theme/defaults'
 import { zThemeSettings } from '../theme/settings'
 import { resolveDesign } from '../theme/design'
@@ -7,17 +8,21 @@ import type { StorefrontDesign } from '../theme/design'
 import type { BuilderDocumentKind, ContrastRule, ContrastSide, DocumentRoot } from '../types/builder'
 
 /**
- * A page's search-engine copy, written per language: the length limits are
- * the model's (`SeoTranslationModel`), so a save the editor accepts is one
- * the database does. Every field is optional; an empty page has none.
+ * A page's own copy, written per language: its search-engine title,
+ * description and keywords, whose length limits are the model's
+ * (`SeoTranslationModel`), so a save the editor accepts is one the database
+ * does; and its `heading`, the h1 a body draws where it would otherwise draw
+ * the store's name (`BUILDER_HEADING_DOCUMENTS`). Every field is optional;
+ * an empty page has none.
  */
-const SEO_ROOT: DocumentRoot = {
+const PAGE_ROOT: DocumentRoot = {
   schema: z.object({
     seoTitle: z.string().max(70).optional(),
     seoDescription: z.string().max(300).optional(),
     seoKeywords: z.string().max(255).optional(),
+    heading: z.string().max(BUILDER_PAGE_HEADING_MAX_LENGTH).optional(),
   }),
-  translatable: ['/seoTitle', '/seoDescription', '/seoKeywords'],
+  translatable: ['/seoTitle', '/seoDescription', '/seoKeywords', '/heading'],
 }
 
 /** The design whose CSS sits under its rules: `null` for a store with its own templates (webside), drawn by Nuxt UI's defaults. */
@@ -79,7 +84,7 @@ export function themeRootFor(design: ThemeDesign): DocumentRoot {
  * root settings, and Django refuses a `settings` key on it.
  */
 export function builderDocumentRootsFor(schema?: string): Partial<Record<BuilderDocumentKind, DocumentRoot>> {
-  return { page: SEO_ROOT, template: SEO_ROOT, theme: themeRootFor(resolveDesign(schema)) }
+  return { page: PAGE_ROOT, template: PAGE_ROOT, theme: themeRootFor(resolveDesign(schema)) }
 }
 
 /** The roots as the document pipeline reads them: the schema of every kind, which no design changes. */

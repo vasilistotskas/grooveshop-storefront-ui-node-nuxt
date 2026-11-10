@@ -74,6 +74,10 @@ export function useBuilderLabels() {
     settingLabel: (path: string) => read(`settings.${path}.label`),
     /** The setting's help line, for the settings that have one. */
     settingHelp: (path: string): string | undefined => labels.te(`settings.${path}.help`, DEFAULT_LOCALE) ? read(`settings.${path}.help`) : undefined,
+    /** What a page's own setting is called (`seoTitle`, `heading`: the root settings of a page or template). */
+    documentSettingLabel: (key: string) => read(`documentSettings.${key}.label`),
+    /** A page's own setting's help line. */
+    documentSettingHelp: (key: string) => read(`documentSettings.${key}.help`),
     /** What a choice of a setting is called, by the setting's own name (the last part of its path). */
     optionLabel: (path: string, value: string) => read(`options.${path.split('.').at(-1)}.${value}`),
     /** What a fixed route a link may name is called (`/`, `/products`, `/account/login`). */

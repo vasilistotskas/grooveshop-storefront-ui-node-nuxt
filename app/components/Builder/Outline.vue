@@ -17,6 +17,9 @@ const trees = computed(() => {
 
 const library = useBuilderLibraryStore()
 
+/** Whether the open document has settings of its own (a page or a template: its search-engine copy, its heading). */
+const hasPageSettings = computed(() => documentKey.value !== undefined && builderPageSettingFields(documentKey.value).length > 0)
+
 /** Opens the library to add a section at the end of the document `key`. */
 function addSection(key: string): void {
   library.open(key, { index: store.opened[key]?.copy.draft.order.length ?? 0 })
@@ -60,6 +63,16 @@ function addSection(key: string): void {
       />
     </section>
     <UButton
+      v-if="hasPageSettings"
+      icon="i-lucide-file-cog"
+      color="neutral"
+      :variant="panel === 'page' ? 'soft' : 'ghost'"
+      :aria-pressed="panel === 'page'"
+      :label="t('pageSettings')"
+      class="justify-start"
+      @click="() => openPanel(panel === 'page' ? undefined : 'page')"
+    />
+    <UButton
       v-if="store.theme"
       icon="i-lucide-palette"
       color="neutral"
@@ -77,10 +90,12 @@ el:
   label: Δομή σελίδας
   page: Αυτή η σελίδα
   add: "Προσθήκη ενότητας: {name}"
+  pageSettings: "Ρυθμίσεις σελίδας: τίτλος και περιγραφή στην αναζήτηση"
   theme: "Θέμα: χρώματα, γωνίες, γραμματοσειρές"
 en:
   label: Page outline
   page: This page
   add: "Add a section to {name}"
+  pageSettings: "Page settings: title and description in search"
   theme: "Theme: colours, corners, fonts"
 </i18n>

@@ -4,6 +4,7 @@ import en from '~/builder/labels/en.json'
 import { BUILDER_BLOCK_CATEGORIES, BUILDER_EDITOR_GROUPS } from '~~/shared/constants/builderEditor'
 import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
 import { LINK_ROUTES } from '~~/shared/constants/builder'
+import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
 import { builderRouteLabelKey, builderSettingsFields, flattenSettingsFields } from '~/utils/builderSettingsFields'
 import { SUPPORTED_LOCALES } from '~~/i18n/locales'
 import type { SupportedLocale } from '~~/i18n/locales'
@@ -61,6 +62,15 @@ describe.each(SUPPORTED_LOCALES)('the editor labels in %s', (locale) => {
     const named = keysOf(labels.settings).filter(key => key.endsWith('.label')).map(key => key.slice(0, -'.label'.length)).sort()
 
     expect(named).toEqual(settingPaths)
+  })
+
+  it('name and explain every text a page or template holds of its own, and only those', () => {
+    const roots = [BUILDER_DOCUMENT_ROOTS.page, BUILDER_DOCUMENT_ROOTS.template].flatMap(root => root ? root.translatable : [])
+    const keys = [...new Set(roots.map(pointer => pointer.slice(1)))].sort()
+
+    expect(keys.length).toBeGreaterThan(0)
+    expect(Object.keys(labels.documentSettings).sort()).toEqual(keys)
+    expect(Object.values(labels.documentSettings).every(setting => setting.label.trim() !== '' && setting.help.trim() !== '')).toBe(true)
   })
 
   it('name every choice a setting offers, and only those', () => {
