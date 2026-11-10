@@ -1,3 +1,10 @@
+# [3.337.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.336.2...v3.337.0) (2026-11-10)
+
+
+### Features
+
+* **builder:** page settings panel, and a heading the home page draws as its h1 ([#440](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/440)) ([d9473fc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d9473fc69749dccdde7e20a2baca1fe135f1caae)), closes [#431](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/431)
+
 ## [3.336.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.336.1...v3.336.2) (2026-11-09)
 
 
