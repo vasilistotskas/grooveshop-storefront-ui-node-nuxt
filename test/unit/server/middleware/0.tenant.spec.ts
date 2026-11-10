@@ -20,7 +20,6 @@ describe('server/middleware/0.tenant', () => {
   it.each([
     '/_nuxt/builds/meta/XXX.json',
     '/_ipx/w_200/logo.png',
-    '/api/__sitemap__/urls',
     '/platform-favicon/favicon-32x32.png',
     '/favicon/apple-touch-icon.png',
     '/api/_alive',

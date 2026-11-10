@@ -47,7 +47,7 @@ import { useRuntimeConfig } from 'nuxt/server'
  * resolved URL list AND the request, which is what tenant resolution
  * needs.
  *
- * The dynamic half of the sitemap (`server/api/__sitemap__/urls.ts`)
+ * The dynamic half of the sitemap (`server/utils/sitemapStoreUrls.ts`)
  * gates blog URLs on the `blog` feature and product URLs on the
  * `catalogue` feature; this closes the same hole for the static routes
  * that head each of those surfaces.
@@ -83,7 +83,7 @@ interface GatedRoute extends FeatureGatedRoute {
 // menus' sake; they never reach this hook, because the module drops
 // non-indexable routes before it runs. `/search` is not listed at all
 // for the same reason. The DYNAMIC product, category and blog URLs are
-// gated on the same flags in `server/api/__sitemap__/urls.ts`.
+// gated on the same flags in `server/utils/sitemapStoreUrls.ts`.
 const GATED_ROUTES: readonly GatedRoute[] = [
   ...FEATURE_GATED_ROUTES,
   // The legal routes. Each renders the tenant's ContentPage at its
@@ -131,9 +131,9 @@ export default defineNitroPlugin((nitroApp) => {
     const host = requestTenantHost(event)
     if (!host) return
 
-    // The sitemap routes bypass server/middleware/0.tenant.ts, so resolve
-    // the tenant here the same way urls.ts does. No tenant (platform
-    // host, resolution failure) means no gating decision to make.
+    // The store `0.tenant.ts` already looked up for this request
+    // (`requestTenantResult` memoises it). No tenant (platform host,
+    // resolution failure) means no gating decision to make.
     const tenant = (await requestTenantResult(event)).config
     if (!tenant) return
 
@@ -173,6 +173,11 @@ export default defineNitroPlugin((nitroApp) => {
     const publishedPageTypes = new Set(
       publishedPages?.map(page => page.key),
     )
+    // A read that was needed and failed (`null`) dropped pages the store
+    // may have: that sitemap is incomplete and must reach no cache.
+    if ((needsContent && contentLocales === null) || (needsLayouts && publishedPages === null)) {
+      markSitemapIncomplete(event)
+    }
 
     const allowed = GATED_ROUTES.map((route) => {
       if (!featureRouteAllowed(route, tenant)) return false

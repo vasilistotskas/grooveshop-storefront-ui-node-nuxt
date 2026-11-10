@@ -80,7 +80,7 @@ Out: files under `server/utils/`, `server/middleware/`, `server/plugins/`, `serv
 These are the known exceptions:
 
 - `server/api/auth/oauth-params.get.ts` — reads OAuth params from session, not a Django proxy.
-- `server/api/__sitemap__/urls.ts` — the `@nuxtjs/sitemap` source (`defineSitemapEventHandler`); it fetches through `createCachedFetcher` (`backendFetchFor` inside a cached function), not the per-request envelope.
+- `server/utils/sitemapStoreUrls.ts` — the store's sitemap URLs (added by the `sitemap:sources` hook); it fetches through `createCachedFetcher` (`backendFetchFor` inside a cached function), not the per-request envelope.
 - `server/handlers/rss-feed.ts` — out of scope (not `server/api/`): the RSS feeds, built in `server/utils/rssFeed.ts`'s cached functions with `backendFetchFor` + `parseDataAs`.
 
 If new routes match these *exact* paths, skip them with a note in the report. Otherwise treat the rule as binding.

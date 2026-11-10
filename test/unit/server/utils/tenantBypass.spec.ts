@@ -35,7 +35,6 @@ describe('isTenantFreePath', () => {
     '/manifest.webmanifest',
     '/favicon.ico',
     '/favicon/apple-touch-icon.png',
-    '/api/__sitemap__/urls',
     '/products/1/some-product.md',
   ])('says %s may need the store', (path) => {
     expect(isTenantFreePath(path)).toBe(false)
@@ -44,7 +43,7 @@ describe('isTenantFreePath', () => {
 
 describe('bypassesTenantMiddleware', () => {
   it('bypasses the tenant-free paths and the ones that resolve the store themselves', () => {
-    for (const url of ['/api/_alive', '/llms.txt', '/robots.txt', '/favicon/x.png', '/api/__sitemap__/urls']) {
+    for (const url of ['/api/_alive', '/llms.txt', '/robots.txt', '/favicon/x.png']) {
       expect(bypassesTenantMiddleware(createRequestEvent({ url }))).toBe(true)
     }
     expect(bypassesTenantMiddleware(createRequestEvent({ url: '/products' }))).toBe(false)

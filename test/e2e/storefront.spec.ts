@@ -5,6 +5,7 @@ import { describePageRenders, pageRenderUpstream } from './pageRenders'
 import { describeRequestId, requestIdUpstream } from './requestId'
 import { describeTenantLookups, tenantLookupsUpstream } from './tenantLookups'
 import { describeShippingOptionsCache, shippingOptionsUpstream } from './shippingOptionsCache'
+import { describeSitemapOutage, sitemapOutageUpstream } from './sitemapOutage'
 import { describeSignOut, signOutUpstream } from './signOut'
 import { PLATFORM_FALLBACK_HOST, describeSwrHostPropagation, swrProbeUpstream } from './swrHostPropagation'
 import { describeTrackingParams, trackingParamsUpstream } from './trackingParams'
@@ -30,6 +31,7 @@ describe('storefront on a real dev server', async () => {
     if (signOutUpstream(req, res, url)) return
     if (requestIdUpstream(req, res, url)) return
     if (shippingOptionsUpstream(req, res, url)) return
+    if (sitemapOutageUpstream(req, res, url)) return
     // Only counts; the page-render stub below still answers.
     trackingParamsUpstream(req, res, url)
     pageRenderUpstream(req, res, url)
@@ -47,4 +49,5 @@ describe('storefront on a real dev server', async () => {
   describeRequestId()
   describeShippingOptionsCache()
   describeTenantLookups()
+  describeSitemapOutage()
 })

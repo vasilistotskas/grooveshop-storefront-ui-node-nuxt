@@ -692,7 +692,7 @@ export default defineNuxtConfig({
   //     metadata indexed at build time and baked into the image dump.
   //   - SSR-rendered pages (products, blog, category pages) index on first
   //     visit per pod. Sitemap-driven URL discovery still works via
-  //     ``/api/__sitemap__/urls``.
+  //     the sitemap (``server/plugins/sitemap-store-urls.ts``).
   //   - ``runtimeSync`` + ``cron`` are intentionally **disabled**: with two
   //     replicas each holding an ephemeral SQLite at ``.data/ai-ready``,
   //     scheduled background indexing would race and double-submit to
@@ -888,7 +888,6 @@ export default defineNuxtConfig({
       '/__nuxt_error**',
       '/api/_nuxt_icon/**',
       '/api/_alive',
-      '/api/__sitemap__/**',
     ],
     transport: { enabled: true },
   },
@@ -1405,9 +1404,9 @@ export default defineNuxtConfig({
       // the ones that have the document. They are gated per tenant in
       // `server/plugins/sitemap-tenant-gate.ts` instead.
     ],
-    sources: [
-      '/api/__sitemap__/urls',
-    ],
+    // No `sources`: the store's own URLs are added in-process by
+    // `server/plugins/sitemap-store-urls.ts` (`sitemap:sources`), so a
+    // failed read keeps the sitemap out of every cache.
     // The module's own cache is off: it keeps the sitemap under a
     // `sitemap` storage base that nothing mounts, i.e. in each pod's
     // memory, keyed by a hash of the host and its other parts. Every pod

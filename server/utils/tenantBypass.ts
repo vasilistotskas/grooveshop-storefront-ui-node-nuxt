@@ -20,7 +20,7 @@ import type { RequestEvent } from 'nuxt/server'
  * - TENANT_FREE: nothing on the path depends on a store. No store is
  *   looked up for it, by anyone.
  * - SELF_RESOLVING: the path bypasses the middleware but its own handler
- *   needs the store (a favicon redirect, the manifest, a sitemap, the
+ *   needs the store (a favicon redirect, the manifest, the
  *   store's own `.md` mirror) and resolves it, through
  *   `requestTenantResult`.
  */
@@ -64,12 +64,6 @@ const TENANT_FREE_EXACT: readonly string[] = [
 ] as const
 
 const SELF_RESOLVING_PREFIXES: readonly string[] = [
-  // Dynamic sitemap source — hit by @nuxtjs/sitemap at build/SWR time
-  // without a real tenant Host header. The handler itself opts in to
-  // ``tenantCacheKey`` so per-tenant sitemaps still partition correctly
-  // when the request DOES carry a tenant; the bypass keeps build-time
-  // and probe-time hits from 404'ing (M3 in MULTI_TENANT_AUDIT.md).
-  '/api/__sitemap__',
   // Legacy favicon paths — owned by 6.tenant-favicon.ts, which resolves
   // the tenant itself (so unknown-host probes fall back to the platform
   // asset instead of 404ing here first).

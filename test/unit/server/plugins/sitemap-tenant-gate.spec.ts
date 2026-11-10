@@ -13,7 +13,7 @@ import plugin from '~~/server/plugins/sitemap-tenant-gate'
 import { LEGAL_ROUTE_SLUGS } from '~~/shared/utils/legalPages'
 import { translatedLocales } from '~~/shared/utils/translations'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
-import { backend, createTestEvent, jsonResponse, runNitroPlugin } from '~~/test/helpers/nitro'
+import { backend, createRequestEvent, jsonResponse, runNitroPlugin } from '~~/test/helpers/nitro'
 import type { BackendRequest, TestNitroApp } from '~~/test/helpers/nitro'
 
 type ContentPage = { slug: string, translations: Record<string, Record<string, unknown>> }
@@ -60,7 +60,7 @@ const requestsTo = (suffix: string) => backend.requests.filter(r => r.path.inclu
 
 /** A sitemap request on example.com, with the tenant 0.tenant would have bound (none when null). */
 function eventFor(tenant: Record<string, unknown> | null, headers: Record<string, string> = {}) {
-  return createTestEvent({ url: '/sitemap.xml', host: 'example.com', headers, context: tenant ? { tenant } : {} })
+  return createRequestEvent({ url: '/sitemap.xml', host: 'example.com', headers, context: tenant ? { tenant } : {} })
 }
 
 async function gate<T extends { urls: unknown[] }>(ctx: T): Promise<T> {
@@ -469,6 +469,23 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       expect(await runLegal(OPEN)).toEqual([])
     })
 
+    it('keeps a sitemap built without the content lookup out of every cache', async () => {
+      store.content = 'down'
+      const event = eventFor(OPEN)
+
+      await gate({ urls: [...URLS], sitemapName: 'sitemap', event })
+
+      expect(event.res.status).toBe(503)
+    })
+
+    it('leaves the response alone when the lookup succeeds', async () => {
+      const event = eventFor(OPEN)
+
+      await gate({ urls: [...URLS], sitemapName: 'sitemap', event })
+
+      expect(event.res.status).toBe(200)
+    })
+
     it('reads the content pages ONCE for every legal route', async () => {
       await runLegal(OPEN)
 
@@ -641,6 +658,15 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       store.layouts = 'down'
 
       expect(await runLayout(OPEN)).toEqual([])
+    })
+
+    it('keeps a sitemap built without the layouts out of every cache', async () => {
+      store.layouts = 'down'
+      const event = eventFor(OPEN)
+
+      await gate({ urls: [...URLS], sitemapName: 'sitemap', event })
+
+      expect(event.res.status).toBe(503)
     })
 
     it('reads the published layouts once, for every route', async () => {

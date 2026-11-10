@@ -59,9 +59,10 @@ export async function useBuilderPage(
   const sections = computed(() => page.value?.sections ?? [])
 
   // The operator's own <title> and meta description. Django resolves them for
-  // the page's language and answers STRICTLY: a language the operator has not
-  // translated has none rather than another language's copy, so "empty" means
-  // "no tag" in every language. An unset field emits NO tag at all, not a tag
+  // the page's language by laying that language's translations over the
+  // default language's settings (`builder/published.py`, `localised`), so a
+  // field not translated is the default language's text, and "empty" means
+  // "not set in the default language either". An unset field emits NO tag at all, not a tag
   // with an empty value (which would still win the dedupe and then be
   // dropped, taking the page's own default with it). When set, the value must
   // beat those defaults even though this entry registers FIRST (every page
