@@ -20,7 +20,7 @@ import type { RequestEvent } from 'nuxt/server'
  * - TENANT_FREE: nothing on the path depends on a store. No store is
  *   looked up for it, by anyone.
  * - SELF_RESOLVING: the path bypasses the middleware but its own handler
- *   needs the store (a favicon redirect, the manifest, a sitemap, the
+ *   needs the store (a favicon redirect, the manifest, the
  *   store's own `.md` mirror) and resolves it, through
  *   `requestTenantResult`.
  */

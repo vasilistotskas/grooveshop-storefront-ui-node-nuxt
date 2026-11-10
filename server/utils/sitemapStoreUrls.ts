@@ -69,10 +69,9 @@ export async function storeSitemapUrls(event: RequestEvent): Promise<StoreSitema
   const host = requestTenantHost(event)
   const locale = requestLocale(event)
 
-  // `/sitemap.xml` is bypassed in server/middleware/0.tenant.ts, so
-  // `event.context.tenant` may be unset here. Resolve the store
-  // ourselves; none (404, no host) falls back to the platform-wide
-  // behaviour below.
+  // The store `0.tenant.ts` already looked up for this request
+  // (`requestTenantResult` memoises it). None (404, no host) falls back
+  // to the platform-wide behaviour below.
   const tenant = (await requestTenantResult(event)).config
 
   // Use the tenant's primary domain for public URLs so the sitemap reflects

@@ -3,7 +3,7 @@ import { createError, defineEventHandler } from 'nuxt/server'
 export default defineEventHandler(async (event) => {
   // First, before any bypass: every request names its store once, and
   // everything keyed on the store reads it from here (`requestTenantHost`),
-  // the bypassed sitemap and manifest routes and Nitro's cache keys
+  // the bypassed manifest route and Nitro's cache keys
   // included.
   event.context.tenantHost = resolveTenantHost(event)
 
