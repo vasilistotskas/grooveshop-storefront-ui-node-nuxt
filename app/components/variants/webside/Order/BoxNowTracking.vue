@@ -78,7 +78,7 @@ const { t, locale } = useI18n()
         </UButton>
         <UButton
           v-if="shipment.parcelId"
-          :to="`/api/orders/${orderId}/boxnow-label`"
+          :to="`/api/orders/${orderId}/shipment-label`"
           target="_blank"
           icon="i-lucide-download"
         >
