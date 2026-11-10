@@ -80,13 +80,7 @@ const productDescription = computed(() => {
 
 const alt = computed(() => productName.value)
 
-const isLowStock = computed(() => {
-  const stock = product.value?.stock ?? 0
-  if (stock <= 0) return false
-  const lowStockThreshold = (product.value as { lowStockThreshold?: number })?.lowStockThreshold
-  const threshold = typeof lowStockThreshold === 'number' && lowStockThreshold > 0 ? lowStockThreshold : 10
-  return stock <= threshold
-})
+const isLowStock = computed(() => lowStockLeft(product.value) !== null)
 
 // Wholesale price hydration — client-only, retail renders first then
 // swaps (the cached/anonymous catalogue HTML must never carry a

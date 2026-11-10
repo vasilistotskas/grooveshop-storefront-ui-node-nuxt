@@ -418,7 +418,7 @@ describe('default ProductDetail', () => {
     { stock: 3, line: 'Έμειναν μόνο 3' },
     { stock: 0, line: 'Εξαντλήθηκε' },
   ])('says $line for a stock of $stock', async ({ stock, line }) => {
-    serve(makeProduct({ id: 123, stock }))
+    serve(makeProduct({ id: 123, stock, lowStockThreshold: 5 }))
     const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain(line)
@@ -735,6 +735,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail w
 // each drawing words it in its own copy.
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail stock', ({ tree, C }) => {
   const lowStockOf = (count: number) => (tree === 'default' ? `Έμειναν μόνο ${count}` : `Χαμηλό απόθεμα (${count})`)
+  const SOLD_OUT = tree === 'default' ? 'Εξαντλήθηκε' : 'Μη διαθέσιμο'
 
   function serve(product: ReturnType<typeof makeProduct>) {
     clearNuxtData()
@@ -769,6 +770,28 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
 
     expect(wrapper.text()).not.toContain(lowStockOf(12))
     expect(wrapper.text()).toContain('Διαθέσιμο')
+    wrapper.unmount()
+  })
+
+  it('reads in stock, however few are left, when the threshold is 0: the store switched the hint off', async () => {
+    serve(makeProduct({ id: 123, stock: 3, lowStockThreshold: 0 }))
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain(lowStockOf(3))
+    expect(wrapper.text()).toContain('Διαθέσιμο')
+    wrapper.unmount()
+  })
+
+  it('reads sold out, never low stock, at stock 0', async () => {
+    serve(makeProduct({ id: 123, stock: 0, lowStockThreshold: 5 }))
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain(lowStockOf(0))
+    expect(wrapper.text()).toContain(SOLD_OUT)
     wrapper.unmount()
   })
 })
