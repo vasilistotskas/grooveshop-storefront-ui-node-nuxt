@@ -1,3 +1,10 @@
+## [3.337.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.1...v3.337.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* **product:** no low-stock hint when a product's threshold is 0 ([#444](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/444)) ([4a41552](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a41552f0185c47321fb651bf84c4e4d587a7396)), closes [#443](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/443)
+
 ## [3.337.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.0...v3.337.1) (2026-11-10)
 
 
