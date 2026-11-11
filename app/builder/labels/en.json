@@ -135,6 +135,9 @@
     "stats_strip": {
       "label": "Figures"
     },
+    "store_assurances": {
+      "label": "Shopping promises"
+    },
     "story_timeline": {
       "label": "Our story"
     },
@@ -584,6 +587,7 @@
     "promotions": "promotions",
     "blog": "the blog",
     "newsletter": "the newsletter",
-    "catalogue": "the product catalogue"
+    "catalogue": "the product catalogue",
+    "cart": "the cart"
   }
 }

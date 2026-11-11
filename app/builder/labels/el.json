@@ -135,6 +135,9 @@
     "stats_strip": {
       "label": "Αριθμοί"
     },
+    "store_assurances": {
+      "label": "Υποσχέσεις αγοράς"
+    },
     "story_timeline": {
       "label": "Η ιστορία μας"
     },
@@ -584,6 +587,7 @@
     "promotions": "τις προσφορές",
     "blog": "το ιστολόγιο",
     "newsletter": "το newsletter",
-    "catalogue": "τον κατάλογο προϊόντων"
+    "catalogue": "τον κατάλογο προϊόντων",
+    "cart": "το καλάθι"
   }
 }

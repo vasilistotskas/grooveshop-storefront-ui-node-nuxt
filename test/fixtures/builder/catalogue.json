@@ -1,5 +1,5 @@
 {
-  "hash": "237f8ff913c6c22a",
+  "hash": "25d4ea9481a1fc6f",
   "blocks": [
     {
       "type": "about_content",
@@ -7192,6 +7192,49 @@
               "type": "stat"
             }
           ]
+        }
+      ]
+    },
+    {
+      "type": "store_assurances",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading"
+      ],
+      "refs": {},
+      "linkRefs": [],
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ],
+      "feature": "cart",
+      "presets": [
+        {
+          "id": "default"
         }
       ]
     },

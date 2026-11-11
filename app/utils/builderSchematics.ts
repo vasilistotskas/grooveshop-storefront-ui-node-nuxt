@@ -85,6 +85,7 @@ export const BUILDER_SCHEMATICS: Readonly<Record<string, readonly BuilderSchemat
   trust_badges: [frame(6, 30, 108, 20), ...[0, 1, 2, 3].flatMap(badge => [shape('accent', 12 + badge * 27, 36, 8, 8, true), text(23 + badge * 27, 38, 14)])],
   stats_strip: [...[0, 1, 2].flatMap(column => [text(10 + column * 36, 28, 24, 10), text(10 + column * 36, 44, 30)])],
   partner_strip: [text(30, 14, 60, 5), ...[0, 1, 2, 3, 4].map(logo => frame(6 + logo * 22.5, 34, 18, 14))],
+  store_assurances: [...[0, 1, 2, 3].flatMap(promise => [shape('accent', 8 + promise * 27, 28, 10, 10, true), text(8 + promise * 27, 44, 22), text(8 + promise * 27, 52, 16)])],
 
   // Blog
   blog_posts_grid: [...bandHeading(), ...cards(22, 3, 30), text(6, 66, 30), text(44, 66, 30), text(82, 66, 30)],

@@ -81,6 +81,9 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'trust_badges': lazySection(() => import('~/components/PageSection/TrustBadges.vue')),
   'offers_preview': lazySection(() => import('~/components/PageSection/OffersPreview.vue')),
   'stats_strip': lazySection(() => import('~/components/PageSection/StatsStrip.vue')),
+  // Reads the store's shipping, payment and return facts; renders nothing
+  // when the store has published none.
+  'store_assurances': lazySection(() => import('~/components/PageSection/StoreAssurances.vue')),
 
   // «Εκ φύσεως Φυτειάς» tenant variants — the redesign's bands: the layout
   // DATA stays portable and only the presentation is per-tenant. Which
