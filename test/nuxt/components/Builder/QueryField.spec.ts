@@ -92,13 +92,12 @@ describe('BuilderQueryField', () => {
 
   it('writes the stock choice into a product rule, and takes the key out for "as they come"', async () => {
     const { wrapper, updates } = await mount(productField, { mode: 'filter', ordering: 'newest', limit: 6 })
-    const select = wrapper.findAllComponents(USelect).find(item => item.props('modelValue') === 'any')!
-
-    select.vm.$emit('update:modelValue', 'inStockFirst')
+    // The stock select follows the ordering select.
+    wrapper.findAllComponents(USelect).at(-1)!.vm.$emit('update:modelValue', 'inStockFirst')
     expect(updates.at(-1)).toEqual({ mode: 'filter', ordering: 'newest', limit: 6, stock: 'inStockFirst' })
 
     const { wrapper: chosen, updates: back } = await mount(productField, { mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 6 })
-    chosen.findAllComponents(USelect).find(item => item.props('modelValue') === 'inStockOnly')!.vm.$emit('update:modelValue', 'any')
+    chosen.findAllComponents(USelect).at(-1)!.vm.$emit('update:modelValue', 'any')
     expect(back.at(-1)).toEqual({ mode: 'filter', ordering: 'newest', limit: 6 })
   })
 
