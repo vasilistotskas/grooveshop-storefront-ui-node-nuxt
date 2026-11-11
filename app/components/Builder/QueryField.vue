@@ -31,6 +31,10 @@ const modeItems = computed(() => modes.value.map(value => ({ value, label: t(`mo
 const orderingItems = computed<SelectItem[]>(() =>
   (props.field.source === 'product' ? PRODUCT_ORDERINGS : BLOG_POST_ORDERINGS).map(value => ({ value, label: t(`ordering.${value}`) })))
 
+/** The stock choices; "as they come" is the absence of the key, so an untouched list and a reset one are the same document. */
+const stockItems = computed(() => PRODUCT_STOCK_MODES.map(value => ({ value, label: t(`stock.${value}`) })))
+const stock = computed(() => typeof descriptor.value?.stock === 'string' ? descriptor.value.stock : 'any')
+
 const limit = computed(() => typeof descriptor.value?.limit === 'number' ? descriptor.value.limit : undefined)
 const ordering = computed(() => typeof descriptor.value?.ordering === 'string' ? descriptor.value.ordering : undefined)
 const featured = computed(() => descriptor.value?.featured === true ? 'on' : descriptor.value?.featured === false ? 'off' : UNSET)
@@ -59,6 +63,10 @@ function setFeatured(next: unknown): void {
 
 function setOrdering(next: unknown): void {
   if (typeof next === 'string') patch({ ordering: next })
+}
+
+function setStock(next: unknown): void {
+  if (typeof next === 'string') patch({ stock: next === 'any' ? undefined : next })
 }
 
 function setLimit(next: number | null | undefined): void {
@@ -159,6 +167,18 @@ function setCategories(ids: number[]): void {
           @update:model-value="setOrdering"
         />
       </UFormField>
+      <UFormField
+        v-if="field.source === 'product'"
+        :label="t('stock.label')"
+      >
+        <USelect
+          :model-value="stock"
+          :items="stockItems"
+          :disabled="disabled"
+          class="w-full"
+          @update:model-value="setStock"
+        />
+      </UFormField>
     </template>
 
     <!-- The children of one category. -->
@@ -227,6 +247,11 @@ el:
     discounted: Με τη μεγαλύτερη έκπτωση
     priceAsc: Τιμή, από τη χαμηλότερη
     priceDesc: Τιμή, από την υψηλότερη
+  stock:
+    label: Απόθεμα
+    any: Όπως έρχονται
+    inStockFirst: Πρώτα τα διαθέσιμα
+    inStockOnly: Μόνο τα διαθέσιμα
   limit: Πόσα
   limitHelp: "Έως {max}."
 en:
@@ -261,6 +286,11 @@ en:
     discounted: Biggest discount
     priceAsc: Price, lowest first
     priceDesc: Price, highest first
+  stock:
+    label: Stock
+    any: As they come
+    inStockFirst: In stock first
+    inStockOnly: In stock only
   limit: How many
   limitHelp: "Up to {max}."
 </i18n>

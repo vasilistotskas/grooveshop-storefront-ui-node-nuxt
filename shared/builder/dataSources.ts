@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-import { BLOG_POST_ORDERINGS, DATA_LIMITS, PRODUCT_ORDERINGS } from '../constants/builder'
+import { BLOG_POST_ORDERINGS, DATA_LIMITS, PRODUCT_ORDERINGS, PRODUCT_STOCK_MODES } from '../constants/builder'
 import type { DataRecordKind, DataSource } from '../types/builder'
 import { recordId } from './recordId'
 
@@ -28,6 +28,7 @@ export const DATA_DESCRIPTORS = {
       mode: z.literal('filter'),
       categories: ids(DATA_LIMITS.maxFilterIds).optional(),
       ordering: z.enum(PRODUCT_ORDERINGS),
+      stock: z.enum(PRODUCT_STOCK_MODES).optional(),
       limit: limit(maxLimit),
     }),
   ]),

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
-import { UApp, UInputNumber } from '#components'
+import { UApp, UInputNumber, USelect } from '#components'
 import BuilderQueryField from '~/components/Builder/QueryField.vue'
 import BuilderRecordList from '~/components/Builder/RecordList.vue'
 import BuilderRecordPicker from '~/components/Builder/RecordPicker.vue'
@@ -88,6 +88,18 @@ describe('BuilderQueryField', () => {
     wrapper.findComponent(UInputNumber).vm.$emit('update:modelValue', 10)
 
     expect(updates).toEqual([{ mode: 'filter', categories: [4], ordering: 'topRated', limit: 10 }])
+  })
+
+  it('writes the stock choice into a product rule, and takes the key out for "as they come"', async () => {
+    const { wrapper, updates } = await mount(productField, { mode: 'filter', ordering: 'newest', limit: 6 })
+    const select = wrapper.findAllComponents(USelect).find(item => item.props('modelValue') === 'any')!
+
+    select.vm.$emit('update:modelValue', 'inStockFirst')
+    expect(updates.at(-1)).toEqual({ mode: 'filter', ordering: 'newest', limit: 6, stock: 'inStockFirst' })
+
+    const { wrapper: chosen, updates: back } = await mount(productField, { mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 6 })
+    chosen.findAllComponents(USelect).find(item => item.props('modelValue') === 'inStockOnly')!.vm.$emit('update:modelValue', 'any')
+    expect(back.at(-1)).toEqual({ mode: 'filter', ordering: 'newest', limit: 6 })
   })
 
   it('takes the categories key out of the rule when the last category is removed', async () => {

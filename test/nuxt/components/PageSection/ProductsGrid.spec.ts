@@ -54,6 +54,7 @@ describe('PageSection/ProductsGrid', () => {
     [{ mode: 'filter', ordering: 'discounted', limit: 8 }, 'Σε προσφορά'],
     [{ mode: 'filter', ordering: 'priceAsc', limit: 8 }, 'Οι καλύτερες τιμές'],
     [{ mode: 'filter', ordering: 'priceDesc', limit: 8 }, 'Premium επιλογές'],
+    [{ mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 8 }, 'Νέες αφίξεις'],
     [{ mode: 'picked', ids: [7, 8] }, 'Επιλεγμένα προϊόντα'],
   ])('names a band by what it lists: %j is %s', async (descriptor, heading) => {
     const wrapper = await mountGrid({ products: products([7, 8], descriptor) })

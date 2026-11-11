@@ -102,6 +102,14 @@ export const DATA_LIMITS = {
 /** How a list of products may be ordered: each is a field the product list's `ordering_fields` declares. */
 export const PRODUCT_ORDERINGS = ['newest', 'mostViewed', 'mostLiked', 'topRated', 'discounted', 'priceAsc', 'priceDesc'] as const
 
+/**
+ * How a list of products treats stock: `any` is the list as ordered, `inStockFirst`
+ * puts the products that can be bought ahead of the rest (the API's
+ * `availabilityPriority`), `inStockOnly` leaves the rest out (the API's `inStock`).
+ * A descriptor without the key is `any`.
+ */
+export const PRODUCT_STOCK_MODES = ['any', 'inStockFirst', 'inStockOnly'] as const
+
 /** How a list of blog posts may be ordered. */
 export const BLOG_POST_ORDERINGS = ['newest', 'mostViewed'] as const
 

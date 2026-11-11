@@ -1,5 +1,5 @@
 {
-  "hash": "c7e13abb347a45ff",
+  "hash": "654ef43d69c2f72d",
   "blocks": [
     {
       "type": "about_content",
@@ -2084,6 +2084,14 @@
                       "discounted",
                       "priceAsc",
                       "priceDesc"
+                    ]
+                  },
+                  "stock": {
+                    "type": "string",
+                    "enum": [
+                      "any",
+                      "inStockFirst",
+                      "inStockOnly"
                     ]
                   },
                   "limit": {
@@ -6632,6 +6640,14 @@
                       "priceDesc"
                     ]
                   },
+                  "stock": {
+                    "type": "string",
+                    "enum": [
+                      "any",
+                      "inStockFirst",
+                      "inStockOnly"
+                    ]
+                  },
                   "limit": {
                     "type": "integer",
                     "minimum": 1,
@@ -6961,6 +6977,14 @@
                       "discounted",
                       "priceAsc",
                       "priceDesc"
+                    ]
+                  },
+                  "stock": {
+                    "type": "string",
+                    "enum": [
+                      "any",
+                      "inStockFirst",
+                      "inStockOnly"
                     ]
                   },
                   "limit": {
