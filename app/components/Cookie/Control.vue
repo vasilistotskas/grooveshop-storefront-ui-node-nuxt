@@ -176,9 +176,10 @@ defineExpose({
       <div
         v-if="tenantStore.hasOptionalServices && !isConsentGiven && !moduleOptions.isModalForced"
         class="
-          fixed inset-x-0 bottom-2 z-50 mx-auto max-h-[calc(100dvh-1rem)]
-          max-w-sm overflow-y-auto rounded-md border border-primary-200
-          bg-primary-50 p-4 text-primary-600 shadow-xl
+          fixed inset-x-0 bottom-[calc(var(--dock-base)+var(--dock-tabbar))]
+          z-50 mx-auto max-h-[calc(100dvh-1rem)] max-w-sm overflow-y-auto
+          rounded-md border border-primary-200 bg-primary-50 p-4
+          text-primary-600 shadow-xl
           sm:max-w-xl
           md:px-6
           lg:max-w-4xl
@@ -255,9 +256,11 @@ defineExpose({
         data-testid="nuxt-cookie-control-control-button"
         type="button"
         class="
-          fixed bottom-[160px] left-[20px] size-[36px] cursor-pointer
-          rounded-full border border-primary-200 bg-primary-50 text-primary-900
-          transition duration-200
+          fixed
+          bottom-[calc(var(--dock-base)+var(--dock-tabbar)+var(--dock-bar))]
+          left-[20px] size-[36px] cursor-pointer rounded-full border
+          border-primary-200 bg-primary-50 text-primary-900 transition
+          duration-200
           hover:bg-white hover:text-primary-700
           focus:ring-primary-200
           dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100

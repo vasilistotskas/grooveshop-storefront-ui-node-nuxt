@@ -594,16 +594,28 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
         />
       </div>
 
+      <!-- Docked edge to edge (`--dock-*` in app/assets/css/main.css):
+           right on the tab bar when the store shows one, else on the
+           screen's bottom inset, at every width; the assistant stacks
+           above it. It used to sit 72px up below `md` and at the bottom
+           from it, so between 768 and 1023px the tab bar covered it, and
+           with no tab bar it floated for nothing. -->
       <div
         v-if="stickyAddToCartEnabled && showStickyAddToCart"
+        data-dock="bar"
+        data-dock-flush
         class="
-          fixed inset-x-0 bottom-18 z-40 border-t border-gray-200 bg-white/95
-          px-4 py-3 shadow-lg backdrop-blur-sm
-          md:bottom-0
+          fixed inset-x-0 bottom-[calc(var(--dock-inset)+var(--dock-tabbar))]
+          z-40 flex h-(--dock-bar-height) items-center border-t border-gray-200
+          bg-white/95 px-4 shadow-lg backdrop-blur-sm
           dark:border-gray-700 dark:bg-gray-900/95
         "
       >
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <div
+          class="
+            mx-auto flex w-full max-w-7xl items-center justify-between gap-4
+          "
+        >
           <div class="flex min-w-0 flex-1 items-center gap-3">
             <WebsideProductImage
               v-if="productImages && productImages[0]"
@@ -612,10 +624,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               alt=""
               :width="64"
               :height="64"
-              class="
-                size-12 shrink-0 rounded-lg object-contain
-                md:size-16
-              "
+              class="size-12 shrink-0 rounded-lg object-contain"
             />
             <div class="min-w-0 flex-1">
               <h3 class="truncate text-sm font-medium">

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { COMPONENTS, WEBSIDE_DESIGN, boundAttribute, classesOf, readSource, relativeLabel, sfcTemplate, vueFiles, walkElements } from '../../helpers/sourceText'
+import { COMPONENTS, boundAttribute, classesOf, readSource, relativeLabel, sfcTemplate, vueFiles, walkElements } from '../../helpers/sourceText'
 
 /**
  * Whatever is fixed to the bottom of the screen takes its offset from
@@ -12,20 +12,19 @@ import { COMPONENTS, WEBSIDE_DESIGN, boundAttribute, classesOf, readSource, rela
  * the sticky add-to-cart button, and with an iPhone's home-indicator
  * inset it overlapped the tab bar (owner review, 2026-10-16).
  *
- * Not covered:
- * - the dock's edges rather than its layers: the floating funding strip
- *   (the bottom edge itself, `bottom-0`) and the cookie notice (a
- *   transient overlay above everything);
- * - webside's own chrome, which lives outside `variants/webside` but is
- *   registered only for it (`chrome:assistant@webside`,
- *   `chrome:cookie_consent@webside` in `app/utils/variantRegistry.ts`)
- *   and is left alone like the rest of that tree.
+ * Every design, webside's included: its tab bar and sticky add-to-cart
+ * bar dock edge to edge (`data-dock-flush`), and its assistant and cookie
+ * notice (`chrome:assistant@webside`, `chrome:cookie_consent@webside` in
+ * `app/utils/variantRegistry.ts`) stack on them. Between 768 and 1023px
+ * its tab bar used to cover its sticky bar, each with a number of its own.
+ *
+ * Not covered: the dock's edges rather than its layers, the floating
+ * funding strip (the bottom edge itself, `bottom-0`) and the default
+ * design's cookie notice (a transient overlay above everything).
  */
 const EDGES = new Set([
   'Chrome/FundingBanner.vue',
   'Chrome/CookieConsent.vue',
-  'Chat/Widget.vue',
-  'Cookie/Control.vue',
 ])
 
 const FIXED = /(^|[\s'"`])fixed(?=[\s'"`]|$)/
@@ -48,11 +47,12 @@ function hardCodedBottoms(file: string): string[] {
 }
 
 describe('fixed bottom elements stack through the bottom dock', () => {
-  const files = vueFiles(COMPONENTS, { exclude: [WEBSIDE_DESIGN] })
+  const files = vueFiles(COMPONENTS)
 
   it('finds the docked elements', () => {
-    // The tab bar, both sticky bars and the two corner buttons: a rule
-    // that matched none of them would pass for the wrong reason.
+    // Both designs' tab bars and product sticky bars, the cart's bar, the
+    // corner buttons and webside's cookie notice: a rule that matched none
+    // of them would pass for the wrong reason.
     const docked = files.filter(file => readSource(file).includes('--dock-'))
     expect(docked.map(file => relativeLabel(COMPONENTS, file))).toEqual(expect.arrayContaining([
       'Cart/ActionBar.vue',
@@ -60,6 +60,10 @@ describe('fixed bottom elements stack through the bottom dock', () => {
       'Chrome/Assistant.vue',
       'MobileBottomNav.vue',
       'Storefront/ProductDetail.vue',
+      'variants/webside/MobileBottomNav.vue',
+      'variants/webside/Storefront/ProductDetail.vue',
+      'Chat/Widget.vue',
+      'Cookie/Control.vue',
     ]))
   })
 

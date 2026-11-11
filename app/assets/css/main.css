@@ -130,14 +130,21 @@
    Offsets, bottom up: `--dock-base` (gap above the safe area, or above
    the ESPA strip that floats along a phone's bottom edge), then the tab
    bar, then a sticky bar (phones and tablets only; on a desktop it is a
-   centred card that no corner button reaches), then a floating button. */
+   centred card that no corner button reaches), then a floating button.
+
+   A design may draw its tab bar and sticky bar edge to edge instead of
+   floating (webside's, marked `data-dock-flush` as well): they have no
+   gap. The tab bar stands on the screen's bottom edge and pads
+   `--dock-inset` itself; the sticky bar sits on it, or on the inset, at
+   every width. What floats above them keeps its gap. */
 :root {
   --dock-gap: 0.75rem;
   --dock-tabbar-height: 4rem;
   --dock-bar-height: 4.125rem;
   --dock-fab-size: 3.5rem;
   --dock-edge: 0px;
-  --dock-base: calc(var(--dock-gap) + max(env(safe-area-inset-bottom), var(--dock-edge)));
+  --dock-inset: max(env(safe-area-inset-bottom), var(--dock-edge));
+  --dock-base: calc(var(--dock-gap) + var(--dock-inset));
   --dock-tabbar: 0px;
   --dock-bar: 0px;
   --dock-fab: 0px;
@@ -145,6 +152,14 @@
 
 :root:has([data-dock="tabbar"]) {
   --dock-tabbar: calc(var(--dock-tabbar-height) + var(--dock-gap));
+}
+
+:root:has([data-dock="tabbar"][data-dock-flush]) {
+  --dock-tabbar: var(--dock-tabbar-height);
+}
+
+:root:has([data-dock="bar"][data-dock-flush]) {
+  --dock-bar: var(--dock-bar-height);
 }
 
 :root:has([data-dock="fab"]) {

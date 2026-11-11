@@ -5,28 +5,33 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
+import { makeUserDetails } from '~~/test/fixtures/user'
+import type { BottomNavTab } from '~/composables/useBottomNavItems'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
- * The phone tab bar's entries. What matters:
+ * The phone tab bar's entries, for every design. What matters:
  *
- * - Home, Search, Saved (favourite products), Cart and Account, each
- *   behind the switch that gates the page it opens;
+ * - Home, Search, Saved (favourite products), Cart and Account by default,
+ *   or the tabs a design asks for (webside: Home, Shop, Blog, Cart,
+ *   Account), each behind the switch that gates the page it opens;
  * - exactly one entry is active, decided from the route name — `/` is a
  *   prefix of every path, so a link's own prefix match would light Home
  *   everywhere;
  * - the cart carries its item count, and only while there is one;
  * - signed out, Saved and Account lead to sign-in with a way back.
  */
-const { route, loggedIn } = vi.hoisted(() => ({
+const { route, loggedIn, user } = vi.hoisted(() => ({
   route: { name: 'index___el', path: '/', fullPath: '/', query: {} as Record<string, string>, params: {}, hash: '', matched: [], meta: {} },
   loggedIn: { value: false },
+  user: { value: null as UserDetails | null },
 }))
 mockNuxtImport('useRoute', () => () => route)
+mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://media.test/${path}`)
 // The full surface: the app's auth plugin reads it at boot.
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(loggedIn.value),
-  user: ref(null),
+  user: ref(user.value),
   session: ref({}),
   ready: ref(true),
   fetch: () => Promise.resolve(),
@@ -52,15 +57,17 @@ const nextOf = (to: unknown) => new URL(String(to), 'https://shop.test').searchP
 describe('useBottomNavItems', () => {
   beforeEach(async () => {
     loggedIn.value = false
-    setTenant()
+    user.value = null
+    setTenant({ availableLocales: ['el', 'en'] })
     setTenantFeatures({ favourites: true })
     Object.assign(route, { name: 'index___el', path: '/', fullPath: '/', query: {} })
     await useCartStore().cleanCartState()
     useCartStore().cart = makeCart({ totalItems: 0 })
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     scope?.stop()
+    await useNuxtApp().$i18n.setLocale('el')
   })
 
   it('offers Home, Search, Saved, Cart and Account', () => {
@@ -134,6 +141,81 @@ describe('useBottomNavItems', () => {
 
     expect(list.find(item => item.label === t('saved'))!.to).toBe('/account/favourites/products')
     expect(list.find(item => item.label === t('account'))!.to).toBe('/account')
+  })
+
+  it('carries no `next` from the sign-in page itself', () => {
+    Object.assign(route, { name: 'account-login___el', path: '/account/login', fullPath: '/account/login?next=/cart', query: { next: '/cart' } })
+
+    const account = items().find(item => item.label === t('account'))!
+
+    expect(String(account.to)).toBe('/account/login')
+  })
+
+  it('links in the page\'s language', async () => {
+    await useNuxtApp().$i18n.setLocale('en')
+
+    const links = items().map(item => String(item.to))
+
+    expect(links[0]).toBe('/en')
+    expect(links.every(link => link.startsWith('/en'))).toBe(true)
+  })
+
+  describe('a design\'s own tabs', () => {
+    const WEBSIDE: BottomNavTab[] = ['home', 'shop', 'blog', 'cart', 'account']
+
+    beforeEach(() => {
+      setTenantFeatures({ catalogue: true, blog: true, cart: true })
+    })
+
+    it('offers the tabs it asks for, in its order', () => {
+      expect(labels(items({ tabs: WEBSIDE }))).toEqual([t('home'), t('shop'), t('blog'), t('cart.title'), t('account')])
+    })
+
+    it.each([
+      { feature: 'catalogue', tab: 'shop' },
+      { feature: 'blog', tab: 'blog' },
+      { feature: 'cart', tab: 'cart.title' },
+    ])('drops $tab when the store has the $feature off', ({ feature, tab }) => {
+      setTenantFeatures({ catalogue: true, blog: true, cart: true, [feature]: false })
+
+      expect(labels(items({ tabs: WEBSIDE }))).toEqual(
+        [t('home'), t('shop'), t('blog'), t('cart.title'), t('account')].filter(label => label !== t(tab)),
+      )
+    })
+
+    it.each([
+      { route: { name: 'products-category-id-slug___el', path: '/products/category/1/x', fullPath: '/products/category/1/x' }, tab: 'shop' },
+      { route: { name: 'blog-post-id-slug___el', path: '/blog/post/1/x', fullPath: '/blog/post/1/x' }, tab: 'blog' },
+    ])('lights only $tab on $route.path', ({ route: at, tab }) => {
+      Object.assign(route, at)
+
+      expect(active(items({ tabs: WEBSIDE }))).toEqual([t(tab)])
+    })
+
+    it('links Shop to the products and Blog to the blog', () => {
+      const list = items({ tabs: WEBSIDE })
+
+      expect(list.find(item => item.label === t('shop'))!.to).toBe('/products')
+      expect(list.find(item => item.label === t('blog'))!.to).toBe('/blog')
+    })
+
+    it('takes the design\'s own icon for a tab', () => {
+      const cart = items({ tabs: WEBSIDE, icons: { cart: 'i-heroicons-shopping-cart' } })
+        .find(item => item.label === t('cart.title'))!
+
+      expect(cart.icon).toBe('i-heroicons-shopping-cart')
+    })
+
+    it('shows a signed-in shopper\'s photo on Account when asked to, else the icon', () => {
+      loggedIn.value = true
+      user.value = makeUserDetails({ mainImagePath: 'media/uploads/users/maria.png' })
+
+      const withPhoto = items({ tabs: WEBSIDE, accountAvatar: true }).find(item => item.label === t('account'))!
+      const withoutPhoto = items({ tabs: WEBSIDE }).find(item => item.label === t('account'))!
+
+      expect([withPhoto.avatar?.src, withPhoto.icon]).toEqual(['https://media.test/media/uploads/users/maria.png', undefined])
+      expect([withoutPhoto.avatar, withoutPhoto.icon]).toEqual([undefined, 'i-heroicons-user'])
+    })
   })
 
   describe('the Account tab and the account sheet', () => {
