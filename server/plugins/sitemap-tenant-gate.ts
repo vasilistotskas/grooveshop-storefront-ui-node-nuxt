@@ -79,10 +79,10 @@ interface GatedRoute extends FeatureGatedRoute {
 // that is INDEXABLE belongs in that table, or its URL 404s here for
 // every tenant with the feature off (the offers page was missing once:
 // Ahrefs 2026-09-11, "4XX page in sitemap", webside.gr/offers). The
-// table also carries noindex routes — /gift-cards, /feedback — for the
-// menus' sake; they never reach this hook, because the module drops
-// non-indexable routes before it runs. `/search` is not listed at all
-// for the same reason. The DYNAMIC product, category and blog URLs are
+// table also carries noindex routes — /gift-cards, /feedback, /search,
+// the cart, the checkout and the account pages — for the menus' sake;
+// they never reach this hook, because the module drops non-indexable
+// routes before it runs. The DYNAMIC product, category and blog URLs are
 // gated on the same flags in `server/utils/sitemapStoreUrls.ts`.
 const GATED_ROUTES: readonly GatedRoute[] = [
   ...FEATURE_GATED_ROUTES,

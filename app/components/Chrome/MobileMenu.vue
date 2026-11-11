@@ -25,6 +25,7 @@ const route = useRoute()
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 const { loggedIn } = useUserSession()
+const { signIn } = useAuthLinks()
 const { categories, hasCategories } = useCategoryMenu()
 const { blogCategories, hasBlogCategories } = useBlogCategoryMenu()
 const premount = useOverlayPremount()
@@ -118,7 +119,7 @@ watch(() => route.fullPath, () => {
         </template>
         <UButton
           v-else
-          :to="localePath('account-login')"
+          :to="localePath(signIn)"
           :label="t('login')"
           block
         />

@@ -65,10 +65,12 @@ describe('blockedFeaturePaths', () => {
 
     expect([...blocked].sort()).toEqual([
       '/account/gift-cards',
+      '/account/loyalty',
       '/gift-cards',
       '/loyalty-program',
       '/offers',
       '/products',
+      '/search',
     ])
   })
 

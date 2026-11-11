@@ -28,8 +28,12 @@ const tenantStore = useTenantStore()
 
 // Gift-card purchase page discoverability, matching the desktop navbar.
 const giftCardsServing = useGatedRoute('/gift-cards')
-const catalogueEnabled = useStoreFeature('catalogue')
-const blogEnabled = useStoreFeature('blog')
+// Every section and link is shown while the page it opens is serving, as
+// the one table of gated routes says (`shared/utils/gatedRoutes.ts`).
+const shopServing = useGatedRoute('/products')
+const blogServing = useGatedRoute('/blog')
+const searchServing = useGatedRoute('/search')
+const { signIn, signUp } = useAuthLinks()
 const { categories } = useCategoryMenu()
 const { blogCategories } = useBlogCategoryMenu()
 const { mobileLinks } = useNavigation()
@@ -52,8 +56,8 @@ const greetingName = computed(() => {
 
 /** The sections that cover a link's target, so the store's links do not repeat them. */
 const sectionShown = computed<Record<MenuDropdown, boolean>>(() => ({
-  shop: catalogueEnabled.value,
-  blog: blogEnabled.value,
+  shop: shopServing.value,
+  blog: blogServing.value,
 }))
 
 /** Whether a link to `path` is already a section of the menu. */
@@ -94,11 +98,13 @@ const storeLinks = computed<NavigationMenuItem[]>(() => {
       to: localePath('gift-cards'),
     })
   }
-  base.push({
-    label: t('search.title'),
-    icon: 'i-heroicons-magnifying-glass',
-    to: localePath('search'),
-  })
+  if (searchServing.value) {
+    base.push({
+      label: t('search.title'),
+      icon: 'i-heroicons-magnifying-glass',
+      to: localePath('search'),
+    })
+  }
   return base
 })
 
@@ -128,17 +134,8 @@ const onClickLogout = async () => {
   }
 }
 
-const loginTo = computed(() =>
-  route.path === '/account/login'
-    ? localePath('account-login')
-    : { path: localePath('account-login'), query: { next: route.path } },
-)
-
-const signupTo = computed(() =>
-  route.path === '/account/signup'
-    ? localePath('account-signup')
-    : { path: localePath('account-signup'), query: { next: route.path } },
-)
+const loginTo = computed(() => localePath(signIn.value))
+const signupTo = computed(() => localePath(signUp.value))
 
 const onClickCookieSettings = () => {
   open.value = false
@@ -337,7 +334,7 @@ const onClickCookieSettings = () => {
         </ClientOnly>
 
         <nav
-          v-if="catalogueEnabled"
+          v-if="shopServing"
           :aria-label="t('shop')"
         >
           <p class="mb-1 text-xs font-bold tracking-wider text-muted uppercase">
@@ -388,7 +385,7 @@ const onClickCookieSettings = () => {
         </nav>
 
         <nav
-          v-if="blogEnabled"
+          v-if="blogServing"
           :aria-label="t('blog')"
         >
           <p class="mb-2 text-xs font-bold tracking-wider text-muted uppercase">

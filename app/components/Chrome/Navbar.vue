@@ -49,11 +49,16 @@ const cartDrawerRequested = ref(cartDrawerOpen.value)
 watch(cartDrawerOpen, (isOpen) => {
   if (isOpen) cartDrawerRequested.value = true
 })
-const favouritesEnabled = useStoreFeature('favourites')
+// Every link here is shown while the page it opens is serving, as the
+// one table of gated routes says (`shared/utils/gatedRoutes.ts`).
+const savedServing = useGatedRoute('/account/favourites/products')
 const giftCardsServing = useGatedRoute('/gift-cards')
-const promotionsEnabled = useStoreFeature('promotions')
-const loyaltyEnabled = useStoreFeature('loyalty')
-const blogEnabled = useStoreFeature('blog')
+const offersServing = useGatedRoute('/offers')
+const loyaltyServing = useGatedRoute('/loyalty-program')
+const shopServing = useGatedRoute('/products')
+const blogServing = useGatedRoute('/blog')
+const searchServing = useGatedRoute('/search')
+const { signIn } = useAuthLinks()
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -156,15 +161,16 @@ const items = computed<NavigationMenuItem[]>(() => {
   const configured = headerItems.value
   if (configured) return fromLinks(configured)
 
-  const base: NavigationMenuItem[] = [shopItem.value]
-  if (promotionsEnabled.value) {
+  const base: NavigationMenuItem[] = []
+  if (shopServing.value) base.push(shopItem.value)
+  if (offersServing.value) {
     base.push({
       label: t('offers'),
       to: localePath('offers'),
       active: isRouteActive('offers'),
     })
   }
-  if (blogEnabled.value) base.push(blogItem.value)
+  if (blogServing.value) base.push(blogItem.value)
   if (giftCardsServing.value) {
     base.push({
       label: t('gift_cards'),
@@ -172,7 +178,7 @@ const items = computed<NavigationMenuItem[]>(() => {
       active: isRouteActive('gift-cards'),
     })
   }
-  if (loyaltyEnabled.value) {
+  if (loyaltyServing.value) {
     base.push({
       label: t('loyalty'),
       to: localePath('loyalty-program'),
@@ -292,6 +298,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
 
         <div class="ms-auto flex min-w-0 items-center gap-0.5">
           <LazySearchInput
+            v-if="searchServing"
             compact
             hydrate-on-idle
             class="lg:me-1"
@@ -317,8 +324,8 @@ const appTitle = computed(() => tenantStore.storeName || '')
           />
 
           <UButton
-            v-if="favouritesEnabled"
-            :to="localePath(loggedIn ? 'account-favourites-products' : 'account-login')"
+            v-if="savedServing"
+            :to="loggedIn ? localePath('account-favourites-products') : localePath(signIn)"
             :aria-label="t('favourites')"
             icon="i-heroicons-heart"
             color="neutral"

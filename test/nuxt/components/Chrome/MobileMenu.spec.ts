@@ -90,7 +90,7 @@ describe('Chrome/MobileMenu', () => {
 
   it('sends a guest to sign in, and shows a member their account', async () => {
     await openMenu()
-    expect(body().find('a[href="/account/login"]').exists()).toBe(true)
+    expect(body().find('a[href="/account/login?next=/"]').exists()).toBe(true)
     expect(body().find('[data-test="account"]').exists()).toBe(false)
   })
 
@@ -100,7 +100,7 @@ describe('Chrome/MobileMenu', () => {
     await openMenu()
 
     expect(body().find('[data-test="account"]').exists()).toBe(true)
-    expect(body().find('a[href="/account/login"]').exists()).toBe(false)
+    expect(body().find('a[href^="/account/login"]').exists()).toBe(false)
   })
 
   it('opens a branch on its own category first, then its children', async () => {

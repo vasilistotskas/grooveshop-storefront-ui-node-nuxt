@@ -257,6 +257,18 @@ describe('webside Page/BurgerMenu', () => {
       expect(links).toEqual(['/blog'])
     })
 
+    it('leave out search for a store without the catalogue it searches', async () => {
+      state.phoneLinks = null
+      setTenantFeatures({ catalogue: false, blog: true })
+
+      const wrapper = await openMenu()
+
+      const links = dialog().findAll('nav[aria-label="Πλοήγηση"] a').map(link => link.attributes('href'))
+      wrapper.unmount()
+
+      expect(links).toEqual(['/'])
+    })
+
     it('are the built-in ones, without the shop and the blog, for a store that set none', async () => {
       state.phoneLinks = null
 

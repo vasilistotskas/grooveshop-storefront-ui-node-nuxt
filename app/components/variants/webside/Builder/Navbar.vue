@@ -16,6 +16,8 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 
 // Cart chrome for shop-dark tenants — mirrors Page/Navbar's gate.
 const cartEnabled = useStoreFeature('cart')
+// Search lists the catalogue: no catalogue, no search page to search on.
+const searchServing = useGatedRoute('/search')
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
@@ -107,7 +109,7 @@ onMounted(() => {
                 lg:sr-only
               "
             >
-              <LazyWebsideSearchInput />
+              <LazyWebsideSearchInput v-if="searchServing" />
               <WebsideCartButton v-if="cartEnabled" />
               <!-- The select is ~150px wide with its label and chevron: on
                    a phone that squeezed the logo to nothing and, with the

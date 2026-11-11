@@ -1,5 +1,4 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
-import { parsePath } from 'ufo'
 
 /** A tab the bar can carry; a design picks its own, in its own order. */
 export type BottomNavTab = 'home' | 'search' | 'saved' | 'shop' | 'blog' | 'cart' | 'account'
@@ -38,8 +37,9 @@ interface BottomNavOptions {
  * Search, Saved, Cart and Account, or the tabs a design asks for (webside:
  * Home, Shop, Blog, Cart, Account).
  *
- * Each tab follows the store feature of the page it opens: Saved the
- * favourites, Shop the catalogue, Blog the blog, Cart the cart. Saved is
+ * Each tab is there while the page it opens is serving, as the gated-routes
+ * table says (Search and Shop need the catalogue, Saved the favourites,
+ * Blog the blog, Cart the cart). Saved is
  * the shopper's favourite PRODUCTS, the same place the header's heart
  * leads. The cart carries its item count. Signed out, Saved and Account
  * lead to the sign-in page with a way back to this one; signed in,
@@ -62,25 +62,20 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
   const { getCartTotalItems, pending: cartPending } = storeToRefs(cartStore)
   const img = useMediaStreamImage()
 
-  const cartEnabled = useStoreFeature('cart')
-  const favouritesEnabled = useStoreFeature('favourites')
-  const catalogueEnabled = useStoreFeature('catalogue')
-  const blogEnabled = useStoreFeature('blog')
+  // Each tab is there while the page it opens is serving, as the one
+  // table of gated routes says (`shared/utils/gatedRoutes.ts`).
+  const searchServing = useGatedRoute('/search')
+  const savedServing = useGatedRoute('/account/favourites/products')
+  const shopServing = useGatedRoute('/products')
+  const blogServing = useGatedRoute('/blog')
+  const cartServing = useGatedRoute('/cart')
+  const { signIn } = useAuthLinks()
 
   const routeName = computed(() => String($routeBaseName(route) ?? ''))
   const isActive = (...bases: string[]) =>
     bases.some(base => routeName.value === base || routeName.value.startsWith(`${base}-`))
 
-  // The page without its hash: the server never receives one, so a
-  // `next` carrying it would differ between the SSR HTML and hydration.
-  const signInLink = computed(() => {
-    const onSignIn = routeName.value === RedirectToURLs.LOGIN_URL
-    const { pathname, search } = parsePath(route.fullPath)
-    return localePath({
-      name: RedirectToURLs.LOGIN_URL,
-      query: onSignIn ? undefined : { next: `${pathname}${search}` },
-    })
-  })
+  const signInLink = computed(() => localePath(signIn.value))
 
   const cartCount = computed(() => Number(getCartTotalItems.value) || 0)
 
@@ -96,9 +91,10 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
       case 'home':
         return { label: t('home'), icon: icon(tab), to: localePath('index'), exact: true, active: routeName.value === 'index' }
       case 'search':
+        if (!searchServing.value) return undefined
         return { label: t('search.title'), icon: icon(tab), to: localePath('search'), exact: true, active: isActive('search') }
       case 'saved':
-        if (!favouritesEnabled.value) return undefined
+        if (!savedServing.value) return undefined
         return {
           label: t('saved'),
           icon: icon(tab),
@@ -107,13 +103,13 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
           active: isActive('account-favourites'),
         }
       case 'shop':
-        if (!catalogueEnabled.value) return undefined
+        if (!shopServing.value) return undefined
         return { label: t('shop'), icon: icon(tab), to: localePath('products'), exact: true, active: isActive('products') }
       case 'blog':
-        if (!blogEnabled.value) return undefined
+        if (!blogServing.value) return undefined
         return { label: t('blog'), icon: icon(tab), to: localePath('blog'), exact: true, active: isActive('blog') }
       case 'cart':
-        if (!includeCart || !cartEnabled.value) return undefined
+        if (!includeCart || !cartServing.value) return undefined
         return {
           label: t('cart.title'),
           icon: icon(tab),

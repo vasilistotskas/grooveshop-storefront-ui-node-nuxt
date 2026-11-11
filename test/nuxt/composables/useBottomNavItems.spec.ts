@@ -86,6 +86,13 @@ describe('useBottomNavItems', () => {
     expect(labels(items())).not.toContain(t('cart.title'))
   })
 
+  // Search lists the catalogue: its page 404s without it.
+  it('drops Search for a store without the catalogue', () => {
+    setTenantFeatures({ catalogue: false })
+
+    expect(labels(items())).not.toContain(t('search.title'))
+  })
+
   it('drops the cart where the layout asks it to', () => {
     expect(labels(items({ includeCart: false }))).not.toContain(t('cart.title'))
   })

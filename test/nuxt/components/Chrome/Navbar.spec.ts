@@ -65,7 +65,7 @@ const stubs = {
  * rendered `Lazy…`, which Nuxt compiles to a direct async import that no
  * stub key matches — so the modules those imports load are mocked.
  */
-vi.mock('~/components/Search/Input.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('~/components/Search/Input.vue', () => ({ default: { template: '<div data-test="search" />' } }))
 vi.mock('~/components/Language/Switcher.vue', () => ({ default: { template: '<div data-test="languages" />' } }))
 vi.mock('~/components/User/NotificationsBell.vue', () => ({ default: { template: '<div />' } }))
 vi.mock('~/components/Chrome/MobileMenu.vue', () => ({ default: { props: ['items', 'open'], template: '<div />' } }))
@@ -124,6 +124,20 @@ describe('Chrome/Navbar', () => {
     const wrapper = await mountNavbar()
 
     expect(menu(wrapper).map(([, to]) => to)).toEqual(links)
+  })
+
+  // The listing and search 404 without the catalogue (the gated-routes
+  // table): neither the Shop entry nor the search field is drawn.
+  it.each([
+    { catalogue: true, drawn: true },
+    { catalogue: false, drawn: false },
+  ])('draws Shop and the search field: $drawn when the catalogue is $catalogue', async ({ catalogue, drawn }) => {
+    setTenantFeatures({ catalogue })
+
+    const wrapper = await mountNavbar()
+    await vi.waitFor(() => expect(wrapper.find('[data-test="search"]').exists()).toBe(drawn))
+
+    expect(menu(wrapper).some(([, to]) => to === '/products')).toBe(drawn)
   })
 
   it('links no gift cards on a store without the catalogue they are bought from', async () => {
@@ -252,13 +266,13 @@ describe('Chrome/Navbar', () => {
   })
 
   it.each([
-    { name: 'a guest to sign in', loggedIn: false, href: '/account/login' },
+    { name: 'a guest to sign in', loggedIn: false, href: '/account/login?next=/products' },
     { name: 'a member to their favourites', loggedIn: true, href: '/account/favourites/products' },
   ])('sends $name from the favourites button', async ({ loggedIn, href }) => {
     setTenantFeatures({ blog: true })
     session.loggedIn.value = loggedIn
 
-    const wrapper = await mountNavbar()
+    const wrapper = await mountNavbar('/products')
 
     expect(wrapper.find(`a[aria-label="${t('favourites')}"]`).attributes('href')).toBe(href)
   })

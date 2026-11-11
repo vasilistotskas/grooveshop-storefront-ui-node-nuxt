@@ -40,6 +40,10 @@ mockNuxtImport('useUserSession', () => () => ({
   clear: () => Promise.resolve(),
 }))
 
+// The search field is a lazy component, so its module is replaced: the
+// stub says whether the header drew it.
+vi.mock('~/components/variants/webside/Search/Input.vue', () => ({ default: { template: '<div data-test="search" />' } }))
+
 const linkTargets = async () => {
   const wrapper = await mountSuspended(Navbar, { route: false })
   const hrefs = wrapper.findAll('nav a').map(a => a.attributes('href'))
@@ -192,5 +196,64 @@ describe('webside Page/Navbar dropdowns', () => {
       [`${entry}${count}`, href],
       [all, allHref],
     ])
+  })
+})
+
+/**
+ * Every link the header draws leads to a page that is serving: each is
+ * gated by the one table the pages' middlewares agree with
+ * (`shared/utils/gatedRoutes.ts`). With the catalogue off the listing
+ * and search 404, so neither the Shop entry nor the search field is drawn.
+ */
+describe('webside Page/Navbar links follow the gated pages', () => {
+  const t = (key: string) => useNuxtApp().$i18n.t(key)
+
+  beforeEach(() => {
+    state.header = null
+    categories.value = []
+    topics.value = []
+    setTenant({ availableLocales: ['el'] })
+  })
+
+  it.each([
+    { catalogue: true, drawn: true },
+    { catalogue: false, drawn: false },
+  ])('draws Shop and the search field: $drawn when the catalogue is $catalogue', async ({ catalogue, drawn }) => {
+    setTenantFeatures({ catalogue })
+
+    const wrapper = await mountSuspended(Navbar, { route: false })
+    await vi.waitFor(() => expect(wrapper.find('[data-test="search"]').exists()).toBe(drawn))
+
+    expect(menu(wrapper).some(([, to]) => to === '/products')).toBe(drawn)
+  })
+
+  it.each([
+    { features: { blog: true, favourites: true }, drawn: true },
+    { features: { blog: true, favourites: false }, drawn: false },
+    { features: { blog: false, favourites: true }, drawn: false },
+  ])('draws the saved-articles heart: $drawn with $features', async ({ features, drawn }) => {
+    setTenantFeatures(features)
+
+    const wrapper = await mountSuspended(Navbar, { route: false })
+
+    expect(wrapper.find(`a[aria-label="${t('favourites')}"]`).exists()).toBe(drawn)
+  })
+
+  it('sends a guest to sign in and back to the page they are on', async () => {
+    const wrapper = await mountSuspended(Navbar, { route: '/products?sort=-price' })
+
+    expect(wrapper.find(`a[aria-label="${t('login')}"]`).attributes('href'))
+      .toBe('/account/login?next=/products?sort=-price')
+  })
+
+  // A link to another site opens in a new tab, as the default design's
+  // header and both phone menus open it; it used to replace the store.
+  it('opens a store\'s link to another site in a new tab, without handing it the store\'s page', async () => {
+    state.header = [{ label: 'Εργαστήριο', href: 'https://workshop.example' }]
+
+    const wrapper = await mountSuspended(Navbar, { route: false })
+    const link = wrapper.find('a[href="https://workshop.example"]')
+
+    expect([link.attributes('target'), link.attributes('rel')]).toEqual(['_blank', 'noopener noreferrer'])
   })
 })

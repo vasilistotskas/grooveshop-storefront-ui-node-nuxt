@@ -19,11 +19,17 @@ const giftCardsServing = useGatedRoute('/gift-cards')
 // Cart chrome for shop-dark tenants (content site now, eshop later).
 const cartEnabled = useStoreFeature('cart')
 
+// Every link here is shown while the page it opens is serving, as the
+// one table of gated routes says (`shared/utils/gatedRoutes.ts`).
 // Offers page discoverability: without it the store's automatic
 // promotions stay invisible until a shopper has already built a
 // qualifying cart.
-const promotionsEnabled = useStoreFeature('promotions')
-const blogEnabled = useStoreFeature('blog')
+const offersServing = useGatedRoute('/offers')
+const shopServing = useGatedRoute('/products')
+const blogServing = useGatedRoute('/blog')
+const searchServing = useGatedRoute('/search')
+const savedPostsServing = useGatedRoute('/account/favourites/posts')
+const { signIn } = useAuthLinks()
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -133,16 +139,17 @@ const navItems = computed<NavigationMenuItem[]>(() => {
       slot: panelSlot(item.to),
     }))
   }
-  const base: NavigationMenuItem[] = [
-    {
+  const base: NavigationMenuItem[] = []
+  if (shopServing.value) {
+    base.push({
       label: t('shop'),
       to: localePath('products'),
       active: isRouteActive('products'),
       value: 'products',
       slot: panelSlot('/products'),
-    },
-  ]
-  if (blogEnabled.value) {
+    })
+  }
+  if (blogServing.value) {
     base.push({
       label: t('blog'),
       to: localePath('blog'),
@@ -151,7 +158,7 @@ const navItems = computed<NavigationMenuItem[]>(() => {
       slot: panelSlot('/blog'),
     })
   }
-  if (promotionsEnabled.value) {
+  if (offersServing.value) {
     base.push({
       label: t('offers'),
       to: localePath('offers'),
@@ -223,7 +230,7 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <LazyWebsideSearchInput v-if="!isMobileOrTablet" />
+      <LazyWebsideSearchInput v-if="searchServing && !isMobileOrTablet" />
       <!-- Not positioned: a dropdown's panel is placed against the
            header's row, so it spans the header rather than this cluster. -->
       <div
@@ -353,7 +360,7 @@ const items = computed(() => [
               <LazyWebsideLanguageSwitcher hydrate-on-interaction />
             </li>
             <li
-              v-if="blogEnabled"
+              v-if="savedPostsServing"
               class="
                 relative grid max-w-6 items-center justify-center
                 justify-items-center
@@ -361,7 +368,7 @@ const items = computed(() => [
             >
               <UButton
                 :aria-label="t('favourites')"
-                :to="loggedIn ? localePath('account-favourites-posts') : localePath('account-login')"
+                :to="loggedIn ? localePath('account-favourites-posts') : localePath(signIn)"
                 class="p-0"
                 color="neutral"
                 icon="i-heroicons-heart"
@@ -506,7 +513,7 @@ const items = computed(() => [
               <Anchor
                 :title="t('login')"
                 :aria-label="t('login')"
-                :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
+                :to="signIn"
                 class="
                   flex size-[30px] items-center self-center text-[1.5rem]
                   text-primary-700
