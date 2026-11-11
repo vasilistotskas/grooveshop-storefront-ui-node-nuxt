@@ -1,5 +1,5 @@
 {
-  "hash": "25d4ea9481a1fc6f",
+  "hash": "507e88fd4d87c6c9",
   "blocks": [
     {
       "type": "about_content",
@@ -46,6 +46,192 @@
             "type": "string",
             "maxLength": 200
           },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "pattern": "^https:\\/\\/"
+                  }
+                },
+                "required": [
+                  "href"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "/",
+                      "/products",
+                      "/blog",
+                      "/contact",
+                      "/offers",
+                      "/gift-cards",
+                      "/loyalty-program",
+                      "/feedback",
+                      "/account/login",
+                      "/account/signup"
+                    ]
+                  }
+                },
+                "required": [
+                  "route"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "product"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "category"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogCategory"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogPost"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "page"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "contentPage"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[-a-zA-Z0-9_]+$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-link": true
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "slider",
+              "tiles"
+            ]
+          },
           "categories": {
             "type": "object",
             "properties": {
@@ -73,10 +259,14 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title"
+        "/title",
+        "/subheading",
+        "/ctaText"
       ],
       "refs": {},
-      "linkRefs": [],
+      "linkRefs": [
+        "/ctaLink"
+      ],
       "data": {
         "/categories": {
           "field": "query",

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 /**
- * The blog's categories as a rail.
+ * The blog's categories as a rail (`slider`, the default) or as tiles
+ * (`PageSection/BlogCategoryTiles`, which every design draws).
  *
  * The categories arrive read (`categories`, a data setting the page route
  * resolved). Renders nothing when the blog has no categories yet: a band
@@ -8,17 +9,36 @@
  * on the demo store this section is FIRST, so a store with no posts opened
  * on it. The band is what decides; the rail renders what it is handed.
  */
-defineProps<{
+withDefaults(defineProps<{
   /** The operator's section title, from the section row itself. */
   title?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  layout?: 'slider' | 'tiles'
   categories: ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
-}>()
+}>(), {
+  layout: 'slider',
+})
+
+const localePath = useLocalePath()
 </script>
 
 <template>
+  <PageSectionBlogCategoryTiles
+    v-if="layout === 'tiles'"
+    :title="title"
+    :subheading="subheading"
+    :cta-text="ctaText"
+    :cta-link="ctaLink"
+    :categories="categories"
+  />
   <PageSectionBand
-    v-if="categories.items.length"
+    v-else-if="categories.items.length"
     :heading="title"
+    :subheading="subheading"
+    :cta-text="ctaText"
+    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : undefined"
     padding="sm"
   >
     <BlogCategoriesSlider
