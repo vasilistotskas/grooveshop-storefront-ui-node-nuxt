@@ -90,6 +90,7 @@ function query(source: DataSource, { onEmpty, maxLimit = DATA_LIMITS.maxQueryLim
 function productRail(maxLimit: number) {
   return {
     surface: z.enum(['default', 'muted']).optional(),
+    colorScheme: z.enum(SECTION_COLOR_SCHEMES).optional(),
     heading: text(200).optional(),
     subheading: text(500).optional(),
     ctaText: text(100).optional(),
@@ -103,6 +104,7 @@ function productRail(maxLimit: number) {
 function blogRail(maxLimit: number) {
   return {
     surface: z.enum(['default', 'muted']).optional(),
+    colorScheme: z.enum(SECTION_COLOR_SCHEMES).optional(),
     heading: text(200).optional(),
     subheading: text(500).optional(),
     ctaText: text(100).optional(),

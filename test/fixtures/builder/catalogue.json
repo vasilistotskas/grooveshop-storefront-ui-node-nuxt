@@ -1,5 +1,5 @@
 {
-  "hash": "507e88fd4d87c6c9",
+  "hash": "c7e13abb347a45ff",
   "blocks": [
     {
       "type": "about_content",
@@ -309,6 +309,14 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
             ]
           },
           "heading": {
@@ -624,6 +632,14 @@
               "muted"
             ]
           },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
+            ]
+          },
           "heading": {
             "type": "string",
             "maxLength": 200
@@ -935,6 +951,14 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
             ]
           },
           "heading": {
@@ -1811,6 +1835,14 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
             ]
           },
           "heading": {
@@ -6351,6 +6383,14 @@
               "muted"
             ]
           },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
+            ]
+          },
           "heading": {
             "type": "string",
             "maxLength": 200
@@ -6672,6 +6712,14 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
             ]
           },
           "heading": {

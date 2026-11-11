@@ -80,4 +80,12 @@ describe('PageSection/ProductsGrid', () => {
 
     expect(wrapper.find('section').exists()).toBe(false)
   })
+
+  // The colour scheme reaches the band, which draws it as Nuxt UI's subtree
+  // switch (`Band.spec.ts`).
+  it.each(['dark', 'light'] as const)('draws the band in the %s colour scheme the block sets', async (colorScheme) => {
+    const wrapper = await mountGrid({ colorScheme })
+
+    expect(wrapper.get('section').classes()).toContain(colorScheme)
+  })
 })

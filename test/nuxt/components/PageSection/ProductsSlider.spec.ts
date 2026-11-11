@@ -93,4 +93,12 @@ describe('PageSection/ProductsSlider', () => {
 
     expect(seeAll(wrapper)).toEqual(['Δες τα', '/products'])
   })
+
+  // The colour scheme reaches the band, which draws it as Nuxt UI's subtree
+  // switch (`Band.spec.ts`).
+  it.each(['dark', 'light'] as const)('draws the band in the %s colour scheme the block sets', async (colorScheme) => {
+    const wrapper = await mountSlider({ colorScheme })
+
+    expect(wrapper.get('section').classes()).toContain(colorScheme)
+  })
 })

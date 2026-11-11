@@ -74,4 +74,18 @@ describe('PageSection/Band', () => {
     expect(wrapper.find('h2').exists()).toBe(false)
     expect(wrapper.text()).toBe('custom headerbody')
   })
+
+  // The class is the contract: Nuxt UI's `.light` / `.dark` subtree switch,
+  // which every token inside follows (`test/unit/shared/theme/schemes.spec.ts`).
+  it.each([
+    ['dark', 'dark'],
+    ['light', 'light'],
+    ['auto', undefined],
+    [undefined, undefined],
+  ] as const)('draws the band in the %s colour scheme', async (colorScheme, scheme) => {
+    const classes = (await mountBand({ colorScheme })).get('section').classes()
+
+    expect(classes.includes('dark')).toBe(scheme === 'dark')
+    expect(classes.includes('light')).toBe(scheme === 'light')
+  })
 })

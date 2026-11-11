@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<{
   ctaLink?: string
   showAddToCart?: boolean
   surface?: 'default' | 'muted'
+  colorScheme?: SectionColorScheme
   /** What the band lists: the products, and the rule or hand-picked list they came from. */
   products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
@@ -72,6 +73,7 @@ const cta = computed(() => {
     :cta-text="cta.text"
     :cta-link="cta.link"
     :surface="surface"
+    :color-scheme="colorScheme"
   >
     <ProductsRail
       :products="[...products.items]"

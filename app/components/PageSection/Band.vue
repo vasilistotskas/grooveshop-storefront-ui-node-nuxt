@@ -24,6 +24,12 @@
 const props = withDefaults(defineProps<{
   /** Which page surface this band paints. */
   surface?: 'default' | 'muted' | 'inverted'
+  /**
+   * The colour scheme the band is drawn in: `light` or `dark` in both of the
+   * page's modes, every token inside with it (`colorSchemeClass`), or the
+   * page's own.
+   */
+  colorScheme?: SectionColorScheme
   /** Small line above the heading. */
   eyebrow?: string
   heading?: string
@@ -68,6 +74,7 @@ const container = computed(() =>
   <section
     :class="[
       'w-full',
+      colorSchemeClass(colorScheme),
       surface === 'muted' && 'bg-muted',
       surface === 'default' && 'border-y border-default bg-default',
       surface === 'inverted' && 'bg-inverted text-inverted',

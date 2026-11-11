@@ -22,6 +22,7 @@ const props = defineProps<{
   ctaText?: string
   ctaLink?: string
   surface?: 'default' | 'muted'
+  colorScheme?: SectionColorScheme
   /** What the band lists: the posts, and the rule or hand-picked list they came from. */
   posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
   /** `blog_posts_list`'s setting: a button reads the next posts of the same list below these. */
@@ -50,6 +51,7 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
     :cta-text="ctaText || t('all_posts')"
     :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('blog')"
     :surface="surface"
+    :color-scheme="colorScheme"
   >
     <BlogRail
       :posts="items"
