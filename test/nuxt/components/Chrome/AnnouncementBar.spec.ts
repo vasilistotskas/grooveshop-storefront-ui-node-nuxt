@@ -11,9 +11,18 @@ import { trees } from '~~/test/helpers/trees'
  * the operator picked a colour, and nothing at all when there is none or it
  * is switched off.
  */
-const { setting } = vi.hoisted(() => ({ setting: { value: null as AnnouncementBar | null } }))
+const { setting, dispatchCutoff, freeShipping, freeShippingInfo } = vi.hoisted(() => ({
+  setting: { value: null as AnnouncementBar | null },
+  dispatchCutoff: { value: '' },
+  freeShipping: { value: null as { minThreshold: number | null } | null },
+  freeShippingInfo: vi.fn(),
+}))
 
-mockNuxtImport('useStoreSettings', () => () => ({ announcementBar: computed(() => setting.value) }))
+mockNuxtImport('useStoreSettings', () => () => ({
+  announcementBar: computed(() => setting.value),
+  values: computed(() => ({ dispatchCutoff: dispatchCutoff.value })),
+}))
+mockNuxtImport('useFreeShippingInfo', () => freeShippingInfo)
 
 const bar = (value: Partial<AnnouncementBar>): AnnouncementBar => ({
   enabled: true,
@@ -28,6 +37,10 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
 
   beforeEach(() => {
     setting.value = null
+    dispatchCutoff.value = ''
+    freeShipping.value = null
+    freeShippingInfo.mockReset()
+    freeShippingInfo.mockImplementation(() => ({ data: computed(() => freeShipping.value) }))
   })
 
   it('shows the operator\'s text in ink by default', async () => {
@@ -111,6 +124,79 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
       setting.value = bar({})
 
       expect((await mountBar()).find('.font-mono').exists()).toBe(false)
+    })
+  })
+
+  describe('live figures in the wording', () => {
+    const titleOf = async () => (await mountBar()).findComponent({ name: 'UBanner' })
+
+    it('prints the free-shipping threshold as money, the way the cart notice does', async () => {
+      setting.value = bar({ text: 'Δωρεάν αποστολή από {freeShippingThreshold}' })
+      freeShipping.value = { minThreshold: 39.9 }
+
+      const banner = await titleOf()
+
+      expect(banner.props('title')).toBe(`Δωρεάν αποστολή από ${useNuxtApp().$i18n.n(39.9, 'currency')}`)
+      expect(banner.props('title')).not.toContain('{')
+    })
+
+    it('prints the dispatch cutoff as typed in the settings', async () => {
+      setting.value = bar({ text: 'Παραγγελίες πριν τις {dispatchCutoff} φεύγουν σήμερα', shortText: 'Πριν τις {dispatchCutoff}' })
+      dispatchCutoff.value = '15:00'
+
+      const wrapper = await mountBar()
+
+      expect(wrapper.text()).toContain('Παραγγελίες πριν τις 15:00 φεύγουν σήμερα')
+      expect(wrapper.text()).toContain('Πριν τις 15:00')
+    })
+
+    it('reads the free-shipping threshold only for a bar that names it', async () => {
+      setting.value = bar({ text: 'Παραγγελίες πριν τις {dispatchCutoff}' })
+      dispatchCutoff.value = '15:00'
+      await mountBar()
+      setting.value = bar({})
+      await mountBar()
+
+      expect(freeShippingInfo).not.toHaveBeenCalled()
+    })
+
+    it('reads it once a language of the bar names it', async () => {
+      setting.value = bar({ i18n: { en: { text: 'Free delivery over {freeShippingThreshold}' } } })
+      freeShipping.value = { minThreshold: 50 }
+
+      await mountBar()
+
+      expect(freeShippingInfo).toHaveBeenCalledOnce()
+    })
+
+    it.each([
+      { name: 'no threshold is configured', info: { minThreshold: null } },
+      { name: 'the threshold is 0', info: { minThreshold: 0 } },
+      { name: 'the threshold has not arrived', info: null },
+    ])('is not shown when $name', async ({ info }) => {
+      setting.value = bar({ text: 'Δωρεάν αποστολή από {freeShippingThreshold}' })
+      freeShipping.value = info
+
+      expect((await mountBar()).findComponent({ name: 'UBanner' }).exists()).toBe(false)
+    })
+
+    it.each(['', 'soon', '25:00'])('is not shown when the cutoff is "%s"', async (cutoff) => {
+      setting.value = bar({ text: 'Πριν τις {dispatchCutoff}' })
+      dispatchCutoff.value = cutoff
+
+      expect((await mountBar()).findComponent({ name: 'UBanner' }).exists()).toBe(false)
+    })
+
+    it('is not shown when only the phone wording names a figure with no value', async () => {
+      setting.value = bar({ shortText: 'Πριν τις {dispatchCutoff}' })
+
+      expect((await mountBar()).findComponent({ name: 'UBanner' }).exists()).toBe(false)
+    })
+
+    it('leaves a word in braces the merchant typed as it is', async () => {
+      setting.value = bar({ text: 'Κωδικός {WELCOME}' })
+
+      expect((await titleOf()).props('title')).toBe('Κωδικός {WELCOME}')
     })
   })
 
