@@ -21,8 +21,12 @@
   overflow-wrap: anywhere;
 }
 
-/* High contrast: white on black, yellow for the accent, no greys. */
-:root.a11y-contrast {
+/* High contrast: white on black, yellow for the accent, no greys. Also on
+   a part of the page forced light or dark (`.light` / `.dark`, which
+   redeclare the scheme there): `:where()` keeps it at (0,2,0), above the
+   store's `html .dark` (0,1,1). */
+:root.a11y-contrast,
+:root.a11y-contrast :where(.light, .dark) {
   color-scheme: dark;
 
   --ui-bg: #000000;

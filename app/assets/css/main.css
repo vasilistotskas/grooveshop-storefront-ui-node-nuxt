@@ -24,6 +24,13 @@
   --color-on-volt: #17171a;
 }
 
+/* Each colour-scheme block below is written for `<html>` and for a part
+   of the page forced into that scheme with Nuxt UI's own `.light` /
+   `.dark` class (a band whose `colorScheme` is light or dark): `.light` here,
+   `.dark` already matches any element. The store's theme block does the
+   same (`shared/theme/compile.ts`), so a forced part takes the store's
+   colours, and the innermost class wins. */
+.light,
 :root {
   --ui-bg: var(--ui-color-neutral-50);
   /* The ALTERNATE page surface, for a design that stacks bands and
@@ -253,6 +260,7 @@
    Its faces are not here either: they are part of the theme
    (`themeDefaultsFor('volt').fonts`), so the server knows which families
    a page declares. */
+[data-design="volt"] :where(.light),
 [data-design="volt"] {
   --ui-header-height: 3.75rem;
 
@@ -309,6 +317,7 @@
 }
 
 @media (width >= 64rem) {
+  [data-design="volt"] :where(.light),
   [data-design="volt"] {
     --ui-header-height: 4.5rem;
   }
@@ -319,6 +328,7 @@
    4.03:1, under AA for a button label, and ink is 4.79:1 — so the
    accent carries ink, the same choice `readableTextOn` makes for a
    tenant accent (`shared/utils/contrast.ts`). */
+[data-design="volt"] :where(.dark),
 [data-design="volt"]:where(.dark) {
   --ui-bg: #17171a;
   --ui-bg-muted: #0e0e10;
