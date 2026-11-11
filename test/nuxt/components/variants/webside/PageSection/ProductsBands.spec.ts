@@ -78,10 +78,10 @@ describe.each([
 
   it('takes the buy button off the cards when the block turns it off', async () => {
     const withButton = await drawn()
-    await vi.waitFor(() => expect(withButton.text()).toContain('Αγορά'), { timeout: 4000 })
+    await vi.waitFor(() => expect(withButton.text()).toContain('Στο καλάθι'), { timeout: 4000 })
     const withoutButton = await drawn({ showAddToCart: false })
 
-    expect(withoutButton.text()).not.toContain('Αγορά')
+    expect(withoutButton.text()).not.toContain('Στο καλάθι')
   })
 
   it('disappears with nothing to list', async () => {

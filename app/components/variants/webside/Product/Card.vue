@@ -361,7 +361,7 @@ el:
   vat_percent: Ποσοστό ΦΠΑ
   total_price: Τελική Τιμή
   share: Κοινοποίηση
-  add_to_cart: Αγορά
+  add_to_cart: Στο καλάθι
   out_of_stock: Εξαντλημένο
   low_stock: Τελευταία κομμάτια
   only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν
@@ -371,7 +371,7 @@ en:
   vat_percent: VAT rate
   total_price: Final price
   share: Share
-  add_to_cart: Buy
+  add_to_cart: Add to cart
   out_of_stock: Out of stock
   low_stock: Last few left
   only_n_left: Only {count} left | Only {count} left

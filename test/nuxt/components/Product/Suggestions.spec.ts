@@ -157,7 +157,7 @@ describe('webside Product/Suggestions', () => {
     expect(alts).toEqual(['Γλάστρα', 'Χώμα'])
     const buttons = wrapper.findAll('button.add-to-cart')
     expect(buttons).toHaveLength(2)
-    expect(buttons[0]!.attributes('aria-label')).toBe('Προσθήκη στο καλάθι')
+    expect(buttons[0]!.attributes('aria-label')).toBe('Στο καλάθι')
   })
 
   it('draws no add-to-cart button, nor its corner, on a store without a cart', async () => {

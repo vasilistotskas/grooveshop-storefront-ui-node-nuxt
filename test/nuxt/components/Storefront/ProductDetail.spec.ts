@@ -851,7 +851,7 @@ describe('webside ProductDetail sticky bar', () => {
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail buying controls', ({ tree, C }) => {
   const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
   const empty = { count: 0, next: null, previous: null, results: [] }
-  const buyLabel = tree === 'default' ? 'Στο καλάθι' : 'Αγορά'
+  const buyLabel = 'Στο καλάθι'
 
   async function mountPage(features: { cart: boolean }) {
     clearNuxtData()

@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+import type { ButtonProps } from '#ui/types'
+
 const props = defineProps({
   product: { type: Object as PropType<Product | ProductCard>, required: true },
   quantity: { type: Number, required: false, default: 1 },
@@ -15,6 +17,13 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false,
+  },
+  // The caller decides how big its own button is: a product card's,
+  // the suggestion strip's square one and the sticky bar's differ.
+  size: {
+    type: String as PropType<ButtonProps['size']>,
+    required: false,
+    default: 'xl',
   },
 })
 
@@ -65,6 +74,7 @@ const label = computed(() => {
   }
   return text.value
 })
+const buttonColor = computed<ButtonProps['color']>(() => (disabled.value ? 'neutral' : 'secondary'))
 
 const { addToCart } = useAddToCart({
   t,
@@ -82,13 +92,18 @@ const { addToCart } = useAddToCart({
 </script>
 
 <template>
+  <!-- The theme's accent, solid: the shop's primary action, in the one
+       colour the store chose for it. It used to be a pale green `subtle`
+       button (2.77:1 on white, under WCAG AA) and an orange one when the
+       product could not be bought. A product that cannot be bought gets
+       no colour of its own: neutral, disabled, and it says why. -->
   <UButton
     v-if="cartEnabled && iconOnly"
     icon="i-heroicons-shopping-cart"
-    size="lg"
+    :size="size"
     square
     loading-auto
-    :color="disabled ? 'warning' : 'success'"
+    :color="buttonColor"
     variant="solid"
     :disabled="disabled"
     :aria-label="label"
@@ -99,11 +114,11 @@ const { addToCart } = useAddToCart({
     v-else-if="cartEnabled"
     icon="i-heroicons-shopping-cart"
     :label="label"
-    size="xl"
+    :size="size"
     :trailing="true"
     loading-auto
-    :color="disabled ? 'warning' : 'success'"
-    variant="subtle"
+    :color="buttonColor"
+    variant="solid"
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
     :ui="{

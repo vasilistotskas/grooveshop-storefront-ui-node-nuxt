@@ -707,7 +707,7 @@ el:
   specifications: Προδιαγραφές
   no_description_available: Δεν υπάρχει διαθέσιμη περιγραφή
   no_specifications_available: Δεν υπάρχουν διαθέσιμες προδιαγραφές
-  add_to_cart: Αγορά
+  add_to_cart: Στο καλάθι
   out_of_stock: Μη διαθέσιμο
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
@@ -730,7 +730,7 @@ en:
   specifications: Specifications
   no_description_available: No description available
   no_specifications_available: No specifications available
-  add_to_cart: Buy
+  add_to_cart: Add to cart
   out_of_stock: Unavailable
   low_stock: Low stock ({count})
   in_stock: In stock

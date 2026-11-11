@@ -41,7 +41,7 @@ mockNuxtImport('useMediaQuery', () => () => ref(viewport.desktop))
 mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://media.test/${path}`)
 
 const UNAVAILABLE = 'Μή Διαθέσιμο'
-const BUY = 'Αγορά'
+const BUY = 'Στο καλάθι'
 
 /** Put `lines` in the cart, and make a write answer with it, as Django answers with the cart. */
 function cartHolds(lines: CartItemOverrides[] = []) {
@@ -119,6 +119,32 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
 
       expect(button.attributes('disabled')).toBeUndefined()
       expect(button.text()).toBe(BUY)
+    })
+
+    // The colour IS the contract here: the buy button is the theme's
+    // accent, solid, in every design (webside's was a pale green
+    // `subtle` at 2.77:1). Read off the UButton's props, not its classes,
+    // which the theme decides.
+    it.each([{ iconOnly: false }, { iconOnly: true }])('is the theme accent, solid (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      const wrapper = await mount({ product: makeProduct(), iconOnly })
+      const button = wrapper.findComponent({ name: 'UButton' })
+
+      expect([button.props('color'), button.props('variant')]).toEqual(['secondary', 'solid'])
+    })
+
+    it.each([{ iconOnly: false }, { iconOnly: true }])('is the size its caller asks for (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      const wrapper = await mountSuspended(C, { route: false, props: { text: BUY, product: makeProduct(), iconOnly, size: 'sm' } })
+
+      expect(wrapper.findComponent({ name: 'UButton' }).props('size')).toBe('sm')
+    })
+
+    // Webside's sold-out button used to turn orange: a second brand
+    // colour for "you cannot buy this". It is neutral and says why.
+    it.runIf(tree === 'webside').each([{ iconOnly: false }, { iconOnly: true }])('is neutral when the product cannot be bought (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      const wrapper = await mount({ product: makeProduct({ stock: 0 }), iconOnly })
+      const button = wrapper.findComponent({ name: 'UButton' })
+
+      expect([button.props('color'), button.props('variant'), button.props('disabled')]).toEqual(['neutral', 'solid', true])
     })
 
     it('names the icon-only button after its action or its unavailability', async () => {

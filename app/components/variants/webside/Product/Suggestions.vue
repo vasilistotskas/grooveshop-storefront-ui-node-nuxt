@@ -177,6 +177,7 @@ const arrowButton = {
               :product="item.product"
               :quantity="1"
               :text="t('add_to_cart')"
+              size="lg"
               icon-only
             />
           </div>
@@ -249,7 +250,7 @@ const arrowButton = {
 
 <i18n lang="yaml">
 el:
-  add_to_cart: "Προσθήκη στο καλάθι"
+  add_to_cart: "Στο καλάθι"
   view_product: "Προβολή προϊόντος"
   title:
     pdp: "Μπορεί να σου αρέσουν"
