@@ -179,6 +179,19 @@ describe('webside Page/Navbar dropdowns', () => {
     ])
   })
 
+  // An entry that opens a dropdown is drawn as its trigger, which Reka
+  // never marks current: on a product or an article no entry said where
+  // the visitor was.
+  it.each([
+    { at: '/products', current: () => t('shop') },
+    { at: '/blog/categories', current: () => t('blog') },
+  ])('marks the dropdown entry of the section the visitor is in, on $at', async ({ at, current }) => {
+    const wrapper = await mountSuspended(Navbar, { route: at })
+
+    const marked = wrapper.findAll('[data-slot="link"][aria-current="page"]').map(link => link.text())
+    expect(marked).toEqual([current()])
+  })
+
   it.each([
     { name: 'Shop', label: () => t('shop'), entry: CHARGING.label, href: '/products/category/1/charging', count: COPY.products, all: COPY.allProducts, allHref: '/products' },
     { name: 'Blog', label: () => t('blog'), entry: MOBILE.label, href: '/blog/category/7/mobile', count: COPY.articles, all: COPY.allArticles, allHref: '/blog' },

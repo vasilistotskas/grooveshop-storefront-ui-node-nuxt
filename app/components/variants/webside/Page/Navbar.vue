@@ -175,6 +175,9 @@ const navItems = computed<NavigationMenuItem[]>(() => {
   return base
 })
 
+/** The bar's entries, the current section marked on the dropdowns' triggers too. */
+const barItems = computed(() => withCurrentPage(navItems.value))
+
 const onClickLogout = async () => {
   if (!routeName.value) return
   if (isRouteProtected(String(routeName.value)))
@@ -249,7 +252,7 @@ const items = computed(() => [
                dropdowns are the menu's own (Reka's NavigationMenu). -->
           <LazyUNavigationMenu
             hydrate-on-interaction
-            :items="navItems"
+            :items="barItems"
             :aria-label="t('navigation')"
             color="neutral"
             variant="link"

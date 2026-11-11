@@ -192,6 +192,9 @@ const items = computed<NavigationMenuItem[]>(() => {
  * What the phone menu lists: the store's Mobile menu, else its Header
  * menu, else the code menu above.
  */
+/** The bar's entries, the current section marked on the dropdowns' triggers too. */
+const barItems = computed(() => withCurrentPage(items.value))
+
 const mobileMenuItems = computed(() =>
   mobileLinks.value ? fromLinks(mobileLinks.value) : items.value,
 )
@@ -269,7 +272,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
         <LazyUNavigationMenu
           v-model="openItem"
           hydrate-on-interaction
-          :items="items"
+          :items="barItems"
           :aria-label="t('navigation')"
           color="neutral"
           class="
