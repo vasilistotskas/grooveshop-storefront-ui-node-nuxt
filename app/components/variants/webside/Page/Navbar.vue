@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RouteLocationNamedI18n } from 'vue-router'
+import type { NavigationMenuItem } from '@nuxt/ui'
 
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
@@ -48,60 +48,120 @@ const isPathActive = (path?: string) => {
 }
 
 const { headerItems } = useNavigation()
+const { categories, hasCategories } = useCategoryMenu()
+const { blogCategories, hasBlogCategories } = useBlogCategoryMenu()
 
-interface DesktopNavItem {
-  key: string
+interface MenuTile {
+  id: number
   label: string
-  to?: RouteLocationNamedI18n
-  href?: string
-  active: boolean
+  /** Its page, before the locale prefix. */
+  to: string
+  imagePath: string
+  count: string
 }
 
-const navItems = computed<DesktopNavItem[]>(() => {
+/** What a dropdown shows: its tiles, then a link to everything. */
+interface MenuPanel {
+  dropdown: MenuDropdown
+  title: string
+  tiles: MenuTile[]
+  allLabel: string
+  allTo: string
+}
+
+/**
+ * The dropdowns that have something to show. The shop's opens the
+ * store's product categories, the blog's its topics; a list that is
+ * empty, switched off or failed to load leaves its entry a plain link,
+ * never an empty panel.
+ */
+const panels = computed<MenuPanel[]>(() => {
+  const out: MenuPanel[] = []
+  if (hasCategories.value) {
+    out.push({
+      dropdown: 'shop',
+      title: t('categories'),
+      tiles: categories.value.map(category => ({
+        id: category.id,
+        label: category.label,
+        to: category.to,
+        imagePath: category.imagePath,
+        count: t('products_count', category.productCount),
+      })),
+      allLabel: t('all_products'),
+      allTo: localePath('products'),
+    })
+  }
+  if (hasBlogCategories.value) {
+    out.push({
+      dropdown: 'blog',
+      title: t('topics'),
+      tiles: blogCategories.value.map(topic => ({
+        id: topic.id,
+        label: topic.label,
+        to: topic.to,
+        imagePath: topic.imagePath,
+        count: t('articles_count', topic.postCount),
+      })),
+      allLabel: t('all_articles'),
+      allTo: localePath('blog'),
+    })
+  }
+  return out
+})
+
+/** The slot a link to `path` opens its panel in, when it has one. */
+const panelSlot = (path: string | undefined) => {
+  const dropdown = menuDropdownFor(path)
+  return panels.value.some(panel => panel.dropdown === dropdown) ? dropdown : undefined
+}
+
+const navItems = computed<NavigationMenuItem[]>(() => {
   // Operator-configured header menu wins; the code list below keeps
   // the platform chrome for unconfigured tenants — same contract as
-  // BurgerMenu's primaryItems.
+  // BurgerMenu's. Either way the link to the listing and the link to
+  // the blog open their dropdowns.
   const configured = headerItems.value
   if (configured) {
-    return configured.map((item, index) => ({
-      key: `configured-${index}-${item.label}`,
+    return configured.map(item => ({
       label: item.label,
-      // Operator items carry paths, which NuxtLinkLocale accepts at
-      // runtime; the named-route type is narrower than reality here.
-      to: item.to as RouteLocationNamedI18n | undefined,
+      to: item.to ? localePath(pathLocation(item.to)) : undefined,
       href: item.to ? undefined : item.href,
+      target: item.href ? '_blank' : undefined,
       active: isPathActive(item.to),
+      value: item.to ?? item.href,
+      slot: panelSlot(item.to),
     }))
   }
-  const base: DesktopNavItem[] = [
+  const base: NavigationMenuItem[] = [
     {
-      key: 'products',
       label: t('shop'),
-      to: 'products',
+      to: localePath('products'),
       active: isRouteActive('products'),
+      value: 'products',
+      slot: panelSlot('/products'),
     },
   ]
   if (blogEnabled.value) {
     base.push({
-      key: 'blog',
       label: t('blog'),
-      to: 'blog',
+      to: localePath('blog'),
       active: isRouteActive('blog'),
+      value: 'blog',
+      slot: panelSlot('/blog'),
     })
   }
   if (promotionsEnabled.value) {
     base.push({
-      key: 'offers',
       label: t('offers'),
-      to: 'offers',
+      to: localePath('offers'),
       active: isRouteActive('offers'),
     })
   }
   if (giftCardsServing.value) {
     base.push({
-      key: 'gift-cards',
       label: t('gift_cards'),
-      to: 'gift-cards',
+      to: localePath('gift-cards'),
       active: isRouteActive('gift-cards'),
     })
   }
@@ -164,60 +224,120 @@ const items = computed(() => [
   >
     <template #menu>
       <LazyWebsideSearchInput v-if="!isMobileOrTablet" />
+      <!-- Not positioned: a dropdown's panel is placed against the
+           header's row, so it spans the header rather than this cluster. -->
       <div
         class="
-          relative ml-auto hidden items-center
+          ml-auto hidden items-center
           lg:flex
         "
       >
-        <nav
-          :aria-label="t('navigation')"
+        <div
           class="
             flex items-center text-lg leading-6 font-semibold text-primary-950
             dark:text-primary-50
           "
         >
-          <ul class="flex items-center gap-4">
-            <li
-              v-for="item in navItems"
-              :key="item.key"
-              class="flex w-full gap-4"
+          <!-- Keyboard, focus and screen-reader behaviour of the
+               dropdowns are the menu's own (Reka's NavigationMenu). -->
+          <LazyUNavigationMenu
+            hydrate-on-interaction
+            :items="navItems"
+            :aria-label="t('navigation')"
+            color="neutral"
+            variant="link"
+            highlight
+            highlight-color="secondary"
+            :ui="{
+              root: 'static',
+              list: 'gap-4',
+              item: 'py-0',
+              link: `
+                px-0 text-lg font-semibold capitalize
+                after:inset-x-0 after:-bottom-1 after:h-0.5
+              `,
+              linkTrailingIcon: 'size-4',
+              viewportWrapper: 'top-[calc(100%+1.5rem)] z-10',
+              viewport: 'rounded-xl shadow-lg',
+            }"
+          >
+            <template
+              v-for="panel in panels"
+              :key="panel.dropdown"
+              #[`${panel.dropdown}-content`]
             >
-              <div>
-                <Anchor
-                  :text="item.label"
-                  :title="item.label"
-                  :to="item.to"
-                  :href="item.href ?? ''"
-                  :aria-current="item.active ? 'page' : undefined"
+              <div class="flex flex-col gap-3 p-6">
+                <p
+                  class="text-xs font-bold tracking-wider text-muted uppercase"
+                >
+                  {{ panel.title }}
+                </p>
+                <ul
                   class="
-                    relative text-lg capitalize transition-colors
-                    after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5
-                    after:bg-(--ui-secondary) after:transition-transform
-                    after:duration-200
-                    motion-reduce:after:transition-none
-                  "
-                  :class="
-                    item.active
-                      ? `
-                        font-bold text-primary-900
-                        after:scale-x-100
-                        dark:text-primary-50
-                      `
-                      : `
-                        text-primary-700
-                        after:scale-x-0
-                        hover:text-primary-900
-                        dark:text-primary-200
-                        hover:dark:text-primary-50
-                      `
+                    grid grid-cols-2 gap-4
+                    xl:grid-cols-3
                   "
                 >
-                  {{ item.label }}
-                </Anchor>
+                  <li
+                    v-for="tile in panel.tiles"
+                    :key="tile.id"
+                  >
+                    <ULink
+                      :to="localePath(pathLocation(tile.to))"
+                      class="
+                        flex items-center gap-4 rounded-lg border border-default
+                        p-3 text-highlighted transition-colors
+                        hover:border-secondary
+                        motion-reduce:transition-none
+                      "
+                    >
+                      <ImgWithFallback
+                        v-if="tile.imagePath"
+                        :src="tile.imagePath"
+                        alt=""
+                        :width="96"
+                        :height="96"
+                        fit="cover"
+                        loading="lazy"
+                        densities="x1 x2"
+                        class="
+                          size-24 shrink-0 rounded-lg bg-elevated object-cover
+                        "
+                      />
+                      <span class="flex min-w-0 flex-col gap-1">
+                        <span class="text-lg font-bold">{{ tile.label }}</span>
+                        <span
+                          class="
+                            flex items-center gap-1 text-sm font-semibold
+                            text-secondary
+                          "
+                        >
+                          {{ tile.count }}
+                          <UIcon
+                            name="i-heroicons-arrow-right"
+                            class="size-4"
+                          />
+                        </span>
+                      </span>
+                    </ULink>
+                  </li>
+                </ul>
+                <ULink
+                  :to="panel.allTo"
+                  class="
+                    inline-flex min-h-11 items-center gap-1.5 self-start
+                    text-base font-semibold text-secondary
+                  "
+                >
+                  {{ panel.allLabel }}
+                  <UIcon
+                    name="i-heroicons-arrow-right"
+                    class="size-4"
+                  />
+                </ULink>
               </div>
-            </li>
-          </ul>
+            </template>
+          </LazyUNavigationMenu>
           <ul
             class="
               flex items-center gap-3 pl-6 text-primary-950
@@ -400,7 +520,7 @@ const items = computed(() => [
               </Anchor>
             </li>
           </ul>
-        </nav>
+        </div>
       </div>
     </template>
   </WebsideBuilderNavbar>
@@ -411,8 +531,20 @@ el:
   navigation: Πλοήγηση
   user:
     profile: Προφίλ
+  categories: Κατηγορίες
+  topics: Θέματα
+  products_count: "{count} προϊόν | {count} προϊόντα"
+  articles_count: "{count} άρθρο | {count} άρθρα"
+  all_products: Όλα τα προϊόντα
+  all_articles: Όλα τα άρθρα
 en:
   navigation: Navigation
   user:
     profile: Profile
+  categories: Categories
+  topics: Topics
+  products_count: "{count} product | {count} products"
+  articles_count: "{count} article | {count} articles"
+  all_products: All products
+  all_articles: All articles
 </i18n>

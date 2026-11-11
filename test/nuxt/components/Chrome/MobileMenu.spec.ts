@@ -4,6 +4,7 @@ import { DOMWrapper, flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
+import type { BlogCategoryMenuEntry } from '~/composables/useBlogCategoryMenu'
 import ChromeMobileMenu from '~/components/Chrome/MobileMenu.vue'
 import { setTenant } from '~~/test/helpers/tenant'
 
@@ -37,6 +38,12 @@ mockNuxtImport('useCategoryMenu', () => () => ({
   hasCategories: computed(() => categories.value.length > 0),
 }))
 
+const topics = ref<BlogCategoryMenuEntry[]>([])
+mockNuxtImport('useBlogCategoryMenu', () => () => ({
+  blogCategories: topics,
+  hasBlogCategories: computed(() => topics.value.length > 0),
+}))
+
 const stubs = {
   ChromeMobileMenuAccount: { template: '<div data-test="account" />' },
   TenantLogo: true,
@@ -44,7 +51,7 @@ const stubs = {
 }
 
 /** The menu's own copy (el), which the global `$i18n` cannot reach. */
-const COPY = { allInCharging: 'Όλα σε Φόρτιση' }
+const COPY = { allInCharging: 'Όλα σε Φόρτιση', allArticles: 'Όλα τα άρθρα' }
 
 const CHARGING: CategoryMenuEntry = {
   id: 1,
@@ -76,6 +83,7 @@ async function openMenu(items: NavigationMenuItem[] = ITEMS) {
 describe('Chrome/MobileMenu', () => {
   beforeEach(() => {
     categories.value = [CHARGING]
+    topics.value = []
     if (session.loggedIn) session.loggedIn.value = false
     setTenant({ availableLocales: ['el'] })
   })
@@ -151,5 +159,31 @@ describe('Chrome/MobileMenu', () => {
     await openMenu()
 
     expect(body().find('[role="tree"]').exists()).toBe(false)
+  })
+
+  it('lists the blog\'s topics, "all articles" first, in place of the Blog entry', async () => {
+    topics.value = [{ id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }]
+    const items: NavigationMenuItem[] = [
+      { label: 'Κατάστημα', to: '/products', children: [{ label: 'Φόρτιση', to: CHARGING.to }] },
+      { label: 'Προσφορές', to: '/offers' },
+      { label: 'Blog', to: '/blog', children: [{ label: 'Κινητό', to: '/blog/category/7/mobile' }] },
+    ]
+
+    await openMenu(items)
+
+    const blog = body().find(`nav[aria-label="${useNuxtApp().$i18n.t('blog')}"]`)
+    expect(blog.findAll('a').map(link => [link.text(), link.attributes('href')])).toEqual([
+      [COPY.allArticles, '/blog'],
+      ['Κινητό26', '/blog/category/7/mobile'],
+    ])
+    // The section, then the header's other links, without the Blog entry it replaces.
+    expect(body().findAll('nav a').map(link => link.attributes('href')))
+      .toEqual(['/blog', '/blog/category/7/mobile', '/offers'])
+  })
+
+  it('draws no blog section while the blog has no topics', async () => {
+    await openMenu()
+
+    expect(body().find(`nav[aria-label="${useNuxtApp().$i18n.t('blog')}"]`).exists()).toBe(false)
   })
 })

@@ -5,6 +5,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { NavLink } from '~~/shared/types/navigation'
 import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
+import type { BlogCategoryMenuEntry } from '~/composables/useBlogCategoryMenu'
 import ChromeNavbar from '~/components/Chrome/Navbar.vue'
 import MobileMenu from '~/components/Chrome/MobileMenu.vue'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
@@ -32,6 +33,11 @@ const categories = ref<CategoryMenuEntry[]>([])
 mockNuxtImport('useCategoryMenu', () => () => ({
   categories,
   hasCategories: computed(() => categories.value.length > 0),
+}))
+const topics = ref<BlogCategoryMenuEntry[]>([])
+mockNuxtImport('useBlogCategoryMenu', () => () => ({
+  blogCategories: topics,
+  hasBlogCategories: computed(() => topics.value.length > 0),
 }))
 mockNuxtImport('useUserSession', () => () => {
   session.loggedIn ??= ref(false)
@@ -87,6 +93,7 @@ describe('Chrome/Navbar', () => {
     state.header = null
     state.phoneLinks = null
     categories.value = []
+    topics.value = []
     if (session.loggedIn) session.loggedIn.value = false
     setTenant({ availableLocales: ['el'] })
   })
@@ -192,6 +199,46 @@ describe('Chrome/Navbar', () => {
     expect(items.map(item => [item.label, item.to, item.slot, item.children?.map(child => child.to)])).toEqual([
       ['Σχετικά', '/about', undefined, undefined],
       ['Κατάστημα', '/products', 'shop', ['/products/category/1/charging']],
+    ])
+  })
+
+  /** The blog's own copy, which the global `$i18n` cannot reach. */
+  const BLOG_COPY = { allArticles: 'Όλα τα άρθρα', articles: '26 άρθρα' }
+  const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }
+
+  it('opens the blog\'s topics from Blog, "all articles" first, each with its post count', async () => {
+    setTenantFeatures({ blog: true })
+    topics.value = [MOBILE]
+
+    const wrapper = await mountNavbar()
+
+    const blog = (wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[])
+      .find(item => item.to === '/blog')!
+    expect(blog.children?.map(child => [child.label, child.to, child.description])).toEqual([
+      [BLOG_COPY.allArticles, '/blog', undefined],
+      ['Κινητό', '/blog/category/7/mobile', BLOG_COPY.articles],
+    ])
+  })
+
+  it('leaves Blog a plain link while the blog has no topics to list', async () => {
+    setTenantFeatures({ blog: true })
+
+    const wrapper = await mountNavbar()
+
+    const blog = (wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[])
+      .find(item => item.to === '/blog')!
+    expect(blog.children).toBeUndefined()
+  })
+
+  it('keeps the topics on the operator\'s entry for the blog', async () => {
+    topics.value = [MOBILE]
+    state.header = [{ label: 'Άρθρα', to: '/blog' }]
+
+    const wrapper = await mountNavbar()
+
+    const items = wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]
+    expect(items.map(item => [item.label, item.to, item.children?.map(child => child.to)])).toEqual([
+      ['Άρθρα', '/blog', ['/blog', '/blog/category/7/mobile']],
     ])
   })
 

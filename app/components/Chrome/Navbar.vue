@@ -13,9 +13,9 @@ import type { NavigationMenuItem } from '@nuxt/ui'
  * are UHeader's, so `UMain`, the toaster offset and a future switch
  * back all keep working.
  *
- * Desk: logo, the navigation (Shop opens the catalogue panel), then
- * search, language, colour mode, favourites, notifications, cart and
- * the account control. Phone: the menu button, the logo, search and
+ * Desk: logo, the navigation (Shop opens the catalogue panel, Blog its
+ * topics), then search, language, colour mode, favourites,
+ * notifications, cart and the account control. Phone: the menu button, the logo, search and
  * cart — the rest lives in the menu and the tab bar.
  *
  * The navigation shows from `xl`, not `lg`: the row has to fit the
@@ -38,6 +38,7 @@ const tenantStore = useTenantStore()
 
 const { headerItems, mobileLinks } = useNavigation()
 const { categories, hasCategories } = useCategoryMenu()
+const { blogCategories, hasBlogCategories } = useBlogCategoryMenu()
 
 // Not a store feature yet (`shared/utils/storePreference.ts`).
 const cartEnabled = useStoreFeature('cart')
@@ -71,9 +72,7 @@ const isPathActive = (path?: string) => {
 }
 
 const SHOP = 'shop'
-
-/** The listing the Shop entry stands for. */
-const CATALOGUE_PATH = '/products'
+const BLOG = 'blog'
 
 /**
  * The Shop entry. With categories it opens the catalogue panel (its
@@ -92,26 +91,68 @@ const shopItem = computed<NavigationMenuItem>(() => ({
     : undefined,
 }))
 
-/** An operator's menu rows as navigation items; the listing stays the Shop entry. */
+/**
+ * The Blog entry. With topics it opens a panel of them, "all articles"
+ * first and each topic with its post count, drawn by the menu itself
+ * from the children; without them it is a plain link to the blog.
+ */
+const blogItem = computed<NavigationMenuItem>(() => ({
+  label: t('blog'),
+  value: BLOG,
+  to: localePath('blog'),
+  active: isRouteActive('blog'),
+  children: hasBlogCategories.value
+    ? [
+        { label: t('all_articles'), to: localePath('blog') },
+        ...blogCategories.value.map(topic => ({
+          label: topic.label,
+          description: t('articles', topic.postCount),
+          to: localePath(pathLocation(topic.to)),
+        })),
+      ]
+    : undefined,
+  // The panel spans the header like the catalogue's, so its list keeps
+  // to the page's container.
+  ui: {
+    childList: `
+      mx-auto max-w-(--ui-container) grid-cols-4 gap-2 px-4 py-6
+      sm:px-6
+      lg:px-8
+    `,
+  },
+}))
+
+/** The entries a link opens a dropdown from (`menuDropdownFor`). */
+const dropdownItems = computed<Record<MenuDropdown, NavigationMenuItem>>(() => ({
+  shop: shopItem.value,
+  blog: blogItem.value,
+}))
+
+/**
+ * An operator's menu rows as navigation items; the listing and the
+ * blog stay the Shop and Blog entries, under the operator's label.
+ */
 const fromLinks = (configured: NavLink[]): NavigationMenuItem[] =>
-  configured.map(item => item.to === CATALOGUE_PATH
-    ? { ...shopItem.value, label: item.label, icon: item.icon }
-    : {
-        label: item.label,
-        icon: item.icon,
-        to: item.to ? localePath(pathLocation(item.to)) : undefined,
-        href: item.to ? undefined : item.href,
-        target: item.href ? '_blank' : undefined,
-        active: isPathActive(item.to),
-      })
+  configured.map((item) => {
+    const dropdown = menuDropdownFor(item.to)
+    if (dropdown) return { ...dropdownItems.value[dropdown], label: item.label, icon: item.icon }
+    return {
+      label: item.label,
+      icon: item.icon,
+      to: item.to ? localePath(pathLocation(item.to)) : undefined,
+      href: item.to ? undefined : item.href,
+      target: item.href ? '_blank' : undefined,
+      active: isPathActive(item.to),
+    }
+  })
 
 const items = computed<NavigationMenuItem[]>(() => {
   // An operator-configured header REPLACES the code menu — same
   // contract the mobile menu and the footer follow — except that its
-  // entry for the listing stays the Shop entry, under the operator's
-  // label: configuring the header must not take away the catalogue
-  // panel here, or the category tree that replaces the entry in the
-  // phone menu.
+  // entries for the listing and the blog stay the Shop and Blog
+  // entries, under the operator's labels: configuring the header must
+  // not take away their dropdowns here, or the sections that replace
+  // them in the phone menu.
   const configured = headerItems.value
   if (configured) return fromLinks(configured)
 
@@ -123,13 +164,7 @@ const items = computed<NavigationMenuItem[]>(() => {
       active: isRouteActive('offers'),
     })
   }
-  if (blogEnabled.value) {
-    base.push({
-      label: t('blog'),
-      to: localePath('blog'),
-      active: isRouteActive('blog'),
-    })
-  }
+  if (blogEnabled.value) base.push(blogItem.value)
   if (giftCardsServing.value) {
     base.push({
       label: t('gift_cards'),
@@ -348,8 +383,12 @@ el:
   navigation: Πλοήγηση
   menu: Μενού
   loyalty: Επιβράβευση
+  all_articles: Όλα τα άρθρα
+  articles: "{count} άρθρο | {count} άρθρα"
 en:
   navigation: Navigation
   menu: Menu
   loyalty: Rewards
+  all_articles: All articles
+  articles: "{count} article | {count} articles"
 </i18n>
