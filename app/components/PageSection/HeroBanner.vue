@@ -40,22 +40,14 @@ const localePath = useLocalePath()
 const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 
-const picture = computed(() => readyImage(props.image))
-const mobilePicture = computed(() => readyImage(props.mobileImage))
-
-const shown = computed(() =>
-  (isMobileOrTablet.value && mobilePicture.value?.path ? mobilePicture.value : undefined) ?? picture.value,
-)
+const shown = computed(() => heroImage(props, isMobileOrTablet.value))
 
 const artwork = computed(() => shown.value?.path)
 
 /** Whether there is an image to draw: the one selected for this device, so a phone with only its own image still has one. */
 const hasImage = computed(() => !!artwork.value)
 
-/** The description of the picture shown, else the desk picture's, else the heading. */
-const alt = computed(() =>
-  props.imageDecorative ? '' : shown.value?.alt || picture.value?.alt || props.heading || '',
-)
+const alt = computed(() => heroImageAlt(props, shown.value, props.heading || ''))
 
 /**
  * Copy over a photograph is light by default, because the overlay

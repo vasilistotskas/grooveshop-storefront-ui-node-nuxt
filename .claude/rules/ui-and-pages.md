@@ -167,6 +167,15 @@ Rules:
   chrome key loses its `@webside` entry, which would hand webside the redesign.
 - A tenant that wants its own design registers `page:<key>@<schema>` /
   `chrome:<slot>@<schema>` the same way.
+- **A shared section draws the store's own controls through a PART**, never
+  through a webside copy of the section. `resolvePart(key, schema)`
+  (`variantRegistry.ts`) answers a design's component for a control inside a
+  shared component (`product_add_to_cart`, `product_restock_alert`) and how
+  its props are spelt from what the shared component knows (`DesignPartInput`),
+  since the designs' components declare different props; a design with no
+  `part:<key>@<schema>` entry gets the platform's. `Product/Spotlight` (the
+  `hero_showcase` product card) is the first user: one component in every
+  design, each store's own buy button and restock alert inside it.
 
 ## Component Categories
 

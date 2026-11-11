@@ -44,6 +44,7 @@ const idleSection = (loader: AsyncComponentLoader) => defineAsyncComponent({
 export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComponent>> = {
   'hero_banner': eagerSection(() => import('~/components/PageSection/HeroBanner.vue')),
   'hero_carousel': eagerSection(() => import('~/components/PageSection/HeroCarousel.vue')),
+  'hero_showcase': eagerSection(() => import('~/components/PageSection/HeroShowcase.vue')),
   'products_slider': lazySection(() => import('~/components/PageSection/ProductsSlider.vue')),
   'products_grid': lazySection(() => import('~/components/PageSection/ProductsGrid.vue')),
   'featured_products': lazySection(() => import('~/components/PageSection/ProductsGrid.vue')),

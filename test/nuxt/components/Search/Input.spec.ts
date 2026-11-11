@@ -40,6 +40,18 @@ describe('Search/Input', () => {
 
     await vi.waitFor(() => expect(wrapper.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
   })
+  // A page that also draws the field in a section (the search band, a hero)
+  // answered "/" with one palette per field, stacked: the header's field
+  // owns the shortcut, and a section's field registers none.
+  it('answers the search shortcut in the header only', async () => {
+    const header = await mountSuspended(SearchInput, { route: false, props: { compact: true } })
+    const section = await mountSuspended(SearchInput, { route: false })
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true }))
+
+    await vi.waitFor(() => expect(header.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
+    expect(section.find('[data-test="palette"]').exists()).toBe(false)
+  })
 })
 
 describe('webside Search/Input', () => {

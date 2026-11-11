@@ -25,6 +25,8 @@
  */
 export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'hero_banner',
+  // Its `heading` and `headingAccent` are the two lines of one h1.
+  'hero_showcase',
   // Owns the whole contact page, heading included.
   'contact_panel',
 ])
@@ -82,9 +84,10 @@ export function sectionsHeadingText(
 ): string | undefined {
   const owner = (sections ?? []).find(ownsHeading)
   if (!owner) return undefined
-  const heading = owner.componentType === 'hero_carousel'
-    ? heroCarouselHeading(owner.props)
-    : trimmedText((owner.props as { heading?: unknown } | undefined)?.heading)
+  if (owner.componentType === 'hero_carousel') return heroCarouselHeading(owner.props) || undefined
+  // A heading drawn on two lines (`hero_showcase`'s accent line) is one h1, so one title.
+  const props = owner.props as { heading?: unknown, headingAccent?: unknown } | undefined
+  const heading = [trimmedText(props?.heading), trimmedText(props?.headingAccent)].filter(Boolean).join(' ')
   return heading || undefined
 }
 

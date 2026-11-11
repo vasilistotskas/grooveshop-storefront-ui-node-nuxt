@@ -55,6 +55,8 @@ export const BUILDER_SCHEMATICS: Readonly<Record<string, readonly BuilderSchemat
   hero_banner: heroBanner,
   hero_carousel: [...heroBanner, shape('accent', 52, 72, 4, 4, true), shape('text', 60, 72, 4, 4, true), shape('text', 68, 72, 4, 4, true)],
   loyalty_hero: [frame(0, 0, 120, 80), ...copy(10, 16, 56), accent(10, 54, 30), frame(76, 16, 34, 44)],
+  // Text, search and buttons on the left; the picture over a product card on the right.
+  hero_showcase: [...copy(8, 14, 48), frame(8, 40, 48, 10), accent(8, 56, 22), shape('frame', 34, 56, 22, 8, true), frame(64, 10, 50, 26), frame(64, 42, 50, 28), accent(96, 60, 14, 6)],
 
   // Products
   featured_products: productRow(3),

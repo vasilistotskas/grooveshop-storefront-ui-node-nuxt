@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-import { BLOCK_REF_KINDS, DATA_LIMITS, DATA_SCHEMA_MARKER, LINK_ROUTES, LINK_SCHEMA_MARKER } from '../constants/builder'
+import { BLOCK_REF_KINDS, DATA_LIMITS, DATA_SCHEMA_MARKER, LINK_ROUTES, LINK_SCHEMA_MARKER, SECTION_COLOR_SCHEMES } from '../constants/builder'
 import type { BlockRefKind, DataDeclaration, DataMissing, DataSource } from '../types/builder'
 import { DATA_DESCRIPTORS } from './dataSources'
 import { recordId } from './recordId'
@@ -132,6 +132,8 @@ export const builderField = {
   surface: () => z.enum(['default', 'muted']),
   /** A band that may also be drawn dark. */
   inkSurface: () => z.enum(['default', 'muted', 'ink']),
+  /** The colour scheme a band is drawn in: light or dark in both of the page's modes, or the page's own (`SECTION_COLOR_SCHEMES`). */
+  colorScheme: () => z.enum(SECTION_COLOR_SCHEMES),
   boolean: () => z.boolean(),
   /** Text the sanitiser lets keep its markup: Django sanitises it on save and the storefront on render. */
   richText: (max: number) => z.string().max(max).meta({ contentMediaType: 'text/html' }),

@@ -14,10 +14,11 @@ import {
  * the homepage its h1 and `/contact` a second one.
  */
 describe('pageSections', () => {
-  it('knows the two section types that own a page heading', () => {
+  it('knows the section types that own a page heading', () => {
     expect([...HEADING_SECTION_TYPES].sort()).toEqual([
       'contact_panel',
       'hero_banner',
+      'hero_showcase',
     ])
   })
 
@@ -68,6 +69,15 @@ describe('pageSections', () => {
     ]
 
     expect(sectionsHeadingText(sections)).toBe('Project register')
+  })
+
+  it('takes both lines of a two-line heading as one title', () => {
+    expect(sectionsHeadingText([
+      { componentType: 'hero_showcase', props: { heading: ' Step into ', headingAccent: ' technology ' } },
+    ])).toBe('Step into technology')
+    expect(sectionsHeadingText([{ componentType: 'hero_showcase', props: { headingAccent: 'technology' } }])).toBe('technology')
+    expect(sectionsHeadingText([{ componentType: 'hero_showcase', props: { heading: 'Step in' } }])).toBe('Step in')
+    expect(sectionsHeadingText([{ componentType: 'hero_showcase', props: { heading: ' ', headingAccent: '' } }])).toBeUndefined()
   })
 
   it('falls through when the heading section carries no heading', () => {

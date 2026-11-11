@@ -12,8 +12,14 @@
  * The visible field's accessible name is its own text plus the key
  * hint; only the icon-only button needs an `aria-label` (WCAG 2.5.3
  * Label in Name — Lighthouse `label-content-name-mismatch`).
+ *
+ * The keyboard shortcuts belong to the header's field alone. A page that
+ * also draws the field in a section (the search band, a hero) would
+ * otherwise answer Ctrl+K with one palette per field, stacked. A design
+ * with its own header search registers its own, which is why the section's
+ * field registers none in any design.
  */
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   compact?: boolean
 }>(), {
   compact: false,
@@ -35,19 +41,21 @@ function openSearchModal() {
   isModalOpen.value = true
 }
 
-defineShortcuts({
-  'meta_k': {
-    handler: () => {
-      openSearchModal()
-    },
-  },
-  '/': {
-    usingInput: false,
-    handler: () => {
-      openSearchModal()
-    },
-  },
-})
+defineShortcuts(props.compact
+  ? {
+      'meta_k': {
+        handler: () => {
+          openSearchModal()
+        },
+      },
+      '/': {
+        usingInput: false,
+        handler: () => {
+          openSearchModal()
+        },
+      },
+    }
+  : {})
 </script>
 
 <template>

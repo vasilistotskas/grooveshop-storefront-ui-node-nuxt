@@ -113,14 +113,12 @@ const chips = computed(() => items.value.map((slide) => {
 }))
 
 /** The image a slide draws on this device: its phone image on a phone, else its own. */
-const drawnImage = (slide: Pick<HeroSlide, 'image' | 'mobileImage'>) =>
-  (isMobileOrTablet.value && readyImage(slide.mobileImage)?.path ? readyImage(slide.mobileImage) : undefined) ?? readyImage(slide.image)
+const drawnImage = (slide: Pick<HeroSlide, 'image' | 'mobileImage'>) => heroImage(slide, isMobileOrTablet.value)
 
 const artwork = (slide: HeroSlide) => drawnImage(slide)?.path
 
 /** The description of the image drawn, else the desk image's, else the slide's heading, else the store's name. */
-const altOf = (slide: HeroSlide) =>
-  slide.imageDecorative ? '' : drawnImage(slide)?.alt || readyImage(slide.image)?.alt || slide.heading || appTitle.value
+const altOf = (slide: HeroSlide) => heroImageAlt(slide, drawnImage(slide), slide.heading || appTitle.value)
 
 const hasCopy = (slide: HeroSlide) =>
   !!(slide.eyebrow || slide.heading?.trim() || slide.subheading || slide.ctaText)

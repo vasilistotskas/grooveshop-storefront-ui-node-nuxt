@@ -63,6 +63,9 @@
     "hero_carousel": {
       "label": "Hero carousel"
     },
+    "hero_showcase": {
+      "label": "Hero with picture and search"
+    },
     "hero_slide": {
       "label": "Slide"
     },
@@ -221,6 +224,10 @@
     "categories": {
       "label": "What it lists"
     },
+    "colorScheme": {
+      "label": "Colour scheme",
+      "help": "Light or dark in both of the page's colour modes, or the page's own."
+    },
     "columns": {
       "label": "Columns"
     },
@@ -258,6 +265,10 @@
     "heading": {
       "label": "Heading"
     },
+    "headingAccent": {
+      "label": "Heading, second line",
+      "help": "Drawn in the accent colour, as part of the same heading."
+    },
     "height": {
       "label": "Height"
     },
@@ -276,6 +287,9 @@
     "imageDecorative": {
       "label": "Decorative image",
       "help": "Turn on when the image adds nothing a screen reader user needs. Leaving the description empty does not do this: choose it here."
+    },
+    "imageLink": {
+      "label": "Picture link"
     },
     "imagePosition": {
       "label": "Image position"
@@ -375,6 +389,10 @@
     "showAddToCart": {
       "label": "Add to cart button"
     },
+    "showSearch": {
+      "label": "Search field",
+      "help": "Shown only when the store has a product catalogue."
+    },
     "showsMerchantIdentity": {
       "label": "Business details"
     },
@@ -426,6 +444,11 @@
       "default": "Basic",
       "muted": "Muted",
       "ink": "Dark"
+    },
+    "colorScheme": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Follow the page"
     },
     "variant": {
       "line": "Line",
