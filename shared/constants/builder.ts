@@ -1,3 +1,5 @@
+import type { StoreFeatureName } from '../utils/storeFeature'
+
 /** What a catalogue entry can be: a section of a page, or a block inside a section or another block. */
 export const BLOCK_KINDS = ['section', 'block'] as const
 
@@ -80,6 +82,26 @@ export const DATA_SCHEMA_MARKER = 'x-builder-data'
 
 /** What a `query` data setting reads: the record lists the storefront can resolve for a page. */
 export const DATA_SOURCES = ['product', 'blogPost', 'category', 'blogCategory', 'promotion'] as const
+
+/**
+ * The store feature without which Django serves no record or list of a kind:
+ * `IsCatalogueEnabled` on products and categories, `IsBlogEnabled` on posts
+ * and blog categories, `IsPromotionsEnabled` on the offers. A page of a store
+ * with the feature off does not ask (Django would refuse, and a refused read is
+ * never cached, so every render would ask again): the setting resolves as a
+ * record that is gone or a list that matches nothing. A block that IS that
+ * feature is left out of the document before (`defineBlock`'s `feature`); this
+ * is for the settings of a block that is not (a hero's product). Media is the
+ * page builder's own and needs none.
+ */
+export const DATA_FEATURES = {
+  product: 'catalogue',
+  category: 'catalogue',
+  blogPost: 'blog',
+  blogCategory: 'blog',
+  promotion: 'promotions',
+  media: null,
+} as const satisfies Record<(typeof DATA_RECORD_KINDS)[number] | (typeof DATA_SOURCES)[number], StoreFeatureName | null>
 
 /** The records a page can resolve by id: a `ref` of one of these, or a hand-picked list of its source, is read from the list endpoint of the same name (a `media` ref, from the media library's resolve endpoint). */
 export const DATA_RECORD_KINDS = ['product', 'blogPost', 'category', 'blogCategory', 'media'] as const

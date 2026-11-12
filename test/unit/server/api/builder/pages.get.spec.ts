@@ -4,6 +4,7 @@ import { readPublishedPage } from '~~/server/utils/builderPageDocument'
 import { cacheKeyBelongsToHost } from '~~/server/utils/cacheKey'
 import { backend, cacheOptionsOf, callRoute, jsonResponse, log } from '~~/test/helpers/nitro'
 import { makeProductCard } from '~~/test/fixtures/product'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 const route = '/api/builder/pages/:pageKey'
 const API = 'http://backend.test/api/v1'
@@ -17,10 +18,13 @@ const document = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 })
 
-const get = (key = 'about', locale = 'el') => callRoute(handler, {
+/** The store the request is for, as `0.tenant.ts` leaves it: the fixture's features, `catalogue` among them. */
+const STORE = validTenantConfig('shop.test')
+
+const get = (key = 'about', locale = 'el', tenant: unknown = STORE) => callRoute(handler, {
   route,
   url: `/api/builder/pages/${key}`,
-  context: { locale },
+  context: { locale, tenant },
   headers: { 'x-forwarded-host': 'evil.example' },
 })
 
@@ -265,6 +269,17 @@ describe('GET /api/builder/pages/[pageKey]', () => {
       expect(read.headers.get('x-forwarded-host')).toBe('shop.test')
       expect(read.headers.get('x-language')).toBe('en')
       expect(read.query).toMatchObject({ pageSize: '6', ordering: '-announcedDiscountPercent', minAnnouncedDiscountPercent: '1', category: '2_4', languageCode: 'en' })
+    })
+
+    // A block with no store feature of its own (a hero) can still name a
+    // product: a store without a catalogue is not asked for it.
+    it('asks nothing of a store without a catalogue, and leaves out the band its empty list hides', async () => {
+      store(rail({ products: newest, spotlight: 7 }), () => productPage(7))
+
+      const { body } = await get('about', 'el', validTenantConfig('shop.test', { features: { ...STORE.features, catalogue: false } }))
+
+      expect(backend.requests.filter(({ path }) => path.endsWith('/product'))).toEqual([])
+      expect(body.page.sections).toEqual([])
     })
 
     it('reads every product the page names by id in ONE call: a hand-picked list and a spotlight together', async () => {
