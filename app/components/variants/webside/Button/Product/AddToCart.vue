@@ -25,6 +25,14 @@ const props = defineProps({
     required: false,
     default: 'xl',
   },
+  // A short visible label ("Στο καλάθι") when `text`, the accessible
+  // name, says more ("Στο καλάθι: <product>"); the name must contain the
+  // label (WCAG 2.5.3).
+  label: {
+    type: String,
+    required: false,
+    default: undefined,
+  },
 })
 
 // A browse-only store takes no orders: there is nothing to buy, so no
@@ -68,12 +76,13 @@ const disabled = computed(() => {
   }
   return false
 })
-const label = computed(() => {
+const accessibleName = computed(() => {
   if (disabled.value) {
     return t('unavailable')
   }
   return text.value
 })
+const visibleLabel = computed(() => (disabled.value ? t('unavailable') : props.label ?? text.value))
 const buttonColor = computed<ButtonProps['color']>(() => (disabled.value ? 'neutral' : 'secondary'))
 
 const { addToCart } = useAddToCart({
@@ -106,14 +115,14 @@ const { addToCart } = useAddToCart({
     :color="buttonColor"
     variant="solid"
     :disabled="disabled"
-    :aria-label="label"
-    :title="label"
+    :aria-label="accessibleName"
+    :title="accessibleName"
     @click.prevent="addToCart"
   />
   <UButton
     v-else-if="cartEnabled"
     icon="i-heroicons-shopping-cart"
-    :label="label"
+    :label="visibleLabel"
     :size="size"
     :trailing="true"
     loading-auto

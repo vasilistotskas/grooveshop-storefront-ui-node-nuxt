@@ -136,7 +136,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       hover:scale-[1.02] hover:shadow-xl
     "
     :ui="{
-      root: 'w-full max-w-full',
+      root: '@container w-full max-w-full',
       body: `
         p-0
         sm:p-0
@@ -149,7 +149,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         dark:bg-neutral-800
       "
     >
-      <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
+      <div
+        class="
+          absolute top-4 left-4 z-10 flex flex-col gap-2
+          @max-3xs:top-auto @max-3xs:bottom-2 @max-3xs:left-2 @max-3xs:gap-1
+        "
+      >
         <UBadge
           v-if="announcement"
           color="error"
@@ -179,7 +184,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </UBadge>
       </div>
 
-      <div class="absolute top-4 right-4 z-10 flex gap-2">
+      <!-- 32px buttons, each with a 44px hit area (WCAG 2.5.8 / the
+           phone's 44px rule): the ::after pads the target, not the glyph. -->
+      <div
+        class="
+          absolute top-4 right-4 z-10 flex gap-3
+          @max-3xs:top-1.5 @max-3xs:right-1.5
+        "
+      >
         <ClientOnly>
           <UButton
             v-if="isSupported && showShareButton"
@@ -191,6 +203,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             square
             variant="soft"
             :title="t('share')"
+            class="
+              relative
+              after:absolute after:-inset-1.5
+              @max-3xs:hidden
+            "
             @click.stop="startShare"
           />
           <!-- SSR placeholder: a dimensionally-identical disabled
@@ -207,6 +224,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               color="neutral"
               square
               variant="soft"
+              class="@max-3xs:hidden"
             />
           </template>
         </ClientOnly>
@@ -216,6 +234,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           :user-id="user?.id"
           :favourite-id="favouriteId"
           size="md"
+          class="
+            relative
+            after:absolute after:-inset-1.5
+          "
           @favourite-delete="onFavouriteDelete"
         />
       </div>
@@ -226,7 +248,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         class="block"
       >
         <div
-          class="aspect-4/3 max-w-full overflow-hidden"
+          class="
+            aspect-4/3 max-w-full overflow-hidden
+            @max-3xs:aspect-square
+          "
           :class="{
             // Dim out-of-stock products so browsing scannability
             // reflects availability, not just the badge.
@@ -250,7 +275,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       </NuxtLink>
     </div>
 
-    <div class="flex flex-col gap-4 p-4">
+    <div
+      class="
+        flex flex-col gap-4 p-4
+        @max-3xs:gap-2 @max-3xs:p-2.5
+      "
+    >
       <NuxtLink
         :to="{ path: productUrl(productId, product.slug) }"
         class="group/link"
@@ -261,6 +291,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             line-clamp-2 min-h-12 text-lg leading-snug font-bold
             text-neutral-950 transition-colors
             group-hover/link:text-primary-600
+            @max-3xs:min-h-10 @max-3xs:text-sm
             dark:text-neutral-50
             dark:group-hover/link:text-primary-400
           "
@@ -289,62 +320,77 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       />
       <div v-else class="h-5" />
 
-      <div class="flex flex-col gap-2">
-        <div
-          v-if="announcement || (isWholesalePrice && wasPrice)"
-          class="flex items-center gap-2"
-        >
-          <ProductPriorPrice
-            v-if="announcement"
-            :price="announcement.priorPrice"
-            class="
-              text-sm text-neutral-700
-              dark:text-neutral-300
-            "
-          />
-          <span
-            v-else-if="wasPrice"
-            class="
-              text-sm text-neutral-700 line-through
-              dark:text-neutral-300
-            "
+      <!-- In a narrow card (a phone's two columns) the price and an
+           icon-only buy button share a row. -->
+      <div
+        class="
+          flex flex-col gap-4
+          @max-3xs:flex-row @max-3xs:items-end @max-3xs:justify-between
+          @max-3xs:gap-1
+        "
+      >
+        <div class="flex min-w-0 flex-col gap-2">
+          <div
+            v-if="announcement || (isWholesalePrice && wasPrice)"
+            class="flex items-center gap-2"
           >
-            {{ $i18n.n(wasPrice, 'currency') }}
-          </span>
-        </div>
-
-        <div class="flex items-baseline justify-between">
-          <div class="flex flex-col gap-1">
-            <span
+            <ProductPriorPrice
+              v-if="announcement"
+              :price="announcement.priorPrice"
               class="
-                text-xs text-neutral-600
+                text-sm text-neutral-700
+                dark:text-neutral-300
+              "
+            />
+            <span
+              v-else-if="wasPrice"
+              class="
+                text-sm text-neutral-700 line-through
                 dark:text-neutral-300
               "
             >
-              {{ t('total_price') }}
-            </span>
-            <span
-              class="
-                text-2xl font-bold text-neutral-950
-                dark:text-neutral-50
-              "
-            >
-              {{ $i18n.n(displayFinalPrice, 'currency') }}
+              {{ $i18n.n(wasPrice, 'currency') }}
             </span>
           </div>
-        </div>
-      </div>
 
-      <LazyWebsideButtonProductAddToCart
-        v-if="showAddToCartButton"
-        :product="product"
-        :quantity="1"
-        :text="t('add_to_cart')"
-        class="
-          w-full transition-all duration-300
-          hover:scale-105
-        "
-      />
+          <div class="flex items-baseline justify-between">
+            <div class="flex flex-col gap-1">
+              <span
+                class="
+                  text-xs text-neutral-600
+                  @max-3xs:hidden
+                  dark:text-neutral-300
+                "
+              >
+                {{ t('total_price') }}
+              </span>
+              <span
+                class="
+                  text-2xl font-bold text-neutral-950
+                  @max-3xs:text-lg
+                  dark:text-neutral-50
+                "
+              >
+                {{ $i18n.n(displayFinalPrice, 'currency') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <LazyWebsideButtonProductAddToCart
+          v-if="showAddToCartButton"
+          :product="product"
+          :quantity="1"
+          :text="`${t('add_to_cart')}: ${productName}`"
+          :label="t('add_to_cart')"
+          class="
+            w-full transition-all duration-300
+            hover:scale-105
+            @max-3xs:size-11 @max-3xs:shrink-0 @max-3xs:p-0
+            @max-3xs:*:data-[slot=label]:sr-only
+          "
+        />
+      </div>
 
       <LazyWebsideProductNotifyMe
         v-if="productAlertsEnabled && product.stock === 0"

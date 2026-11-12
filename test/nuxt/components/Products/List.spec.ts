@@ -334,6 +334,20 @@ describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)'
     expect(cards.map(card => card.props('imgFetchPriority'))).toEqual(['high', undefined, undefined])
   })
 
+  // The classes are the contract: happy-dom lays nothing out. Two
+  // columns on a phone in both designs (the 2026-10 UX audit: "a two-column
+  // grid … and a 44 px quick-add button"); webside's card draws itself
+  // compactly there.
+  it('lays its results in two columns on a phone', async () => {
+    returns(3)
+
+    const wrapper = await mount()
+
+    const grid = wrapper.findComponent({ name: own('ProductCard') }).element.parentElement!
+    expect([...grid.classList]).toContain('grid-cols-2')
+    expect([...grid.classList]).not.toContain('grid-cols-1')
+  })
+
   it('says which filter to loosen when nothing matches, and offers to clear', async () => {
     returns(0)
     setFilters({ attributeValues: ['7'] })

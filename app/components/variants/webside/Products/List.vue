@@ -60,8 +60,8 @@ const emit = defineEmits<{
     <ol
       v-if="status === 'pending' && !products"
       class="
-        grid grid-cols-1 items-center justify-center gap-4
-        sm:grid-cols-2
+        grid grid-cols-2 items-center justify-center gap-3
+        sm:gap-4
         lg:grid-cols-3 lg:gap-6
         xl:grid-cols-4
       "
@@ -97,8 +97,8 @@ const emit = defineEmits<{
         name="product-fade"
         tag="ol"
         class="
-          grid grid-cols-1 items-center justify-center gap-4
-          sm:grid-cols-2
+          grid grid-cols-2 items-center justify-center gap-3
+          sm:gap-4
           lg:grid-cols-3 lg:gap-6
           xl:grid-cols-4
         "

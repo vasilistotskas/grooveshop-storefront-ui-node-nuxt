@@ -100,9 +100,10 @@ describe('webside\'s product grid', () => {
     setTenantFeatures({ catalogue: true })
   })
 
-  // The classes are the contract: happy-dom lays nothing out. In two columns on
-  // a phone this card's corner buttons cover its stock badge.
-  it('keeps one column on a phone, as webside\'s listing has it', async () => {
+  // The classes are the contract: happy-dom lays nothing out. Two columns on
+  // a phone, as the approved phone design draws them (one card a row was
+  // ~4,000px for eight products); the card draws itself compactly there.
+  it('lays two columns on a phone, as webside\'s listing does', async () => {
     const wrapper = await mountSuspended(Renderer, {
       route: false,
       props: { section: makeBuilderSection({ componentType: 'products_grid', props: { products: products([7]) } }) },
@@ -110,8 +111,8 @@ describe('webside\'s product grid', () => {
     await vi.waitFor(() => expect(wrapper.find('.product-card').exists()).toBe(true), { timeout: 4000 })
 
     const classes = wrapper.find('ol').classes()
-    expect(classes).toContain('grid-cols-1')
-    expect(classes).not.toContain('grid-cols-2')
+    expect(classes).toContain('grid-cols-2')
+    expect(classes).not.toContain('grid-cols-1')
   })
 })
 

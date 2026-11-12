@@ -138,6 +138,14 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
       expect(wrapper.findComponent({ name: 'UButton' }).props('size')).toBe('sm')
     })
 
+    // WCAG 2.5.3: the accessible name contains the visible label.
+    it('shows its short label while its name says what it adds', async () => {
+      const wrapper = await mountSuspended(C, { route: false, props: { text: `${BUY}: Καλώδιο`, label: BUY, product: makeProduct() } })
+      const button = wrapper.get('button')
+
+      expect([button.attributes('aria-label'), button.find('[data-slot="label"]').text()]).toEqual([`${BUY}: Καλώδιο`, BUY])
+    })
+
     // Webside's sold-out button used to turn orange: a second brand
     // colour for "you cannot buy this". It is neutral and says why.
     it.runIf(tree === 'webside').each([{ iconOnly: false }, { iconOnly: true }])('is neutral when the product cannot be bought (iconOnly: $iconOnly)', async ({ iconOnly }) => {

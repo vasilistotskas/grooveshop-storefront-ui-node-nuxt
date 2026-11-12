@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 /**
  * The platform's band of products as a grid, in webside's own cards and the
- * columns of webside's listing, which that card was laid out for: on a phone
- * it is one column, and in two its corner buttons cover its stock badge. What
+ * columns of webside's listing: two on a phone, where the card draws itself
+ * compactly (its container is narrow: `Product/Card.vue`). What
  * the band does (its heading, its link, disappearing with nothing to list) is
  * the platform's: `products` is the one setting the band cannot go without,
  * and the others pass through as attributes.
@@ -17,8 +17,8 @@ defineProps<{
     <template #list="{ items, showAddToCart }">
       <ol
         class="
-          grid grid-cols-1 items-center justify-center gap-4
-          sm:grid-cols-2
+          grid grid-cols-2 items-center justify-center gap-3
+          sm:gap-4
           lg:grid-cols-3 lg:gap-6
           xl:grid-cols-4
         "

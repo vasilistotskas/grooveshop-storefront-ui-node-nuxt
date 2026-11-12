@@ -167,6 +167,10 @@ const arrowButton = {
               :user-id="user?.id"
               :favourite-id="getFavouriteIdByProductId(item.product.id)"
               size="sm"
+              class="
+                relative
+                after:absolute after:-inset-2
+              "
             />
           </div>
           <div
@@ -179,6 +183,10 @@ const arrowButton = {
               :text="t('add_to_cart')"
               size="lg"
               icon-only
+              class="
+                relative
+                after:absolute after:-inset-1
+              "
             />
           </div>
         </div>
