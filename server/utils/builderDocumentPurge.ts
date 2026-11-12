@@ -22,6 +22,47 @@ function pageSegment(path: string): string {
 const segmentOfKey = (key: string): string | undefined => key.split(':')[3]?.split('.')[0]
 
 /**
+ * The cached reads of a page's RECORDS (`server/utils/builderData/loaders.ts`,
+ * `builderLinks.ts`), by the name Nitro stores each cached function under:
+ * - `builderDataProduct`, `builderDataCategory`, `builderDataBlogPost`,
+ *   `builderDataBlogCategory`, `builderDataPromotion`: the records and lists
+ *   a page shows, which are what changed;
+ * - `builderDataSlug`: the slugs a page's links are answered at, which a
+ *   renamed record changes.
+ * Left out: `builderDataMedia` (an image changes through the media library,
+ * whose purge is the `builder` surface's, never through a record) and
+ * `builderDataTargets` (the published pages, which only a release changes).
+ */
+const RECORD_DATA_FUNCTIONS = [
+  'builderDataProduct',
+  'builderDataCategory',
+  'builderDataBlogPost',
+  'builderDataBlogCategory',
+  'builderDataPromotion',
+  'builderDataSlug',
+] as const
+
+/**
+ * The record data to drop BEFORE the pages of `documents` are purged. Django
+ * names a page or template document in a purge because a record it shows
+ * changed (`builder.data_purge`), so the data caches the page reads are as
+ * stale as the page: purging only the page let the next render read the old
+ * list from a 60s data cache and store it again for the page's 5 minutes.
+ * Dropped first, in the same request, a render after the purge reads Django.
+ *
+ * Only a page or template document reads records: a section group and the
+ * theme do not, so a purge of those alone drops no data. Scoped to the store
+ * by the caller (`host`), like the pages. What it cannot close: a render
+ * already in flight when the purge lands may still store what it read; the
+ * 60s data TTL bounds that, and no lock is worth it.
+ */
+export function builderRecordDataMatchers(documents: readonly string[]): PurgeMatcher[] {
+  return documents.some(builderPageKind)
+    ? RECORD_DATA_FUNCTIONS.map(name => ({ prefix: `nitro:functions:${name}:` }))
+    : []
+}
+
+/**
  * What a change to builder documents must purge: the rendered pages that
  * draw them, and the chrome's menus when a section group changed. Django
  * names the documents (`template:home`, `page:summer-sale`, `group:header`,

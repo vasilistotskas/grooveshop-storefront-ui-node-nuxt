@@ -10,9 +10,10 @@
  * the `cache:<buildId>:` mount prefix the storage hides) and pin what a
  * scoped purge must and must not touch.
  */
+import { readFileSync } from 'node:fs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/admin/cache/purge.post'
-import { tenantCacheKey } from '~~/server/utils/cacheKey'
+import { hashedCacheKey, tenantCacheKey } from '~~/server/utils/cacheKey'
 import { clearTenantCache, getTenantConfig, tenantConfigEpoch } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callRoute, createTestEvent, log, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
@@ -447,5 +448,83 @@ describe('POST /api/admin/cache/purge, builderDocuments', () => {
 
   it('rejects a body that names neither', async () => {
     expect((await purge({ host: WEBSIDE })).status).toBe(400)
+  })
+})
+
+/**
+ * A page purged because a record it shows changed (`builderDocuments`) is
+ * rebuilt from fresh records: the store's cached record data goes first, in
+ * the same request, then the page. Purging only the page let the next render
+ * read the old list from the 60s data cache and store it for the page's 5
+ * minutes (a product that sold out stayed first on the home).
+ */
+describe('POST /api/admin/cache/purge, the record data of purged pages', () => {
+  const RECORD_DATA = ['builderDataProduct', 'builderDataCategory', 'builderDataBlogPost', 'builderDataBlogCategory', 'builderDataPromotion', 'builderDataSlug']
+  const OTHER_DATA = ['builderDataMedia', 'builderDataTargets']
+  /** A data key as Nitro stores a cached read: the function's name, then `dataCacheKey` (store, language, epoch, the question). */
+  const dataKey = (name: string, host: string) => `nitro:functions:${name}:${hashedCacheKey(`${host}:el:e0:{"pageSize":8}`)}.json`
+  const HOME = 'nitro:routes:_:index.l5vdxKjKr9:host.L7PoZKHFRT:xdeviceclass.aGk9AqtPuy.json'
+
+  beforeEach(async () => {
+    setRuntimeConfig({ cachePurgeToken: TOKEN })
+    const cache = useStorage('cache')
+    for (const name of [...RECORD_DATA, ...OTHER_DATA]) {
+      await cache.setItem(dataKey(name, WEBSIDE), { value: 1 })
+      await cache.setItem(dataKey(name, DEMO), { value: 1 })
+    }
+    await cache.setItem(HOME, { value: 1 })
+  })
+
+  it('drops the store\'s record data with the pages of a page or template, and keeps its media and published pages', async () => {
+    const response = await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+    const left = await remainingKeys()
+
+    expect(response.status).toBe(200)
+    expect(RECORD_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key))).toEqual([])
+    expect(OTHER_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key))).toHaveLength(OTHER_DATA.length)
+    expect(left).not.toContain(HOME)
+  })
+
+  it('drops the record data BEFORE the pages, so a render after the purge cannot store old data again', async () => {
+    // Every mount's removal reaches the root storage, with its mount prefix.
+    const removed: string[] = []
+    const root = useStorage()
+    const removeItem = root.removeItem.bind(root)
+    vi.spyOn(root, 'removeItem').mockImplementation(async (key, ...rest) => {
+      removed.push(String(key).replace(/^cache:/, ''))
+      return removeItem(key, ...rest)
+    })
+
+    await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+
+    const lastData = Math.max(...RECORD_DATA.map(name => removed.indexOf(dataKey(name, WEBSIDE))))
+    expect(lastData).toBeGreaterThanOrEqual(0)
+    expect(removed.indexOf(HOME)).toBeGreaterThan(lastData)
+  })
+
+  it('never drops another store\'s record data', async () => {
+    await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+    const left = await remainingKeys()
+
+    expect(RECORD_DATA.map(name => dataKey(name, DEMO)).filter(key => left.includes(key))).toHaveLength(RECORD_DATA.length)
+  })
+
+  it.each([
+    ['patterns alone (a text or theme surface)', { patterns: ['cache:nitro:handlers:textOverrides*'] }],
+    ['the theme document', { builderDocuments: ['theme'] }],
+    ['a section group', { builderDocuments: ['group:header'] }],
+  ])('leaves the record data alone for %s, which reads no record', async (_, body) => {
+    await purge({ ...body, host: WEBSIDE })
+    const left = await remainingKeys()
+
+    expect(RECORD_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key))).toHaveLength(RECORD_DATA.length)
+  })
+
+  // The names are a contract with the cached reads: a read renamed without
+  // this list would leave its data cached through every purge.
+  it('names the cached reads of the page data as they are named', () => {
+    const sources = ['server/utils/builderData/loaders.ts', 'server/utils/builderLinks.ts'].map(path => readFileSync(new URL(`../../../../../../${path}`, import.meta.url), 'utf8')).join('\n')
+
+    for (const name of [...RECORD_DATA, ...OTHER_DATA]) expect(sources).toContain(`'${name}'`)
   })
 })
