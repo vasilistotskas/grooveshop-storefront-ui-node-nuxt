@@ -348,7 +348,7 @@
     },
     "product": {
       "label": "Product",
-      "help": "The product the slide shows, with its price."
+      "help": "One product shown with its price, linked to its page."
     },
     "products": {
       "label": "What it lists"

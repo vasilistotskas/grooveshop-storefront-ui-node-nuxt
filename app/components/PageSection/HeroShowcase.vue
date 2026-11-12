@@ -60,7 +60,19 @@ const shown = computed(() => {
   return image?.width && image.height ? { ...image, width: image.width, height: image.height } : undefined
 })
 
-const alt = computed(() => heroImageAlt(props, shown.value, [props.heading, props.headingAccent].filter(Boolean).join(' ')))
+const headingText = computed(() => [props.heading, props.headingAccent].filter(Boolean).join(' '))
+
+const alt = computed(() => heroImageAlt(props, shown.value, headingText.value))
+
+/**
+ * What the picture's link is called: the picture's description, else the
+ * heading, decorative or not. A decorative picture keeps `alt=""` and names
+ * its link with `aria-label` instead. With neither a description nor a
+ * heading the link would have no name (WCAG 2.4.4, 4.1.2), so the picture is
+ * then not a link.
+ */
+const linkName = computed(() => heroImageAlt({ ...props, imageDecorative: false }, shown.value, headingText.value))
+const pictureLink = computed(() => (props.imageLink && linkName.value ? props.imageLink : undefined))
 
 const spotlight = computed(() =>
   catalogueEnabled.value && props.product?.status === 'ok' ? props.product.value : undefined,
@@ -90,7 +102,7 @@ const hasContent = computed(() => hasCopy.value || twoColumns.value || search.va
  * Resolved here rather than named as a string in `:is`: a string that is
  * not a native tag renders as an unknown element (`PageSection/Band.vue`).
  */
-const pictureFrame = computed(() => (props.imageLink ? resolveComponent('NuxtLink') : 'div'))
+const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtLink') : 'div'))
 </script>
 
 <template>
@@ -162,7 +174,8 @@ const pictureFrame = computed(() => (props.imageLink ? resolveComponent('NuxtLin
       <component
         :is="pictureFrame"
         v-if="shown"
-        :to="imageLink ? localePath(pathLocation(imageLink)) : undefined"
+        :to="pictureLink ? localePath(pathLocation(pictureLink)) : undefined"
+        :aria-label="pictureLink && !alt ? linkName : undefined"
         class="
           block overflow-hidden rounded-lg border border-default
           lg:col-start-2 lg:row-start-1 lg:self-end

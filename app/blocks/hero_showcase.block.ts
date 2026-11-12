@@ -29,6 +29,9 @@ export default defineBlock({
     colorScheme: builderField.colorScheme().optional(),
   }),
   translatable: ['/eyebrow', '/heading', '/headingAccent', '/subheading', '/ctaText', '/secondaryCtaText'],
-  presets: [{ id: BUILDER_DEFAULT_PRESET }],
+  // A section's preset holds no starter text (the house pattern: only child
+  // blocks do, `presets` in the labels). The search field is what makes a
+  // new hero draw something on the canvas before the merchant writes a word.
+  presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { showSearch: true } }],
   editor: { title: ['heading'], category: 'hero' },
 })

@@ -89,6 +89,30 @@ describe('PageSection/HeroShowcase', () => {
       expect(wrapper.get('img').element.closest('a')).toBeNull()
     })
 
+    // A link's name is its content's: a decorative picture (alt="") would leave
+    // the link nameless (WCAG 2.4.4, 4.1.2).
+    it('names the link of a decorative picture by its description, else the heading', async () => {
+      const described = await mountHero({ imageDecorative: true })
+      const undescribed = await mountHero({ imageDecorative: true, image: desk({ alt: '' }), mobileImage: undefined })
+
+      expect(described.get('img').attributes('alt')).toBe('')
+      expect(described.get('a[href="/offers"]').attributes('aria-label')).toBe('Black Friday')
+      expect(undescribed.get('a[href="/offers"]').attributes('aria-label')).toBe('Μπες στο side της Τεχνολογίας')
+    })
+
+    it('lets a described picture name its own link', async () => {
+      const wrapper = await mountHero()
+
+      expect(wrapper.get('a[href="/offers"]').attributes('aria-label')).toBeUndefined()
+      expect(wrapper.get('a[href="/offers"] img').attributes('alt')).toBe('Black Friday')
+    })
+
+    it('is no link when nothing could name it: no description and no heading', async () => {
+      const wrapper = await mountHero({ heading: undefined, headingAccent: undefined, image: desk({ alt: '' }), mobileImage: undefined })
+
+      expect(wrapper.get('img').element.closest('a')).toBeNull()
+    })
+
     it('shows the phone version on a phone, and the desk picture on a phone that has none', async () => {
       device.mobile.value = true
       const withPhone = await mountHero()
@@ -173,10 +197,14 @@ describe('PageSection/HeroShowcase', () => {
   it('draws the main call to action in the accent and the second as its outline', async () => {
     const wrapper = await mountHero()
 
-    const primary = wrapper.get('a[href="/products"]')
-    const secondary = wrapper.get('a[href="/blog"]')
-    expect(primary.text()).toBe('Δες το κατάστημα')
-    expect(secondary.text()).toBe('Διάβασε τα άρθρα')
+    // The button's colour and variant are the contract: the store's accent,
+    // solid for the main call to action and outlined for the second.
+    const buttons = wrapper.findAllComponents({ name: 'UButton' })
+      .map(button => ({ to: button.props('to'), label: button.props('label'), color: button.props('color'), variant: button.props('variant'), size: button.props('size') }))
+    expect(buttons).toEqual([
+      { to: '/products', label: 'Δες το κατάστημα', color: 'secondary', variant: 'solid', size: 'xl' },
+      { to: '/blog', label: 'Διάβασε τα άρθρα', color: 'secondary', variant: 'outline', size: 'xl' },
+    ])
   })
 
   it('leaves out a button that has text but no link', async () => {

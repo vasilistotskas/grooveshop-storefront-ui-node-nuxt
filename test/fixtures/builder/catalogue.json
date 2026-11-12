@@ -1,5 +1,5 @@
 {
-  "hash": "654ef43d69c2f72d",
+  "hash": "6e00ab2744c2df0a",
   "blocks": [
     {
       "type": "about_content",
@@ -4235,7 +4235,10 @@
       ],
       "presets": [
         {
-          "id": "default"
+          "id": "default",
+          "settings": {
+            "showSearch": true
+          }
         }
       ]
     },
