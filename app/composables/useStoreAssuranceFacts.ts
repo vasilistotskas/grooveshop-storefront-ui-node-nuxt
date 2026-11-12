@@ -8,7 +8,11 @@ export interface StoreAssuranceFacts {
   dispatchCutoff: string | null
   /** The lowest subtotal any carrier ships free from; `null` when none ever does. */
   freeShippingFrom: number | null
-  /** What each carrier charges below that, its cheapest rate, cheapest carrier first. A carrier that charges nothing is left out. */
+  /**
+   * What each carrier charges below that: its cheapest rate for the country
+   * over all its kinds (home, locker, pickup), cheapest carrier first. A
+   * carrier whose cheapest rate is free is left out: it ships free already.
+   */
   carrierPrices: Array<{ carrier: string, price: number }>
   /** How the shopper can pay, as one phrase ("Card or cash on delivery"). */
   payment: string | null
@@ -90,11 +94,11 @@ export async function useStoreAssuranceFacts() {
     const cheapest = new Map<string, { carrier: string, price: number }>()
     for (const entry of countryRates.value) {
       const known = cheapest.get(entry.providerCode)
-      if (entry.price > 0 && (!known || entry.price < known.price)) {
+      if (!known || entry.price < known.price) {
         cheapest.set(entry.providerCode, { carrier: entry.providerName, price: entry.price })
       }
     }
-    return [...cheapest.values()].sort((a, b) => a.price - b.price)
+    return [...cheapest.values()].filter(({ price }) => price > 0).sort((a, b) => a.price - b.price)
   })
 
   const payment = computed(() => {

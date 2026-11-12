@@ -115,6 +115,15 @@ describe('useStoreAssurances', () => {
     ].join(' · '))
   })
 
+  // A carrier with a free kind (pickup) ships free already: it is no price
+  // "below free shipping", whatever its other kinds cost.
+  it('leaves out a carrier whose cheapest rate is free, though another of its rates is not', async () => {
+    const { $i18n } = useNuxtApp()
+    data.policy = [rate('acs', 'ACS Courier', 3.5), rate('acs', 'ACS Courier', 0), rate('boxnow', 'BOX NOW', 1.99)]
+
+    expect(row(await load(), 'freeShipping')!.note).toBe($i18n.t('store_assurances.carrier_price', { carrier: 'BOX NOW', price: $i18n.n(1.99, 'currency') }))
+  })
+
   it('links the returns row to the return policy once the store has published it', async () => {
     expect(row(await load(), 'returns')!.to).toBeUndefined()
 
