@@ -3,6 +3,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogCategoryTiles from '~/components/PageSection/BlogCategoryTiles.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
 import { setTenant } from '~~/test/helpers/tenant'
+import { inlineT } from '~~/test/helpers/inlineCopy'
 
 /**
  * The `tiles` layout of `blog_categories`, the same in every design: each
@@ -10,6 +11,8 @@ import { setTenant } from '~~/test/helpers/tenant'
  * link to the category; the heading, sub-line and call to action are the
  * band's.
  */
+const t = inlineT('app/components/PageSection/BlogCategoryTiles.vue')
+
 const LONG = 'Τεχνητή νοημοσύνη και εργαλεία παραγωγικότητας'
 
 const categories = (items: BlogCategory[]) => ({
@@ -34,7 +37,6 @@ describe('PageSection/BlogCategoryTiles', () => {
 
   it('draws each category whole, with its post count, linking to the category', async () => {
     const wrapper = await mountTiles()
-    const { t } = wrapper.vm as unknown as { t: (key: string, params: object, plural: number) => string }
 
     const tiles = wrapper.findAll('ul > li')
     expect(tiles).toHaveLength(2)

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import StoreAssurances from '~/components/PageSection/StoreAssurances.vue'
+import { inlineT } from '~~/test/helpers/inlineCopy'
 
 /**
  * The shopping promises band draws the rows `useStoreAssurances` built (its
@@ -16,6 +17,8 @@ const ROWS: StoreAssuranceRow[] = [
   { kind: 'freeShipping', icon: 'i-lucide-package', title: 'Δωρεάν μεταφορικά από 39,90 €' },
   { kind: 'returns', icon: 'i-lucide-undo-2', title: 'Επιστροφή σε 14 ημέρες', to: '/return-policy' },
 ]
+
+const t = inlineT('app/components/PageSection/StoreAssurances.vue')
 
 const mountBand = (props: Record<string, unknown> = {}) =>
   mountSuspended(StoreAssurances, { route: false, props })
@@ -44,7 +47,7 @@ describe('PageSection/StoreAssurances', () => {
     const named = await mountBand({ heading: 'Αγορές με σιγουριά' })
 
     expect(unnamed.find('h2').exists()).toBe(false)
-    expect(unnamed.get('ul').attributes('aria-label')).toBe((unnamed.vm as unknown as { t: (key: string) => string }).t('label'))
+    expect(unnamed.get('ul').attributes('aria-label')).toBe(t('label'))
     expect(named.get('ul').attributes('aria-label')).toBeUndefined()
   })
 

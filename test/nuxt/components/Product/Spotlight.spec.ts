@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import Spotlight from '~/components/Product/Spotlight.vue'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { inlineT } from '~~/test/helpers/inlineCopy'
 
 /**
  * One product on its own: name, rating, stock, price and the store's own way
@@ -28,6 +29,7 @@ vi.mock('~/components/Product/RestockAlert.vue', () => stub('default-restock', [
 vi.mock('~/components/variants/webside/Product/NotifyMe.vue', () => stub('webside-restock', ['productId', 'kind']))
 
 const NAME = 'Φορτιστής τσέπης'
+const t = inlineT('app/components/Product/Spotlight.vue')
 
 const product = (overrides: Parameters<typeof makeProductCard>[0] = {}) =>
   makeProductCard({ id: 7, slug: 'pocket-charger', translations: { el: { name: NAME } }, stock: 20, lowStockThreshold: 5, reviewAverage: 9, reviewCount: 3, ...overrides })
@@ -77,7 +79,6 @@ describe('Product/Spotlight', () => {
     [{ stock: 0 }, 'sold_out', undefined],
   ] as const)('says where the stock stands for %j', async (stock, key, count) => {
     const wrapper = await mountSpotlight({ product: product(stock) })
-    const { t } = wrapper.vm as unknown as { t: (key: string, params?: object, plural?: number) => string }
 
     expect(wrapper.text()).toContain(count === undefined ? t(key) : t(key, { count }, count))
   })
@@ -89,7 +90,7 @@ describe('Product/Spotlight', () => {
       expect(name).toBe('default-cart')
       // Only the class that makes it a 44px target on a phone; no prop it does not declare.
       expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
-      expect(props).toMatchObject({ text: `Στο καλάθι: ${NAME}`, label: 'Στο καλάθι' })
+      expect(props).toMatchObject({ text: t('add_named', { name: NAME }), label: t('add_to_cart') })
       expect((props.product as { id: number }).id).toBe(7)
     })
 
@@ -122,7 +123,7 @@ describe('Product/Spotlight', () => {
       expect(name).toBe('webside-cart')
       // Only the class that makes it a 44px target on a phone; no prop it does not declare.
       expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
-      expect(props).toMatchObject({ text: 'Στο καλάθι' })
+      expect(props).toMatchObject({ text: t('add_to_cart') })
     })
 
     it('offers webside\'s own restock alert for a sold-out product', async () => {

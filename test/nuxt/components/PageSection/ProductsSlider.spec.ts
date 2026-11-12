@@ -4,6 +4,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductsSlider from '~/components/PageSection/ProductsSlider.vue'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
+import { inlineT } from '~~/test/helpers/inlineCopy'
 import type { PRODUCT_STOCK_MODES } from '~~/shared/constants/builder'
 
 /** Stands in for the rail: renders the ids of the products it was handed. */
@@ -22,6 +23,8 @@ const products = (ids: number[], descriptor: DataDescriptor<'product'>) => ({
 
 const rule = (ordering: ProductOrdering, stock?: (typeof PRODUCT_STOCK_MODES)[number]): DataDescriptor<'product'> => ({ mode: 'filter', ordering, limit: 8, ...(stock && { stock }) })
 
+const t = inlineT('app/components/PageSection/ProductsSlider.vue')
+
 const mountSlider = (props: Record<string, unknown> = {}) =>
   mountSuspended(ProductsSlider, {
     route: false,
@@ -37,8 +40,8 @@ const seeAll = (wrapper: Awaited<ReturnType<typeof mountSlider>>) => {
 /**
  * A rail of products whose heading and "see all" say what it draws, so
  * three rails on one homepage read as three different bands. The copy
- * is the component's own `<i18n>` (el), which the global `$i18n`
- * cannot reach. The rail reads nothing: the page route resolved its products.
+ * is the component's own `<i18n>` (el, `inlineT`). The rail reads nothing:
+ * the page route resolved its products.
  */
 describe('PageSection/ProductsSlider', () => {
   beforeEach(() => {
@@ -53,13 +56,13 @@ describe('PageSection/ProductsSlider', () => {
 
   // A rule that hides sold-out products opens the listing filtered the same way.
   it.each([
-    ['inStockOnly', ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt&inStock=true']],
-    ['inStockFirst', ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt']],
-    ['any', ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt']],
-  ] as const)('sends "see all" of a rule with stock %s to the matching listing', async (stock, link) => {
+    ['inStockOnly', '/products?sort=-createdAt&inStock=true'],
+    ['inStockFirst', '/products?sort=-createdAt'],
+    ['any', '/products?sort=-createdAt'],
+  ] as const)('sends "see all" of a rule with stock %s to the matching listing', async (stock, href) => {
     const wrapper = await mountSlider({ products: products([7, 8], rule('newest', stock)) })
 
-    expect(seeAll(wrapper)).toEqual(link)
+    expect(seeAll(wrapper)).toEqual([t('all.newest'), href])
   })
 
   it('draws the products it was given', async () => {
@@ -74,23 +77,23 @@ describe('PageSection/ProductsSlider', () => {
    * have none, so they open the plain listing.
    */
   it.each([
-    { ordering: 'newest', heading: 'Νέες αφίξεις', link: ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt'] },
-    { ordering: 'mostViewed', heading: 'Δημοφιλή', link: ['Όλα τα δημοφιλή', '/products?sort=-viewCount'] },
-    { ordering: 'mostLiked', heading: 'Αγαπημένα', link: ['Όλα τα αγαπημένα', '/products?sort=-likesCount'] },
-    { ordering: 'discounted', heading: 'Σε προσφορά', link: ['Όλα τα προϊόντα', '/products'] },
-    { ordering: 'topRated', heading: 'Κορυφαίες αξιολογήσεις', link: ['Όλα τα προϊόντα', '/products'] },
-  ] as const)('names a $ordering rail for what it lists and sends "see all" to the matching listing', async ({ ordering, heading, link }) => {
+    { ordering: 'newest', link: ['all.newest', '/products?sort=-createdAt'] },
+    { ordering: 'mostViewed', link: ['all.mostViewed', '/products?sort=-viewCount'] },
+    { ordering: 'mostLiked', link: ['all.mostLiked', '/products?sort=-likesCount'] },
+    { ordering: 'discounted', link: ['all_products', '/products'] },
+    { ordering: 'topRated', link: ['all_products', '/products'] },
+  ] as const)('names a $ordering rail for what it lists and sends "see all" to the matching listing', async ({ ordering, link: [text, href] }) => {
     const wrapper = await mountSlider({ products: products([7, 8], rule(ordering)) })
 
-    expect(wrapper.find('h2').text()).toBe(heading)
-    expect(seeAll(wrapper)).toEqual(link)
+    expect(wrapper.find('h2').text()).toBe(t(`heading.${ordering}`))
+    expect(seeAll(wrapper)).toEqual([t(text), href])
   })
 
   it('names a hand-picked rail for it, and sends "see all" to the plain listing', async () => {
     const wrapper = await mountSlider({ products: products([7, 8], { mode: 'picked', ids: [7, 8] }) })
 
-    expect(wrapper.find('h2').text()).toBe('Επιλεγμένα προϊόντα')
-    expect(seeAll(wrapper)).toEqual(['Όλα τα προϊόντα', '/products'])
+    expect(wrapper.find('h2').text()).toBe(t('heading.picked'))
+    expect(seeAll(wrapper)).toEqual([t('all_products'), '/products'])
   })
 
   it('uses the operator\'s heading and link over the defaults', async () => {

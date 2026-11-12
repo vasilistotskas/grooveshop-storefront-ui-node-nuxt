@@ -85,8 +85,15 @@ describe('useStoreAssurances', () => {
       ['delivery', $i18n.t('store_assurances.delivery_range', { min: 1, max: 3 })],
       ['freeShipping', $i18n.t('store_assurances.free_shipping_from', { amount: $i18n.n(39.9, 'currency') })],
       ['returns', $i18n.t('store_assurances.returns', { count: 14 }, 14)],
-      ['payment', 'Κάρτα ή αντικαταβολή'],
+      ['payment', expect.any(String)],
     ])
+    // The ways to pay are the product page's one phrase (`useStoreAssuranceFacts`,
+    // worded, joined and capitalised as `useProductAssurances.spec.ts` pins it):
+    // here card, then cash on delivery, the store's two settlements.
+    const [card, cash] = ['card', 'cash_on_delivery'].map(way => $i18n.t(`product_assurances.payment_${way}`).toLocaleLowerCase('el'))
+    const payment = row(assurances, 'payment')!.title.toLocaleLowerCase('el')
+    expect(payment.startsWith(card!)).toBe(true)
+    expect(payment.endsWith(cash!)).toBe(true)
     // The range as the product page writes it (`useProductAssurances.spec.ts`): an en dash, not a hyphen.
     expect(assurances.rows.value[0]!.title).toContain('1–3')
   })
