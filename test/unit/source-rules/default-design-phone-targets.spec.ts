@@ -160,7 +160,11 @@ describe('the default design controls are 44px targets on a phone', () => {
   it('Cart/Drawer.vue shares its footer row between two buttons that may shrink, with labels that wrap', () => {
     const source = flat('Cart/Drawer.vue')
 
-    expect(source).toContain('grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]')
+    // Stacked until the FOOTER is 336px wide (a container query, not the viewport):
+    // «Ολοκλήρωση» is one word and cannot wrap, so beside the other button it needs 180px.
+    expect(source).toContain('@container')
+    expect(source).toContain('grid grid-cols-1 gap-2 @min-[21rem]:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]')
+    expect(source).toContain('order-first @min-[21rem]:order-0')
     expect(source).not.toContain(':label="hasStockIssues')
     expect(source).not.toMatch(/:label="t\('view_cart'\)"/)
   })

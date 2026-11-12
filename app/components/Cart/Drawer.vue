@@ -223,31 +223,47 @@ const UDrawer = resolveComponent('UDrawer')
       >
         {{ appliedNote }}
       </p>
-      <!-- `minmax(0, …)`: a plain `1fr` track is as wide as its button's one-line
-           label, and at 320px the pair was wider than the drawer. The labels are
-           states the shopper must read, so they wrap instead of truncating. -->
-      <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-2">
-        <UButton
-          :to="localePath('cart')"
-          color="neutral"
-          variant="outline"
-          size="lg"
-          block
+      <!-- Decided by the footer's own width, not the viewport's. The primary button
+           needs its label «Ολοκλήρωση» (128px) + icon (20) + gap (8) + both paddings
+           (24) = 180px, and gets 1.4/2.4 of the row less the 8px gap: that is 180px
+           from a 317px row, so side by side from 336px (21rem; 11px to spare) and
+           stacked below, each full width, the primary first. «Καλάθι» needs 82px, the
+           English labels less. A word cannot wrap, so below that width it has no
+           room beside the other button. `minmax(0, …)` keeps a track from growing
+           to its button's one-line label; the labels wrap when they have words. -->
+      <div class="@container">
+        <div
+          class="
+            grid grid-cols-1 gap-2
+            @min-[21rem]:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]
+          "
         >
-          <span class="min-w-0 text-center text-balance">{{ t('view_cart') }}</span>
-        </UButton>
-        <!-- Blocked like the cart summary's: checkout sends a cart with a
+          <UButton
+            :to="localePath('cart')"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            block
+          >
+            <span class="min-w-0 text-center text-balance">{{ t('view_cart') }}</span>
+          </UButton>
+          <!-- Blocked like the cart summary's: checkout sends a cart with a
              stock problem straight back to the cart. -->
-        <UButton
-          :to="localePath('checkout')"
-          :disabled="hasStockIssues"
-          :color="hasStockIssues ? 'warning' : 'secondary'"
-          icon="i-lucide-lock"
-          size="lg"
-          block
-        >
-          <span class="min-w-0 text-center text-balance">{{ hasStockIssues ? t('fix_stock_issues_first') : t('checkout') }}</span>
-        </UButton>
+          <UButton
+            :to="localePath('checkout')"
+            :disabled="hasStockIssues"
+            :color="hasStockIssues ? 'warning' : 'secondary'"
+            icon="i-lucide-lock"
+            size="lg"
+            block
+            class="
+              order-first
+              @min-[21rem]:order-0
+            "
+          >
+            <span class="min-w-0 text-center text-balance">{{ hasStockIssues ? t('fix_stock_issues_first') : t('checkout') }}</span>
+          </UButton>
+        </div>
       </div>
     </template>
   </component>
