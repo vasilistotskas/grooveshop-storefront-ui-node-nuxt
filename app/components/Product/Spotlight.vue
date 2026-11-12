@@ -167,7 +167,7 @@ const buy = computed(() => {
 
         <!-- Above the stretched link, so it stays clickable. -->
         <div
-          v-if="buy"
+          v-if="buy && !soldOut"
           class="relative z-10"
         >
           <component
@@ -175,6 +175,20 @@ const buy = computed(() => {
             v-bind="buy.props(partInput)"
           />
         </div>
+      </div>
+
+      <!-- A design's restock control can be a full-width button, or the
+           alert a signed-in shopper already set with its cancel action
+           (webside's): it takes a row of its own under the price rather
+           than squeezing beside it. -->
+      <div
+        v-if="buy && soldOut"
+        class="relative z-10 w-full pt-1"
+      >
+        <component
+          :is="buy.component"
+          v-bind="buy.props(partInput)"
+        />
       </div>
     </div>
   </article>

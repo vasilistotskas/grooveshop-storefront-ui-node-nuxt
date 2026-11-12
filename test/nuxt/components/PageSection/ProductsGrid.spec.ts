@@ -38,6 +38,12 @@ describe('PageSection/ProductsGrid', () => {
     setTenant()
   })
 
+  it('sends "see all" of a rule that hides sold-out products to the listing of what is in stock', async () => {
+    const wrapper = await mountGrid({ products: products([7, 8], { ...newest, stock: 'inStockOnly' }) })
+
+    expect(wrapper.find('a').attributes('href')).toBe('/products?inStock=true')
+  })
+
   it('draws the products it was given, with a link to the listing', async () => {
     const wrapper = await mountGrid()
 

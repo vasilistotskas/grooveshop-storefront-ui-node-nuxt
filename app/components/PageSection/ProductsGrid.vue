@@ -46,7 +46,7 @@ const label = computed(
     :heading="label"
     :subheading="subheading"
     :cta-text="ctaText || t('all_products')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('products')"
+    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath({ path: '/products', query: productRailStockQuery(products.descriptor) })"
     :surface="surface"
     :color-scheme="colorScheme"
   >

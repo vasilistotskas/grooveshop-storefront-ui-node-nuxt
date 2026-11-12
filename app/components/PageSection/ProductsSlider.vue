@@ -46,7 +46,8 @@ const label = computed(
  * Where "see all" goes when the operator has not said: the listing sorted as
  * the rail is (`PRODUCT_LISTING_SORT`), and its link says so, which is what
  * tells three rails on one page apart. The orders with no listing sort open
- * the listing as it is, under the generic label.
+ * the listing as it is, under the generic label. A rule that hides sold-out
+ * products opens it filtered to what is in stock (`productRailStockQuery`).
  */
 const cta = computed(() => {
   if (props.ctaText || props.ctaLink) {
@@ -56,12 +57,11 @@ const cta = computed(() => {
     }
   }
   const sort = PRODUCT_LISTING_SORT[kind.value]
-  return sort
-    ? {
-        text: t(`all.${kind.value}`),
-        link: localePath({ path: '/products', query: { sort } }),
-      }
-    : { text: t('all_products'), link: localePath('products') }
+  const query = { ...(sort && { sort }), ...productRailStockQuery(props.products.descriptor) }
+  return {
+    text: sort ? t(`all.${kind.value}`) : t('all_products'),
+    link: Object.keys(query).length ? localePath({ path: '/products', query }) : localePath('products'),
+  }
 })
 </script>
 

@@ -4,6 +4,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductsSlider from '~/components/PageSection/ProductsSlider.vue'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
+import type { PRODUCT_STOCK_MODES } from '~~/shared/constants/builder'
 
 /** Stands in for the rail: renders the ids of the products it was handed. */
 const RailStub = defineComponent({
@@ -19,7 +20,7 @@ const products = (ids: number[], descriptor: DataDescriptor<'product'>) => ({
   descriptor,
 }) as ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 
-const rule = (ordering: ProductOrdering): DataDescriptor<'product'> => ({ mode: 'filter', ordering, limit: 8 })
+const rule = (ordering: ProductOrdering, stock?: (typeof PRODUCT_STOCK_MODES)[number]): DataDescriptor<'product'> => ({ mode: 'filter', ordering, limit: 8, ...(stock && { stock }) })
 
 const mountSlider = (props: Record<string, unknown> = {}) =>
   mountSuspended(ProductsSlider, {
@@ -48,6 +49,17 @@ describe('PageSection/ProductsSlider', () => {
     const wrapper = await mountSlider({ products: products([], rule('newest')) })
 
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  // A rule that hides sold-out products opens the listing filtered the same way.
+  it.each([
+    ['inStockOnly', ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt&inStock=true']],
+    ['inStockFirst', ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt']],
+    ['any', ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt']],
+  ] as const)('sends "see all" of a rule with stock %s to the matching listing', async (stock, link) => {
+    const wrapper = await mountSlider({ products: products([7, 8], rule('newest', stock)) })
+
+    expect(seeAll(wrapper)).toEqual(link)
   })
 
   it('draws the products it was given', async () => {

@@ -43,6 +43,8 @@ async function part(wrapper: Awaited<ReturnType<typeof mountSpotlight>>) {
     props: JSON.parse(element.attributes('data-props')!) as Record<string, unknown>,
     // What the component does not declare: it would fall through onto the real one's root.
     attrs: JSON.parse(element.attributes('data-attrs')!) as Record<string, unknown>,
+    /** Whether the part sits beside the price, in the price's row, rather than on a row of its own under it. */
+    besidePrice: element.element.parentElement!.parentElement!.querySelector('h2') === null,
   }
 }
 
@@ -97,6 +99,14 @@ describe('Product/Spotlight', () => {
       expect(attrs).toEqual({})
       expect(props).toMatchObject({ productId: 7, productName: NAME })
     })
+  })
+
+  // A design's restock control can be a block button, or (webside's, for a
+  // signed-in shopper who already set one) an alert with its cancel action:
+  // it gets a row of its own; the buy button sits beside the price.
+  it('puts the buy button beside the price and the restock control on a row of its own', async () => {
+    expect((await part(await mountSpotlight())).besidePrice).toBe(true)
+    expect((await part(await mountSpotlight({ product: product({ stock: 0 }) }))).besidePrice).toBe(false)
   })
 
   describe('in the webside design', () => {
