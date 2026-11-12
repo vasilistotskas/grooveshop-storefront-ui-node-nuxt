@@ -209,6 +209,8 @@ describe('PageSection/HeroShowcase', () => {
 
     expect(classes.includes('dark')).toBe(scheme === 'dark')
     expect(classes.includes('light')).toBe(scheme === 'light')
+    // `body` paints its text in the page's scheme: a forced band sets its own.
+    expect(classes.includes('text-default')).toBe(scheme !== undefined)
   })
 
   it('draws nothing when it has nothing to show', async () => {

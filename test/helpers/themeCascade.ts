@@ -1,23 +1,31 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { THEME_SHADES } from '~~/shared/theme/constants'
 import { MAIN_CSS, NUXT_UI_PALETTES } from '~~/test/helpers/themeRender'
 
 /**
  * The custom properties an element of a store's page computes, from the real
- * stylesheets, by the cascade a browser runs: Nuxt UI's `runtime/index.css`
- * and the colours it writes per app config (both in `@layer theme`), then
- * `main.css` and the accessibility toolbar's `accessibility.css` (its rules
- * match only the toolbar's `<html>` classes), then the store's theme block
- * (`themeCss`), unlayered and last.
+ * stylesheets, by the cascade a browser runs:
+ * - Tailwind's theme and Nuxt UI's (`tailwindcss/index.css`, the generated
+ *   `.nuxt/ui.css`), `runtime/index.css` and the colours Nuxt UI writes per
+ *   app config, all layered, in the layer order Tailwind declares
+ *   (`@layer theme, base, components, utilities`);
+ * - then `main.css` and the accessibility toolbar's `accessibility.css` (its
+ *   rules match only the toolbar's `<html>` classes);
+ * - then the store's theme block (`themeCss`), unlayered and last.
+ *
  * Every rule that declares a custom property is read, selector by selector:
- * an unlayered declaration beats a layered one, then specificity, then source
- * order, and an element inherits what it does not declare from its parent.
+ * an unlayered declaration beats a layered one, then the later layer, then
+ * specificity, then source order. A custom property's `var()` references are
+ * resolved ON THE ELEMENT THAT DECLARES IT and its child inherits the result,
+ * as a browser computes it: a token declared only on `<html>` that refers to
+ * a scheme token keeps the page's scheme inside a band forced into the other
+ * one, and a comparison sees it. A reference to nothing stays as written.
  *
  * It answers what `themeRender.ts` cannot: what an element INSIDE the page
  * gets (a band forced light or dark with Nuxt UI's `.light` / `.dark` class),
- * and that the root of a page gets exactly what it got before a selector was
- * added. Values are compared as written, `var()` unresolved.
+ * and what the root of the page computes from a given set of stylesheets
+ * (the baseline check in `schemes.spec.ts` runs it over `origin/main`'s).
  *
  * What it does not model is held out on both sides of every comparison:
  * `@media` conditions (every block applies), `:has()`, `:host`, `:active`
@@ -33,14 +41,29 @@ export interface CascadeElement {
 
 interface Rule {
   selectors: string[]
-  /** `-1` for unlayered; else the layer's rank by first appearance. */
+  /** `-1` for unlayered; else the layer's rank in the declared order. */
   layer: number
   order: number
   declarations: Array<[string, string]>
 }
 
-const NUXT_UI_CSS = readFileSync(createRequire(import.meta.url).resolve('@nuxt/ui/runtime/index.css'), 'utf8')
-const ACCESSIBILITY_CSS = readFileSync(new URL('../../app/assets/css/accessibility.css', import.meta.url), 'utf8')
+const require = createRequire(import.meta.url)
+const TAILWIND_CSS = readFileSync(require.resolve('tailwindcss/index.css'), 'utf8')
+const NUXT_UI_CSS = readFileSync(require.resolve('@nuxt/ui/runtime/index.css'), 'utf8')
+const NUXT_UI_THEME_FILE = new URL('../../.nuxt/ui.css', import.meta.url)
+if (!existsSync(NUXT_UI_THEME_FILE)) throw new Error('.nuxt/ui.css is missing: run `pnpm prepare` (nuxt prepare) first')
+const NUXT_UI_THEME = readFileSync(NUXT_UI_THEME_FILE, 'utf8')
+
+/** The storefront's own stylesheets, which a change to the colour schemes edits. */
+export interface StoreSheets {
+  main: string
+  accessibility: string
+}
+
+export const STORE_SHEETS: StoreSheets = {
+  main: MAIN_CSS,
+  accessibility: readFileSync(new URL('../../app/assets/css/accessibility.css', import.meta.url), 'utf8'),
+}
 
 /** Nuxt UI's `#nuxt-ui-colors` block (its `colors` plugin), for this app config. */
 function nuxtUiColors(): string {
@@ -88,13 +111,29 @@ const nest = (parents: string[], children: string[]) =>
     ? children
     : parents.flatMap(parent => children.map(child => (child.includes('&') ? child.replaceAll('&', parent) : `${parent} ${child}`)))
 
-function parseRules(css: string, context: { layers: string[], rules: Rule[] }, layer: number, parents: string[]): void {
+interface ParseContext {
+  layers: string[]
+  rules: Rule[]
+}
+
+/** The rank of the layer `name`; a layer no `@layer a, b;` statement named comes after every named one. */
+function layerRank(context: ParseContext, name: string): number {
+  if (!context.layers.includes(name)) context.layers.push(name)
+  return context.layers.indexOf(name)
+}
+
+function parseRules(css: string, context: ParseContext, layer: number, parents: string[]): void {
   let at = 0
   while (at < css.length) {
     const open = css.indexOf('{', at)
     const semicolon = css.indexOf(';', at)
     if (open === -1) return
     if (semicolon !== -1 && semicolon < open) {
+      // `@layer theme, base, components, utilities;` fixes the layers' order.
+      const statement = css.slice(at, semicolon).trim()
+      if (statement.startsWith('@layer')) {
+        for (const name of splitTop(statement.slice('@layer'.length), ',')) layerRank(context, name)
+      }
       at = semicolon + 1
       continue
     }
@@ -103,17 +142,14 @@ function parseRules(css: string, context: { layers: string[], rules: Rule[] }, l
     const body = css.slice(open + 1, close)
     at = close + 1
     if (prelude.startsWith('@layer')) {
-      const name = prelude.slice('@layer'.length).trim()
-      if (!context.layers.includes(name)) context.layers.push(name)
-      parseRules(body, context, context.layers.indexOf(name), parents)
+      parseRules(body, context, layerRank(context, prelude.slice('@layer'.length).trim()), parents)
     }
     else if (prelude.startsWith('@media') || prelude.startsWith('@supports')) {
       parseRules(body, context, layer, parents)
     }
     else if (prelude.startsWith('@theme')) {
       // Tailwind writes the theme's variables on `:root, :host` in its theme layer.
-      if (!context.layers.includes('theme')) context.layers.push('theme')
-      parseRules(`:root, :host { ${body} }`, context, context.layers.indexOf('theme'), parents)
+      parseRules(`:root, :host { ${body} }`, context, layerRank(context, 'theme'), parents)
     }
     else if (!prelude.startsWith('@')) {
       const selectors = nest(parents, splitTop(prelude, ','))
@@ -127,7 +163,7 @@ function parseRules(css: string, context: { layers: string[], rules: Rule[] }, l
 
 /** Every rule of `sheets`, in order, with the layers they name. */
 export function cascadeRules(...sheets: string[]): Rule[] {
-  const context = { layers: [] as string[], rules: [] as Rule[] }
+  const context: ParseContext = { layers: [], rules: [] }
   for (const sheet of sheets) parseRules(sheet.replace(/\/\*[\s\S]*?\*\//g, ''), context, -1, [])
   return context.rules
 }
@@ -229,9 +265,8 @@ export function matchSelector(selector: string, path: readonly CascadeElement[])
   return match(parts.length - 1, path.length - 1)
 }
 
-/** The custom properties the last element of `path` computes from `rules`. */
-export function computedTokens(rules: readonly Rule[], path: readonly CascadeElement[]): Record<string, string> {
-  const inherited: Record<string, string> = path.length > 1 ? computedTokens(rules, path.slice(0, -1)) : {}
+/** The declarations of the custom properties the last element of `path` wins in the cascade, unresolved. */
+function cascaded(rules: readonly Rule[], path: readonly CascadeElement[]): Record<string, string> {
   const applying = rules.flatMap((rule) => {
     const best = rule.selectors.map(selector => matchSelector(selector, path)).filter(found => found !== null).sort(compare).at(-1)
     return best ? [{ rule, specificity: best }] : []
@@ -242,13 +277,66 @@ export function computedTokens(rules: readonly Rule[], path: readonly CascadeEle
     || a.rule.layer - b.rule.layer
     || compare(a.specificity, b.specificity)
     || a.rule.order - b.rule.order)
-  const own = Object.fromEntries(applying.flatMap(({ rule }) => rule.declarations))
-  return { ...inherited, ...own }
+  return Object.fromEntries(applying.flatMap(({ rule }) => rule.declarations))
 }
 
-/** The rules of a store's page whose theme block is `themeCss`. */
-export function pageRules(themeCss: string): Rule[] {
-  return cascadeRules(NUXT_UI_CSS, nuxtUiColors(), MAIN_CSS, ACCESSIBILITY_CSS, themeCss)
+/** `text` with each `var(--name[, fallback])` replaced through `lookup`; a name with no value and no fallback stays as written. */
+function substitute(text: string, lookup: (name: string) => string | undefined): string {
+  let out = ''
+  let at = 0
+  while (true) {
+    const start = text.indexOf('var(', at)
+    if (start < 0) return out + text.slice(at)
+    let depth = 0
+    let end = start + 3
+    for (; end < text.length; end++) {
+      if (text[end] === '(') depth++
+      else if (text[end] === ')' && --depth === 0) break
+    }
+    const [name, ...fallback] = splitTop(text.slice(start + 4, end), ',')
+    const value = lookup(name!) ?? (fallback.length ? substitute(fallback.join(', '), lookup) : undefined)
+    out += text.slice(at, start) + (value ?? text.slice(start, end + 1))
+    at = end + 1
+  }
+}
+
+/** The custom properties the last element of `path` computes from `rules`: its own resolved on it, the rest inherited. */
+export function computedTokens(rules: readonly Rule[], path: readonly CascadeElement[]): Record<string, string> {
+  const inherited: Record<string, string> = path.length > 1 ? computedTokens(rules, path.slice(0, -1)) : {}
+  const own = cascaded(rules, path)
+  const resolved = new Map<string, string | undefined>()
+  const resolving = new Set<string>()
+  const value = (name: string): string | undefined => {
+    if (!(name in own)) return inherited[name]
+    if (resolved.has(name)) return resolved.get(name)
+    // A cycle is invalid at computed-value time: the property has no value.
+    if (resolving.has(name)) return undefined
+    resolving.add(name)
+    const result = substitute(own[name]!, value)
+    resolving.delete(name)
+    resolved.set(name, result)
+    return result
+  }
+  const declared = new Map(Object.keys(own).map(name => [name, value(name)] as const))
+  return Object.fromEntries([
+    ...Object.entries(inherited).filter(([name]) => !declared.has(name)),
+    ...[...declared].filter((entry): entry is [string, string] => entry[1] !== undefined),
+  ])
+}
+
+/** The rules of a store's page whose theme block is `themeCss`, over the storefront's own `sheets` (today's by default). */
+export function pageRules(themeCss: string, sheets: StoreSheets = STORE_SHEETS): Rule[] {
+  return cascadeRules(TAILWIND_CSS, NUXT_UI_THEME, NUXT_UI_CSS, nuxtUiColors(), sheets.main, sheets.accessibility, themeCss)
+}
+
+/**
+ * The tokens the colour schemes are about: every custom property Nuxt UI's
+ * runtime and colours, `main.css`, `accessibility.css` and the theme block
+ * declare. Tailwind's palette and Nuxt UI's generated aliases are read to
+ * resolve them, not compared themselves.
+ */
+export function schemeTokenNames(themeCss: string, sheets: StoreSheets = STORE_SHEETS): Set<string> {
+  return new Set(cascadeRules(NUXT_UI_CSS, nuxtUiColors(), sheets.main, sheets.accessibility, themeCss).flatMap(rule => rule.declarations.map(([name]) => name)))
 }
 
 /** `<html>` of a page in `scheme`, in the Volt design or in a design of a store's own, with any further classes (the accessibility toolbar's). */

@@ -80,8 +80,11 @@
   text-underline-offset: 0.2em;
 }
 
-/* A plain, open sans-serif for all text, headings included. */
-:root.a11y-font {
+/* A plain, open sans-serif for all text, headings included. Also on a part
+   of the page forced light or dark, which redeclares the store's faces
+   there (the theme writes them per scheme), as high contrast does. */
+:root.a11y-font,
+:root.a11y-font :where(.light, .dark) {
   --font-sans: Verdana, Tahoma, "Segoe UI", system-ui, sans-serif;
   --font-display: var(--font-sans);
 }

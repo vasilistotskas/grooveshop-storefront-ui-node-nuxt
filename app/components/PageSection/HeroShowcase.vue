@@ -99,7 +99,7 @@ const pictureFrame = computed(() => (props.imageLink ? resolveComponent('NuxtLin
     :class="[
       `
         relative isolate w-full bg-muted bg-(image:--ds-lattice)
-        bg-size-[1.5rem_1.5rem] text-default
+        bg-size-[1.5rem_1.5rem]
       `,
       colorSchemeClass(colorScheme),
     ]"

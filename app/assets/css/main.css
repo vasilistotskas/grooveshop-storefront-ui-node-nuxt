@@ -114,10 +114,10 @@
      per request. Drives the `font-mono` utility, so numeric/spec
      typography and `code` follow the tenant face together. */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --ui-success: var(--color-success-600);
-  --ui-info: var(--color-info-600);
-  --ui-warning: var(--color-warning-600);
-  --ui-error: var(--color-error-600);
+  --ui-success: var(--ui-color-success-600);
+  --ui-info: var(--ui-color-info-600);
+  --ui-warning: var(--ui-color-warning-600);
+  --ui-error: var(--ui-color-error-600);
   /* The filled stars of a rating: ONE warm amber in every theme, never
      the page's ink or grey. 3.3:1 on the warm Volt ground (a graphic needs 3:1); the
      `.dark` block lightens it. Volt does not redefine it, so both
@@ -207,11 +207,11 @@
   --ui-on-success: #1f1f23;
 
   /* Semantic colors - lighter shades for dark mode */
-  --ui-primary: var(--color-primary-100);
-  --ui-success: var(--color-success-400);
-  --ui-info: var(--color-info-400);
-  --ui-warning: var(--color-warning-400);
-  --ui-error: var(--color-error-400);
+  --ui-primary: var(--ui-color-primary-100);
+  --ui-success: var(--ui-color-success-400);
+  --ui-info: var(--ui-color-info-400);
+  --ui-warning: var(--ui-color-warning-400);
+  --ui-error: var(--ui-color-error-400);
   --ui-rating: #fbbf24;
 }
 
