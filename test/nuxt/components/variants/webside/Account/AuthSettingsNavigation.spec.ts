@@ -8,13 +8,14 @@ import AuthSettingsNavigation from '~/components/variants/webside/Account/AuthSe
  * page reached from it (`isSecurityPage`, the rule the default design's
  * navigation uses too).
  */
-const state = vi.hoisted(() => ({ route: 'account-security___el' }))
-mockNuxtImport('useRoute', () => () => ({ name: state.route, path: '/', fullPath: '/', params: {}, query: {}, hash: '', meta: {}, matched: [] }))
+const state = vi.hoisted(() => ({ route: 'account-security___el', path: '/account/security' }))
+mockNuxtImport('useRoute', () => () => ({ name: state.route, path: state.path, fullPath: state.path, params: {}, query: {}, hash: '', meta: {}, matched: [] }))
 
-async function menu(route: string) {
+async function menu(route: string, path = '/') {
   state.route = `${route}___el`
+  state.path = path
   const wrapper = await mountSuspended(AuthSettingsNavigation, { route: false })
-  return wrapper.get('nav').findAll('a').map(link => ({ label: link.text(), href: link.attributes('href'), current: link.attributes('aria-current') === 'page' }))
+  return wrapper.get('nav').findAll('a').map(link => ({ label: link.text(), href: link.attributes('href'), current: link.attributes('aria-current') }))
 }
 
 describe('webside Account/AuthSettingsNavigation', () => {
@@ -26,17 +27,19 @@ describe('webside Account/AuthSettingsNavigation', () => {
     ])
   })
 
+  // Its own page is the page; a page reached from Security is the
+  // shopper's location within it (`currentMark`).
   it.each([
-    ['account-settings', 'Προφίλ'],
-    ['account-settings-privacy', 'Απόρρητο & Δεδομένα'],
-    ['account-security', 'Ασφάλεια'],
-    ['account-sessions', 'Ασφάλεια'],
-    ['account-password-change', 'Ασφάλεια'],
-    ['account-2fa-totp-activate', 'Ασφάλεια'],
-    ['account-2fa-recovery-codes', 'Ασφάλεια'],
-  ])('marks the entry for %s as the current one', async (route, label) => {
-    const links = await menu(route)
+    ['account-settings', '/account/settings', 'Προφίλ', 'page'],
+    ['account-settings-privacy', '/account/settings/privacy', 'Απόρρητο & Δεδομένα', 'page'],
+    ['account-security', '/account/security', 'Ασφάλεια', 'page'],
+    ['account-sessions', '/account/sessions', 'Ασφάλεια', 'location'],
+    ['account-password-change', '/account/password/change', 'Ασφάλεια', 'location'],
+    ['account-2fa-totp-activate', '/account/2fa/totp/activate', 'Ασφάλεια', 'location'],
+    ['account-2fa-recovery-codes', '/account/2fa/recovery-codes', 'Ασφάλεια', 'location'],
+  ])('marks the entry for %s as the current one', async (route, path, label, mark) => {
+    const links = await menu(route, path)
 
-    expect(links.filter(link => link.current).map(link => link.label)).toEqual([label])
+    expect(links.filter(link => link.current).map(link => [link.label, link.current])).toEqual([[label, mark]])
   })
 })

@@ -5,6 +5,7 @@ import Renderer from '~/components/PageSection/Renderer.vue'
 import { makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
 // The card names the alert lazily, which only the module's own mock can replace.
 vi.mock('~/components/variants/webside/Product/NotifyMe.vue', async () => {
@@ -85,11 +86,13 @@ describe.each([
   })
 
   it('takes the buy button off the cards when the block turns it off', async () => {
+    // The card's own label for its buy button (its `<i18n>` block).
+    const BUY = inlineCopy('app/components/variants/webside/Product/Card.vue').add_to_cart
     const withButton = await drawn()
-    await vi.waitFor(() => expect(withButton.text()).toContain('Αγορά'), { timeout: 4000 })
+    await vi.waitFor(() => expect(withButton.text()).toContain(BUY), { timeout: 4000 })
     const withoutButton = await drawn({ showAddToCart: false })
 
-    expect(withoutButton.text()).not.toContain('Αγορά')
+    expect(withoutButton.text()).not.toContain(BUY)
   })
 
   it('disappears with nothing to list', async () => {
@@ -108,9 +111,10 @@ describe('webside\'s product grid', () => {
     setTenantFeatures({ catalogue: true })
   })
 
-  // The classes are the contract: happy-dom lays nothing out. In two columns on
-  // a phone this card's corner buttons cover its stock badge.
-  it('keeps one column on a phone, as webside\'s listing has it', async () => {
+  // The classes are the contract: happy-dom lays nothing out. Two columns on
+  // a phone, as the approved phone design draws them (one card a row was
+  // ~4,000px for eight products); the card draws itself compactly there.
+  it('lays two columns on a phone, as webside\'s listing does', async () => {
     const wrapper = await mountSuspended(Renderer, {
       route: false,
       props: { section: makeBuilderSection({ componentType: 'products_grid', props: { products: products([7]) } }) },
@@ -118,8 +122,8 @@ describe('webside\'s product grid', () => {
     await vi.waitFor(() => expect(wrapper.find('.product-card').exists()).toBe(true), { timeout: 4000 })
 
     const classes = wrapper.find('ol').classes()
-    expect(classes).toContain('grid-cols-1')
-    expect(classes).not.toContain('grid-cols-2')
+    expect(classes).toContain('grid-cols-2')
+    expect(classes).not.toContain('grid-cols-1')
   })
 })
 

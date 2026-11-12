@@ -316,7 +316,10 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 color="neutral"
                 variant="link"
                 size="sm"
-                class="p-0"
+                class="
+                  p-0
+                  max-sm:min-h-11
+                "
                 aria-haspopup="dialog"
                 @click="openPriceTrend"
               />
@@ -400,6 +403,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               color="neutral"
               variant="outline"
               size="sm"
+              class="max-sm:min-h-11"
               @click="openNotify('restock')"
             />
           </div>
@@ -409,31 +413,37 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             class="flex items-stretch gap-2.5"
           >
             <template v-if="cartEnabled">
-              <label
-                class="sr-only"
-                for="quantity"
-              >{{ t('qty') }}</label>
-              <UInputNumber
-                id="quantity"
-                v-model="selectorQuantity"
-                :min="1"
-                :max="product.stock || 1"
-                :disabled="productStock === 0"
-                :increment="{ color: 'neutral', variant: 'ghost', size: 'md' }"
-                :decrement="{ color: 'neutral', variant: 'ghost', size: 'md' }"
-                :ui="{
-                  root: 'w-32 shrink-0',
-                  base: `
-                    h-13 rounded-full bg-default text-center font-mono font-bold
-                  `,
-                }"
-              />
+              <!-- No quantity for a product that cannot be bought. -->
+              <template v-if="productStock > 0">
+                <label
+                  class="sr-only"
+                  for="quantity"
+                >{{ t('qty') }}</label>
+                <UInputNumber
+                  id="quantity"
+                  v-model="selectorQuantity"
+                  :min="1"
+                  :max="product.stock"
+                  :increment="{ color: 'neutral', variant: 'ghost', size: 'md', class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+                  :decrement="{ color: 'neutral', variant: 'ghost', size: 'md', class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+                  :ui="{
+                    root: 'w-32 shrink-0',
+                    base: `
+                      h-13 rounded-full bg-default text-center font-mono
+                      font-bold
+                    `,
+                  }"
+                />
+              </template>
               <ButtonProductAddToCart
                 :product="product"
                 :quantity="selectorQuantity || 1"
                 :text="t('add_to_cart')"
                 size="lg"
-                class="min-w-0 flex-1"
+                class="
+                  min-w-0 flex-1
+                  max-sm:min-h-11
+                "
               />
             </template>
             <ButtonProductAddToFavourite
@@ -443,6 +453,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               size="lg"
               variant="outline"
               square
+              class="max-sm:min-h-11 max-sm:min-w-11"
             />
           </div>
 
@@ -473,6 +484,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 color="neutral"
                 variant="ghost"
                 size="sm"
+                class="max-sm:min-h-11"
                 @click="startShare"
               />
             </ClientOnly>
@@ -485,6 +497,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               color="neutral"
               variant="ghost"
               size="sm"
+              class="max-sm:min-h-11"
               @click="openNotify('price_drop')"
             />
           </div>
@@ -653,7 +666,10 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             :text="t('add_to_cart')"
             size="md"
             :block="false"
-            class="shrink-0"
+            class="
+              shrink-0
+              max-sm:min-h-11
+            "
           />
         </div>
       </Transition>

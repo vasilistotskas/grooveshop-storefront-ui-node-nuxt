@@ -791,7 +791,6 @@ export default defineNuxtConfig({
     mdreamOptions: { minimal: true, clean: true, tailwind: false },
   },
   cookieControl: {
-    isControlButtonEnabled: false,
     cookies: {
       necessary: [
         {

@@ -31,7 +31,11 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
 <template>
   <!-- Quoted, it is one image named whole. As the link to the reviews it
        is named by its text, so the name holds what is on screen (WCAG
-       2.5.3) and "out of 5" follows as text only a screen reader gets. -->
+       2.5.3) and "out of 5" follows as text only a screen reader gets.
+       The link is as wide as what it shows (`w-fit`), never the width of
+       its column, and leaves its row's alignment to the row: `self-start`
+       held it to the top of a row whose 44px price-trend button sat
+       centred, 12px lower. -->
   <component
     :is="href ? 'a' : 'div'"
     v-if="reviews > 0"
@@ -39,7 +43,7 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
     :role="href ? undefined : 'img'"
     :aria-label="href ? undefined : label"
     class="flex items-center gap-1.5"
-    :class="href ? 'self-start' : undefined"
+    :class="href ? 'w-fit' : undefined"
   >
     <ProductReviewsStars
       :rate="average ?? 0"

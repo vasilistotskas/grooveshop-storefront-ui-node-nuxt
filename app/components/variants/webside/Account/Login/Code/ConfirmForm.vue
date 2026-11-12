@@ -3,6 +3,8 @@ const emit = defineEmits(['confirmLoginCode'])
 
 const { t } = useStoreI18n('components/variants/webside/Account/Login/Code/ConfirmForm')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const { code, codeString, hasError, schema, onSubmit } = useLoginCodeConfirm({
   welcome: () => ({
@@ -78,7 +80,7 @@ const { code, codeString, hasError, schema, onSubmit } = useLoginCodeConfirm({
         {{ t('no_code') }}
         <UButton
           variant="link"
-          :to="localePath('account-login-code')"
+          :to="localePath(authLink('account-login-code'))"
           class="p-0 font-medium"
         >
           {{ t('resend') }}

@@ -59,9 +59,34 @@ describe('auth.global middleware', () => {
     ['/account/2fa/reauthenticate/webauthn', '/account/login'],
     ['/account/2fa/reauthenticate/recovery-codes', '/account/login'],
   ])('sends a guest from %s to %s with the page as `next`', async (path, login) => {
-    await run(`${path}?tab=2`)
+    await run(path)
 
-    expect(redirectedTo()).toEqual({ path: login, next: `${path}?tab=2` })
+    expect(redirectedTo()).toEqual({ path: login, next: path })
+  })
+
+  // A query can hold a token or a payment session, and `next` lands in the
+  // sign-in page's address (history, logs, `Referer`): only a page that
+  // marks its query view state keeps it (`returnTarget`), and no protected
+  // page does.
+  it('carries the path of a protected page whose query is not its view, never its query', async () => {
+    await run('/account?session_id=cs_live_secret')
+
+    expect(redirectedTo()).toEqual({ path: '/account/login', next: '/account' })
+  })
+
+  // The account lists' query is their view (page, order, filter): each opts
+  // in (`signInReturn: 'path-and-query'`) and comes back with it.
+  it.each([
+    '/account/orders?page=2&ordering=-createdAt',
+    '/account/addresses?page=2',
+    '/account/notifications?filter=unseen&page=2',
+    '/account/reviews?page=2&ordering=-createdAt',
+    '/account/favourites/posts?page=2',
+    '/account/favourites/products?page=2',
+  ])('carries %s with its view', async (path) => {
+    await run(path)
+
+    expect(redirectedTo()).toEqual({ path: '/account/login', next: path })
   })
 
   it('lets a logged-in visitor through to a protected page', async () => {

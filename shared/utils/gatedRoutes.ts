@@ -34,6 +34,16 @@ export const FEATURE_GATED_ROUTES: readonly FeatureGatedRoute[] = [
   { path: '/feedback', features: ['feedback'] },
   { path: '/blog', features: ['blog'] },
   { path: '/blog/categories', features: ['blog'] },
+  // Search lists the catalogue (`app/pages/search`): no catalogue, no page.
+  { path: '/search', features: ['catalogue'] },
+  { path: '/cart', features: ['cart'] },
+  { path: '/checkout', features: ['cart'] },
+  { path: '/account/favourites/products', features: ['favourites'] },
+  { path: '/account/favourites/posts', features: ['favourites', 'blog'] },
+  { path: '/account/loyalty', features: ['loyalty'] },
+  { path: '/account/reviews', features: ['accountReviews'] },
+  { path: '/account/subscriptions', features: ['newsletter'] },
+  { path: '/account/business', features: ['wholesale'] },
 ]
 
 /** Whether ONE gated route is serving for a tenant. */

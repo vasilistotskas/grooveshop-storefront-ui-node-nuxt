@@ -93,7 +93,7 @@ describe('Chrome/AccountMenu', () => {
 
     const wrapper = await mountMenu()
 
-    expect(wrapper.get('a').attributes('href')).toBe('/account/login')
+    expect(wrapper.get('a').attributes('href')).toBe('/account/login?next=/')
     expect(wrapper.find('button[aria-haspopup="menu"]').exists()).toBe(false)
   })
 

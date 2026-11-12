@@ -3,8 +3,8 @@ import type { NavigationMenuItem, TreeItem } from '@nuxt/ui'
 
 /**
  * The phone menu: the shopper's account, the catalogue as a tree, the
- * rest of the header's navigation, and the controls that do not fit
- * the bar.
+ * blog's topics, the rest of the header's navigation, and the controls
+ * that do not fit the bar.
  *
  * Loaded lazily and mounted inside `ClientOnly` by the header, so the
  * slideover runtime (`vaul-vue` et al) stays out of every page's eager
@@ -25,7 +25,9 @@ const route = useRoute()
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 const { loggedIn } = useUserSession()
+const { signIn } = useAuthLinks()
 const { categories, hasCategories } = useCategoryMenu()
+const { blogCategories, hasBlogCategories } = useBlogCategoryMenu()
 const premount = useOverlayPremount()
 // Turns true on the first opening and stays true, so the card does not
 // vanish under the panel's closing animation.
@@ -62,7 +64,17 @@ const categoryTree = computed<TreeItem[]>(() =>
   }),
 )
 
-/** The header's entries after the catalogue, which the tree replaces. */
+/** The blog's topics, "all articles" first; links, so a tap navigates and the panel closes. */
+const blogLinks = computed<NavigationMenuItem[]>(() => [
+  { label: t('all_articles'), to: localePath('blog') },
+  ...blogCategories.value.map(topic => ({
+    label: topic.label,
+    to: localePath(pathLocation(topic.to)),
+    badge: { label: String(topic.postCount), color: 'neutral' as const, variant: 'subtle' as const },
+  })),
+])
+
+/** The header's entries after the catalogue and the blog, which their sections replace. */
 const links = computed(() => props.items.filter(item => !item.children))
 
 async function go(path: string) {
@@ -107,7 +119,7 @@ watch(() => route.fullPath, () => {
         </template>
         <UButton
           v-else
-          :to="localePath('account-login')"
+          :to="localePath(signIn)"
           :label="t('login')"
           block
         />
@@ -133,6 +145,19 @@ watch(() => route.fullPath, () => {
                 data-expanded:before:bg-muted
               `,
             }"
+          />
+        </template>
+
+        <template v-if="hasBlogCategories">
+          <p class="text-xs font-bold tracking-wider text-muted uppercase">
+            {{ t('blog') }}
+          </p>
+          <UNavigationMenu
+            :items="blogLinks"
+            orientation="vertical"
+            color="neutral"
+            :aria-label="t('blog')"
+            :ui="{ link: 'h-11 px-3.5 text-[0.9375rem] font-semibold text-toned' }"
           />
         </template>
 
@@ -169,8 +194,10 @@ el:
   menu: Μενού
   navigation: Πλοήγηση
   all_in: 'Όλα σε {category}'
+  all_articles: Όλα τα άρθρα
 en:
   menu: Menu
   navigation: Navigation
   all_in: 'All in {category}'
+  all_articles: All articles
 </i18n>

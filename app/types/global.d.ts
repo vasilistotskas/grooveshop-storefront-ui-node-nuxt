@@ -18,6 +18,18 @@ declare module '#app' {
     $websocket (): UseWebSocketReturn<any> | null
   }
 
+  interface PageMeta {
+    /**
+     * What a sign-in started on the page brings the shopper back to
+     * (`next`, `returnTarget`). Without it, the page's path alone.
+     * `'path-and-query'`: its query is view state worth keeping (the
+     * listing's sort, filters and page, a search). `'nowhere'`: its path is
+     * a one-time token (an unsubscribe, a confirmation, a preview), which no
+     * sign-in page's address may carry.
+     */
+    signInReturn?: 'path-and-query' | 'nowhere'
+  }
+
   interface RuntimeNuxtHooks {
     'auth:change': (payload: { detail: AllAuthResponse | AllAuthResponseError, explicit?: boolean }) => HookResult
   }
