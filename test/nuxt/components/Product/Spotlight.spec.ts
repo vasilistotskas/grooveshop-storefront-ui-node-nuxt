@@ -87,7 +87,8 @@ describe('Product/Spotlight', () => {
       const { name, props, attrs } = await part(await mountSpotlight())
 
       expect(name).toBe('default-cart')
-      expect(attrs).toEqual({})
+      // Only the class that makes it a 44px target on a phone; no prop it does not declare.
+      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
       expect(props).toMatchObject({ text: `Στο καλάθι: ${NAME}`, label: 'Στο καλάθι' })
       expect((props.product as { id: number }).id).toBe(7)
     })
@@ -119,7 +120,8 @@ describe('Product/Spotlight', () => {
       const { name, props, attrs } = await part(await mountSpotlight())
 
       expect(name).toBe('webside-cart')
-      expect(attrs).toEqual({})
+      // Only the class that makes it a 44px target on a phone; no prop it does not declare.
+      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
       expect(props).toMatchObject({ text: 'Στο καλάθι' })
     })
 

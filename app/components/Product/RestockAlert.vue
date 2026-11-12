@@ -31,7 +31,10 @@ const notify = reactive({ mounted: false, open: false, kind: 'restock' as Produc
     color="neutral"
     variant="link"
     size="sm"
-    class="p-0 text-[0.8125rem] font-semibold text-accent"
+    class="
+      min-h-11 p-0 text-[0.8125rem] font-semibold text-accent
+      sm:min-h-0
+    "
     @click="() => { notify.mounted = true; notify.open = true }"
   />
   <LazyProductNotifyMe

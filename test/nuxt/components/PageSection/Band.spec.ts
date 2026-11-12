@@ -89,4 +89,15 @@ describe('PageSection/Band', () => {
     // `body` paints its text in the page's scheme: a forced band sets its own.
     expect(classes.includes('text-default')).toBe(scheme !== undefined)
   })
+
+  // The classes are the contract: a phone's tap target is at least 44px
+  // (WCAG 2.5.5), measured in the real layout at 390px, while from `sm` up
+  // the control keeps the size it had. happy-dom lays nothing out.
+  it('stacks the heading over its link on a phone, the link a 44px target, and keeps them side by side from sm up', async () => {
+    const wrapper = await mountBand({ heading: 'Χρήσιμα gadgets', subheading: 'Λίγα, επιλεγμένα.', ctaText: 'Όλα τα προϊόντα', ctaLink: '/products' })
+
+    const row = wrapper.get('h2').element.parentElement!.parentElement!
+    expect([...row.classList]).toEqual(expect.arrayContaining(['flex-col', 'items-start', 'sm:flex-row', 'sm:items-end']))
+    expect(wrapper.get('a[href="/products"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
+  })
 })

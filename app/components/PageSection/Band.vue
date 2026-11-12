@@ -20,6 +20,12 @@
  * each carried their own `<h2 class="mb-4 text-2xl font-bold">`, with
  * the operator's `title` as the only input and no way to add a line
  * under it or a link beside it.
+ *
+ * Below `sm` the heading row stacks: the heading and its sub-line take the
+ * whole width and the link goes under them, where beside them it squeezed a
+ * heading into a word per line at 390px. The link's hit area is at least
+ * 44px tall there (WCAG 2.5.8 target size, 2.5.5 on a phone); from `sm` up
+ * the row and the link are as they were.
  */
 const props = withDefaults(defineProps<{
   /** Which page surface this band paints. */
@@ -104,7 +110,10 @@ const container = computed(() =>
               flex-col items-start gap-3.5
               lg:flex-row lg:items-end lg:gap-4
             `
-            : 'items-end'"
+            : `
+              flex-col items-start
+              sm:flex-row sm:items-end
+            `"
         >
           <div
             class="flex min-w-0 flex-col"
@@ -161,7 +170,10 @@ const container = computed(() =>
               bg-volt text-on-volt
               hover:bg-volt/90
             `"
-            class="shrink-0"
+            class="
+              min-h-11 shrink-0
+              sm:min-h-0
+            "
           />
         </div>
       </slot>

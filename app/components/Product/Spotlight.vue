@@ -170,9 +170,15 @@ const buy = computed(() => {
           v-if="buy && !soldOut"
           class="relative z-10"
         >
+          <!-- A target of at least 44px on a phone, whatever size the
+               design's button is; as the design draws it from `sm` up. -->
           <component
             :is="buy.component"
             v-bind="buy.props(partInput)"
+            class="
+              min-h-11
+              sm:min-h-0
+            "
           />
         </div>
       </div>

@@ -208,10 +208,14 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
       <div
         v-if="buttons.length"
         class="
-          flex flex-wrap gap-3
+          flex gap-3
+          sm:flex-wrap
           lg:col-start-1 lg:row-start-3 lg:mt-6 lg:self-start
         "
       >
+        <!-- On a phone the two share the row in equal columns, 48px tall
+             (a target of at least 44px, WCAG 2.5.5); from `sm` up they
+             are the size their label makes them. -->
         <UButton
           v-for="button in buttons"
           :key="button.variant"
@@ -220,6 +224,10 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
           :variant="button.variant"
           color="secondary"
           size="xl"
+          class="
+            min-h-12 flex-1 justify-center
+            sm:min-h-0 sm:flex-none
+          "
         />
       </div>
 

@@ -34,6 +34,18 @@ describe('Search/Input', () => {
     expect(wrapper.findAll('button')).toHaveLength(1)
   })
 
+  // The classes are the contract: a phone's tap target is at least 44px
+  // (WCAG 2.5.5), measured in the real layout at 390px, while from `sm` up
+  // the control keeps the size it had. happy-dom lays nothing out.
+  it('makes a section field a 44px target on a phone, and leaves the header field as it is', async () => {
+    const section = await mountSuspended(SearchInput, { route: false })
+    const header = await mountSuspended(SearchInput, { route: false, props: { compact: true } })
+
+    expect(section.get('button').classes()).toEqual(expect.arrayContaining(['h-11', 'sm:h-10.5']))
+    expect(header.findAll('button').at(-1)!.classes()).toEqual(expect.arrayContaining(['h-10.5']))
+    expect(header.findAll('button').at(-1)!.classes()).not.toContain('h-11')
+  })
+
   it('opens the palette', async () => {
     const wrapper = await mountSuspended(SearchInput, { route: false })
 

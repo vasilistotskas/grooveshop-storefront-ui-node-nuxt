@@ -53,6 +53,17 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
     expect(banner.props('color')).toBe('neutral')
   })
 
+  // The classes are the contract: the close button is a 44px target on a
+  // phone (WCAG 2.5.5), its height reached through a pseudo-element so the
+  // bar keeps its own; happy-dom lays nothing out.
+  it('gives the close button a 44px target on a phone without growing the bar', async () => {
+    setting.value = bar({})
+
+    const wrapper = await mountBar()
+
+    expect(wrapper.get('[data-slot="close"]').classes()).toEqual(expect.arrayContaining(['relative', 'min-w-11', 'sm:min-w-0', 'after:absolute', 'after:-inset-y-1.5']))
+  })
+
   it('keeps a colour the operator picked', async () => {
     setting.value = bar({ color: 'secondary' })
 

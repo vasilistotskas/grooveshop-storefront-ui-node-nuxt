@@ -207,6 +207,17 @@ describe('PageSection/HeroShowcase', () => {
     ])
   })
 
+  // The classes are the contract: a phone's tap target is at least 44px
+  // (WCAG 2.5.5), measured in the real layout at 390px, while from `sm` up
+  // the control keeps the size it had. happy-dom lays nothing out.
+  it('draws its two buttons as equal columns 48px tall on a phone', async () => {
+    const wrapper = await mountHero()
+
+    for (const href of ['/products', '/blog']) {
+      expect(wrapper.get(`a[href="${href}"]`).classes()).toEqual(expect.arrayContaining(['min-h-12', 'flex-1', 'sm:min-h-0', 'sm:flex-none']))
+    }
+  })
+
   it('leaves out a button that has text but no link', async () => {
     const wrapper = await mountHero({ ctaLink: undefined })
 

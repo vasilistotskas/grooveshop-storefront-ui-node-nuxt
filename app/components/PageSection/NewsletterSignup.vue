@@ -151,6 +151,10 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
                   size="xl"
                   :placeholder="placeholder || t('placeholder')"
                   class="w-full"
+                  :ui="{ base: `
+                    min-h-11
+                    sm:min-h-0
+                  ` }"
                 />
               </UFormField>
               <UButton
@@ -160,7 +164,10 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
                 color="secondary"
                 size="xl"
                 trailing-icon="i-heroicons-arrow-right"
-                class="shrink-0 justify-center"
+                class="
+                  min-h-11 shrink-0 justify-center
+                  sm:min-h-0
+                "
               />
             </div>
 

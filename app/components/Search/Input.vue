@@ -68,11 +68,15 @@ const KEY_SHORTCUTS = 'Control+K Meta+K /'
       color="neutral"
       variant="outline"
       :class="[
-        'h-10.5 justify-start gap-2 px-3.5 text-sm font-medium text-muted',
+        'justify-start gap-2 px-3.5 text-sm font-medium text-muted',
+        // A section's field is a target of at least 44px on a phone.
         compact ? `
-          hidden w-75 min-w-36
+          hidden h-10.5 w-75 min-w-36
           lg:flex
-        ` : 'w-full',
+        ` : `
+          h-11 w-full
+          sm:h-10.5
+        `,
       ]"
       :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
