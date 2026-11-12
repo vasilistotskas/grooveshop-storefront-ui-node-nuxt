@@ -34,7 +34,20 @@ const localePath = useLocalePath()
 
 // The name of each post's category is the store's own list of categories:
 // one shared read for every band and page that shows one.
-const categoryName = await useBlogCategoryNames()
+const categories = await useBlogCategoryNames()
+const categoryName = categories.name
+
+/**
+ * Where "see all" goes when the operator gave no link: the page of the ONE
+ * category the rule lists, at its current slug, as a products band keeps its
+ * in-stock rule; the blog when the rule names no single category (or that
+ * category is not in the store's list any more).
+ */
+const allPostsLink = computed(() => {
+  const descriptor = props.posts.descriptor
+  const path = descriptor.mode === 'filter' && descriptor.category !== undefined ? categories.path(descriptor.category) : undefined
+  return path ? localePath(pathLocation(path)) : localePath('blog')
+})
 
 const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadMore({
   posts: () => props.posts,
@@ -49,7 +62,7 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('blog')"
+    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : allPostsLink"
     :surface="surface"
     :color-scheme="colorScheme"
   >
