@@ -1,3 +1,10 @@
+## [3.339.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.0...v3.339.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **blog:** an article's comments are in the server HTML, and what else the checks found ([#458](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/458)) ([889598a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/889598aee7ed8c18eb522bfeff0a3ec8ebf9c317)), closes [#452](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/452) [#452](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/452) [#456](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/456)
+
 # [3.339.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.338.0...v3.339.0) (2026-11-12)
 
 
