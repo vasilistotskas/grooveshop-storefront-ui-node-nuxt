@@ -63,15 +63,22 @@ function middlewaresOf(path: string): RouteMiddleware[] {
   })
 }
 
-/** `'served'`, or the status the middleware chain threw. */
-async function outcome(path: string): Promise<'served' | number | undefined> {
+/**
+ * `'served'`, or the 404 a gate threw. Anything else fails the spec: a
+ * page naming a gate this spec does not list (`middlewaresOf` throws), or
+ * a gate that throws something other than its 404, would otherwise read
+ * as neither and pass every check below without its gate having run.
+ */
+async function outcome(path: string): Promise<'served' | 404> {
   const to = useRouter().resolve(path) as unknown as RouteLocationNormalized
+  const gates = middlewaresOf(path)
   try {
-    for (const middleware of middlewaresOf(path)) await middleware(to, to)
+    for (const middleware of gates) await middleware(to, to)
     return 'served'
   }
   catch (error) {
-    return (error as { statusCode?: number }).statusCode
+    if ((error as { statusCode?: number }).statusCode === 404) return 404
+    throw error
   }
 }
 
