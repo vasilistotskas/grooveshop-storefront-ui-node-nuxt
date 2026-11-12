@@ -200,7 +200,7 @@ describe('PageSection/HeroShowcase', () => {
     // The button's colour and variant are the contract: the store's accent,
     // solid for the main call to action and outlined for the second.
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
-      .map(button => ({ to: button.props('to'), label: button.props('label'), color: button.props('color'), variant: button.props('variant'), size: button.props('size') }))
+      .map(button => ({ to: button.props('to'), label: button.text(), color: button.props('color'), variant: button.props('variant'), size: button.props('size') }))
     expect(buttons).toEqual([
       { to: '/products', label: 'Δες το κατάστημα', color: 'secondary', variant: 'solid', size: 'xl' },
       { to: '/blog', label: 'Διάβασε τα άρθρα', color: 'secondary', variant: 'outline', size: 'xl' },
@@ -215,6 +215,25 @@ describe('PageSection/HeroShowcase', () => {
 
     for (const href of ['/products', '/blog']) {
       expect(wrapper.get(`a[href="${href}"]`).classes()).toEqual(expect.arrayContaining(['min-h-12', 'flex-1', 'sm:min-h-0', 'sm:flex-none']))
+    }
+  })
+
+  // The classes are the contract, and the real check is the browser's
+  // (no horizontal scroll at 320, 360 and 390px in every design): happy-dom
+  // lays nothing out. Without them the phone's one column took the
+  // min-content width of its widest part, the two buttons' labels, and the
+  // page scrolled sideways by 30px at 390.
+  it('lets every part shrink to a phone\'s width, wrapping its words rather than widening the page', async () => {
+    const wrapper = await mountHero()
+
+    expect(wrapper.get('section > div').classes()).toContain('grid-cols-[minmax(0,1fr)]')
+    expect(wrapper.get('h1').classes()).toContain('wrap-break-word')
+    for (const href of ['/products', '/blog']) {
+      const button = wrapper.get(`a[href="${href}"]`)
+      expect(button.classes()).toContain('min-w-0')
+      // The label wraps: Nuxt UI's own label span truncates.
+      expect(button.find('[data-slot="label"]').exists()).toBe(false)
+      expect(button.get('span.wrap-break-word').text()).not.toBe('')
     }
   })
 

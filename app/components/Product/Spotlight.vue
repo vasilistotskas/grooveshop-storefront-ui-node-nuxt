@@ -94,6 +94,7 @@ const buy = computed(() => {
       <h2
         class="
           line-clamp-2 text-[0.9375rem]/snug font-bold text-pretty
+          wrap-break-word
           sm:text-lg/snug
         "
       >

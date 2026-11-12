@@ -115,10 +115,14 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
       colorSchemeClass(colorScheme),
     ]"
   >
+    <!-- One column of the container's width on a phone (`minmax(0, 1fr)`,
+         not the implicit `auto` track, which grew to the min-content of
+         the widest part: the two buttons' labels, the display face's
+         heading, and pushed the page sideways); two from `lg`. -->
     <UContainer
       :class="[
         `
-          grid gap-6 py-12
+          grid grid-cols-[minmax(0,1fr)] gap-6 py-12
           lg:gap-x-12 lg:gap-y-0 lg:py-22
         `,
         twoColumns && `
@@ -147,7 +151,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
           v-if="hasHeading"
           class="
             max-w-3xl font-display text-4xl font-semibold tracking-tight
-            text-balance text-highlighted
+            text-balance wrap-break-word text-highlighted
             md:text-5xl
             lg:text-6xl
           "
@@ -215,20 +219,24 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
       >
         <!-- On a phone the two share the row in equal columns, 48px tall
              (a target of at least 44px, WCAG 2.5.5); from `sm` up they
-             are the size their label makes them. -->
+             are the size their label makes them. A label too long for its
+             column wraps inside the button (`min-w-0` lets the column
+             shrink; the label is our own span, since Nuxt UI's truncates),
+             so no word is cut and the row never outgrows the screen. -->
         <UButton
           v-for="button in buttons"
           :key="button.variant"
           :to="button.to"
-          :label="button.label"
           :variant="button.variant"
           color="secondary"
           size="xl"
           class="
-            min-h-12 flex-1 justify-center
+            min-h-12 min-w-0 flex-1 justify-center
             sm:min-h-0 sm:flex-none
           "
-        />
+        >
+          <span class="text-center text-balance wrap-break-word">{{ button.label }}</span>
+        </UButton>
       </div>
 
       <ProductSpotlight
