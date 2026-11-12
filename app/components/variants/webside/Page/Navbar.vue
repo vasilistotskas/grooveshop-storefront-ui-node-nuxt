@@ -189,6 +189,7 @@ const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdo
 const barItems = computed(() => withDropdownToggles(withCurrentPage(navItems.value), {
   label: section => t('open_section', { section }),
   class: '-ms-3 px-1',
+  open: openSection.value,
 }))
 
 const onClickLogout = async () => {

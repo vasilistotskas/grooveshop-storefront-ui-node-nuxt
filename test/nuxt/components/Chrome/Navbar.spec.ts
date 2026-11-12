@@ -448,6 +448,20 @@ describe('Chrome/Navbar', () => {
       await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('false'))
     })
 
+    // An empty or dangling IDREF is invalid: a closed button names no
+    // panel, an open one names the panel that is there.
+    it('states aria-controls only while its panel is open, naming that panel', async () => {
+      const { wrapper, button } = await hoverable()
+      expect(button.attributes()).not.toHaveProperty('aria-controls')
+
+      await button.trigger('click')
+
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+      const controls = button.attributes('aria-controls')!
+      expect(controls).not.toBe('')
+      expect(wrapper.find(`#${controls}`).exists()).toBe(true)
+    })
+
     it('does not open it for a touch on the name, which navigates', async () => {
       const { name, button } = await hoverable()
 

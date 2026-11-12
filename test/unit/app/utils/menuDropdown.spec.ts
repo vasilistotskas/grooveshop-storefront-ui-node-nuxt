@@ -50,4 +50,17 @@ describe('withDropdownToggles', () => {
     ])
     expect(items[1]).not.toHaveProperty('to')
   })
+
+  // Reka renders `aria-controls=""` before it mounts; `undefined` on the
+  // item leaves the attribute out while the panel is closed.
+  it('leaves aria-controls to Reka only on the open section\'s button', () => {
+    const sections = [{ label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop' }]
+    const label = (section: string) => `Μενού: ${section}`
+
+    const closed = withDropdownToggles(sections, { label })[1]!
+    const open = withDropdownToggles(sections, { label, open: 'products' })[1]!
+
+    expect(Object.entries(closed)).toContainEqual(['aria-controls', undefined])
+    expect(open).not.toHaveProperty('aria-controls')
+  })
 })

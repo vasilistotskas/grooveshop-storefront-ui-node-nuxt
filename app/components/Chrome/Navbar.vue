@@ -195,6 +195,9 @@ const items = computed<NavigationMenuItem[]>(() => {
 /** Where the menu hydrates: see the template. */
 const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdown', 'focusin']
 
+/** The open dropdown's value — the catalogue panel dims the page below it. */
+const openItem = ref<string>()
+
 /**
  * The bar's entries: the current section marked, and each section with a
  * panel as its link plus a button that opens the panel.
@@ -202,14 +205,13 @@ const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdo
 const barItems = computed(() => withDropdownToggles(withCurrentPage(items.value), {
   label: section => t('open_section', { section }),
   class: '-ms-2 px-1',
+  open: openItem.value,
 }))
 
 const mobileMenuItems = computed(() =>
   mobileLinks.value ? fromLinks(mobileLinks.value) : items.value,
 )
 
-/** The open dropdown's value — the catalogue panel dims the page below it. */
-const openItem = ref<string>()
 const catalogueOpen = computed(() => openItem.value === SHOP)
 // The mouse on a section's name or button, and a tap, click or key on the
 // button, open and close its panel (`useMenuPanels`).

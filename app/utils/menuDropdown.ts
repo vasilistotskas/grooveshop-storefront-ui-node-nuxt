@@ -50,11 +50,21 @@ export function withCurrentPage<T extends { active?: boolean }>(items: T[]): (T 
  * The link stays a link in the server's HTML, before anything hydrates.
  *
  * `toggle.label` names the button after its section; `toggle.class` sets it
- * beside its link in the design's spacing.
+ * beside its link in the design's spacing; `toggle.open` is the section
+ * whose panel is open (the menu's `v-model`).
+ *
+ * A closed section's button states no `aria-controls`. Reka 2.11 binds it
+ * to an id it assigns in `onMounted`, so the server's HTML, and the page
+ * until the lazy menu hydrates, carried `aria-controls=""`, an empty IDREF;
+ * once hydrated it named a panel that is not in the page while closed
+ * (`unmountOnHide`). An item's `aria-*` keys reach the element Nuxt UI
+ * draws and win over Reka's own (Reka's `Slot` merges the child's props
+ * last), so `undefined` here leaves the attribute out; an open section's
+ * button keeps Reka's id for its panel.
  */
 export function withDropdownToggles(
   items: NavigationMenuItem[],
-  toggle: { label: (section: string) => string, class?: string },
+  toggle: { label: (section: string) => string, class?: string, open?: string },
 ): NavigationMenuItem[] {
   return items.flatMap((item) => {
     if (!item.slot && !item.children?.length) return [item]
@@ -72,6 +82,7 @@ export function withDropdownToggles(
       'children': children,
       'class': toggle.class,
       'ui': { ...item.ui, linkLabel: 'sr-only' },
+      ...(toggle.open === section ? {} : { 'aria-controls': undefined }),
     }
     return [name, button]
   })
