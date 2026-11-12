@@ -381,6 +381,8 @@ describe.each([
 })
 
 describe('default ProductDetail', () => {
+  /** The default design's word for a product that cannot be bought, from the button's own `<i18n>` block. */
+  const UNAVAILABLE = inlineCopy('app/components/Button/Product/AddToCart.vue').unavailable
   const empty = { count: 0, next: null, previous: null, results: [] }
   const CATEGORIES = [
     makeCategory({ id: 1, name: { el: 'Φόρτιση', en: 'Charging' } }),
@@ -451,6 +453,38 @@ describe('default ProductDetail', () => {
     const notify = wrapper.get('[data-testid="notify"]')
     expect(notify.attributes('data-kind')).toBe('restock')
     expect(notify.attributes('data-sold-out')).toBe('true')
+  })
+
+  it('draws no quantity for a sold-out product, and its button says so in full', async () => {
+    serve(makeProduct({ id: 123, stock: 0 }))
+    const wrapper = await mountPage()
+    const button = wrapper.findAll('button').find(b => b.text() === UNAVAILABLE)!
+
+    expect(wrapper.find('#quantity').exists()).toBe(false)
+    expect(button.find('[data-slot="label"]').classes()).not.toContain('truncate')
+  })
+
+  // The buy box's own button: the sticky bar's is not 52px tall.
+  const buyBoxButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
+    wrapper.findAll('button').find(b => b.classes().includes('min-h-13'))!
+
+  it('gives the add button a row of its own on a phone when there is a quantity beside it', async () => {
+    serve(makeProduct({ id: 123, stock: 5 }))
+
+    expect(buyBoxButton(await mountPage()).classes()).toEqual(expect.arrayContaining(['max-sm:basis-full', 'max-sm:order-last']))
+  })
+
+  it('leaves the sold-out button beside the favourite, with the whole row', async () => {
+    serve(makeProduct({ id: 123, stock: 0 }))
+
+    expect(buyBoxButton(await mountPage()).classes()).not.toContain('max-sm:basis-full')
+  })
+
+  it('draws the quantity for a product in stock', async () => {
+    serve(makeProduct({ id: 123, stock: 5 }))
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('#quantity').exists()).toBe(true)
   })
 
   it('marks the page for the footer to keep clear of the sticky buy bar', async () => {

@@ -149,23 +149,44 @@ async function remove() {
         </div>
       </div>
 
-      <div class="mt-auto flex items-center justify-between gap-3 pt-2">
-        <div class="w-28 shrink-0">
+      <div
+        class="
+          mt-auto flex items-center justify-between gap-3 pt-2
+          max-sm:gap-2
+        "
+      >
+        <div
+          class="
+            w-28 shrink-0
+            max-sm:w-32 max-sm:min-w-0 max-sm:shrink
+          "
+        >
           <QuantitySelector
             :max="cartItem.product.stock"
             :cart-item-id="cartItem.id"
           />
         </div>
+        <!-- The word «Αφαίρεση» comes with the room for it (from sm up). Below,
+             the column is 192-262px wide (320-390px screens, the cart page) and
+             the stepper takes 128 of it and the gap 8, so the button is its 44px icon;
+             the drawer's column is 184px at 320, which they fill with 4px to spare,
+             and the stepper, not the button, gives way if it must. -->
         <UButton
-          :label="compact ? undefined : t('remove')"
           :aria-label="t('remove_named', { name })"
           :loading="removing"
           icon="i-lucide-trash-2"
           color="neutral"
           variant="ghost"
           size="sm"
+          :square="compact"
+          class="max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center"
           @click="remove"
-        />
+        >
+          <span
+            v-if="!compact"
+            class="max-sm:hidden"
+          >{{ t('remove') }}</span>
+        </UButton>
       </div>
     </div>
   </div>

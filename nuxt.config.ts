@@ -393,7 +393,6 @@ export default defineNuxtConfig({
     asyncContext: true,
     typedPages: true,
     inlineRouteRules: true,
-    crossOriginPrefetch: true,
     // Kept on although the server imports every h3 and Nitro helper
     // explicitly (test/unit/source-rules/server-imports-are-explicit.spec.ts):
     // on Nuxt 4.6, turning it off still declares those names but drops

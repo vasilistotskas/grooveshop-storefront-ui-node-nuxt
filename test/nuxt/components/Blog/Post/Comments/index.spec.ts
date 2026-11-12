@@ -59,6 +59,9 @@ const page = (results: ReturnType<typeof comment>[], next: string | null = null)
 const COPY = {
   loadMore: 'Φόρτωσε περισσότερα',
   guestPrompt: 'Συνδέσου για να σχολιάσεις',
+  guestTitle: 'Συνδέσου για να γράψεις ένα σχόλιο',
+  title: 'Γράψε ένα σχόλιο',
+  description: 'Γίνε ο πρώτος που θα σχολιάσει',
 }
 
 /**
@@ -67,9 +70,21 @@ const COPY = {
  * imports load are mocked instead. The comments list renders the ids it
  * was handed, in order; the form is one button submitting a fixed value.
  */
-const { ListStub, FormStub, NoopStub } = await vi.hoisted(async () => {
+const { ListStub, FormStub, NoopStub, EmptyStub, emptyStatesCreated } = await vi.hoisted(async () => {
   const { defineComponent, h } = await import('vue')
+  // The title of every empty state, as each one is CREATED: hydration cannot be
+  // seen from a client mount, but a state that is created after mount, and not
+  // the guest's instance updated in place, is what cannot hydrate wrongly.
+  const created: string[] = []
   return {
+    emptyStatesCreated: created,
+    EmptyStub: defineComponent({
+      props: { title: { type: String, default: '' }, description: { type: String, default: '' } },
+      setup: (props, { slots }) => {
+        created.push(props.title)
+        return () => h('section', [h('h3', props.title), h('p', props.description), slots.actions?.()])
+      },
+    }),
     ListStub: defineComponent({
       props: { comments: { type: Array as () => { id: number }[], default: () => [] } },
       setup: props => () => h('ol', props.comments.map(c => h('li', { 'data-comment': c.id }))),
@@ -83,6 +98,8 @@ const { ListStub, FormStub, NoopStub } = await vi.hoisted(async () => {
 })
 vi.mock('~/components/Blog/Post/Comments/List.vue', () => ({ default: ListStub }))
 vi.mock('~/components/variants/webside/Blog/Post/Comments/List.vue', () => ({ default: ListStub }))
+vi.mock('~/components/Empty/State.vue', () => ({ default: EmptyStub }))
+vi.mock('~/components/variants/webside/Empty/State.vue', () => ({ default: EmptyStub }))
 vi.mock('~/components/DynamicForm/index.vue', () => ({ default: FormStub }))
 vi.mock('~/components/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
 vi.mock('~/components/variants/webside/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
@@ -276,6 +293,26 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
 
     expect(wrapper.find('[data-test="submit"]').exists()).toBe(false)
     expect(button(wrapper, COPY.guestPrompt)).toBeTruthy()
+  })
+
+  it('draws the guest empty state first for a signed-in reader and creates the signed-in one after mount', async () => {
+    session.loggedIn ??= ref(false)
+    session.user ??= ref(null)
+    session.loggedIn.value = true
+    session.user.value = { id: 9 }
+    emptyStatesCreated.length = 0
+    api.routes({ [PROXY_URL]: page([]) })
+
+    const wrapper = await mount()
+    await flushPromises()
+
+    // The guest state is what the cached page was sent and what hydrates; the
+    // signed-in one is a separate element that only exists once mounted.
+    expect(emptyStatesCreated).toEqual([COPY.guestTitle, COPY.title])
+    expect(wrapper.text()).toContain(COPY.title)
+    expect(wrapper.text()).toContain(COPY.description)
+    expect(wrapper.text()).not.toContain(COPY.guestTitle)
+    expect(wrapper.find('[data-test="submit"]').exists()).toBe(true)
   })
 
   it('renders nothing, and asks for no comments, when the merchant turned comments off', async () => {

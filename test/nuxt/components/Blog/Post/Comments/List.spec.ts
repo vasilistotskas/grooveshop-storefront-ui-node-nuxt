@@ -32,9 +32,9 @@ describe.each(trees(CommentsList, WebsideCommentsList))('$tree Blog/Post/Comment
     session.userId = null
   })
 
-  const mount = () => mountSuspended(C, {
+  const mount = (comments = COMMENTS) => mountSuspended(C, {
     route: false,
-    props: { comments: COMMENTS, displayImageOf: 'user' },
+    props: { comments, displayImageOf: 'user' },
     global: { stubs: { [own('BlogPostCommentsCard')]: { props: ['comment'], template: '<article :data-id="comment.id" />' } } },
   })
   const order = (wrapper: Awaited<ReturnType<typeof mount>>) => wrapper.findAll('article').map(card => card.attributes('data-id'))
@@ -48,5 +48,33 @@ describe.each(trees(CommentsList, WebsideCommentsList))('$tree Blog/Post/Comment
     session.userId = 9
 
     expect(order(await mount())).toEqual(['2', '1', '3'])
+  })
+
+  it('keeps the order of a list that is all the reader own comments', async () => {
+    session.loggedIn = true
+    session.userId = 7
+    const all = [4, 3, 2].map(id => makeBlogComment({ id, user: { ...makeBlogComment().user, id: 7 } }))
+
+    expect(order(await mount(all))).toEqual(['4', '3', '2'])
+  })
+
+  it('puts all of the reader comments first and keeps the others in their order', async () => {
+    session.loggedIn = true
+    session.userId = 7
+    const mixed = [5, 4, 3, 2, 1].map(id => makeBlogComment({ id, user: { ...makeBlogComment().user, id: id % 2 ? 7 : 9 } }))
+
+    expect(order(await mount(mixed))).toEqual(['5', '3', '1', '4', '2'])
+  })
+})
+
+describe('useBlogCommentList before the browser has mounted', () => {
+  it('sends the list as it came, whoever the reader is: the page is cached anonymously', () => {
+    session.loggedIn = true
+    session.userId = 9
+
+    const { sortedComments, userHasCommented } = useBlogCommentList(COMMENTS)
+
+    expect(sortedComments.value.map(comment => comment.id)).toEqual([1, 2, 3])
+    expect(userHasCommented(COMMENTS[1]!)).toBe(false)
   })
 })

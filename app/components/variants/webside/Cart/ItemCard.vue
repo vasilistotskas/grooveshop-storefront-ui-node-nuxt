@@ -152,7 +152,14 @@ const formattedTotal = computed(() => {
       <!-- `mt-auto` pins this row to the bottom of the text column so
            the remove button lands at the block's bottom-right however
            tall the title wraps. -->
-      <div class="mt-auto flex items-end justify-between gap-3 pt-4">
+      <!-- Below sm the column is 192-262px wide (320-390px, with the thumbnail
+           and the gap taken off): the 128px stepper, the total and the 44px
+           bin do not fit one line there, so the row wraps. -->
+      <div
+        class="
+          mt-auto flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-4
+        "
+      >
         <!-- Width is the whole of T13: this control is the SAME
              `UInputNumber` the product page uses, and it only looked
              like a full-width bar because its container was
@@ -164,14 +171,19 @@ const formattedTotal = computed(() => {
              optimistic mirror, 400ms debounce, serialised writes and
              revert-on-4xx, none of which the product page has (it
              only feeds a number to add-to-cart). -->
-        <div class="w-28 shrink-0">
+        <div
+          class="
+            w-28 shrink-0
+            max-sm:w-32
+          "
+        >
           <WebsideQuantitySelector
             :max="cartItem.product.stock"
             :cart-item-id="cartItem.id"
           />
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="ms-auto flex items-center gap-2">
           <p class="text-sm font-medium">
             {{ t('total') }}: {{ formattedTotal }}
           </p>
@@ -181,6 +193,8 @@ const formattedTotal = computed(() => {
             icon="i-fa6-solid-trash"
             size="sm"
             :title="t('remove_from_cart', { name: alt })"
+            :aria-label="t('remove_from_cart', { name: alt })"
+            class="max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center"
             @click="deleteCartItemEvent({ cartItemId: cartItem.id })"
           />
         </div>

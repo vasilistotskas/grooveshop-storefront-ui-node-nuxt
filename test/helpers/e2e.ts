@@ -4,6 +4,8 @@ import { createServer, request as httpRequest } from 'node:http'
 import { afterAll, beforeAll } from 'vitest'
 import { setup, url, useTestContext } from '@nuxt/test-utils/e2e'
 
+export { markupWithoutScriptsAndStyles } from './html'
+
 /**
  * The harness every `test/e2e` spec shares: a fake Django on a random
  * port, a REAL Nuxt dev server pointed at it, and a request helper that

@@ -217,7 +217,7 @@ useSeoMeta({
 
       <div
         class="
-          grid gap-6
+          grid grid-cols-[minmax(0,1fr)] gap-6
           lg:grid-cols-[minmax(0,1fr)_25rem] lg:items-start lg:gap-14
         "
       >

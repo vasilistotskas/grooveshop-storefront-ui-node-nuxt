@@ -1,5 +1,4 @@
 import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
-import { getQuery } from 'h3'
 
 export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
@@ -19,13 +18,5 @@ export default defineCachedRoute(async (event) => {
   maxAge: 60 * 60, // 1 hour - authors change rarely
   staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
-  getKey: (event) => {
-    const query = getQuery(event)
-    const keyParts = [
-      query.pageSize || '10',
-      query.page || '1',
-      query.languageCode || 'el',
-    ]
-    return tenantCacheKey(event, `blog-authors:${keyParts.join(':')}`)
-  },
+  getKey: event => tenantCacheKey(event, `blog-authors:${queryCacheKey(event, zListBlogAuthorQuery)}`),
 })

@@ -263,7 +263,10 @@ const appTitle = computed(() => tenantStore.storeName || '')
           color="neutral"
           variant="ghost"
           square
-          class="xl:hidden"
+          class="
+            max-sm:min-h-11 max-sm:min-w-11
+            xl:hidden
+          "
           @click="() => { mobileMenuOpen = true }"
         />
 

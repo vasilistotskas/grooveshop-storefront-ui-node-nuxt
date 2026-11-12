@@ -200,6 +200,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           size="sm"
           class="
             absolute inset-e-2 top-2 z-10 bg-default/90 ring-0
+            after:absolute after:-inset-2
             hover:bg-default
           "
           @favourite-delete="onFavouriteDelete"
@@ -262,7 +263,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       />
 
       <div class="mt-0.5 flex items-center justify-between gap-2">
-        <div class="flex flex-wrap items-baseline gap-x-2">
+        <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
           <span
             class="
               font-mono text-base font-bold text-highlighted tabular-nums
@@ -293,7 +294,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           size="sm"
           icon-only
           class="
-            relative z-10
+            relative z-10 min-h-11 min-w-11 shrink-0
             sm:hidden
           "
         />
