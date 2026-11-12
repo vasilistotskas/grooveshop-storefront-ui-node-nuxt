@@ -4,7 +4,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductsGrid from '~/components/PageSection/ProductsGrid.vue'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
-import { inlineT } from '~~/test/helpers/inlineCopy'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
 /** Stands in for a product card: shows the product id and the add-to-cart choice. */
 const CardStub = defineComponent({
@@ -25,7 +25,7 @@ const products = (ids: number[], descriptor: DataDescriptor<'product'> = newest)
   descriptor,
 }) as ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 
-const t = inlineT('app/components/PageSection/ProductsGrid.vue')
+const COPY = inlineCopy('app/components/PageSection/ProductsGrid.vue')
 
 const mountGrid = (props: Record<string, unknown> = {}) =>
   mountSuspended(ProductsGrid, { route: false, props: { products: products([7, 8]), ...props }, global: { stubs: { ProductCard: CardStub } } })
@@ -34,7 +34,7 @@ const mountGrid = (props: Record<string, unknown> = {}) =>
  * `products_grid` (and `featured_products`, which is the same band): the
  * products a rule or a hand-picked list came to, drawn as a grid. The band
  * reads nothing: the page route resolved its `products`. The copy is the
- * component's own `<i18n>` (el, `inlineT`).
+ * component's own `<i18n>` (el, `inlineCopy`).
  */
 describe('PageSection/ProductsGrid', () => {
   beforeEach(() => {
@@ -52,23 +52,23 @@ describe('PageSection/ProductsGrid', () => {
 
     expect(wrapper.findAll('[data-product]').map(li => li.attributes('data-product'))).toEqual(['7', '8'])
     const link = wrapper.find('a')
-    expect([link.text(), link.attributes('href')]).toEqual([t('all_products'), '/products'])
+    expect([link.text(), link.attributes('href')]).toEqual([COPY.all_products, '/products'])
   })
 
   it.each<[DataDescriptor<'product'>, string]>([
-    [{ mode: 'filter', ordering: 'newest', limit: 8 }, 'heading.newest'],
-    [{ mode: 'filter', ordering: 'mostViewed', limit: 8 }, 'heading.mostViewed'],
-    [{ mode: 'filter', ordering: 'mostLiked', limit: 8 }, 'heading.mostLiked'],
-    [{ mode: 'filter', ordering: 'topRated', limit: 8 }, 'heading.topRated'],
-    [{ mode: 'filter', ordering: 'discounted', limit: 8 }, 'heading.discounted'],
-    [{ mode: 'filter', ordering: 'priceAsc', limit: 8 }, 'heading.priceAsc'],
-    [{ mode: 'filter', ordering: 'priceDesc', limit: 8 }, 'heading.priceDesc'],
-    [{ mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 8 }, 'heading.newest'],
-    [{ mode: 'picked', ids: [7, 8] }, 'heading.picked'],
-  ])('names a band by what it lists: %j is %s', async (descriptor, heading) => {
+    [{ mode: 'filter', ordering: 'newest', limit: 8 }, 'newest'],
+    [{ mode: 'filter', ordering: 'mostViewed', limit: 8 }, 'mostViewed'],
+    [{ mode: 'filter', ordering: 'mostLiked', limit: 8 }, 'mostLiked'],
+    [{ mode: 'filter', ordering: 'topRated', limit: 8 }, 'topRated'],
+    [{ mode: 'filter', ordering: 'discounted', limit: 8 }, 'discounted'],
+    [{ mode: 'filter', ordering: 'priceAsc', limit: 8 }, 'priceAsc'],
+    [{ mode: 'filter', ordering: 'priceDesc', limit: 8 }, 'priceDesc'],
+    [{ mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 8 }, 'newest'],
+    [{ mode: 'picked', ids: [7, 8] }, 'picked'],
+  ])('names a band by what it lists: %j is the %s heading', async (descriptor, heading) => {
     const wrapper = await mountGrid({ products: products([7, 8], descriptor) })
 
-    expect(wrapper.find('h2').text()).toBe(t(heading))
+    expect(wrapper.find('h2').text()).toBe(COPY.heading[heading])
   })
 
   it('passes the operator\'s add-to-cart choice to every card', async () => {

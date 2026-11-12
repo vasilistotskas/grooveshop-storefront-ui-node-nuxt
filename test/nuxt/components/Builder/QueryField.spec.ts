@@ -7,7 +7,7 @@ import BuilderQueryField from '~/components/Builder/QueryField.vue'
 import BuilderRecordList from '~/components/Builder/RecordList.vue'
 import BuilderRecordPicker from '~/components/Builder/RecordPicker.vue'
 import type { BuilderQueryDescriptor } from '~/utils/builderQuery'
-import { inlineT } from '~~/test/helpers/inlineCopy'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
 /**
  * The control of a list setting (`builderField.query`): how the merchant says
@@ -44,7 +44,7 @@ async function mount(field: Field, value: unknown, disabled = false) {
   return { wrapper, updates }
 }
 
-const copy = inlineT('app/components/Builder/QueryField.vue')
+const COPY = inlineCopy('app/components/Builder/QueryField.vue')
 
 /**
  * Opens the select its field labels `label` and picks the option named
@@ -109,7 +109,7 @@ describe('BuilderQueryField', () => {
   it('writes the stock choice into a product rule', async () => {
     const { wrapper, updates } = await mount(productField, { mode: 'filter', ordering: 'newest', limit: 6 })
 
-    await choose(wrapper, copy('stock.label'), copy('stock.inStockFirst'))
+    await choose(wrapper, COPY.stock.label, COPY.stock.inStockFirst)
 
     expect(updates).toEqual([{ mode: 'filter', ordering: 'newest', limit: 6, stock: 'inStockFirst' }])
   })
@@ -117,7 +117,7 @@ describe('BuilderQueryField', () => {
   it('takes the stock key out for "as they come"', async () => {
     const { wrapper, updates } = await mount(productField, { mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 6 })
 
-    await choose(wrapper, copy('stock.label'), copy('stock.any'))
+    await choose(wrapper, COPY.stock.label, COPY.stock.any)
 
     expect(updates).toEqual([{ mode: 'filter', ordering: 'newest', limit: 6 }])
   })

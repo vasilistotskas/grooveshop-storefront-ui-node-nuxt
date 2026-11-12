@@ -4,7 +4,7 @@ import type { Component } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SearchInput from '~/components/Search/Input.vue'
 import WebsideSearchInput from '~/components/variants/webside/Search/Input.vue'
-import { inlineT } from '~~/test/helpers/inlineCopy'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -20,7 +20,7 @@ vi.mock('~/components/variants/webside/Search/Modal.vue', () => ({
   default: { props: ['open', 'query'], template: '<div data-test="palette" :data-open="open" />' },
 }))
 
-const COPY = { placeholder: inlineT('app/components/Search/Input.vue')('search.placeholder') }
+const COPY = { placeholder: inlineCopy('app/components/Search/Input.vue').search.placeholder }
 
 describe('Search/Input', () => {
   it('gives the header an icon button and a field', async () => {
@@ -166,6 +166,6 @@ describe('webside Search/Input', () => {
     // is part of it) is a name a voice-control user cannot say.
     const button = wrapper.find('button')
     expect(button.attributes('aria-label')).toBeUndefined()
-    expect(button.text()).toContain(inlineT('app/components/variants/webside/Search/Input.vue')('search.placeholder'))
+    expect(button.text()).toContain(inlineCopy('app/components/variants/webside/Search/Input.vue').search.placeholder)
   })
 })

@@ -4,7 +4,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductsSlider from '~/components/PageSection/ProductsSlider.vue'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
-import { inlineT } from '~~/test/helpers/inlineCopy'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import type { PRODUCT_STOCK_MODES } from '~~/shared/constants/builder'
 
 /** Stands in for the rail: renders the ids of the products it was handed. */
@@ -23,7 +23,7 @@ const products = (ids: number[], descriptor: DataDescriptor<'product'>) => ({
 
 const rule = (ordering: ProductOrdering, stock?: (typeof PRODUCT_STOCK_MODES)[number]): DataDescriptor<'product'> => ({ mode: 'filter', ordering, limit: 8, ...(stock && { stock }) })
 
-const t = inlineT('app/components/PageSection/ProductsSlider.vue')
+const COPY = inlineCopy('app/components/PageSection/ProductsSlider.vue')
 
 const mountSlider = (props: Record<string, unknown> = {}) =>
   mountSuspended(ProductsSlider, {
@@ -40,7 +40,7 @@ const seeAll = (wrapper: Awaited<ReturnType<typeof mountSlider>>) => {
 /**
  * A rail of products whose heading and "see all" say what it draws, so
  * three rails on one homepage read as three different bands. The copy
- * is the component's own `<i18n>` (el, `inlineT`). The rail reads nothing:
+ * is the component's own `<i18n>` (el, `inlineCopy`). The rail reads nothing:
  * the page route resolved its products.
  */
 describe('PageSection/ProductsSlider', () => {
@@ -62,7 +62,7 @@ describe('PageSection/ProductsSlider', () => {
   ] as const)('sends "see all" of a rule with stock %s to the matching listing', async (stock, href) => {
     const wrapper = await mountSlider({ products: products([7, 8], rule('newest', stock)) })
 
-    expect(seeAll(wrapper)).toEqual([t('all.newest'), href])
+    expect(seeAll(wrapper)).toEqual([COPY.all.newest, href])
   })
 
   it('draws the products it was given', async () => {
@@ -77,23 +77,23 @@ describe('PageSection/ProductsSlider', () => {
    * have none, so they open the plain listing.
    */
   it.each([
-    { ordering: 'newest', link: ['all.newest', '/products?sort=-createdAt'] },
-    { ordering: 'mostViewed', link: ['all.mostViewed', '/products?sort=-viewCount'] },
-    { ordering: 'mostLiked', link: ['all.mostLiked', '/products?sort=-likesCount'] },
-    { ordering: 'discounted', link: ['all_products', '/products'] },
-    { ordering: 'topRated', link: ['all_products', '/products'] },
-  ] as const)('names a $ordering rail for what it lists and sends "see all" to the matching listing', async ({ ordering, link: [text, href] }) => {
+    { ordering: 'newest', link: [COPY.all.newest, '/products?sort=-createdAt'] },
+    { ordering: 'mostViewed', link: [COPY.all.mostViewed, '/products?sort=-viewCount'] },
+    { ordering: 'mostLiked', link: [COPY.all.mostLiked, '/products?sort=-likesCount'] },
+    { ordering: 'discounted', link: [COPY.all_products, '/products'] },
+    { ordering: 'topRated', link: [COPY.all_products, '/products'] },
+  ] as const)('names a $ordering rail for what it lists and sends "see all" to the matching listing', async ({ ordering, link }) => {
     const wrapper = await mountSlider({ products: products([7, 8], rule(ordering)) })
 
-    expect(wrapper.find('h2').text()).toBe(t(`heading.${ordering}`))
-    expect(seeAll(wrapper)).toEqual([t(text), href])
+    expect(wrapper.find('h2').text()).toBe(COPY.heading[ordering])
+    expect(seeAll(wrapper)).toEqual(link)
   })
 
   it('names a hand-picked rail for it, and sends "see all" to the plain listing', async () => {
     const wrapper = await mountSlider({ products: products([7, 8], { mode: 'picked', ids: [7, 8] }) })
 
-    expect(wrapper.find('h2').text()).toBe(t('heading.picked'))
-    expect(seeAll(wrapper)).toEqual([t('all_products'), '/products'])
+    expect(wrapper.find('h2').text()).toBe(COPY.heading.picked)
+    expect(seeAll(wrapper)).toEqual([COPY.all_products, '/products'])
   })
 
   it('uses the operator\'s heading and link over the defaults', async () => {
@@ -118,7 +118,7 @@ describe('PageSection/ProductsSlider', () => {
   it('names an operator link without words generically, since it may lead anywhere', async () => {
     const wrapper = await mountSlider({ products: products([7, 8], rule('newest', 'inStockOnly')), ctaLink: '/offers' })
 
-    expect(seeAll(wrapper)).toEqual([t('all_products'), '/offers'])
+    expect(seeAll(wrapper)).toEqual([COPY.all_products, '/offers'])
   })
 
   // The colour scheme reaches the band, which draws it as Nuxt UI's subtree

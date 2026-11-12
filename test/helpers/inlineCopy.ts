@@ -20,25 +20,26 @@ export function inlineCopy(file: string, locale: SupportedLocale = DEFAULT_LOCAL
   return YAML.parse(block.content)[locale]
 }
 
+/** A block's messages in one locale: a text, or a group of further messages. */
+export interface InlineMessages {
+  [key: string]: string | InlineMessages
+}
+
 /** Formats one message of a component's `<i18n>` block, as the component's `t` does. */
 export type InlineTranslate = (key: string, params?: Record<string, unknown>, plural?: number) => string
 
 /**
- * The same messages formatted by vue-i18n, the library the component's `t`
- * is: interpolation (`{count}`) and plural choices (`a | b`) come out as the
- * component draws them, which `inlineCopy` (the raw text) cannot give. The
- * global `$i18n` holds only the app's shared messages, never a block's. Typed
- * as `useBuilderLabels` builds its own composer; a block with no messages in
- * a locale (webside's Greek-only ones) has none there.
+ * A block's messages formatted by vue-i18n, the library the component's `t`
+ * is, for a message that interpolates (`{count}`) or chooses a plural
+ * (`a | b`): the raw text `inlineCopy` gives is not what the component
+ * draws. A plain message is `inlineCopy(file).key`, already the exact text.
+ * The global `$i18n` holds only the app's shared messages, never a block's.
+ * A block with no messages in a locale (webside's Greek-only ones) has none
+ * there.
  */
 export function inlineT(file: string, locale: SupportedLocale = DEFAULT_LOCALE): InlineTranslate {
-  // The schema only types the keys as strings (a nested key is `a.b`); an
-  // open nested schema makes TypeScript expand every path of it.
-  const { t } = createI18n<[Record<string, string>], SupportedLocale, false>({
-    legacy: false,
-    locale,
-    // Every locale the app has, as the type requires: a new one fails here.
-    messages: { el: inlineCopy(file, 'el') ?? {}, en: inlineCopy(file, 'en') ?? {} },
-  }).global
+  // Every locale the app has, as the type requires: a new one fails here.
+  const messages: Record<SupportedLocale, InlineMessages> = { el: inlineCopy(file, 'el') ?? {}, en: inlineCopy(file, 'en') ?? {} }
+  const { t } = createI18n<[InlineMessages], SupportedLocale, false>({ legacy: false, locale, messages }).global
   return (key, params = {}, plural) => (plural === undefined ? t(key, params) : t(key, params, plural))
 }
