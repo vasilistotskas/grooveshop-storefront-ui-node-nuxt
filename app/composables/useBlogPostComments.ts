@@ -33,7 +33,9 @@ export async function useBlogPostComments(options: {
   const toast = useToast()
   const { notify } = useApiError()
   const route = useRoute()
-  const { loggedIn, user } = useUserSession()
+  // Guest until mounted: the page is cached and sent anonymously, and this
+  // section hydrates lazily, after the session has arrived.
+  const { loggedIn, user } = useSessionAfterHydration()
   const { loadLikedComments } = useUserStore()
   const cursorState = useState<CursorState>('cursor-state')
 

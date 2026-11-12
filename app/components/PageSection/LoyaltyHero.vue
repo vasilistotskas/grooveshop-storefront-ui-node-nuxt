@@ -41,18 +41,12 @@ const { t, locale } = useStoreI18n('components/PageSection/LoyaltyHero')
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()
-const { loggedIn } = useUserSession()
+const { loggedIn: member } = useSessionAfterHydration()
 const loyalty = useLoyalty()
 
 const offered = useStoreFeature('loyalty')
 const settings = useLoyaltySettings()
 const { data: tiers } = await loyalty.fetchTiers()
-
-const mounted = ref(false)
-onMounted(() => {
-  mounted.value = true
-})
-const member = computed(() => mounted.value && loggedIn.value)
 
 const ladder = computed(() => tiers.value ?? [])
 
