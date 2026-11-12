@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import WebsideProductCard from '~/components/variants/webside/Product/Card.vue'
 import { makeProduct } from '~~/test/fixtures/product'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 // The browser shares: the share button is drawn (happy-dom has no Web Share).
 mockNuxtImport('useShare', () => () => ({ share: () => Promise.resolve(), isSupported: ref(true) }))
@@ -89,16 +89,48 @@ describe('webside Product/Card in a narrow container', () => {
     expect(buy.attributes('aria-label')).toBe('Στο καλάθι: Κλιπ καλωδίων')
     expect(buy.find('[data-slot="label"]').text()).toBe('Στο καλάθι')
     // Icon-only and 44px square in a narrow card, the label kept for screen readers.
-    expect(buy.classes()).toEqual(expect.arrayContaining(['@max-3xs:size-11', '@max-3xs:*:data-[slot=label]:sr-only']))
+    expect(buy.classes()).toEqual(expect.arrayContaining(['@max-3xs/card:size-11', '@max-3xs/card:*:data-[slot=label]:sr-only']))
   })
 
-  it('is its own container, and drops the share button and the price caption in a narrow one', async () => {
+  // A desktop listing beside its filters has cards ~170px wide too: being
+  // narrow is not enough. The card is the container named `card` below
+  // `sm` only, and every compact class asks THAT container, so from `sm`
+  // up no query matches and the card is the full one, in every list.
+  it('is compact only as a phone\'s narrow card: every compact class asks the card container, which exists below sm only', async () => {
+    const wrapper = await mountCard()
+    await vi.waitFor(() => expect(wrapper.find('button[aria-label^="Στο καλάθι"]').exists()).toBe(true))
+
+    const root = wrapper.find('.product-card').classes()
+    expect(root).toContain('max-sm:@container/card')
+    expect(root.filter(name => /^@container/.test(name))).toEqual([])
+    const queries = wrapper.findAll('*').flatMap(node => node.classes()).filter(name => name.startsWith('@max-') || name.startsWith('@min-'))
+    expect(queries.length).toBeGreaterThan(10)
+    expect(queries.filter(name => !/^@max-3xs\/card:/.test(name))).toEqual([])
+  })
+
+  it('fits the sold-out card\'s restock button to a phone\'s narrow card only', async () => {
+    setTenantFeatures({ productAlerts: true })
+    const wrapper = await mountSuspended(WebsideProductCard, {
+      props: { product: makeProduct({ id: 8, stock: 0 }) },
+      global: { stubs: { ImgWithFallback: true } },
+      route: false,
+    })
+
+    const restock = await vi.waitFor(() => {
+      const found = wrapper.findAll('button').find(button => button.text() === 'Ειδοποίησέ με όταν γίνει διαθέσιμο')
+      expect(found).toBeDefined()
+      return found!
+    })
+    const queries = restock.classes().filter(name => name.startsWith('@'))
+    expect(queries).toEqual(['@max-3xs/card:px-2', '@max-3xs/card:text-sm'])
+  })
+
+  it('drops the share button and the price caption when compact', async () => {
     const wrapper = await mountCard()
 
-    expect(wrapper.find('.product-card').classes()).toContain('@container')
     const caption = wrapper.findAll('span').find(span => span.text() === 'Τελική Τιμή')!
-    expect(caption.classes()).toContain('@max-3xs:hidden')
-    expect(wrapper.get('button[aria-label="Κοινοποίηση"]').classes()).toContain('@max-3xs:hidden')
+    expect(caption.classes()).toContain('@max-3xs/card:hidden')
+    expect(wrapper.get('button[aria-label="Κοινοποίηση"]').classes()).toContain('@max-3xs/card:hidden')
   })
 
   // WCAG 2.5.8 and the phone's 44px rule: the 32px corner buttons get a

@@ -157,7 +157,7 @@ describe('webside Product/Suggestions', () => {
     const wrapper = await mountStrip()
 
     const buy = wrapper.findAll('button.add-to-cart')[0]!
-    expect(buy.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-1']))
+    expect(buy.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-top-2', 'after:-left-2', 'after:right-0', 'after:bottom-0']))
     const favourite = wrapper.findAll('webside-button-product-add-to-favourite-stub')[0]!
     expect(favourite.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-2']))
   })

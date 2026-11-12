@@ -136,7 +136,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       hover:scale-[1.02] hover:shadow-xl
     "
     :ui="{
-      root: '@container w-full max-w-full',
+      root: `
+        w-full max-w-full
+        max-sm:@container/card
+      `,
       body: `
         p-0
         sm:p-0
@@ -152,7 +155,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       <div
         class="
           absolute top-4 left-4 z-10 flex flex-col gap-2
-          @max-3xs:top-auto @max-3xs:bottom-2 @max-3xs:left-2 @max-3xs:gap-1
+          @max-3xs/card:top-auto @max-3xs/card:bottom-2 @max-3xs/card:left-2
+          @max-3xs/card:gap-1
         "
       >
         <UBadge
@@ -188,8 +192,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
            phone's 44px rule): the ::after pads the target, not the glyph. -->
       <div
         class="
-          absolute top-4 right-4 z-10 flex gap-3
-          @max-3xs:top-1.5 @max-3xs:right-1.5
+          absolute top-4 right-4 z-10 flex gap-2
+          @max-3xs/card:top-1.5 @max-3xs/card:right-1.5
         "
       >
         <ClientOnly>
@@ -206,7 +210,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             class="
               relative
               after:absolute after:-inset-1.5
-              @max-3xs:hidden
+              @max-3xs/card:hidden
             "
             @click.stop="startShare"
           />
@@ -224,7 +228,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               color="neutral"
               square
               variant="soft"
-              class="@max-3xs:hidden"
+              class="@max-3xs/card:hidden"
             />
           </template>
         </ClientOnly>
@@ -250,7 +254,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <div
           class="
             aspect-4/3 max-w-full overflow-hidden
-            @max-3xs:aspect-square
+            @max-3xs/card:aspect-square
           "
           :class="{
             // Dim out-of-stock products so browsing scannability
@@ -278,7 +282,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
     <div
       class="
         flex flex-col gap-4 p-4
-        @max-3xs:gap-2 @max-3xs:p-2.5
+        @max-3xs/card:gap-2 @max-3xs/card:p-2.5
       "
     >
       <NuxtLink
@@ -291,7 +295,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             line-clamp-2 min-h-12 text-lg leading-snug font-bold
             text-neutral-950 transition-colors
             group-hover/link:text-primary-600
-            @max-3xs:min-h-10 @max-3xs:text-sm
+            @max-3xs/card:min-h-10 @max-3xs/card:text-sm
             dark:text-neutral-50
             dark:group-hover/link:text-primary-400
           "
@@ -325,8 +329,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       <div
         class="
           flex flex-col gap-4
-          @max-3xs:flex-row @max-3xs:items-end @max-3xs:justify-between
-          @max-3xs:gap-1
+          @max-3xs/card:flex-row @max-3xs/card:items-end
+          @max-3xs/card:justify-between @max-3xs/card:gap-1
         "
       >
         <div class="flex min-w-0 flex-col gap-2">
@@ -358,7 +362,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               <span
                 class="
                   text-xs text-neutral-600
-                  @max-3xs:hidden
+                  @max-3xs/card:hidden
                   dark:text-neutral-300
                 "
               >
@@ -367,7 +371,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               <span
                 class="
                   text-2xl font-bold text-neutral-950
-                  @max-3xs:text-lg
+                  @max-3xs/card:text-lg
                   dark:text-neutral-50
                 "
               >
@@ -386,8 +390,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           class="
             w-full transition-all duration-300
             hover:scale-105
-            @max-3xs:size-11 @max-3xs:shrink-0 @max-3xs:p-0
-            @max-3xs:*:data-[slot=label]:sr-only
+            @max-3xs/card:size-11 @max-3xs/card:shrink-0 @max-3xs/card:p-0
+            @max-3xs/card:*:data-[slot=label]:sr-only
           "
         />
       </div>

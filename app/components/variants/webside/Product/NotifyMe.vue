@@ -92,7 +92,7 @@ watchEffect(() => {
       variant="outline"
       icon="i-heroicons-bell-alert"
       size="xl"
-      class="@max-3xs:px-2 @max-3xs:text-sm"
+      class="@max-3xs/card:px-2 @max-3xs/card:text-sm"
     >
       {{ t(`${kind}.cta`) }}
     </UButton>

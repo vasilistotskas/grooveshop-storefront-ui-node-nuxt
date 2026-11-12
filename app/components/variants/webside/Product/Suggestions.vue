@@ -177,6 +177,9 @@ const arrowButton = {
             v-if="cartEnabled"
             class="absolute right-0 bottom-0"
           >
+            <!-- 36px, with a 44px hit area: the ::after grows up and to
+                 the left only, since the picture clips what passes its
+                 corner. -->
             <LazyWebsideButtonProductAddToCart
               :product="item.product"
               :quantity="1"
@@ -185,7 +188,8 @@ const arrowButton = {
               icon-only
               class="
                 relative
-                after:absolute after:-inset-1
+                after:absolute after:-top-2 after:right-0 after:bottom-0
+                after:-left-2
               "
             />
           </div>
