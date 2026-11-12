@@ -22,8 +22,6 @@ export async function useProductListing(options: {
   const route = useRoute()
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
-  const { loggedIn, user } = useUserSession()
-  const { updateFavouriteProducts } = useUserStore()
   const {
     filters,
     updateFilters,
@@ -143,22 +141,6 @@ export async function useProductListing(options: {
 
   const { data: products, status } = request
 
-  const productIds = computed(() => {
-    if (!products.value) return []
-    // For search results, use 'master' field (the actual product ID)
-    // For regular products, use 'id' field
-    return products.value.results?.map((product) => {
-      if ('master' in product && typeof product.master === 'number') {
-        return product.master
-      }
-      return product.id
-    }) || []
-  })
-
-  const shouldFetchFavouriteProducts = computed(() => {
-    return loggedIn.value && productIds.value.length > 0
-  })
-
   const totalResults = computed(() => products.value?.estimatedTotalHits || 0)
   const totalPages = computed(() => Math.ceil(totalResults.value / limit.value))
 
@@ -255,52 +237,6 @@ export async function useProductListing(options: {
     },
     { immediate: true },
   )
-
-  // User-specific data: client-side only to avoid blocking SSR.
-  //
-  // The fetch trigger is deferred to ``onMounted`` — not called during
-  // setup — because Nuxt's payload cache can resolve the request
-  // synchronously on hydration (same key from a prior navigation). That
-  // would populate the user store *before* Vue's hydration walk reaches
-  // the heart buttons, producing a ``Hydration mismatch`` where SSR
-  // rendered "add" and the client expected "remove". Vue logs the warning
-  // in dev and **does not rectify the DOM in production**, so the heart
-  // would stay grey forever on F5. Triggering in ``onMounted`` guarantees
-  // the first client render matches SSR; the subsequent store update
-  // patches the DOM normally through the usual reactive update path.
-  const { data: favourites, execute: fetchFavourites } = useLazyApi('/api/products/favourites/favourites-by-products', {
-    key: computed(() => `favouritesByProducts-${user.value?.id}-${productIds.value.join(',')}`),
-    method: 'POST',
-    body: {
-      productIds,
-    },
-    immediate: false,
-    // `watch: false` is required, not decorative: the reactive `key` and
-    // the reactive `productIds` body are auto-watched, so every change to
-    // the product list refetched this auth-required endpoint even for
-    // anonymous visitors — `immediate` only gates the FIRST call.
-    // Measured on staging: switching language on /products fired it and
-    // took a 401. Same shape as the 2026-07-04 liked-posts incident; the
-    // gated `watchEffect` below is the only thing that may trigger it.
-    watch: false,
-    server: false,
-  })
-
-  watch(favourites, (liked) => {
-    if (liked) updateFavouriteProducts(liked)
-  })
-
-  onMounted(() => {
-    // Re-enter reactivity with ``watchEffect`` after mount so we catch
-    // both "already-true at mount" (user logged in + products loaded) and
-    // "becomes true later" (user logs in mid-session, productIds populate
-    // from SSR payload after hydration). Registering during setup with
-    // ``immediate: true`` would race hydration — see the block comment on
-    // ``useLazyFetch`` above.
-    watchEffect(() => {
-      if (shouldFetchFavouriteProducts.value) fetchFavourites()
-    })
-  })
 
   await request
 

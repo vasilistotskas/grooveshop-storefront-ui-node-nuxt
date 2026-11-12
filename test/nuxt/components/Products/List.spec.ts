@@ -12,8 +12,8 @@ import { trees } from '~~/test/helpers/trees'
  * The listing turns the URL filters into one search request, shows
  * skeletons shaped like the grid until it lands, and — when nothing
  * matches — says which filter to loosen and offers to clear them all.
- * The request, the page logic, the empty state's words and the favourites
- * are one implementation (`useProductListing`) that both trees run, so the
+ * The request, the page logic and the empty state's words are one
+ * implementation (`useProductListing`) that both trees run, so the
  * last suite below runs over both. The suites above it are the default
  * drawing's: its shared grid class and its page links, which webside's
  * List does not have.
@@ -22,21 +22,17 @@ const pf = await vi.hoisted(async () =>
   (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
 mockNuxtImport('useProductFilters', () => () => pf)
 
-const { search, favourites, useApiMock, useLazyApiMock, session } = await vi.hoisted(async () => {
+const { search, useApiMock, session } = await vi.hoisted(async () => {
   const { createAsyncDataMock } = await import('~~/test/helpers/asyncData')
   const { ref } = await import('vue')
   const search = createAsyncDataMock<ProductMeiliSearchResponse>()
-  const favourites = createAsyncDataMock<unknown>()
   return {
     search,
-    favourites,
     useApiMock: vi.fn((_url: string, _options?: any) => search),
-    useLazyApiMock: vi.fn((_url: string, _options?: any) => favourites),
     session: { loggedIn: ref(false), user: ref<{ id: number } | null>(null) },
   }
 })
 mockNuxtImport('useApi', () => useApiMock)
-mockNuxtImport('useLazyApi', () => useLazyApiMock)
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: session.loggedIn,
   user: session.user,
@@ -80,7 +76,6 @@ describe('Products/List', () => {
     pf.reset()
     clearNuxtState('product-listing-limit')
     search.reset()
-    favourites.reset()
     session.loggedIn.value = false
     session.user.value = null
   })
@@ -249,28 +244,6 @@ describe('Products/List', () => {
       expect(wrapper.findComponent({ name: 'ProductsToolbar' }).props('itemsPerPage')).toBe(24)
     })
   })
-
-  describe('favourites', () => {
-    it('are never asked for on a guest\'s visit', async () => {
-      returns(3)
-
-      await mountList()
-      await nextTick()
-
-      expect(favourites.execute).not.toHaveBeenCalled()
-    })
-
-    it('are asked for once the page is mounted for a signed-in shopper with products', async () => {
-      returns(3)
-      session.loggedIn.value = true
-      session.user.value = { id: 9 }
-
-      await mountList()
-      await nextTick()
-
-      expect(favourites.execute).toHaveBeenCalledOnce()
-    })
-  })
 })
 
 /** What both trees share, the brand and availability filters included. */
@@ -279,7 +252,6 @@ describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)'
     pf.reset()
     clearNuxtState('product-listing-limit')
     search.reset()
-    favourites.reset()
     session.loggedIn.value = false
     session.user.value = null
   })
@@ -342,38 +314,5 @@ describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)'
 
     expect(emptyState(wrapper).text()).toContain(t('products.no_results.try_different_attributes'))
     expect(emptyState(wrapper).find('button').exists()).toBe(true)
-  })
-
-  it('asks for the shopper\'s favourites once mounted, for a signed-in shopper with products', async () => {
-    returns(3)
-    session.loggedIn.value = true
-    session.user.value = { id: 9 }
-
-    await mount()
-    await nextTick()
-
-    expect(favourites.execute).toHaveBeenCalledOnce()
-  })
-
-  it('asks a guest nothing about favourites', async () => {
-    returns(3)
-
-    await mount()
-    await nextTick()
-
-    expect(favourites.execute).not.toHaveBeenCalled()
-  })
-
-  it('shows the favourites the answer names', async () => {
-    returns(3)
-    session.loggedIn.value = true
-    session.user.value = { id: 9 }
-    useUserStore().favouriteProductIds = {}
-
-    await mount()
-    favourites.data.value = [{ id: 40, productId: 2 }]
-    await nextTick()
-
-    expect(useUserStore().favouriteProductIds).toEqual({ 2: 40 })
   })
 })

@@ -8,7 +8,7 @@ import type { ProductFavouriteWrite } from '~~/shared/openapi/types.gen'
 import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * A signed-in shopper adds a product to their favourites or removes it.
@@ -33,6 +33,7 @@ mockNuxtImport('useUserSession', () => () => ({
 }))
 
 const FAVOURITE: ProductFavouriteWrite = { id: 11, product: 5 }
+const LOOKUP = '/api/products/favourites/favourites-by-products'
 
 describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavourite))('$tree Button/Product/AddToFavourite', ({ tree, C }) => {
   const COPY = inlineCopy(tree === 'default' ? 'app/components/Button/Product/AddToFavourite.vue' : 'app/components/variants/webside/Button/Product/AddToFavourite.vue')
@@ -40,7 +41,8 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
   beforeEach(() => {
     setTenant()
     loggedIn.value = true
-    useUserStore().favouriteProductIds = {}
+    useUserStore().clearAccountState()
+    api.routes({ [LOOKUP]: [] })
   })
 
   const mount = (favouriteId: number | null = null) =>
@@ -97,6 +99,27 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     }))
     expect(useUserStore().favouriteProductIds).toEqual({})
     expect(control(wrapper).props('loading')).toBe(false)
+  })
+
+  // Every heart asks for its own product when it mounts, so whatever draws
+  // one shows the shopper's favourite (the store batches them, user.spec).
+  it('asks for its product\'s state when it mounts', async () => {
+    await mount()
+    await flushPromises()
+
+    expect(api.callsTo(LOOKUP)).toEqual([{ url: LOOKUP, options: expect.objectContaining({ method: 'POST', body: { productIds: [5] } }) }])
+  })
+
+  it.each([
+    ['for a guest', () => { loggedIn.value = false }],
+    ['with the store\'s favourites off', () => setTenantFeatures({ favourites: false })],
+  ])('asks nothing %s', async (_case, arrange) => {
+    arrange()
+
+    await mount()
+    await flushPromises()
+
+    expect(api.callsTo(LOOKUP)).toEqual([])
   })
 
   it.each([

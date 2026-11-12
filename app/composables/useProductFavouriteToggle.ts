@@ -3,6 +3,14 @@
  * heart button's behaviour, apart from its drawing
  * (`Button/Product/AddToFavourite` and the tenants' own).
  *
+ * Every heart asks for its own product's state when it mounts, signed in
+ * and with the store's favourites on (`lookUpFavourites`: the hearts of
+ * one render go in one request), so whatever draws a heart (a band, a
+ * rail, a suggestion strip, the listing, a product page, a section that
+ * hydrates later) shows the shopper's favourite without asking for it
+ * itself. Not before mount: the page is rendered anonymously, and the
+ * first client render must be that render. A sign-in later asks again.
+ *
  * A favourite is created by product and deleted by its own id, so the
  * button says which one it holds (`favouriteId`, `null` for none yet);
  * `toggle` does the other. A guest gets "sign in first" and no request.
@@ -22,9 +30,16 @@ export function useProductFavouriteToggle(options: {
   const toast = useToast()
   const { notify } = useApiError()
   const { loggedIn } = useUserSession()
-  const { addFavouriteProduct, removeFavouriteProduct } = useUserStore()
+  const { addFavouriteProduct, removeFavouriteProduct, lookUpFavourites } = useUserStore()
+  const favouritesEnabled = useStoreFeature('favourites')
 
   const isLoading = ref(false)
+
+  onMounted(() => {
+    watchEffect(() => {
+      if (loggedIn.value && favouritesEnabled.value) lookUpFavourites([options.productId()])
+    })
+  })
 
   async function toggle() {
     if (!loggedIn.value || !options.userId()) {
