@@ -48,7 +48,7 @@ const props = withDefaults(defineProps<{
   showAddToCart: true,
 })
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 const catalogueEnabled = useStoreFeature('catalogue')
@@ -81,10 +81,10 @@ const search = computed(() => props.showSearch && catalogueEnabled.value)
 
 const buttons = computed(() => [
   props.ctaText && props.ctaLink
-    ? { label: props.ctaText, to: localePath(pathLocation(props.ctaLink)), variant: 'solid' as const }
+    ? { label: props.ctaText, to: linkTo(props.ctaLink), variant: 'solid' as const }
     : null,
   props.secondaryCtaText && props.secondaryCtaLink
-    ? { label: props.secondaryCtaText, to: localePath(pathLocation(props.secondaryCtaLink)), variant: 'outline' as const }
+    ? { label: props.secondaryCtaText, to: linkTo(props.secondaryCtaLink), variant: 'outline' as const }
     : null,
 ].filter(button => button !== null))
 
@@ -177,7 +177,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
       <component
         :is="pictureFrame"
         v-if="shown"
-        :to="pictureLink ? localePath(pathLocation(pictureLink)) : undefined"
+        :to="pictureLink ? linkTo(pictureLink) : undefined"
         :aria-label="pictureLink && !alt ? linkName : undefined"
         class="
           block overflow-hidden rounded-lg border border-default

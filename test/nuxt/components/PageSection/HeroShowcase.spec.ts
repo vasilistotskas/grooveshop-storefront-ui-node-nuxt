@@ -237,6 +237,20 @@ describe('PageSection/HeroShowcase', () => {
     }
   })
 
+  // A builder link is a store path (localised) or an https URL (someone
+  // else's page, left as it is): the merchant's partner offer must not turn
+  // into a route of the store.
+  it('leads an external link to its own address, and localises a store path', async () => {
+    const external = 'https://partner.example/offer?ref=webside#top'
+
+    const wrapper = await mountHero({ ctaLink: external, secondaryCtaLink: '/blog', imageLink: external })
+
+    expect(wrapper.get('a[href="/blog"]').text()).toBe('Διάβασε τα άρθρα')
+    const outbound = wrapper.findAll(`a[href="${external}"]`)
+    expect(outbound.map(link => link.text())).toEqual(['', 'Δες το κατάστημα'])
+    expect(outbound.map(link => link.attributes('rel'))).toEqual(['noopener noreferrer', 'noopener noreferrer'])
+  })
+
   it('leaves out a button that has text but no link', async () => {
     const wrapper = await mountHero({ ctaLink: undefined })
 

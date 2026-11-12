@@ -21,7 +21,7 @@ withDefaults(defineProps<{
   layout: 'slider',
 })
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 </script>
 
 <template>
@@ -38,7 +38,7 @@ const localePath = useLocalePath()
     :heading="title"
     :subheading="subheading"
     :cta-text="ctaText"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : undefined"
+    :cta-link="ctaLink ? linkTo(ctaLink) : undefined"
     padding="sm"
   >
     <BlogCategoriesSlider

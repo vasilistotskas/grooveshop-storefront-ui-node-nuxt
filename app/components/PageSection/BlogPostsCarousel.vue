@@ -21,6 +21,7 @@ defineProps<{
 
 const { t } = useStoreI18n('components/PageSection/BlogPostsCarousel')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const { isMobileOrTablet } = useDevice()
 
 /**
@@ -60,7 +61,7 @@ const arrowButton = {
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('blog')"
+    :cta-link="ctaLink ? linkTo(ctaLink) : localePath('blog')"
     :surface="surface"
     :color-scheme="colorScheme"
   >

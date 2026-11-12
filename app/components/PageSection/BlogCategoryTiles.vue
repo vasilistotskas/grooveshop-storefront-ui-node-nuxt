@@ -18,6 +18,7 @@ const props = defineProps<{
 
 const { t, locale } = useStoreI18n('components/PageSection/BlogCategoryTiles')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 const tiles = computed(() => props.categories.items.map(category => ({
   id: category.id,
@@ -35,7 +36,7 @@ const tiles = computed(() => props.categories.items.map(category => ({
     :heading="title"
     :subheading="subheading"
     :cta-text="ctaText"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : undefined"
+    :cta-link="ctaLink ? linkTo(ctaLink) : undefined"
   >
     <UPageGrid
       as="ul"

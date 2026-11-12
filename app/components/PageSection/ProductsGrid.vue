@@ -34,6 +34,7 @@ defineSlots<{
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 const label = computed(
   () => props.heading || t(`heading.${productRailKind(props.products.descriptor)}`),
@@ -46,7 +47,7 @@ const label = computed(
     :heading="label"
     :subheading="subheading"
     :cta-text="ctaText || t('all_products')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath({ path: '/products', query: productRailStockQuery(products.descriptor) })"
+    :cta-link="ctaLink ? linkTo(ctaLink) : localePath({ path: '/products', query: productRailStockQuery(products.descriptor) })"
     :surface="surface"
     :color-scheme="colorScheme"
   >

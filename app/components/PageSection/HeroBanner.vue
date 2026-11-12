@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<{
   theme: 'auto',
 })
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 
@@ -177,14 +177,14 @@ const hasContent = computed(
       >
         <UButton
           v-if="ctaText && ctaLink"
-          :to="localePath(pathLocation(ctaLink))"
+          :to="linkTo(ctaLink)"
           :label="ctaText"
           color="secondary"
           size="xl"
         />
         <UButton
           v-if="secondaryCtaText && secondaryCtaLink"
-          :to="localePath(pathLocation(secondaryCtaLink))"
+          :to="linkTo(secondaryCtaLink)"
           :label="secondaryCtaText"
           color="neutral"
           variant="outline"

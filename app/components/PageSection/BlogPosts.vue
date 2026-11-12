@@ -31,6 +31,7 @@ const props = defineProps<{
 
 const { t } = useStoreI18n('components/PageSection/BlogPosts')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 // The name of each post's category is the store's own list of categories:
 // one shared read for every band and page that shows one.
@@ -46,7 +47,7 @@ const categoryName = categories.name
 const allPostsLink = computed(() => {
   const descriptor = props.posts.descriptor
   const path = descriptor.mode === 'filter' && descriptor.category !== undefined ? categories.path(descriptor.category) : undefined
-  return path ? localePath(pathLocation(path)) : localePath('blog')
+  return path ? linkTo(path) : localePath('blog')
 })
 
 const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadMore({
@@ -62,7 +63,7 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : allPostsLink"
+    :cta-link="ctaLink ? linkTo(ctaLink) : allPostsLink"
     :surface="surface"
     :color-scheme="colorScheme"
   >

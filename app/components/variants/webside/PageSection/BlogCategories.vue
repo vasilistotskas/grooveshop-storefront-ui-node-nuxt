@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 /** Whether the band has anything of its own to draw around the slider: the band draws a call to action only with its link. */
 const banded = computed(() => !!(props.title || props.subheading || (props.ctaText && props.ctaLink)))
@@ -44,7 +44,7 @@ const sliderClass = computed(() => [
     :heading="title"
     :subheading="subheading"
     :cta-text="ctaText"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : undefined"
+    :cta-link="ctaLink ? linkTo(ctaLink) : undefined"
     padding="sm"
   >
     <WebsideBlogCategoriesSlider

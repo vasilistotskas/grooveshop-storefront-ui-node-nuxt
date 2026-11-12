@@ -34,6 +34,7 @@ const slots = defineSlots<{
 
 const { t } = useStoreI18n('components/PageSection/ProductsSlider')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 const kind = computed(() => productRailKind(props.products.descriptor))
 
@@ -53,7 +54,7 @@ const cta = computed(() => {
   if (props.ctaText || props.ctaLink) {
     return {
       text: props.ctaText || t('all_products'),
-      link: props.ctaLink ? localePath(pathLocation(props.ctaLink)) : localePath('products'),
+      link: props.ctaLink ? linkTo(props.ctaLink) : localePath('products'),
     }
   }
   const sort = PRODUCT_LISTING_SORT[kind.value]

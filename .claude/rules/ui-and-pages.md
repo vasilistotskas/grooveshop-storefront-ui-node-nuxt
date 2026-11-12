@@ -101,7 +101,12 @@ compatibility. A fixed destination is a name (`localePath('products')`,
 a path known only at runtime (CMS/menu links, notification targets, breadcrumb
 `to`) goes through `pathLocation()` (`app/utils/route.ts`), which keeps its
 `?query` and `#hash`. A bare `{ path }` would drop them, because vue-router
-keeps only the pathname of `path`.
+keeps only the pathname of `path`. A link a store wrote (a page-builder link
+setting, a banner's link), which may be someone else's `https://` page, goes
+through `useLinkTo()` (`app/composables/useLinkTo.ts`): the URL as it is,
+which `NuxtLink` renders as an external link, or the path through
+`pathLocation()`. `localePath(pathLocation(url))` turns an external URL into a
+route of the store.
 
 ## The `webside` design
 
