@@ -413,25 +413,28 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             class="flex items-stretch gap-2.5"
           >
             <template v-if="cartEnabled">
-              <label
-                class="sr-only"
-                for="quantity"
-              >{{ t('qty') }}</label>
-              <UInputNumber
-                id="quantity"
-                v-model="selectorQuantity"
-                :min="1"
-                :max="product.stock || 1"
-                :disabled="productStock === 0"
-                :increment="{ color: 'neutral', variant: 'ghost', size: 'md', class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
-                :decrement="{ color: 'neutral', variant: 'ghost', size: 'md', class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
-                :ui="{
-                  root: 'w-32 shrink-0',
-                  base: `
-                    h-13 rounded-full bg-default text-center font-mono font-bold
-                  `,
-                }"
-              />
+              <!-- No quantity for a product that cannot be bought. -->
+              <template v-if="productStock > 0">
+                <label
+                  class="sr-only"
+                  for="quantity"
+                >{{ t('qty') }}</label>
+                <UInputNumber
+                  id="quantity"
+                  v-model="selectorQuantity"
+                  :min="1"
+                  :max="product.stock"
+                  :increment="{ color: 'neutral', variant: 'ghost', size: 'md', class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+                  :decrement="{ color: 'neutral', variant: 'ghost', size: 'md', class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+                  :ui="{
+                    root: 'w-32 shrink-0',
+                    base: `
+                      h-13 rounded-full bg-default text-center font-mono
+                      font-bold
+                    `,
+                  }"
+                />
+              </template>
               <ButtonProductAddToCart
                 :product="product"
                 :quantity="selectorQuantity || 1"

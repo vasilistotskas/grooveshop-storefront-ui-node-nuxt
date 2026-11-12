@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, onTestFinished } from 'vitest'
 import type { ProductAttribute, PublicValues } from '~~/shared/openapi/types.gen'
 import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
@@ -781,6 +781,36 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
 
     expect(wrapper.text()).not.toContain(lowStockOf(3))
     expect(wrapper.text()).toContain('Διαθέσιμο')
+    wrapper.unmount()
+  })
+
+  // A product that cannot be bought gets no quantity control, in the buy
+  // box or in webside's sticky bar (shown once the page has scrolled past
+  // the buy box): a disabled stepper is a control with nothing to do.
+  it.each([
+    { stock: 0, drawn: false },
+    { stock: 5, drawn: true },
+  ])('draws a quantity control only for a product it sells (stock $stock)', async ({ stock, drawn }) => {
+    serve(makeProduct({ id: 123, stock }))
+    setTenantPreferences({ stickyAddToCart: true })
+    // Past the buy box: the sticky bar shows from 350px down.
+    windowScrollY.value = 1000
+    onTestFinished(() => {
+      windowScrollY.value = 0
+    })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.find('[data-action-bar], [data-dock="bar"]').exists()).toBe(true)
+    expect(wrapper.find('#quantity').exists()).toBe(drawn)
+    // Nuxt UI's stepper in the buy box, and webside's sticky bar's own.
+    const { increment, decrement } = uiLocale.messages.inputNumber
+    const sticky = ['Μείωση ποσότητας', 'Αύξηση ποσότητας']
+    const steppers = wrapper.findAll('button').map(button => button.attributes('aria-label')).filter(label => [increment, decrement, ...sticky].includes(label ?? ''))
+    expect(steppers).toEqual(drawn
+      ? (tree === 'default' ? [increment, decrement] : [increment, decrement, ...sticky])
+      : [])
     wrapper.unmount()
   })
 

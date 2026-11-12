@@ -146,13 +146,15 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
       expect([button.attributes('aria-label'), button.find('[data-slot="label"]').text()]).toEqual([`${BUY}: Καλώδιο`, BUY])
     })
 
-    // Webside's sold-out button used to turn orange: a second brand
-    // colour for "you cannot buy this". It is neutral and says why.
-    it.runIf(tree === 'webside').each([{ iconOnly: false }, { iconOnly: true }])('is neutral when the product cannot be bought (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+    // A button that cannot be used must not look like one that can: it was
+    // the accent (or webside's near-black) solid fill at the disabled
+    // opacity, which a phone reads as live. It is neutral and subtle,
+    // disabled, and says why, wherever it renders.
+    it.each([{ iconOnly: false }, { iconOnly: true }])('looks unavailable when the product cannot be bought (iconOnly: $iconOnly)', async ({ iconOnly }) => {
       const wrapper = await mount({ product: makeProduct({ stock: 0 }), iconOnly })
       const button = wrapper.findComponent({ name: 'UButton' })
 
-      expect([button.props('color'), button.props('variant'), button.props('disabled')]).toEqual(['neutral', 'solid', true])
+      expect([button.props('color'), button.props('variant'), button.props('disabled')]).toEqual(['neutral', 'subtle', true])
     })
 
     it('names the icon-only button after its action or its unavailability', async () => {

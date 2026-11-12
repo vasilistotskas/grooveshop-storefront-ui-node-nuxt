@@ -477,7 +477,11 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 sm:flex-row
               "
             >
-              <div class="flex h-full">
+              <!-- No quantity for a product that cannot be bought. -->
+              <div
+                v-if="productStock > 0"
+                class="flex h-full"
+              >
                 <label
                   class="sr-only mb-2 text-sm font-medium" for="quantity"
                 >
@@ -489,7 +493,6 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   class="h-full"
                   :min="1"
                   :max="product?.stock"
-                  :disabled="productStock === 0"
                   :increment="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
                   :decrement="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
                   :ui="{
@@ -665,6 +668,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 
           <div class="flex items-center gap-3">
             <div
+              v-if="productStock > 0"
               class="
                 hidden items-center gap-1
                 sm:flex
@@ -672,6 +676,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             >
               <UButton
                 icon="i-heroicons-minus"
+                :aria-label="t('decrease_quantity')"
                 color="neutral"
                 variant="ghost"
                 size="sm"
@@ -683,6 +688,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               </span>
               <UButton
                 icon="i-heroicons-plus"
+                :aria-label="t('increase_quantity')"
                 color="neutral"
                 variant="ghost"
                 size="sm"
@@ -720,6 +726,8 @@ el:
         label: Προϊόντα
   product_id: Αναγνωριστικό προϊόντος
   qty: Ποσότητα
+  decrease_quantity: Μείωση ποσότητας
+  increase_quantity: Αύξηση ποσότητας
   share: Μοιράσου το
   max_quantity_reached: Επιτεύχθηκε η μέγιστη ποσότητα
   reviews:
@@ -743,6 +751,8 @@ en:
         label: Products
   product_id: Product ID
   qty: Quantity
+  decrease_quantity: Decrease quantity
+  increase_quantity: Increase quantity
   share: Share it
   max_quantity_reached: Maximum quantity reached
   reviews:

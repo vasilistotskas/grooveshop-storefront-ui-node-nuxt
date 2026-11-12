@@ -83,7 +83,12 @@ const accessibleName = computed(() => {
   return text.value
 })
 const visibleLabel = computed(() => (disabled.value ? t('unavailable') : props.label ?? text.value))
+// A product that cannot be bought looks unavailable wherever the button
+// renders (card, buy box, sticky bar): neutral and subtle, never a solid
+// fill a phone reads as live, at the disabled opacity. Its label stays
+// readable: 4.7:1 in light, 7.3:1 in dark, measured on the page.
 const buttonColor = computed<ButtonProps['color']>(() => (disabled.value ? 'neutral' : 'secondary'))
+const buttonVariant = computed<ButtonProps['variant']>(() => (disabled.value ? 'subtle' : 'solid'))
 
 const { addToCart } = useAddToCart({
   t,
@@ -105,7 +110,7 @@ const { addToCart } = useAddToCart({
        colour the store chose for it. It used to be a pale green `subtle`
        button (2.77:1 on white, under WCAG AA) and an orange one when the
        product could not be bought. A product that cannot be bought gets
-       no colour of its own: neutral, disabled, and it says why. -->
+       no colour of its own: neutral, subtle, disabled, and it says why. -->
   <UButton
     v-if="cartEnabled && iconOnly"
     icon="i-heroicons-shopping-cart"
@@ -113,7 +118,7 @@ const { addToCart } = useAddToCart({
     square
     loading-auto
     :color="buttonColor"
-    variant="solid"
+    :variant="buttonVariant"
     :disabled="disabled"
     :aria-label="accessibleName"
     :title="accessibleName"
@@ -127,7 +132,7 @@ const { addToCart } = useAddToCart({
     :trailing="true"
     loading-auto
     :color="buttonColor"
-    variant="solid"
+    :variant="buttonVariant"
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
     :ui="{
