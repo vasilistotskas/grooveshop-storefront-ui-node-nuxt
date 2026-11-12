@@ -9,8 +9,9 @@ import { COMPONENTS, boundAttribute, classesOf, relativeLabel, sfcTemplate, walk
  * favourite at 32x32). happy-dom lays nothing out, so the classes that
  * size them are the contract:
  *
- * - a control in the page's flow takes its real size below `sm`
- *   (`max-sm:min-h-11`, and `max-sm:min-w-11` where it is icon-only);
+ * - a control in the page's flow takes its real size below `sm`: every
+ *   one `max-sm:min-h-11`, and an icon-only one `max-sm:min-w-11` as
+ *   well, each checked on its own;
  * - a control floating over a picture (the gallery's zoom and arrows)
  *   keeps its size and takes a 44px hit area from an ::after, so it
  *   covers no more of the picture.
@@ -36,7 +37,28 @@ const CONTROLS = new Set([
   'WebsideButtonProductAddToFavourite',
 ])
 
-const PHONE_SIZE = /(^|[\s'"`])max-sm:min-[hw]-11(?=[\s'"`]|$)/
+const PHONE_HEIGHT = /(^|[\s'"`])max-sm:min-h-11(?=[\s'"`]|$)/
+const PHONE_WIDTH = /(^|[\s'"`])max-sm:min-w-11(?=[\s'"`]|$)/
+
+/** A static or bound attribute of `node` named `name`. */
+const hasAttribute = (node: ElementNode, name: string) =>
+  node.props.some(prop => (prop.type === 6 && prop.name === name) || boundAttribute(node, name) !== undefined)
+
+/**
+ * A control that shows an icon and no words, so nothing but the class
+ * makes it 44px wide: no label, no text or element inside, and an icon
+ * (a heart, a share arrow) or `icon-only`.
+ */
+function iconOnly(node: ElementNode) {
+  if (hasAttribute(node, 'label')) return false
+  // 2 text, 3 comment: anything else inside (an element, an interpolation) is words.
+  if (node.children.some(child => (child.type === 2 ? child.content.trim() !== '' : child.type !== 3))) return false
+  return hasAttribute(node, 'icon') || hasAttribute(node, 'icon-only') || /AddToFavourite$/.test(node.tag)
+}
+
+/** 44px tall on a phone, and 44px wide too when it is an icon alone. */
+const sizedForAPhone = (node: ElementNode) =>
+  PHONE_HEIGHT.test(classesOf(node)) && (!iconOnly(node) || PHONE_WIDTH.test(classesOf(node)))
 const HIDDEN_ON_A_PHONE = (node: ElementNode) => {
   const classes = classesOf(node).split(' ')
   return classes.includes('hidden') && classes.some(name => /^sm:(flex|block|inline|grid)/.test(name))
@@ -47,7 +69,7 @@ function controls(file: string) {
   walkElements(sfcTemplate(file), (node, ancestors) => {
     if (HIDDEN_ON_A_PHONE(node) || ancestors.some(HIDDEN_ON_A_PHONE)) return false
     const at = `${relativeLabel(COMPONENTS, file)}:${node.loc.start.line} <${node.tag}>`
-    if (CONTROLS.has(node.tag)) out.push({ at, sized: PHONE_SIZE.test(classesOf(node)) })
+    if (CONTROLS.has(node.tag)) out.push({ at, sized: sizedForAPhone(node) })
     if (node.tag === 'UInputNumber') {
       for (const part of ['increment', 'decrement']) {
         const bound = boundAttribute(node, part) ?? ''

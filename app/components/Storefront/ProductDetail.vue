@@ -453,7 +453,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               size="lg"
               variant="outline"
               square
-              class="max-sm:min-w-11"
+              class="max-sm:min-h-11 max-sm:min-w-11"
             />
           </div>
 
