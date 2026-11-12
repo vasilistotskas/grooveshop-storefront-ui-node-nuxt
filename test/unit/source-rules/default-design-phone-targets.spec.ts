@@ -95,4 +95,14 @@ describe('the default design controls are 44px targets on a phone', () => {
   it('Cart/CartButton.vue gives the header cart button, in both of its forms, the phone size', () => {
     expect(readSource(resolve(COMPONENTS, 'Cart/CartButton.vue'))).toMatch(/square: true,\s*class: 'max-sm:min-h-11 max-sm:min-w-11'/)
   })
+
+  it('Chrome/Footer.vue stacks its 44px link rows with no gap between them on a phone', () => {
+    const source = readSource(resolve(COMPONENTS, 'Chrome/Footer.vue'))
+
+    const flat = source.replace(/\s+/g, ' ')
+
+    expect(flat).toContain('list: ` mt-3 space-y-3 max-sm:space-y-0 `')
+    expect(flat).toContain('<ul class="flex flex-col pb-1">')
+    expect(flat).toContain('flex flex-wrap gap-5 text-sm max-sm:gap-y-0')
+  })
 })

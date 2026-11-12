@@ -163,7 +163,12 @@ const storeName = computed(() => tenantStore.storeName || '')
               {{ storeDescription }}
             </p>
             <FooterHoursBadge />
-            <div class="flex flex-wrap gap-5 text-sm">
+            <div
+              class="
+                flex flex-wrap gap-5 text-sm
+                max-sm:gap-y-0
+              "
+            >
               <a
                 v-if="identity?.phone"
                 :href="`tel:${identity.phone}`"
@@ -221,7 +226,10 @@ const storeName = computed(() => tenantStore.storeName || '')
               lg:grid
             `,
             label: 'text-xs font-bold tracking-wider text-muted uppercase',
-            list: 'mt-3 space-y-3',
+            list: `
+              mt-3 space-y-3
+              max-sm:space-y-0
+            `,
             link: `
               text-[0.9375rem] font-semibold text-default
               hover:text-highlighted
@@ -277,7 +285,7 @@ const storeName = computed(() => tenantStore.storeName || '')
               ` }"
             />
             <template #content>
-              <ul class="flex flex-col gap-3 pb-1">
+              <ul class="flex flex-col pb-1">
                 <li
                   v-for="(link, index) in secondary"
                   :key="index"
