@@ -41,7 +41,7 @@ const NUXT_UI_ALIASES = {
 }
 
 /** The palette each of Nuxt UI's colours names in the app config (`app.config.ts` sets primary and neutral, Nuxt UI's defaults the rest). */
-const NUXT_UI_PALETTES: Record<string, TailwindPaletteName> = { primary: 'neutral', neutral: 'zinc', secondary: 'blue', success: 'green', info: 'blue', warning: 'yellow', error: 'red' }
+export const NUXT_UI_PALETTES: Record<string, TailwindPaletteName> = { primary: 'neutral', neutral: 'zinc', secondary: 'blue', success: 'green', info: 'blue', warning: 'yellow', error: 'red' }
 
 /** The themed tokens compared, besides every shade of the three scales. */
 export const THEMED_TOKENS = ['--ui-primary', '--ui-on-secondary', '--ui-secondary', '--ui-success', '--ui-warning', '--ui-error', '--ui-info', '--ui-liked', '--ui-radius', '--ui-container', '--font-sans', '--font-display', '--font-mono'] as const

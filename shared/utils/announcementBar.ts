@@ -30,3 +30,52 @@ export function announcementShortText(
   const override = bar.i18n?.[locale]
   return (override ? override.shortText : bar.shortText) || ''
 }
+
+/**
+ * The live figures a bar's wording may name as `{token}`. A merchant who
+ * types "Free shipping over 39,90 €" keeps a second copy of a number that
+ * lives in the shipping settings, and it goes stale the day that changes;
+ * the token is read from the setting each time the bar is drawn.
+ *
+ * - `freeShippingThreshold`: the lowest free-shipping threshold, as money.
+ * - `dispatchCutoff`: the dispatch cutoff, as `HH:MM`.
+ *
+ * Any other `{word}` is the merchant's own text and stays as typed.
+ */
+export const ANNOUNCEMENT_TOKENS = ['freeShippingThreshold', 'dispatchCutoff'] as const
+
+export type AnnouncementToken = (typeof ANNOUNCEMENT_TOKENS)[number]
+
+/** The tokens that have a value right now; one without a value is absent. */
+export type AnnouncementTokenValues = Partial<Record<AnnouncementToken, string>>
+
+const TOKEN_PATTERN = /\{(\w+)\}/g
+
+const isAnnouncementToken = (name: string): name is AnnouncementToken =>
+  (ANNOUNCEMENT_TOKENS as readonly string[]).includes(name)
+
+/** Every wording of the bar, in every language: what decides which figures a store's bar needs at all. */
+export function announcementTexts(bar: AnnouncementBar): string[] {
+  return [
+    bar.text,
+    bar.shortText,
+    ...Object.values(bar.i18n ?? {}).flatMap(override => [override.text, override.shortText]),
+  ].filter((text): text is string => Boolean(text))
+}
+
+/** The tokens `texts` name, each once. */
+export function announcementTokens(texts: readonly string[]): AnnouncementToken[] {
+  const named = texts.flatMap(text => [...text.matchAll(TOKEN_PATTERN)].map(match => match[1]!))
+  return [...new Set(named.filter(isAnnouncementToken))]
+}
+
+/** The tokens `texts` name that `values` has no value for: a bar that names one is not shown. */
+export function missingAnnouncementTokens(texts: readonly string[], values: AnnouncementTokenValues): AnnouncementToken[] {
+  return announcementTokens(texts).filter(token => values[token] === undefined)
+}
+
+/** `text` with each token that has a value replaced by it; every other `{word}` stays as typed. */
+export function fillAnnouncementTokens(text: string, values: AnnouncementTokenValues): string {
+  return text.replace(TOKEN_PATTERN, (whole, name: string) =>
+    isAnnouncementToken(name) ? (values[name] ?? whole) : whole)
+}

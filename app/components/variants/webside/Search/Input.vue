@@ -16,19 +16,9 @@ function openSearchModal() {
   isModalOpen.value = true
 }
 
-defineShortcuts({
-  'meta_k': {
-    handler: () => {
-      openSearchModal()
-    },
-  },
-  '/': {
-    usingInput: false,
-    handler: () => {
-      openSearchModal()
-    },
-  },
-})
+// Webside's field is its header's: it owns the shortcut whenever it is on
+// the page, and a section's field on the same page answers none.
+useSearchShortcut(true, openSearchModal)
 </script>
 
 <template>

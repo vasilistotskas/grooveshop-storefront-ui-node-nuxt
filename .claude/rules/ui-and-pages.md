@@ -101,7 +101,12 @@ compatibility. A fixed destination is a name (`localePath('products')`,
 a path known only at runtime (CMS/menu links, notification targets, breadcrumb
 `to`) goes through `pathLocation()` (`app/utils/route.ts`), which keeps its
 `?query` and `#hash`. A bare `{ path }` would drop them, because vue-router
-keeps only the pathname of `path`.
+keeps only the pathname of `path`. A link a store wrote (a page-builder link
+setting, a banner's link), which may be someone else's `https://` page, goes
+through `useLinkTo()` (`app/composables/useLinkTo.ts`): the URL as it is,
+which `NuxtLink` renders as an external link, or the path through
+`pathLocation()`. `localePath(pathLocation(url))` turns an external URL into a
+route of the store.
 
 ## The `webside` design
 
@@ -167,6 +172,15 @@ Rules:
   chrome key loses its `@webside` entry, which would hand webside the redesign.
 - A tenant that wants its own design registers `page:<key>@<schema>` /
   `chrome:<slot>@<schema>` the same way.
+- **A shared section draws the store's own controls through a PART**, never
+  through a webside copy of the section. `resolvePart(key, schema)`
+  (`variantRegistry.ts`) answers a design's component for a control inside a
+  shared component (`product_add_to_cart`, `product_restock_alert`) and how
+  its props are spelt from what the shared component knows (`DesignPartInput`),
+  since the designs' components declare different props; a design with no
+  `part:<key>@<schema>` entry gets the platform's. `Product/Spotlight` (the
+  `hero_showcase` product card) is the first user: one component in every
+  design, each store's own buy button and restock alert inside it.
 
 ## Component Categories
 
@@ -191,6 +205,8 @@ Components in `app/components/` organized by domain:
 
 - **Tailwind CSS 4** with `@nuxt/ui` v4 theme system. Primary color: neutral, neutral: zinc. Custom CSS variables: `--ui-secondary: #003DFF`, `--ui-bg`, `--ui-liked: #FF00BD`, semantic colors (success, info, warning, error) with dark mode variants
 - `app/assets/css/main.css` — Imports `tailwindcss` with static theme + `@nuxt/ui`. Custom theme containers (`--container-main: 74.625rem`, `--container-8xl: 90rem`). `.article` typography class for blog/CMS content. Reduced-motion support.
+- **A part of the page in the other colour scheme.** Nuxt UI's own `.light` / `.dark` class on an element switches every token inside it, and every colour-scheme block is written for such a part as well as for `<html>`: `.light, :root` and `.dark` in `main.css`, `[data-design="volt"] :where(.light)` / `:where(.dark)` beside the Volt blocks, the store's theme as `html:root, html .light` / `html.dark, html .dark` (`themeCss`), and the accessibility toolbar's token preferences (high contrast, the readable font) as `:root.a11y-<name> :where(.light, .dark)` (`accessibility.css`): a forced part redeclares the faces and colours on itself, so a preference that sets one on `<html>` only would stop at it. A scheme token reads the per-element scales (`var(--ui-color-primary-100)`), never Nuxt UI's `--color-*` aliases, which `<html>` resolves once in the page's scheme. So a forced part takes the STORE's colours in either scheme, Volt's surfaces included, and the innermost class wins. `test/unit/shared/theme/schemes.spec.ts` computes the cascade from the real stylesheets (`test/helpers/themeCascade.ts`, each custom property resolved on the element that declares it) and pins what `<html>` computes (`test/fixtures/builder/theme-root-tokens.json`), so a page with no forced part paints exactly as before; `THEME_BASELINE_REF=origin/main pnpm vitest run --project=unit test/unit/shared/theme/schemes.spec.ts -t baseline` recomputes the pin from another revision's stylesheets. Content inside paints with tokens only: a named colour does not follow the scheme, and Tailwind's `dark:` variant follows the nearest `.dark` ANCESTOR, the page's included.
+- **A band's `colorScheme`** (`light` | `dark`, empty to follow the page: `SECTION_COLOR_SCHEMES`, `builderField.colorScheme()`) is a setting of `hero_showcase` and of every product and article rail (`productRail`, `blogRail`); `colorSchemeClass` turns it into the class above plus `text-default` (`body` paints its text in the page's scheme), on the hero's section and on `PageSection/Band.vue` (its `colorScheme` prop), so no scheme is no class. A design whose band of that type draws no `PageSectionBand` ignores it (webside's `BlogPostsList`, fyteia's `BlogPosts`). `test/unit/source-rules/band-content-follows-the-color-scheme.spec.ts` keeps the shared sections and the cards they hold on tokens; webside's own product card paints with named colours and `dark:` variants, so in a light band on a dark page it stays a dark card.
 - `app/app.config.ts` — Component customization: extended avatar sizes (4xl-7xl), button 3xl size, chip 3xl size, secondary solid button variant, cursor-pointer defaults (button, switch, tabs, accordion), form field sizing, skeleton/breadcrumb theming, pagination/selectMenu/input/textarea full-width defaults. Icon mode: CSS with base layer.
 - Component-scoped `<i18n lang="yaml">` blocks for translations (e.g., `error.vue`)
 

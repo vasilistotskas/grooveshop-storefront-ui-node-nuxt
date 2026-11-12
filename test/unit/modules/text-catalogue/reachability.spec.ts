@@ -33,6 +33,7 @@ describe('what a store renders, over the fixture tree', () => {
       'components/Cookie/Modal.vue',
       'components/Demo/Greeting.vue',
       'components/PageSection/Hero.vue',
+      'components/Product/BuyButton.vue',
       'components/Product/PriorPrice.vue',
       'components/Storefront/Home.vue',
     ])
@@ -48,6 +49,16 @@ describe('what a store renders, over the fixture tree', () => {
     // Shared by both trees, reached through the webside footer and home page.
     expect(webside).toContain('components/Cookie/Modal.vue')
     expect(webside).toContain('components/Demo/Greeting.vue')
+  })
+
+  // A part is a design's own piece of a shared component (`resolvePart`):
+  // nothing references it by tag, so the registry is its only root.
+  it('reaches a design part from its own schema only, and the platform part everywhere else', () => {
+    expect(view('default')).toContain('components/Product/BuyButton.vue')
+    expect(view('ekfyseosfyteias')).toContain('components/Product/BuyButton.vue')
+    expect(view('webside')).toContain('components/variants/webside/Product/BuyButton.vue')
+    expect(view('webside')).not.toContain('components/Product/BuyButton.vue')
+    expect(view('default')).not.toContain('components/variants/webside/Product/BuyButton.vue')
   })
 
   it('reaches a page-builder section variant from its own schema only', () => {

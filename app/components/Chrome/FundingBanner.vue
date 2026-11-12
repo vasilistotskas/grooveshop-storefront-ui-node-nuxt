@@ -36,7 +36,7 @@ const { framed = false } = defineProps<{
 }>()
 
 const { t, locale } = useStoreI18n('components/Chrome/FundingBanner')
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const { floating, track } = useFundingBannerVisibility()
 
 const { fundingBanner } = useStoreSettings()
@@ -80,7 +80,7 @@ const wrapper = computed(() => (banner.value?.link ? NuxtLink : 'div'))
 const wrapperProps = computed(() => {
   const link = banner.value?.link
   if (!link) return {}
-  return { to: link.startsWith('https://') ? link : localePath(pathLocation(link)) }
+  return { to: linkTo(link) }
 })
 
 // Both images request WebP (`format`), not the artwork's own JPEG: 22 KB

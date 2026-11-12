@@ -40,6 +40,7 @@ defineProps<{
 const { t, locale } = useStoreI18n('components/PageSection/LoyaltyHero')
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const tenantStore = useTenantStore()
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
@@ -135,7 +136,7 @@ const tierTerms = (tier: LoyaltyTier) =>
                    change with the mode, so the theme's primary (which
                    turns light in dark mode) would vanish into it. -->
               <UButton
-                :to="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('account-signup')"
+                :to="ctaLink ? linkTo(ctaLink) : localePath('account-signup')"
                 :label="ctaText || t('cta_join')"
                 color="neutral"
                 class="
@@ -145,7 +146,7 @@ const tierTerms = (tier: LoyaltyTier) =>
                 "
               />
               <UButton
-                :to="secondaryCtaLink ? localePath(pathLocation(secondaryCtaLink)) : localePath('loyalty-program')"
+                :to="secondaryCtaLink ? linkTo(secondaryCtaLink) : localePath('loyalty-program')"
                 :label="secondaryCtaText || t('cta_how')"
                 color="neutral"
                 variant="outline"

@@ -12,8 +12,13 @@
  * The visible field's accessible name is its own text plus the key
  * hint; only the icon-only button needs an `aria-label` (WCAG 2.5.3
  * Label in Name — Lighthouse `label-content-name-mismatch`).
+ *
+ * The keyboard shortcuts belong to ONE field of the page
+ * (`useSearchShortcut`): the header's (`compact`) when there is one, else
+ * the first section field. Only that field shows the key hint and states
+ * `aria-keyshortcuts`.
  */
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   compact?: boolean
 }>(), {
   compact: false,
@@ -35,19 +40,9 @@ function openSearchModal() {
   isModalOpen.value = true
 }
 
-defineShortcuts({
-  'meta_k': {
-    handler: () => {
-      openSearchModal()
-    },
-  },
-  '/': {
-    usingInput: false,
-    handler: () => {
-      openSearchModal()
-    },
-  },
-})
+const { owner } = useSearchShortcut(props.compact, openSearchModal)
+
+const KEY_SHORTCUTS = 'Control+K Meta+K /'
 </script>
 
 <template>
@@ -65,7 +60,7 @@ defineShortcuts({
       square
       class="lg:hidden"
       :aria-label="t('search.placeholder')"
-      aria-keyshortcuts="Control+K Meta+K /"
+      :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     />
 
@@ -73,13 +68,17 @@ defineShortcuts({
       color="neutral"
       variant="outline"
       :class="[
-        'h-10.5 justify-start gap-2 px-3.5 text-sm font-medium text-muted',
+        'justify-start gap-2 px-3.5 text-sm font-medium text-muted',
+        // A section's field is a target of at least 44px on a phone.
         compact ? `
-          hidden w-75 min-w-36
+          hidden h-10.5 w-75 min-w-36
           lg:flex
-        ` : 'w-full',
+        ` : `
+          h-11 w-full
+          sm:h-10.5
+        `,
       ]"
-      aria-keyshortcuts="Control+K Meta+K /"
+      :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     >
       <UIcon
@@ -89,7 +88,10 @@ defineShortcuts({
       <span class="flex-1 truncate text-start">
         {{ t('search.placeholder') }}
       </span>
-      <span class="flex shrink-0 items-center gap-0.5">
+      <span
+        v-if="owner"
+        class="flex shrink-0 items-center gap-0.5"
+      >
         <UKbd value="meta" />
         <UKbd value="K" />
       </span>

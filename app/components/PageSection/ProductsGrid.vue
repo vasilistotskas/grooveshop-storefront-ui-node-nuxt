@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<{
   ctaLink?: string
   showAddToCart?: boolean
   surface?: 'default' | 'muted'
+  colorScheme?: SectionColorScheme
   /** What the band lists: the products, and the rule or hand-picked list they came from. */
   products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
@@ -33,6 +34,7 @@ defineSlots<{
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 const label = computed(
   () => props.heading || t(`heading.${productRailKind(props.products.descriptor)}`),
@@ -45,8 +47,9 @@ const label = computed(
     :heading="label"
     :subheading="subheading"
     :cta-text="ctaText || t('all_products')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('products')"
+    :cta-link="ctaLink ? linkTo(ctaLink) : localePath({ path: '/products', query: productRailStockQuery(products.descriptor) })"
     :surface="surface"
+    :color-scheme="colorScheme"
   >
     <slot
       name="list"

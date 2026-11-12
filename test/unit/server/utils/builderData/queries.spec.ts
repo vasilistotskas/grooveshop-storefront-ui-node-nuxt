@@ -60,6 +60,26 @@ describe('productQuery', () => {
     })
   })
 
+  it('asks for the products that can be bought first, then the merchant order, for `inStockFirst`', () => {
+    expect(productQuery({ mode: 'filter', ordering: 'priceAsc', stock: 'inStockFirst', limit: 6 })).toEqual({
+      pageSize: 6,
+      ordering: '-availabilityPriority,effectivePrice',
+    })
+  })
+
+  it('leaves out what is not in stock for `inStockOnly`', () => {
+    expect(productQuery({ mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 6 })).toEqual({
+      pageSize: 6,
+      ordering: '-createdAt',
+      inStock: true,
+    })
+  })
+
+  it('asks the same question for `any` as for no stock choice', () => {
+    expect(productQuery({ mode: 'filter', ordering: 'newest', stock: 'any', limit: 6 }))
+      .toEqual(productQuery({ mode: 'filter', ordering: 'newest', limit: 6 }))
+  })
+
   it('joins the categories with an underscore, as one sorted set, which the endpoint widens to their descendants', () => {
     expect(productQuery({ mode: 'filter', categories: [9, 2, 9], ordering: 'newest', limit: 4 })).toMatchObject({ category: '2_9' })
   })

@@ -1,6 +1,7 @@
 import { LINK_SLUG_KINDS } from '../constants/builder'
 import type { BlockDefinition, BuilderDocument, BuilderLink, BuilderLinkRef, BuilderNode, LinkSlugKind, LinkTargets } from '../types/builder'
 import { blogCategoryPath, blogPostPath, categoryPath, contentPagePath, pagePath, productPath } from '../utils/entityPaths'
+import { isFeaturePathBlocked } from '../utils/gatedRoutes'
 import { mapLinkSettings, REMOVE_LINK } from './linkSettings'
 import { parseVersionedType } from './upgrade'
 
@@ -32,16 +33,18 @@ const withSlug = (slug: string | undefined, path: (slug: string) => string): str
  * address, a fixed route and an external URL themselves. A link to something
  * gone (a record the store no longer has, a page or content page that is not
  * published) is taken out, so the component draws no call to action rather
- * than one that leads nowhere.
+ * than one that leads nowhere. So is a link to a page a switched-off store
+ * feature takes away (`targets.blocked`, the gated routes' one table): `/blog`
+ * with the blog off, a product with the catalogue off, which would be a 404.
  */
 export function resolveLinks(
   document: BuilderDocument,
   targets: LinkTargets,
   registry: ReadonlyMap<string, BlockDefinition>,
 ): BuilderDocument {
-  const address = (link: unknown): string | typeof REMOVE_LINK => {
-    if (!isBuilderLink(link)) return REMOVE_LINK
-    if ('href' in link) return link.href
+  // The store path a link stands for, before the gate: every one of them
+  // goes through it (a published page can be `/blog` itself).
+  const storePath = (link: Exclude<BuilderLink, { href: string }>): string | typeof REMOVE_LINK => {
     if ('route' in link) return link.route
     const { ref } = link
     switch (ref.kind) {
@@ -52,6 +55,13 @@ export function resolveLinks(
       case 'blogPost': return withSlug(targets.slugs.blogPost.get(ref.id), slug => blogPostPath(ref.id, slug))
       case 'blogCategory': return withSlug(targets.slugs.blogCategory.get(ref.id), slug => blogCategoryPath(ref.id, slug))
     }
+  }
+  const address = (link: unknown): string | typeof REMOVE_LINK => {
+    if (!isBuilderLink(link)) return REMOVE_LINK
+    // Someone else's page: no feature of this store gates it.
+    if ('href' in link) return link.href
+    const path = storePath(link)
+    return path !== REMOVE_LINK && isFeaturePathBlocked(path, targets.blocked) ? REMOVE_LINK : path
   }
   const sections = { ...document.sections }
   for (const [id, node] of Object.entries(document.sections)) {
