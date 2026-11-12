@@ -63,7 +63,7 @@ const hiddenEligibleCount = computed(
     </div>
 
     <div class="space-y-1">
-      <h2 class="text-lg leading-tight font-bold">
+      <h2 class="text-lg leading-tight font-bold wrap-anywhere">
         {{ offer.name }}
       </h2>
       <p

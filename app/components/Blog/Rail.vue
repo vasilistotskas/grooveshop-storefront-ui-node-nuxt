@@ -154,6 +154,7 @@ const list = computed(() => props.phoneLayout === 'list' && !props.stacked)
       </p>
 
       <h3
+        class="wrap-anywhere"
         :class="list
           ? `
             font-display text-[0.9375rem]/[1.35] font-bold tracking-[-0.02em]
