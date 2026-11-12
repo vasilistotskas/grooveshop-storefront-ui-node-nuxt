@@ -8,6 +8,9 @@
  * Laid out as a STATEMENT — the promise on the left, the one action on
  * the right — like `cta_banner`, so the two conversion bands read as
  * the same kind of thing and neither is a centred icon over a heading.
+ *
+ * A page that draws the band draws no second form: `data-newsletter-section`
+ * hides the footer's (`main.css`, "One newsletter form a page").
  */
 import type { FormSubmitEvent } from '@nuxt/ui'
 
@@ -50,6 +53,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
   <PageSectionBand
     v-if="available"
     :surface="surface"
+    data-newsletter-section
   >
     <template #header>
       <div
