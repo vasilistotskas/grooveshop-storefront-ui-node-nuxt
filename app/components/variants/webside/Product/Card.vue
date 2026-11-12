@@ -152,10 +152,15 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         dark:bg-neutral-800
       "
     >
+      <!-- Below a 138px card the stock badges step down to 10px, so
+           «Μόνο 12 απέμειναν» (90px + 12px padding) holds one line in
+           the 106px between the picture's 8px margins; at 12px (106px +
+           16px) it took two lines over the picture's foot. A longer one
+           still wraps rather than being cut. -->
       <div
         class="
           absolute top-4 left-4 z-10 flex flex-col gap-2
-          @max-3xs/card:top-auto @max-3xs/card:bottom-2 @max-3xs/card:left-2
+          @max-3xs/card:inset-x-2 @max-3xs/card:top-auto @max-3xs/card:bottom-2
           @max-3xs/card:gap-1
         "
       >
@@ -173,7 +178,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           color="neutral"
           variant="solid"
           size="md"
-          class="w-fit"
+          class="
+            w-fit
+            @max-[8.625rem]/card:px-1.5 @max-[8.625rem]/card:text-[10px]
+          "
         >
           {{ t('out_of_stock') }}
         </UBadge>
@@ -182,7 +190,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           color="warning"
           variant="solid"
           size="md"
-          class="w-fit"
+          class="
+            w-fit
+            @max-[8.625rem]/card:px-1.5 @max-[8.625rem]/card:text-[10px]
+          "
         >
           {{ t('only_n_left', { count: product.stock }) }}
         </UBadge>
@@ -315,25 +326,51 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       </p>
 
       <!-- A card without reviews keeps the row's height: the grid
-           aligns the prices of a row of cards by it. -->
+           aligns the prices of a row of cards by it. In a narrow card
+           the figures («2,5 · 1», 33px) never split under the stars
+           (78px): where they do not fit beside them they wrap to a
+           second line that the row's 20px clips, and the stars stay,
+           centred on a 20px line (`*:min-h-5`). The rating's
+           accessible name keeps the figures. -->
       <ProductRating
         v-if="productReviewsEnabled && product.reviewCount"
         :average="product.reviewAverage"
         :count="product.reviewCount"
-        class="h-5"
+        class="
+          h-5
+          @max-3xs/card:flex-wrap @max-3xs/card:overflow-hidden
+          @max-3xs/card:*:min-h-5
+        "
       />
       <div v-else class="h-5" />
 
       <!-- In a narrow card (a phone's two columns) the price and an
-           icon-only buy button share a row. -->
+           icon-only buy button share a row while both fit, and never
+           overlap: the price column keeps its own width (a price is one
+           unbreakable word, «783,66 €»), so a price too long to sit
+           beside the button sends the button to a line of its own
+           (`flex-wrap`). Its basis is 0, so only the price decides, not
+           the 30-day note above it, which wraps inside the column.
+           Below a 138px card (8.625rem) the button always takes its own
+           full line: the card's content is 118px there, and a
+           three-digit price at 18px bold (70px) beside a 44px button
+           and the 4px gap needs all of it. A 130px card holds 110px, a
+           122px one (a 320 screen's home grid) 102px. -->
       <div
         class="
           flex flex-col gap-4
-          @max-3xs/card:flex-row @max-3xs/card:items-end
-          @max-3xs/card:justify-between @max-3xs/card:gap-1
+          @max-3xs/card:flex-row @max-3xs/card:flex-wrap @max-3xs/card:items-end
+          @max-3xs/card:justify-between @max-3xs/card:gap-x-1
+          @max-3xs/card:gap-y-2
         "
       >
-        <div class="flex min-w-0 flex-col gap-2">
+        <div
+          class="
+            flex flex-col gap-2
+            @max-3xs/card:grow @max-3xs/card:basis-0
+            @max-[8.625rem]/card:basis-full
+          "
+        >
           <div
             v-if="announcement || (isWholesalePrice && wasPrice)"
             class="flex items-center gap-2"
@@ -390,8 +427,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           class="
             w-full transition-all duration-300
             hover:scale-105
-            @max-3xs/card:size-11 @max-3xs/card:shrink-0 @max-3xs/card:p-0
+            @max-3xs/card:ml-auto @max-3xs/card:size-11 @max-3xs/card:shrink-0
+            @max-3xs/card:p-0
             @max-3xs/card:*:data-[slot=label]:sr-only
+            @max-[8.625rem]/card:w-full
           "
         />
       </div>

@@ -94,8 +94,10 @@ describe('webside Product/Card in a narrow container', () => {
 
   // A desktop listing beside its filters has cards ~170px wide too: being
   // narrow is not enough. The card is the container named `card` below
-  // `sm` only, and every compact class asks THAT container, so from `sm`
-  // up no query matches and the card is the full one, in every list.
+  // `sm` only, and every compact class asks THAT container, at one of its
+  // two widths (the compact card, and the narrowest one below 138px), so
+  // from `sm` up no query matches and the card is the full one, in every
+  // list.
   it('is compact only as a phone\'s narrow card: every compact class asks the card container, which exists below sm only', async () => {
     const wrapper = await mountCard()
     await vi.waitFor(() => expect(wrapper.find('button[aria-label^="Στο καλάθι"]').exists()).toBe(true))
@@ -105,7 +107,58 @@ describe('webside Product/Card in a narrow container', () => {
     expect(root.filter(name => /^@container/.test(name))).toEqual([])
     const queries = wrapper.findAll('*').flatMap(node => node.classes()).filter(name => name.startsWith('@max-') || name.startsWith('@min-'))
     expect(queries.length).toBeGreaterThan(10)
-    expect(queries.filter(name => !/^@max-3xs\/card:/.test(name))).toEqual([])
+    expect(queries.filter(name => !/^@max-(?:3xs|\[8\.625rem\])\/card:/.test(name))).toEqual([])
+  })
+
+  // The price is one unbreakable word («783,66 €»): squeezed beside the
+  // buy button it ran under it on a 122px card. The row wraps instead, the
+  // price column keeps its width (no `min-w-0`) from a zero basis, so the
+  // price alone decides when the button moves to a line of its own; below
+  // a 138px card it always does, the full width of the card.
+  it('never runs the price under the buy button: the button takes a line of its own where both do not fit', async () => {
+    const wrapper = await mountCard()
+    const buy = await vi.waitFor(() => {
+      const found = wrapper.find('button[aria-label^="Στο καλάθι"]')
+      expect(found.exists()).toBe(true)
+      return found
+    })
+
+    const row = buy.element.parentElement!
+    expect([...row.classList]).toEqual(expect.arrayContaining(['@max-3xs/card:flex-row', '@max-3xs/card:flex-wrap']))
+    const price = row.firstElementChild!
+    expect(price.textContent).toContain('€')
+    expect([...price.classList]).toEqual(expect.arrayContaining(['@max-3xs/card:basis-0', '@max-3xs/card:grow', '@max-[8.625rem]/card:basis-full']))
+    expect([...price.classList]).not.toContain('min-w-0')
+    expect(buy.classes()).toEqual(expect.arrayContaining(['@max-3xs/card:shrink-0', '@max-3xs/card:ml-auto', '@max-[8.625rem]/card:w-full']))
+  })
+
+  // The stars (78px) and «2,5 · 1» (33px) do not share a 102px row: the
+  // figures wrap whole to a second line the 20px row clips, never split.
+  it('keeps the rating on one line: figures that do not fit beside the stars are clipped whole', async () => {
+    setTenantFeatures({ productReviews: true })
+    const wrapper = await mountSuspended(WebsideProductCard, {
+      props: { product: makeProduct({ id: 9, reviewAverage: 5, reviewCount: 1 }) },
+      global: { stubs: { ImgWithFallback: true } },
+      route: false,
+    })
+
+    const rating = wrapper.get('div[role="img"]')
+    expect(rating.text()).toContain('2,5 · 1')
+    expect(rating.classes()).toEqual(expect.arrayContaining(['h-5', '@max-3xs/card:flex-wrap', '@max-3xs/card:overflow-hidden', '@max-3xs/card:*:min-h-5']))
+  })
+
+  // «Μόνο 12 απέμειναν» is 106px at 12px: two lines over the picture's
+  // foot on a 122px card. Below 138px it is set at 10px (90px), on one line.
+  it('keeps the stock badge on one line on the narrowest card', async () => {
+    const wrapper = await mountSuspended(WebsideProductCard, {
+      props: { product: makeProduct({ id: 10, stock: 2, lowStockThreshold: 5 }) },
+      global: { stubs: { ImgWithFallback: true } },
+      route: false,
+    })
+
+    const badge = wrapper.findAll('span').find(span => span.text() === 'Μόνο 2 απέμειναν')!
+    expect(badge.classes()).toEqual(expect.arrayContaining(['@max-[8.625rem]/card:text-[10px]', '@max-[8.625rem]/card:px-1.5']))
+    expect(badge.element.parentElement!.classList).toContain('@max-3xs/card:inset-x-2')
   })
 
   it('fits the sold-out card\'s restock button to a phone\'s narrow card only', async () => {
