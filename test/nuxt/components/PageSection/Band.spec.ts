@@ -74,4 +74,38 @@ describe('PageSection/Band', () => {
     expect(wrapper.find('h2').exists()).toBe(false)
     expect(wrapper.text()).toBe('custom headerbody')
   })
+
+  // The class is the contract: Nuxt UI's `.light` / `.dark` subtree switch,
+  // which every token inside follows (`test/unit/shared/theme/schemes.spec.ts`).
+  it.each([
+    ['dark', 'dark'],
+    ['light', 'light'],
+    [undefined, undefined],
+  ] as const)('draws the band in the %s colour scheme', async (colorScheme, scheme) => {
+    const classes = (await mountBand({ colorScheme })).get('section').classes()
+
+    expect(classes.includes('dark')).toBe(scheme === 'dark')
+    expect(classes.includes('light')).toBe(scheme === 'light')
+    // `body` paints its text in the page's scheme: a forced band sets its own.
+    expect(classes.includes('text-default')).toBe(scheme !== undefined)
+  })
+
+  // The classes are the contract: a phone's tap target is at least 44px
+  // (WCAG 2.5.5), measured in the real layout at 390px, while from `sm` up
+  // the control keeps the size it had. happy-dom lays nothing out.
+  it('stacks the heading over its link on a phone, the link a 44px target, and keeps them side by side from sm up', async () => {
+    const wrapper = await mountBand({ heading: 'Χρήσιμα gadgets', subheading: 'Λίγα, επιλεγμένα.', ctaText: 'Όλα τα προϊόντα', ctaLink: '/products' })
+
+    const row = wrapper.get('h2').element.parentElement!.parentElement!
+    expect([...row.classList]).toEqual(expect.arrayContaining(['flex-col', 'items-start', 'sm:flex-row', 'sm:items-end']))
+    expect(wrapper.get('a[href="/products"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
+  })
+
+  // The class is the contract, the browser the real check: a store's heading
+  // word wider than a 320px phone breaks instead of widening the page.
+  it('breaks a heading word wider than the screen', async () => {
+    const wrapper = await mountBand({ heading: 'Χρήσιμα gadgets' })
+
+    expect(wrapper.get('h2').classes()).toContain('wrap-break-word')
+  })
 })

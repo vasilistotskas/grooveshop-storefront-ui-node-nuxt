@@ -44,6 +44,7 @@ const idleSection = (loader: AsyncComponentLoader) => defineAsyncComponent({
 export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComponent>> = {
   'hero_banner': eagerSection(() => import('~/components/PageSection/HeroBanner.vue')),
   'hero_carousel': eagerSection(() => import('~/components/PageSection/HeroCarousel.vue')),
+  'hero_showcase': eagerSection(() => import('~/components/PageSection/HeroShowcase.vue')),
   'products_slider': lazySection(() => import('~/components/PageSection/ProductsSlider.vue')),
   'products_grid': lazySection(() => import('~/components/PageSection/ProductsGrid.vue')),
   'featured_products': lazySection(() => import('~/components/PageSection/ProductsGrid.vue')),
@@ -80,6 +81,9 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'trust_badges': lazySection(() => import('~/components/PageSection/TrustBadges.vue')),
   'offers_preview': lazySection(() => import('~/components/PageSection/OffersPreview.vue')),
   'stats_strip': lazySection(() => import('~/components/PageSection/StatsStrip.vue')),
+  // Reads the store's shipping, payment and return facts; renders nothing
+  // when the store has published none.
+  'store_assurances': lazySection(() => import('~/components/PageSection/StoreAssurances.vue')),
 
   // «Εκ φύσεως Φυτειάς» tenant variants — the redesign's bands: the layout
   // DATA stays portable and only the presentation is per-tenant. Which

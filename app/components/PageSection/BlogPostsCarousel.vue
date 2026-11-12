@@ -14,12 +14,14 @@ defineProps<{
   ctaText?: string
   ctaLink?: string
   surface?: 'default' | 'muted'
+  colorScheme?: SectionColorScheme
   /** What the band lists: the posts, read by the page route. */
   posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
 }>()
 
 const { t } = useStoreI18n('components/PageSection/BlogPostsCarousel')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const { isMobileOrTablet } = useDevice()
 
 /**
@@ -59,8 +61,9 @@ const arrowButton = {
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('blog')"
+    :cta-link="ctaLink ? linkTo(ctaLink) : localePath('blog')"
     :surface="surface"
+    :color-scheme="colorScheme"
   >
     <UCarousel
       v-slot="{ item }"

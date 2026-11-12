@@ -26,6 +26,7 @@ const props = withDefaults(defineProps<{
 
 const { t } = useStoreI18n('components/PageSection/OffersPreview')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 const toast = useToast()
 
@@ -44,7 +45,7 @@ function onCopy(code: string) {
     :heading="heading || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_offers', { count: offers.total }, offers.total)"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('offers')"
+    :cta-link="ctaLink ? linkTo(ctaLink) : localePath('offers')"
     :surface="props.surface === 'ink' ? 'inverted' : props.surface"
     heading-size="lg"
   >

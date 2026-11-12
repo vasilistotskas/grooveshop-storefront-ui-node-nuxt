@@ -44,7 +44,7 @@ describe('Storefront/BlogIndex', () => {
   })
 
   it('shows the store\'s branded band above the heading, and drops its own h1 when the band owns one', async () => {
-    state.sections = [{ id: 'band-1', componentType: 'hero_banner', props: {} }]
+    state.sections = [{ id: 'band-1', componentType: 'hero_banner', props: { heading: 'Το blog μας' } }]
 
     const wrapper = await mountPage()
 

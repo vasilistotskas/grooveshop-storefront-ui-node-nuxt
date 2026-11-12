@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<{
   decor: 'none',
 })
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 // Static class map so Tailwind sees every variant at build time.
 const COLUMN_CLASSES: Record<number, string> = {
@@ -52,7 +52,7 @@ const framed = computed(() => props.decor === 'framed')
     :heading="heading || title"
     :subheading="body"
     :cta-text="ctaText"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : undefined"
+    :cta-link="ctaLink ? linkTo(ctaLink) : undefined"
     :surface="surface"
   >
     <div
@@ -96,7 +96,7 @@ const framed = computed(() => props.decor === 'framed')
         v-if="prompt"
         :title="prompt.title"
         :description="prompt.text"
-        :to="prompt.ctaLink ? localePath(pathLocation(prompt.ctaLink)) : undefined"
+        :to="prompt.ctaLink ? linkTo(prompt.ctaLink) : undefined"
         variant="soft"
         :ui="{
           root: framed ? 'rounded-none' : undefined,
@@ -110,7 +110,7 @@ const framed = computed(() => props.decor === 'framed')
         >
           <UButton
             :label="prompt.ctaText"
-            :to="localePath(pathLocation(prompt.ctaLink))"
+            :to="linkTo(prompt.ctaLink)"
             color="neutral"
             variant="link"
             trailing-icon="i-heroicons-arrow-right"

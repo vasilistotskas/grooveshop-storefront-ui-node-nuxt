@@ -31,6 +31,14 @@ const { bar, text, shortText, bannerId } = useAnnouncementBar()
       container: 'h-9.5 justify-center',
       center: 'justify-center',
       icon: 'size-4',
+      // A 44px target on a phone (WCAG 2.5.5): 44px wide, and its hit area
+      // reaching 6px above and below the 32px button, so the bar keeps its
+      // height. Nothing hangs out sideways (`overhang-is-clipped.spec.ts`).
+      close: `
+        relative min-w-11 justify-center
+        after:absolute after:inset-x-0 after:-inset-y-1.5
+        sm:min-w-0
+      `,
       title: 'min-w-0 truncate text-[0.8125rem] font-semibold',
     }"
   >

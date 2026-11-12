@@ -68,6 +68,25 @@ describe('PageSection/BlogPosts', () => {
     expect([link.text(), link.attributes('href')]).toEqual([COPY.allPosts, '/blog'])
   })
 
+  // A band of ONE category's posts sends "see all" to that category, at the
+  // slug it has now, as a products band keeps its in-stock rule.
+  it('sends "see all" of a one-category band to that category, and to the blog when the category is gone', async () => {
+    const ofCategory = (category: number) => ({ ...posts([makeBlogPost({ id: 1, category })]), descriptor: { mode: 'filter' as const, ordering: 'newest' as const, limit: 2, category } })
+
+    const wrapper = await mountPosts({ posts: ofCategory(2), ctaText: 'Όλα τα άρθρα του θέματος' })
+    const gone = await mountPosts({ posts: ofCategory(99) })
+
+    expect(wrapper.get('a').attributes('href')).toBe('/blog/category/2/category-2')
+    expect(wrapper.get('a').text()).toBe('Όλα τα άρθρα του θέματος')
+    expect(gone.get('a').attributes('href')).toBe('/blog')
+  })
+
+  it('keeps an operator link over the category', async () => {
+    const wrapper = await mountPosts({ posts: { ...posts([makeBlogPost({ id: 1, category: 2 })]), descriptor: { mode: 'filter' as const, ordering: 'newest' as const, limit: 2, category: 2 } }, ctaLink: '/offers' })
+
+    expect(wrapper.get('a').attributes('href')).toBe('/offers')
+  })
+
   it('names each post\'s category from the store\'s categories, in the page\'s language', async () => {
     const wrapper = await mountPosts()
 
@@ -140,5 +159,13 @@ describe('PageSection/BlogPosts', () => {
 
       expect(wrapper.find('button').exists()).toBe(false)
     })
+  })
+
+  // The colour scheme reaches the band, which draws it as Nuxt UI's subtree
+  // switch (`Band.spec.ts`).
+  it.each(['dark', 'light'] as const)('draws the band in the %s colour scheme the block sets', async (colorScheme) => {
+    const wrapper = await mountPosts({ colorScheme })
+
+    expect(wrapper.get('section').classes()).toContain(colorScheme)
   })
 })

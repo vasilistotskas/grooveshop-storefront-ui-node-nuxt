@@ -318,6 +318,62 @@ const variants: Record<string, Component> = {
 }
 
 /**
+ * PARTS: the pieces of a SHARED component that a design draws its own way.
+ *
+ * A shared section (the `hero_showcase` product card, `Product/Spotlight`)
+ * is the same in every design, but the controls a shopper buys with are the
+ * store's own: webside's add-to-cart button and restock alert behave
+ * differently from the platform's. A part names such a control, and each
+ * design registers the component it draws it with, plus how that
+ * component's props are spelt from what the shared component knows
+ * (`DesignPartInput`): the two designs' restock alerts take different props,
+ * and an attribute one does not declare would fall through onto its root.
+ * A design with no entry gets the platform's part.
+ */
+export type DesignPartKey = 'product_add_to_cart' | 'product_restock_alert'
+
+/** What a shared component knows when it asks for a product's part. */
+export interface DesignPartInput {
+  product: ProductCard
+  /** The product's name in the page's language. */
+  name: string
+  /** The add-to-cart button's visible label ("Add to cart"). */
+  addToCartLabel: string
+  /** The add-to-cart button's accessible name, which contains the label (WCAG 2.5.3: "Add to cart: «name»"). */
+  addToCartName: string
+}
+
+export interface DesignPart {
+  component: Component
+  /** The props this design's component takes for the product. */
+  props: (input: DesignPartInput) => Record<string, unknown>
+}
+
+const partDefaults: Record<DesignPartKey, DesignPart> = {
+  product_add_to_cart: {
+    component: lazy(() => import('~/components/Button/Product/AddToCart.vue')),
+    props: ({ product, addToCartLabel, addToCartName }) => ({ product, text: addToCartName, label: addToCartLabel }),
+  },
+  product_restock_alert: {
+    component: lazy(() => import('~/components/Product/RestockAlert.vue')),
+    props: ({ product, name }) => ({ productId: product.id, productName: name, productImage: product.mainImagePath }),
+  },
+}
+
+/** A design's own parts, keyed `part:<key>@<schema>`. */
+const partVariants: Record<string, DesignPart> = {
+  // webside's button names itself by its visible text.
+  'part:product_add_to_cart@webside': {
+    component: lazy(() => import('~/components/variants/webside/Button/Product/AddToCart.vue')),
+    props: ({ product, addToCartLabel }) => ({ product, text: addToCartLabel }),
+  },
+  'part:product_restock_alert@webside': {
+    component: lazy(() => import('~/components/variants/webside/Product/NotifyMe.vue')),
+    props: ({ product }) => ({ productId: product.id, kind: 'restock' }),
+  },
+}
+
+/**
  * Layouts chosen by the tenant's design rather than by the page.
  *
  * A page file fixes its layout at build time (`definePageMeta`), so a
@@ -346,4 +402,9 @@ export function resolveChrome(key: ChromeKey, tenantSchema?: string | null): Com
 /** The tenant's page body for `key`, or the platform's. Always a component. */
 export function resolvePage(key: PageKey, tenantSchema?: string | null): Component {
   return (tenantSchema && variants[`page:${key}@${tenantSchema}`]) || pageDefaults[key]
+}
+
+/** The tenant's design part for `key`, or the platform's. */
+export function resolvePart(key: DesignPartKey, tenantSchema?: string | null): DesignPart {
+  return (tenantSchema && partVariants[`part:${key}@${tenantSchema}`]) || partDefaults[key]
 }

@@ -63,6 +63,9 @@
     "hero_carousel": {
       "label": "Hero carousel"
     },
+    "hero_showcase": {
+      "label": "Hero with picture and search"
+    },
     "hero_slide": {
       "label": "Slide"
     },
@@ -131,6 +134,9 @@
     },
     "stats_strip": {
       "label": "Figures"
+    },
+    "store_assurances": {
+      "label": "Shopping promises"
     },
     "story_timeline": {
       "label": "Our story"
@@ -221,6 +227,10 @@
     "categories": {
       "label": "What it lists"
     },
+    "colorScheme": {
+      "label": "Colour scheme",
+      "help": "Light or dark in both of the page's colour modes. Empty: as the page."
+    },
     "columns": {
       "label": "Columns"
     },
@@ -258,6 +268,10 @@
     "heading": {
       "label": "Heading"
     },
+    "headingAccent": {
+      "label": "Heading, second line",
+      "help": "Drawn in the accent colour, as part of the same heading."
+    },
     "height": {
       "label": "Height"
     },
@@ -276,6 +290,9 @@
     "imageDecorative": {
       "label": "Decorative image",
       "help": "Turn on when the image adds nothing a screen reader user needs. Leaving the description empty does not do this: choose it here."
+    },
+    "imageLink": {
+      "label": "Picture link"
     },
     "imagePosition": {
       "label": "Image position"
@@ -331,7 +348,7 @@
     },
     "product": {
       "label": "Product",
-      "help": "The product the slide shows, with its price."
+      "help": "One product shown with its price, linked to its page."
     },
     "products": {
       "label": "What it lists"
@@ -374,6 +391,10 @@
     },
     "showAddToCart": {
       "label": "Add to cart button"
+    },
+    "showSearch": {
+      "label": "Search field",
+      "help": "Shown only when the store has a product catalogue."
     },
     "showsMerchantIdentity": {
       "label": "Business details"
@@ -426,6 +447,10 @@
       "default": "Basic",
       "muted": "Muted",
       "ink": "Dark"
+    },
+    "colorScheme": {
+      "light": "Light",
+      "dark": "Dark"
     },
     "variant": {
       "line": "Line",
@@ -561,6 +586,7 @@
     "promotions": "promotions",
     "blog": "the blog",
     "newsletter": "the newsletter",
-    "catalogue": "the product catalogue"
+    "catalogue": "the product catalogue",
+    "cart": "the cart"
   }
 }

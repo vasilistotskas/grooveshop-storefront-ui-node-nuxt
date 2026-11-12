@@ -142,9 +142,6 @@ const addToCartName = computed(() => t('add_named', { name: productName.value ??
 
 const favouriteId = computed(() => getFavouriteIdByProductId(productId.value))
 
-// A listing payload carries no price-alert flag, so a card offers the
-// restock alert only; the product page offers both.
-const notify = reactive({ mounted: false, open: false, kind: 'restock' as ProductAlertKindEnum })
 const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 </script>
 
@@ -308,31 +305,15 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
       </p>
       <!-- Opens the restock alert in place, above the card's stretched
-           link. The dialog mounts on the first open. -->
-      <UButton
+           link. -->
+      <ProductRestockAlert
         v-if="outOfStock && productAlertsEnabled"
-        :label="t('notify_back')"
-        color="neutral"
-        variant="link"
-        size="sm"
-        class="
-          relative z-10 self-start p-0 text-[0.8125rem] font-semibold
-          text-accent
-        "
-        @click="() => { notify.mounted = true; notify.open = true }"
+        :product-id="productId"
+        :product-name="productName ?? ''"
+        :product-image="product.mainImagePath"
+        class="relative z-10 self-start"
       />
     </div>
-
-    <LazyProductNotifyMe
-      v-if="notify.mounted"
-      v-model:open="notify.open"
-      v-model:kind="notify.kind"
-      :product-id="productId"
-      :product-name="productName ?? ''"
-      :product-image="product.mainImagePath"
-      sold-out
-      :price-drop="false"
-    />
   </component>
 </template>
 
@@ -343,7 +324,6 @@ el:
   sold_out: Εξαντλήθηκε
   new: Νέο
   only_n_left: 'Μόνο {count} απέμεινε | Μόνο {count} απέμειναν'
-  notify_back: Ειδοποίησέ με όταν ξαναέρθει
   view_product: Προβολή προϊόντος
 en:
   add: Add
@@ -351,6 +331,5 @@ en:
   sold_out: Sold out
   new: New
   only_n_left: 'Only {count} left | Only {count} left'
-  notify_back: Notify me when it's back
   view_product: View product
 </i18n>

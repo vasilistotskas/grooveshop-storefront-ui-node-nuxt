@@ -70,6 +70,14 @@ describe.each([
     expect(wrapper.findAll('a').find(anchor => anchor.text() === 'Δες τα')?.attributes('href')).toBe('/offers')
   })
 
+  // webside's band passes its settings through to the platform's, the colour
+  // scheme included, so its own cards are drawn in it.
+  it.each(['dark', 'light'] as const)('draws the band in the %s colour scheme the block sets', async (colorScheme) => {
+    const wrapper = await drawn({ colorScheme })
+
+    expect(wrapper.get('section').classes()).toContain(colorScheme)
+  })
+
   it('names the band by what it lists when the store did not', async () => {
     const wrapper = await drawn()
 
