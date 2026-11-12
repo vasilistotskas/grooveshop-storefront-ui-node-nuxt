@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { afterEach, describe, it, expect, beforeEach, vi } from 'vitest'
 import { computed, ref } from 'vue'
+import { DOMWrapper } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavigationMenuItem } from '@nuxt/ui'
@@ -332,6 +333,93 @@ describe('Chrome/Navbar', () => {
     await wrapper.find(`#${button.attributes('aria-controls')}`).trigger('keydown', { key: 'Escape' })
     await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('false'))
     expect(document.activeElement).toBe(button.element)
+  })
+
+  // The section's NAME is the bigger target, and the entry the design
+  // draws: hovering it opens the panel its button opens (`useMenuHover`),
+  // through the menu's one open state.
+  describe('the mouse on a section\'s name', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const hoverable = async () => {
+      const wrapper = await mountSuspended(ChromeNavbar, { route: false, attachTo: document.body, global: { stubs: { ...stubs, ChromeMegaMenu: { template: '<div><a href="/products">all</a><a href="/products?sort=-createdAt">new</a></div>' } } } })
+      const name = wrapper.get('a[data-slot="link"][href="/products"]')
+      const button = wrapper.findAll('button[data-slot="link"]').find(control => control.text() === OPEN_SHOP)!
+      // The element around the menu that the mouse's handlers sit on.
+      const around = new DOMWrapper(wrapper.get('nav[data-slot="root"]').element.parentElement!)
+      return { wrapper, name, button, around }
+    }
+
+    it('opens the section\'s panel', async () => {
+      const { wrapper, name, button } = await hoverable()
+
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+      expect(wrapper.get(`#${button.attributes('aria-controls')}`).findAll('a').length).toBeGreaterThan(1)
+    })
+
+    it('keeps it open across the button and into the panel, and closes it once the mouse has left', async () => {
+      const { wrapper, name, button, around } = await hoverable()
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+
+      // Name, then its button, then the panel: no gap closes it.
+      await button.trigger('pointermove', { pointerType: 'mouse' })
+      await wrapper.get(`#${button.attributes('aria-controls')}`).find('a').trigger('pointermove', { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(500)
+      expect(button.attributes('aria-expanded')).toBe('true')
+
+      await around.trigger('pointerleave', { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(500)
+      expect(button.attributes('aria-expanded')).toBe('false')
+    })
+
+    // One hover state: Reka's own (its trigger's and its panel's leave,
+    // each closing 150ms later) is off on these menus, or it would shut a
+    // panel the name had just taken over.
+    it('keeps it open when the mouse comes back to the name from the button or the panel', async () => {
+      const { wrapper, name, button } = await hoverable()
+      await button.trigger('pointermove', { pointerType: 'mouse' })
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+      const panel = wrapper.get(`#${button.attributes('aria-controls')}`)
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+
+      await button.trigger('pointerleave', { pointerType: 'mouse' })
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(500)
+      expect(button.attributes('aria-expanded')).toBe('true')
+
+      await panel.trigger('pointerleave', { pointerType: 'mouse' })
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(500)
+      expect(button.attributes('aria-expanded')).toBe('true')
+    })
+
+    it('closes on Escape without moving the focus the mouse never took', async () => {
+      const { name, button } = await hoverable()
+      const before = document.activeElement
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+
+      // Cancelable, as a real key press is: Reka checks `defaultPrevented`.
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('false'))
+      expect(document.activeElement).toBe(before)
+    })
+
+    it('does not open it for a touch on the name, which navigates', async () => {
+      const { name, button } = await hoverable()
+
+      await name.trigger('pointermove', { pointerType: 'touch' })
+      await name.trigger('pointerdown', { pointerType: 'touch' })
+
+      expect(button.attributes('aria-expanded')).toBe('false')
+    })
   })
 
   it('opens the catalogue panel from Shop, and dims the page under it', async () => {

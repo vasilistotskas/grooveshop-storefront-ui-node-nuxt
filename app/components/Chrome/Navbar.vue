@@ -211,6 +211,8 @@ const mobileMenuItems = computed(() =>
 /** The open dropdown's value — the catalogue panel dims the page below it. */
 const openItem = ref<string>()
 const catalogueOpen = computed(() => openItem.value === SHOP)
+// The mouse on a section's name or its button opens its panel.
+const menuHover = useMenuHover(openItem)
 
 const mobileMenuOpen = ref(false)
 
@@ -284,35 +286,46 @@ const appTitle = computed(() => tenantStore.storeName || '')
              replayed into nothing and the first hover after a page load
              opened no panel. Still lazy, so the menu's code runs only for a
              visitor who reaches for it. -->
-        <LazyUNavigationMenu
-          v-model="openItem"
-          :hydrate-on-interaction="MENU_HYDRATION"
-          :items="barItems"
-          :aria-label="t('navigation')"
-          color="neutral"
-          class="
-            hidden
-            xl:flex
-          "
-          :ui="{
-            root: 'static',
-            item: 'py-0',
-            link: 'h-10 px-3 text-[0.9375rem]',
-            linkTrailingIcon: 'size-4',
-            viewportWrapper: 'z-10',
-            viewport: `
-              rounded-none border-b border-default shadow-(--ui-overlay-shadow)
-              ring-0
-            `,
-          }"
+        <!-- The mouse's open and close for the menu's panels
+             (`useMenuHover`); `contents`: it lays nothing out. -->
+        <div
+          class="contents"
+          @pointermove="menuHover.onPointermove"
+          @pointerleave="menuHover.onPointerleave"
         >
-          <template #shop-content>
-            <ChromeMegaMenu
-              :categories="categories"
-              :offers-enabled="offersServing"
-            />
-          </template>
-        </LazyUNavigationMenu>
+          <LazyUNavigationMenu
+            v-model="openItem"
+            :hydrate-on-interaction="MENU_HYDRATION"
+            disable-hover-trigger
+            disable-pointer-leave-close
+            :content="{ onEscapeKeyDown: menuHover.onEscapeKeyDown }"
+            :items="barItems"
+            :aria-label="t('navigation')"
+            color="neutral"
+            class="
+              hidden
+              xl:flex
+            "
+            :ui="{
+              root: 'static',
+              item: 'py-0',
+              link: 'h-10 px-3 text-[0.9375rem]',
+              linkTrailingIcon: 'size-4',
+              viewportWrapper: 'z-10',
+              viewport: `
+                rounded-none border-b border-default
+                shadow-(--ui-overlay-shadow) ring-0
+              `,
+            }"
+          >
+            <template #shop-content>
+              <ChromeMegaMenu
+                :categories="categories"
+                :offers-enabled="offersServing"
+              />
+            </template>
+          </LazyUNavigationMenu>
+        </div>
 
         <div class="ms-auto flex min-w-0 items-center gap-0.5">
           <LazySearchInput

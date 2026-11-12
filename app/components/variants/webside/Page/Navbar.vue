@@ -175,6 +175,10 @@ const navItems = computed<NavigationMenuItem[]>(() => {
   return base
 })
 
+/** The section whose panel is open; the mouse on its name or its button opens it. */
+const openSection = ref<string>()
+const menuHover = useMenuHover(openSection)
+
 /** Where the menu hydrates: see the template. */
 const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdown', 'focusin']
 
@@ -256,6 +260,8 @@ const items = computed(() => [
             flex items-center text-lg leading-6 font-semibold text-primary-950
             dark:text-primary-50
           "
+          @pointermove="menuHover.onPointermove"
+          @pointerleave="menuHover.onPointerleave"
         >
           <!-- Keyboard, focus and screen-reader behaviour of the
                dropdowns are the menu's own (Reka's NavigationMenu). -->
@@ -266,7 +272,11 @@ const items = computed(() => [
                opened no panel. Still lazy, so the menu's code runs only for a
                visitor who reaches for it. -->
           <LazyUNavigationMenu
+            v-model="openSection"
             :hydrate-on-interaction="MENU_HYDRATION"
+            disable-hover-trigger
+            disable-pointer-leave-close
+            :content="{ onEscapeKeyDown: menuHover.onEscapeKeyDown }"
             :items="barItems"
             :aria-label="t('navigation')"
             color="neutral"

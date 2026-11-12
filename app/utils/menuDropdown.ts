@@ -59,14 +59,19 @@ export function withDropdownToggles(
   return items.flatMap((item) => {
     if (!item.slot && !item.children?.length) return [item]
     const { slot, children, value, ...link } = item
+    // The open panel is named by this value; the name and the button both
+    // carry it, so the mouse on either opens the same panel (`useMenuHover`).
+    const section = String(value ?? item.to ?? item.label)
+    const name: NavigationMenuItem = { ...link, 'data-menu-section': section }
     const button: NavigationMenuItem = {
-      label: toggle.label(item.label ?? ''),
-      value,
-      slot,
-      children,
-      class: toggle.class,
-      ui: { ...item.ui, linkLabel: 'sr-only' },
+      'label': toggle.label(item.label ?? ''),
+      'value': section,
+      'data-menu-section': section,
+      'slot': slot,
+      'children': children,
+      'class': toggle.class,
+      'ui': { ...item.ui, linkLabel: 'sr-only' },
     }
-    return [link, button]
+    return [name, button]
   })
 }
