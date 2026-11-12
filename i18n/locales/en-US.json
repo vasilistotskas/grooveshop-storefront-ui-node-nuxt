@@ -322,7 +322,7 @@
     "returns": "Return within {count} day | Return within {count} days"
   },
   "store_assurances": {
-    "delivery_range": "Delivered in {min}-{max} business days",
+    "delivery_range": "Delivered in {min}–{max} business days",
     "delivery_days": "Delivered in {count} business day | Delivered in {count} business days",
     "dispatch_cutoff": "Orders placed by {time} leave the same business day",
     "free_shipping_from": "Free shipping from {amount}",

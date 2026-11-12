@@ -322,7 +322,7 @@
     "returns": "Επιστροφή εντός {count} ημέρας | Επιστροφή εντός {count} ημερών"
   },
   "store_assurances": {
-    "delivery_range": "Παράδοση σε {min}-{max} εργάσιμες",
+    "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες",
     "delivery_days": "Παράδοση σε {count} εργάσιμη | Παράδοση σε {count} εργάσιμες",
     "dispatch_cutoff": "Παραγγελίες έως {time} φεύγουν την ίδια εργάσιμη",
     "free_shipping_from": "Δωρεάν μεταφορικά από {amount}",

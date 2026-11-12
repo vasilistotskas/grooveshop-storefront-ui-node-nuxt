@@ -87,6 +87,8 @@ describe('useStoreAssurances', () => {
       ['returns', $i18n.t('store_assurances.returns', { count: 14 }, 14)],
       ['payment', 'Κάρτα ή αντικαταβολή'],
     ])
+    // The range as the product page writes it (`useProductAssurances.spec.ts`): an en dash, not a hyphen.
+    expect(assurances.rows.value[0]!.title).toContain('1–3')
   })
 
   it('puts the dispatch cutoff under delivery, and nothing when the store set none', async () => {
