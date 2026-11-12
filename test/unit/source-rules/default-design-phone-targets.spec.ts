@@ -12,7 +12,7 @@ import { COMPONENTS, boundAttribute, classesOf, readSource, sfcTemplate, walkEle
  * - a control in the flow takes its real size below `sm`
  *   (`max-sm:min-h-11`, with `max-sm:min-w-11` where it is icon-only);
  * - a control floating over a picture keeps its size and takes a 44px hit
- *   area from an `::after` (`after:absolute after:-inset-2`), which an
+ *   area from an `::after` (`after:absolute after:-inset-*`, 8px out from a 28-36px control, 14px from an icon), which an
  *   `overflow-hidden` ancestor must not clip: the control sits at least
  *   8px inside it.
  *
@@ -43,6 +43,15 @@ const TARGETS: Target[] = [
   { file: 'Cart/ItemCard.vue', tag: 'UButton', has: 'trash-2', where: 'class', kind: 'size' },
   { file: 'Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'increment', kind: 'size' },
   { file: 'Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'decrement', kind: 'size' },
+  { file: 'Products/CategoryChips.vue', tag: 'UButton', has: 'back_to', where: 'class', kind: 'height' },
+  { file: 'Products/Toolbar.vue', tag: 'UButton', has: 'open_filters', where: 'class', kind: 'height' },
+  { file: 'Products/Toolbar.vue', tag: 'UButton', has: 'clear_filters', where: 'class', kind: 'height' },
+  { file: 'Products/Filters/ActiveFilters.vue', tag: 'UButton', has: 'clear_all', where: 'class', kind: 'height' },
+  { file: 'Products/Filters/ActiveFilters.vue', tag: 'button', has: 'remove', where: 'class', kind: 'size' },
+  { file: 'Products/Pagination.vue', tag: 'UPagination', has: 'items-per-page', where: 'ui', kind: 'size' },
+  { file: 'Pagination/PageNumber.vue', tag: 'UPagination', has: 'total', where: 'ui', kind: 'size' },
+  { file: 'Pagination/Cursor.vue', tag: 'UButton', has: 'load.more', where: 'class', kind: 'height' },
+  { file: 'Chrome/Footer.vue', tag: 'UColorModeSelect', has: 'neutral', where: 'ui', kind: 'height' },
 ]
 
 const SIZE = /(?<![\w:-])(?:max-sm:)?min-h-11(?![\w-])/
@@ -60,17 +69,19 @@ function classesFor(node: ElementNode, where = 'class'): string {
   return where === 'class' ? classesOf(node) : (boundAttribute(node, where) ?? '')
 }
 
-describe('the default design\'s controls are 44px targets on a phone', () => {
+const KINDS: Record<Target['kind'], RegExp[]> = {
+  size: [SIZE, WIDTH],
+  height: [SIZE],
+  hit: [/after:absolute[\s\S]*after:-inset-\d/],
+}
+
+describe('the default design controls are 44px targets on a phone', () => {
   it.each(TARGETS)('$file <$tag $has>', (target) => {
     const nodes = find(target)
     expect(nodes, 'the control exists once').toHaveLength(1)
     const classes = classesFor(nodes[0]!, target.where)
 
-    if (target.kind === 'hit') expect(classes).toContain('after:-inset-2')
-    else {
-      expect(classes).toMatch(SIZE)
-      if (target.kind === 'size') expect(classes).toMatch(WIDTH)
-    }
+    expect(KINDS[target.kind].filter(pattern => !pattern.test(classes)), 'the classes it lacks').toEqual([])
   })
 
   it('Chrome/MobileMenu.vue draws every row of the catalogue tree 44px tall', () => {
@@ -78,7 +89,7 @@ describe('the default design\'s controls are 44px targets on a phone', () => {
 
     expect(source).toMatch(/class: 'h-11 font-medium'/)
     expect(source).toMatch(/link: `\s*h-11 /)
-    expect(source).not.toMatch(/h-10/)
+    expect(source).not.toMatch(/(?<![\w-])h-10(?![\w-])/)
   })
 
   it('Cart/CartButton.vue gives the header cart button, in both of its forms, the phone size', () => {
