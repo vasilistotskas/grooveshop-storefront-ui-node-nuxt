@@ -22,7 +22,8 @@ export function useMfaAuthenticateMethods() {
   const authInfo = useAuthInfo()
 
   const flow = computed(() => authInfo?.pendingFlow)
-  const next = router.currentRoute.value.query.next as string | undefined
+  // Carried on to the other factors' pages only as a path of this store.
+  const next = returnPath(router.currentRoute.value.query.next)
 
   const alternatives = computed<MfaAuthenticateMethod[]>(() => {
     const pending = flow.value
@@ -54,7 +55,8 @@ export function useMfaReauthenticationMethods() {
   const routeName = computed(() => $routeBaseName(route))
   const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
 
-  const next = router.currentRoute.value.query.next as string | undefined
+  // Carried on to the other ways' pages only as a path of this store.
+  const next = returnPath(router.currentRoute.value.query.next)
 
   const flows = computed(() => {
     const state = authState.value

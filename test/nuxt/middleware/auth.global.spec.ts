@@ -59,9 +59,19 @@ describe('auth.global middleware', () => {
     ['/account/2fa/reauthenticate/webauthn', '/account/login'],
     ['/account/2fa/reauthenticate/recovery-codes', '/account/login'],
   ])('sends a guest from %s to %s with the page as `next`', async (path, login) => {
-    await run(`${path}?tab=2`)
+    await run(path)
 
-    expect(redirectedTo()).toEqual({ path: login, next: `${path}?tab=2` })
+    expect(redirectedTo()).toEqual({ path: login, next: path })
+  })
+
+  // A query can hold a token or a payment session, and `next` lands in the
+  // sign-in page's address (history, logs, `Referer`): only a page that
+  // marks its query view state keeps it (`returnTarget`), and no protected
+  // page does.
+  it('carries the protected page\'s path, never its query', async () => {
+    await run('/account/orders?session_id=cs_live_secret&tab=2')
+
+    expect(redirectedTo()).toEqual({ path: '/account/login', next: '/account/orders' })
   })
 
   it('lets a logged-in visitor through to a protected page', async () => {

@@ -1,4 +1,4 @@
-import { withQuery } from 'ufo'
+import { parsePath, withQuery } from 'ufo'
 import type { FetchResponse } from 'ofetch'
 import type { H3Error } from 'h3'
 
@@ -317,7 +317,7 @@ export async function tryAdvanceToPendingFlow(
     log.info({ tag: 'auth', message: 'Pending flow already reached via auth:change hook', route: routeName })
     return true
   }
-  const safeNext = safeRelativePath(router.currentRoute.value.query.next?.toString())
+  const safeNext = returnPath(router.currentRoute.value.query.next)
   log.info({ tag: 'auth', message: 'Advancing to pending flow', route: routeName })
   await navigateTo({ path: target, query: safeNext ? { next: safeNext } : undefined })
   return true
@@ -353,6 +353,36 @@ export function safeRelativePath(value: string | undefined): string | undefined 
   return `${url.pathname}${url.search}${url.hash}`
 }
 
+/**
+ * Where to bring the shopper back to, from a `next` the address carries:
+ * a path of this site (`safeRelativePath`), and never a sign-in, sign-up
+ * or re-authentication page, which would send them back to the form
+ * (`isAuthPagePath`). Every reader of `next` goes through it.
+ */
+export function returnPath(value: unknown): string | undefined {
+  const path = safeRelativePath(typeof value === 'string' ? value : undefined)
+  if (!path) return undefined
+  return isAuthPagePath(parsePath(path).pathname) ? undefined : path
+}
+
+/**
+ * The destination a sign-in started on `route` carries (`next`), by the
+ * page's `signInReturn` (its `definePageMeta`): the page's path; its path
+ * and query where the page says its query is view state worth keeping
+ * (`'path-and-query'`: the listing's sort, filters and page, a search);
+ * none where its path is a one-time token (`'nowhere'`). Deny by default:
+ * a query can hold a payment session, an order code or a token
+ * (`/checkout/success/<uuid>?session_id=…`), and `next` lands in the
+ * sign-in page's address, so in its history, logs and `Referer`. Every
+ * writer of `next` goes through it.
+ */
+export function returnTarget(route: { path: string, fullPath: string, meta: { signInReturn?: 'path-and-query' | 'nowhere' } }): string | undefined {
+  if (route.meta.signInReturn === 'nowhere') return undefined
+  if (route.meta.signInReturn !== 'path-and-query') return route.path
+  const { pathname, search } = parsePath(route.fullPath)
+  return `${pathname}${search}`
+}
+
 export const navigateToPendingFlow = async (
   response: AllAuthResponse | AllAuthResponseError,
 ) => {
@@ -361,7 +391,7 @@ export const navigateToPendingFlow = async (
   const path = pathForPendingFlow(response)
   log.info({ tag: 'auth', message: 'Navigating to pending flow', path })
   if (path) {
-    const safeNext = safeRelativePath(useRouter().currentRoute.value.query.next?.toString())
+    const safeNext = returnPath(useRouter().currentRoute.value.query.next)
     const url = withQuery(localePath(path), { next: safeNext })
     log.info({ tag: 'auth', message: 'Navigating to URL', url })
     return nuxtApp.runWithContext(() => navigateTo(url))

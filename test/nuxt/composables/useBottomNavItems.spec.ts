@@ -143,7 +143,8 @@ describe('useBottomNavItems', () => {
   })
 
   it('sends a signed-out shopper to sign in, and back to the page they left', () => {
-    Object.assign(route, { name: 'search___el', path: '/search', fullPath: '/search?q=gan#top', query: { q: 'gan' } })
+    // The search page marks its query view state (`signInReturn`).
+    Object.assign(route, { name: 'search___el', path: '/search', fullPath: '/search?q=gan#top', query: { q: 'gan' }, meta: { signInReturn: 'path-and-query' } })
 
     const list = items()
     const saved = list.find(item => item.label === t('saved'))!

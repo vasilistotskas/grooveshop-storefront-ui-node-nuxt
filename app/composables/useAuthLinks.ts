@@ -1,5 +1,4 @@
 import type { RouteLocationNamedI18n } from 'vue-router'
-import { parsePath } from 'ufo'
 
 /**
  * Every link to a sign-in, sign-up or other auth page (the chrome's, the
@@ -20,26 +19,25 @@ export function useAuthLinks() {
   const route = useRoute()
   const { $routeBaseName } = useNuxtApp()
 
-  // Without its hash: the server never receives one, so a `next`
-  // carrying it would differ between the SSR HTML and hydration.
-  const next = computed(() => {
-    if (isAuthFlowRoute(String($routeBaseName(route) ?? ''))) {
-      const carried = route.query.next
-      return safeRelativePath(typeof carried === 'string' ? carried : undefined)
-    }
-    const { pathname, search } = parsePath(route.fullPath)
-    return `${pathname}${search}`
-  })
+  // Without the page's hash: the server never receives one, so a `next`
+  // carrying it would differ between the SSR HTML and hydration. On an auth
+  // page, the destination it came with (`returnPath`, the guard every
+  // reader uses); elsewhere the page (`returnTarget`: its path, and its
+  // query only where the page marks it view state).
+  const next = computed(() => isAuthFlowRoute(String($routeBaseName(route) ?? ''))
+    ? returnPath(route.query.next)
+    : returnTarget(route))
 
   /**
-   * The auth page `name` with the shopper's destination. Always a location
-   * object, never a bare route name: callers read its `query` (`next`)
-   * without narrowing. Read it where it is rendered (a template, a click),
-   * so it follows the route.
+   * The auth page `name` with the shopper's destination, and `hash` (a
+   * place on the page, `#reviews`) after it. Always a location object,
+   * never a bare route name: callers read its `query` (`next`) without
+   * narrowing. Read it where it is rendered (a template, a click), so it
+   * follows the route.
    */
-  const authLink = (name: AuthFlowRoute): Exclude<RouteLocationNamedI18n, string> => ({
+  const authLink = (name: AuthFlowRoute, { hash }: { hash?: string } = {}): Exclude<RouteLocationNamedI18n, string> => ({
     name,
-    query: next.value ? { next: next.value } : undefined,
+    query: next.value ? { next: hash ? `${next.value}${hash}` : next.value } : undefined,
   })
 
   return {
