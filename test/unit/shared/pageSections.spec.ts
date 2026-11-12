@@ -23,9 +23,32 @@ describe('pageSections', () => {
   })
 
   it('reports a heading only when one of those is present', () => {
-    expect(sectionsProvideHeading([{ componentType: 'hero_banner' }])).toBe(true)
-    expect(sectionsProvideHeading([{ componentType: 'rich_text' }])).toBe(false)
+    expect(sectionsProvideHeading([{ componentType: 'hero_banner', props: { heading: 'Charge fast' } }])).toBe(true)
+    expect(sectionsProvideHeading([{ componentType: 'contact_panel' }])).toBe(true)
+    expect(sectionsProvideHeading([{ componentType: 'rich_text', props: { heading: 'Not an h1' } }])).toBe(false)
     expect(sectionsProvideHeading(undefined)).toBe(false)
+  })
+
+  // The heroes draw their h1 only with a heading (`v-if` on it): a hero
+  // the merchant just inserted (the showcase preset is a search and a
+  // picture) or one of artwork only leaves the page its own h1.
+  it.each(['hero_banner', 'hero_showcase'])('counts a %s only when it has a heading', (componentType) => {
+    const hero = (props?: Record<string, string>) => [{ componentType, props }]
+
+    expect(sectionsProvideHeading(hero({ heading: 'Step into' }))).toBe(true)
+    expect(sectionsProvideHeading(hero())).toBe(false)
+    expect(sectionsProvideHeading(hero({ heading: '  ', subheading: 'Not the h1' }))).toBe(false)
+  })
+
+  it('counts a showcase whose heading is only its accent line', () => {
+    expect(sectionsProvideHeading([{ componentType: 'hero_showcase', props: { headingAccent: 'technology' } }])).toBe(true)
+  })
+
+  it('takes the title from the first hero that draws a heading', () => {
+    expect(sectionsHeadingText([
+      { componentType: 'hero_showcase', props: { showSearch: 'true' } },
+      { componentType: 'hero_banner', props: { heading: 'Charge fast' } },
+    ])).toBe('Charge fast')
   })
 
   it('counts a hero carousel only when its first slide has a heading', () => {

@@ -20,8 +20,8 @@
  * supplies one — otherwise the two compete, which is the duplicate-h1
  * defect the navbar logo used to cause site-wide.
  *
- * Together with `heroCarouselHeading` it is the one place that records which
- * components own the document heading.
+ * Together with `HEADING_FROM_PROPS` and `heroCarouselHeading` it is the one
+ * place that records which components own the document heading.
  */
 export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'hero_banner',
@@ -30,6 +30,13 @@ export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   // Owns the whole contact page, heading included.
   'contact_panel',
 ])
+
+/**
+ * The heading sections that draw their h1 only when they have a heading
+ * (`v-if` on the h1 in every design): an artwork-only hero, or one a merchant
+ * just inserted, renders none, so it does not stand the page's own h1 down.
+ */
+const HEADING_FROM_PROPS: ReadonlySet<string> = new Set(['hero_banner', 'hero_showcase'])
 
 interface SectionLike {
   componentType: string
@@ -57,9 +64,17 @@ export function heroCarouselHeading(props: unknown): string {
   return trimmedText((slides[0] as { heading?: unknown } | undefined)?.heading)
 }
 
-const ownsHeading = (section: SectionLike): boolean =>
-  HEADING_SECTION_TYPES.has(section.componentType)
-  || (section.componentType === 'hero_carousel' && heroCarouselHeading(section.props) !== '')
+/** The heading a section draws from its props: `heading`, then `headingAccent`, its second line (one h1). */
+function propsHeading(props: unknown): string {
+  const { heading, headingAccent } = (props ?? {}) as { heading?: unknown, headingAccent?: unknown }
+  return [trimmedText(heading), trimmedText(headingAccent)].filter(Boolean).join(' ')
+}
+
+const ownsHeading = (section: SectionLike): boolean => {
+  if (section.componentType === 'hero_carousel') return heroCarouselHeading(section.props) !== ''
+  if (!HEADING_SECTION_TYPES.has(section.componentType)) return false
+  return !HEADING_FROM_PROPS.has(section.componentType) || propsHeading(section.props) !== ''
+}
 
 /** Whether a rendered section list already provides the page's h1. */
 export function sectionsProvideHeading(
@@ -86,9 +101,7 @@ export function sectionsHeadingText(
   if (!owner) return undefined
   if (owner.componentType === 'hero_carousel') return heroCarouselHeading(owner.props) || undefined
   // A heading drawn on two lines (`hero_showcase`'s accent line) is one h1, so one title.
-  const props = owner.props as { heading?: unknown, headingAccent?: unknown } | undefined
-  const heading = [trimmedText(props?.heading), trimmedText(props?.headingAccent)].filter(Boolean).join(' ')
-  return heading || undefined
+  return propsHeading(owner.props) || undefined
 }
 
 /**
