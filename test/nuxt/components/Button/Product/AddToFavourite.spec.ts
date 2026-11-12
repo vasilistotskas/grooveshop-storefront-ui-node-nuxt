@@ -85,7 +85,7 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
       { url: '/api/products/favourites/11', options: expect.objectContaining({ method: 'DELETE' }) },
     ])
     expect(useUserStore().favouriteProductIds).toEqual({})
-    expect(wrapper.emitted('favourite-delete')).toEqual([[11]])
+    expect(wrapper.emitted('favourite-delete')).toEqual([[]])
   })
 
   it.each([
@@ -144,14 +144,15 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
 
   /** The heart as a card draws it: its favourite read from the store, so a click shows. */
   const mountFromStore = async () => {
-    const deleted: number[] = []
+    // How many times the heart said its favourite went.
+    const deleted = { count: 0 }
     const Card = defineComponent({
       setup: () => () => h(C, {
         productId: 5,
         productName: NAME,
         userId: 7,
         favouriteId: useUserStore().getFavouriteIdByProductId(5) ?? null,
-        onFavouriteDelete: (id: number) => deleted.push(id),
+        onFavouriteDelete: () => deleted.count++,
       }),
     })
     const wrapper = await mountSuspended(Card, { route: false })
@@ -190,7 +191,22 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
 
     expect(api.callsTo('/api/products/favourites/*').map(call => call.url)).toEqual([LOOKUP, '/api/products/favourites/11'])
     expect(pressed(wrapper)).toBe('false')
-    expect(deleted).toEqual([11])
+    expect(deleted.count).toBe(1)
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: COPY.removed }))
+  })
+
+  // The favourites page drops the card on that signal: a favourite that is
+  // already gone must send it as a deleted one does.
+  it('says a favourite went when the id it asks for is none any more, deleting nothing', async () => {
+    useUserStore().markFavouriteProduct(5)
+    api.routes({ [LOOKUP]: [] })
+    const { wrapper, deleted } = await mountFromStore()
+
+    await clickHeart(wrapper)
+
+    expect(api.callsTo('/api/products/favourites/*').map(call => call.url)).toEqual([LOOKUP])
+    expect(pressed(wrapper)).toBe('false')
+    expect(deleted.count).toBe(1)
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: COPY.removed }))
   })
 
@@ -244,7 +260,7 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     await click(wrapper)
 
     expect(useUserStore().favouriteProductIds).toEqual({})
-    expect(wrapper.emitted('favourite-delete')).toEqual([[11]])
+    expect(wrapper.emitted('favourite-delete')).toEqual([[]])
     expect(toastAdd).toHaveBeenCalledTimes(1)
     expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error_occurred') }))
   })

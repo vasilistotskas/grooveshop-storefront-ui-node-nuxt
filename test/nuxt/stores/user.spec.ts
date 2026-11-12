@@ -271,8 +271,11 @@ describe('useUserStore', () => {
 
     // A removal asks for a favourite's id while a mount's batch may still be
     // out for the same product: the newer question's answer stands, in
-    // whichever order the two answers arrive.
-    it('keeps the answer to the newest question about a product', async () => {
+    // either order the two answers arrive.
+    it.each([
+      ['the older answer last', [1, 0]],
+      ['the older answer first', [0, 1]],
+    ] as const)('keeps the answer to the newest question about a product: %s', async (_case, order) => {
       const answers: Array<() => void> = []
       api.routes({ [LOOKUP]: (_url: string, options: { body: { productIds: number[] } }) => new Promise((resolve) => {
         const held = answers.length === 0 ? [] : [favourite(1, 100)]
@@ -283,11 +286,12 @@ describe('useUserStore', () => {
       const resolved = store.resolveFavouriteId(1)
       await flushPromises()
 
-      answers[1]!()
-      await expect(resolved).resolves.toBe(100)
-      answers[0]!()
-      await flushPromises()
+      for (const index of order) {
+        answers[index]!()
+        await flushPromises()
+      }
 
+      await expect(resolved).resolves.toBe(100)
       expect(store.favouriteProductIds).toEqual({ 1: 100 })
     })
 

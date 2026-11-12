@@ -34,6 +34,7 @@ export const useUserStore = defineStore('user', () => {
     known.clear()
     pending.clear()
     changes.clear()
+    latestLookup.clear()
     session++
   }
 

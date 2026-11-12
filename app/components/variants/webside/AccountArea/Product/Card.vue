@@ -39,7 +39,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  (e: 'favourite-delete', id: number): void
+  (e: 'favourite-delete'): void
 }>()
 
 /**
@@ -169,7 +169,7 @@ const startShare = async () => {
 }
 
 const favouriteId = computed(() => getFavouriteIdByProductId(productId.value))
-const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
+const onFavouriteDelete = () => emit('favourite-delete')
 </script>
 
 <template>

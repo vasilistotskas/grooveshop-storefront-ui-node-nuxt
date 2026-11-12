@@ -35,7 +35,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  (e: 'favourite-delete', id: number): void
+  (e: 'favourite-delete'): void
 }>()
 
 const { t } = useStoreI18n('components/variants/webside/Button/Product/AddToFavourite')
@@ -48,7 +48,7 @@ const { isLoading, drawnFavouriteId, toggle: toggleFavourite } = useProductFavou
   userId: () => props.userId,
   favouriteId: () => props.favouriteId,
   t,
-  onDeleted: id => emit('favourite-delete', id),
+  onDeleted: () => emit('favourite-delete'),
 })
 
 // A toggle button (WAI-ARIA): ONE name, the product's, whatever its state,

@@ -30,8 +30,8 @@
  * button says which one it holds (`favouriteId`, `null` for none yet);
  * `toggle` does the other. A guest gets "sign in first" and no request.
  * One request at a time (`isLoading`). The user store follows the
- * server's answer, and `onDeleted` tells the drawing which favourite
- * went (the favourites lists drop its card). A failure is one toast with
+ * server's answer, and `onDeleted` tells the drawing the product's
+ * favourite went (the favourites lists drop its card). A failure is one toast with
  * Django's reason, behind the headline `t('error_occurred')`.
  *
  * Except when the server says the shopper already has what they asked for:
@@ -52,7 +52,8 @@ export function useProductFavouriteToggle(options: {
   userId: () => number | null | undefined
   favouriteId: () => FavouriteId | null | undefined
   t: ReturnType<typeof useI18n>['t']
-  onDeleted: (favouriteId: number) => void
+  /** The product's favourite is gone (the favourites lists drop its card). */
+  onDeleted: () => void
 }) {
   const { t } = options
   const toast = useToast()
@@ -121,12 +122,12 @@ export function useProductFavouriteToggle(options: {
       else {
         removing = favouriteId === FAVOURITE_ID_UNKNOWN ? await resolveFavouriteId(productId) : favouriteId
         if (!sameSession()) return
+        // `undefined`: the server holds no favourite to delete any more.
         if (removing !== undefined) {
           await $api(`/api/products/favourites/${removing}`, { method: 'DELETE' })
           if (!sameSession()) return
-          options.onDeleted(removing)
         }
-        // No favourite to delete: the server holds none any more.
+        options.onDeleted()
         removeFavouriteProduct(productId)
         announce('removed')
       }
@@ -140,7 +141,7 @@ export function useProductFavouriteToggle(options: {
         return
       }
       if (removing !== undefined && status === 404) {
-        options.onDeleted(removing)
+        options.onDeleted()
         removeFavouriteProduct(productId)
         announce('removed')
         return
