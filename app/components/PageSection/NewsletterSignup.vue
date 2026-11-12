@@ -24,9 +24,10 @@ withDefaults(defineProps<{
    * The heading's colour: the theme's heading colour, or its accent (the
    * token the hero's accent line paints with). The heading is large text
    * (24px and up), so AA asks 3:1: the theme's contrast rules hold the
-   * accent to that against the page ground in both designs
-   * (`themeContrastRulesFor`, `accent-light` / `accent-dark`, a warning on
-   * publish). Nothing checks it on the muted ground.
+   * accent to that on both grounds in both designs
+   * (`themeContrastRulesFor`: `accent-light` / `accent-dark` on the page,
+   * `accent-muted-light` / `accent-muted-dark` on the muted ground, a
+   * warning on publish).
    */
   headingColor?: 'default' | 'accent'
 }>(), {

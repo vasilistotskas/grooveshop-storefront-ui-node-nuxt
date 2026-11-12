@@ -330,6 +330,8 @@ el:
     action-dark: Κουμπιά, σκούρο
     accent-light: Έμφαση, φωτεινό
     accent-dark: Έμφαση, σκούρο
+    accent-muted-light: Έμφαση σε απαλό φόντο, φωτεινό
+    accent-muted-dark: Έμφαση σε απαλό φόντο, σκούρο
 en:
   missing:
     title: The theme is not set up yet
@@ -407,4 +409,6 @@ en:
     action-dark: Buttons, dark
     accent-light: Accent, light
     accent-dark: Accent, dark
+    accent-muted-light: Accent on the muted ground, light
+    accent-muted-dark: Accent on the muted ground, dark
 </i18n>

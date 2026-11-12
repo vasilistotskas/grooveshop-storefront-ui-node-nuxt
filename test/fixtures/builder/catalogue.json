@@ -1,5 +1,5 @@
 {
-  "hash": "a40b516f01f8da1d",
+  "hash": "ba7b95d903448d3c",
   "blocks": [
     {
       "type": "about_content",
@@ -9001,6 +9001,20 @@
           "id": "accent-dark",
           "foreground": "/colors/dark/accent",
           "background": "/colors/dark/neutral/scale/950",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "accent-muted-light",
+          "foreground": "/colors/light/accent",
+          "background": "#ffffff",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "accent-muted-dark",
+          "foreground": "/colors/dark/accent",
+          "background": "/colors/dark/neutral/scale/900",
           "min": 3,
           "severity": "warning"
         }
