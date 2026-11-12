@@ -35993,7 +35993,7 @@ components:
             contentPreview:
               type: string
             user:
-              $ref: '#/components/schemas/UserDetails'
+              $ref: '#/components/schemas/UserPublic'
             createdAt:
               type: string
               format: date-time
@@ -36020,7 +36020,7 @@ components:
               contentPreview:
                 type: string
               user:
-                $ref: '#/components/schemas/UserDetails'
+                $ref: '#/components/schemas/UserPublic'
             required:
               - id
               - contentPreview

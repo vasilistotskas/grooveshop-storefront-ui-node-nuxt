@@ -6404,14 +6404,14 @@ export const zBlogCommentDetail = z.object({
   parentComment: z.object({
     id: z.int(),
     contentPreview: z.string(),
-    user: zUserDetails,
+    user: zUserPublic,
     createdAt: z.iso.datetime({ offset: true }),
   }).readonly().nullable(),
   childrenComments: z.array(zBlogComment).readonly(),
   ancestorsPath: z.array(z.object({
     id: z.int(),
     contentPreview: z.string(),
-    user: zUserDetails,
+    user: zUserPublic,
   })).readonly(),
   treePosition: z.object({
     level: z.int(),

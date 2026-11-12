@@ -888,7 +888,7 @@ export type BlogCommentDetail = {
   readonly parentComment: {
     id: number
     contentPreview: string
-    user: UserDetails
+    user: UserPublic
     createdAt: string
   } | null
   /**
@@ -901,7 +901,7 @@ export type BlogCommentDetail = {
   readonly ancestorsPath: Array<{
     id: number
     contentPreview: string
-    user: UserDetails
+    user: UserPublic
   }>
   /**
      * Position information in the comment tree
