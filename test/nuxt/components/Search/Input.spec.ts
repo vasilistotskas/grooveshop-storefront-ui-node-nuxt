@@ -1,8 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
+import type { Component } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SearchInput from '~/components/Search/Input.vue'
 import WebsideSearchInput from '~/components/variants/webside/Search/Input.vue'
+import { inlineT } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The control that opens the search palette. In the header (`compact`)
@@ -17,7 +20,7 @@ vi.mock('~/components/variants/webside/Search/Modal.vue', () => ({
   default: { props: ['open', 'query'], template: '<div data-test="palette" :data-open="open" />' },
 }))
 
-const COPY = { placeholder: 'Αναζήτηση στο κατάστημα' }
+const COPY = { placeholder: inlineT('app/components/Search/Input.vue')('search.placeholder') }
 
 describe('Search/Input', () => {
   it('gives the header an icon button and a field', async () => {
@@ -66,12 +69,14 @@ describe('the search shortcut', () => {
    * The fields of one page, mounted together as a page holds them (each field
    * is told apart by its place in the page, `useId`): `fields` lists which
    * is the header's, and `shown` which are drawn, so a test can take one away.
+   * The header's field is `header`: the default design's compact field, or
+   * webside's own; a section's field is the shared one in every design.
    */
-  async function mountPage(fields: boolean[]) {
+  async function mountPage(fields: boolean[], header: Component = SearchInput) {
     const shown = ref(fields.map(() => true))
     const Page = defineComponent({
-      setup: () => () => h('div', fields.map((header, index) => shown.value[index]
-        ? h('div', { 'data-field': index }, [h(SearchInput, { compact: header })])
+      setup: () => () => h('div', fields.map((isHeader, index) => shown.value[index]
+        ? h('div', { 'data-field': index }, [isHeader ? h(header, header === SearchInput ? { compact: true } : {}) : h(SearchInput)])
         : null)),
     })
     const page = await mountSuspended(Page, { route: false })
@@ -92,15 +97,34 @@ describe('the search shortcut', () => {
     clearNuxtState('search-shortcut-fields')
   })
 
-  it('belongs to the field of the header when a section draws one too: one palette, one hint', async () => {
-    const page = await mountPage([false, true])
+  // Webside's header field always shows its Ctrl K hint and states no
+  // `aria-keyshortcuts`; what matters in both is that the section's field
+  // says nothing and opens nothing.
+  describe.each(trees(SearchInput, WebsideSearchInput))('with the $tree header', ({ tree, C: header }) => {
+    const headerAdvertises = { hint: true, keys: tree === 'default' }
 
-    press()
+    it('belongs to the field of the header when a section draws one too: one palette, one hint', async () => {
+      const page = await mountPage([false, true], header)
 
-    await vi.waitFor(() => expect(page.opened(1)).toBe(true))
-    expect(page.paletteMounted(0)).toBe(false)
-    expect(page.advertises(1)).toEqual({ hint: true, keys: true })
-    expect(page.advertises(0)).toEqual({ hint: false, keys: false })
+      press()
+
+      await vi.waitFor(() => expect(page.opened(1)).toBe(true))
+      expect(page.paletteMounted(0)).toBe(false)
+      expect(page.advertises(1)).toEqual(headerAdvertises)
+      expect(page.advertises(0)).toEqual({ hint: false, keys: false })
+    })
+
+    it('moves from the header to the section field when the header goes away', async () => {
+      const page = await mountPage([true, false], header)
+      expect(page.advertises(1).hint).toBe(false)
+
+      page.shown.value = [false, true]
+      await nextTick()
+      press()
+
+      await vi.waitFor(() => expect(page.opened(1)).toBe(true))
+      expect(page.advertises(1)).toEqual({ hint: true, keys: true })
+    })
   })
 
   it('belongs to a section field on a page whose header has none', async () => {
@@ -122,9 +146,8 @@ describe('the search shortcut', () => {
     expect(page.advertises(1)).toEqual({ hint: false, keys: false })
   })
 
-  it('moves to the next field when its owner goes away', async () => {
-    const page = await mountPage([true, false])
-    expect(page.advertises(1).hint).toBe(false)
+  it('moves to the next section field when the first goes away', async () => {
+    const page = await mountPage([false, false])
 
     page.shown.value = [false, true]
     await nextTick()
@@ -143,6 +166,6 @@ describe('webside Search/Input', () => {
     // is part of it) is a name a voice-control user cannot say.
     const button = wrapper.find('button')
     expect(button.attributes('aria-label')).toBeUndefined()
-    expect(button.text()).toContain((wrapper.vm as unknown as { t: (k: string) => string }).t('search.placeholder'))
+    expect(button.text()).toContain(inlineT('app/components/variants/webside/Search/Input.vue')('search.placeholder'))
   })
 })
