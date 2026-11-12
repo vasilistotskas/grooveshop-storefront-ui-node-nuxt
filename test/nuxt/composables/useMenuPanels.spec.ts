@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
@@ -13,9 +13,11 @@ async function mountMenu() {
   const open = ref<string | undefined>()
   // A listener of the button's own, standing for Reka's trigger handler.
   const triggerClick = vi.fn()
+  let onEscapeKeyDown: (event: KeyboardEvent) => void = () => {}
   const wrapper = await mountSuspended(defineComponent({
     setup() {
       const panels = useMenuPanels(open)
+      onEscapeKeyDown = panels.onEscapeKeyDown
       return () => h('div', {
         onPointermove: panels.onPointermove,
         onPointerleave: panels.onPointerleave,
@@ -29,10 +31,19 @@ async function mountMenu() {
       ])
     },
   }), { route: false, attachTo: document.body })
-  return { wrapper, open, triggerClick, name: wrapper.get('a'), button: wrapper.get('button'), blog: wrapper.get('button.blog') }
+  return {
+    wrapper,
+    open,
+    triggerClick,
+    name: wrapper.get('a'),
+    button: wrapper.get('button'),
+    blog: wrapper.get('button.blog'),
+    escape: () => onEscapeKeyDown(new KeyboardEvent('keydown', { key: 'Escape', cancelable: true })),
+  }
 }
 
 const touch = { pointerType: 'touch' }
+const mouse = { pointerType: 'mouse' }
 
 describe('useMenuPanels', () => {
   it('opens and closes a section\'s panel on a click of its button, one toggle each', async () => {
@@ -81,6 +92,76 @@ describe('useMenuPanels', () => {
     expect(open.value).toBeUndefined()
     expect(followed).toHaveBeenCalledTimes(1)
     wrapper.element.parentElement!.removeEventListener('click', followed)
+  })
+
+  // Reka's trigger guards, ported with its timings (reka-ui 2.11,
+  // `NavigationMenuTrigger`): its hover is off on these menus, so ours
+  // must keep a mouse click from fighting the hover.
+  describe('the mouse and a click', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('leaves open a panel the mouse opened less than 300ms before the click on its button', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const { open, name, button } = await mountMenu()
+
+      await name.trigger('pointermove', mouse)
+      await vi.advanceTimersByTimeAsync(299)
+      await button.trigger('click')
+      expect(open.value).toBe('products')
+
+      // From 300ms on, a click is the visitor's own: it closes.
+      await vi.advanceTimersByTimeAsync(1)
+      await button.trigger('click')
+      expect(open.value).toBe('')
+    })
+
+    it('ends that window when the mouse leaves the section', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const { wrapper, open, name, button } = await mountMenu()
+
+      await name.trigger('pointermove', mouse)
+      await wrapper.trigger('pointermove', mouse)
+      await button.trigger('click')
+
+      expect(open.value).toBe('')
+    })
+
+    it('keeps a panel a click closed shut under the mouse until the mouse has left the section and come back', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const { wrapper, open, name, button } = await mountMenu()
+      await name.trigger('pointermove', mouse)
+      await vi.advanceTimersByTimeAsync(300)
+
+      await button.trigger('click')
+      expect(open.value).toBe('')
+      await button.trigger('pointermove', mouse)
+      await name.trigger('pointermove', mouse)
+      expect(open.value).toBe('')
+
+      await wrapper.trigger('pointermove', mouse)
+      await name.trigger('pointermove', mouse)
+      expect(open.value).toBe('products')
+    })
+
+    it('keeps a panel Escape closed shut under the mouse until the mouse has left and come back', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const { wrapper, open, name, escape } = await mountMenu()
+      await name.trigger('pointermove', mouse)
+      expect(open.value).toBe('products')
+      // Past the click guard, so only Escape's own guard holds it shut.
+      await vi.advanceTimersByTimeAsync(300)
+
+      escape()
+      expect(open.value).toBe('')
+      await name.trigger('pointermove', mouse)
+      expect(open.value).toBe('')
+
+      await wrapper.trigger('pointerleave', mouse)
+      await name.trigger('pointermove', mouse)
+      expect(open.value).toBe('products')
+    })
   })
 
   it('opens nothing for a touch that went down elsewhere and was lifted on the button', async () => {

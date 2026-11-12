@@ -439,6 +439,31 @@ describe('Chrome/Navbar', () => {
       await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
     })
 
+    // Reka's trigger guards (`useMenuPanels`): hover opens, a click on
+    // the arrow after 300ms closes, and the mouse moving on within the
+    // section does not reopen it until it has left and come back.
+    it('closes on a click of the arrow and stays closed under the mouse until it leaves the section', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const { name, button, around } = await hoverable()
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+      await flushPromises()
+      expect(button.attributes('aria-expanded')).toBe('true')
+      await vi.advanceTimersByTimeAsync(300)
+
+      await button.trigger('click')
+      await flushPromises()
+      expect(button.attributes('aria-expanded')).toBe('false')
+      await button.trigger('pointermove', { pointerType: 'mouse' })
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+      await flushPromises()
+      expect(button.attributes('aria-expanded')).toBe('false')
+
+      await around.trigger('pointerleave', { pointerType: 'mouse' })
+      await name.trigger('pointermove', { pointerType: 'mouse' })
+      await flushPromises()
+      expect(button.attributes('aria-expanded')).toBe('true')
+    })
+
     it('toggles it on a mouse click of the button, once each', async () => {
       const { button } = await hoverable()
 
