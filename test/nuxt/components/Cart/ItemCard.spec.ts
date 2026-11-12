@@ -102,6 +102,19 @@ describe('Cart/ItemCard (default)', () => {
     expect(removeButton(await mount(LINE, true)).text()).toBe('')
   })
 
+  // happy-dom lays nothing out: the classes are the contract. The page's phone column
+  // is 192px at 320 (its thumbnail, gaps and padding take the rest), so the 128px
+  // stepper and the 44px icon (184px with the gap) fit, and the word does not.
+  it('shows the word remove only from sm up, and gives the phone a 128px stepper beside a 44px icon', async () => {
+    const wrapper = await mount()
+
+    const word = removeButton(wrapper).findAll('span').find(span => span.text() === 'Αφαίρεση')!
+
+    expect(word.classes()).toContain('max-sm:hidden')
+    expect(removeButton(wrapper).classes()).toEqual(expect.arrayContaining(['max-sm:min-h-11', 'max-sm:min-w-11']))
+    expect(wrapper.findAll('div').some(div => div.classes().includes('max-sm:w-32'))).toBe(true)
+  })
+
   it('caps the quantity stepper at the product stock', async () => {
     const wrapper = await mount()
 

@@ -153,7 +153,7 @@ async function remove() {
         <div
           class="
             w-28 shrink-0
-            max-sm:w-36
+            max-sm:w-32
           "
         >
           <QuantitySelector
@@ -161,17 +161,24 @@ async function remove() {
             :cart-item-id="cartItem.id"
           />
         </div>
+        <!-- The word «Αφαίρεση» comes with the room for it (from sm up). Below,
+             the column is 192-262px wide (320-390px screens, the cart page) and
+             the stepper takes 128 of it, so the button is its 44px icon. -->
         <UButton
-          :label="compact ? undefined : t('remove')"
           :aria-label="t('remove_named', { name })"
           :loading="removing"
           icon="i-lucide-trash-2"
           color="neutral"
           variant="ghost"
           size="sm"
-          class="max-sm:min-h-11 max-sm:min-w-11"
+          class="max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center"
           @click="remove"
-        />
+        >
+          <span
+            v-if="!compact"
+            class="max-sm:hidden"
+          >{{ t('remove') }}</span>
+        </UButton>
       </div>
     </div>
   </div>
