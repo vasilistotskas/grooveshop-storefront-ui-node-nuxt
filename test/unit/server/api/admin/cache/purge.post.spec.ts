@@ -485,21 +485,37 @@ describe('POST /api/admin/cache/purge, the record data of purged pages', () => {
     expect(left).not.toContain(HOME)
   })
 
+  // Completion, not the order of the calls: while one record-data removal is
+  // still running, the page is still cached and the purge has not answered.
   it('drops the record data BEFORE the pages, so a render after the purge cannot store old data again', async () => {
+    const held = dataKey(RECORD_DATA.at(-1)!, WEBSIDE)
+    let release!: () => void
+    const pending = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    let reached = false
     // Every mount's removal reaches the root storage, with its mount prefix.
-    const removed: string[] = []
     const root = useStorage()
     const removeItem = root.removeItem.bind(root)
     vi.spyOn(root, 'removeItem').mockImplementation(async (key, ...rest) => {
-      removed.push(String(key).replace(/^cache:/, ''))
+      if (String(key) === `cache:${held}`) {
+        reached = true
+        await pending
+      }
       return removeItem(key, ...rest)
     })
+    let answered = false
 
-    await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+    const response = purge({ builderDocuments: ['template:home'], host: WEBSIDE }).finally(() => {
+      answered = true
+    })
+    await vi.waitFor(() => expect(reached).toBe(true))
+    expect(await useStorage('cache').hasItem(HOME)).toBe(true)
+    expect(answered).toBe(false)
 
-    const lastData = Math.max(...RECORD_DATA.map(name => removed.indexOf(dataKey(name, WEBSIDE))))
-    expect(lastData).toBeGreaterThanOrEqual(0)
-    expect(removed.indexOf(HOME)).toBeGreaterThan(lastData)
+    release()
+    expect((await response).status).toBe(200)
+    expect(await remainingKeys()).not.toContain(HOME)
   })
 
   it('never drops another store\'s record data', async () => {
