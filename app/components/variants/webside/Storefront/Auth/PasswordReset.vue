@@ -2,6 +2,8 @@
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/PasswordReset')
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const items = computed(() => [
   {
@@ -10,12 +12,12 @@ const items = computed(() => [
     icon: t('breadcrumb.items.index.icon'),
   },
   {
-    to: localePath('account-login'),
+    to: localePath(authLink('account-login')),
     label: t('breadcrumb.items.account-login.label'),
     icon: t('breadcrumb.items.account-login.icon'),
   },
   {
-    to: localePath('account-password-reset'),
+    to: localePath(authLink('account-password-reset')),
     label: t('breadcrumb.items.account-password-reset.label'),
     icon: t('breadcrumb.items.account-password-reset.icon'),
     current: true,

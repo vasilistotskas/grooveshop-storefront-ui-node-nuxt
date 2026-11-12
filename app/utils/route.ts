@@ -96,6 +96,9 @@ export const AuthFlowRoutes = [
 
 export const AuthFlowRoutesSet = new Set<keyof RouteMapI18n>(AuthFlowRoutes)
 
+/** A page of the sign-in and sign-up flows. */
+export type AuthFlowRoute = (typeof AuthFlowRoutes)[number]
+
 export const isRouteProtected = (route: string) => {
   return AuthenticatedRoutesSet.has(route as keyof RouteMapI18n)
 }

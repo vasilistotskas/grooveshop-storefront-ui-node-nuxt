@@ -2,9 +2,10 @@ import type { RouteLocationNamedI18n } from 'vue-router'
 import { parsePath } from 'ufo'
 
 /**
- * The sign-in and sign-up links of the chrome (headers, phone menus, tab
- * bars, in every design), each bringing the shopper back to the page
- * they left: path and query, in the page's language, as the auth
+ * Every link to a sign-in, sign-up or other auth page (the chrome's, the
+ * links from one auth form to another, the start-over and back links, the
+ * sign-up invitations on the store's pages, in every design), each
+ * bringing the shopper back to the page they left: path and query, in the page's language, as the auth
  * middleware does. From a sign-in or sign-up page itself the page is no
  * destination: the link carries on the `next` that page came with, so
  * signing up from `/account/login?next=/cart` still ends on the cart
@@ -30,16 +31,20 @@ export function useAuthLinks() {
     return `${pathname}${search}`
   })
 
-  // Always a location object, never a bare route name: callers read its
-  // `query` (`next`) without narrowing.
-  const link = (name: typeof RedirectToURLs.LOGIN_URL | 'account-signup') =>
-    computed<Exclude<RouteLocationNamedI18n, string>>(() => ({
-      name,
-      query: next.value ? { next: next.value } : undefined,
-    }))
+  /**
+   * The auth page `name` with the shopper's destination. Always a location
+   * object, never a bare route name: callers read its `query` (`next`)
+   * without narrowing. Read it where it is rendered (a template, a click),
+   * so it follows the route.
+   */
+  const authLink = (name: AuthFlowRoute): Exclude<RouteLocationNamedI18n, string> => ({
+    name,
+    query: next.value ? { next: next.value } : undefined,
+  })
 
   return {
-    signIn: link(RedirectToURLs.LOGIN_URL),
-    signUp: link('account-signup'),
+    authLink,
+    signIn: computed(() => authLink(RedirectToURLs.LOGIN_URL)),
+    signUp: computed(() => authLink('account-signup')),
   }
 }

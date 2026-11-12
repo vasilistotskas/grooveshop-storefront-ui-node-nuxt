@@ -29,6 +29,8 @@ const emit = defineEmits<{ sent: [] }>()
 const { t } = useStoreI18n('components/Auth/ResendCode')
 const toast = useToast()
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const tenantStore = useTenantStore()
 
 const cooldown = computed(() => tenantStore.codeResendCooldownSeconds ?? 0)
@@ -69,7 +71,7 @@ async function onResend() {
   catch (error) {
     if (isConflictClientError(error)) {
       toast.add({ title: t('start_over'), color: 'warning' })
-      await navigateTo(localePath(props.startOver))
+      await navigateTo(localePath(authLink(props.startOver)))
       return
     }
     if (isRateLimitedClientError(error)) {

@@ -17,6 +17,8 @@
  */
 const { t, n, locale } = useStoreI18n('components/Storefront/LoyaltyProgram')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
 
@@ -209,7 +211,7 @@ useHead({
               </template>
               <template v-else>
                 <UButton
-                  :to="localePath('account-signup')"
+                  :to="localePath(authLink('account-signup'))"
                   :label="t('cta.join')"
                   color="neutral"
                   class="
@@ -219,7 +221,7 @@ useHead({
                   "
                 />
                 <UButton
-                  :to="localePath('account-login')"
+                  :to="localePath(authLink('account-login'))"
                   :label="t('cta.sign_in')"
                   color="neutral"
                   variant="outline"

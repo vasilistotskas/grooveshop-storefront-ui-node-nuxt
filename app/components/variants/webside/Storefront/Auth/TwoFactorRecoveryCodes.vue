@@ -2,6 +2,8 @@
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/TwoFactorRecoveryCodes')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const items = computed(() => [
   {
@@ -10,12 +12,12 @@ const items = computed(() => [
     icon: t('breadcrumb.items.index.icon'),
   },
   {
-    to: localePath('account-login'),
+    to: localePath(authLink('account-login')),
     label: t('breadcrumb.items.account-login.label'),
     icon: t('breadcrumb.items.account-login.icon'),
   },
   {
-    to: localePath('account-2fa-authenticate-recovery-codes'),
+    to: localePath(authLink('account-2fa-authenticate-recovery-codes')),
     label: t('breadcrumb.items.account-2fa-authenticate-recovery-codes.label'),
     icon: t('breadcrumb.items.account-2fa-authenticate-recovery-codes.icon'),
     current: true,

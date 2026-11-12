@@ -6,6 +6,8 @@
  */
 const { t, n } = useStoreI18n('components/Checkout/GuestLoyaltyCTA')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const cartStore = useCartStore()
 const { getPotentialPoints: estimatedPoints } = storeToRefs(cartStore)
@@ -34,7 +36,7 @@ const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
         {{ t('description') }}
       </p>
       <ULink
-        :to="localePath('account-signup')"
+        :to="localePath(authLink('account-signup'))"
         class="font-semibold text-accent"
       >
         {{ t('cta') }}

@@ -26,6 +26,8 @@ const { connecting, error, loading } = useProviderCallback({
 })
 
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const title = computed(() => {
   if (error.value) return t('title.error')
@@ -54,7 +56,7 @@ useHead({ title: () => title.value })
     <UButton
       v-if="error"
       :label="t('continue')"
-      :to="localePath(RedirectToURLs.LOGIN_URL)"
+      :to="localePath(authLink(RedirectToURLs.LOGIN_URL))"
       size="lg"
       block
     />

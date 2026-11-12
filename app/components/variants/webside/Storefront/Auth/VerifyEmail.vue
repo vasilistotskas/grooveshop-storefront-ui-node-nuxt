@@ -2,6 +2,8 @@
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/VerifyEmail')
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { isMobileOrTablet } = useDevice()
 
 const { codeString, code, hasError, schema, onSubmit } = useVerifyEmail({
@@ -17,12 +19,12 @@ const items = computed(() => [
     icon: t('breadcrumb.items.index.icon'),
   },
   {
-    to: localePath('account-login'),
+    to: localePath(authLink('account-login')),
     label: t('breadcrumb.items.account-login.label'),
     icon: t('breadcrumb.items.account-login.icon'),
   },
   {
-    to: localePath('account-verify-email'),
+    to: localePath(authLink('account-verify-email')),
     label: t('breadcrumb.items.account-verify-email.label'),
     icon: t('breadcrumb.items.account-verify-email.icon'),
     current: true,

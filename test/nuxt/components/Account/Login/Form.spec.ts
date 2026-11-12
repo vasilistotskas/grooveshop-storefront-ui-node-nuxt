@@ -5,6 +5,8 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import LoginForm from '~/components/Account/Login/Form.vue'
 import WebsideLoginForm from '~/components/variants/webside/Account/Login/Form.vue'
+import SignupForm from '~/components/Account/Signup/Form.vue'
+import WebsideSignupForm from '~/components/variants/webside/Account/Signup/Form.vue'
 import { trees } from '~~/test/helpers/trees'
 import type { AllAuthProvider } from '~~/shared/openapi-allauth/types.gen'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse, makeSessionResponse, makeSocialProvider } from '~~/test/fixtures/allauth'
@@ -23,6 +25,16 @@ const { login, navigateToMock, toastAdd } = vi.hoisted(() => ({
 mockNuxtImport('useAllAuthAuthentication', () => () => ({ login }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+
+// The flow below navigates between the sign-in and sign-up pages for
+// real: those pages are empty here, or vue-router would load their whole
+// graph first (the forms are mounted on their own).
+const { PageStub } = await vi.hoisted(async () => {
+  const { defineComponent } = await import('vue')
+  return { PageStub: defineComponent({ render: () => null }) }
+})
+vi.mock('~/pages/account/login/index.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/signup/index.vue', () => ({ default: PageStub }))
 
 /** allauth's 401 for a correct password on a two-factor account, as the Nuxt proxy forwards it. */
 const MFA_PENDING = asProxiedError(makePendingFlowResponse('mfa_authenticate', { types: ['totp'] }))
@@ -50,8 +62,29 @@ async function fillAndSubmit(wrapper: VueWrapper, email = 'shopper@example.com',
   await flushPromises()
 }
 
-describe.each(trees(LoginForm, WebsideLoginForm))('$tree Account/Login/Form', ({ C, own }) => {
+describe.each(trees(LoginForm, WebsideLoginForm))('$tree Account/Login/Form', ({ tree, C, own }) => {
   const mountForm = (route = '/') => mountSuspended(C, { route })
+
+  // From the cart to sign-in, across to sign-up and back: every hop keeps
+  // the destination, so signing in or up ends on the cart. The sign-up
+  // form is the same design's.
+  it('keeps the shopper\'s destination from sign-in to sign-up and back', async () => {
+    const login = await mountForm('/account/login?next=/cart')
+    const toSignup = login.get('a[href^="/account/signup"]').attributes('href')!
+    expect(toSignup).toBe('/account/signup?next=/cart')
+
+    const signup = await mountSuspended(tree === 'default' ? SignupForm : WebsideSignupForm, { route: toSignup })
+
+    expect(signup.get('a[href^="/account/login"]').attributes('href')).toBe('/account/login?next=/cart')
+  })
+
+  // The same guard as every reader of `next`: a destination off the store
+  // is dropped, never carried on.
+  it('carries no destination off the store to sign-up', async () => {
+    const login = await mountForm('/account/login?next=https://evil.example/')
+
+    expect(login.get('a[href^="/account/signup"]').attributes('href')).toBe('/account/signup')
+  })
 
   // allauth lists a provider the store has no credentials for; it cannot sign
   // anyone in (`useSocialProviders`), so neither tree draws a block for it.
