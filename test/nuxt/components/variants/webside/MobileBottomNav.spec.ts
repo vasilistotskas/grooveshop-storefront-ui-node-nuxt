@@ -71,6 +71,21 @@ describe('webside MobileBottomNav', () => {
     expect(tabs(wrapper).map(([, href]) => href)).not.toContain('/cart')
   })
 
+  // The classes are the contract: happy-dom lays nothing out. Five tabs
+  // in equal columns (64px at 320), each label on one line in its column.
+  it('shares the bar\'s width between its tabs in equal columns', async () => {
+    const wrapper = await mountNav()
+
+    const items = wrapper.findAll('nav [data-slot="item"]')
+    expect(items).toHaveLength(5)
+    for (const item of items) {
+      expect(item.classes()).toEqual(expect.arrayContaining(['min-w-0', 'flex-1']))
+      expect(item.classes()).not.toContain('w-full')
+      expect(item.get('[data-slot="link"]').classes()).toContain('px-0')
+      expect(item.get('[data-slot="linkLabel"]').classes()).toEqual(expect.arrayContaining(['tracking-tight', 'text-[10px]']))
+    }
+  })
+
   it('is named in the page\'s language', async () => {
     const wrapper = await mountNav()
 

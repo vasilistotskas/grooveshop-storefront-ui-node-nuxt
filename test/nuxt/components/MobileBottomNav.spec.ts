@@ -63,6 +63,17 @@ describe('MobileBottomNav', () => {
     expect(label('Αναζήτηση').classes()).toContain('sr-only')
   })
 
+  // The classes are the contract: happy-dom lays nothing out. The icons
+  // keep their 46px; the active pill takes what is left and no more.
+  it('never runs past the screen: the icons keep their size, the active pill shrinks', async () => {
+    const wrapper = await mountNav()
+
+    const [active, other] = wrapper.findAll('nav [data-slot="item"]')
+    expect(active!.classes()).toContain('min-w-0')
+    expect(active!.get('[data-slot="link"]').classes()).toContain('min-w-0')
+    expect(other!.classes()).toContain('shrink-0')
+  })
+
   it('names the navigation', async () => {
     const wrapper = await mountNav()
 

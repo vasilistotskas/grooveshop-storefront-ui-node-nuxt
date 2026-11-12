@@ -67,17 +67,22 @@ onMounted(() => {
           [&>div]:h-full
           ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}
         `,
+        // The tabs share the bar's width in equal columns (`flex-1` from a
+        // zero basis): with `w-full` each kept its content's width and five
+        // ran past a 390px screen. A column is 64px at 320, the label set
+        // tight without side padding: «Λογαριασμός», the longest, is 59px
+        // at 10px in the system face (61px in Arial).
         list: 'size-full',
-        item: 'flex w-full items-center py-0',
+        item: 'flex min-w-0 flex-1 items-center py-0',
         link: `
           relative flex min-h-12 w-full flex-col items-center justify-center
-          gap-0.5
+          gap-0.5 px-0
           before:bg-transparent
           data-active:text-(--ui-secondary)
           data-active:before:bg-secondary/10
           dark:before:bg-transparent
         `,
-        linkLabel: 'text-[10px] leading-tight font-medium',
+        linkLabel: 'text-[10px] leading-tight font-medium tracking-tight',
         linkLeadingIcon: 'size-6',
         linkLeadingAvatar: 'size-6',
       }"

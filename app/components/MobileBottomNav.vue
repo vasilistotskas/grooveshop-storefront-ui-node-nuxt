@@ -34,14 +34,21 @@ const { items } = useBottomNavItems({
   },
 })
 
-/** Per-item classes, last in Nuxt UI's merge, so they win over the variants. */
+/**
+ * Per-item classes, last in Nuxt UI's merge, so they win over the variants.
+ *
+ * The icons keep their 46px; the active pill takes what is left of the bar
+ * and no more (`min-w-0` on its item and its link): it used to keep its
+ * label's width, and with five tabs the dock ran past a 360px screen.
+ */
 const dockItems = computed<NavigationMenuItem[]>(() =>
   items.value.map(item => ({
     ...item,
     class: item.active
-      ? 'h-11.5 gap-2 rounded-2xl bg-inverted px-4 text-inverted'
+      ? 'h-11.5 min-w-0 gap-2 rounded-2xl bg-inverted px-4 text-inverted'
       : 'size-11.5 justify-center rounded-2xl px-0 text-toned',
     ui: {
+      item: item.active ? 'min-w-0' : 'shrink-0',
       linkLabel: item.active ? 'text-[0.8125rem] font-bold' : 'sr-only',
     },
   })),
