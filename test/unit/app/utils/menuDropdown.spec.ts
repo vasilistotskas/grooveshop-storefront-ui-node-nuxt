@@ -37,15 +37,17 @@ describe('menuDropdownFor', () => {
  * so Nuxt UI draws it as a `<button>` trigger.
  */
 describe('withDropdownToggles', () => {
+  const CATEGORIES = [{ label: 'Φόρτιση', to: '/products/category/1/charging' }]
+
   it('splits a section with a panel into its link and its marked button', () => {
     const items = withDropdownToggles([
-      { label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop' },
+      { label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop', children: CATEGORIES },
       { label: 'Προσφορές', to: '/offers' },
     ], { label: section => `Μενού: ${section}` })
 
     expect(items).toEqual([
       { 'label': 'Κατάστημα', 'to': '/products', 'data-menu-section': 'products' },
-      expect.objectContaining({ 'label': 'Μενού: Κατάστημα', 'value': 'products', 'slot': 'shop', 'data-menu-section': 'products', 'data-menu-toggle': '' }),
+      expect.objectContaining({ 'label': 'Μενού: Κατάστημα', 'value': 'products', 'slot': 'shop', 'children': CATEGORIES, 'data-menu-section': 'products', 'data-menu-toggle': '' }),
       { label: 'Προσφορές', to: '/offers' },
     ])
     expect(items[1]).not.toHaveProperty('to')
@@ -55,7 +57,7 @@ describe('withDropdownToggles', () => {
   // arrow sits in the middle of a target wider than itself.
   it('draws the button as its arrow alone, in the middle of its target, in the design\'s classes', () => {
     const [, button] = withDropdownToggles(
-      [{ label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop' }],
+      [{ label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop', children: CATEGORIES }],
       { label: section => `Μενού: ${section}`, class: 'min-w-6' },
     )
 
@@ -63,10 +65,24 @@ describe('withDropdownToggles', () => {
     expect(button!.ui).toEqual({ linkLabel: 'sr-only', linkTrailing: 'ms-0' })
   })
 
+  // A design names the slot its panel is drawn in; with nothing to list
+  // (none, switched off, failed to load) there is no panel to draw.
+  it('leaves a section with nothing to list one plain link, whatever slot it names', () => {
+    const items = withDropdownToggles([
+      { label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop', children: [] },
+      { label: 'Blog', to: '/blog', value: 'blog', slot: 'blog' },
+    ], { label: section => `Μενού: ${section}` })
+
+    expect(items).toEqual([
+      { label: 'Κατάστημα', to: '/products', value: 'products' },
+      { label: 'Blog', to: '/blog', value: 'blog' },
+    ])
+  })
+
   // Reka renders `aria-controls=""` before it mounts; `undefined` on the
   // item leaves the attribute out while the panel is closed.
   it('leaves aria-controls to Reka only on the open section\'s button', () => {
-    const sections = [{ label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop' }]
+    const sections = [{ label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop', children: CATEGORIES }]
     const label = (section: string) => `Μενού: ${section}`
 
     const closed = withDropdownToggles(sections, { label })[1]!

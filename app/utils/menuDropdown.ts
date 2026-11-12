@@ -49,6 +49,13 @@ export function withCurrentPage<T extends { active?: boolean }>(items: T[]): (T 
  * comes back to it (Reka's NavigationMenuTrigger / NavigationMenuContentImpl).
  * The link stays a link in the server's HTML, before anything hydrates.
  *
+ * A section has a panel only when it has something to show: its
+ * `children`, the entries the panel lists. Its `slot` only says where a
+ * design draws that panel. With no children (none, the feature switched
+ * off, the list failed to load: the menus' composables answer an empty
+ * list for all three) the entry is one plain link, its slot dropped, and
+ * no arrow beside it opens an empty panel.
+ *
  * `toggle.label` names the button after its section; `toggle.class` sets it
  * beside its link in the design's spacing and sizes its target;
  * `toggle.open` is the section whose panel is open (the menu's `v-model`).
@@ -69,8 +76,8 @@ export function withDropdownToggles(
   toggle: { label: (section: string) => string, class?: string, open?: string },
 ): NavigationMenuItem[] {
   return items.flatMap((item) => {
-    if (!item.slot && !item.children?.length) return [item]
     const { slot, children, value, ...link } = item
+    if (!children?.length) return [value === undefined ? link : { ...link, value }]
     // The open panel is named by this value; the name and the button both
     // carry it, so the mouse on either opens the same panel (`useMenuPanels`).
     const section = String(value ?? item.to ?? item.label)

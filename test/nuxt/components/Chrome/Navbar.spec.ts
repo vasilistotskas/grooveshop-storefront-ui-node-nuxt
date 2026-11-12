@@ -105,6 +105,9 @@ const t = (key: string) => useNuxtApp().$i18n.t(key)
 /** The header's own name for the button that opens the Shop panel. */
 const OPEN_SHOP = 'Μενού: Κατάστημα'
 
+/** A category to list, so Shop has a panel to open. */
+const CHARGING: CategoryMenuEntry = { id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', imageAlt: '', productCount: 0, children: [] }
+
 /**
  * The redesigned header's gates. Offers, the blog, gift cards, loyalty
  * and favourites follow `TenantConfig.features`, Django's effective
@@ -256,6 +259,23 @@ describe('Chrome/Navbar', () => {
     ])
   })
 
+  // The categories answer an empty list when there are none, when the
+  // catalogue is off and when the request failed: Shop is then one plain
+  // link, the built-in one and a store's own alike, with no arrow beside it
+  // opening an empty panel.
+  it.each([
+    { case: 'the built-in Shop', header: null },
+    { case: 'a store\'s own link to the listing', header: [{ label: 'Κατάστημα', to: '/products' }] },
+  ])('leaves $case a plain link while there are no categories to list', async ({ header }) => {
+    state.header = header
+
+    const wrapper = await mountNavbar()
+
+    const shop = barEntries(wrapper).find(item => item.to === '/products')!
+    expect([shop.slot, shop.children]).toEqual([undefined, undefined])
+    expect(wrapper.findAll('[data-menu-toggle]').map(toggle => toggle.attributes('data-menu-section'))).not.toContain('shop')
+  })
+
   it('leaves Blog a plain link while the blog has no topics to list', async () => {
     setTenantFeatures({ blog: true })
 
@@ -312,6 +332,7 @@ describe('Chrome/Navbar', () => {
   // cannot use. Each section is its link plus a button that opens its
   // panel; the button is what a keyboard acts on.
   it('lets a keyboard open a section\'s panel, move into it and close it again', async () => {
+    categories.value = [CHARGING]
     const wrapper = await mountSuspended(ChromeNavbar, { route: false, attachTo: document.body, global: { stubs: { ...stubs, ChromeMegaMenu: { template: '<div><a href="/products">all</a><a href="/products?sort=-createdAt">new</a></div>' } } } })
     const link = wrapper.find('a[data-slot="link"][href="/products"]')
     const button = wrapper.findAll<HTMLButtonElement>('button[data-slot="link"]').find(control => control.text() === OPEN_SHOP)!
@@ -344,6 +365,7 @@ describe('Chrome/Navbar', () => {
     })
 
     const hoverable = async () => {
+      categories.value = [CHARGING]
       const wrapper = await mountSuspended(ChromeNavbar, { route: false, attachTo: document.body, global: { stubs: { ...stubs, ChromeMegaMenu: { template: '<div><a href="/products">all</a><a href="/products?sort=-createdAt">new</a></div>' } } } })
       const name = wrapper.get('a[data-slot="link"][href="/products"]')
       const button = wrapper.findAll('button[data-slot="link"]').find(control => control.text() === OPEN_SHOP)!

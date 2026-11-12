@@ -116,10 +116,17 @@ const panels = computed<MenuPanel[]>(() => {
   return out
 })
 
-/** The slot a link to `path` opens its panel in, when it has one. */
-const panelSlot = (path: string | undefined) => {
+/**
+ * The panel a link to `path` opens: the slot it is drawn in and the
+ * entries it lists. A section with none is a plain link
+ * (`withDropdownToggles`).
+ */
+const panelOf = (path: string | undefined): Pick<NavigationMenuItem, 'slot' | 'children'> => {
   const dropdown = menuDropdownFor(path)
-  return panels.value.some(panel => panel.dropdown === dropdown) ? dropdown : undefined
+  const panel = panels.value.find(candidate => candidate.dropdown === dropdown)
+  return panel
+    ? { slot: panel.dropdown, children: panel.tiles.map(tile => ({ label: tile.label, to: localePath(pathLocation(tile.to)) })) }
+    : {}
 }
 
 const navItems = computed<NavigationMenuItem[]>(() => {
@@ -136,7 +143,7 @@ const navItems = computed<NavigationMenuItem[]>(() => {
       target: item.href ? '_blank' : undefined,
       active: isPathActive(item.to),
       value: item.to ?? item.href,
-      slot: panelSlot(item.to),
+      ...panelOf(item.to),
     }))
   }
   const base: NavigationMenuItem[] = []
@@ -146,7 +153,7 @@ const navItems = computed<NavigationMenuItem[]>(() => {
       to: localePath('products'),
       active: isRouteActive('products'),
       value: 'products',
-      slot: panelSlot('/products'),
+      ...panelOf('/products'),
     })
   }
   if (blogServing.value) {
@@ -155,7 +162,7 @@ const navItems = computed<NavigationMenuItem[]>(() => {
       to: localePath('blog'),
       active: isRouteActive('blog'),
       value: 'blog',
-      slot: panelSlot('/blog'),
+      ...panelOf('/blog'),
     })
   }
   if (offersServing.value) {
