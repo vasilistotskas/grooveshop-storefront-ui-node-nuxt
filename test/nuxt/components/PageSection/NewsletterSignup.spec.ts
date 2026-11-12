@@ -168,6 +168,9 @@ describe('NewsletterSignup', () => {
 
     const input = wrapper.find('input[type="email"]')
     expect(wrapper.find(`label[for="${input.attributes('id')}"]`).text()).toBe(COPY.emailLabel)
+    // Its name is its state key, by which an address typed before the
+    // band hydrated is kept (`useKeepTypedBeforeHydration`).
+    expect(input.attributes('name')).toBe('email')
   })
 
   it('posts email + consent through $api, then shows "check your inbox"', async () => {

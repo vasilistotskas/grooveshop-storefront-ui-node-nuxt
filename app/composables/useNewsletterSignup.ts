@@ -86,12 +86,15 @@ export function requestNewsletterSubscription(body: { email: string, consent: bo
  * sentence from `useNewsletterAvailability`.
  *
  * Each call holds its own form state. Copy stays with each form: a
- * failure comes back as a kind for the form to word.
+ * failure comes back as a kind for the form to word. Every form it draws
+ * hydrates after a visitor can type into it (the band on scroll,
+ * webside's footer on scroll, the default footer with the page), so the
+ * state keeps what was typed before (`useKeepTypedBeforeHydration`),
+ * registered before the first `await`.
  */
 export async function useNewsletterSignup(options: NewsletterSignupOptions) {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
-  const { available, consent } = await useNewsletterAvailability()
 
   const schema = z.object({
     email: z.email({ error: () => t('validation.email.valid') }).max(254),
@@ -104,6 +107,9 @@ export async function useNewsletterSignup(options: NewsletterSignupOptions) {
     email: '',
     consent: false,
   })
+  useKeepTypedBeforeHydration(state)
+
+  const { available, consent } = await useNewsletterAvailability()
 
   const submitting = ref(false)
   const outcome = ref<NewsletterOutcome | null>(null)
