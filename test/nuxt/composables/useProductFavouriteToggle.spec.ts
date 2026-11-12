@@ -59,15 +59,20 @@ const suggestions = () => ({
 /** The favourites the server holds for the shopper (product → favourite). */
 const HELD: Record<number, number> = { 2: 20, 5: 50 }
 
-// Embla has no layout here: the carousel renders every slide through its slot.
+// Embla has no layout here: the carousel renders every slide through its
+// slot. Mocked as the module, not stubbed by name: the strip renders it
+// `Lazy`, an async import no `global.stubs` key replaces before it loads.
+vi.mock('@nuxt/ui/components/Carousel.vue', () => ({
+  default: {
+    props: ['items'],
+    template: '<div><slot v-for="(item, index) in items" :item="item" :index="index" /></div>',
+  },
+}))
+
 const STUBS = {
   ImgWithFallback: true,
   ButtonProductAddToCart: true,
   WebsideButtonProductAddToCart: true,
-  UCarousel: {
-    props: ['items'],
-    template: '<div><slot v-for="(item, index) in items" :item="item" :index="index" /></div>',
-  },
 }
 
 const SURFACES: Array<{ tree: string, band: Component, slider: Component, strip: Component, heart: string }> = [
