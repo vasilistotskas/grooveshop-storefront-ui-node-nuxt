@@ -21,7 +21,7 @@
  * `useLeadsPage`).
  *
  * `colorScheme` is the band's: `dark` and `light` hold it in both
- * page modes, `auto` follows the page. A store without a catalogue gets
+ * page modes; without one it follows the page. A store without a catalogue gets
  * no search and no product; one without a cart, no buy button.
  */
 const props = withDefaults(defineProps<{
@@ -46,7 +46,6 @@ const props = withDefaults(defineProps<{
 }>(), {
   showSearch: false,
   showAddToCart: true,
-  colorScheme: 'auto',
 })
 
 const localePath = useLocalePath()

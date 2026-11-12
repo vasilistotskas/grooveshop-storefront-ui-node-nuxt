@@ -57,12 +57,13 @@ export const NAVIGATION_ROUTES = ['/', '/products', '/blog', '/contact', '/offer
 export const LINK_ROUTES = [...NAVIGATION_ROUTES, '/account/login', '/account/signup'] as const
 
 /**
- * The colour scheme a band is drawn in: `light` or `dark` in both of the
+ * The colour scheme a band can be held in: `light` or `dark` in both of the
  * page's colour modes (Nuxt UI's `.light` / `.dark` class on the band, which
- * the stylesheets and the store's theme write for a part of the page), or
- * `auto`, the page's own.
+ * the stylesheets and the store's theme write for a part of the page). A band
+ * with none follows the page: that is the setting left empty, so there is no
+ * third value saying the same thing.
  */
-export const SECTION_COLOR_SCHEMES = ['light', 'dark', 'auto'] as const
+export const SECTION_COLOR_SCHEMES = ['light', 'dark'] as const
 
 /** The record kinds a link names by id, whose address needs the record's current slug (`GET builder/link-targets`). */
 export const LINK_SLUG_KINDS = ['product', 'category', 'blogPost', 'blogCategory'] as const

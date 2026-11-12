@@ -229,7 +229,7 @@
     },
     "colorScheme": {
       "label": "Colour scheme",
-      "help": "Light or dark in both of the page's colour modes, or the page's own."
+      "help": "Light or dark in both of the page's colour modes. Empty: as the page."
     },
     "columns": {
       "label": "Columns"
@@ -450,8 +450,7 @@
     },
     "colorScheme": {
       "light": "Light",
-      "dark": "Dark",
-      "auto": "Follow the page"
+      "dark": "Dark"
     },
     "variant": {
       "line": "Line",

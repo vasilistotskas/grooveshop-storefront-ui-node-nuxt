@@ -1,5 +1,5 @@
 {
-  "hash": "6e00ab2744c2df0a",
+  "hash": "be82b2cbac6b4282",
   "blocks": [
     {
       "type": "about_content",
@@ -315,8 +315,7 @@
             "type": "string",
             "enum": [
               "light",
-              "dark",
-              "auto"
+              "dark"
             ]
           },
           "heading": {
@@ -636,8 +635,7 @@
             "type": "string",
             "enum": [
               "light",
-              "dark",
-              "auto"
+              "dark"
             ]
           },
           "heading": {
@@ -957,8 +955,7 @@
             "type": "string",
             "enum": [
               "light",
-              "dark",
-              "auto"
+              "dark"
             ]
           },
           "heading": {
@@ -1841,8 +1838,7 @@
             "type": "string",
             "enum": [
               "light",
-              "dark",
-              "auto"
+              "dark"
             ]
           },
           "heading": {
@@ -4188,8 +4184,7 @@
             "type": "string",
             "enum": [
               "light",
-              "dark",
-              "auto"
+              "dark"
             ]
           }
         },
@@ -6398,8 +6393,7 @@
             "type": "string",
             "enum": [
               "light",
-              "dark",
-              "auto"
+              "dark"
             ]
           },
           "heading": {
@@ -6737,8 +6731,7 @@
             "type": "string",
             "enum": [
               "light",
-              "dark",
-              "auto"
+              "dark"
             ]
           },
           "heading": {

@@ -230,7 +230,6 @@ describe('PageSection/HeroShowcase', () => {
   it.each([
     ['dark', 'dark'],
     ['light', 'light'],
-    ['auto', undefined],
     [undefined, undefined],
   ] as const)('draws the band in the %s colour scheme', async (colorScheme, scheme) => {
     const classes = (await mountHero({ colorScheme })).get('section').classes()

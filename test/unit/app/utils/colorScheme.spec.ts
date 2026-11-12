@@ -10,7 +10,6 @@ describe('colorSchemeClass', () => {
   it.each([
     ['light', 'light text-default'],
     ['dark', 'dark text-default'],
-    ['auto', undefined],
     [undefined, undefined],
   ] as const)('draws %s as %s', (scheme, expected) => {
     expect(colorSchemeClass(scheme)).toBe(expected)

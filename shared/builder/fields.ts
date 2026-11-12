@@ -134,7 +134,7 @@ export const builderField = {
   surface: () => z.enum(['default', 'muted']),
   /** A band that may also be drawn dark. */
   inkSurface: () => z.enum(['default', 'muted', 'ink']),
-  /** The colour scheme a band is drawn in: light or dark in both of the page's modes, or the page's own (`SECTION_COLOR_SCHEMES`). */
+  /** The colour scheme a band is held in, light or dark in both of the page's modes (`SECTION_COLOR_SCHEMES`); empty, it follows the page. */
   colorScheme: () => z.enum(SECTION_COLOR_SCHEMES),
   boolean: () => z.boolean(),
   /** Text the sanitiser lets keep its markup: Django sanitises it on save and the storefront on render. */
