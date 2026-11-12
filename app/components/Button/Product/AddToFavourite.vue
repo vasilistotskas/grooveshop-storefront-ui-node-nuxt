@@ -12,6 +12,11 @@ const props = defineProps({
     type: Number as PropType<number>,
     required: true,
   },
+  /** Names the heart, so a list of them tells its products apart. */
+  productName: {
+    type: String,
+    required: true,
+  },
   userId: {
     type: Number as PropType<number | null | undefined>,
     required: false,
@@ -25,10 +30,6 @@ const props = defineProps({
   size: {
     type: String as PropType<ButtonProps['size']>,
     default: 'md',
-  },
-  showLabel: {
-    type: Boolean,
-    default: false,
   },
 })
 
@@ -46,31 +47,24 @@ const { isLoading, toggle: toggleFavourite } = useProductFavouriteToggle({
   onDeleted: id => emit('favourite-delete', id),
 })
 
-const buttonLabel = computed(() => {
-  if (!props.showLabel) return undefined
-  return props.favouriteId
-    ? t('remove')
-    : t('add')
-})
-
-const buttonAreaLabel = computed(() => {
-  return props.favouriteId
-    ? t('remove')
-    : t('add')
-})
+// A toggle button (WAI-ARIA): ONE name, the product's, whatever its state,
+// and the state in `aria-pressed`. A name that changed with the state was
+// announced twice ("remove from favourites, pressed"). The tooltip says
+// what a click does.
+const name = computed(() => t('name', { name: props.productName }))
+const action = computed(() => (props.favouriteId ? t('remove') : t('add')))
 </script>
 
 <template>
   <UButton
     v-if="favouritesEnabled"
     :size="size"
-    :label="buttonLabel"
     :icon="favouriteId ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
     :color="favouriteId ? 'error' : 'neutral'"
     variant="subtle"
-    :aria-label="buttonAreaLabel"
+    :aria-label="name"
     :aria-pressed="favouriteId ? 'true' : 'false'"
-    :title="buttonAreaLabel"
+    :title="action"
     :loading="isLoading"
     :disabled="isLoading"
     :ui="{
@@ -90,10 +84,12 @@ el:
   removed: Αφαιρέθηκε από τα αγαπημένα
   add: Προσθήκη στα αγαπημένα
   remove: Αφαίρεση από τα αγαπημένα
+  name: 'Αγαπημένο: {name}'
 en:
   not_authenticated: You have to be signed in to add favourites
   added: Added to your favourites
   removed: Removed from your favourites
   add: Add to favourites
   remove: Remove from favourites
+  name: 'Favourite: {name}'
 </i18n>

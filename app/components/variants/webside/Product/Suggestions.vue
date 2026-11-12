@@ -164,6 +164,7 @@ const arrowButton = {
           <div class="absolute top-2 right-2">
             <LazyWebsideButtonProductAddToFavourite
               :product-id="item.product.id"
+              :product-name="productName(item.product)"
               :user-id="user?.id"
               :favourite-id="getFavouriteIdByProductId(item.product.id)"
               size="sm"

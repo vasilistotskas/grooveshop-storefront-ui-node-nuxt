@@ -11,6 +11,7 @@ import WebsideProductsSliderBand from '~/components/variants/webside/PageSection
 import WebsideSuggestions from '~/components/variants/webside/Product/Suggestions.vue'
 import { makeProduct, makeProductCard } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
 /**
  * Every heart asks for its own product's favourite state when it mounts
@@ -40,7 +41,7 @@ const LOOKUP = '/api/products/favourites/favourites-by-products'
 /** A data setting of products, as the page route hands it over. */
 const products = (ids: number[]) => ({
   status: 'ok',
-  items: ids.map(id => makeProductCard({ id, slug: `p-${id}` })),
+  items: ids.map(id => makeProductCard({ id, slug: `p-${id}`, translations: { el: { name: `Προϊόν ${id}` } } })),
   total: ids.length,
   descriptor: { mode: 'picked', ids },
 }) as ResolvedQuery<ProductCard, DataDescriptor<'product'>>
@@ -69,12 +70,12 @@ const STUBS = {
   },
 }
 
-const SURFACES: Array<{ tree: string, band: Component, slider: Component, strip: Component }> = [
-  { tree: 'default', band: ProductsGrid, slider: ProductsSlider, strip: Suggestions },
-  { tree: 'webside', band: WebsideProductsGridBand, slider: WebsideProductsSliderBand, strip: WebsideSuggestions },
+const SURFACES: Array<{ tree: string, band: Component, slider: Component, strip: Component, heart: string }> = [
+  { tree: 'default', band: ProductsGrid, slider: ProductsSlider, strip: Suggestions, heart: 'app/components/Button/Product/AddToFavourite.vue' },
+  { tree: 'webside', band: WebsideProductsGridBand, slider: WebsideProductsSliderBand, strip: WebsideSuggestions, heart: 'app/components/variants/webside/Button/Product/AddToFavourite.vue' },
 ]
 
-describe.each(SURFACES)('$tree hearts of a band, a rail and a suggestion strip', ({ band, slider, strip }) => {
+describe.each(SURFACES)('$tree hearts of a band, a rail and a suggestion strip', ({ band, slider, strip, heart }) => {
   let answer: () => void
 
   beforeEach(() => {
@@ -122,6 +123,15 @@ describe.each(SURFACES)('$tree hearts of a band, a rail and a suggestion strip',
 
     expect(useUserStore().favouriteProductIds).toEqual({ 2: 20, 5: 50 })
     expect(pressed(wrapper).filter(state => state === 'true')).toHaveLength(2)
+  })
+
+  // Each heart is named for its own product (one name in both states, the
+  // state in `aria-pressed`), so a list of them tells its products apart.
+  it('names each heart for its product', async () => {
+    const wrapper = await mountPage()
+
+    const names = wrapper.findAll('[aria-pressed]').map(heart => heart.attributes('aria-label'))
+    expect(names.sort()).toEqual([1, 2, 3, 4, 5, 6].map(id => inlineCopy(heart).name.replace('{name}', `Προϊόν ${id}`)))
   })
 
   it('asks nothing for a guest', async () => {

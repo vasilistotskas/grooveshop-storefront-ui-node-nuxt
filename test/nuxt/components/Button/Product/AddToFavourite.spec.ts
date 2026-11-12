@@ -33,6 +33,7 @@ mockNuxtImport('useUserSession', () => () => ({
 }))
 
 const FAVOURITE: ProductFavouriteWrite = { id: 11, product: 5 }
+const NAME = 'Γλάστρα'
 const LOOKUP = '/api/products/favourites/favourites-by-products'
 const HELD = [{ id: 11, userId: 7, productId: 5, createdAt: '2026-11-12T10:00:00Z' }]
 
@@ -47,7 +48,7 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
   })
 
   const mount = (favouriteId: number | null = null) =>
-    mountSuspended(C, { route: false, props: { productId: 5, userId: 7, favouriteId } })
+    mountSuspended(C, { route: false, props: { productId: 5, productName: NAME, userId: 7, favouriteId } })
   const control = (wrapper: Awaited<ReturnType<typeof mount>>) => wrapper.findComponent({ name: 'UButton' })
   const click = async (wrapper: Awaited<ReturnType<typeof mount>>) => {
     const settled = control(wrapper).props('onClick')(new MouseEvent('click'))
@@ -123,14 +124,18 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     expect(api.callsTo(LOOKUP)).toEqual([])
   })
 
+  // A toggle button (WAI-ARIA): one name, the product's, in both states, so
+  // a list of hearts tells its products apart and the state is announced
+  // once, from `aria-pressed`. The tooltip says what a click does.
   it.each([
     [null, 'false', 'add'],
     [11, 'true', 'remove'],
-  ] as const)('says whether it is pressed: favourite %s', async (favouriteId, pressed, label) => {
+  ] as const)('keeps its name and says whether it is pressed: favourite %s', async (favouriteId, pressed, action) => {
     const button = control(await mount(favouriteId))
 
+    expect(button.attributes('aria-label')).toBe(COPY.name.replace('{name}', NAME))
     expect(button.attributes('aria-pressed')).toBe(pressed)
-    expect(button.attributes('aria-label')).toBe(COPY[label])
+    expect(button.attributes('title')).toBe(COPY[action])
   })
 
   // The heart showed the guest's state, or another tab changed it: the

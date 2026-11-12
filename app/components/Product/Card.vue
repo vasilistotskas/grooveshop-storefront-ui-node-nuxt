@@ -194,6 +194,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <LazyButtonProductAddToFavourite
           v-if="showAddToFavouriteButton"
           :product-id="productId"
+          :product-name="productName ?? ''"
           :user-id="user?.id"
           :favourite-id="favouriteId"
           size="sm"
