@@ -29,7 +29,7 @@ describe('GET /api/content-pages', () => {
     expect(backend.requests).toEqual([])
   })
 
-  it('keys the cache by every listing parameter, defaulting the omitted ones', async () => {
+  it('keys the cache by every listing parameter the route forwards', async () => {
     const { getKey } = cacheOptionsOf(handler)
     const keyFor = (search: string) => getKey!(createTestEvent({ url: `/api/content-pages${search}` }))
 
@@ -37,7 +37,7 @@ describe('GET /api/content-pages', () => {
 
     expect(await keyFor('?ordering=slug')).not.toBe(await keyFor('?ordering=-slug'))
     expect(await keyFor('?page=2')).not.toBe(defaults)
-    // The key spells out the defaults, so omitting them shares the entry.
-    expect(await keyFor('?pageSize=10&page=1&ordering=-publishedAt&languageCode=el')).toBe(defaults)
+    expect(await keyFor('?pagination=false')).not.toBe(defaults)
+    expect(await keyFor('?utm_source=newsletter')).toBe(defaults)
   })
 })

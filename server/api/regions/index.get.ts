@@ -1,5 +1,4 @@
 import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
-import { getQuery } from 'h3'
 
 export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
@@ -31,13 +30,5 @@ export default defineCachedRoute(async (event) => {
   // (``regions:250:all:el``) and the country switch on /checkout served
   // stale rows from the previous lookup until SWR revalidated. Using
   // ``query.country`` makes each country a separate cache entry.
-  getKey: (event) => {
-    const query = getQuery(event)
-    const keyParts = [
-      query.pageSize || '250',
-      query.country || 'all',
-      query.languageCode || 'el',
-    ]
-    return tenantCacheKey(event, `regions:${keyParts.join(':')}`)
-  },
+  getKey: event => tenantCacheKey(event, `regions:${queryCacheKey(event, zListRegionQuery)}`),
 })

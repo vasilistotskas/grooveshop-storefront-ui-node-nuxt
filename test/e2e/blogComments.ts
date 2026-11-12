@@ -60,7 +60,10 @@ export function blogCommentsUpstream(req: IncomingMessage, res: ServerResponse, 
     return true
   }
   if (url.pathname === `/api/v1/blog/post/${POST_ID}/comments`) {
-    sendJson(res, { count: COMMENTS.length, links: { next: null, previous: null }, results: COMMENTS })
+    const page = Number(url.searchParams.get('page') ?? 1)
+    const size = Number(url.searchParams.get('pageSize') ?? COMMENTS.length)
+    const results = COMMENTS.slice((page - 1) * size, page * size)
+    sendJson(res, { count: COMMENTS.length, links: { next: page * size < COMMENTS.length ? 'https://api.example.test/api/v1/blog/post/31/comments?page=2' : null, previous: null }, results })
     return true
   }
   if (url.pathname === `/api/v1/blog/post/${POST_ID}`) {
@@ -93,6 +96,22 @@ export function describeBlogComments(): void {
       for (const comment of COMMENTS) expect(html).toContain(`Σχόλιο του επισκέπτη ${comment.id}`)
       expect(html).toContain('3 σχόλια')
       expect(html).not.toContain('Συνδέσου για να γράψεις ένα σχόλιο')
+    }, 120000)
+  })
+
+  describe('the comments read of a post', () => {
+    const read = async (query: string) => {
+      const response = await requestWithHost(`/api/blog/posts/${POST_ID}/comments?${query}`, DESIGNS[0][1], { Accept: 'application/json' })
+      expect(response.statusCode, response.body.slice(0, 600)).toBe(200)
+      return JSON.parse(response.body) as { results: Array<{ id: number }> }
+    }
+
+    it('answers page 2 with the older comments, not the cached page 1', async () => {
+      const first = await read('page=1&pageSize=2&parent_Isnull=true')
+      const second = await read('page=2&pageSize=2&parent_Isnull=true')
+
+      expect(first.results.map(comment => comment.id)).toEqual([3, 2])
+      expect(second.results.map(comment => comment.id)).toEqual([1])
     }, 120000)
   })
 }
