@@ -52,9 +52,16 @@ const RECORD_DATA_FUNCTIONS = [
  *
  * Only a page or template document reads records: a section group and the
  * theme do not, so a purge of those alone drops no data. Scoped to the store
- * by the caller (`host`), like the pages. What it cannot close: a render
- * already in flight when the purge lands may still store what it read; the
- * 60s data TTL bounds that, and no lock is worth it.
+ * by the caller (`host`), like the pages.
+ *
+ * What it cannot close: a page render already in flight when the purge
+ * lands read the old records, and the page it stores after the purge is an
+ * ordinary route-cache entry. It is served as fresh for the route's `swr`
+ * lifetime (`SWR_ROUTE_RULES`, `SWR_ROUTE_PATTERN_RULES`,
+ * `CUSTOM_PAGE_SWR_TTL` and the brand pages' 3600 s: 300 to 3600 s), then
+ * once more while Nitro re-renders it (no `staleMaxAge`), until the next
+ * record change purges it or that re-render replaces it. The 60 s data TTL
+ * bounds the record-data entries only, not that page.
  */
 export function builderRecordDataMatchers(documents: readonly string[]): PurgeMatcher[] {
   return documents.some(builderPageKind)
