@@ -21,13 +21,16 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 
 const { toastAdd, loggedIn } = vi.hoisted(() => ({ toastAdd: vi.fn(), loggedIn: { value: true } }))
+// Whether the client has the session yet (nuxt-auth-utils `ready`): one ref
+// every caller shares, so a test can let the session arrive.
+const { ready } = await vi.hoisted(async () => ({ ready: (await import('vue')).ref(true) }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 // The full surface: the app's auth plugin reads it at boot.
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(loggedIn.value),
   user: ref({ id: 7 }),
   session: ref({}),
-  ready: ref(true),
+  ready,
   fetch: () => Promise.resolve(),
   clear: () => Promise.resolve(),
 }))
@@ -43,6 +46,7 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
   beforeEach(() => {
     setTenant()
     loggedIn.value = true
+    ready.value = true
     useUserStore().clearAccountState()
     api.routes({ [LOOKUP]: [] })
   })
@@ -197,6 +201,29 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     expect(wrapper.get('[aria-pressed]').attributes('aria-pressed')).toBe('true')
   })
 
+  // The session reaches the client after the page has resolved, and a heart
+  // can be clicked before then: the click waits for it, and a signed-in
+  // shopper is not told to sign in.
+  it('waits for the session before it decides who clicked', async () => {
+    ready.value = false
+    api.routes({ [LOOKUP]: [], '/api/products/favourites': FAVOURITE })
+    const wrapper = await mount()
+
+    const settled = control(wrapper).props('onClick')(new MouseEvent('click'))
+    await flushPromises()
+
+    expect(toastAdd).not.toHaveBeenCalled()
+    expect(api.callsTo('/api/products/favourites')).toEqual([])
+    expect(control(wrapper).props('loading')).toBe(true)
+
+    ready.value = true
+    await settled
+    await flushPromises()
+
+    expect(api.callsTo('/api/products/favourites')).toHaveLength(1)
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+  })
 
   it('asks a guest to sign in instead of calling Django', async () => {
     loggedIn.value = false

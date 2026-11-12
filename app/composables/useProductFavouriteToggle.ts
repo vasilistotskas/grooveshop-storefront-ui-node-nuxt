@@ -21,6 +21,11 @@
  * is an ordinary patch. The same shape as the session's after-hydration
  * accessor: the server's state until mounted.
  *
+ * The session itself arrives on the client once the page has resolved
+ * (nuxt-auth-utils `ready`), and a heart can be clicked before that. A
+ * click then waits for the session (the heart shows it is busy) and only
+ * then decides; a signed-in shopper is never told to sign in.
+ *
  * A favourite is created by product and deleted by its own id, so the
  * button says which one it holds (`favouriteId`, `null` for none yet);
  * `toggle` does the other. A guest gets "sign in first" and no request.
@@ -46,7 +51,7 @@ export function useProductFavouriteToggle(options: {
   const { t } = options
   const toast = useToast()
   const { notify } = useApiError()
-  const { loggedIn } = useUserSession()
+  const { loggedIn, ready } = useUserSession()
   const { addFavouriteProduct, removeFavouriteProduct, lookUpFavourites } = useUserStore()
   const favouritesEnabled = useStoreFeature('favourites')
 
@@ -68,7 +73,18 @@ export function useProductFavouriteToggle(options: {
   }
 
   async function toggle() {
+    if (isLoading.value) {
+      return
+    }
+
+    isLoading.value = true
+    if (!ready.value) {
+      await until(ready).toBe(true)
+      // The caller's `userId` follows the session on its next render.
+      await nextTick()
+    }
     if (!loggedIn.value || !options.userId()) {
+      isLoading.value = false
       toast.add({
         title: t('not_authenticated'),
         color: 'error',
@@ -76,11 +92,6 @@ export function useProductFavouriteToggle(options: {
       return
     }
 
-    if (isLoading.value) {
-      return
-    }
-
-    isLoading.value = true
     const productId = options.productId()
     const favouriteId = options.favouriteId()
     try {
