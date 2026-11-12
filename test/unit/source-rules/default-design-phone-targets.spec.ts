@@ -134,4 +134,11 @@ describe('the default design controls are 44px targets on a phone', () => {
     expect(source).toContain('<span class="min-w-0 text-start">{{ triggerLabel }}</span>')
     expect(source).not.toContain(':label="triggerLabel"')
   })
+
+  it('Cart/ItemCard.vue lets the stepper, not the 44px button, give way at the narrowest drawer', () => {
+    const source = flat('Cart/ItemCard.vue')
+
+    expect(source).toContain('max-sm:min-w-0 max-sm:shrink')
+    expect(source).toContain('max-sm:gap-2')
+  })
 })
