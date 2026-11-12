@@ -26,7 +26,7 @@ const props = defineProps<{
   /** A grid at every width rather than a row to swipe: for a band that adds posts below, where more posts out of sight to the right would read as nothing happening. */
   stacked?: boolean
   /** Below `sm`: the row to swipe (`row`, the default) or a list of compact rows. */
-  phoneLayout?: 'row' | 'list'
+  phoneLayout?: 'list'
 }>()
 
 const { t, locale } = useStoreI18n('components/Blog/Rail')

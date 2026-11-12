@@ -1,5 +1,5 @@
 {
-  "hash": "ba7b95d903448d3c",
+  "hash": "31955c11cc7941c1",
   "blocks": [
     {
       "type": "about_content",
@@ -893,7 +893,6 @@
           "phoneLayout": {
             "type": "string",
             "enum": [
-              "row",
               "list"
             ]
           }
@@ -5693,7 +5692,6 @@
           "headingColor": {
             "type": "string",
             "enum": [
-              "default",
               "accent"
             ]
           }

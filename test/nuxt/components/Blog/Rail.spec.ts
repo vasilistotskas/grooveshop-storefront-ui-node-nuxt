@@ -5,7 +5,7 @@ import type { BlogPost } from '~~/shared/openapi/types.gen'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { inlineT } from '~~/test/helpers/inlineCopy'
 
-const mountRail = (props: { posts: BlogPost[], categoryName?: (id: number) => string | undefined, stacked?: boolean, phoneLayout?: 'row' | 'list' }) =>
+const mountRail = (props: { posts: BlogPost[], categoryName?: (id: number) => string | undefined, stacked?: boolean, phoneLayout?: 'list' }) =>
   mountSuspended(BlogRail, { route: false, props, global: { stubs: { ImgWithFallback: true } } })
 
 /**

@@ -29,7 +29,7 @@ withDefaults(defineProps<{
    * `accent-muted-light` / `accent-muted-dark` on the muted ground, a
    * warning on publish).
    */
-  headingColor?: 'default' | 'accent'
+  headingColor?: 'accent'
 }>(), {
   surface: 'muted',
 })

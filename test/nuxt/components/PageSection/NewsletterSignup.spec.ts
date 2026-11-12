@@ -85,7 +85,6 @@ describe('NewsletterSignup', () => {
   // grounds in both designs.
   it.each([
     [undefined, 'text-highlighted', 'text-accent'],
-    ['default', 'text-highlighted', 'text-accent'],
     ['accent', 'text-accent', 'text-highlighted'],
   ] as const)('paints the heading in the colour the block sets: %s', async (headingColor, painted, not) => {
     const classes = (await mountBand({ heading: 'Μάθε τα νέα μας', headingColor })).get('h2').classes()

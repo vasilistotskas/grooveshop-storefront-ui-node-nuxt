@@ -114,7 +114,6 @@ describe('PageSection/BlogPosts', () => {
   // (`Blog/Rail.spec.ts`); unset, the rail keeps its row to swipe.
   it.each([
     [undefined, undefined],
-    ['row', 'row'],
     ['list', 'list'],
   ] as const)('hands the phone layout %s to the rail', async (phoneLayout, handed) => {
     const wrapper = await mountPosts({ phoneLayout })

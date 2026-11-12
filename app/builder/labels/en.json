@@ -274,7 +274,7 @@
     },
     "headingColor": {
       "label": "Heading colour",
-      "help": "The theme's accent colour, as the second line of the hero section. Empty: the heading colour."
+      "help": "Accent: the theme's accent colour, as the second line of the hero section. Default: the heading colour."
     },
     "height": {
       "label": "Height"
@@ -346,7 +346,7 @@
     },
     "phoneLayout": {
       "label": "Layout on a phone",
-      "help": "On a phone: a row to swipe, or a list with a small picture, the category, the reading time and the title. Larger screens are the same either way. Empty: a row to swipe."
+      "help": "List: on a phone, rows with a small picture, the category, the reading time and the title. Default: a row to swipe. Larger screens are the same either way."
     },
     "placeholder": {
       "label": "Placeholder"
@@ -507,11 +507,9 @@
       "custom": "Your own"
     },
     "headingColor": {
-      "default": "Heading",
       "accent": "Accent"
     },
     "phoneLayout": {
-      "row": "Row to swipe",
       "list": "List"
     }
   },

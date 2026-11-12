@@ -8,8 +8,8 @@ export default defineBlock({
   feature: 'blog',
   schema: z.object({
     ...builderField.blogRail(24),
-    /** Below `sm`: the row to swipe (empty) or a list of compact rows; from `sm` up the same either way. */
-    phoneLayout: z.enum(['row', 'list']).optional(),
+    /** Below `sm`: a list of compact rows; left out, the row to swipe. From `sm` up the same either way. */
+    phoneLayout: z.enum(['list']).optional(),
   }),
   translatable: ['/heading', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeBlogRail(3, 24) },
