@@ -223,26 +223,31 @@ const UDrawer = resolveComponent('UDrawer')
       >
         {{ appliedNote }}
       </p>
-      <div class="grid grid-cols-[1fr_1.4fr] gap-2">
+      <!-- `minmax(0, …)`: a plain `1fr` track is as wide as its button's one-line
+           label, and at 320px the pair was wider than the drawer. The labels are
+           states the shopper must read, so they wrap instead of truncating. -->
+      <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-2">
         <UButton
-          :label="t('view_cart')"
           :to="localePath('cart')"
           color="neutral"
           variant="outline"
           size="lg"
           block
-        />
+        >
+          <span class="min-w-0 text-center text-balance">{{ t('view_cart') }}</span>
+        </UButton>
         <!-- Blocked like the cart summary's: checkout sends a cart with a
              stock problem straight back to the cart. -->
         <UButton
-          :label="hasStockIssues ? t('fix_stock_issues_first') : t('checkout')"
           :to="localePath('checkout')"
           :disabled="hasStockIssues"
           :color="hasStockIssues ? 'warning' : 'secondary'"
           icon="i-lucide-lock"
           size="lg"
           block
-        />
+        >
+          <span class="min-w-0 text-center text-balance">{{ hasStockIssues ? t('fix_stock_issues_first') : t('checkout') }}</span>
+        </UButton>
       </div>
     </template>
   </component>

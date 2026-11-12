@@ -153,4 +153,22 @@ describe('the default design controls are 44px targets on a phone', () => {
     expect(source).toContain('flex flex-wrap items-end justify-between')
     expect(source).toContain('max-sm:w-32')
   })
+
+  // The browser is the real check (2026-11-12, 320px): a `1fr` track is as wide as the
+  // min-content of what it holds, so a drawer footer and a checkout header whose children
+  // do not shrink were wider than the screen (7px and 8px).
+  it('Cart/Drawer.vue shares its footer row between two buttons that may shrink, with labels that wrap', () => {
+    const source = flat('Cart/Drawer.vue')
+
+    expect(source).toContain('grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]')
+    expect(source).not.toContain(':label="hasStockIssues')
+    expect(source).not.toMatch(/:label="t\('view_cart'\)"/)
+  })
+
+  it('Chrome/CheckoutHeader.vue lets its side columns shrink and drops the cart word below sm', () => {
+    const source = flat('Chrome/CheckoutHeader.vue')
+
+    expect(source).toContain('grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]')
+    expect(source).toContain('max-sm:sr-only lg:hidden')
+  })
 })
