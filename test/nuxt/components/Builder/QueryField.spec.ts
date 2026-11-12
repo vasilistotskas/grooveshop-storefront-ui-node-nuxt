@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
-import { UApp, UInputNumber, USelect } from '#components'
+import { UApp, UInputNumber } from '#components'
 import BuilderQueryField from '~/components/Builder/QueryField.vue'
 import BuilderRecordList from '~/components/Builder/RecordList.vue'
 import BuilderRecordPicker from '~/components/Builder/RecordPicker.vue'
 import type { BuilderQueryDescriptor } from '~/utils/builderQuery'
+import { inlineT } from '~~/test/helpers/inlineCopy'
 
 /**
  * The control of a list setting (`builderField.query`): how the merchant says
@@ -41,6 +42,21 @@ async function mount(field: Field, value: unknown, disabled = false) {
   }), { attachTo: document.body })
   await flushPromises()
   return { wrapper, updates }
+}
+
+const copy = inlineT('app/components/Builder/QueryField.vue')
+
+/**
+ * Opens the select its field labels `label` and picks the option named
+ * `option`, as a keyboard user does: the trigger is found through the
+ * label's `for`, so a select that lost its name or its options fails here.
+ */
+async function choose(wrapper: Awaited<ReturnType<typeof mount>>['wrapper'], label: string, option: string) {
+  const id = wrapper.findAll('label').find(node => node.text().trim() === label)!.attributes('for')
+  await wrapper.get(`[id="${id}"]`).trigger('keydown', { key: 'Enter' })
+  await flushPromises()
+  ;[...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.textContent?.trim() === option)!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+  await flushPromises()
 }
 
 /** The radio of the item named `name`: an item holds its radio and its label. */
@@ -85,20 +101,25 @@ describe('BuilderQueryField', () => {
   it('changes how many with the whole descriptor, and leaves the rest of it', async () => {
     const { wrapper, updates } = await mount(productField, { mode: 'filter', categories: [4], ordering: 'topRated', limit: 6 })
 
-    wrapper.findComponent(UInputNumber).vm.$emit('update:modelValue', 10)
+    await wrapper.findComponent(UInputNumber).setValue(10)
 
     expect(updates).toEqual([{ mode: 'filter', categories: [4], ordering: 'topRated', limit: 10 }])
   })
 
-  it('writes the stock choice into a product rule, and takes the key out for "as they come"', async () => {
+  it('writes the stock choice into a product rule', async () => {
     const { wrapper, updates } = await mount(productField, { mode: 'filter', ordering: 'newest', limit: 6 })
-    // The stock select follows the ordering select.
-    wrapper.findAllComponents(USelect).at(-1)!.vm.$emit('update:modelValue', 'inStockFirst')
-    expect(updates.at(-1)).toEqual({ mode: 'filter', ordering: 'newest', limit: 6, stock: 'inStockFirst' })
 
-    const { wrapper: chosen, updates: back } = await mount(productField, { mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 6 })
-    chosen.findAllComponents(USelect).at(-1)!.vm.$emit('update:modelValue', 'any')
-    expect(back.at(-1)).toEqual({ mode: 'filter', ordering: 'newest', limit: 6 })
+    await choose(wrapper, copy('stock.label'), copy('stock.inStockFirst'))
+
+    expect(updates).toEqual([{ mode: 'filter', ordering: 'newest', limit: 6, stock: 'inStockFirst' }])
+  })
+
+  it('takes the stock key out for "as they come"', async () => {
+    const { wrapper, updates } = await mount(productField, { mode: 'filter', ordering: 'newest', stock: 'inStockOnly', limit: 6 })
+
+    await choose(wrapper, copy('stock.label'), copy('stock.any'))
+
+    expect(updates).toEqual([{ mode: 'filter', ordering: 'newest', limit: 6 }])
   })
 
   it('takes the categories key out of the rule when the last category is removed', async () => {
@@ -170,7 +191,7 @@ describe('BuilderQueryField', () => {
     const { wrapper, updates } = await mount(field, undefined)
 
     expect(wrapper.findAll('[role="radio"]')).toHaveLength(0)
-    wrapper.findComponent(UInputNumber).vm.$emit('update:modelValue', 2)
+    await wrapper.findComponent(UInputNumber).setValue(2)
 
     expect(updates).toEqual([{ limit: 2 }])
   })
