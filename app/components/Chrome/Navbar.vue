@@ -294,7 +294,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
           <template #shop-content>
             <ChromeMegaMenu
               :categories="categories"
-              :offers-enabled="promotionsEnabled"
+              :offers-enabled="offersServing"
             />
           </template>
         </LazyUNavigationMenu>

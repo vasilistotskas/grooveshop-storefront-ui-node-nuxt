@@ -319,6 +319,21 @@ describe('Chrome/Navbar', () => {
     expect(marked).toEqual([current()])
   })
 
+  it.each([
+    { promotions: true, offered: 'true' },
+    { promotions: false, offered: 'false' },
+  ])('offers the offers shortcut in the catalogue panel: $offered with promotions $promotions', async ({ promotions, offered }) => {
+    setTenantFeatures({ promotions })
+    categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', imageAlt: '', productCount: 0, children: [] }]
+
+    const wrapper = await mountNavbar()
+    const shop = wrapper.findAll('[data-slot="link"]').find(link => link.text() === t('shop'))!
+    // Reka opens a dropdown on a mouse hovering its trigger.
+    await shop.trigger('pointermove', { pointerType: 'mouse' })
+
+    await vi.waitFor(() => expect(wrapper.find('chrome-mega-menu-stub').attributes('offersenabled')).toBe(offered))
+  })
+
   it('draws no favourites button when the store lacks the favourites feature', async () => {
     setTenantFeatures({ blog: true, favourites: false })
 

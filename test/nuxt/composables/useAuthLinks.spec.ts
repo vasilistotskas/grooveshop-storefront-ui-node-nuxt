@@ -40,7 +40,7 @@ describe('useAuthLinks', () => {
   it('brings them back to the page in its own language', () => {
     const { signIn } = links({ name: 'products___en', fullPath: '/en/products' })
 
-    expect(signIn.query).toEqual({ next: '/en/products' })
+    expect(signIn).toEqual({ name: 'account-login', query: { next: '/en/products' } })
   })
 
   it.each([
@@ -50,6 +50,6 @@ describe('useAuthLinks', () => {
   ])('carries no `next` from $fullPath', (at) => {
     const { signIn, signUp } = links(at)
 
-    expect([signIn.query, signUp.query]).toEqual([undefined, undefined])
+    expect([signIn, signUp]).toEqual([{ name: 'account-login', query: undefined }, { name: 'account-signup', query: undefined }])
   })
 })
