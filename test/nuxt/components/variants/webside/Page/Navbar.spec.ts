@@ -164,7 +164,7 @@ describe('webside Page/Navbar dropdowns', () => {
   it('lets a keyboard open a section\'s panel, move into it and close it again', async () => {
     const wrapper = await mountSuspended(Navbar, { route: false, attachTo: document.body })
     const link = wrapper.find('a[data-slot="link"][href="/products"]')
-    const button = wrapper.findAll('button[data-slot="link"]').find(control => control.text() === `Μενού: ${t('shop')}`)!
+    const button = wrapper.findAll<HTMLButtonElement>('button[data-slot="link"]').find(control => control.text() === `Μενού: ${t('shop')}`)!
 
     // The section's own page stays one plain link away.
     expect(link.text()).toBe(t('shop'))

@@ -313,7 +313,7 @@ describe('Chrome/Navbar', () => {
   it('lets a keyboard open a section\'s panel, move into it and close it again', async () => {
     const wrapper = await mountSuspended(ChromeNavbar, { route: false, attachTo: document.body, global: { stubs: { ...stubs, ChromeMegaMenu: { template: '<div><a href="/products">all</a><a href="/products?sort=-createdAt">new</a></div>' } } } })
     const link = wrapper.find('a[data-slot="link"][href="/products"]')
-    const button = wrapper.findAll('button[data-slot="link"]').find(control => control.text() === OPEN_SHOP)!
+    const button = wrapper.findAll<HTMLButtonElement>('button[data-slot="link"]').find(control => control.text() === OPEN_SHOP)!
 
     // The section's own page stays one plain link away.
     expect(link.text()).toBe(t('shop'))

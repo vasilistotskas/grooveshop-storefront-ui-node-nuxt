@@ -21,7 +21,7 @@ function menus(file: string): Array<{ at: string, events: string[] | undefined }
     if (node.tag !== 'LazyUNavigationMenu') return
     const bound = boundAttribute(node, 'hydrate-on-interaction')
     // The events are a constant of the script, named in the binding.
-    const declaration = bound && new RegExp(`const ${bound} = \\[([^\\]]*)\\]`).exec(source)?.[1]
+    const declaration = bound && new RegExp(`const ${bound}(?::[^=]+)? = \\[([^\\]]*)\\]`).exec(source)?.[1]
     out.push({
       at: `${relativeLabel(COMPONENTS, file)}:${node.loc.start.line}`,
       events: declaration ? [...declaration.matchAll(/'([a-z]+)'/g)].map(match => match[1]!) : undefined,

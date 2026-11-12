@@ -193,7 +193,7 @@ const items = computed<NavigationMenuItem[]>(() => {
  * menu, else the code menu above.
  */
 /** Where the menu hydrates: see the template. */
-const MENU_HYDRATION = ['pointermove', 'pointerdown', 'focusin']
+const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdown', 'focusin']
 
 /**
  * The bar's entries: the current section marked, and each section with a
