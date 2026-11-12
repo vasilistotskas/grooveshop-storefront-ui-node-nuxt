@@ -117,4 +117,19 @@ describe('the product page\'s controls are 44px targets on a phone', () => {
     expect(floating.length).toBeGreaterThanOrEqual(3)
     expect(floating.filter(control => !control.sized).map(control => control.at)).toEqual([])
   })
+
+  // Nuxt UI's carousel dots are buttons 6px wide, 6px apart: no target a
+  // finger can hit. A gallery shows its position with plain marks instead
+  // (`Product/Images`: aria-hidden, the position read as words per photo).
+  it('draws no gallery position as buttons: no carousel there sets dots', () => {
+    const carousels: Array<{ at: string, dots: boolean }> = []
+    for (const file of GALLERIES) {
+      walkElements(sfcTemplate(file), (node) => {
+        if (/^(Lazy)?UCarousel$/.test(node.tag)) carousels.push({ at: `${relativeLabel(COMPONENTS, file)}:${node.loc.start.line}`, dots: hasAttribute(node, 'dots') })
+      })
+    }
+
+    expect(carousels.length).toBeGreaterThanOrEqual(2)
+    expect(carousels.filter(carousel => carousel.dots).map(carousel => carousel.at)).toEqual([])
+  })
 })

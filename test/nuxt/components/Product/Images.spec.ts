@@ -5,6 +5,7 @@ import ProductImages from '~/components/Product/Images.vue'
 import WebsideProductImages from '~/components/variants/webside/Product/Images.vue'
 import { makeProduct } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
+import { inlineT } from '~~/test/helpers/inlineCopy'
 
 /**
  * The gallery's corner badge: sold out, else the percentage of an
@@ -105,5 +106,40 @@ describe.each(trees(ProductImages, WebsideProductImages))('$tree Product/Images 
       'Μαύρο power bank κουμπωμένο σε κινητό',
       useNuxtApp().$i18n.t('product_image.alt', { name: 'Mini Power Bank', number: 2 }),
     ]))
+  })
+})
+
+/**
+ * The default gallery's position on a phone: plain marks, not buttons. Nuxt
+ * UI's carousel dots are 6px buttons 6px apart, which no finger can hit
+ * (`product-page-targets.spec.ts` keeps them out). The marks are hidden from
+ * assistive technology, which reads the position as words in each
+ * photograph; swiping, the thumbnails and the zoom viewer move between them.
+ */
+describe('Product/Images position', () => {
+  beforeEach(() => {
+    clearNuxtData()
+    api.routes({
+      '/api/products/5/images': [1, 2, 3].map(id => ({ id, isMain: id === 1, mainImagePath: `media/uploads/products/${id}.png` })),
+    })
+  })
+
+  it('marks the photograph shown without buttons, and says it as words', async () => {
+    const wrapper = await mountSuspended(ProductImages, {
+      props: { product: { ...makeProduct({ id: 5 }), priceDropAlertsEnabled: false }, productName: 'Προϊόν 5' },
+      global: { stubs: { ImgWithFallback: true } },
+      route: false,
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[role="tab"]').exists()).toBe(false)
+    const marks = wrapper.get('[data-slot="position"]')
+    expect(marks.attributes('aria-hidden')).toBe('true')
+    expect(marks.findAll('button, [tabindex]')).toHaveLength(0)
+    expect(marks.findAll('span').map(mark => mark.attributes('data-current'))).toEqual(['true', undefined, undefined])
+    const t = inlineT('app/components/Product/Images.vue')
+    expect(wrapper.findAll('.sr-only').map(words => words.text())).toEqual(
+      [1, 2, 3].map(current => t('position', { current, total: 3 })),
+    )
   })
 })

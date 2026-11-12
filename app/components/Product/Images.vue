@@ -6,7 +6,11 @@
  *
  * One carousel at every width rather than two galleries switched by
  * device: on a phone it runs edge to edge and swipes, with dots for its
- * position; from `lg` the thumbnails take over and the dots go. The
+ * position; from `lg` the thumbnails take over and the dots go. The dots
+ * only show where the shopper is (6px wide, they are no target): not
+ * buttons, not focusable, hidden from assistive technology, which reads
+ * the position as words in each photograph instead, as the hero carousel
+ * does. Swiping, the zoom viewer and the thumbnails move between them. The
  * first photograph is the page's LCP element, so it alone loads eagerly
  * and is preloaded at the exact size the `<img>` asks for.
  */
@@ -58,23 +62,17 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
         ref="carousel"
         v-slot="{ item, index }"
         :items="slides"
-        :dots="slides.length > 1"
         :aria-label="t('gallery')"
         :ui="{
           container: 'ms-0',
           item: 'ps-0',
-          dots: `
-            bottom-4 gap-1.5
-            lg:hidden
-          `,
-          dot: `
-            size-1.5 bg-(--ui-text-highlighted)/25 transition-[width]
-            data-[state=active]:w-5
-            data-[state=active]:bg-(--ui-text-highlighted)
-          `,
         }"
         @select="(index: number) => { selected = index }"
       >
+        <span
+          v-if="slides.length > 1"
+          class="sr-only"
+        >{{ t('position', { current: index + 1, total: slides.length }) }}</span>
         <!-- Clicking the photograph zooms as the button does; it is
              not a second tab stop, the button is the control. -->
         <ProductImage
@@ -96,6 +94,27 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
         :height="680"
         class="aspect-square w-full object-cover"
       />
+
+      <div
+        v-if="slides.length > 1"
+        data-slot="position"
+        aria-hidden="true"
+        class="
+          absolute inset-x-0 bottom-4 flex justify-center gap-1.5
+          lg:hidden
+        "
+      >
+        <span
+          v-for="(_, dot) in slides"
+          :key="dot"
+          :data-current="dot === selected || undefined"
+          class="
+            size-1.5 rounded-full bg-(--ui-text-highlighted)/25
+            transition-[width]
+            data-current:w-5 data-current:bg-(--ui-text-highlighted)
+          "
+        />
+      </div>
 
       <div class="absolute inset-s-3.5 top-3.5 flex gap-1.5">
         <UBadge
@@ -178,10 +197,12 @@ el:
   gallery: Φωτογραφίες προϊόντος
   zoom: Μεγέθυνση εικόνας
   show_image: Εικόνα {number}
+  position: Εικόνα {current} από {total}
   sold_out: Εξαντλήθηκε
 en:
   gallery: Product photos
   zoom: Zoom the image
   show_image: Image {number}
+  position: Image {current} of {total}
   sold_out: Sold out
 </i18n>
