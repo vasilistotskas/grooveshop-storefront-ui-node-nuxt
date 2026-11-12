@@ -89,7 +89,7 @@ describe('Product/Spotlight', () => {
 
       expect(name).toBe('default-cart')
       // Only the class that makes it a 44px target on a phone; no prop it does not declare.
-      expect(attrs).toEqual({ class: 'min-h-11 max-sm:w-full max-sm:justify-center sm:min-h-0' })
+      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
       expect(props).toMatchObject({ text: t('add_named', { name: NAME }), label: t('add_to_cart') })
       expect((props.product as { id: number }).id).toBe(7)
     })
@@ -117,22 +117,23 @@ describe('Product/Spotlight', () => {
   // the price beside the picture, and the way to buy (the button or the
   // restock control) the last row, across the whole card; the button fills it.
   it.each([
-    // The button fills the row; the restock control is drawn its own way.
-    ['the buy button', {}, { class: 'min-h-11 max-sm:w-full max-sm:justify-center sm:min-h-0' }],
-    ['the restock control', { stock: 0 }, {}],
-  ] as const)('gives %s a row of its own across the card on a phone', async (_, stock, attrs) => {
+    ['the buy button', {}],
+    ['the restock control', { stock: 0 }],
+  ] as const)('gives %s a row of its own across the card on a phone, and fills it', async (_, stock) => {
     const wrapper = await mountSpotlight({ product: product(stock) })
-    const control = (await part(wrapper))
+    await part(wrapper)
 
     expect(wrapper.get('article').classes()).toEqual(expect.arrayContaining(['max-sm:grid', 'max-sm:grid-cols-[8.5rem_minmax(0,1fr)]']))
     const row = wrapper.get('[data-test="part"]').element.parentElement!
     expect(row.classList).toContain('max-sm:col-span-2')
+    // Through the row, so a control whose root takes no class (webside's
+    // restock alert is a modal) fills it too.
+    expect([...row.classList]).toEqual(expect.arrayContaining(['max-sm:*:w-full', 'max-sm:*:justify-center']))
     // Every box between the card and that row steps aside on a phone, so the
     // row is the card's own grid item, not a cell of the text column.
     for (let box = row.parentElement!; box.tagName !== 'ARTICLE'; box = box.parentElement!) {
       expect(box.classList).toContain('max-sm:contents')
     }
-    expect(control.attrs).toEqual(attrs)
   })
 
   describe('in the webside design', () => {
@@ -146,7 +147,7 @@ describe('Product/Spotlight', () => {
 
       expect(name).toBe('webside-cart')
       // Only the class that makes it a 44px target on a phone; no prop it does not declare.
-      expect(attrs).toEqual({ class: 'min-h-11 max-sm:w-full max-sm:justify-center sm:min-h-0' })
+      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
       expect(props).toMatchObject({ text: t('add_to_cart') })
     })
 

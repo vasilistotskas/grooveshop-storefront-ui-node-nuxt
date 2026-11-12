@@ -192,23 +192,24 @@ const buy = computed(() => {
         </div>
 
         <!-- Above the stretched link, so it stays clickable. On a
-             phone, the card's last row, full width. -->
+             phone, the card's last row, and the control fills it: set on
+             the row's children (`*:`), so any design's control does,
+             whatever it lets through its attributes. -->
         <div
           v-if="buy && !soldOut"
           class="
             relative z-10
             max-sm:col-span-2 max-sm:p-3.5
+            max-sm:*:w-full max-sm:*:justify-center
           "
         >
-          <!-- A target of at least 44px on a phone, as wide as the card,
-               whatever size the design's button is; as the design draws
-               it from `sm` up. -->
+          <!-- A target of at least 44px on a phone, whatever size the
+               design's button is; as the design draws it from `sm` up. -->
           <component
             :is="buy.component"
             v-bind="buy.props(partInput)"
             class="
               min-h-11
-              max-sm:w-full max-sm:justify-center
               sm:min-h-0
             "
           />
@@ -218,12 +219,14 @@ const buy = computed(() => {
       <!-- A design's restock control can be a full-width button, or the
            alert a signed-in shopper already set with its cancel action
            (webside's): it takes a row of its own under the price rather
-           than squeezing beside it. -->
+           than squeezing beside it, and on a phone fills it as the buy
+           button does. -->
       <div
         v-if="buy && soldOut"
         class="
           relative z-10 w-full pt-1
           max-sm:col-span-2 max-sm:p-3.5
+          max-sm:*:w-full max-sm:*:justify-center
         "
       >
         <component

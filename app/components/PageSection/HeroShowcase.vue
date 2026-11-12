@@ -218,14 +218,14 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
         "
       >
         <!-- On a phone the two share the row in equal columns, 48px tall
-             (a target of at least 44px, WCAG 2.5.5), with the label and
-             padding of Nuxt UI's `md` size (14px, 10px a side) so a label
-             of about 16 Greek letters keeps one line: 124px of label at
-             360px, 139px at 390px. From `sm` up they are `xl`, the size
-             their label makes them. A longer label wraps inside the button
-             (`min-w-0` lets the column shrink; the label is our own span,
-             since Nuxt UI's truncates), so no word is cut and the row never
-             outgrows the screen. -->
+             (a target of at least 44px, WCAG 2.5.5), with the label of
+             Nuxt UI's `md` size (14px) and the padding of its `xs` (8px a
+             side) so a label of about 16 Greek letters keeps one line:
+             128px of label at 360px, 143px at 390px. From `sm` up they are
+             `xl`, the size their label makes them. A longer label wraps
+             inside the button (`min-w-0` lets the column shrink; the label
+             is our own span, since Nuxt UI's truncates), so no word is cut
+             and the row never outgrows the screen. -->
         <UButton
           v-for="button in buttons"
           :key="button.variant"
@@ -235,7 +235,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
           size="xl"
           class="
             min-h-12 min-w-0 flex-1 justify-center
-            max-sm:px-2.5 max-sm:text-sm
+            max-sm:px-2 max-sm:text-sm
             sm:min-h-0 sm:flex-none
           "
         >

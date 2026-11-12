@@ -223,16 +223,16 @@ describe('PageSection/HeroShowcase', () => {
   // lays nothing out. Without them the phone's one column took the
   // min-content width of its widest part, the two buttons' labels, and the
   // page scrolled sideways by 30px at 390.
-  // Nuxt UI's `md` label and padding on a phone (14px, 10px a side) and
-  // an 8px gap: a label of about 16 Greek letters keeps one line at 360px
-  // (124px of label) and 390px (139px), measured by the browser; `xl` from
-  // `sm` up, as before.
+  // Nuxt UI's `md` label (14px) with its `xs` padding (8px a side) on a
+  // phone and an 8px gap: a label of about 16 Greek letters keeps one line
+  // at 360px (128px of label) and 390px (143px), measured by the browser;
+  // `xl` from `sm` up, as before.
   it('sizes its two buttons so an ordinary label keeps one line on a phone', async () => {
     const wrapper = await mountHero()
 
     expect(wrapper.get('a[href="/products"]').element.parentElement!.classList).toContain('gap-2')
     for (const href of ['/products', '/blog']) {
-      expect(wrapper.get(`a[href="${href}"]`).classes()).toEqual(expect.arrayContaining(['max-sm:px-2.5', 'max-sm:text-sm']))
+      expect(wrapper.get(`a[href="${href}"]`).classes()).toEqual(expect.arrayContaining(['max-sm:px-2', 'max-sm:text-sm']))
     }
   })
 
