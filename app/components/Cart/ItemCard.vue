@@ -150,7 +150,12 @@ async function remove() {
       </div>
 
       <div class="mt-auto flex items-center justify-between gap-3 pt-2">
-        <div class="w-28 shrink-0">
+        <div
+          class="
+            w-28 shrink-0
+            max-sm:w-36
+          "
+        >
           <QuantitySelector
             :max="cartItem.product.stock"
             :cart-item-id="cartItem.id"
@@ -164,6 +169,7 @@ async function remove() {
           color="neutral"
           variant="ghost"
           size="sm"
+          class="max-sm:min-h-11 max-sm:min-w-11"
           @click="remove"
         />
       </div>

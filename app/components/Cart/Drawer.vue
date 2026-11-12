@@ -106,6 +106,7 @@ const UDrawer = resolveComponent('UDrawer')
           color="neutral"
           variant="ghost"
           square
+          class="max-sm:min-h-11 max-sm:min-w-11"
           @click="close"
         />
       </div>
@@ -200,6 +201,7 @@ const UDrawer = resolveComponent('UDrawer')
                 color="neutral"
                 size="sm"
                 icon-only
+                class="max-sm:min-h-11 max-sm:min-w-11"
               />
             </li>
           </ul>

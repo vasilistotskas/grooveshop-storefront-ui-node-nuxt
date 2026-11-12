@@ -36,6 +36,13 @@ const TARGETS: Target[] = [
   { file: 'Chrome/MobileMenu.vue', tag: 'UNavigationMenu', has: 'vertical', where: 'ui', kind: 'height' },
   { file: 'Chrome/MobileMenu.vue', tag: 'UColorModeSelect', has: 'neutral', where: 'ui', kind: 'height' },
   { file: 'Language/Switcher.vue', tag: 'USelectMenu', has: 'value-key', where: 'ui', kind: 'height' },
+  { file: 'Chrome/Navbar.vue', tag: 'UButton', has: 'bars-3', where: 'class', kind: 'size' },
+  { file: 'Search/Input.vue', tag: 'UButton', has: 'lg:hidden', where: 'class', kind: 'size' },
+  { file: 'Cart/Drawer.vue', tag: 'UButton', has: 'i-lucide-x', where: 'class', kind: 'size' },
+  { file: 'Cart/Drawer.vue', tag: 'ButtonProductAddToCart', has: 'icon-only', where: 'class', kind: 'size' },
+  { file: 'Cart/ItemCard.vue', tag: 'UButton', has: 'trash-2', where: 'class', kind: 'size' },
+  { file: 'Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'increment', kind: 'size' },
+  { file: 'Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'decrement', kind: 'size' },
 ]
 
 const SIZE = /(?<![\w:-])(?:max-sm:)?min-h-11(?![\w-])/
@@ -72,5 +79,9 @@ describe('the default design\'s controls are 44px targets on a phone', () => {
     expect(source).toMatch(/class: 'h-11 font-medium'/)
     expect(source).toMatch(/link: `\s*h-11 /)
     expect(source).not.toMatch(/h-10/)
+  })
+
+  it('Cart/CartButton.vue gives the header cart button, in both of its forms, the phone size', () => {
+    expect(readSource(resolve(COMPONENTS, 'Cart/CartButton.vue'))).toMatch(/square: true,\s*class: 'max-sm:min-h-11 max-sm:min-w-11'/)
   })
 })

@@ -63,7 +63,10 @@ defineShortcuts({
       color="neutral"
       variant="ghost"
       square
-      class="lg:hidden"
+      class="
+        max-sm:min-h-11 max-sm:min-w-11
+        lg:hidden
+      "
       :aria-label="t('search.placeholder')"
       aria-keyshortcuts="Control+K Meta+K /"
       @click="openSearchModal"
