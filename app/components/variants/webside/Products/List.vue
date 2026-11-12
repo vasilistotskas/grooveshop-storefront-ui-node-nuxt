@@ -22,6 +22,7 @@ const {
   page,
   totalResults,
   totalPages,
+  pageLink,
   handlePageChange,
   handleSortChange,
   handleItemsPerPageChange,
@@ -128,11 +129,15 @@ const emit = defineEmits<{
           {{ t('pagination.page_info', { current: page, total: totalPages }) }}
         </div>
 
-        <!-- Pagination controls -->
+        <!-- Pagination controls: every page a real link (`pageLink`, the
+             address with the page set), so a crawler can walk the
+             catalogue and a shopper can open a page in a new tab; a click
+             still updates the listing in place. -->
         <UPagination
           :page="page"
           :total="totalResults"
           :items-per-page="limit"
+          :to="pageLink"
           :show-first="!isMobile"
           :show-last="!isMobile"
           :size="isMobile ? 'lg' : 'md'"

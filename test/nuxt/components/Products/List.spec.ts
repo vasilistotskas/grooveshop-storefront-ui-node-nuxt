@@ -15,8 +15,9 @@ import { trees } from '~~/test/helpers/trees'
  * The request, the page logic, the empty state's words and the favourites
  * are one implementation (`useProductListing`) that both trees run, so the
  * last suite below runs over both. The suites above it are the default
- * drawing's: its shared grid class and its page links, which webside's
- * List does not have.
+ * drawing's: its shared grid class and its pagination component. Both
+ * designs' page links, and the address they keep, are in
+ * `test/nuxt/composables/useProductListing.spec.ts`.
  */
 const pf = await vi.hoisted(async () =>
   (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())

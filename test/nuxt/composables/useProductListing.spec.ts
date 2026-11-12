@@ -88,4 +88,22 @@ describe.each(trees(List, WebsideList))('$tree product listing: the address reac
     expect(currentQuery()).toMatchObject({ inStock: 'true', sort: '-createdAt' })
     expect(searchQuery()).toMatchObject({ inStock: true, sort: '-createdAt', offset: 12 })
   })
+
+  // Every page is a real link, the address with its page set, so a
+  // crawler can walk the catalogue and a page opens in a new tab; a click
+  // still updates the listing in place, through the router.
+  it('links every page to the address with its filters, and a click moves there without leaving the page', async () => {
+    const wrapper = await mount()
+
+    const second = wrapper.get('a[href*="page=2"]')
+    const href = new URL(second.attributes('href')!, 'https://store.test')
+    expect(Object.fromEntries(href.searchParams)).toEqual({ sort: '-createdAt', inStock: 'true', page: '2' })
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+    second.element.dispatchEvent(click)
+
+    expect(click.defaultPrevented).toBe(true)
+    await vi.waitFor(() => expect(currentQuery().page).toBe('2'))
+    expect(currentQuery()).toMatchObject({ inStock: 'true', sort: '-createdAt' })
+  })
 })
