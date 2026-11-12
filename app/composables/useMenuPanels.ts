@@ -37,6 +37,8 @@ const HOVER_OPEN_CLICK_GUARD_MS = 300
  *   not reopened by the mouse until it has left the section and come back
  *   (`wasClickCloseRef`, `wasEscapeCloseRef`). Without them a click on
  *   the arrow closed the panel and the next pixel of movement reopened it.
+ *   One difference from Reka: only the movement that opens a panel starts
+ *   the window, never a later one over the panel already open.
  * - A tap, a click or Enter/Space on the button toggles its panel here,
  *   and Reka's own click on the trigger is kept from toggling it back
  *   (`onClickCapture` stops the click before the trigger sees it). The
@@ -128,10 +130,15 @@ export function useMenuPanels(open: Ref<string | undefined>) {
     hover(hit?.section)
     if (hit) {
       cancelClose()
-      if (hit.section === closedByVisitor || hit.section === hoverOpened) return
+      if (hit.section === closedByVisitor) return
+      // Only the movement that opens a panel (or switches to it) starts the
+      // click window. Reka's trigger re-arms it on any movement once it
+      // has lapsed, so a click soon after the mouse moved over a panel
+      // already open did nothing: people move the mouse before they click.
+      const opens = open.value !== hit.section
       openedByMouse = hit.section
       open.value = hit.section
-      armHoverOpened(hit.section)
+      if (opens) armHoverOpened(hit.section)
     }
     else if (event.target.closest('[data-slot="viewport"]')) {
       cancelClose()

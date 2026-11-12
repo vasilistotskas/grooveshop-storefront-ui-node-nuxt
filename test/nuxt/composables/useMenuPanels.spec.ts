@@ -117,6 +117,22 @@ describe('useMenuPanels', () => {
       expect(open.value).toBe('')
     })
 
+    // People move the mouse just before they click: a movement over a panel
+    // that is already open opens nothing, so it starts no window, and the
+    // click closes it.
+    it('closes on a click right after the mouse moved within an already open section', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const { open, name, button } = await mountMenu()
+      await name.trigger('pointermove', mouse)
+      await vi.advanceTimersByTimeAsync(300)
+
+      await button.trigger('pointermove', mouse)
+      await vi.advanceTimersByTimeAsync(100)
+      await button.trigger('click')
+
+      expect(open.value).toBe('')
+    })
+
     it('ends that window when the mouse leaves the section', async () => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
       const { wrapper, open, name, button } = await mountMenu()
