@@ -100,7 +100,7 @@ watch(currentLocale, async (newLocale) => {
     size="sm"
     :aria-label="accessibleName"
     :ui="{
-      base: 'w-auto rounded-full font-semibold',
+      base: 'w-auto rounded-full font-semibold max-sm:min-h-11',
       value: compact ? 'uppercase' : '',
       content: 'min-w-40',
     }"

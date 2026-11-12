@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { resolve } from 'node:path'
 import type { ElementNode } from '../../helpers/sourceText'
-import { COMPONENTS, boundAttribute, classesOf, sfcTemplate, walkElements } from '../../helpers/sourceText'
+import { COMPONENTS, boundAttribute, classesOf, readSource, sfcTemplate, walkElements } from '../../helpers/sourceText'
 
 /**
  * The default design's shared chrome and cards are 44px targets on a phone
@@ -33,6 +33,9 @@ interface Target {
 const TARGETS: Target[] = [
   { file: 'Product/Card.vue', tag: 'LazyButtonProductAddToCart', has: 'icon-only', kind: 'size' },
   { file: 'Product/Card.vue', tag: 'LazyButtonProductAddToFavourite', has: 'favourite-delete', kind: 'hit' },
+  { file: 'Chrome/MobileMenu.vue', tag: 'UNavigationMenu', has: 'vertical', where: 'ui', kind: 'height' },
+  { file: 'Chrome/MobileMenu.vue', tag: 'UColorModeSelect', has: 'neutral', where: 'ui', kind: 'height' },
+  { file: 'Language/Switcher.vue', tag: 'USelectMenu', has: 'value-key', where: 'ui', kind: 'height' },
 ]
 
 const SIZE = /(?<![\w:-])(?:max-sm:)?min-h-11(?![\w-])/
@@ -61,5 +64,13 @@ describe('the default design\'s controls are 44px targets on a phone', () => {
       expect(classes).toMatch(SIZE)
       if (target.kind === 'size') expect(classes).toMatch(WIDTH)
     }
+  })
+
+  it('Chrome/MobileMenu.vue draws every row of the catalogue tree 44px tall', () => {
+    const source = readSource(resolve(COMPONENTS, 'Chrome/MobileMenu.vue'))
+
+    expect(source).toMatch(/class: 'h-11 font-medium'/)
+    expect(source).toMatch(/link: `\s*h-11 /)
+    expect(source).not.toMatch(/h-10/)
   })
 })

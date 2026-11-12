@@ -48,7 +48,7 @@ const categoryTree = computed<TreeItem[]>(() =>
     const child = (label: string, to: string): TreeItem => ({
       label,
       value: to,
-      class: 'h-10 font-medium',
+      class: 'h-11 font-medium',
       onSelect: () => go(to),
     })
     return {
@@ -143,7 +143,7 @@ watch(() => route.fullPath, () => {
             orientation="vertical"
             color="neutral"
             :aria-label="t('navigation')"
-            :ui="{ link: 'px-0 py-1.5 text-base font-bold text-default' }"
+            :ui="{ link: 'min-h-11 px-0 py-1.5 text-base font-bold text-default' }"
           />
         </template>
       </div>
@@ -158,7 +158,7 @@ watch(() => route.fullPath, () => {
         color="neutral"
         size="sm"
         class="w-full"
-        :ui="{ base: 'rounded-full font-semibold' }"
+        :ui="{ base: 'min-h-11 rounded-full font-semibold' }"
       />
     </template>
   </USlideover>
