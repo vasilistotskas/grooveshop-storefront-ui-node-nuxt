@@ -186,7 +186,6 @@ function announceAdded() {
   <UButton
     v-else-if="cartEnabled"
     :icon="icon"
-    :label="visibleLabel"
     :size="size"
     :trailing="block"
     loading-auto
@@ -196,7 +195,14 @@ function announceAdded() {
     :aria-label="disabled ? t('unavailable') : text"
     :ui="{ base: block ? 'w-full place-content-center place-items-center' : '' }"
     @click.prevent="addToCart"
-  />
+  >
+    <!-- Not the button's own label, which is one truncated line: the label
+         is a state the shopper must read, so it wraps instead. -->
+    <span
+      data-slot="label"
+      class="min-w-0 text-center text-balance"
+    >{{ visibleLabel }}</span>
+  </UButton>
 </template>
 
 <i18n lang="yaml">

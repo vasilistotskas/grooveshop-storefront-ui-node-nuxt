@@ -95,6 +95,7 @@ const chips = computed<Chip[]>(() => {
           icon="i-lucide-arrow-left"
           :aria-label="t('back_to', { name: back.label })"
           size="sm"
+          class="max-sm:min-h-11"
         >
           {{ back.label }}
         </UButton>
@@ -110,6 +111,7 @@ const chips = computed<Chip[]>(() => {
           :variant="chip.current ? 'solid' : 'outline'"
           :aria-current="chip.current ? 'page' : undefined"
           size="sm"
+          class="max-sm:min-h-11"
         >
           {{ chip.label }}
           <span

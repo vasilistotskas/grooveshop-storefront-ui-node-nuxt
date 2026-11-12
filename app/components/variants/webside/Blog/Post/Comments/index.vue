@@ -110,39 +110,50 @@ const {
       />
     </div>
 
+    <!-- Two elements, not one whose text and body follow the session: this
+         block hydrates lazily and so do these, after the session has arrived,
+         so a signed-in branch chosen by a prop would hydrate over the guest
+         HTML. The guest state is the one the server sent; the signed-in one
+         only exists once the block has mounted, and is created, not hydrated
+         (`useSessionAfterHydration`). -->
     <LazyWebsideEmptyState
-      v-if="showEmptyState"
-      :title="loggedIn ? t('empty.title') : t('empty.title_guest')"
-      :description="loggedIn ? t('empty.description') : ''"
+      v-if="showEmptyState && !loggedIn"
+      :title="t('empty.title_guest')"
+      class="w-full"
+    >
+      <template #actions>
+        <UButton
+          :label="t('empty.description_guest')"
+          block
+          size="xl"
+          type="button"
+          color="secondary"
+          variant="solid"
+          :ui="{
+            base: 'w-auto',
+          }"
+          @click="() => { isOpen = true }"
+        />
+        <LazyWebsideAccountLoginFormModal
+          v-if="isOpen"
+          v-model="isOpen"
+        />
+      </template>
+    </LazyWebsideEmptyState>
+    <LazyWebsideEmptyState
+      v-else-if="showEmptyState"
+      :title="t('empty.title')"
+      :description="t('empty.description')"
       class="w-full"
     >
       <template #actions>
         <LazyDynamicForm
-          v-if="loggedIn"
           id="add-comment-form"
           :button-label="t('submit')"
           :schema="addCommentFormSchema"
           class="container mx-auto"
           @submit="onAddCommentSubmit"
         />
-        <template v-else>
-          <UButton
-            :label="t('empty.description_guest')"
-            block
-            size="xl"
-            type="button"
-            color="secondary"
-            variant="solid"
-            :ui="{
-              base: 'w-auto',
-            }"
-            @click="() => { isOpen = true }"
-          />
-          <LazyWebsideAccountLoginFormModal
-            v-if="isOpen"
-            v-model="isOpen"
-          />
-        </template>
       </template>
     </LazyWebsideEmptyState>
 

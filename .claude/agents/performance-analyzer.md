@@ -83,7 +83,6 @@ Current route rules define caching for static assets, images, favicons. Verify A
 The per-tenant media-origin hint is rendered at runtime by `setupPageHeader`, with none for the static origin; there are none in the build-time head and no Google hints. Verify:
 
 - [ ] **Preconnect only to first-party critical origins** — too many preconnects waste bandwidth
-- [ ] **`crossOriginPrefetch: true`** is enabled (it is — experimental setting)
 
 ### Server Route Performance
 

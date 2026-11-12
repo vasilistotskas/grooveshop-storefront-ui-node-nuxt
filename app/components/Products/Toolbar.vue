@@ -132,7 +132,10 @@ const handleItemsPerPageChange = (value: unknown) => {
           variant="outline"
           icon="i-heroicons-adjustments-horizontal"
           :label="t('filters')"
-          class="justify-center"
+          class="
+            justify-center
+            max-sm:min-h-11
+          "
           :aria-label="filterCount ? t('open_filters_n', { count: filterCount }) : t('open_filters')"
           @click="emit('toggle-filters')"
         >
@@ -167,6 +170,7 @@ const handleItemsPerPageChange = (value: unknown) => {
           color="neutral"
           variant="ghost"
           size="xs"
+          class="max-sm:min-h-11"
           :label="t('clear_filters')"
           @click="() => updateFilters(CLEARED_FILTERS)"
         />

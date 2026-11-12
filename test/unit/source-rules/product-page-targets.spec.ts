@@ -37,7 +37,8 @@ const CONTROLS = new Set([
   'WebsideButtonProductAddToFavourite',
 ])
 
-const PHONE_HEIGHT = /(^|[\s'"`])max-sm:min-h-11(?=[\s'"`]|$)/
+// 44px or more: the buy box's add button is 52px (`min-h-13`) to match the stepper beside it.
+const PHONE_HEIGHT = /(^|[\s'"`])(?:max-sm:min-h-11|min-h-1[1-3])(?=[\s'"`]|$)/
 const PHONE_WIDTH = /(^|[\s'"`])max-sm:min-w-11(?=[\s'"`]|$)/
 
 /** A static or bound attribute of `node` named `name`. */

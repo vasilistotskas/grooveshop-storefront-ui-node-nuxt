@@ -41,11 +41,21 @@ const { isMobile } = useDevice()
       active-color="primary"
       active-variant="solid"
       :ui="{
-        list: 'gap-1.5',
+        // Wraps: seven 44px items and their gaps are 344px, more than a 320px
+        // screen, and a narrow window on a desktop (which asks for a sibling on
+        // each side) needs 444px. Whatever the width, the list gives way.
+        list: 'flex-wrap justify-center gap-1.5',
         first: 'hidden',
         last: 'hidden',
-        prev: 'ring ring-default ring-inset',
-        next: 'ring ring-default ring-inset',
+        item: 'max-sm:min-h-11 max-sm:min-w-11',
+        prev: `
+          ring ring-default ring-inset
+          max-sm:min-h-11 max-sm:min-w-11
+        `,
+        next: `
+          ring ring-default ring-inset
+          max-sm:min-h-11 max-sm:min-w-11
+        `,
       }"
       @update:page="(value: number) => emit('update:page', value)"
     />

@@ -19,7 +19,8 @@ const appTitle = computed(() => tenantStore.storeName || '')
   <header class="sticky top-0 z-40 border-b border-default bg-default">
     <UContainer
       class="
-        grid h-(--ui-header-height) grid-cols-[1fr_auto_1fr] items-center gap-3
+        grid h-(--ui-header-height) grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]
+        items-center gap-3
       "
     >
       <UButton
@@ -29,9 +30,19 @@ const appTitle = computed(() => tenantStore.storeName || '')
         color="neutral"
         variant="ghost"
         size="sm"
-        class="justify-self-start px-2.5"
+        class="
+          justify-self-start px-2.5
+          max-sm:min-h-11 max-sm:min-w-11
+        "
       >
-        <span class="lg:hidden">{{ t('cart') }}</span>
+        <!-- The word comes from sm up: at 320px the cart link's word, the logo and
+             the lock do not fit the row, and the arrow keeps its accessible name. -->
+        <span
+          class="
+            max-sm:sr-only
+            lg:hidden
+          "
+        >{{ t('cart') }}</span>
         <span
           class="
             hidden

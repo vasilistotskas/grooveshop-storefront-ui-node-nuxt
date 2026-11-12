@@ -131,15 +131,22 @@ const { open, submitting, rows, triggerLabel, savingLabel, applyCoupon } = await
     </ul>
   </DefineList>
 
-  <div v-if="rows.length">
+  <div
+    v-if="rows.length"
+    class="min-w-0"
+  >
+    <!-- A sentence the shopper must read: its own span, which wraps. The button's
+         label is one truncated line, and a 326px min-content widened the whole
+         cart column on a phone. -->
     <UButton
       color="secondary"
       variant="link"
       size="sm"
-      class="p-0"
-      :label="triggerLabel"
+      class="max-w-full p-0 text-start"
       @click="() => { open = true }"
-    />
+    >
+      <span class="min-w-0 text-start">{{ triggerLabel }}</span>
+    </UButton>
 
     <UDrawer
       v-if="isMobileOrTablet"

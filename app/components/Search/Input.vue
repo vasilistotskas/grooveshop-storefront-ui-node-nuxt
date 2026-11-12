@@ -58,7 +58,10 @@ const KEY_SHORTCUTS = 'Control+K Meta+K /'
       color="neutral"
       variant="ghost"
       square
-      class="lg:hidden"
+      class="
+        max-sm:min-h-11 max-sm:min-w-11
+        lg:hidden
+      "
       :aria-label="t('search.placeholder')"
       :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
