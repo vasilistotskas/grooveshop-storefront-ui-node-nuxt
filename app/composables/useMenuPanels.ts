@@ -179,8 +179,10 @@ export function useMenuPanels(open: Ref<string | undefined>) {
       return
     }
     tapped = undefined
-    // Reka's trigger: the click that follows the hover which just opened it.
-    if (hit.section === hoverOpened) return
+    // Reka's trigger: the pointer click that follows the hover which just
+    // opened it. A key's click (Enter, Space: `detail` 0) always acts: the
+    // keyboard did not hover, and a panel it cannot close is out of reach.
+    if (hit.section === hoverOpened && event.detail > 0) return
     const closesIt = open.value === hit.section
     toggle(hit.section)
     if (closesIt) closedByVisitor = hit.section

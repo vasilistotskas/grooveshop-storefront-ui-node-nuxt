@@ -98,6 +98,9 @@ describe('useMenuPanels', () => {
   // `NavigationMenuTrigger`): its hover is off on these menus, so ours
   // must keep a mouse click from fighting the hover.
   describe('the mouse and a click', () => {
+    // A mouse's click counts its presses; Enter's and Space's is 0.
+    const pointerClick = { detail: 1 }
+
     afterEach(() => {
       vi.useRealTimers()
     })
@@ -108,12 +111,12 @@ describe('useMenuPanels', () => {
 
       await name.trigger('pointermove', mouse)
       await vi.advanceTimersByTimeAsync(299)
-      await button.trigger('click')
+      await button.trigger('click', pointerClick)
       expect(open.value).toBe('products')
 
       // From 300ms on, a click is the visitor's own: it closes.
       await vi.advanceTimersByTimeAsync(1)
-      await button.trigger('click')
+      await button.trigger('click', pointerClick)
       expect(open.value).toBe('')
     })
 
@@ -128,7 +131,21 @@ describe('useMenuPanels', () => {
 
       await button.trigger('pointermove', mouse)
       await vi.advanceTimersByTimeAsync(100)
-      await button.trigger('click')
+      await button.trigger('click', pointerClick)
+
+      expect(open.value).toBe('')
+    })
+
+    // The window holds off the mouse's own click only: Enter or Space on
+    // the arrow (a click with `detail` 0) always acts, or a keyboard could
+    // not close the panel a passing mouse had just opened.
+    it('lets a key on the arrow close a panel the mouse has just opened', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const { open, name, button } = await mountMenu()
+
+      await name.trigger('pointermove', mouse)
+      await vi.advanceTimersByTimeAsync(100)
+      button.element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 0 }))
 
       expect(open.value).toBe('')
     })
@@ -139,7 +156,7 @@ describe('useMenuPanels', () => {
 
       await name.trigger('pointermove', mouse)
       await wrapper.trigger('pointermove', mouse)
-      await button.trigger('click')
+      await button.trigger('click', pointerClick)
 
       expect(open.value).toBe('')
     })
@@ -150,7 +167,7 @@ describe('useMenuPanels', () => {
       await name.trigger('pointermove', mouse)
       await vi.advanceTimersByTimeAsync(300)
 
-      await button.trigger('click')
+      await button.trigger('click', pointerClick)
       expect(open.value).toBe('')
       await button.trigger('pointermove', mouse)
       await name.trigger('pointermove', mouse)
