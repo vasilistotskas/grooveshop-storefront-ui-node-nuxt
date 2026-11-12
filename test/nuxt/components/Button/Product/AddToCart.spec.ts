@@ -40,7 +40,8 @@ mockNuxtImport('useToast', () => () => toast)
 mockNuxtImport('useMediaQuery', () => () => ref(viewport.desktop))
 mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://media.test/${path}`)
 
-const UNAVAILABLE = 'Μή Διαθέσιμο'
+// Webside's own button keeps its wording; the default design's is spelt Μη διαθέσιμο.
+const UNAVAILABLE_LABEL = { default: 'Μη διαθέσιμο', webside: 'Μή Διαθέσιμο' }
 const BUY = 'Αγορά'
 
 /** Put `lines` in the cart, and make a write answer with it, as Django answers with the cart. */
@@ -104,8 +105,8 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
       const button = wrapper.find('button')
 
       expect(button.attributes('disabled')).toBeDefined()
-      expect(button.text()).toBe(UNAVAILABLE)
-      expect(button.attributes('aria-label')).toBe(UNAVAILABLE)
+      expect(button.text()).toBe(UNAVAILABLE_LABEL[tree])
+      expect(button.attributes('aria-label')).toBe(UNAVAILABLE_LABEL[tree])
     })
 
     it.each([
@@ -126,7 +127,7 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
       const soldOut = await mount({ product: makeProduct({ stock: 0 }), iconOnly: true })
 
       expect(available.find('button').attributes('aria-label')).toBe(BUY)
-      expect(soldOut.find('button').attributes('aria-label')).toBe(UNAVAILABLE)
+      expect(soldOut.find('button').attributes('aria-label')).toBe(UNAVAILABLE_LABEL[tree])
     })
   })
 

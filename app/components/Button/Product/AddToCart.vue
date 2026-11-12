@@ -201,7 +201,7 @@ function announceAdded() {
 
 <i18n lang="yaml">
 el:
-  unavailable: Μή Διαθέσιμο
+  unavailable: Μη διαθέσιμο
   toast:
     adding_title: Προσθήκη στο καλάθι…
     added_title: Προστέθηκε στο καλάθι

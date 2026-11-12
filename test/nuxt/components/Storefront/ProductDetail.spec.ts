@@ -455,7 +455,7 @@ describe('default ProductDetail', () => {
   it('draws no quantity for a sold-out product, and its button says so in full', async () => {
     serve(makeProduct({ id: 123, stock: 0 }))
     const wrapper = await mountPage()
-    const button = wrapper.findAll('button').find(b => b.text() === 'Μή Διαθέσιμο')!
+    const button = wrapper.findAll('button').find(b => b.text() === 'Μη διαθέσιμο')!
 
     expect(wrapper.find('#quantity').exists()).toBe(false)
     expect(button.find('[data-slot="label"]').classes()).not.toContain('truncate')
