@@ -192,8 +192,17 @@ const items = computed<NavigationMenuItem[]>(() => {
  * What the phone menu lists: the store's Mobile menu, else its Header
  * menu, else the code menu above.
  */
-/** The bar's entries, the current section marked on the dropdowns' triggers too. */
-const barItems = computed(() => withCurrentPage(items.value))
+/** Where the menu hydrates: see the template. */
+const MENU_HYDRATION = ['pointermove', 'pointerdown', 'focusin']
+
+/**
+ * The bar's entries: the current section marked, and each section with a
+ * panel as its link plus a button that opens the panel.
+ */
+const barItems = computed(() => withDropdownToggles(withCurrentPage(items.value), {
+  label: section => t('open_section', { section }),
+  class: '-ms-2 px-1',
+}))
 
 const mobileMenuItems = computed(() =>
   mobileLinks.value ? fromLinks(mobileLinks.value) : items.value,
@@ -269,9 +278,15 @@ const appTitle = computed(() => tenantStore.storeName || '')
         <!-- `static`: the catalogue panel is positioned against the
              sticky wrapper, so it spans the full width under the
              header instead of the width of the menu. -->
+        <!-- Hydrated by the first pointer move, tap or focus on it, which
+             Vue replays once hydrated (`hydrateOnInteraction`): Reka opens
+             a panel on a pointer MOVE, so the default `pointerenter`
+             replayed into nothing and the first hover after a page load
+             opened no panel. Still lazy, so the menu's code runs only for a
+             visitor who reaches for it. -->
         <LazyUNavigationMenu
           v-model="openItem"
-          hydrate-on-interaction
+          :hydrate-on-interaction="MENU_HYDRATION"
           :items="barItems"
           :aria-label="t('navigation')"
           color="neutral"
@@ -393,12 +408,14 @@ el:
   navigation: Πλοήγηση
   menu: Μενού
   loyalty: Επιβράβευση
+  open_section: "Μενού: {section}"
   all_articles: Όλα τα άρθρα
   articles: "{count} άρθρο | {count} άρθρα"
 en:
   navigation: Navigation
   menu: Menu
   loyalty: Rewards
+  open_section: "{section} menu"
   all_articles: All articles
   articles: "{count} article | {count} articles"
 </i18n>

@@ -109,10 +109,28 @@ const CHARGING: CategoryMenuEntry = {
 }
 const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }
 
-/** The menu's items as `[label, to, slot]`: the slot names the dropdown an entry opens. */
+/**
+ * The bar's entries as sections: each section's panel button (no `to`,
+ * a panel) folded back into the link before it, so a test reads one
+ * entry per section. The split itself has its own tests.
+ */
+const barEntries = (wrapper: VueWrapper): NavigationMenuItem[] => {
+  const out: NavigationMenuItem[] = []
+  for (const item of wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]) {
+    const previous = out.at(-1)
+    if (previous && !item.to && !item.href && (item.slot || item.children)) {
+      out[out.length - 1] = { ...previous, slot: item.slot, children: item.children, value: item.value }
+    }
+    else {
+      out.push(item)
+    }
+  }
+  return out
+}
+
+/** The menu's sections as `[label, to, slot]`: the slot names the dropdown a section opens. */
 const menu = (wrapper: VueWrapper) =>
-  (wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[])
-    .map(item => [item.label, item.to ?? item.href, item.slot])
+  barEntries(wrapper).map(item => [item.label, item.to ?? item.href, item.slot])
 
 /** The header's own copy, which the global `$i18n` cannot reach. */
 const COPY = {
@@ -138,6 +156,33 @@ describe('webside Page/Navbar dropdowns', () => {
     topics.value = [MOBILE]
     setTenant({ availableLocales: ['el'] })
     setTenantFeatures({ blog: true })
+  })
+
+  // WCAG 2.1.1: a panel a keyboard cannot reach is content a keyboard
+  // cannot use. Each section is its link plus a button that opens its
+  // panel; the button is what a keyboard acts on.
+  it('lets a keyboard open a section\'s panel, move into it and close it again', async () => {
+    const wrapper = await mountSuspended(Navbar, { route: false, attachTo: document.body })
+    const link = wrapper.find('a[data-slot="link"][href="/products"]')
+    const button = wrapper.findAll('button[data-slot="link"]').find(control => control.text() === `Μενού: ${t('shop')}`)!
+
+    // The section's own page stays one plain link away.
+    expect(link.text()).toBe(t('shop'))
+    expect([button.attributes('href'), button.attributes('aria-expanded')]).toEqual([undefined, 'false'])
+
+    // Enter and Space on a button are its click.
+    button.element.focus()
+    await button.trigger('click')
+    await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+    const panel = wrapper.find(`#${button.attributes('aria-controls')}`)
+    expect(panel.findAll('a').length).toBeGreaterThan(1)
+
+    // ArrowDown moves into the panel; Escape closes it and comes back.
+    await button.trigger('keydown', { key: 'ArrowDown' })
+    await vi.waitFor(() => expect(panel.element.contains(document.activeElement)).toBe(true))
+    await wrapper.find(`#${button.attributes('aria-controls')}`).trigger('keydown', { key: 'Escape' })
+    await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('false'))
+    expect(document.activeElement).toBe(button.element)
   })
 
   it('opens the categories from Shop and the topics from Blog', async () => {
@@ -197,7 +242,7 @@ describe('webside Page/Navbar dropdowns', () => {
     { name: 'Blog', label: () => t('blog'), entry: MOBILE.label, href: '/blog/category/7/mobile', count: COPY.articles, all: COPY.allArticles, allHref: '/blog' },
   ])('draws $name\'s panel: each entry with its count, then a link to everything', async ({ label, entry, href, count, all, allHref }) => {
     const wrapper = await mountSuspended(Navbar, { route: false })
-    const trigger = wrapper.findAll('[data-slot="link"]').find(link => link.text() === label())!
+    const trigger = wrapper.findAll('[data-slot="link"]').find(link => link.text() === `Μενού: ${label()}`)!
 
     // Reka opens a dropdown on a mouse hovering its trigger.
     await trigger.trigger('pointermove', { pointerType: 'mouse' })

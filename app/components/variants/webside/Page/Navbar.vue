@@ -175,8 +175,17 @@ const navItems = computed<NavigationMenuItem[]>(() => {
   return base
 })
 
-/** The bar's entries, the current section marked on the dropdowns' triggers too. */
-const barItems = computed(() => withCurrentPage(navItems.value))
+/** Where the menu hydrates: see the template. */
+const MENU_HYDRATION = ['pointermove', 'pointerdown', 'focusin']
+
+/**
+ * The bar's entries: the current section marked, and each section with a
+ * panel as its link plus a button that opens the panel.
+ */
+const barItems = computed(() => withDropdownToggles(withCurrentPage(navItems.value), {
+  label: section => t('open_section', { section }),
+  class: '-ms-3 px-1',
+}))
 
 const onClickLogout = async () => {
   if (!routeName.value) return
@@ -250,8 +259,14 @@ const items = computed(() => [
         >
           <!-- Keyboard, focus and screen-reader behaviour of the
                dropdowns are the menu's own (Reka's NavigationMenu). -->
+          <!-- Hydrated by the first pointer move, tap or focus on it, which
+               Vue replays once hydrated (`hydrateOnInteraction`): Reka opens
+               a panel on a pointer MOVE, so the default `pointerenter`
+               replayed into nothing and the first hover after a page load
+               opened no panel. Still lazy, so the menu's code runs only for a
+               visitor who reaches for it. -->
           <LazyUNavigationMenu
-            hydrate-on-interaction
+            :hydrate-on-interaction="MENU_HYDRATION"
             :items="barItems"
             :aria-label="t('navigation')"
             color="neutral"
@@ -543,6 +558,7 @@ el:
     profile: Προφίλ
   categories: Κατηγορίες
   topics: Θέματα
+  open_section: "Μενού: {section}"
   products_count: "{count} προϊόν | {count} προϊόντα"
   articles_count: "{count} άρθρο | {count} άρθρα"
   all_products: Όλα τα προϊόντα
@@ -553,6 +569,7 @@ en:
     profile: Profile
   categories: Categories
   topics: Topics
+  open_section: "{section} menu"
   products_count: "{count} product | {count} products"
   articles_count: "{count} article | {count} articles"
   all_products: All products

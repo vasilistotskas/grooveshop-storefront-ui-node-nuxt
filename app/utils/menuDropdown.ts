@@ -1,3 +1,5 @@
+import type { NavigationMenuItem } from '@nuxt/ui'
+
 /**
  * The header entries that open a dropdown of live categories, by the
  * listing they link to: the products listing opens the catalogue's
@@ -31,4 +33,40 @@ export function menuDropdownFor(path: string | undefined): MenuDropdown | undefi
  */
 export function withCurrentPage<T extends { active?: boolean }>(items: T[]): (T & { 'aria-current'?: 'page' })[] {
   return items.map(item => ({ ...item, 'aria-current': item.active ? 'page' as const : undefined }))
+}
+
+/**
+ * Every entry that opens a panel as TWO entries: the link to its section,
+ * then a button that opens the panel (WAI-ARIA's disclosure navigation:
+ * a link plus an adjacent disclosure button).
+ *
+ * One entry could not be both. Nuxt UI draws an entry with a panel and a
+ * `to` as Reka's NavigationMenuTrigger on an `<a>`: a keyboard's Enter
+ * followed the link and the panel was out of reach, and the trigger gave
+ * nothing to act on. An entry without a `to` is drawn as a `<button>`
+ * trigger, which Enter and Space open, which states `aria-expanded` and
+ * `aria-controls`, whose ArrowDown moves into the panel and whose Escape
+ * comes back to it (Reka's NavigationMenuTrigger / NavigationMenuContentImpl).
+ * The link stays a link in the server's HTML, before anything hydrates.
+ *
+ * `toggle.label` names the button after its section; `toggle.class` sets it
+ * beside its link in the design's spacing.
+ */
+export function withDropdownToggles(
+  items: NavigationMenuItem[],
+  toggle: { label: (section: string) => string, class?: string },
+): NavigationMenuItem[] {
+  return items.flatMap((item) => {
+    if (!item.slot && !item.children?.length) return [item]
+    const { slot, children, value, ...link } = item
+    const button: NavigationMenuItem = {
+      label: toggle.label(item.label ?? ''),
+      value,
+      slot,
+      children,
+      class: toggle.class,
+      ui: { ...item.ui, linkLabel: 'sr-only' },
+    }
+    return [link, button]
+  })
 }

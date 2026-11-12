@@ -77,11 +77,32 @@ const mountNavbar = (route: string | false = false) => mountSuspended(ChromeNavb
  * handed (and hands the mobile menu) are the contract, so they are read
  * off it as `[label, to, active]`.
  */
+/**
+ * The bar's entries as sections: each section's panel button (no `to`,
+ * a panel) folded back into the link before it, so a test reads one
+ * entry per section. The split itself has its own tests.
+ */
+const barEntries = (wrapper: VueWrapper): NavigationMenuItem[] => {
+  const out: NavigationMenuItem[] = []
+  for (const item of wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]) {
+    const previous = out.at(-1)
+    if (previous && !item.to && !item.href && (item.slot || item.children)) {
+      out[out.length - 1] = { ...previous, slot: item.slot, children: item.children, value: item.value }
+    }
+    else {
+      out.push(item)
+    }
+  }
+  return out
+}
+
 const menu = (wrapper: VueWrapper) =>
-  (wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[])
-    .map(item => [item.label, item.to ?? item.href, item.active])
+  barEntries(wrapper).map(item => [item.label, item.to ?? item.href, item.active])
 
 const t = (key: string) => useNuxtApp().$i18n.t(key)
+
+/** The header's own name for the button that opens the Shop panel. */
+const OPEN_SHOP = 'Μενού: Κατάστημα'
 
 /**
  * The redesigned header's gates. Offers, the blog, gift cards, loyalty
@@ -166,7 +187,7 @@ describe('Chrome/Navbar', () => {
 
     const wrapper = await mountNavbar('/gift-cards/success')
 
-    const items = wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]
+    const items = barEntries(wrapper)
     expect(items.map(item => [item.label, item.to, item.href, item.target, item.active])).toEqual([
       ['Δωροκάρτες', '/gift-cards', undefined, undefined, true],
       ['Εργαστήριο', undefined, 'https://workshop.example', '_blank', false],
@@ -179,7 +200,7 @@ describe('Chrome/Navbar', () => {
     await vi.waitFor(() => expect(wrapper.findComponent(MobileMenu).exists()).toBe(true))
     const entries = (items: NavigationMenuItem[]) => items.map(item => [item.label, item.to])
     return {
-      bar: entries(wrapper.findComponent({ name: 'UNavigationMenu' }).props('items')),
+      bar: entries(barEntries(wrapper)),
       phone: entries(wrapper.findComponent(MobileMenu).props('items')),
     }
   }
@@ -209,7 +230,7 @@ describe('Chrome/Navbar', () => {
 
     const wrapper = await mountNavbar()
 
-    const items = wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]
+    const items = barEntries(wrapper)
     expect(items.map(item => [item.label, item.to, item.slot, item.children?.map(child => child.to)])).toEqual([
       ['Σχετικά', '/about', undefined, undefined],
       ['Κατάστημα', '/products', 'shop', ['/products/category/1/charging']],
@@ -226,7 +247,7 @@ describe('Chrome/Navbar', () => {
 
     const wrapper = await mountNavbar()
 
-    const blog = (wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[])
+    const blog = barEntries(wrapper)
       .find(item => item.to === '/blog')!
     expect(blog.children?.map(child => [child.label, child.to, child.description])).toEqual([
       [BLOG_COPY.allArticles, '/blog', undefined],
@@ -239,7 +260,7 @@ describe('Chrome/Navbar', () => {
 
     const wrapper = await mountNavbar()
 
-    const blog = (wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[])
+    const blog = barEntries(wrapper)
       .find(item => item.to === '/blog')!
     expect(blog.children).toBeUndefined()
   })
@@ -250,7 +271,7 @@ describe('Chrome/Navbar', () => {
 
     const wrapper = await mountNavbar()
 
-    const items = wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]
+    const items = barEntries(wrapper)
     expect(items.map(item => [item.label, item.to, item.children?.map(child => child.to)])).toEqual([
       ['Άρθρα', '/blog', ['/blog', '/blog/category/7/mobile']],
     ])
@@ -286,12 +307,39 @@ describe('Chrome/Navbar', () => {
     expect(wrapper.find(`a[aria-label="${t('favourites')}"]`).exists()).toBe(true)
   })
 
+  // WCAG 2.1.1: a panel a keyboard cannot reach is content a keyboard
+  // cannot use. Each section is its link plus a button that opens its
+  // panel; the button is what a keyboard acts on.
+  it('lets a keyboard open a section\'s panel, move into it and close it again', async () => {
+    const wrapper = await mountSuspended(ChromeNavbar, { route: false, attachTo: document.body, global: { stubs: { ...stubs, ChromeMegaMenu: { template: '<div><a href="/products">all</a><a href="/products?sort=-createdAt">new</a></div>' } } } })
+    const link = wrapper.find('a[data-slot="link"][href="/products"]')
+    const button = wrapper.findAll('button[data-slot="link"]').find(control => control.text() === OPEN_SHOP)!
+
+    // The section's own page stays one plain link away.
+    expect(link.text()).toBe(t('shop'))
+    expect([button.attributes('href'), button.attributes('aria-expanded')]).toEqual([undefined, 'false'])
+
+    // Enter and Space on a button are its click.
+    button.element.focus()
+    await button.trigger('click')
+    await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+    const panel = wrapper.find(`#${button.attributes('aria-controls')}`)
+    expect(panel.findAll('a').length).toBeGreaterThan(1)
+
+    // ArrowDown moves into the panel; Escape closes it and comes back.
+    await button.trigger('keydown', { key: 'ArrowDown' })
+    await vi.waitFor(() => expect(panel.element.contains(document.activeElement)).toBe(true))
+    await wrapper.find(`#${button.attributes('aria-controls')}`).trigger('keydown', { key: 'Escape' })
+    await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('false'))
+    expect(document.activeElement).toBe(button.element)
+  })
+
   it('opens the catalogue panel from Shop, and dims the page under it', async () => {
     categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', imageAlt: '', productCount: 0, children: [] }]
 
     const wrapper = await mountNavbar()
     const nav = wrapper.findComponent({ name: 'UNavigationMenu' })
-    const shop = (nav.props('items') as NavigationMenuItem[])[0]!
+    const shop = barEntries(wrapper)[0]!
 
     expect([shop.slot, shop.value, shop.children?.map(child => child.to)])
       .toEqual(['shop', 'shop', ['/products/category/1/charging']])
@@ -327,7 +375,7 @@ describe('Chrome/Navbar', () => {
     categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', imageAlt: '', productCount: 0, children: [] }]
 
     const wrapper = await mountNavbar()
-    const shop = wrapper.findAll('[data-slot="link"]').find(link => link.text() === t('shop'))!
+    const shop = wrapper.findAll('[data-slot="link"]').find(link => link.text() === OPEN_SHOP)!
     // Reka opens a dropdown on a mouse hovering its trigger.
     await shop.trigger('pointermove', { pointerType: 'mouse' })
 
