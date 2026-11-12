@@ -105,4 +105,10 @@ describe('the default design controls are 44px targets on a phone', () => {
     expect(flat).toContain('<ul class="flex flex-col pb-1">')
     expect(flat).toContain('flex flex-wrap gap-5 text-sm max-sm:gap-y-0')
   })
+
+  it('Products/Pagination.vue lets its 44px items wrap instead of overflowing a narrow screen', () => {
+    const [list] = find({ file: 'Products/Pagination.vue', tag: 'UPagination', has: 'items-per-page', kind: 'size' })
+
+    expect(boundAttribute(list!, 'ui')).toMatch(/list: 'flex-wrap /)
+  })
 })
