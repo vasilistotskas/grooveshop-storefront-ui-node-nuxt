@@ -1,5 +1,6 @@
 import { describe } from 'vitest'
 import { setupDevServer, startFakeDjango } from '../helpers/e2e'
+import { blogCommentsUpstream, describeBlogComments } from './blogComments'
 import { anonymousVisitorUpstream, describeAnonymousVisitor } from './anonymousVisitor'
 import { describePageRenders, pageRenderUpstream } from './pageRenders'
 import { describeRequestId, requestIdUpstream } from './requestId'
@@ -32,6 +33,7 @@ describe('storefront on a real dev server', async () => {
     if (requestIdUpstream(req, res, url)) return
     if (shippingOptionsUpstream(req, res, url)) return
     if (sitemapOutageUpstream(req, res, url)) return
+    if (blogCommentsUpstream(req, res, url)) return
     // Only counts; the page-render stub below still answers.
     trackingParamsUpstream(req, res, url)
     pageRenderUpstream(req, res, url)
@@ -50,4 +52,5 @@ describe('storefront on a real dev server', async () => {
   describeShippingOptionsCache()
   describeTenantLookups()
   describeSitemapOutage()
+  describeBlogComments()
 })

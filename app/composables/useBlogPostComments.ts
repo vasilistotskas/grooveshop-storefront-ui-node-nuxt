@@ -8,6 +8,10 @@ import * as z from 'zod'
  * the tenants' own); each passes its own `t`, so the words stay in its own
  * messages.
  *
+ * The list is derived from the request's data, never copied by a watcher: a
+ * server render runs no watcher after the request resolves, so a copy left
+ * the article's HTML with the empty state in place of its comments.
+ *
  * Everything that belongs to the component (watchers, `onMounted`, the
  * request) is registered before the one `await`, at the end: after an
  * await a composable has no component instance.
@@ -38,7 +42,10 @@ export async function useBlogPostComments(options: {
   )
 
   const isOpen = ref(false)
-  const allComments = ref<BlogComment[]>([])
+  // The comments of the pages the request has left behind (a next page read,
+  // a refetch): the list is every page seen, the current one included, and
+  // the current one is the request's own data, so a server render has it.
+  const earlierComments = ref<BlogComment[]>([])
   const isLoadingMore = ref(false)
 
   const request = useApi(
@@ -67,6 +74,15 @@ export async function useBlogPostComments(options: {
   const pagination = computed(() => {
     if (!comments.value?.count) return
     return usePagination<BlogComment>(comments.value)
+  })
+
+  /** Every comment seen, once each (the newest read of one wins), newest first. */
+  const allComments = computed(() => {
+    const byId = new Map<number, BlogComment>()
+    for (const comment of [...(comments.value?.results ?? []), ...earlierComments.value]) {
+      if (!byId.has(comment.id)) byId.set(comment.id, comment)
+    }
+    return [...byId.values()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   })
 
   const isLoading = computed(() => status.value === 'pending')
@@ -101,15 +117,8 @@ export async function useBlogPostComments(options: {
       )
 
       if (response?.results?.length) {
-        const newComments = response.results.filter(
-          (newComment: BlogComment) => !allComments.value.some(existingComment => existingComment.id === newComment.id),
-        )
-
-        allComments.value = [...allComments.value, ...newComments].sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        })
-
-        // The `commentIds` watcher loads this page's like state.
+        // The page that was current is kept by the `comments` watcher, and
+        // the `commentIds` watcher loads this page's like state.
         comments.value = response
       }
     }
@@ -129,7 +138,7 @@ export async function useBlogPostComments(options: {
 
   // Load the like state of every page of comments as it arrives — the first
   // one, a loaded next page, a refetch. `commentIds` is empty during setup
-  // (allComments is filled by the `comments` watcher below), so this must
+  // (the first page is the request's data, not yet there), so this must
   // react to the ids rather than run once — otherwise the first page never
   // gets its like state and toggling silently removes an existing like.
   watch(commentIds, ids => loadLikedComments(ids), { immediate: import.meta.client })
@@ -210,20 +219,11 @@ export async function useBlogPostComments(options: {
     },
   )
 
-  watch(
-    comments,
-    (newValue) => {
-      if (newValue && newValue.results?.length) {
-        const newComments = newValue.results.filter(
-          newComment => !allComments.value.some(existingComment => existingComment.id === newComment.id),
-        )
-        allComments.value = [...allComments.value, ...newComments].sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        })
-      }
-    },
-    { deep: true, immediate: true },
-  )
+  // A page the request moves on from stays in the list. Only a browser sees
+  // the data change, so nothing here is needed to draw the first page.
+  watch(comments, (_, previous) => {
+    if (previous?.results?.length) earlierComments.value = [...previous.results, ...earlierComments.value]
+  })
 
   watch(
     () => route.query.comment_page,
