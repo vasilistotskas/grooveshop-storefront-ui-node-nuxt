@@ -12,13 +12,19 @@ const props = defineProps({
     type: Number as PropType<number>,
     required: true,
   },
+  /** Names the heart, so a list of them tells its products apart. */
+  productName: {
+    type: String,
+    required: true,
+  },
   userId: {
     type: Number as PropType<number | null | undefined>,
     required: false,
     default: undefined,
   },
+  /** The store's `getFavouriteIdByProductId`: none, the favourite's id, or that there is one (`FAVOURITE_ID_UNKNOWN`). */
   favouriteId: {
-    type: Number as PropType<number | null>,
+    type: [Number, String] as PropType<FavouriteId | null>,
     required: false,
     default: null,
   },
@@ -26,50 +32,43 @@ const props = defineProps({
     type: String as PropType<ButtonProps['size']>,
     default: 'md',
   },
-  showLabel: {
-    type: Boolean,
-    default: false,
-  },
 })
 
 const emit = defineEmits<{
-  (e: 'favourite-delete', id: number): void
+  (e: 'favourite-delete'): void
 }>()
 
 const { t } = useStoreI18n('components/variants/webside/Button/Product/AddToFavourite')
 
-const { isLoading, toggle: toggleFavourite } = useProductFavouriteToggle({
+// What the heart draws comes from the toggle, which holds it at the
+// guest's until mount (the server's render); `props.favouriteId` is the
+// store's state, for the click.
+const { isLoading, drawnFavouriteId, toggle: toggleFavourite } = useProductFavouriteToggle({
   productId: () => props.productId,
   userId: () => props.userId,
   favouriteId: () => props.favouriteId,
   t,
-  onDeleted: id => emit('favourite-delete', id),
+  onDeleted: () => emit('favourite-delete'),
 })
 
-const buttonLabel = computed(() => {
-  if (!props.showLabel) return undefined
-  return props.favouriteId
-    ? t('remove')
-    : t('add')
-})
-
-const buttonAreaLabel = computed(() => {
-  return props.favouriteId
-    ? t('remove')
-    : t('add')
-})
+// A toggle button (WAI-ARIA): ONE name, the product's, whatever its state,
+// and the state in `aria-pressed`. A name that changed with the state was
+// announced twice ("remove from favourites, pressed"). The tooltip says
+// what a click does.
+const name = computed(() => t('name', { name: props.productName }))
+const action = computed(() => (drawnFavouriteId.value ? t('remove') : t('add')))
 </script>
 
 <template>
   <UButton
     v-if="favouritesEnabled"
     :size="size"
-    :label="buttonLabel"
-    :icon="favouriteId ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
-    :color="favouriteId ? 'error' : 'neutral'"
+    :icon="drawnFavouriteId ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
+    :color="drawnFavouriteId ? 'error' : 'neutral'"
     variant="subtle"
-    :aria-label="buttonAreaLabel"
-    :title="buttonAreaLabel"
+    :aria-label="name"
+    :aria-pressed="drawnFavouriteId ? 'true' : 'false'"
+    :title="action"
     :loading="isLoading"
     :disabled="isLoading"
     :ui="{
@@ -89,10 +88,12 @@ el:
   removed: Αφαιρέθηκε από τα αγαπημένα
   add: Προσθήκη στα αγαπημένα
   remove: Αφαίρεση από τα αγαπημένα
+  name: 'Αγαπημένο: {name}'
 en:
   not_authenticated: You have to be signed in to add favourites
   added: Added to your favourites
   removed: Removed from your favourites
   add: Add to favourites
   remove: Remove from favourites
+  name: 'Favourite: {name}'
 </i18n>

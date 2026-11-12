@@ -463,6 +463,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               <WebsideButtonProductAddToFavourite
                 :favourite-id="favouriteId"
                 :product-id="product?.id"
+                :product-name="productName ?? ''"
                 :user-id="user?.id"
                 class="max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center"
               />

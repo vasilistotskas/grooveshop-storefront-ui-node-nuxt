@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setActivePinia, createPinia } from 'pinia'
 import { useUserStore } from '~/stores/user'
@@ -28,6 +29,9 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 
 const ACCOUNT = makeUserDetails({ id: 7, email: 'shopper@example.com' })
+
+/** One favourite as the favourites endpoints answer it: shopper 7's unless told. */
+const favourite = (productId: number, id: number, userId = 7) => ({ id, userId, productId, createdAt: '2026-11-12T10:00:00Z' })
 
 describe('useUserStore', () => {
   let store: ReturnType<typeof useUserStore>
@@ -89,21 +93,30 @@ describe('useUserStore', () => {
     })
 
     it('merges a batch of favourites into the map', () => {
+      session.user.value = { id: 7 }
       store.addFavouriteProduct({ id: 100, product: 1 } as CreateProductFavouriteResponse)
 
-      store.updateFavouriteProducts([
-        { id: 200, productId: 2 },
-        { id: 300, productId: 3 },
-      ] as GetProductFavouritesByProductsResponse)
+      store.updateFavouriteProducts([favourite(2, 200), favourite(3, 300)])
 
       expect(store.favouriteProductIds).toEqual({ 1: 100, 2: 200, 3: 300 })
     })
 
+    // A favourites list that was on its way when the account changed is
+    // someone else's: the store keeps only the signed-in shopper's own.
+    it.each([
+      ['another shopper', { id: 8 }],
+      ['nobody signed in', null],
+    ])('keeps no favourites list of a shopper who is not signed in: %s', (_case, user) => {
+      session.user.value = user
+
+      store.updateFavouriteProducts([favourite(2, 200)])
+
+      expect(store.favouriteProductIds).toEqual({})
+    })
+
     it('removes one product and keeps the others', () => {
-      store.updateFavouriteProducts([
-        { id: 200, productId: 2 },
-        { id: 300, productId: 3 },
-      ] as GetProductFavouritesByProductsResponse)
+      session.user.value = { id: 7 }
+      store.updateFavouriteProducts([favourite(2, 200), favourite(3, 300)])
 
       store.removeFavouriteProduct(2)
 
@@ -146,6 +159,200 @@ describe('useUserStore', () => {
       update(store, [1, 2, 3])
 
       expect(liked(store)).toEqual([1, 2, 3])
+    })
+  })
+
+  /**
+   * The one way a product's heart learns its state: every heart asks when it
+   * mounts, and the store turns the asks of one tick into one request.
+   */
+  describe('lookUpFavourites', () => {
+    const LOOKUP = '/api/products/favourites/favourites-by-products'
+    /** What the server holds: the favourites among the ids each request asks about. */
+    const holds = (favourites: Record<number, number>) => (_url: string, options: { body: { productIds: number[] } }) =>
+      options.body.productIds.filter(id => favourites[id]).map(id => favourite(id, favourites[id]!))
+    const asked = () => api.callsTo(LOOKUP).map(call => (call.options as { body: { productIds: number[] } }).body.productIds)
+
+    beforeEach(() => {
+      session.loggedIn.value = true
+      session.user.value = { id: 7 }
+    })
+
+    it('asks about the products of one tick in one request, each once, and keeps both answers', async () => {
+      store.favouriteProductIds = { 3: 99 }
+      api.routes({ [LOOKUP]: holds({ 1: 100 }) })
+
+      store.lookUpFavourites([1, 2])
+      store.lookUpFavourites([2, 3])
+      await flushPromises()
+
+      expect(asked()).toEqual([[1, 2, 3]])
+      // A product the server has no favourite for is not one, whatever was held.
+      expect(store.favouriteProductIds).toEqual({ 1: 100 })
+    })
+
+    it('splits a page of more products than the server answers at once', async () => {
+      api.routes({ [LOOKUP]: holds({}) })
+      const ids = Array.from({ length: FAVOURITES_LOOKUP_MAX_IDS + 20 }, (_, index) => index + 1)
+
+      store.lookUpFavourites(ids)
+      await flushPromises()
+
+      expect(asked().map(batch => batch.length)).toEqual([FAVOURITES_LOOKUP_MAX_IDS, 20])
+      expect(asked().flat()).toEqual(ids)
+    })
+
+    it('asks nothing for a guest', async () => {
+      session.loggedIn.value = false
+
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      expect(asked()).toEqual([])
+    })
+
+    it('asks once a session: a product asked about, held from a list or switched by a click is known', async () => {
+      api.routes({ [LOOKUP]: holds({}) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+      store.updateFavouriteProducts([favourite(2, 200)])
+      store.addFavouriteProduct({ id: 300, product: 3 } as CreateProductFavouriteResponse)
+
+      store.lookUpFavourites([1, 2, 3])
+      await flushPromises()
+
+      expect(asked()).toEqual([[1]])
+      expect(store.favouriteProductIds).toEqual({ 2: 200, 3: 300 })
+    })
+
+    // A shared device: shopper 7 signs out while their lookup is out, and
+    // the answer must not land in the next session, the store's or the
+    // next shopper's, whose hearts ask for themselves.
+    it('drops an answer to a session that has since ended', async () => {
+      let answer!: () => void
+      api.routes({ [LOOKUP]: () => new Promise((resolve) => {
+        answer = () => resolve([favourite(1, 100)])
+      }) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      store.clearAccountState()
+      session.user.value = { id: 8 }
+      answer()
+      await flushPromises()
+
+      expect(store.favouriteProductIds).toEqual({})
+      api.routes({ [LOOKUP]: holds({}) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+      expect(asked()).toEqual([[1], [1]])
+    })
+
+    it('leaves the lookups of the next session alone when one from an earlier session fails', async () => {
+      let fail!: () => void
+      api.routes({ [LOOKUP]: () => new Promise((_resolve, reject) => {
+        fail = () => reject(new TypeError('fetch failed'))
+      }) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      store.clearAccountState()
+      api.routes({ [LOOKUP]: holds({}) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+      fail()
+      await flushPromises()
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      // The new session asked once and knows the answer: the old failure did not make it ask again.
+      expect(asked()).toEqual([[1], [1]])
+    })
+
+    // A removal asks for a favourite's id while a mount's batch may still be
+    // out for the same product: the newer question's answer stands, in
+    // either order the two answers arrive.
+    it.each([
+      ['the older answer last', [1, 0]],
+      ['the older answer first', [0, 1]],
+    ] as const)('keeps the answer to the newest question about a product: %s', async (_case, order) => {
+      const answers: Array<() => void> = []
+      api.routes({ [LOOKUP]: (_url: string, options: { body: { productIds: number[] } }) => new Promise((resolve) => {
+        const held = answers.length === 0 ? [] : [favourite(1, 100)]
+        answers.push(() => resolve(held.filter(row => options.body.productIds.includes(row.productId))))
+      }) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+      const resolved = store.resolveFavouriteId(1)
+      await flushPromises()
+
+      for (const index of order) {
+        answers[index]!()
+        await flushPromises()
+      }
+
+      await expect(resolved).resolves.toBe(100)
+      expect(store.favouriteProductIds).toEqual({ 1: 100 })
+    })
+
+    // `already_favourited`: the server holds a favourite we have no id for.
+    it('presses a product it is told is a favourite, and finds its id when asked', async () => {
+      store.markFavouriteProduct(1)
+      expect(store.getFavouriteIdByProductId(1)).toBe(FAVOURITE_ID_UNKNOWN)
+
+      api.routes({ [LOOKUP]: holds({ 1: 100 }) })
+      await expect(store.resolveFavouriteId(1)).resolves.toBe(100)
+
+      expect(store.favouriteProductIds).toEqual({ 1: 100 })
+    })
+
+    it('lets a click made while the question was out win over its answer', async () => {
+      let answer!: () => void
+      api.routes({ [LOOKUP]: () => new Promise((resolve) => {
+        answer = () => resolve([favourite(1, 100)])
+      }) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      store.removeFavouriteProduct(1)
+      answer()
+      await flushPromises()
+
+      expect(store.favouriteProductIds).toEqual({})
+    })
+
+    it('forgets a lookup that failed, so the next heart asks again', async () => {
+      api.routes({ [LOOKUP]: failWith(502) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      api.routes({ [LOOKUP]: holds({ 1: 100 }) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      expect(asked()).toEqual([[1], [1]])
+      expect(store.favouriteProductIds).toEqual({ 1: 100 })
+    })
+
+    it('asks again after the shopper signs out and back in', async () => {
+      api.routes({ [LOOKUP]: holds({}) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      store.clearAccountState()
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      expect(asked()).toEqual([[1], [1]])
+    })
+
+    // The limit is the server's: the generated body schema is Django's
+    // serializer, `max_length=100`.
+    it('splits at the limit of the request body the server accepts', () => {
+      const ids = (count: number) => ({ productIds: Array.from({ length: count }, (_, index) => index + 1) })
+
+      expect(zGetProductFavouritesByProductsBody.safeParse(ids(FAVOURITES_LOOKUP_MAX_IDS)).success).toBe(true)
+      expect(zGetProductFavouritesByProductsBody.safeParse(ids(FAVOURITES_LOOKUP_MAX_IDS + 1)).success).toBe(false)
     })
   })
 

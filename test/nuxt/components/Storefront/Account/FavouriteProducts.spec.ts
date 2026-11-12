@@ -58,7 +58,7 @@ const CardStub = defineComponent({
   props: { product: { type: Object, required: true } },
   emits: ['favourite-delete'],
   setup(props, { emit }) {
-    return () => h('button', { 'data-card': '', 'onClick': () => emit('favourite-delete', 1) }, String((props.product as { id: number }).id))
+    return () => h('button', { 'data-card': '', 'onClick': () => emit('favourite-delete') }, String((props.product as { id: number }).id))
   },
 })
 

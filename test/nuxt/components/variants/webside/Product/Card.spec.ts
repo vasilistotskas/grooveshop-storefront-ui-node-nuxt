@@ -194,7 +194,9 @@ describe('webside Product/Card in a narrow container', () => {
     const wrapper = await mountCard()
     expect(wrapper.get('button[aria-label="Κοινοποίηση"]').classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-1.5']))
     const favourite = await vi.waitFor(() => {
-      const found = wrapper.findAll('button').find(button => button.attributes('aria-label') === 'Προσθήκη στα αγαπημένα')
+      // The heart is the card's one toggle button: its name is the product's
+      // (Button/Product/AddToFavourite), its state `aria-pressed`.
+      const found = wrapper.findAll('button').find(button => button.attributes('aria-pressed') !== undefined)
       expect(found).toBeDefined()
       return found!
     })

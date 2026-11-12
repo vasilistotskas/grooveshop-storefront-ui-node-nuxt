@@ -452,6 +452,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             <ButtonProductAddToFavourite
               :favourite-id="favouriteId"
               :product-id="product.id"
+              :product-name="productName ?? ''"
               :user-id="user?.id"
               size="lg"
               variant="outline"

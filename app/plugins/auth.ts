@@ -14,7 +14,7 @@ export default defineNuxtPlugin({
       return
     }
 
-    const { fetch, clear } = useUserSession()
+    const { fetch, clear, user } = useUserSession()
     const authStore = useAuthStore()
     const userStore = useUserStore()
     const userNotificationStore = useUserNotificationStore()
@@ -30,6 +30,18 @@ export default defineNuxtPlugin({
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
       authState.value,
     )
+
+    // The account state (favourites, likes, the account) belongs to the user
+    // it was built for. A sign-out resets it (`handleLoggedOut`), here or,
+    // through the logout broadcast (`websocket.client.ts`), in another tab.
+    // A tab that missed that broadcast (no BroadcastChannel, or asleep) can
+    // still take another user's session from an allauth answer: `fetch()`
+    // below swaps the user with no sign-out event, so the swap itself resets
+    // the state. Not on a sign-in from a guest or on a sign-out: those have
+    // their own handlers.
+    watch(() => user.value?.id, (id, previous) => {
+      if (id !== undefined && previous !== undefined && id !== previous) clearAccountState()
+    })
 
     nuxtApp.hook('auth:change', async ({ detail: newAuthState, explicit }) => {
       authState.value = newAuthState

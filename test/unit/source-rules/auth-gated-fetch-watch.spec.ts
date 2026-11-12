@@ -99,10 +99,11 @@ describe('auth-required fetches', () => {
   })
 
   it('still covers the gated, reactive calls it is meant to watch', () => {
-    // A rule matching nothing passes forever. These are the blog list
-    // (useLikedBlogPosts), the product list (useProductListing) and the
-    // product page (useProductDetail): each tree reads them through its
-    // one composable.
-    expect(calls.filter(call => call.gated && call.reactive).length).toBeGreaterThanOrEqual(3)
+    // A rule matching nothing passes forever. This is the blog list's
+    // (useLikedBlogPosts), which each tree reads through that one
+    // composable. The favourites lookup is no fetcher of this kind: the
+    // hearts ask the user store, which batches them into one `$api` call
+    // when they mount (`lookUpFavourites`), so nothing watches its body.
+    expect(calls.filter(call => call.gated && call.reactive).length).toBeGreaterThanOrEqual(1)
   })
 })

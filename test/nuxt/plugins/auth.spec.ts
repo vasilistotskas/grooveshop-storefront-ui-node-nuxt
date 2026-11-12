@@ -16,6 +16,8 @@ import authPlugin from '~/plugins/auth'
  * wiring. Each test installs a FRESH copy of the plugin on a stand-in
  * app, so the previous auth state it remembers starts empty.
  */
+// The session's user, one ref every caller shares, so a test can swap it.
+const { sessionUser } = await vi.hoisted(async () => ({ sessionUser: (await import('vue')).ref<{ id: number } | null>(null) }))
 const { navigateToMock, fetchSession, clearSession, toastAdd } = vi.hoisted(() => ({
   navigateToMock: vi.fn(),
   fetchSession: vi.fn(() => Promise.resolve()),
@@ -26,7 +28,7 @@ const { navigateToMock, fetchSession, clearSession, toastAdd } = vi.hoisted(() =
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(false),
-  user: ref(null),
+  user: sessionUser,
   session: ref({}),
   ready: ref(true),
   fetch: fetchSession,
@@ -94,6 +96,7 @@ async function visit(path: string) {
 
 describe('auth plugin', () => {
   beforeEach(async () => {
+    sessionUser.value = null
     useState('auth-state').value = undefined
     useState('auth:userInitiatedLogout').value = false
     await visit('/')
@@ -216,6 +219,36 @@ describe('auth plugin', () => {
       await change(SIGNED_OUT)
 
       expect(navigatedTo().path).toBe('/')
+    })
+  })
+
+  // A tab that missed another tab's sign-out can take the next shopper's
+  // session from an allauth answer, with no sign-out event of its own: the
+  // account state it holds is the previous shopper's, so the swap resets it.
+  describe('when the session turns into another user', () => {
+    it('forgets the previous shopper\'s favourites', async () => {
+      sessionUser.value = { id: 7 }
+      await install()
+      useUserStore().addFavouriteProduct({ id: 100, product: 1 } as CreateProductFavouriteResponse)
+
+      sessionUser.value = { id: 8 }
+      await nextTick()
+
+      expect(useUserStore().favouriteProductIds).toEqual({})
+    })
+
+    it.each([
+      ['a guest signing in', null, { id: 7 }],
+      ['a shopper signing out', { id: 7 }, null],
+    ])('leaves %s to its own handler', async (_case, before, after) => {
+      sessionUser.value = before
+      await install()
+      useUserStore().addFavouriteProduct({ id: 100, product: 1 } as CreateProductFavouriteResponse)
+
+      sessionUser.value = after
+      await nextTick()
+
+      expect(useUserStore().favouriteProductIds).toEqual({ 1: 100 })
     })
   })
 
