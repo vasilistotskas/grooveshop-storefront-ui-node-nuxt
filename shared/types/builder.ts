@@ -313,6 +313,8 @@ export interface LinkTargets {
   /** Current slug of each product, category, blog post and blog category the page names. */
   slugs: Readonly<Record<LinkSlugKind, ReadonlyMap<number, string>>>
   published: PublishedTargets
+  /** The paths the store's switched-off features take away (`blockedFeaturePaths`): a link that lands on one leads to a 404. */
+  blocked: ReadonlySet<string>
 }
 
 // ── The rendered page ──────────────────────────────────────────────

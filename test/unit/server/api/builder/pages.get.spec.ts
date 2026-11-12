@@ -18,8 +18,9 @@ const document = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 })
 
-/** The store the request is for, as `0.tenant.ts` leaves it: the fixture's features, `catalogue` among them. */
-const STORE = validTenantConfig('shop.test')
+/** The store the request is for, as `0.tenant.ts` leaves it: the catalogue, the blog and the offers on. */
+const BASE = validTenantConfig('shop.test')
+const STORE = validTenantConfig('shop.test', { features: { ...BASE.features, blog: true, promotions: true } })
 
 const get = (key = 'about', locale = 'el', tenant: unknown = STORE) => callRoute(handler, {
   route,
@@ -101,6 +102,16 @@ describe('GET /api/builder/pages/[pageKey]', () => {
       if (path.endsWith('/builder/published')) return { release: 3, locale: 'el', theme: null, groups: {}, pages: [{ key: 'about', kind: 'template', updatedAt: '2026-11-01T10:00:00Z' }] }
       if (path.endsWith('/content-page')) return { results: [{ slug: 'faq', translatedLocales: ['el'] }] }
       return page
+    })
+
+    // A link to a page a switched-off feature takes away is a 404: it goes,
+    // and the component's own "no link, no button" rule does the rest.
+    it('takes out a link to the blog, and to a blog post, on a store with the blog off', async () => {
+      store(withLinks({ route: '/blog' }, { ref: { kind: 'blogPost', id: 4 } }, { route: '/contact' }), { blogPost: { 4: 'guide' } })
+
+      const { body } = await get('about', 'el', validTenantConfig('shop.test', { features: { ...STORE.features, blog: false } }))
+
+      expect(itemHrefs(body)).toEqual([undefined, undefined, '/contact'])
     })
 
     it('answers each as the address it has now, in the props its component gets', async () => {

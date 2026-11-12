@@ -1,6 +1,7 @@
 import { LINK_SLUG_KINDS } from '../constants/builder'
 import type { BlockDefinition, BuilderDocument, BuilderLink, BuilderLinkRef, BuilderNode, LinkSlugKind, LinkTargets } from '../types/builder'
 import { blogCategoryPath, blogPostPath, categoryPath, contentPagePath, pagePath, productPath } from '../utils/entityPaths'
+import { isFeaturePathBlocked } from '../utils/gatedRoutes'
 import { mapLinkSettings, REMOVE_LINK } from './linkSettings'
 import { parseVersionedType } from './upgrade'
 
@@ -32,25 +33,29 @@ const withSlug = (slug: string | undefined, path: (slug: string) => string): str
  * address, a fixed route and an external URL themselves. A link to something
  * gone (a record the store no longer has, a page or content page that is not
  * published) is taken out, so the component draws no call to action rather
- * than one that leads nowhere.
+ * than one that leads nowhere. So is a link to a page a switched-off store
+ * feature takes away (`targets.blocked`, the gated routes' one table): `/blog`
+ * with the blog off, a product with the catalogue off, which would be a 404.
  */
 export function resolveLinks(
   document: BuilderDocument,
   targets: LinkTargets,
   registry: ReadonlyMap<string, BlockDefinition>,
 ): BuilderDocument {
+  const served = (path: string | typeof REMOVE_LINK): string | typeof REMOVE_LINK =>
+    path !== REMOVE_LINK && isFeaturePathBlocked(path, targets.blocked) ? REMOVE_LINK : path
   const address = (link: unknown): string | typeof REMOVE_LINK => {
     if (!isBuilderLink(link)) return REMOVE_LINK
     if ('href' in link) return link.href
-    if ('route' in link) return link.route
+    if ('route' in link) return served(link.route)
     const { ref } = link
     switch (ref.kind) {
       case 'page': return targets.published.pages.has(ref.id) ? pagePath(ref.id) : REMOVE_LINK
       case 'contentPage': return targets.published.contentPages.has(ref.id) ? contentPagePath(ref.id) : REMOVE_LINK
-      case 'product': return withSlug(targets.slugs.product.get(ref.id), slug => productPath(ref.id, slug))
-      case 'category': return withSlug(targets.slugs.category.get(ref.id), slug => categoryPath(ref.id, slug))
-      case 'blogPost': return withSlug(targets.slugs.blogPost.get(ref.id), slug => blogPostPath(ref.id, slug))
-      case 'blogCategory': return withSlug(targets.slugs.blogCategory.get(ref.id), slug => blogCategoryPath(ref.id, slug))
+      case 'product': return served(withSlug(targets.slugs.product.get(ref.id), slug => productPath(ref.id, slug)))
+      case 'category': return served(withSlug(targets.slugs.category.get(ref.id), slug => categoryPath(ref.id, slug)))
+      case 'blogPost': return served(withSlug(targets.slugs.blogPost.get(ref.id), slug => blogPostPath(ref.id, slug)))
+      case 'blogCategory': return served(withSlug(targets.slugs.blogCategory.get(ref.id), slug => blogCategoryPath(ref.id, slug)))
     }
   }
   const sections = { ...document.sections }

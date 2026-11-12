@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { collectLinkRefs, resolveLinks } from '~~/shared/builder/links'
 import { fixtureBlocks } from '~~/test/fixtures/builder/blocks'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { blockedFeaturePaths } from '~~/shared/utils/gatedRoutes'
 import type { BlockDefinition, BuilderDocument, LinkTargets } from '~~/shared/types/builder'
 
 const registry = new Map<string, BlockDefinition>(fixtureBlocks.map(block => [block.type, block]))
@@ -25,6 +27,13 @@ const targets: LinkTargets = {
     blogCategory: new Map([[5, 'news']]),
   },
   published: { pages: new Set(['about']), contentPages: new Set(['privacy', 'faq']) },
+  blocked: new Set(),
+}
+
+/** The targets of a store with `features` switched off, its blocked paths from the gated routes' table. */
+const withOff = (...off: Array<'blog' | 'catalogue' | 'promotions'>): LinkTargets => {
+  const store = validTenantConfig('shop.test')
+  return { ...targets, blocked: blockedFeaturePaths({ features: { ...store.features, blog: true, promotions: true, ...Object.fromEntries(off.map(feature => [feature, false])) } }) }
 }
 
 describe('collectLinkRefs', () => {
@@ -74,6 +83,27 @@ describe('resolveLinks', () => {
     ['a content page that is not published', { ref: { kind: 'contentPage', id: 'secret' } }],
   ])('takes out a link to %s, so no call to action leads nowhere', (_, link) => {
     expect(hrefsOf(resolveLinks(pageWith(link, { route: '/offers' }), targets, registry))).toEqual([undefined, '/offers'])
+  })
+
+  // A link to a page a switched-off store feature takes away is a 404 the
+  // store would advertise: it goes, as a link to a record that is gone does.
+  it.each([
+    ['blog', { route: '/blog' }],
+    ['blog', { ref: { kind: 'blogPost', id: 4 } }],
+    ['blog', { ref: { kind: 'blogCategory', id: 5 } }],
+    ['catalogue', { route: '/products' }],
+    ['catalogue', { ref: { kind: 'product', id: 2 } }],
+    ['catalogue', { ref: { kind: 'category', id: 3 } }],
+    ['promotions', { route: '/offers' }],
+  ] as const)('takes out a link behind the %s feature when the store has it off: %j', (off, link) => {
+    expect(hrefsOf(resolveLinks(pageWith(link, { href: 'https://example.com/a' }), withOff(off), registry))).toEqual([undefined, 'https://example.com/a'])
+  })
+
+  it('keeps every link of a store that has the features on, and the links another feature does not gate', () => {
+    const links = [{ route: '/blog' }, { ref: { kind: 'product', id: 2 } }, { route: '/contact' }, { ref: { kind: 'page', id: 'about' } }]
+
+    expect(hrefsOf(resolveLinks(pageWith(...links), withOff(), registry))).toEqual(['/blog', '/products/2/mini-powerbank', '/contact', '/about'])
+    expect(hrefsOf(resolveLinks(pageWith(...links), withOff('blog'), registry))).toEqual([undefined, '/products/2/mini-powerbank', '/contact', '/about'])
   })
 
   it('does not change the document it is given', () => {
