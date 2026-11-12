@@ -178,6 +178,7 @@ async function remove() {
           color="neutral"
           variant="ghost"
           size="sm"
+          :square="compact"
           class="max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center"
           @click="remove"
         >
