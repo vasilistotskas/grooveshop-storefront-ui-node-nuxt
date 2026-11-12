@@ -34,6 +34,7 @@ mockNuxtImport('useUserSession', () => () => ({
 
 const FAVOURITE: ProductFavouriteWrite = { id: 11, product: 5 }
 const LOOKUP = '/api/products/favourites/favourites-by-products'
+const HELD = [{ id: 11, userId: 7, productId: 5, createdAt: '2026-11-12T10:00:00Z' }]
 
 describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavourite))('$tree Button/Product/AddToFavourite', ({ tree, C }) => {
   const COPY = inlineCopy(tree === 'default' ? 'app/components/Button/Product/AddToFavourite.vue' : 'app/components/variants/webside/Button/Product/AddToFavourite.vue')
@@ -130,6 +131,39 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
 
     expect(button.attributes('aria-pressed')).toBe(pressed)
     expect(button.attributes('aria-label')).toBe(COPY[label])
+  })
+
+  // The heart showed the guest's state, or another tab changed it: the
+  // server already has what the shopper asked for, so the store follows it
+  // and the shopper hears of the change they wanted, not of an error.
+  it('takes the favourite the server already holds when an add answers already_favourited', async () => {
+    api.routes({
+      [LOOKUP]: [],
+      '/api/products/favourites': failWith(400, { detail: 'Υπάρχει ήδη', code: 'already_favourited' }),
+    })
+    const wrapper = await mount()
+    await flushPromises()
+    api.routes({ [LOOKUP]: HELD, '/api/products/favourites': failWith(400, { detail: 'Υπάρχει ήδη', code: 'already_favourited' }) })
+
+    await click(wrapper)
+
+    expect(useUserStore().favouriteProductIds).toEqual({ 5: 11 })
+    expect(api.callsTo(LOOKUP)).toHaveLength(2)
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+  })
+
+  it('drops a favourite that is already gone when a removal answers 404', async () => {
+    useUserStore().favouriteProductIds = { 5: 11 }
+    api.routes({ [LOOKUP]: HELD, '/api/products/favourites/11': failWith(404, { detail: 'Δεν βρέθηκε', code: 'not_found' }) })
+    const wrapper = await mount(11)
+
+    await click(wrapper)
+
+    expect(useUserStore().favouriteProductIds).toEqual({})
+    expect(wrapper.emitted('favourite-delete')).toEqual([[11]])
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error_occurred') }))
   })
 
   it('asks a guest to sign in instead of calling Django', async () => {

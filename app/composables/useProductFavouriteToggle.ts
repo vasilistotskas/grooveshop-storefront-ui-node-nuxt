@@ -18,6 +18,13 @@
  * server's answer, and `onDeleted` tells the drawing which favourite
  * went (the favourites lists drop its card). A failure is one toast with
  * Django's reason, behind the headline `t('error_occurred')`.
+ *
+ * Except when the server says the shopper already has what they asked for:
+ * `already_favourited` on an add (the heart showed the guest's state, or
+ * another tab saved it) and a 404 on a removal (the favourite is gone).
+ * The store then follows the server instead: the add asks the favourite's
+ * id again (`lookUpFavourites` with `refresh`), the removal drops it, and
+ * the shopper gets the toast of the change they wanted, not an error.
  */
 export function useProductFavouriteToggle(options: {
   productId: () => number
@@ -41,6 +48,11 @@ export function useProductFavouriteToggle(options: {
     })
   })
 
+  /** The heart is now what the shopper asked for: switched on, or off. */
+  function announce(change: 'added' | 'removed') {
+    toast.add({ title: t(change), color: change === 'added' ? 'success' : 'error' })
+  }
+
   async function toggle() {
     if (!loggedIn.value || !options.userId()) {
       toast.add({
@@ -55,9 +67,9 @@ export function useProductFavouriteToggle(options: {
     }
 
     isLoading.value = true
+    const productId = options.productId()
+    const favouriteId = options.favouriteId()
     try {
-      const productId = options.productId()
-      const favouriteId = options.favouriteId()
       if (!favouriteId) {
         const favourite = await $api('/api/products/favourites', {
           method: 'POST',
@@ -66,24 +78,30 @@ export function useProductFavouriteToggle(options: {
           },
         })
         addFavouriteProduct(favourite)
-        toast.add({
-          title: t('added'),
-          color: 'success',
-        })
+        announce('added')
       }
       else {
         await $api(`/api/products/favourites/${favouriteId}`, { method: 'DELETE' })
         options.onDeleted(favouriteId)
         removeFavouriteProduct(productId)
-        toast.add({
-          title: t('removed'),
-          color: 'error',
-        })
+        announce('removed')
       }
     }
     catch (error) {
-      // One toast for every failure: an HTTP refusal carries Django's
-      // `detail`, a network failure does not.
+      const { code, status } = describeApiError(error)
+      if (!favouriteId && code === 'already_favourited') {
+        lookUpFavourites([productId], { refresh: true })
+        announce('added')
+        return
+      }
+      if (favouriteId && status === 404) {
+        options.onDeleted(favouriteId)
+        removeFavouriteProduct(productId)
+        announce('removed')
+        return
+      }
+      // One toast for every other failure: an HTTP refusal carries
+      // Django's `detail`, a network failure does not.
       log.error({ action: 'favourite:toggle', error })
       notify('Product-AddToFavourite', error, { title: t('error_occurred') })
     }
