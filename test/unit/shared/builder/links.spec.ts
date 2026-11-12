@@ -26,7 +26,7 @@ const targets: LinkTargets = {
     blogPost: new Map([[4, 'guide']]),
     blogCategory: new Map([[5, 'news']]),
   },
-  published: { pages: new Set(['about']), contentPages: new Set(['privacy', 'faq']) },
+  published: { pages: new Set(['about', 'blog', 'products']), contentPages: new Set(['privacy', 'faq']) },
   blocked: new Set(),
 }
 
@@ -91,6 +91,9 @@ describe('resolveLinks', () => {
     ['blog', { route: '/blog' }],
     ['blog', { ref: { kind: 'blogPost', id: 4 } }],
     ['blog', { ref: { kind: 'blogCategory', id: 5 } }],
+    // The store's own blog page, built in the editor: published, yet `/blog`.
+    ['blog', { ref: { kind: 'page', id: 'blog' } }],
+    ['catalogue', { ref: { kind: 'page', id: 'products' } }],
     ['catalogue', { route: '/products' }],
     ['catalogue', { ref: { kind: 'product', id: 2 } }],
     ['catalogue', { ref: { kind: 'category', id: 3 } }],

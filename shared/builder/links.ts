@@ -42,21 +42,26 @@ export function resolveLinks(
   targets: LinkTargets,
   registry: ReadonlyMap<string, BlockDefinition>,
 ): BuilderDocument {
-  const served = (path: string | typeof REMOVE_LINK): string | typeof REMOVE_LINK =>
-    path !== REMOVE_LINK && isFeaturePathBlocked(path, targets.blocked) ? REMOVE_LINK : path
-  const address = (link: unknown): string | typeof REMOVE_LINK => {
-    if (!isBuilderLink(link)) return REMOVE_LINK
-    if ('href' in link) return link.href
-    if ('route' in link) return served(link.route)
+  // The store path a link stands for, before the gate: every one of them
+  // goes through it (a published page can be `/blog` itself).
+  const storePath = (link: Exclude<BuilderLink, { href: string }>): string | typeof REMOVE_LINK => {
+    if ('route' in link) return link.route
     const { ref } = link
     switch (ref.kind) {
       case 'page': return targets.published.pages.has(ref.id) ? pagePath(ref.id) : REMOVE_LINK
       case 'contentPage': return targets.published.contentPages.has(ref.id) ? contentPagePath(ref.id) : REMOVE_LINK
-      case 'product': return served(withSlug(targets.slugs.product.get(ref.id), slug => productPath(ref.id, slug)))
-      case 'category': return served(withSlug(targets.slugs.category.get(ref.id), slug => categoryPath(ref.id, slug)))
-      case 'blogPost': return served(withSlug(targets.slugs.blogPost.get(ref.id), slug => blogPostPath(ref.id, slug)))
-      case 'blogCategory': return served(withSlug(targets.slugs.blogCategory.get(ref.id), slug => blogCategoryPath(ref.id, slug)))
+      case 'product': return withSlug(targets.slugs.product.get(ref.id), slug => productPath(ref.id, slug))
+      case 'category': return withSlug(targets.slugs.category.get(ref.id), slug => categoryPath(ref.id, slug))
+      case 'blogPost': return withSlug(targets.slugs.blogPost.get(ref.id), slug => blogPostPath(ref.id, slug))
+      case 'blogCategory': return withSlug(targets.slugs.blogCategory.get(ref.id), slug => blogCategoryPath(ref.id, slug))
     }
+  }
+  const address = (link: unknown): string | typeof REMOVE_LINK => {
+    if (!isBuilderLink(link)) return REMOVE_LINK
+    // Someone else's page: no feature of this store gates it.
+    if ('href' in link) return link.href
+    const path = storePath(link)
+    return path !== REMOVE_LINK && isFeaturePathBlocked(path, targets.blocked) ? REMOVE_LINK : path
   }
   const sections = { ...document.sections }
   for (const [id, node] of Object.entries(document.sections)) {
