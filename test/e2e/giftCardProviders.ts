@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { describe, expect, it } from 'vitest'
 import { makePayWay } from '../fixtures/payWay'
 import { validTenantConfig } from '../fixtures/tenantConfig'
-import { BROWSER_ACCEPT, requestWithHost, sendJson } from '../helpers/e2e'
+import { BROWSER_ACCEPT, requestWithHost, sendJson, markupWithoutScriptsAndStyles } from '../helpers/e2e'
 
 /**
  * Does the gift card page choose its payment method in the server HTML?
@@ -55,7 +55,7 @@ export function describeGiftCardProviders(): void {
   describe.each(DESIGNS)('the gift card page in %s', (_name, host) => {
     it('has the first payment method chosen in the HTML the server sends', async () => {
       const page = await requestWithHost('/gift-cards', host, BROWSER_ACCEPT)
-      const html = page.body.replace(/<script[\s\S]*?<\/script>/g, '')
+      const html = markupWithoutScriptsAndStyles(page.body)
 
       expect(page.statusCode, html.slice(0, 1500)).toBe(200)
       const methods = html.match(/<button[^>]*role="radio"[^>]*value="(?:viva_wallet|stripe)"[^>]*>/g) ?? []

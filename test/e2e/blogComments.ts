@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { describe, expect, it } from 'vitest'
 import { makeBlogAuthor, makeBlogCategory, makeBlogComment, makeBlogPost } from '../fixtures/blog'
 import { validTenantConfig } from '../fixtures/tenantConfig'
-import { BROWSER_ACCEPT, requestWithHost, sendJson } from '../helpers/e2e'
+import { BROWSER_ACCEPT, requestWithHost, sendJson, markupWithoutScriptsAndStyles } from '../helpers/e2e'
 
 /**
  * Is an article's comment list in the server HTML?
@@ -104,9 +104,9 @@ export function describeBlogComments(): void {
     it('are in the HTML the server sends, under a heading that counts them', async () => {
       const page = await requestWithHost(`/blog/post/${POST_ID}/${POST_SLUG}`, host, BROWSER_ACCEPT)
 
-      expect(page.statusCode, page.body.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').slice(0, 1500)).toBe(200)
+      expect(page.statusCode, markupWithoutScriptsAndStyles(page.body).slice(0, 1500)).toBe(200)
       // The page payload (a script) holds the data whatever is drawn: only the markup counts.
-      const html = page.body.replace(/<script[\s\S]*?<\/script>/g, '')
+      const html = markupWithoutScriptsAndStyles(page.body)
       for (const comment of COMMENTS) expect(html).toContain(`Σχόλιο του επισκέπτη ${comment.id}`)
       expect(html).toContain('3 σχόλια')
       expect(html).not.toContain('Συνδέσου για να γράψεις ένα σχόλιο')
@@ -116,7 +116,7 @@ export function describeBlogComments(): void {
   describe.each(DESIGNS)('a post with no comments in %s', (_name, host) => {
     it('is sent with the guest empty state and no form: what a signed-in reader hydrates over', async () => {
       const page = await requestWithHost(`/blog/post/${EMPTY_POST_ID}/${EMPTY_POST_SLUG}`, host, BROWSER_ACCEPT)
-      const html = page.body.replace(/<script[\s\S]*?<\/script>/g, '')
+      const html = markupWithoutScriptsAndStyles(page.body)
 
       expect(page.statusCode).toBe(200)
       expect(html).toContain('Συνδέσου για να γράψεις ένα σχόλιο')
