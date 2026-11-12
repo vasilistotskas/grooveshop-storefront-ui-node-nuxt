@@ -323,7 +323,10 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 color="neutral"
                 variant="link"
                 size="sm"
-                class="mt-2 p-0"
+                class="
+                  mt-2 p-0
+                  max-sm:min-h-11
+                "
                 aria-haspopup="dialog"
                 @click="openPriceTrend"
               />
@@ -447,6 +450,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   variant="ghost"
                   size="lg"
                   icon="i-heroicons-share"
+                  class="max-sm:min-h-11"
                   @click="startShare"
                 >
                   {{ t('share') }}
@@ -460,6 +464,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 :favourite-id="favouriteId"
                 :product-id="product?.id"
                 :user-id="user?.id"
+                class="max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center"
               />
             </div>
 
@@ -485,6 +490,8 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   :min="1"
                   :max="product?.stock"
                   :disabled="productStock === 0"
+                  :increment="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+                  :decrement="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
                   :ui="{
                     root: 'h-full',
                     base: 'h-full',
@@ -500,7 +507,10 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   :product="product"
                   :quantity="selectorQuantity || 1"
                   :text="t('add_to_cart')"
-                  class="w-full"
+                  class="
+                    w-full
+                    max-sm:min-h-11
+                  "
                 />
               </div>
             </div>
@@ -686,6 +696,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               :quantity="selectorQuantity || 1"
               :text="t('add_to_cart')"
               size="xl"
+              class="max-sm:min-h-11"
             />
           </div>
         </div>

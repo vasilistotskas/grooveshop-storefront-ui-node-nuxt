@@ -155,8 +155,8 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
       }"
       class="overflow-hidden rounded-lg"
       arrows
-      :prev="{ size: 'sm', square: true, color: 'neutral' }"
-      :next="{ size: 'sm', square: true, color: 'neutral' }"
+      :prev="{ size: 'sm', square: true, color: 'neutral', class: 'after:absolute after:-inset-2' }"
+      :next="{ size: 'sm', square: true, color: 'neutral', class: 'after:absolute after:-inset-2' }"
     >
       <UButton
         type="button"

@@ -123,6 +123,8 @@ describe('webside Product/Card in a narrow container', () => {
     })
     const queries = restock.classes().filter(name => name.startsWith('@'))
     expect(queries).toEqual(['@max-3xs/card:px-2', '@max-3xs/card:text-sm'])
+    // A 44px target on a phone, here and on the product page.
+    expect(restock.classes()).toContain('max-sm:min-h-11')
   })
 
   it('drops the share button and the price caption when compact', async () => {
