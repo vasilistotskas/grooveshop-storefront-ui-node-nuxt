@@ -69,6 +69,9 @@ describe.each(trees(List, WebsideList))('$tree product listing: the address reac
     expect(searchQuery()).toMatchObject({ inStock: true, sort: '-createdAt', offset: 0 })
   })
 
+  // The toolbar is stubbed: its own spec (test/nuxt/components/Products/Toolbar.spec.ts)
+  // drives its sort select to `update:sort`, and the listing's spec meets it
+  // at that event (test/nuxt/components/Products/List.spec.ts).
   it('keeps the in-stock filter through a change of sort', async () => {
     const wrapper = await mount()
 
@@ -79,20 +82,10 @@ describe.each(trees(List, WebsideList))('$tree product listing: the address reac
     expect(searchQuery()).toMatchObject({ inStock: true, sort: 'effectivePrice' })
   })
 
-  it('keeps the in-stock filter and the sort through a change of page', async () => {
-    const wrapper = await mount()
-
-    wrapper.findComponent({ name: 'UPagination' }).vm.$emit('update:page', 2)
-
-    await vi.waitFor(() => expect(currentQuery().page).toBe('2'))
-    expect(currentQuery()).toMatchObject({ inStock: 'true', sort: '-createdAt' })
-    expect(searchQuery()).toMatchObject({ inStock: true, sort: '-createdAt', offset: 12 })
-  })
-
   // Every page is a real link, the address with its page set, so a
   // crawler can walk the catalogue and a page opens in a new tab; a click
   // still updates the listing in place, through the router.
-  it('links every page to the address with its filters, and a click moves there without leaving the page', async () => {
+  it('links every page to the address with its filters, and a click there keeps them for the next page\'s search', async () => {
     const wrapper = await mount()
 
     const second = wrapper.get('a[href*="page=2"]')
@@ -105,5 +98,6 @@ describe.each(trees(List, WebsideList))('$tree product listing: the address reac
     expect(click.defaultPrevented).toBe(true)
     await vi.waitFor(() => expect(currentQuery().page).toBe('2'))
     expect(currentQuery()).toMatchObject({ inStock: 'true', sort: '-createdAt' })
+    expect(searchQuery()).toMatchObject({ inStock: true, sort: '-createdAt', offset: 12 })
   })
 })

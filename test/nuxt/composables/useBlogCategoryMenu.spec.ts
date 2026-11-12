@@ -59,11 +59,14 @@ describe('useBlogCategoryMenu', () => {
     ])
   })
 
+  // The cap is the menu's, not the request's: it asks for every topic, in
+  // the page's language, and keeps the first eight.
   it('lists at most eight topics: "all articles" carries the rest', async () => {
     api.routes({ [CATEGORIES_URL]: page(Array.from({ length: 10 }, (_, i) => makeBlogCategory({ id: i + 1 }))) })
 
     const { blogCategories } = await menu()
 
+    expect(api.callsTo(CATEGORIES_URL).map(call => call.options.query)).toEqual([{ pageSize: BLOG_CATEGORIES_LIMIT, languageCode: 'el' }])
     expect(blogCategories.value.map(topic => topic.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
   })
 

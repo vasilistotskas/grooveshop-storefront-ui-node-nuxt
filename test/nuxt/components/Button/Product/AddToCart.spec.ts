@@ -10,6 +10,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { failWith } from '~~/test/helpers/api'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
@@ -40,7 +41,11 @@ mockNuxtImport('useToast', () => () => toast)
 mockNuxtImport('useMediaQuery', () => () => ref(viewport.desktop))
 mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://media.test/${path}`)
 
-const UNAVAILABLE = 'Μη διαθέσιμο'
+/** Each design's own word for a product that cannot be bought, from its `<i18n>` block. */
+const UNAVAILABLE_IN = {
+  default: inlineCopy('app/components/Button/Product/AddToCart.vue').unavailable,
+  webside: inlineCopy('app/components/variants/webside/Button/Product/AddToCart.vue').unavailable,
+}
 const BUY = 'Στο καλάθι'
 
 /** Put `lines` in the cart, and make a write answer with it, as Django answers with the cart. */
@@ -51,6 +56,7 @@ function cartHolds(lines: CartItemOverrides[] = []) {
 }
 
 describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tree Button/Product/AddToCart', ({ tree, C }) => {
+  const UNAVAILABLE = UNAVAILABLE_IN[tree]
   beforeEach(async () => {
     setTenant()
     await useCartStore().cleanCartState()

@@ -11,6 +11,7 @@ import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { inlineCopy, inlineT } from '~~/test/helpers/inlineCopy'
 
 // The wholesale price is hydrated on the client for a signed-in business
 // customer (useB2BPricing's own spec covers how); here it is what the
@@ -734,8 +735,9 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail w
 // Low stock is the product's own threshold on every store (lowStockLeft);
 // each drawing words it in its own copy.
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail stock', ({ tree, C }) => {
-  const lowStockOf = (count: number) => (tree === 'default' ? `Έμειναν μόνο ${count}` : `Χαμηλό απόθεμα (${count})`)
-  const SOLD_OUT = tree === 'default' ? 'Εξαντλήθηκε' : 'Μη διαθέσιμο'
+  const pageT = inlineT(tree === 'default' ? 'app/components/Storefront/ProductDetail.vue' : 'app/components/variants/webside/Storefront/ProductDetail.vue')
+  const lowStockOf = (count: number) => pageT('low_stock', { count }, count)
+  const SOLD_OUT = pageT('out_of_stock')
 
   function serve(product: ReturnType<typeof makeProduct>) {
     clearNuxtData()
@@ -806,7 +808,8 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
     expect(wrapper.find('#quantity').exists()).toBe(drawn)
     // Nuxt UI's stepper in the buy box, and webside's sticky bar's own.
     const { increment, decrement } = uiLocale.messages.inputNumber
-    const sticky = ['Μείωση ποσότητας', 'Αύξηση ποσότητας']
+    const websideCopy = inlineCopy('app/components/variants/webside/Storefront/ProductDetail.vue')
+    const sticky = [websideCopy.decrease_quantity, websideCopy.increase_quantity]
     const steppers = wrapper.findAll('button').map(button => button.attributes('aria-label')).filter(label => [increment, decrement, ...sticky].includes(label ?? ''))
     expect(steppers).toEqual(drawn
       ? (tree === 'default' ? [increment, decrement] : [increment, decrement, ...sticky])
@@ -881,7 +884,8 @@ describe('webside ProductDetail sticky bar', () => {
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail buying controls', ({ tree, C }) => {
   const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
   const empty = { count: 0, next: null, previous: null, results: [] }
-  const buyLabel = 'Στο καλάθι'
+  // The page names its buy button in its own words (`<i18n>` block).
+  const buyLabel = inlineCopy(tree === 'default' ? 'app/components/Storefront/ProductDetail.vue' : 'app/components/variants/webside/Storefront/ProductDetail.vue').add_to_cart
 
   async function mountPage(features: { cart: boolean }) {
     clearNuxtData()

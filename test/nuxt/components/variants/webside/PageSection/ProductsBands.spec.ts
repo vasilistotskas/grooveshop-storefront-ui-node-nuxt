@@ -5,6 +5,7 @@ import Renderer from '~/components/PageSection/Renderer.vue'
 import { makeBuilderSection } from '~~/test/fixtures/builderPage'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
 // The card names the alert lazily, which only the module's own mock can replace.
 vi.mock('~/components/variants/webside/Product/NotifyMe.vue', async () => {
@@ -85,11 +86,13 @@ describe.each([
   })
 
   it('takes the buy button off the cards when the block turns it off', async () => {
+    // The card's own label for its buy button (its `<i18n>` block).
+    const BUY = inlineCopy('app/components/variants/webside/Product/Card.vue').add_to_cart
     const withButton = await drawn()
-    await vi.waitFor(() => expect(withButton.text()).toContain('Στο καλάθι'), { timeout: 4000 })
+    await vi.waitFor(() => expect(withButton.text()).toContain(BUY), { timeout: 4000 })
     const withoutButton = await drawn({ showAddToCart: false })
 
-    expect(withoutButton.text()).not.toContain('Στο καλάθι')
+    expect(withoutButton.text()).not.toContain(BUY)
   })
 
   it('disappears with nothing to list', async () => {
