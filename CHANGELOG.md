@@ -1,3 +1,10 @@
+## [3.339.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.1...v3.339.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* **favourites:** every heart shows the shopper's favourite, in both designs ([#459](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/459)) ([0fc5512](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0fc5512d5bf2e630deeb100764f82504e79f1284)), closes [#457](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/457) [#457](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/457)
+
 ## [3.339.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.0...v3.339.1) (2026-11-12)
 
 
