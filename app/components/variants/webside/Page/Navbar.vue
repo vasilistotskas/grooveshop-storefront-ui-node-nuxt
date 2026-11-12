@@ -202,7 +202,7 @@ const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdo
  * (-16px each side, -8px above and below), touching neither name and
  * moving nothing in the row.
  */
-const barItems = computed(() => withDropdownToggles(withCurrentPage(navItems.value), {
+const barItems = computed(() => withDropdownToggles(withCurrentPage(navItems.value, route.path), {
   label: section => t('open_section', { section }),
   class: `
     -ms-3 min-h-6 min-w-6 justify-center px-1

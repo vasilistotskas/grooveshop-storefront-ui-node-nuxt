@@ -1,4 +1,5 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { parsePath, withoutTrailingSlash } from 'ufo'
 
 /**
  * The header entries that open a dropdown of live categories, by the
@@ -25,14 +26,33 @@ export function menuDropdownFor(path: string | undefined): MenuDropdown | undefi
 }
 
 /**
- * The menu's items with the current section marked for assistive
- * technology. Reka marks a plain link `aria-current="page"` itself, but
- * an entry that opens a dropdown renders as its trigger, which never
- * does, so on a product or an article no entry said where the visitor
- * was. Nuxt UI hands an item's `aria-*` keys to the element it draws.
+ * What `aria-current` a navigation entry carries, the one rule for every
+ * menu that marks a section active on the pages under it (the headers,
+ * the tab bars, the account's sidebar, in every design): `page` when the
+ * entry leads to the page on screen (its query aside), `location` when the
+ * page is inside the entry's section (a product under Shop, an order under
+ * Orders), nothing when it is neither. `page` on Shop while a product is
+ * on screen told a screen reader that Shop was the page it was reading.
+ *
+ * `to` and `currentPath` are paths of the same kind: both with their
+ * language prefix, or both without.
  */
-export function withCurrentPage<T extends { active?: boolean }>(items: T[]): (T & { 'aria-current'?: 'page' })[] {
-  return items.map(item => ({ ...item, 'aria-current': item.active ? 'page' as const : undefined }))
+export function currentMark(active: boolean | undefined, to: unknown, currentPath: string): 'page' | 'location' | undefined {
+  if (!active) return undefined
+  const target = typeof to === 'string' ? withoutTrailingSlash(parsePath(to).pathname) : undefined
+  return target === withoutTrailingSlash(currentPath) ? 'page' : 'location'
+}
+
+/**
+ * The menu's items with the current section marked for assistive
+ * technology (`currentMark`). Reka marks a plain link
+ * `aria-current="page"` itself, and an entry that opens a dropdown renders
+ * as its trigger, which it never marks, so on a product or an article no
+ * entry said where the visitor was. Nuxt UI hands an item's `aria-*` keys
+ * to the element it draws, over Reka's own.
+ */
+export function withCurrentPage<T extends { active?: boolean, to?: unknown }>(items: T[], currentPath: string): (T & { 'aria-current'?: 'page' | 'location' })[] {
+  return items.map(item => ({ ...item, 'aria-current': currentMark(item.active, item.to, currentPath) }))
 }
 
 /**

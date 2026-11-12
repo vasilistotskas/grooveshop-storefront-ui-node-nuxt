@@ -107,6 +107,18 @@ describe('useBottomNavItems', () => {
     expect(active(items())).toEqual([t(tab)])
   })
 
+  // `page` on the page the tab leads to, `location` on a page under it.
+  it.each([
+    { at: { name: 'products___el', path: '/products', fullPath: '/products?sort=-createdAt' }, mark: 'page' },
+    { at: { name: 'products-id-slug___el', path: '/products/7/cable', fullPath: '/products/7/cable' }, mark: 'location' },
+  ])('marks Shop as the $mark on $at.path', ({ at, mark }) => {
+    Object.assign(route, at)
+
+    const marked = items({ tabs: ['home', 'shop', 'cart'] }).filter(item => item['aria-current']).map(item => [item.label, item['aria-current']])
+
+    expect(marked).toEqual([[t('shop'), mark]])
+  })
+
   it('lights Saved, not Account, on the favourites page', () => {
     loggedIn.value = true
     Object.assign(route, { name: 'account-favourites-products___el', path: '/account/favourites/products', fullPath: '/account/favourites/products' })

@@ -214,7 +214,7 @@ const openItem = ref<string>()
  * the search and the icon buttons beside it to 22px. A mouse's bar is
  * unchanged.
  */
-const barItems = computed(() => withDropdownToggles(withCurrentPage(items.value), {
+const barItems = computed(() => withDropdownToggles(withCurrentPage(items.value, route.path), {
   label: section => t('open_section', { section }),
   class: `
     -ms-2 min-h-6 min-w-6 justify-center px-1

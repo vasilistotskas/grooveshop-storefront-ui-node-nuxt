@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { menuDropdownFor, withDropdownToggles } from '~/utils/menuDropdown'
+import { currentMark, menuDropdownFor, withDropdownToggles } from '~/utils/menuDropdown'
 
 /**
  * Which header link opens a dropdown of live categories: the listing and
@@ -36,6 +36,20 @@ describe('menuDropdownFor', () => {
  * (`useMenuPanels` reads both marks), and the button has no destination,
  * so Nuxt UI draws it as a `<button>` trigger.
  */
+describe('currentMark', () => {
+  it.each([
+    { case: 'its own page', active: true, to: '/products', at: '/products', mark: 'page' },
+    { case: 'its own page, filtered', active: true, to: '/products?sort=-createdAt', at: '/products/', mark: 'page' },
+    { case: 'its own page in English', active: true, to: '/en/products', at: '/en/products', mark: 'page' },
+    { case: 'its own page, written with a trailing slash by the store', active: true, to: '/products/', at: '/products', mark: 'page' },
+    { case: 'a page inside its section', active: true, to: '/products', at: '/products/7/cable', mark: 'location' },
+    { case: 'a button with no link of its own', active: true, to: undefined, at: '/account/orders', mark: 'location' },
+    { case: 'another section', active: false, to: '/products', at: '/products', mark: undefined },
+  ])('marks an entry on $case as $mark', ({ active, to, at, mark }) => {
+    expect(currentMark(active, to, at)).toBe(mark)
+  })
+})
+
 describe('withDropdownToggles', () => {
   const CATEGORIES = [{ label: 'Φόρτιση', to: '/products/category/1/charging' }]
 

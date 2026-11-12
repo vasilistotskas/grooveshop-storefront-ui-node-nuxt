@@ -48,7 +48,9 @@ interface BottomNavOptions {
  * Each entry's `active` is decided here from the route name, rather
  * than left to the links: `/` is a prefix of every path, so a prefix
  * match would light Home on every page. The links themselves match
- * exactly, for the same reason, so `aria-current` lands on one tab.
+ * exactly, for the same reason, so `aria-current` lands on one tab:
+ * `page` on the page the tab leads to, `location` on the pages under it
+ * (`currentMark`).
  */
 export function useBottomNavItems(options: BottomNavOptions = {}) {
   const { tabs = DEFAULT_TABS, icons = {}, accountAvatar = false, includeCart = true, onAccount } = options
@@ -146,7 +148,7 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
   }
 
   const items = computed<NavigationMenuItem[]>(() =>
-    tabs.map(entry).filter((item): item is NavigationMenuItem => item !== undefined),
+    withCurrentPage(tabs.map(entry).filter((item): item is NavigationMenuItem => item !== undefined), route.path),
   )
 
   return { items }
