@@ -13,6 +13,14 @@
  * `resolvePart` (`app/utils/variantRegistry.ts`), and this component
  * is the same in every design. A sold-out product offers the restock
  * alert (alerts on) instead of the button.
+ *
+ * On a phone the way to buy is a row of its own across the whole card,
+ * under the picture and the text: beside the price, in a text column of
+ * 104 to 136px at 320px, a design's button (138 to 166px wide) was cut
+ * off, and at 390 it crowded the price. The card is then a grid whose
+ * text and price rows sit beside the picture (the text column and the
+ * price row become its items, `max-sm:contents`); from `sm` up it is
+ * the row it always was, the button beside the price.
  */
 const props = withDefaults(defineProps<{
   product: ProductCard
@@ -60,11 +68,13 @@ const buy = computed(() => {
   <article
     class="
       relative flex overflow-hidden rounded-lg border border-default bg-default
+      max-sm:grid max-sm:grid-cols-[8.5rem_minmax(0,1fr)]
     "
   >
     <div
       class="
         w-34 shrink-0 bg-elevated
+        max-sm:row-span-2
         sm:w-42
       "
     >
@@ -88,63 +98,78 @@ const buy = computed(() => {
     <div
       class="
         flex min-w-0 flex-1 flex-col gap-1.5 p-3.5
+        max-sm:contents
         sm:p-5
       "
     >
-      <h2
+      <div
         class="
-          line-clamp-2 text-[0.9375rem]/snug font-bold text-pretty
-          wrap-break-word
-          sm:text-lg/snug
+          flex min-w-0 flex-col gap-1.5
+          max-sm:px-3.5 max-sm:pt-3.5
         "
       >
-        <NuxtLink
-          :to="to"
+        <h2
           class="
-            text-highlighted
-            after:absolute after:inset-0
-            hover:text-accent
-            focus-visible:outline-2 focus-visible:outline-secondary
+            line-clamp-2 text-[0.9375rem]/snug font-bold text-pretty
+            wrap-break-word
+            sm:text-lg/snug
           "
         >
-          {{ name }}
-        </NuxtLink>
-      </h2>
+          <NuxtLink
+            :to="to"
+            class="
+              text-highlighted
+              after:absolute after:inset-0
+              hover:text-accent
+              focus-visible:outline-2 focus-visible:outline-secondary
+            "
+          >
+            {{ name }}
+          </NuxtLink>
+        </h2>
 
-      <ProductRating
-        v-if="productReviewsEnabled"
-        :average="product.reviewAverage"
-        :count="product.reviewCount"
-      />
-
-      <!-- The words in the reading colours, the state in the dot: a
-           status colour as 12px type misses AA on a light ground. -->
-      <p class="flex items-center gap-1.5 text-xs font-semibold text-toned">
-        <span
-          aria-hidden="true"
-          class="size-2 shrink-0 rounded-full"
-          :class="soldOut ? 'bg-accented' : lowStockCount ? 'bg-warning' : `
-            bg-success
-          `"
+        <ProductRating
+          v-if="productReviewsEnabled"
+          :average="product.reviewAverage"
+          :count="product.reviewCount"
         />
-        <template v-if="soldOut">
-          {{ t('sold_out') }}
-        </template>
-        <template v-else-if="lowStockCount">
-          {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
-        </template>
-        <template v-else>
-          {{ t('in_stock') }}
-        </template>
-      </p>
+
+        <!-- The words in the reading colours, the state in the dot: a
+             status colour as 12px type misses AA on a light ground. -->
+        <p class="flex items-center gap-1.5 text-xs font-semibold text-toned">
+          <span
+            aria-hidden="true"
+            class="size-2 shrink-0 rounded-full"
+            :class="soldOut ? 'bg-accented' : lowStockCount ? 'bg-warning' : `
+              bg-success
+            `"
+          />
+          <template v-if="soldOut">
+            {{ t('sold_out') }}
+          </template>
+          <template v-else-if="lowStockCount">
+            {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
+          </template>
+          <template v-else>
+            {{ t('in_stock') }}
+          </template>
+        </p>
+      </div>
 
       <div
         class="
           mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2
           pt-1.5
+          max-sm:contents
         "
       >
-        <div class="flex flex-wrap items-baseline gap-x-2">
+        <div
+          class="
+            flex flex-wrap items-baseline gap-x-2
+            max-sm:col-start-2 max-sm:self-end max-sm:px-3.5 max-sm:pt-1.5
+            max-sm:pb-3.5
+          "
+        >
           <span
             class="
               font-mono text-xl font-bold text-highlighted tabular-nums
@@ -166,18 +191,24 @@ const buy = computed(() => {
           </s>
         </div>
 
-        <!-- Above the stretched link, so it stays clickable. -->
+        <!-- Above the stretched link, so it stays clickable. On a
+             phone, the card's last row, full width. -->
         <div
           v-if="buy && !soldOut"
-          class="relative z-10"
+          class="
+            relative z-10
+            max-sm:col-span-2 max-sm:p-3.5
+          "
         >
-          <!-- A target of at least 44px on a phone, whatever size the
-               design's button is; as the design draws it from `sm` up. -->
+          <!-- A target of at least 44px on a phone, as wide as the card,
+               whatever size the design's button is; as the design draws
+               it from `sm` up. -->
           <component
             :is="buy.component"
             v-bind="buy.props(partInput)"
             class="
               min-h-11
+              max-sm:w-full max-sm:justify-center
               sm:min-h-0
             "
           />
@@ -190,7 +221,10 @@ const buy = computed(() => {
            than squeezing beside it. -->
       <div
         v-if="buy && soldOut"
-        class="relative z-10 w-full pt-1"
+        class="
+          relative z-10 w-full pt-1
+          max-sm:col-span-2 max-sm:p-3.5
+        "
       >
         <component
           :is="buy.component"
