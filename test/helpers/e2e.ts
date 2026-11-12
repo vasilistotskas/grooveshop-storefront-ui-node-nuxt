@@ -1,9 +1,10 @@
 import type { IncomingHttpHeaders, IncomingMessage, Server, ServerResponse } from 'node:http'
 import { execSync } from 'node:child_process'
 import { createServer, request as httpRequest } from 'node:http'
-import { Window } from 'happy-dom'
 import { afterAll, beforeAll } from 'vitest'
 import { setup, url, useTestContext } from '@nuxt/test-utils/e2e'
+
+export { markupWithoutScriptsAndStyles } from './html'
 
 /**
  * The harness every `test/e2e` spec shares: a fake Django on a random
@@ -61,25 +62,6 @@ export function requestWithHost(
     req.on('error', reject)
     req.end(body)
   })
-}
-
-/**
- * A page's markup as a reader sees it: the document with its `<script>` and
- * `<style>` elements removed. The payload and the theme hold the data whatever
- * the page draws, so a check of what the page DRAWS reads this. Parsed by
- * happy-dom (scripts are never run), not stripped with a regular expression,
- * which cannot tell an element from text that looks like one.
- */
-export function markupWithoutScriptsAndStyles(html: string): string {
-  const window = new Window()
-  try {
-    window.document.write(html)
-    for (const element of window.document.querySelectorAll('script, style')) element.remove()
-    return window.document.documentElement.outerHTML
-  }
-  finally {
-    void window.happyDOM.close()
-  }
 }
 
 /** A browser's `Accept` — without it the error handler answers JSON on purpose. */

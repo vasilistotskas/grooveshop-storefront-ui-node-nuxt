@@ -105,7 +105,7 @@ export function describeBlogComments(): void {
       const page = await requestWithHost(`/blog/post/${POST_ID}/${POST_SLUG}`, host, BROWSER_ACCEPT)
 
       expect(page.statusCode, markupWithoutScriptsAndStyles(page.body).slice(0, 1500)).toBe(200)
-      // The page payload (a script) holds the data whatever is drawn: only the markup counts.
+      // Scripts are dropped: the page payload carries the same text, so an unstripped check would pass on a page whose HTML lacks the comments.
       const html = markupWithoutScriptsAndStyles(page.body)
       for (const comment of COMMENTS) expect(html).toContain(`Σχόλιο του επισκέπτη ${comment.id}`)
       expect(html).toContain('3 σχόλια')

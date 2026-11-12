@@ -55,6 +55,7 @@ export function describeGiftCardProviders(): void {
   describe.each(DESIGNS)('the gift card page in %s', (_name, host) => {
     it('has the first payment method chosen in the HTML the server sends', async () => {
       const page = await requestWithHost('/gift-cards', host, BROWSER_ACCEPT)
+      // Scripts are dropped: the page payload carries the same text, so an unstripped check would pass on a page whose HTML lacks it.
       const html = markupWithoutScriptsAndStyles(page.body)
 
       expect(page.statusCode, html.slice(0, 1500)).toBe(200)
