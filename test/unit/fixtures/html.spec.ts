@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { markupWithoutScriptsAndStyles } from '../../helpers/html'
 
 /**
@@ -7,15 +7,13 @@ import { markupWithoutScriptsAndStyles } from '../../helpers/html'
  * a page whose HTML lacks it.
  */
 describe('markupWithoutScriptsAndStyles', () => {
-  afterEach(() => {
-    Reflect.deleteProperty(globalThis, 'ranScript')
-  })
-
+  // A script that runs inside the parsed document changes the DOCUMENT (`window`
+  // there is happy-dom's, not this test's global), so what it does shows in the markup.
   const page = `<!DOCTYPE html><html lang="el"><head>
     <style>.x::after { content: "Σχόλιο στο στυλ" }</style>
     <script type="application/json" id="__NUXT_DATA__">["Σχόλιο στο payload"]</script>
-    <SCRIPT>globalThis.ranScript = true; var t = "Σχόλιο σε SCRIPT"</SCRIPT>
-  </head><body><p>Σχόλιο στο σώμα</p><script>var u = "</scr" + "ipt>Σχόλιο σε δεύτερο script"</script></body></html>`
+    <SCRIPT>document.documentElement.setAttribute('data-ran', 'upper'); var t = "Σχόλιο σε SCRIPT"</SCRIPT>
+  </head><body><p>Σχόλιο στο σώμα</p><script>document.body.setAttribute('data-ran', 'second'); var u = "</scr" + "ipt>Σχόλιο σε δεύτερο script"</script></body></html>`
 
   it('keeps the body text once and none of the contents of its scripts or styles', () => {
     const markup = markupWithoutScriptsAndStyles(page)
@@ -28,9 +26,7 @@ describe('markupWithoutScriptsAndStyles', () => {
     expect(markup).not.toContain('<style')
   })
 
-  it('runs nothing', () => {
-    markupWithoutScriptsAndStyles(page)
-
-    expect(Reflect.has(globalThis, 'ranScript')).toBe(false)
+  it('runs nothing: no script has left its mark on the document', () => {
+    expect(markupWithoutScriptsAndStyles(page)).not.toContain('data-ran')
   })
 })
