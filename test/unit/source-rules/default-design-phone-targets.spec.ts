@@ -57,6 +57,7 @@ const TARGETS: Target[] = [
   { file: 'variants/webside/Cart/ItemCard.vue', tag: 'UButton', has: 'i-fa6-solid-trash', where: 'class', kind: 'size' },
   { file: 'variants/webside/Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'increment', kind: 'size' },
   { file: 'variants/webside/Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'decrement', kind: 'size' },
+  { file: 'variants/webside/Chrome/CheckoutHeader.vue', tag: 'UButton', has: 'back_to_cart', where: 'class', kind: 'size' },
 ]
 
 const SIZE = /(?<![\w:-])(?:max-sm:)?min-h-11(?![\w-])/
@@ -174,5 +175,12 @@ describe('the default design controls are 44px targets on a phone', () => {
 
     expect(source).toContain('grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]')
     expect(source).toContain('max-sm:sr-only lg:hidden')
+  })
+
+  it('variants/webside/Chrome/CheckoutHeader.vue keeps its logo centred while the back arrow is a 44px target', () => {
+    const source = flat('variants/webside/Chrome/CheckoutHeader.vue')
+
+    // The spacer in the third column is as wide as the arrow, or the logo drifts.
+    expect(source).toContain('size-9 justify-self-end max-sm:size-11')
   })
 })
