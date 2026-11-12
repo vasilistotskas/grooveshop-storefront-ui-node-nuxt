@@ -61,7 +61,10 @@ export function describeGiftCardProviders(): void {
       expect(page.statusCode, html.slice(0, 1500)).toBe(200)
       const methods = html.match(/<button[^>]*role="radio"[^>]*value="(?:viva_wallet|stripe)"[^>]*>/g) ?? []
       expect(methods, 'both methods are offered').toHaveLength(2)
-      expect(methods.filter(method => method.includes('aria-checked="true"')), 'one of them is chosen').toHaveLength(1)
+      const chosen = methods.filter(method => method.includes('aria-checked="true"'))
+      expect(chosen, 'one of them is chosen').toHaveLength(1)
+      // The first the store offers (Viva Wallet, first in its pay ways), not whichever is last.
+      expect(chosen[0], 'the first offered').toContain('value="viva_wallet"')
     }, 120000)
   })
 }
