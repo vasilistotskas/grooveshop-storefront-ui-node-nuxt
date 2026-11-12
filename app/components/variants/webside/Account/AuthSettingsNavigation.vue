@@ -15,8 +15,9 @@ const routeName = computed(() => {
 })
 
 // Security stays the active entry on every page under it (email, password,
-// devices, connected accounts, every two-step page).
-const items = computed<NavigationMenuItem[]>(() => [
+// devices, connected accounts, every two-step page), marked as the
+// shopper's location there and as the page only on its own (`currentMark`).
+const items = computed<NavigationMenuItem[]>(() => withCurrentPage([
   {
     label: t('navigation.profile'),
     icon: 'i-heroicons-user',
@@ -35,7 +36,7 @@ const items = computed<NavigationMenuItem[]>(() => [
     to: localePath('account-settings-privacy'),
     active: routeName.value === 'account-settings-privacy',
   },
-])
+], route.path))
 
 const activeItem = computed(() => items.value.find(item => item.active) ?? null)
 
