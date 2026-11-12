@@ -150,12 +150,13 @@ describe('useBottomNavItems', () => {
     expect(list.find(item => item.label === t('account'))!.to).toBe('/account')
   })
 
-  it('carries no `next` from the sign-in page itself', () => {
+  // The sign-in page is no destination; the one it came with travels on.
+  it('carries the sign-in page\'s own `next` on, never the sign-in page', () => {
     Object.assign(route, { name: 'account-login___el', path: '/account/login', fullPath: '/account/login?next=/cart', query: { next: '/cart' } })
 
     const account = items().find(item => item.label === t('account'))!
 
-    expect(String(account.to)).toBe('/account/login')
+    expect(String(account.to)).toBe('/account/login?next=/cart')
   })
 
   it('links in the page\'s language', async () => {
