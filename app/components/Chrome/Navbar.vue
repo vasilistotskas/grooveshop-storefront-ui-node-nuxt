@@ -201,10 +201,26 @@ const openItem = ref<string>()
 /**
  * The bar's entries: the current section marked, and each section with a
  * panel as its link plus a button that opens the panel.
+ *
+ * The button is at least 24px square (`min-w-6`; the bar makes it 40px
+ * tall), its arrow centred where it always sat: the item's -8px margin
+ * leaves it 16px of the row, as before. Where the pointer is coarse (a
+ * touch tablet) it is 44px tall and 28px wide, which is all the row has
+ * for it: the names' boxes (12px padding) leave 16px between them and
+ * 40px between their words, so the button reaches back over its own
+ * name's padding (-12px) to the end of that name's word and stops where
+ * the next name's box starts. 44px wide would push the bar 28px per
+ * section, and at 1280, the narrowest width that shows it, that squeezed
+ * the search and the icon buttons beside it to 22px. A mouse's bar is
+ * unchanged.
  */
 const barItems = computed(() => withDropdownToggles(withCurrentPage(items.value), {
   label: section => t('open_section', { section }),
-  class: '-ms-2 px-1',
+  class: `
+    -ms-2 min-h-6 min-w-6 justify-center px-1
+    pointer-coarse:-my-0.5 pointer-coarse:-ms-3 pointer-coarse:min-h-11
+    pointer-coarse:min-w-7
+  `,
   open: openItem.value,
 }))
 

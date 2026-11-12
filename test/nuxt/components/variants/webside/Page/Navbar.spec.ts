@@ -315,6 +315,16 @@ describe('webside Page/Navbar dropdowns', () => {
       expect(button.attributes('aria-expanded')).toBe('true')
     })
 
+    // The arrow is a real 24px target, and a 44px one where the pointer is
+    // coarse (a touch tablet); happy-dom lays nothing out and matches no
+    // media query, so the classes are the contract.
+    it('makes the arrow a 24px target, and a 44px one for a coarse pointer', async () => {
+      const { button } = await hoverable()
+
+      expect(button.classes()).toEqual(expect.arrayContaining(['min-h-6', 'min-w-6', 'justify-center', 'pointer-coarse:min-h-11', 'pointer-coarse:min-w-11', 'pointer-coarse:-mx-4', 'pointer-coarse:-my-2']))
+      expect(button.get('[data-slot="linkTrailing"]').classes()).toContain('ms-0')
+    })
+
     it('toggles it on a mouse click of the button, once each', async () => {
       const { button } = await hoverable()
 

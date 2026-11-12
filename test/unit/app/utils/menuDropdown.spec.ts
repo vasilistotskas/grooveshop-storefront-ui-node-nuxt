@@ -51,6 +51,18 @@ describe('withDropdownToggles', () => {
     expect(items[1]).not.toHaveProperty('to')
   })
 
+  // The button is an arrow alone, its name for screen readers only; the
+  // arrow sits in the middle of a target wider than itself.
+  it('draws the button as its arrow alone, in the middle of its target, in the design\'s classes', () => {
+    const [, button] = withDropdownToggles(
+      [{ label: 'Κατάστημα', to: '/products', value: 'products', slot: 'shop' }],
+      { label: section => `Μενού: ${section}`, class: 'min-w-6' },
+    )
+
+    expect(button!.class).toBe('min-w-6')
+    expect(button!.ui).toEqual({ linkLabel: 'sr-only', linkTrailing: 'ms-0' })
+  })
+
   // Reka renders `aria-controls=""` before it mounts; `undefined` on the
   // item leaves the attribute out while the panel is closed.
   it('leaves aria-controls to Reka only on the open section\'s button', () => {

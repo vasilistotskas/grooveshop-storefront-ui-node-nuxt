@@ -185,10 +185,23 @@ const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdo
 /**
  * The bar's entries: the current section marked, and each section with a
  * panel as its link plus a button that opens the panel.
+ *
+ * The button is at least 24px square (`min-w-6`; the bar makes it 28px
+ * tall), its arrow centred where it always sat: the item's -12px margin
+ * leaves it 12px of the row, as before. Where the pointer is coarse (a
+ * touch tablet) it is a 44px target in the same place: the names have no
+ * padding and the row's gap is 16px, so a name's end and the next name's
+ * start are 16 + 12 + 16 = 44px apart, and the button spans exactly that
+ * (-16px each side, -8px above and below), touching neither name and
+ * moving nothing in the row.
  */
 const barItems = computed(() => withDropdownToggles(withCurrentPage(navItems.value), {
   label: section => t('open_section', { section }),
-  class: '-ms-3 px-1',
+  class: `
+    -ms-3 min-h-6 min-w-6 justify-center px-1
+    pointer-coarse:-mx-4 pointer-coarse:-my-2 pointer-coarse:min-h-11
+    pointer-coarse:min-w-11
+  `,
   open: openSection.value,
 }))
 

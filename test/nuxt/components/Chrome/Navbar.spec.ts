@@ -464,6 +464,18 @@ describe('Chrome/Navbar', () => {
       expect(button.attributes('aria-expanded')).toBe('true')
     })
 
+    // The arrow is a real 24px target, and where the pointer is coarse (a
+    // touch tablet) 44px tall and as wide as the row allows without moving
+    // it: 28px, from the end of its name's word to the next name's box.
+    // happy-dom lays nothing out and matches no media query, so the
+    // classes are the contract.
+    it('makes the arrow a 24px target, and 44px tall and 28px wide for a coarse pointer', async () => {
+      const { button } = await hoverable()
+
+      expect(button.classes()).toEqual(expect.arrayContaining(['min-h-6', 'min-w-6', 'justify-center', 'pointer-coarse:min-h-11', 'pointer-coarse:min-w-7', 'pointer-coarse:-ms-3', 'pointer-coarse:-my-0.5']))
+      expect(button.get('[data-slot="linkTrailing"]').classes()).toContain('ms-0')
+    })
+
     it('toggles it on a mouse click of the button, once each', async () => {
       const { button } = await hoverable()
 

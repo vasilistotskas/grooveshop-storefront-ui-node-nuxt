@@ -50,8 +50,10 @@ export function withCurrentPage<T extends { active?: boolean }>(items: T[]): (T 
  * The link stays a link in the server's HTML, before anything hydrates.
  *
  * `toggle.label` names the button after its section; `toggle.class` sets it
- * beside its link in the design's spacing; `toggle.open` is the section
- * whose panel is open (the menu's `v-model`).
+ * beside its link in the design's spacing and sizes its target;
+ * `toggle.open` is the section whose panel is open (the menu's `v-model`).
+ * The button's arrow sits in its middle (`linkTrailing` without Nuxt UI's
+ * `ms-auto`, which pushed it to the end of a target wider than itself).
  *
  * A closed section's button states no `aria-controls`. Reka 2.11 binds it
  * to an id it assigns in `onMounted`, so the server's HTML, and the page
@@ -81,7 +83,7 @@ export function withDropdownToggles(
       'slot': slot,
       'children': children,
       'class': toggle.class,
-      'ui': { ...item.ui, linkLabel: 'sr-only' },
+      'ui': { ...item.ui, linkLabel: 'sr-only', linkTrailing: 'ms-0' },
       ...(toggle.open === section ? {} : { 'aria-controls': undefined }),
     }
     return [name, button]
