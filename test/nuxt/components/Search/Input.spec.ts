@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SearchInput from '~/components/Search/Input.vue'
 import WebsideSearchInput from '~/components/variants/webside/Search/Input.vue'
@@ -40,17 +41,85 @@ describe('Search/Input', () => {
 
     await vi.waitFor(() => expect(wrapper.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
   })
-  // A page that also draws the field in a section (the search band, a hero)
-  // answered "/" with one palette per field, stacked: the header's field
-  // owns the shortcut, and a section's field registers none.
-  it('answers the search shortcut in the header only', async () => {
-    const header = await mountSuspended(SearchInput, { route: false, props: { compact: true } })
-    const section = await mountSuspended(SearchInput, { route: false })
+})
 
-    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true }))
+/**
+ * ONE search field of the page owns the shortcut (`useSearchShortcut`): the
+ * header's when there is one, else the first section field. A page that drew
+ * the field in a section too used to answer "/" with one palette per field,
+ * stacked; only the owner shows the key hint and states `aria-keyshortcuts`.
+ */
+describe('the search shortcut', () => {
+  /**
+   * The fields of one page, mounted together as a page holds them (each field
+   * is told apart by its place in the page, `useId`): `fields` lists which
+   * is the header's, and `shown` which are drawn, so a test can take one away.
+   */
+  async function mountPage(fields: boolean[]) {
+    const shown = ref(fields.map(() => true))
+    const Page = defineComponent({
+      setup: () => () => h('div', fields.map((header, index) => shown.value[index]
+        ? h('div', { 'data-field': index }, [h(SearchInput, { compact: header })])
+        : null)),
+    })
+    const page = await mountSuspended(Page, { route: false })
+    const field = (index: number) => page.get(`[data-field="${index}"]`)
+    return {
+      shown,
+      opened: (index: number) => field(index).find('[data-test="palette"]').attributes('data-open') === 'true',
+      paletteMounted: (index: number) => field(index).find('[data-test="palette"]').exists(),
+      advertises: (index: number) => ({
+        hint: field(index).findAll('kbd').length > 0,
+        keys: field(index).findAll('[aria-keyshortcuts]').length > 0,
+      }),
+    }
+  }
+  const press = () => document.body.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true }))
 
-    await vi.waitFor(() => expect(header.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
-    expect(section.find('[data-test="palette"]').exists()).toBe(false)
+  beforeEach(() => {
+    clearNuxtState('search-shortcut-fields')
+  })
+
+  it('belongs to the field of the header when a section draws one too: one palette, one hint', async () => {
+    const page = await mountPage([false, true])
+
+    press()
+
+    await vi.waitFor(() => expect(page.opened(1)).toBe(true))
+    expect(page.paletteMounted(0)).toBe(false)
+    expect(page.advertises(1)).toEqual({ hint: true, keys: true })
+    expect(page.advertises(0)).toEqual({ hint: false, keys: false })
+  })
+
+  it('belongs to a section field on a page whose header has none', async () => {
+    const page = await mountPage([false])
+
+    press()
+
+    await vi.waitFor(() => expect(page.opened(0)).toBe(true))
+    expect(page.advertises(0)).toEqual({ hint: true, keys: true })
+  })
+
+  it('belongs to the first of two section fields', async () => {
+    const page = await mountPage([false, false])
+
+    press()
+
+    await vi.waitFor(() => expect(page.opened(0)).toBe(true))
+    expect(page.paletteMounted(1)).toBe(false)
+    expect(page.advertises(1)).toEqual({ hint: false, keys: false })
+  })
+
+  it('moves to the next field when its owner goes away', async () => {
+    const page = await mountPage([true, false])
+    expect(page.advertises(1).hint).toBe(false)
+
+    page.shown.value = [false, true]
+    await nextTick()
+    press()
+
+    await vi.waitFor(() => expect(page.opened(1)).toBe(true))
+    expect(page.advertises(1)).toEqual({ hint: true, keys: true })
   })
 })
 

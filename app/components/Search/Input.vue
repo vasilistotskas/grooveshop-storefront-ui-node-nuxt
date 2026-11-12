@@ -13,11 +13,10 @@
  * hint; only the icon-only button needs an `aria-label` (WCAG 2.5.3
  * Label in Name — Lighthouse `label-content-name-mismatch`).
  *
- * The keyboard shortcuts belong to the header's field alone. A page that
- * also draws the field in a section (the search band, a hero) would
- * otherwise answer Ctrl+K with one palette per field, stacked. A design
- * with its own header search registers its own, which is why the section's
- * field registers none in any design.
+ * The keyboard shortcuts belong to ONE field of the page
+ * (`useSearchShortcut`): the header's (`compact`) when there is one, else
+ * the first section field. Only that field shows the key hint and states
+ * `aria-keyshortcuts`.
  */
 const props = withDefaults(defineProps<{
   compact?: boolean
@@ -41,21 +40,9 @@ function openSearchModal() {
   isModalOpen.value = true
 }
 
-defineShortcuts(props.compact
-  ? {
-      'meta_k': {
-        handler: () => {
-          openSearchModal()
-        },
-      },
-      '/': {
-        usingInput: false,
-        handler: () => {
-          openSearchModal()
-        },
-      },
-    }
-  : {})
+const { owner } = useSearchShortcut(props.compact, openSearchModal)
+
+const KEY_SHORTCUTS = 'Control+K Meta+K /'
 </script>
 
 <template>
@@ -73,7 +60,7 @@ defineShortcuts(props.compact
       square
       class="lg:hidden"
       :aria-label="t('search.placeholder')"
-      aria-keyshortcuts="Control+K Meta+K /"
+      :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     />
 
@@ -87,7 +74,7 @@ defineShortcuts(props.compact
           lg:flex
         ` : 'w-full',
       ]"
-      aria-keyshortcuts="Control+K Meta+K /"
+      :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     >
       <UIcon
@@ -97,7 +84,10 @@ defineShortcuts(props.compact
       <span class="flex-1 truncate text-start">
         {{ t('search.placeholder') }}
       </span>
-      <span class="flex shrink-0 items-center gap-0.5">
+      <span
+        v-if="owner"
+        class="flex shrink-0 items-center gap-0.5"
+      >
         <UKbd value="meta" />
         <UKbd value="K" />
       </span>
