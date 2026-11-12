@@ -175,9 +175,9 @@ const navItems = computed<NavigationMenuItem[]>(() => {
   return base
 })
 
-/** The section whose panel is open; the mouse on its name or its button opens it. */
+/** The section whose panel is open: the mouse on its name or button, or a tap, click or key on the button (`useMenuPanels`). */
 const openSection = ref<string>()
-const menuHover = useMenuHover(openSection)
+const menuPanels = useMenuPanels(openSection)
 
 /** Where the menu hydrates: see the template. */
 const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdown', 'focusin']
@@ -260,8 +260,11 @@ const items = computed(() => [
             flex items-center text-lg leading-6 font-semibold text-primary-950
             dark:text-primary-50
           "
-          @pointermove="menuHover.onPointermove"
-          @pointerleave="menuHover.onPointerleave"
+          @pointermove="menuPanels.onPointermove"
+          @pointerleave="menuPanels.onPointerleave"
+          @pointerdown="menuPanels.onPointerdown"
+          @pointerup="menuPanels.onPointerup"
+          @click.capture="menuPanels.onClickCapture"
         >
           <!-- Keyboard, focus and screen-reader behaviour of the
                dropdowns are the menu's own (Reka's NavigationMenu). -->
@@ -276,7 +279,7 @@ const items = computed(() => [
             :hydrate-on-interaction="MENU_HYDRATION"
             disable-hover-trigger
             disable-pointer-leave-close
-            :content="{ onEscapeKeyDown: menuHover.onEscapeKeyDown }"
+            :content="{ onEscapeKeyDown: menuPanels.onEscapeKeyDown }"
             :items="barItems"
             :aria-label="t('navigation')"
             color="neutral"

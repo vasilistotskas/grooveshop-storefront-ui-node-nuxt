@@ -60,13 +60,14 @@ export function withDropdownToggles(
     if (!item.slot && !item.children?.length) return [item]
     const { slot, children, value, ...link } = item
     // The open panel is named by this value; the name and the button both
-    // carry it, so the mouse on either opens the same panel (`useMenuHover`).
+    // carry it, so the mouse on either opens the same panel (`useMenuPanels`).
     const section = String(value ?? item.to ?? item.label)
     const name: NavigationMenuItem = { ...link, 'data-menu-section': section }
     const button: NavigationMenuItem = {
       'label': toggle.label(item.label ?? ''),
       'value': section,
       'data-menu-section': section,
+      'data-menu-toggle': '',
       'slot': slot,
       'children': children,
       'class': toggle.class,

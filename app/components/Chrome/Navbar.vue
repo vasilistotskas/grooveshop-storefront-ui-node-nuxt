@@ -211,8 +211,9 @@ const mobileMenuItems = computed(() =>
 /** The open dropdown's value — the catalogue panel dims the page below it. */
 const openItem = ref<string>()
 const catalogueOpen = computed(() => openItem.value === SHOP)
-// The mouse on a section's name or its button opens its panel.
-const menuHover = useMenuHover(openItem)
+// The mouse on a section's name or button, and a tap, click or key on the
+// button, open and close its panel (`useMenuPanels`).
+const menuPanels = useMenuPanels(openItem)
 
 const mobileMenuOpen = ref(false)
 
@@ -286,19 +287,22 @@ const appTitle = computed(() => tenantStore.storeName || '')
              replayed into nothing and the first hover after a page load
              opened no panel. Still lazy, so the menu's code runs only for a
              visitor who reaches for it. -->
-        <!-- The mouse's open and close for the menu's panels
-             (`useMenuHover`); `contents`: it lays nothing out. -->
+        <!-- Who opens and closes the menu's panels: the mouse, a tap or a key
+             (`useMenuPanels`); `contents`: it lays nothing out. -->
         <div
           class="contents"
-          @pointermove="menuHover.onPointermove"
-          @pointerleave="menuHover.onPointerleave"
+          @pointermove="menuPanels.onPointermove"
+          @pointerleave="menuPanels.onPointerleave"
+          @pointerdown="menuPanels.onPointerdown"
+          @pointerup="menuPanels.onPointerup"
+          @click.capture="menuPanels.onClickCapture"
         >
           <LazyUNavigationMenu
             v-model="openItem"
             :hydrate-on-interaction="MENU_HYDRATION"
             disable-hover-trigger
             disable-pointer-leave-close
-            :content="{ onEscapeKeyDown: menuHover.onEscapeKeyDown }"
+            :content="{ onEscapeKeyDown: menuPanels.onEscapeKeyDown }"
             :items="barItems"
             :aria-label="t('navigation')"
             color="neutral"

@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect, beforeEach, vi } from 'vitest'
 import { computed, ref } from 'vue'
-import { DOMWrapper } from '@vue/test-utils'
+import { DOMWrapper, flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavigationMenuItem } from '@nuxt/ui'
@@ -336,7 +336,7 @@ describe('Chrome/Navbar', () => {
   })
 
   // The section's NAME is the bigger target, and the entry the design
-  // draws: hovering it opens the panel its button opens (`useMenuHover`),
+  // draws: hovering it opens the panel its button opens (`useMenuPanels`),
   // through the menu's one open state.
   describe('the mouse on a section\'s name', () => {
     afterEach(() => {
@@ -410,6 +410,42 @@ describe('Chrome/Navbar', () => {
 
       await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('false'))
       expect(document.activeElement).toBe(before)
+    })
+
+    // A tap is pointerdown, pointerup, then the tap's click: the wrapper
+    // toggles on the pointerup and swallows the click, and Reka's trigger
+    // never toggles it back (`useMenuPanels`).
+    it('opens on a tap of the button, exactly once', async () => {
+      const { button } = await hoverable()
+
+      await button.trigger('pointerdown', { pointerType: 'touch' })
+      await button.trigger('pointerup', { pointerType: 'touch' })
+      await button.trigger('click')
+
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+      await flushPromises()
+      expect(button.attributes('aria-expanded')).toBe('true')
+    })
+
+    // A browser may send no click at all when hydration changed the node
+    // under the finger between pointerdown and pointerup: the pointerup alone
+    // opens it.
+    it('opens on a tap of the button even when no click follows', async () => {
+      const { button } = await hoverable()
+
+      await button.trigger('pointerdown', { pointerType: 'touch' })
+      await button.trigger('pointerup', { pointerType: 'touch' })
+
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+    })
+
+    it('toggles it on a mouse click of the button, once each', async () => {
+      const { button } = await hoverable()
+
+      await button.trigger('click')
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('true'))
+      await button.trigger('click')
+      await vi.waitFor(() => expect(button.attributes('aria-expanded')).toBe('false'))
     })
 
     it('does not open it for a touch on the name, which navigates', async () => {
