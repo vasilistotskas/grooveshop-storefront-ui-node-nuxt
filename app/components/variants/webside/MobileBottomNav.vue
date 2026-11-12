@@ -8,9 +8,10 @@
  *
  * A strip along the screen's bottom edge rather than the default design's
  * floating dock, and it docks as one (`data-dock` + `data-dock-flush`,
- * `app/assets/css/main.css`): it is `--dock-tabbar-height` tall plus the
- * bottom inset it pads, and the sticky add-to-cart bar, the assistant and
- * the cookie notice stack on top of it at every width.
+ * `app/assets/css/main.css`): it stands on the edge, or on the floating
+ * funding strip (`--dock-edge`), is `--dock-tabbar-height` tall plus the
+ * rest of the bottom inset it pads, and the sticky add-to-cart bar, the
+ * assistant and the cookie notice stack on top of it at every width.
  */
 const props = withDefaults(defineProps<{
   includeCart?: boolean
@@ -56,9 +57,10 @@ onMounted(() => {
       highlight
       :ui="{
         root: `
-          fixed inset-x-0 bottom-0 z-50 block
-          h-[calc(var(--dock-tabbar-height)+var(--dock-inset))] w-full border-t
-          border-primary-200 bg-primary-50/90 pb-(--dock-inset) backdrop-blur-md
+          fixed inset-x-0 bottom-(--dock-edge) z-50 block
+          h-[calc(var(--dock-tabbar-height)+var(--dock-inset)-var(--dock-edge))]
+          w-full border-t border-primary-200 bg-primary-50/90
+          pb-[calc(var(--dock-inset)-var(--dock-edge))] backdrop-blur-md
           transition-transform duration-200
           motion-reduce:transition-none
           dark:border-primary-700 dark:bg-primary-900/90

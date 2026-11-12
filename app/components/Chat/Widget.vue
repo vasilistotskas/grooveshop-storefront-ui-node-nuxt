@@ -24,10 +24,9 @@ const chatEnabled = useStoreFeature('chatWidget')
       :aria-label="open ? t('chat.close') : t('chat.open')"
       :aria-expanded="open"
       class="
-        fixed right-4
-        bottom-[calc(var(--dock-base)+var(--dock-tabbar)+var(--dock-bar)+var(--dock-fab))]
-        z-40 rounded-full bg-linear-to-br from-(--ui-secondary)
-        to-(--ui-chat-gradient-to) p-3.5 text-white shadow-lg transition
+        fixed right-4 bottom-(--dock-top) z-40 rounded-full bg-linear-to-br
+        from-(--ui-secondary) to-(--ui-chat-gradient-to) p-3.5 text-white
+        shadow-lg transition
         hover:shadow-xl
         motion-safe:hover:scale-105
         motion-safe:active:scale-95
@@ -52,7 +51,10 @@ const chatEnabled = useStoreFeature('chatWidget')
     </LazyUDrawer>
 
     <!-- Larger screens get a floating, non-modal assistant panel anchored
-         to the launcher — the shopper keeps browsing while chatting. -->
+         to the launcher — the shopper keeps browsing while chatting. It
+         stands a gap above the launcher, which stands on the bottom dock
+         (`--dock-top`), and its height takes the same offset off the
+         screen, so its header stays on screen whatever the dock holds. -->
     <Transition
       enter-active-class="
         motion-safe:transition motion-safe:duration-200 motion-safe:ease-out
@@ -70,11 +72,11 @@ const chatEnabled = useStoreFeature('chatWidget')
         :aria-label="t('chat.title')"
         class="
           fixed right-4
-          bottom-[calc(var(--dock-base)+var(--dock-tabbar)+var(--dock-bar)+var(--dock-fab)+var(--dock-fab-size)+var(--dock-gap))]
+          bottom-[calc(var(--dock-top)+var(--dock-fab-size)+var(--dock-gap))]
           z-50 flex w-[min(26rem,calc(100vw-2rem))] origin-bottom-right flex-col
           overflow-hidden rounded-3xl shadow-2xl ring ring-default
         "
-        :style="{ height: 'min(40rem, calc(100dvh - 11rem))' }"
+        :style="{ height: 'min(40rem, calc(100dvh - var(--dock-top) - var(--dock-fab-size) - 3 * var(--dock-gap)))' }"
         @keydown.esc="open = false"
       >
         <LazyChatPanel

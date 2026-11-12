@@ -596,18 +596,20 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 
       <!-- Docked edge to edge (`--dock-*` in app/assets/css/main.css):
            right on the tab bar when the store shows one, else on the
-           screen's bottom inset, at every width; the assistant stacks
-           above it. It used to sit 72px up below `md` and at the bottom
-           from it, so between 768 and 1023px the tab bar covered it, and
-           with no tab bar it floated for nothing. -->
+           screen's edge (or the floating funding strip) with the rest of
+           the bottom inset padded inside it, at every width; the
+           assistant stacks above it. It used to sit 72px up below `md`
+           and at the bottom from it, so between 768 and 1023px the tab
+           bar covered it, and with no tab bar it floated for nothing. -->
       <div
         v-if="stickyAddToCartEnabled && showStickyAddToCart"
         data-dock="bar"
         data-dock-flush
         class="
-          fixed inset-x-0 bottom-[calc(var(--dock-inset)+var(--dock-tabbar))]
-          z-40 flex h-(--dock-bar-height) items-center border-t border-gray-200
-          bg-white/95 px-4 shadow-lg backdrop-blur-sm
+          fixed inset-x-0 bottom-(--dock-floor) z-40 flex
+          h-[calc(var(--dock-bar-height)+var(--dock-floor-pad))] items-center
+          border-t border-gray-200 bg-white/95 px-4 pb-(--dock-floor-pad)
+          shadow-lg backdrop-blur-sm
           dark:border-gray-700 dark:bg-gray-900/95
         "
       >

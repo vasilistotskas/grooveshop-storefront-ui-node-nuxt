@@ -115,7 +115,7 @@ exports[`webside design render > auth frame > is what the default layout draws a
       </div>
     </section>
   </main>
-  <div class="pb-[calc(var(--dock-tabbar)+var(--dock-inset))]">
+  <div class="pb-[calc(var(--dock-inset)+var(--dock-tabbar)+var(--dock-bar))]">
     <!--v-if-->
     <footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
       <div data-slot="top" class="py-8 lg:py-12">
@@ -318,7 +318,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
       <p>page</p>
     </section>
   </main>
-  <div class="pb-[calc(var(--dock-tabbar)+var(--dock-inset))]">
+  <div class="pb-[calc(var(--dock-inset)+var(--dock-tabbar)+var(--dock-bar))]">
     <!--v-if-->
     <footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
       <div data-slot="top" class="py-8 lg:py-12">
@@ -722,7 +722,7 @@ exports[`webside design render > login form on a phone draws its hero as an imag
 `;
 
 exports[`webside design render > mobile bottom nav 1`] = `
-"<nav data-slot="root" aria-label="Γρήγορη πλοήγηση" data-dock="tabbar" data-dock-flush="" class="gap-1.5 [&amp;>div]:min-w-0 items-center justify-between fixed inset-x-0 bottom-0 z-50 block h-[calc(var(--dock-tabbar-height)+var(--dock-inset))] w-full border-t border-primary-200 bg-primary-50/90 pb-(--dock-inset) backdrop-blur-md transition-transform duration-200 motion-reduce:transition-none dark:border-primary-700 dark:bg-primary-900/90 [&amp;>div]:h-full translate-y-0" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
+"<nav data-slot="root" aria-label="Γρήγορη πλοήγηση" data-dock="tabbar" data-dock-flush="" class="gap-1.5 [&amp;>div]:min-w-0 items-center justify-between fixed inset-x-0 bottom-(--dock-edge) z-50 block h-[calc(var(--dock-tabbar-height)+var(--dock-inset)-var(--dock-edge))] w-full border-t border-primary-200 bg-primary-50/90 pb-[calc(var(--dock-inset)-var(--dock-edge))] backdrop-blur-md transition-transform duration-200 motion-reduce:transition-none dark:border-primary-700 dark:bg-primary-900/90 [&amp;>div]:h-full translate-y-0" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
   <div style="position: relative;">
     <ul data-slot="list" class="isolate min-w-0 flex items-center size-full" data-orientation="horizontal">
       <li data-menu-item="" data-slot="item" class="min-w-0 flex w-full items-center py-0"><a href="/" data-reka-collection-item="" data-active="" aria-current="page" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 px-2.5 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors data-[state=open]:before:bg-elevated/50 text-primary hover:before:bg-elevated/50 before:transition-colors after:bg-primary relative flex min-h-12 w-full flex-col items-center justify-center gap-0.5 before:bg-transparent data-active:text-(--ui-secondary) data-active:before:bg-secondary/10 dark:before:bg-transparent"><span class="iconify i-heroicons:home shrink-0 text-primary group-data-[state=open]:text-primary size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium">Αρχική<!--v-if--></span>
@@ -1471,7 +1471,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
       </div>
     </div>
   </main>
-  <div class="pb-[calc(var(--dock-tabbar)+var(--dock-inset))]">
+  <div class="pb-[calc(var(--dock-inset)+var(--dock-tabbar)+var(--dock-bar))]">
     <!--v-if-->
     <footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
       <div data-slot="top" class="py-8 lg:py-12">

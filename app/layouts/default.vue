@@ -69,17 +69,16 @@ const showUserChrome = computed(
   () => isAccountRoute.value && !onAuthFlowRoute.value && loggedIn.value && user.value,
 )
 
-// The webside design's tab bar is a strip along the screen's bottom
-// edge, so it would cover the end of the footer (merchant identity +
-// opening hours). The footer keeps clear of whatever the dock holds there
-// (`--dock-*` in app/assets/css/main.css): the tab bar's height while it
-// is on screen, nothing when the store or the device has none, plus the
-// bottom inset. A designed storefront's footer keeps its own last line
+// The webside design's tab bar and sticky add-to-cart bar are strips
+// along the screen's bottom edge, so they would cover the end of the
+// footer (merchant identity + opening hours). The footer keeps clear of
+// whatever the dock holds there (`--dock-*` in app/assets/css/main.css):
+// the bottom inset, plus each bar's height while it is on screen. A designed storefront's footer keeps its own last line
 // clear of its floating dock, so it gets no strip of ground under it.
 const footerClass = computed(() =>
   resolveDesign(tenantStore.schemaName)
     ? ''
-    : 'pb-[calc(var(--dock-tabbar)+var(--dock-inset))]',
+    : 'pb-[calc(var(--dock-inset)+var(--dock-tabbar)+var(--dock-bar))]',
 )
 </script>
 
