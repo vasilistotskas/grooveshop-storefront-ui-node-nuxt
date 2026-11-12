@@ -33,7 +33,7 @@ interface Target {
 const TARGETS: Target[] = [
   { file: 'Product/Card.vue', tag: 'LazyButtonProductAddToCart', has: 'icon-only', kind: 'size' },
   { file: 'Product/Card.vue', tag: 'LazyButtonProductAddToFavourite', has: 'favourite-delete', kind: 'hit' },
-  { file: 'Chrome/MobileMenu.vue', tag: 'UNavigationMenu', has: "t('navigation')", where: 'ui', kind: 'height' },
+  { file: 'Chrome/MobileMenu.vue', tag: 'UNavigationMenu', has: 't(\'navigation\')', where: 'ui', kind: 'height' },
   { file: 'Chrome/MobileMenu.vue', tag: 'UColorModeSelect', has: 'neutral', where: 'ui', kind: 'height' },
   { file: 'Language/Switcher.vue', tag: 'USelectMenu', has: 'value-key', where: 'ui', kind: 'height' },
   { file: 'Chrome/Navbar.vue', tag: 'UButton', has: 'bars-3', where: 'class', kind: 'size' },
