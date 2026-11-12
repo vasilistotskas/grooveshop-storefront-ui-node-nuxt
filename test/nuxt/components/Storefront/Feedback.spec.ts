@@ -45,7 +45,7 @@ describe('Storefront/Feedback', () => {
   })
 
   it('does not add a second heading when a section already owns it', async () => {
-    layout.sections = [{ id: 'a', componentType: 'hero_banner', props: {} }]
+    layout.sections = [{ id: 'a', componentType: 'hero_banner', props: { heading: 'Πες μας τη γνώμη σου' } }]
 
     const wrapper = await mount()
 

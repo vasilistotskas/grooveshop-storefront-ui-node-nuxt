@@ -72,6 +72,7 @@ const { isMobileOrTablet } = useDevice()
 const leadsPage = useLeadsPage()
 const { t, locale } = useStoreI18n('components/PageSection/HeroCarousel')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const { productUrl } = useUrls()
 const { formatPrice } = usePriceFormat()
 
@@ -113,14 +114,12 @@ const chips = computed(() => items.value.map((slide) => {
 }))
 
 /** The image a slide draws on this device: its phone image on a phone, else its own. */
-const drawnImage = (slide: Pick<HeroSlide, 'image' | 'mobileImage'>) =>
-  (isMobileOrTablet.value && readyImage(slide.mobileImage)?.path ? readyImage(slide.mobileImage) : undefined) ?? readyImage(slide.image)
+const drawnImage = (slide: Pick<HeroSlide, 'image' | 'mobileImage'>) => heroImage(slide, isMobileOrTablet.value)
 
 const artwork = (slide: HeroSlide) => drawnImage(slide)?.path
 
 /** The description of the image drawn, else the desk image's, else the slide's heading, else the store's name. */
-const altOf = (slide: HeroSlide) =>
-  slide.imageDecorative ? '' : drawnImage(slide)?.alt || readyImage(slide.image)?.alt || slide.heading || appTitle.value
+const altOf = (slide: HeroSlide) => heroImageAlt(slide, drawnImage(slide), slide.heading || appTitle.value)
 
 const hasCopy = (slide: HeroSlide) =>
   !!(slide.eyebrow || slide.heading?.trim() || slide.subheading || slide.ctaText)
@@ -310,7 +309,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                    because there is no copy to put a button in. -->
               <NuxtLink
                 v-if="!hasCopy(item) && item.ctaLink"
-                :to="localePath(pathLocation(item.ctaLink))"
+                :to="linkTo(item.ctaLink)"
                 :aria-label="t('carousel.bannerLink')"
                 class="absolute inset-0"
               />
@@ -433,7 +432,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                 >
                   <UButton
                     v-if="item.ctaText && item.ctaLink"
-                    :to="localePath(pathLocation(item.ctaLink))"
+                    :to="linkTo(item.ctaLink)"
                     :label="item.ctaText"
                     :size="ctaSize"
                     color="neutral"
@@ -446,7 +445,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                   />
                   <UButton
                     v-if="item.secondaryCtaText && item.secondaryCtaLink"
-                    :to="localePath(pathLocation(item.secondaryCtaLink))"
+                    :to="linkTo(item.secondaryCtaLink)"
                     :label="item.secondaryCtaText"
                     :size="ctaSize"
                     color="neutral"

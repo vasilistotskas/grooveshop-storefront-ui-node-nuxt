@@ -36,26 +36,18 @@ const props = withDefaults(defineProps<{
   theme: 'auto',
 })
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 
-const picture = computed(() => readyImage(props.image))
-const mobilePicture = computed(() => readyImage(props.mobileImage))
-
-const shown = computed(() =>
-  (isMobileOrTablet.value && mobilePicture.value?.path ? mobilePicture.value : undefined) ?? picture.value,
-)
+const shown = computed(() => heroImage(props, isMobileOrTablet.value))
 
 const artwork = computed(() => shown.value?.path)
 
 /** Whether there is an image to draw: the one selected for this device, so a phone with only its own image still has one. */
 const hasImage = computed(() => !!artwork.value)
 
-/** The description of the picture shown, else the desk picture's, else the heading. */
-const alt = computed(() =>
-  props.imageDecorative ? '' : shown.value?.alt || picture.value?.alt || props.heading || '',
-)
+const alt = computed(() => heroImageAlt(props, shown.value, props.heading || ''))
 
 /**
  * Copy over a photograph is light by default, because the overlay
@@ -185,14 +177,14 @@ const hasContent = computed(
       >
         <UButton
           v-if="ctaText && ctaLink"
-          :to="localePath(pathLocation(ctaLink))"
+          :to="linkTo(ctaLink)"
           :label="ctaText"
           color="secondary"
           size="xl"
         />
         <UButton
           v-if="secondaryCtaText && secondaryCtaLink"
-          :to="localePath(pathLocation(secondaryCtaLink))"
+          :to="linkTo(secondaryCtaLink)"
           :label="secondaryCtaText"
           color="neutral"
           variant="outline"

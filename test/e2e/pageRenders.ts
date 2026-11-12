@@ -440,17 +440,23 @@ export function describePageRenders(): void {
       expect(location).toBeUndefined()
     }, 60000)
 
+    // A guest sent to sign in comes back to the page (`returnTarget`): with
+    // its query where the page's query is its view (the orders' page and
+    // order, `signInReturn: 'path-and-query'`), and without it elsewhere,
+    // where a query can hold a payment session or a token. The login page
+    // keeps the visitor's locale prefix.
     it.each([
-      ['/account', '/account/login'],
-      // The login page keeps the visitor's locale prefix.
-      ['/en/account/orders', '/en/account/login'],
-    ])('redirects a guest from %s to %s with the page as next', async (path, login) => {
-      const { statusCode, location } = await request(`${path}?tab=2`, TENANT_HOST, BROWSER_ACCEPT)
+      ['/account/orders?page=2&ordering=-createdAt', '/account/login', '/account/orders?page=2&ordering=-createdAt'],
+      ['/en/account/orders?page=2&ordering=-createdAt', '/en/account/login', '/en/account/orders?page=2&ordering=-createdAt'],
+      ['/account?session_id=cs_live_secret', '/account/login', '/account'],
+      ['/en/account/loyalty?session_id=cs_live_secret', '/en/account/login', '/en/account/loyalty'],
+    ])('redirects a guest from %s to %s with %s as next', async (path, login, next) => {
+      const { statusCode, location } = await request(path, TENANT_HOST, BROWSER_ACCEPT)
 
       expect(statusCode).toBe(302)
       const target = new URL(location ?? '', 'http://storefront.invalid')
       expect(target.pathname).toBe(login)
-      expect(target.searchParams.get('next')).toBe(`${path}?tab=2`)
+      expect(target.searchParams.get('next')).toBe(next)
     }, 60000)
 
     describe('on a store that serves one locale', () => {

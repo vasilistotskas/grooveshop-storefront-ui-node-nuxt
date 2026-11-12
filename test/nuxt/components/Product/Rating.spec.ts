@@ -26,6 +26,18 @@ describe('Product/Rating', () => {
     expect(wrapper.text()).toContain('4,0 · 1 αξιολόγηση')
   })
 
+  // happy-dom lays nothing out, so the classes are the contract: the link
+  // is as wide as what it shows, and takes its row's alignment, centred
+  // beside the product page's 44px price-trend button rather than at the
+  // row's top.
+  it('keeps the link to its own width and leaves its alignment to its row', async () => {
+    const wrapper = await mountSuspended(Rating, { route: false, props: { average: 8, count: 1, href: '#reviews', verbose: true } })
+
+    const link = wrapper.get('a')
+    expect(link.classes()).toContain('w-fit')
+    expect(link.classes().filter(name => name.startsWith('self-'))).toEqual([])
+  })
+
   it('names the link by the text on screen, then says it is out of five', async () => {
     const wrapper = await mountSuspended(Rating, { route: false, props: { average: 9.8, count: 4, href: '#reviews', verbose: true } })
 

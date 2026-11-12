@@ -55,6 +55,8 @@ export const BUILDER_SCHEMATICS: Readonly<Record<string, readonly BuilderSchemat
   hero_banner: heroBanner,
   hero_carousel: [...heroBanner, shape('accent', 52, 72, 4, 4, true), shape('text', 60, 72, 4, 4, true), shape('text', 68, 72, 4, 4, true)],
   loyalty_hero: [frame(0, 0, 120, 80), ...copy(10, 16, 56), accent(10, 54, 30), frame(76, 16, 34, 44)],
+  // Text, search and buttons on the left; the picture over a product card on the right.
+  hero_showcase: [...copy(8, 14, 48), frame(8, 40, 48, 10), accent(8, 56, 22), shape('frame', 34, 56, 22, 8, true), frame(64, 10, 50, 26), frame(64, 42, 50, 28), accent(96, 60, 14, 6)],
 
   // Products
   featured_products: productRow(3),
@@ -83,6 +85,7 @@ export const BUILDER_SCHEMATICS: Readonly<Record<string, readonly BuilderSchemat
   trust_badges: [frame(6, 30, 108, 20), ...[0, 1, 2, 3].flatMap(badge => [shape('accent', 12 + badge * 27, 36, 8, 8, true), text(23 + badge * 27, 38, 14)])],
   stats_strip: [...[0, 1, 2].flatMap(column => [text(10 + column * 36, 28, 24, 10), text(10 + column * 36, 44, 30)])],
   partner_strip: [text(30, 14, 60, 5), ...[0, 1, 2, 3, 4].map(logo => frame(6 + logo * 22.5, 34, 18, 14))],
+  store_assurances: [...[0, 1, 2, 3].flatMap(promise => [shape('accent', 8 + promise * 27, 28, 10, 10, true), text(8 + promise * 27, 44, 22), text(8 + promise * 27, 52, 16)])],
 
   // Blog
   blog_posts_grid: [...bandHeading(), ...cards(22, 3, 30), text(6, 66, 30), text(44, 66, 30), text(82, 66, 30)],

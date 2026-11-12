@@ -104,3 +104,30 @@ export function categoryTrail(forest: readonly CategoryNode[], id: number): Cate
   }
   return []
 }
+
+/** Roots a menu lists, and how many children each may contribute. */
+const MENU_MAX_ROOTS = 8
+const MENU_MAX_CHILDREN = 8
+
+/**
+ * The category list as the menus draw it, in `locale`: the active roots,
+ * at most eight, each with at most eight children. Two levels and a cap
+ * on purpose: this is what reaches the payload of every page, and
+ * "all products" carries the rest.
+ */
+export function categoryMenu(all: readonly ProductCategory[], locale: string): CategoryMenuEntry[] {
+  const byParent = new Map<number | null, ProductCategory[]>()
+  for (const category of all) {
+    if (category.active === false) continue
+    const parent = category.parent ?? null
+    const siblings = byParent.get(parent)
+    if (siblings) siblings.push(category)
+    else byParent.set(parent, [category])
+  }
+
+  return (byParent.get(null) ?? []).slice(0, MENU_MAX_ROOTS).map(root => categoryMenuEntry(
+    root,
+    locale,
+    (byParent.get(root.id) ?? []).slice(0, MENU_MAX_CHILDREN).map(child => categoryMenuEntry(child, locale)),
+  ))
+}

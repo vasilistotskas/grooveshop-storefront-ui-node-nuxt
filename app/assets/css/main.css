@@ -24,6 +24,13 @@
   --color-on-volt: #17171a;
 }
 
+/* Each colour-scheme block below is written for `<html>` and for a part
+   of the page forced into that scheme with Nuxt UI's own `.light` /
+   `.dark` class (a band whose `colorScheme` is light or dark): `.light` here,
+   `.dark` already matches any element. The store's theme block does the
+   same (`shared/theme/compile.ts`), so a forced part takes the store's
+   colours, and the innermost class wins. */
+.light,
 :root {
   --ui-bg: var(--ui-color-neutral-50);
   /* The ALTERNATE page surface, for a design that stacks bands and
@@ -107,10 +114,10 @@
      per request. Drives the `font-mono` utility, so numeric/spec
      typography and `code` follow the tenant face together. */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --ui-success: var(--color-success-600);
-  --ui-info: var(--color-info-600);
-  --ui-warning: var(--color-warning-600);
-  --ui-error: var(--color-error-600);
+  --ui-success: var(--ui-color-success-600);
+  --ui-info: var(--ui-color-info-600);
+  --ui-warning: var(--ui-color-warning-600);
+  --ui-error: var(--ui-color-error-600);
   /* The filled stars of a rating: ONE warm amber in every theme, never
      the page's ink or grey. 3.3:1 on the warm Volt ground (a graphic needs 3:1); the
      `.dark` block lightens it. Volt does not redefine it, so both
@@ -130,21 +137,47 @@
    Offsets, bottom up: `--dock-base` (gap above the safe area, or above
    the ESPA strip that floats along a phone's bottom edge), then the tab
    bar, then a sticky bar (phones and tablets only; on a desktop it is a
-   centred card that no corner button reaches), then a floating button. */
+   centred card that no corner button reaches), then a floating button.
+
+   A design may draw its tab bar and sticky bar edge to edge instead of
+   floating (webside's, marked `data-dock-flush` as well): they have no
+   gap, at every width. The bottom-most one stands on the screen's edge
+   (or on the floating funding strip, `--dock-edge`) and pads the rest
+   of the inset inside itself, so no page shows under the home
+   indicator; the sticky bar stands on the tab bar when there is one
+   (`--dock-floor`, `--dock-floor-pad`). Either way the flush bars
+   cover `--dock-inset` plus their heights, and what floats above them
+   (`--dock-stack`, `--dock-top`) keeps its gap. */
 :root {
   --dock-gap: 0.75rem;
   --dock-tabbar-height: 4rem;
   --dock-bar-height: 4.125rem;
   --dock-fab-size: 3.5rem;
   --dock-edge: 0px;
-  --dock-base: calc(var(--dock-gap) + max(env(safe-area-inset-bottom), var(--dock-edge)));
+  --dock-inset: max(env(safe-area-inset-bottom), var(--dock-edge));
+  --dock-base: calc(var(--dock-gap) + var(--dock-inset));
   --dock-tabbar: 0px;
   --dock-bar: 0px;
   --dock-fab: 0px;
+  --dock-floor: var(--dock-edge);
+  --dock-floor-pad: calc(var(--dock-inset) - var(--dock-edge));
+  /* Above the bars; and above them and the floating button. */
+  --dock-stack: calc(var(--dock-base) + var(--dock-tabbar) + var(--dock-bar));
+  --dock-top: calc(var(--dock-stack) + var(--dock-fab));
 }
 
 :root:has([data-dock="tabbar"]) {
   --dock-tabbar: calc(var(--dock-tabbar-height) + var(--dock-gap));
+}
+
+:root:has([data-dock="tabbar"][data-dock-flush]) {
+  --dock-tabbar: var(--dock-tabbar-height);
+  --dock-floor: calc(var(--dock-inset) + var(--dock-tabbar-height));
+  --dock-floor-pad: 0px;
+}
+
+:root:has([data-dock="bar"][data-dock-flush]) {
+  --dock-bar: var(--dock-bar-height);
 }
 
 :root:has([data-dock="fab"]) {
@@ -200,11 +233,11 @@
   --ui-on-success: #1f1f23;
 
   /* Semantic colors - lighter shades for dark mode */
-  --ui-primary: var(--color-primary-100);
-  --ui-success: var(--color-success-400);
-  --ui-info: var(--color-info-400);
-  --ui-warning: var(--color-warning-400);
-  --ui-error: var(--color-error-400);
+  --ui-primary: var(--ui-color-primary-100);
+  --ui-success: var(--ui-color-success-400);
+  --ui-info: var(--ui-color-info-400);
+  --ui-warning: var(--ui-color-warning-400);
+  --ui-error: var(--ui-color-error-400);
   --ui-rating: #fbbf24;
 }
 
@@ -253,6 +286,7 @@
    Its faces are not here either: they are part of the theme
    (`themeDefaultsFor('volt').fonts`), so the server knows which families
    a page declares. */
+[data-design="volt"] :where(.light),
 [data-design="volt"] {
   --ui-header-height: 3.75rem;
 
@@ -309,6 +343,7 @@
 }
 
 @media (width >= 64rem) {
+  [data-design="volt"] :where(.light),
   [data-design="volt"] {
     --ui-header-height: 4.5rem;
   }
@@ -319,6 +354,7 @@
    4.03:1, under AA for a button label, and ink is 4.79:1 — so the
    accent carries ink, the same choice `readableTextOn` makes for a
    tenant accent (`shared/utils/contrast.ts`). */
+[data-design="volt"] :where(.dark),
 [data-design="volt"]:where(.dark) {
   --ui-bg: #17171a;
   --ui-bg-muted: #0e0e10;

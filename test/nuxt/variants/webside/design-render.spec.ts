@@ -394,7 +394,7 @@ describe('webside design render', () => {
   it('mobile bottom nav', async () => {
     // It only exists below the `lg` breakpoint (`MobileOrTabletOnly`).
     await atViewportWidth(375, () => expectSnapshot(MobileBottomNav, {}, (html) => {
-      expect(html).toContain('aria-label="Mobile navigation"')
+      expect(html).toContain('aria-label="Γρήγορη πλοήγηση"')
     }))
   })
 

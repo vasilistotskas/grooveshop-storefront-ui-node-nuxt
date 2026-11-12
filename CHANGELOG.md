@@ -1,3 +1,10 @@
+# [3.338.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.2...v3.338.0) (2026-11-12)
+
+
+### Features
+
+* **builder:** a hero with picture and search, shopping promises, topic tiles, and sections forced light or dark ([#449](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/449)) ([d6ae5d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d6ae5d4888c6b365f9fc04f8495a70a661e1dab7)), closes [#447](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/447)
+
 ## [3.337.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.1...v3.337.2) (2026-11-10)
 
 

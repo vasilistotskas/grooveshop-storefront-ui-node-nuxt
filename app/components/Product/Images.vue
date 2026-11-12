@@ -121,7 +121,10 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
         size="sm"
         square
         :aria-label="t('zoom')"
-        class="absolute inset-e-3.5 bottom-3.5"
+        class="
+          absolute inset-e-3.5 bottom-3.5
+          after:absolute after:-inset-2
+        "
         @click="openZoom"
       />
     </div>

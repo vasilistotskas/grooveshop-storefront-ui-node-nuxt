@@ -50,4 +50,37 @@ describe('PageSection/BlogCategories', () => {
 
     expect(wrapper.find('section').exists()).toBe(false)
   })
+
+  it('carries a sub-line and a call to action over the rail', async () => {
+    const wrapper = await mountBand({ subheading: 'Σύντομα άρθρα.', ctaText: 'Όλα τα άρθρα', ctaLink: '/blog' })
+
+    expect(wrapper.text()).toContain('Σύντομα άρθρα.')
+    expect(wrapper.get('a[href="/blog"]').text()).toContain('Όλα τα άρθρα')
+    expect(wrapper.find('[data-test="slider"]').exists()).toBe(true)
+  })
+
+  it.each([undefined, 'slider'])('draws the rail for layout %j', async (layout) => {
+    const wrapper = await mountBand({ layout }, {
+      BlogCategoriesSlider: { template: '<div data-test="slider" />' },
+      PageSectionBlogCategoryTiles: { template: '<div data-test="tiles" />' },
+    })
+
+    expect(wrapper.find('[data-test="slider"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="tiles"]').exists()).toBe(false)
+  })
+
+  it('hands the tiles layout the band settings and the categories', async () => {
+    const wrapper = await mountBand({ layout: 'tiles', subheading: 'Σύντομα άρθρα.', ctaText: 'Όλα', ctaLink: '/blog' }, {
+      BlogCategoriesSlider: { template: '<div data-test="slider" />' },
+      PageSectionBlogCategoryTiles: {
+        props: ['title', 'subheading', 'ctaText', 'ctaLink', 'categories'],
+        template: '<div data-test="tiles" :data-props="JSON.stringify({ title, subheading, ctaText, ctaLink, count: categories.items.length })" />',
+      },
+    })
+
+    expect(wrapper.find('[data-test="slider"]').exists()).toBe(false)
+    expect(JSON.parse(wrapper.get('[data-test="tiles"]').attributes('data-props')!)).toEqual({
+      title: 'Κατηγορίες', subheading: 'Σύντομα άρθρα.', ctaText: 'Όλα', ctaLink: '/blog', count: 1,
+    })
+  })
 })

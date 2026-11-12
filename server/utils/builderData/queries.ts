@@ -48,9 +48,12 @@ export function mediaQueries(ids: readonly number[]): DjangoQuery[] {
 export function productQuery(descriptor: unknown): DjangoQuery {
   const parsed = parseDescriptor(DATA_DESCRIPTORS.product(DATA_LIMITS.maxQueryLimit), descriptor)
   if (parsed.mode === 'picked') throw new Error('A hand-picked list is read by id, not by query')
+  const orderBy = PRODUCT_ORDER_BY[parsed.ordering]
   return {
     pageSize: parsed.limit,
-    ordering: PRODUCT_ORDER_BY[parsed.ordering],
+    // The API takes a comma-separated ordering: the products on sale ahead of the rest, then the merchant's order.
+    ordering: parsed.stock === 'inStockFirst' ? `-availabilityPriority,${orderBy}` : orderBy,
+    ...(parsed.stock === 'inStockOnly' && { inStock: true }),
     // Django's `category` filter takes ids joined by `_` and includes every descendant.
     ...(parsed.categories && { category: [...new Set(parsed.categories)].sort((a, b) => a - b).join('_') }),
     ...(parsed.ordering === 'discounted' && { minAnnouncedDiscountPercent: 1 }),

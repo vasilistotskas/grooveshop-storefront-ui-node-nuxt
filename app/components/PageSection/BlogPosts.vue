@@ -22,6 +22,7 @@ const props = defineProps<{
   ctaText?: string
   ctaLink?: string
   surface?: 'default' | 'muted'
+  colorScheme?: SectionColorScheme
   /** What the band lists: the posts, and the rule or hand-picked list they came from. */
   posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
   /** `blog_posts_list`'s setting: a button reads the next posts of the same list below these. */
@@ -30,10 +31,24 @@ const props = defineProps<{
 
 const { t } = useStoreI18n('components/PageSection/BlogPosts')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 // The name of each post's category is the store's own list of categories:
 // one shared read for every band and page that shows one.
-const categoryName = await useBlogCategoryNames()
+const categories = await useBlogCategoryNames()
+const categoryName = categories.name
+
+/**
+ * Where "see all" goes when the operator gave no link: the page of the ONE
+ * category the rule lists, at its current slug, as a products band keeps its
+ * in-stock rule; the blog when the rule names no single category (or that
+ * category is not in the store's list any more).
+ */
+const allPostsLink = computed(() => {
+  const descriptor = props.posts.descriptor
+  const path = descriptor.mode === 'filter' && descriptor.category !== undefined ? categories.path(descriptor.category) : undefined
+  return path ? linkTo(path) : localePath('blog')
+})
 
 const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadMore({
   posts: () => props.posts,
@@ -48,8 +63,9 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
-    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('blog')"
+    :cta-link="ctaLink ? linkTo(ctaLink) : allPostsLink"
     :surface="surface"
+    :color-scheme="colorScheme"
   >
     <BlogRail
       :posts="items"

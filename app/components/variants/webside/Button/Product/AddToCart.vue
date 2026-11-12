@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+import type { ButtonProps } from '#ui/types'
+
 const props = defineProps({
   product: { type: Object as PropType<Product | ProductCard>, required: true },
   quantity: { type: Number, required: false, default: 1 },
@@ -15,6 +17,21 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false,
+  },
+  // The caller decides how big its own button is: a product card's,
+  // the suggestion strip's square one and the sticky bar's differ.
+  size: {
+    type: String as PropType<ButtonProps['size']>,
+    required: false,
+    default: 'xl',
+  },
+  // A short visible label ("Στο καλάθι") when `text`, the accessible
+  // name, says more ("Στο καλάθι: <product>"); the name must contain the
+  // label (WCAG 2.5.3).
+  label: {
+    type: String,
+    required: false,
+    default: undefined,
   },
 })
 
@@ -59,12 +76,19 @@ const disabled = computed(() => {
   }
   return false
 })
-const label = computed(() => {
+const accessibleName = computed(() => {
   if (disabled.value) {
     return t('unavailable')
   }
   return text.value
 })
+const visibleLabel = computed(() => (disabled.value ? t('unavailable') : props.label ?? text.value))
+// A product that cannot be bought looks unavailable wherever the button
+// renders (card, buy box, sticky bar): neutral and subtle, never a solid
+// fill a phone reads as live, at the disabled opacity. Its label stays
+// readable: 4.7:1 in light, 7.3:1 in dark, measured on the page.
+const buttonColor = computed<ButtonProps['color']>(() => (disabled.value ? 'neutral' : 'secondary'))
+const buttonVariant = computed<ButtonProps['variant']>(() => (disabled.value ? 'subtle' : 'solid'))
 
 const { addToCart } = useAddToCart({
   t,
@@ -82,28 +106,33 @@ const { addToCart } = useAddToCart({
 </script>
 
 <template>
+  <!-- The theme's accent, solid: the shop's primary action, in the one
+       colour the store chose for it. It used to be a pale green `subtle`
+       button (2.77:1 on white, under WCAG AA) and an orange one when the
+       product could not be bought. A product that cannot be bought gets
+       no colour of its own: neutral, subtle, disabled, and it says why. -->
   <UButton
     v-if="cartEnabled && iconOnly"
     icon="i-heroicons-shopping-cart"
-    size="lg"
+    :size="size"
     square
     loading-auto
-    :color="disabled ? 'warning' : 'success'"
-    variant="solid"
+    :color="buttonColor"
+    :variant="buttonVariant"
     :disabled="disabled"
-    :aria-label="label"
-    :title="label"
+    :aria-label="accessibleName"
+    :title="accessibleName"
     @click.prevent="addToCart"
   />
   <UButton
     v-else-if="cartEnabled"
     icon="i-heroicons-shopping-cart"
-    :label="label"
-    size="xl"
+    :label="visibleLabel"
+    :size="size"
     :trailing="true"
     loading-auto
-    :color="disabled ? 'warning' : 'success'"
-    variant="subtle"
+    :color="buttonColor"
+    :variant="buttonVariant"
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
     :ui="{
@@ -115,7 +144,7 @@ const { addToCart } = useAddToCart({
 
 <i18n lang="yaml">
 el:
-  unavailable: Μή Διαθέσιμο
+  unavailable: Μη διαθέσιμο
   toast:
     adding_title: Προσθήκη στο καλάθι…
     added_title: Προστέθηκε στο καλάθι

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RouteLocationNamedI18n } from 'vue-router'
+import type { NavigationMenuItem } from '@nuxt/ui'
 
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
@@ -19,11 +19,17 @@ const giftCardsServing = useGatedRoute('/gift-cards')
 // Cart chrome for shop-dark tenants (content site now, eshop later).
 const cartEnabled = useStoreFeature('cart')
 
+// Every link here is shown while the page it opens is serving, as the
+// one table of gated routes says (`shared/utils/gatedRoutes.ts`).
 // Offers page discoverability: without it the store's automatic
 // promotions stay invisible until a shopper has already built a
 // qualifying cart.
-const promotionsEnabled = useStoreFeature('promotions')
-const blogEnabled = useStoreFeature('blog')
+const offersServing = useGatedRoute('/offers')
+const shopServing = useGatedRoute('/products')
+const blogServing = useGatedRoute('/blog')
+const searchServing = useGatedRoute('/search')
+const savedPostsServing = useGatedRoute('/account/favourites/posts')
+const { signIn } = useAuthLinks()
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -48,65 +54,163 @@ const isPathActive = (path?: string) => {
 }
 
 const { headerItems } = useNavigation()
+const { categories, hasCategories } = useCategoryMenu()
+const { blogCategories, hasBlogCategories } = useBlogCategoryMenu()
 
-interface DesktopNavItem {
-  key: string
+interface MenuTile {
+  id: number
   label: string
-  to?: RouteLocationNamedI18n
-  href?: string
-  active: boolean
+  /** Its page, before the locale prefix. */
+  to: string
+  imagePath: string
+  count: string
 }
 
-const navItems = computed<DesktopNavItem[]>(() => {
-  // Operator-configured header menu wins; the code list below keeps
-  // the platform chrome for unconfigured tenants — same contract as
-  // BurgerMenu's primaryItems.
-  const configured = headerItems.value
-  if (configured) {
-    return configured.map((item, index) => ({
-      key: `configured-${index}-${item.label}`,
-      label: item.label,
-      // Operator items carry paths, which NuxtLinkLocale accepts at
-      // runtime; the named-route type is narrower than reality here.
-      to: item.to as RouteLocationNamedI18n | undefined,
-      href: item.to ? undefined : item.href,
-      active: isPathActive(item.to),
-    }))
-  }
-  const base: DesktopNavItem[] = [
-    {
-      key: 'products',
-      label: t('shop'),
-      to: 'products',
-      active: isRouteActive('products'),
-    },
-  ]
-  if (blogEnabled.value) {
-    base.push({
-      key: 'blog',
-      label: t('blog'),
-      to: 'blog',
-      active: isRouteActive('blog'),
+/** What a dropdown shows: its tiles, then a link to everything. */
+interface MenuPanel {
+  dropdown: MenuDropdown
+  title: string
+  tiles: MenuTile[]
+  allLabel: string
+  allTo: string
+}
+
+/**
+ * The dropdowns that have something to show. The shop's opens the
+ * store's product categories, the blog's its topics; a list that is
+ * empty, switched off or failed to load leaves its entry a plain link,
+ * never an empty panel.
+ */
+const panels = computed<MenuPanel[]>(() => {
+  const out: MenuPanel[] = []
+  if (hasCategories.value) {
+    out.push({
+      dropdown: 'shop',
+      title: t('categories'),
+      tiles: categories.value.map(category => ({
+        id: category.id,
+        label: category.label,
+        to: category.to,
+        imagePath: category.imagePath,
+        count: t('products_count', category.productCount),
+      })),
+      allLabel: t('all_products'),
+      allTo: localePath('products'),
     })
   }
-  if (promotionsEnabled.value) {
+  if (hasBlogCategories.value) {
+    out.push({
+      dropdown: 'blog',
+      title: t('topics'),
+      tiles: blogCategories.value.map(topic => ({
+        id: topic.id,
+        label: topic.label,
+        to: topic.to,
+        imagePath: topic.imagePath,
+        count: t('articles_count', topic.postCount),
+      })),
+      allLabel: t('all_articles'),
+      allTo: localePath('blog'),
+    })
+  }
+  return out
+})
+
+/**
+ * The panel a link to `path` opens: the slot it is drawn in and the
+ * entries it lists. A section with none is a plain link
+ * (`withDropdownToggles`).
+ */
+const panelOf = (path: string | undefined): Pick<NavigationMenuItem, 'slot' | 'children'> => {
+  const dropdown = menuDropdownFor(path)
+  const panel = panels.value.find(candidate => candidate.dropdown === dropdown)
+  return panel
+    ? { slot: panel.dropdown, children: panel.tiles.map(tile => ({ label: tile.label, to: localePath(pathLocation(tile.to)) })) }
+    : {}
+}
+
+const navItems = computed<NavigationMenuItem[]>(() => {
+  // Operator-configured header menu wins; the code list below keeps
+  // the platform chrome for unconfigured tenants — same contract as
+  // BurgerMenu's. Either way the link to the listing and the link to
+  // the blog open their dropdowns.
+  const configured = headerItems.value
+  if (configured) {
+    return configured.map(item => ({
+      label: item.label,
+      to: item.to ? localePath(pathLocation(item.to)) : undefined,
+      href: item.to ? undefined : item.href,
+      target: item.href ? '_blank' : undefined,
+      active: isPathActive(item.to),
+      value: item.to ?? item.href,
+      ...panelOf(item.to),
+    }))
+  }
+  const base: NavigationMenuItem[] = []
+  if (shopServing.value) {
     base.push({
-      key: 'offers',
+      label: t('shop'),
+      to: localePath('products'),
+      active: isRouteActive('products'),
+      value: 'products',
+      ...panelOf('/products'),
+    })
+  }
+  if (blogServing.value) {
+    base.push({
+      label: t('blog'),
+      to: localePath('blog'),
+      active: isRouteActive('blog'),
+      value: 'blog',
+      ...panelOf('/blog'),
+    })
+  }
+  if (offersServing.value) {
+    base.push({
       label: t('offers'),
-      to: 'offers',
+      to: localePath('offers'),
       active: isRouteActive('offers'),
     })
   }
   if (giftCardsServing.value) {
     base.push({
-      key: 'gift-cards',
       label: t('gift_cards'),
-      to: 'gift-cards',
+      to: localePath('gift-cards'),
       active: isRouteActive('gift-cards'),
     })
   }
   return base
 })
+
+/** The section whose panel is open: the mouse on its name or button, or a tap, click or key on the button (`useMenuPanels`). */
+const openSection = ref<string>()
+const menuPanels = useMenuPanels(openSection)
+
+/** Where the menu hydrates: see the template. */
+const MENU_HYDRATION: (keyof HTMLElementEventMap)[] = ['pointermove', 'pointerdown', 'focusin']
+
+/**
+ * The bar's entries: the current section marked, and each section with a
+ * panel as its link plus a button that opens the panel.
+ *
+ * The button is at least 24px square (`min-w-6`; the bar makes it 28px
+ * tall), its arrow centred where it always sat: the item's -12px margin
+ * leaves it 12px of the row, as before. Where the pointer is coarse (a
+ * touch tablet) it is a 44px target in the same place: the names have no
+ * padding and the row's gap is 16px, so a name's end and the next name's
+ * start are 16 + 12 + 16 = 44px apart, and the button spans exactly that
+ * (-16px each side, -8px above and below), touching neither name and
+ * moving nothing in the row.
+ */
+const barItems = computed(() => withDropdownToggles(withCurrentPage(navItems.value, route.path), {
+  label: section => t('open_section', { section }),
+  class: `
+    -ms-3 min-h-6 min-w-6 justify-center px-1
+    pointer-coarse:-mx-4 pointer-coarse:-my-2 pointer-coarse:min-h-11
+    pointer-coarse:min-w-11
+  `,
+  open: openSection.value,
+}))
 
 const onClickLogout = async () => {
   if (!routeName.value) return
@@ -163,61 +267,136 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <LazyWebsideSearchInput v-if="!isMobileOrTablet" />
+      <LazyWebsideSearchInput v-if="searchServing && !isMobileOrTablet" />
+      <!-- Not positioned: a dropdown's panel is placed against the
+           header's row, so it spans the header rather than this cluster. -->
       <div
         class="
-          relative ml-auto hidden items-center
+          ml-auto hidden items-center
           lg:flex
         "
       >
-        <nav
-          :aria-label="t('navigation')"
+        <div
           class="
             flex items-center text-lg leading-6 font-semibold text-primary-950
             dark:text-primary-50
           "
+          @pointermove="menuPanels.onPointermove"
+          @pointerleave="menuPanels.onPointerleave"
+          @pointerdown="menuPanels.onPointerdown"
+          @pointerup="menuPanels.onPointerup"
+          @click.capture="menuPanels.onClickCapture"
         >
-          <ul class="flex items-center gap-4">
-            <li
-              v-for="item in navItems"
-              :key="item.key"
-              class="flex w-full gap-4"
+          <!-- Keyboard, focus and screen-reader behaviour of the
+               dropdowns are the menu's own (Reka's NavigationMenu). -->
+          <!-- Hydrated by the first pointer move, tap or focus on it, which
+               Vue replays once hydrated (`hydrateOnInteraction`): Reka opens
+               a panel on a pointer MOVE, so the default `pointerenter`
+               replayed into nothing and the first hover after a page load
+               opened no panel. Still lazy, so the menu's code runs only for a
+               visitor who reaches for it. -->
+          <LazyUNavigationMenu
+            v-model="openSection"
+            :hydrate-on-interaction="MENU_HYDRATION"
+            disable-hover-trigger
+            disable-pointer-leave-close
+            :content="{ onEscapeKeyDown: menuPanels.onEscapeKeyDown }"
+            :items="barItems"
+            :aria-label="t('navigation')"
+            color="neutral"
+            variant="link"
+            highlight
+            highlight-color="secondary"
+            :ui="{
+              root: 'static',
+              list: 'gap-4',
+              item: 'py-0',
+              link: `
+                px-0 text-lg font-semibold capitalize
+                after:inset-x-0 after:-bottom-1 after:h-0.5
+              `,
+              linkTrailingIcon: 'size-4',
+              viewportWrapper: 'top-[calc(100%+1.5rem)] z-10',
+              viewport: 'rounded-xl shadow-lg',
+            }"
+          >
+            <template
+              v-for="panel in panels"
+              :key="panel.dropdown"
+              #[`${panel.dropdown}-content`]
             >
-              <div>
-                <Anchor
-                  :text="item.label"
-                  :title="item.label"
-                  :to="item.to"
-                  :href="item.href ?? ''"
-                  :aria-current="item.active ? 'page' : undefined"
+              <div class="flex flex-col gap-3 p-6">
+                <p
+                  class="text-xs font-bold tracking-wider text-muted uppercase"
+                >
+                  {{ panel.title }}
+                </p>
+                <ul
                   class="
-                    relative text-lg capitalize transition-colors
-                    after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5
-                    after:bg-(--ui-secondary) after:transition-transform
-                    after:duration-200
-                    motion-reduce:after:transition-none
-                  "
-                  :class="
-                    item.active
-                      ? `
-                        font-bold text-primary-900
-                        after:scale-x-100
-                        dark:text-primary-50
-                      `
-                      : `
-                        text-primary-700
-                        after:scale-x-0
-                        hover:text-primary-900
-                        dark:text-primary-200
-                        hover:dark:text-primary-50
-                      `
+                    grid grid-cols-2 gap-4
+                    xl:grid-cols-3
                   "
                 >
-                  {{ item.label }}
-                </Anchor>
+                  <li
+                    v-for="tile in panel.tiles"
+                    :key="tile.id"
+                  >
+                    <ULink
+                      :to="localePath(pathLocation(tile.to))"
+                      class="
+                        flex items-center gap-4 rounded-lg border border-default
+                        p-3 text-highlighted transition-colors
+                        hover:border-secondary
+                        motion-reduce:transition-none
+                      "
+                    >
+                      <ImgWithFallback
+                        v-if="tile.imagePath"
+                        :src="tile.imagePath"
+                        alt=""
+                        :width="96"
+                        :height="96"
+                        fit="cover"
+                        loading="lazy"
+                        densities="x1 x2"
+                        class="
+                          size-24 shrink-0 rounded-lg bg-elevated object-cover
+                        "
+                      />
+                      <span class="flex min-w-0 flex-col gap-1">
+                        <span class="text-lg font-bold">{{ tile.label }}</span>
+                        <span
+                          class="
+                            flex items-center gap-1 text-sm font-semibold
+                            text-secondary
+                          "
+                        >
+                          {{ tile.count }}
+                          <UIcon
+                            name="i-heroicons-arrow-right"
+                            class="size-4"
+                          />
+                        </span>
+                      </span>
+                    </ULink>
+                  </li>
+                </ul>
+                <ULink
+                  :to="panel.allTo"
+                  class="
+                    inline-flex min-h-11 items-center gap-1.5 self-start
+                    text-base font-semibold text-secondary
+                  "
+                >
+                  {{ panel.allLabel }}
+                  <UIcon
+                    name="i-heroicons-arrow-right"
+                    class="size-4"
+                  />
+                </ULink>
               </div>
-            </li>
-          </ul>
+            </template>
+          </LazyUNavigationMenu>
           <ul
             class="
               flex items-center gap-3 pl-6 text-primary-950
@@ -233,7 +412,7 @@ const items = computed(() => [
               <LazyWebsideLanguageSwitcher hydrate-on-interaction />
             </li>
             <li
-              v-if="blogEnabled"
+              v-if="savedPostsServing"
               class="
                 relative grid max-w-6 items-center justify-center
                 justify-items-center
@@ -241,7 +420,7 @@ const items = computed(() => [
             >
               <UButton
                 :aria-label="t('favourites')"
-                :to="loggedIn ? localePath('account-favourites-posts') : localePath('account-login')"
+                :to="loggedIn ? localePath('account-favourites-posts') : localePath(signIn)"
                 class="p-0"
                 color="neutral"
                 icon="i-heroicons-heart"
@@ -386,7 +565,7 @@ const items = computed(() => [
               <Anchor
                 :title="t('login')"
                 :aria-label="t('login')"
-                :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
+                :to="signIn"
                 class="
                   flex size-[30px] items-center self-center text-[1.5rem]
                   text-primary-700
@@ -400,7 +579,7 @@ const items = computed(() => [
               </Anchor>
             </li>
           </ul>
-        </nav>
+        </div>
       </div>
     </template>
   </WebsideBuilderNavbar>
@@ -411,8 +590,22 @@ el:
   navigation: Πλοήγηση
   user:
     profile: Προφίλ
+  categories: Κατηγορίες
+  topics: Θέματα
+  open_section: "Μενού: {section}"
+  products_count: "{count} προϊόν | {count} προϊόντα"
+  articles_count: "{count} άρθρο | {count} άρθρα"
+  all_products: Όλα τα προϊόντα
+  all_articles: Όλα τα άρθρα
 en:
   navigation: Navigation
   user:
     profile: Profile
+  categories: Categories
+  topics: Topics
+  open_section: "{section} menu"
+  products_count: "{count} product | {count} products"
+  articles_count: "{count} article | {count} articles"
+  all_products: All products
+  all_articles: All articles
 </i18n>

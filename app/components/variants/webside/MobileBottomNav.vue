@@ -1,11 +1,32 @@
 <script lang="ts" setup>
+/**
+ * Webside's phone tab bar: Home, Shop, Blog, Cart (with its count) and
+ * Account, each only while its store feature is on. Search stays in the
+ * header. The entries are the platform's (`useBottomNavItems`); webside
+ * picks its tabs and its cart icon, the one its header and its buy
+ * button use.
+ *
+ * A strip along the screen's bottom edge rather than the default design's
+ * floating dock, and it docks as one (`data-dock` + `data-dock-flush`,
+ * `app/assets/css/main.css`): it stands on the edge, or on the floating
+ * funding strip (`--dock-edge`), is `--dock-tabbar-height` tall plus the
+ * rest of the bottom inset it pads, and the sticky add-to-cart bar, the
+ * assistant and the cookie notice stack on top of it at every width.
+ */
 const props = withDefaults(defineProps<{
   includeCart?: boolean
 }>(), {
   includeCart: true,
 })
 
-const { items } = useMobileNavItems({ includeCart: props.includeCart })
+const { t } = useStoreI18n('components/variants/webside/MobileBottomNav')
+
+const { items } = useBottomNavItems({
+  tabs: ['home', 'shop', 'blog', 'cart', 'account'],
+  icons: { cart: 'i-heroicons-shopping-cart' },
+  accountAvatar: true,
+  includeCart: props.includeCart,
+})
 
 // Hide the bottom nav while the on-screen keyboard is open so it doesn't
 // eat the visible viewport. `visualViewport.height` shrinks when the
@@ -30,31 +51,48 @@ onMounted(() => {
     <UNavigationMenu
       orientation="horizontal"
       :items="items"
-      :aria-label="'Mobile navigation'"
+      :aria-label="t('mobile_navigation')"
+      :data-dock="keyboardOpen ? undefined : 'tabbar'"
+      data-dock-flush
       highlight
       :ui="{
         root: `
-          fixed inset-x-0 bottom-0 z-50 block w-full border-t border-primary-200
-          bg-primary-50/90 backdrop-blur-md transition-transform duration-200
+          fixed inset-x-0 bottom-(--dock-edge) z-50 block
+          h-[calc(var(--dock-tabbar-height)+var(--dock-inset)-var(--dock-edge))]
+          w-full border-t border-primary-200 bg-primary-50/90
+          pb-[calc(var(--dock-inset)-var(--dock-edge))] backdrop-blur-md
+          transition-transform duration-200
+          motion-reduce:transition-none
           dark:border-primary-700 dark:bg-primary-900/90
+          [&>div]:h-full
           ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}
         `,
-        list: 'w-full',
-        item: 'w-full',
+        // The tabs share the bar's width in equal columns (`flex-1` from a
+        // zero basis): with `w-full` each kept its content's width and five
+        // ran past a 390px screen. A column is 64px at 320, the label set
+        // tight without side padding: «Λογαριασμός», the longest, is 59px
+        // at 10px in the system face (61px in Arial).
+        list: 'size-full',
+        item: 'flex min-w-0 flex-1 items-center py-0',
         link: `
-          relative flex min-h-12 flex-col items-center justify-center gap-0.5
+          relative flex min-h-12 w-full flex-col items-center justify-center
+          gap-0.5 px-0
           before:bg-transparent
           data-active:text-(--ui-secondary)
           data-active:before:bg-secondary/10
           dark:before:bg-transparent
         `,
-        linkLabel: 'text-[10px] leading-tight font-medium',
+        linkLabel: 'text-[10px] leading-tight font-medium tracking-tight',
         linkLeadingIcon: 'size-6',
         linkLeadingAvatar: 'size-6',
-      }"
-      :style="{
-        paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))',
       }"
     />
   </MobileOrTabletOnly>
 </template>
+
+<i18n lang="yaml">
+el:
+  mobile_navigation: Γρήγορη πλοήγηση
+en:
+  mobile_navigation: Quick navigation
+</i18n>

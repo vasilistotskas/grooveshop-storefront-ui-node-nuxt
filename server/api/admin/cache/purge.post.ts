@@ -14,7 +14,9 @@ import { defineEventHandler, readValidatedBody } from 'nuxt/server'
  *     patterns: string[]  // glob patterns; trailing `*` is implicit when stripped
  *     builderDocuments?: string[] // page builder documents that changed (`template:home`,
  *                         // `page:summer-sale`, `group:header`, `theme`): the pages that
- *                         // draw them are purged, see `builderDocumentMatchers`
+ *                         // draw them are purged, see `builderDocumentMatchers`; for a
+ *                         // page or template, the store's cached record data first
+ *                         // (`builderRecordDataMatchers`)
  *     dryRun?: boolean    // default false
  *     host?: string       // scope to one tenant's keys (see bodySchema)
  *     tenantConfig?: boolean // default false: the purge follows a change to the
@@ -120,7 +122,14 @@ export default defineEventHandler(async (event) => {
   let skippedForeignTenant = 0
   const visited = new Set<string>()
 
-  const matchers = [...body.patterns.map(patternToMatcher), ...builderDocumentMatchers(body.builderDocuments)]
+  // In order, each finished before the next: the record data a purged page
+  // reads goes BEFORE the page, so a render after this purge cannot store
+  // the old data again; the answer waits for all of them.
+  const matchers = [
+    ...body.patterns.map(patternToMatcher),
+    ...builderRecordDataMatchers(body.builderDocuments),
+    ...builderDocumentMatchers(body.builderDocuments),
+  ]
   for (const { prefix, accepts } of matchers) {
     let keys: string[]
     try {

@@ -313,11 +313,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </div>
       </div>
 
-      <LazyWebsideAccountAreaButtonProductAddToCart
+      <LazyWebsideButtonProductAddToCart
         v-if="showAddToCartButton"
         :product="product"
         :quantity="1"
         :text="t('add_to_cart')"
+        size="lg"
         class="relative z-10 w-full"
       />
     </div>
@@ -327,7 +328,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 <i18n lang="yaml">
 el:
   share: Κοινοποίηση
-  add_to_cart: Προσθήκη στο καλάθι
+  add_to_cart: Στο καλάθι
   out_of_stock: Εξαντλημένο
   new: Νέο
   only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν

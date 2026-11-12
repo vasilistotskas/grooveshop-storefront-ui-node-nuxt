@@ -30,7 +30,7 @@ const STUBS = {
   PageBreadcrumb: { template: '<nav data-stub="breadcrumb" />' },
 }
 
-const section = (componentType: string): BuilderSection => ({ id: `id-${componentType}`, componentType, props: {} })
+const section = (componentType: string, props: BuilderSection['props'] = {}): BuilderSection => ({ id: `id-${componentType}`, componentType, props })
 
 beforeEach(() => {
   layout.sections = []
@@ -74,7 +74,7 @@ describe('Storefront/Contact', () => {
   })
 
   it('leaves the heading and the breadcrumb to a layout that opens with its own hero', async () => {
-    layout.sections = [section('hero_banner')]
+    layout.sections = [section('hero_banner', { heading: 'Μίλα μαζί μας' })]
 
     const wrapper = await mount()
 

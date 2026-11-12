@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, onTestFinished } from 'vitest'
 import type { ProductAttribute, PublicValues } from '~~/shared/openapi/types.gen'
 import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
@@ -11,6 +11,7 @@ import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { inlineCopy, inlineT } from '~~/test/helpers/inlineCopy'
 
 // The wholesale price is hydrated on the client for a signed-in business
 // customer (useB2BPricing's own spec covers how); here it is what the
@@ -766,8 +767,9 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail w
 // Low stock is the product's own threshold on every store (lowStockLeft);
 // each drawing words it in its own copy.
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail stock', ({ tree, C }) => {
-  const lowStockOf = (count: number) => (tree === 'default' ? `Έμειναν μόνο ${count}` : `Χαμηλό απόθεμα (${count})`)
-  const SOLD_OUT = tree === 'default' ? 'Εξαντλήθηκε' : 'Μη διαθέσιμο'
+  const pageT = inlineT(tree === 'default' ? 'app/components/Storefront/ProductDetail.vue' : 'app/components/variants/webside/Storefront/ProductDetail.vue')
+  const lowStockOf = (count: number) => pageT('low_stock', { count }, count)
+  const SOLD_OUT = pageT('out_of_stock')
 
   function serve(product: ReturnType<typeof makeProduct>) {
     clearNuxtData()
@@ -813,6 +815,37 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
 
     expect(wrapper.text()).not.toContain(lowStockOf(3))
     expect(wrapper.text()).toContain('Διαθέσιμο')
+    wrapper.unmount()
+  })
+
+  // A product that cannot be bought gets no quantity control, in the buy
+  // box or in webside's sticky bar (shown once the page has scrolled past
+  // the buy box): a disabled stepper is a control with nothing to do.
+  it.each([
+    { stock: 0, drawn: false },
+    { stock: 5, drawn: true },
+  ])('draws a quantity control only for a product it sells (stock $stock)', async ({ stock, drawn }) => {
+    serve(makeProduct({ id: 123, stock }))
+    setTenantPreferences({ stickyAddToCart: true })
+    // Past the buy box: the sticky bar shows from 350px down.
+    windowScrollY.value = 1000
+    onTestFinished(() => {
+      windowScrollY.value = 0
+    })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.find('[data-action-bar], [data-dock="bar"]').exists()).toBe(true)
+    expect(wrapper.find('#quantity').exists()).toBe(drawn)
+    // Nuxt UI's stepper in the buy box, and webside's sticky bar's own.
+    const { increment, decrement } = uiLocale.messages.inputNumber
+    const websideCopy = inlineCopy('app/components/variants/webside/Storefront/ProductDetail.vue')
+    const sticky = [websideCopy.decrease_quantity, websideCopy.increase_quantity]
+    const steppers = wrapper.findAll('button').map(button => button.attributes('aria-label')).filter(label => [increment, decrement, ...sticky].includes(label ?? ''))
+    expect(steppers).toEqual(drawn
+      ? (tree === 'default' ? [increment, decrement] : [increment, decrement, ...sticky])
+      : [])
     wrapper.unmount()
   })
 
@@ -883,7 +916,8 @@ describe('webside ProductDetail sticky bar', () => {
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail buying controls', ({ tree, C }) => {
   const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
   const empty = { count: 0, next: null, previous: null, results: [] }
-  const buyLabel = tree === 'default' ? 'Στο καλάθι' : 'Αγορά'
+  // The page names its buy button in its own words (`<i18n>` block).
+  const buyLabel = inlineCopy(tree === 'default' ? 'app/components/Storefront/ProductDetail.vue' : 'app/components/variants/webside/Storefront/ProductDetail.vue').add_to_cart
 
   async function mountPage(features: { cart: boolean }) {
     clearNuxtData()

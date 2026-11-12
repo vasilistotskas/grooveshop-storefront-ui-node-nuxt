@@ -10,6 +10,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { failWith } from '~~/test/helpers/api'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
@@ -40,9 +41,12 @@ mockNuxtImport('useToast', () => () => toast)
 mockNuxtImport('useMediaQuery', () => () => ref(viewport.desktop))
 mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://media.test/${path}`)
 
-// Webside's own button keeps its wording; the default design's is spelt Μη διαθέσιμο.
-const UNAVAILABLE_LABEL = { default: 'Μη διαθέσιμο', webside: 'Μή Διαθέσιμο' }
-const BUY = 'Αγορά'
+/** Each design's own word for a product that cannot be bought, from its `<i18n>` block. */
+const UNAVAILABLE_IN = {
+  default: inlineCopy('app/components/Button/Product/AddToCart.vue').unavailable,
+  webside: inlineCopy('app/components/variants/webside/Button/Product/AddToCart.vue').unavailable,
+}
+const BUY = 'Στο καλάθι'
 
 /** Put `lines` in the cart, and make a write answer with it, as Django answers with the cart. */
 function cartHolds(lines: CartItemOverrides[] = []) {
@@ -52,6 +56,7 @@ function cartHolds(lines: CartItemOverrides[] = []) {
 }
 
 describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tree Button/Product/AddToCart', ({ tree, C }) => {
+  const UNAVAILABLE = UNAVAILABLE_IN[tree]
   beforeEach(async () => {
     setTenant()
     await useCartStore().cleanCartState()
@@ -105,8 +110,8 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
       const button = wrapper.find('button')
 
       expect(button.attributes('disabled')).toBeDefined()
-      expect(button.text()).toBe(UNAVAILABLE_LABEL[tree])
-      expect(button.attributes('aria-label')).toBe(UNAVAILABLE_LABEL[tree])
+      expect(button.text()).toBe(UNAVAILABLE)
+      expect(button.attributes('aria-label')).toBe(UNAVAILABLE)
     })
 
     it.each([
@@ -122,12 +127,48 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
       expect(button.text()).toBe(BUY)
     })
 
+    // The colour IS the contract here: the buy button is the theme's
+    // accent, solid, in every design (webside's was a pale green
+    // `subtle` at 2.77:1). Read off the UButton's props, not its classes,
+    // which the theme decides.
+    it.each([{ iconOnly: false }, { iconOnly: true }])('is the theme accent, solid (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      const wrapper = await mount({ product: makeProduct(), iconOnly })
+      const button = wrapper.findComponent({ name: 'UButton' })
+
+      expect([button.props('color'), button.props('variant')]).toEqual(['secondary', 'solid'])
+    })
+
+    it.each([{ iconOnly: false }, { iconOnly: true }])('is the size its caller asks for (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      const wrapper = await mountSuspended(C, { route: false, props: { text: BUY, product: makeProduct(), iconOnly, size: 'sm' } })
+
+      expect(wrapper.findComponent({ name: 'UButton' }).props('size')).toBe('sm')
+    })
+
+    // WCAG 2.5.3: the accessible name contains the visible label.
+    it('shows its short label while its name says what it adds', async () => {
+      const wrapper = await mountSuspended(C, { route: false, props: { text: `${BUY}: Καλώδιο`, label: BUY, product: makeProduct() } })
+      const button = wrapper.get('button')
+
+      expect([button.attributes('aria-label'), button.find('[data-slot="label"]').text()]).toEqual([`${BUY}: Καλώδιο`, BUY])
+    })
+
+    // A button that cannot be used must not look like one that can: it was
+    // the accent (or webside's near-black) solid fill at the disabled
+    // opacity, which a phone reads as live. It is neutral and subtle,
+    // disabled, and says why, wherever it renders.
+    it.each([{ iconOnly: false }, { iconOnly: true }])('looks unavailable when the product cannot be bought (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      const wrapper = await mount({ product: makeProduct({ stock: 0 }), iconOnly })
+      const button = wrapper.findComponent({ name: 'UButton' })
+
+      expect([button.props('color'), button.props('variant'), button.props('disabled')]).toEqual(['neutral', 'subtle', true])
+    })
+
     it('names the icon-only button after its action or its unavailability', async () => {
       const available = await mount({ product: makeProduct(), iconOnly: true })
       const soldOut = await mount({ product: makeProduct({ stock: 0 }), iconOnly: true })
 
       expect(available.find('button').attributes('aria-label')).toBe(BUY)
-      expect(soldOut.find('button').attributes('aria-label')).toBe(UNAVAILABLE_LABEL[tree])
+      expect(soldOut.find('button').attributes('aria-label')).toBe(UNAVAILABLE)
     })
   })
 

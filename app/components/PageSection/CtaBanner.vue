@@ -25,7 +25,7 @@ const props = defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 /**
  * The copy's colour on the operator's `#RRGGBB` (the only shape the
@@ -89,7 +89,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 
         <UButton
           v-if="hasLink"
-          :to="localePath(pathLocation(buttonLink!))"
+          :to="linkTo(buttonLink!)"
           :label="buttonText"
           :color="isDarkBackground ? 'neutral' : 'secondary'"
           size="xl"

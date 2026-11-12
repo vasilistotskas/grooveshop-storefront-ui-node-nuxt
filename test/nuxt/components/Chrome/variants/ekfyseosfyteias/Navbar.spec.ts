@@ -90,14 +90,14 @@ describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
       .toEqual(['/products', '/contact'])
   })
 
-  it('marks only the page the visitor is on', async () => {
+  it('marks only the section the visitor is in, as their location within it', async () => {
     state.route = reactive({ path: '/products/category/3/jams', fullPath: '/products/category/3/jams' })
 
     const wrapper = await mountNavbar()
 
     const current = desktopNav(wrapper).findAll('a')
       .map(link => [link.text(), link.attributes('aria-current')])
-    expect(current).toEqual([['Το κελάρι μας', 'page'], ['Επικοινωνία', undefined]])
+    expect(current).toEqual([['Το κελάρι μας', 'location'], ['Επικοινωνία', undefined]])
   })
 
   it('renders no navigation when the store configured no header links', async () => {

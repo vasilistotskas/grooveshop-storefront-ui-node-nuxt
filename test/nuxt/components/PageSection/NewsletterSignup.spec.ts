@@ -72,6 +72,14 @@ describe('NewsletterSignup', () => {
     flags.available = true
   })
 
+  // The class is the contract, the browser the real check: a store's heading
+  // word wider than a 320px phone breaks instead of widening the page.
+  it('breaks a heading word wider than the screen', async () => {
+    const wrapper = await mountBand({ heading: 'Μείνε ενημερωμένος' })
+
+    expect(wrapper.get('h2').classes()).toContain('wrap-break-word')
+  })
+
   it('renders the form with an UNTICKED consent box labelled by the shared sentence', async () => {
     const wrapper = await mountBand()
 
@@ -250,5 +258,15 @@ describe('NewsletterSignup', () => {
 
     expect(wrapper.find('[role="alert"]').text()).toBe(COPY.failed)
     expect(wrapper.find('form').exists()).toBe(true)
+  })
+
+  // The classes are the contract: a phone's tap target is at least 44px
+  // (WCAG 2.5.5), measured in the real layout at 390px, while from `sm` up
+  // the control keeps the size it had. happy-dom lays nothing out.
+  it('makes the field and the button 44px targets on a phone', async () => {
+    const wrapper = await mountBand()
+
+    expect(wrapper.get('input[type="email"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
+    expect(wrapper.get('button[type="submit"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
   })
 })

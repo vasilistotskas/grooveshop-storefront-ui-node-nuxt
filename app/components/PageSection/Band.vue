@@ -20,10 +20,22 @@
  * each carried their own `<h2 class="mb-4 text-2xl font-bold">`, with
  * the operator's `title` as the only input and no way to add a line
  * under it or a link beside it.
+ *
+ * Below `sm` the heading row stacks: the heading and its sub-line take the
+ * whole width and the link goes under them, where beside them it squeezed a
+ * heading into a word per line at 390px. The link's hit area is at least
+ * 44px tall there (WCAG 2.5.8 target size, 2.5.5 on a phone); from `sm` up
+ * the row and the link are as they were.
  */
 const props = withDefaults(defineProps<{
   /** Which page surface this band paints. */
   surface?: 'default' | 'muted' | 'inverted'
+  /**
+   * The colour scheme the band is drawn in: `light` or `dark` in both of the
+   * page's modes, every token inside with it (`colorSchemeClass`), or the
+   * page's own.
+   */
+  colorScheme?: SectionColorScheme
   /** Small line above the heading. */
   eyebrow?: string
   heading?: string
@@ -68,6 +80,7 @@ const container = computed(() =>
   <section
     :class="[
       'w-full',
+      colorSchemeClass(colorScheme),
       surface === 'muted' && 'bg-muted',
       surface === 'default' && 'border-y border-default bg-default',
       surface === 'inverted' && 'bg-inverted text-inverted',
@@ -97,7 +110,10 @@ const container = computed(() =>
               flex-col items-start gap-3.5
               lg:flex-row lg:items-end lg:gap-4
             `
-            : 'items-end'"
+            : `
+              flex-col items-start
+              sm:flex-row sm:items-end
+            `"
         >
           <div
             class="flex min-w-0 flex-col"
@@ -114,7 +130,10 @@ const container = computed(() =>
             </p>
             <h2
               v-if="heading"
-              class="font-display font-bold tracking-[-0.02em] text-balance"
+              class="
+                font-display font-bold tracking-[-0.02em] text-balance
+                wrap-break-word
+              "
               :class="[
                 surface === 'inverted' ? 'text-inverted' : 'text-highlighted',
                 headingSize === 'lg'
@@ -154,7 +173,10 @@ const container = computed(() =>
               bg-volt text-on-volt
               hover:bg-volt/90
             `"
-            class="shrink-0"
+            class="
+              min-h-11 shrink-0
+              sm:min-h-0
+            "
           />
         </div>
       </slot>

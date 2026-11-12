@@ -23,7 +23,8 @@ export const readPublishedTargets = defineCachedFunction(
 )
 
 /**
- * Everything `resolveLinks` needs for `refs`, and nothing more: the slugs of
+ * Everything `resolveLinks` needs for `refs`, and nothing more: the paths the
+ * store's switched-off features take away (`blockedFeaturePaths`), the slugs of
  * the records named by id (one call to Django per `LINK_TARGETS_MAX_IDS`), and
  * the published pages only when a link names a page or a content page. Each
  * read is cached for `DATA_CACHE_SECONDS` apart from the page document, so a
@@ -43,6 +44,7 @@ export async function readLinkTargets(event: RequestEvent, refs: readonly Builde
       pages: new Set(published?.pages),
       contentPages: new Set(published?.contentPages),
     },
+    blocked: blockedFeaturePaths(event.context.tenant),
   }
 }
 

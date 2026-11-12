@@ -71,7 +71,6 @@ const localePath = useLocalePath()
             v-else
             class="aspect-square"
             :alt="extractTranslated(item, 'name', locale)"
-            :background="'ffffff'"
             fit="fill"
             :format="'svg'"
             :height="25"

@@ -7,6 +7,8 @@ defineRouteRules({
 })
 definePageMeta({
   layout: 'default',
+  // Its path is an unsubscribe token: no sign-in page's address carries it back.
+  signInReturn: 'nowhere',
 })
 const tenantStore = useTenantStore()
 const body = computed(() => resolvePage('email-unsubscribe', tenantStore.schemaName))

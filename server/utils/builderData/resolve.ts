@@ -9,12 +9,20 @@ import type { LoaderContext } from './loaders'
  * read that fails is logged and answered `failed`, which `applyData` keeps
  * apart from an absence: one rail's outage never hides the rest of the page,
  * and is never taken for "nothing to show".
+ *
+ * A kind or list whose store feature is off (`DATA_FEATURES`) is not read:
+ * Django refuses it for that store. Its records are absent and its lists
+ * empty, so a setting resolves as a record that is gone.
  */
-export async function readData(context: LoaderContext, plan: DataPlan): Promise<DataResolution> {
+export async function readData(context: LoaderContext, plan: DataPlan, featureOn: (feature: StoreFeatureName) => boolean): Promise<DataResolution> {
+  const served = (kind: keyof typeof DATA_FEATURES) => {
+    const feature = DATA_FEATURES[kind]
+    return feature === null || featureOn(feature)
+  }
   // Every read starts at once: the records of each kind and each list wait on nobody.
   const reading = Promise.all(DATA_RECORD_KINDS.map(async (kind): Promise<[DataRecordKind, ReadonlyMap<number, unknown> | 'failed']> => {
     const ids = plan.ids[kind]
-    if (ids.length === 0) return [kind, new Map()]
+    if (ids.length === 0 || !served(kind)) return [kind, new Map()]
     try {
       const found = await RECORD_LOADERS[kind](context, ids)
       return [kind, new Map(found.map(record => [record.id, record]))]
@@ -32,6 +40,7 @@ export async function readData(context: LoaderContext, plan: DataPlan): Promise<
   }
   const listing = Promise.all(demands.map(async ({ key, source, descriptor }, index): Promise<[string, QueryAnswer<unknown> | 'failed']> => {
     if (index >= DATA_LIMITS.maxQueriesPerDocument) return [key, 'failed']
+    if (!served(source)) return [key, { items: [], total: 0 }]
     try {
       return [key, await QUERY_LOADERS[source](context, descriptor)]
     }
@@ -73,7 +82,7 @@ export async function resolveBuilderData(
   const sites = dataSites(document, builderBlocks)
   const read = sites.length === 0
     ? { document, issues: [] }
-    : applyData(document, builderBlocks, await readData({ tenantHost: requestTenantHost(event), locale: requestLocale(event), ...(staffHeaders && { staffHeaders }), ...(shareToken && { shareToken }) }, planData(sites)), { keepHidden })
+    : applyData(document, builderBlocks, await readData({ tenantHost: requestTenantHost(event), locale: requestLocale(event), ...(staffHeaders && { staffHeaders }), ...(shareToken && { shareToken }) }, planData(sites), storeFeatureOf(event)), { keepHidden })
   // TRANSITIONAL (P15 stage 2): a page that stores only the old URLs has no data sites, so this runs either way.
   return { document: legacyImageRefs(read.document, builderBlocks), issues: read.issues }
 }

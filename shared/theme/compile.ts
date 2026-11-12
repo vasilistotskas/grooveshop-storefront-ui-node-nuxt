@@ -29,8 +29,13 @@ function schemeTokens(colours: ThemeColorScheme, designAccent: string): string[]
 /**
  * The stylesheet a store's theme document draws its pages with: every token
  * the theme holds, for the light scheme on `html:root` and the dark one on
- * `html.dark`, written whole (the document is complete). The design's own
- * stylesheet keeps only how it uses them (which mix, which hover). Every value
+ * `html.dark`, written whole (the document is complete). Each scheme is also
+ * written for a part of the page forced into it with Nuxt UI's `.light` /
+ * `.dark` class (`html .light`, `html .dark`: a band whose `colorScheme` is light or
+ * dark), so the part takes the store's own colours, not the stylesheet's; the
+ * innermost class wins, since each one declares the scheme on its element.
+ * The design's own stylesheet keeps only how it uses them (which mix, which
+ * hover). Every value
  * is a validated hex, an allow-listed key's mapped value or a pre-bundled
  * font stack, so nothing a store wrote reaches the CSS raw.
  *
@@ -49,7 +54,7 @@ export function themeCss(settings: ThemeSettings, design: StorefrontDesign | nul
   ]
   const light = [...shared, ...schemeTokens(settings.colors.light, defaults.colors.light.accent)]
   const dark = [...shared, ...schemeTokens(settings.colors.dark, defaults.colors.dark.accent)]
-  return `html:root { ${light.join('; ')} } html.dark { ${dark.join('; ')} }`
+  return `html:root, html .light { ${light.join('; ')} } html.dark, html .dark { ${dark.join('; ')} }`
 }
 
 /**
