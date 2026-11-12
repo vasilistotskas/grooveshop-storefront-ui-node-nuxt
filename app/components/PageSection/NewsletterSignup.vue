@@ -56,7 +56,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
           <h2
             class="
               font-display text-2xl font-semibold tracking-tight text-balance
-              text-highlighted
+              wrap-break-word text-highlighted
               md:text-3xl
             "
           >

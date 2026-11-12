@@ -72,6 +72,14 @@ describe('NewsletterSignup', () => {
     flags.available = true
   })
 
+  // The class is the contract, the browser the real check: a store's heading
+  // word wider than a 320px phone breaks instead of widening the page.
+  it('breaks a heading word wider than the screen', async () => {
+    const wrapper = await mountBand({ heading: 'Μείνε ενημερωμένος' })
+
+    expect(wrapper.get('h2').classes()).toContain('wrap-break-word')
+  })
+
   it('renders the form with an UNTICKED consent box labelled by the shared sentence', async () => {
     const wrapper = await mountBand()
 

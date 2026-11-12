@@ -47,6 +47,19 @@ describe('PageSection/BlogCategoryTiles', () => {
     expect(tiles[0]!.get('a').attributes('href')).toBe('/blog/category/3/ai')
   })
 
+  // The classes are the contract, and the real check is the browser's (no
+  // horizontal scroll at 320px): happy-dom lays nothing out. A tile is a
+  // container; a narrow one puts the icon above the name, which then has
+  // the whole tile, and a word wider than that breaks.
+  it('stacks a narrow tile so its name has the tile\'s width', async () => {
+    const wrapper = await mountTiles()
+
+    const tile = wrapper.findAll('li')[0]!
+    expect(tile.classes()).toContain('@container')
+    expect(tile.get('[data-slot="wrapper"]').classes()).toEqual(expect.arrayContaining(['flex-col', '@min-[11rem]:flex-row']))
+    expect(tile.get('[data-slot="title"]').classes()).toContain('wrap-break-word')
+  })
+
   it('draws the inlined icon of a category that has one, and its picture otherwise', async () => {
     const wrapper = await mountTiles()
 

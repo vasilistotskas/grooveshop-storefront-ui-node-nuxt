@@ -100,4 +100,12 @@ describe('PageSection/Band', () => {
     expect([...row.classList]).toEqual(expect.arrayContaining(['flex-col', 'items-start', 'sm:flex-row', 'sm:items-end']))
     expect(wrapper.get('a[href="/products"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
   })
+
+  // The class is the contract, the browser the real check: a store's heading
+  // word wider than a 320px phone breaks instead of widening the page.
+  it('breaks a heading word wider than the screen', async () => {
+    const wrapper = await mountBand({ heading: 'Χρήσιμα gadgets' })
+
+    expect(wrapper.get('h2').classes()).toContain('wrap-break-word')
+  })
 })

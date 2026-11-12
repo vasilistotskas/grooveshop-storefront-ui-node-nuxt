@@ -45,6 +45,12 @@ const tiles = computed(() => props.categories.items.map(category => ({
         lg:grid-cols-4 lg:gap-4
       "
     >
+      <!-- Each tile is a container: one narrower than 11rem (two to a
+           row on a phone up to about 400px) puts the icon above the name,
+           which then has the tile's whole width. Beside the icon, the name
+           had 58px at 320px, and «Development» or «Συμβουλές» ran past the
+           screen. A word wider than the tile still breaks rather than
+           overflows. -->
       <UPageCard
         v-for="tile in tiles"
         :key="tile.id"
@@ -54,14 +60,16 @@ const tiles = computed(() => props.categories.items.map(category => ({
         :icon="tile.icon"
         :title="tile.name"
         :description="tile.posts"
+        class="@container"
         :ui="{
           container: `
             p-3
             sm:p-4
           `,
           wrapper: `
-            flex-row items-center gap-3
+            flex-col items-start gap-3
             sm:gap-3.5
+            @min-[11rem]:flex-row @min-[11rem]:items-center
           `,
           leading: `
             mb-0 size-11 shrink-0 justify-center rounded-md bg-secondary/10
@@ -69,7 +77,7 @@ const tiles = computed(() => props.categories.items.map(category => ({
           leadingIcon: 'size-5.5 text-accent',
           body: 'min-w-0',
           title: `
-            text-sm/snug font-bold
+            text-sm/snug font-bold wrap-break-word
             sm:text-base/snug
           `,
           description: 'text-[0.8125rem] text-muted',

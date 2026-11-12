@@ -130,7 +130,10 @@ const container = computed(() =>
             </p>
             <h2
               v-if="heading"
-              class="font-display font-bold tracking-[-0.02em] text-balance"
+              class="
+                font-display font-bold tracking-[-0.02em] text-balance
+                wrap-break-word
+              "
               :class="[
                 surface === 'inverted' ? 'text-inverted' : 'text-highlighted',
                 headingSize === 'lg'
