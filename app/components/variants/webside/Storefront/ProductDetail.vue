@@ -323,7 +323,10 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 color="neutral"
                 variant="link"
                 size="sm"
-                class="mt-2 p-0"
+                class="
+                  mt-2 p-0
+                  max-sm:min-h-11
+                "
                 aria-haspopup="dialog"
                 @click="openPriceTrend"
               />
@@ -447,6 +450,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   variant="ghost"
                   size="lg"
                   icon="i-heroicons-share"
+                  class="max-sm:min-h-11"
                   @click="startShare"
                 >
                   {{ t('share') }}
@@ -461,6 +465,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 :product-id="product?.id"
                 :product-name="productName ?? ''"
                 :user-id="user?.id"
+                class="max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center"
               />
             </div>
 
@@ -473,7 +478,11 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 sm:flex-row
               "
             >
-              <div class="flex h-full">
+              <!-- No quantity for a product that cannot be bought. -->
+              <div
+                v-if="productStock > 0"
+                class="flex h-full"
+              >
                 <label
                   class="sr-only mb-2 text-sm font-medium" for="quantity"
                 >
@@ -485,7 +494,8 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   class="h-full"
                   :min="1"
                   :max="product?.stock"
-                  :disabled="productStock === 0"
+                  :increment="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+                  :decrement="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
                   :ui="{
                     root: 'h-full',
                     base: 'h-full',
@@ -501,7 +511,10 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                   :product="product"
                   :quantity="selectorQuantity || 1"
                   :text="t('add_to_cart')"
-                  class="w-full"
+                  class="
+                    w-full
+                    max-sm:min-h-11
+                  "
                 />
               </div>
             </div>
@@ -595,16 +608,30 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
         />
       </div>
 
+      <!-- Docked edge to edge (`--dock-*` in app/assets/css/main.css):
+           right on the tab bar when the store shows one, else on the
+           screen's edge (or the floating funding strip) with the rest of
+           the bottom inset padded inside it, at every width; the
+           assistant stacks above it. It used to sit 72px up below `md`
+           and at the bottom from it, so between 768 and 1023px the tab
+           bar covered it, and with no tab bar it floated for nothing. -->
       <div
         v-if="stickyAddToCartEnabled && showStickyAddToCart"
+        data-dock="bar"
+        data-dock-flush
         class="
-          fixed inset-x-0 bottom-18 z-40 border-t border-gray-200 bg-white/95
-          px-4 py-3 shadow-lg backdrop-blur-sm
-          md:bottom-0
+          fixed inset-x-0 bottom-(--dock-floor) z-40 flex
+          h-[calc(var(--dock-bar-height)+var(--dock-floor-pad))] items-center
+          border-t border-gray-200 bg-white/95 px-4 pb-(--dock-floor-pad)
+          shadow-lg backdrop-blur-sm
           dark:border-gray-700 dark:bg-gray-900/95
         "
       >
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <div
+          class="
+            mx-auto flex w-full max-w-7xl items-center justify-between gap-4
+          "
+        >
           <div class="flex min-w-0 flex-1 items-center gap-3">
             <WebsideProductImage
               v-if="productImages && productImages[0]"
@@ -613,10 +640,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               alt=""
               :width="64"
               :height="64"
-              class="
-                size-12 shrink-0 rounded-lg object-contain
-                md:size-16
-              "
+              class="size-12 shrink-0 rounded-lg object-contain"
             />
             <div class="min-w-0 flex-1">
               <h3 class="truncate text-sm font-medium">
@@ -645,6 +669,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 
           <div class="flex items-center gap-3">
             <div
+              v-if="productStock > 0"
               class="
                 hidden items-center gap-1
                 sm:flex
@@ -652,6 +677,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
             >
               <UButton
                 icon="i-heroicons-minus"
+                :aria-label="t('decrease_quantity')"
                 color="neutral"
                 variant="ghost"
                 size="sm"
@@ -663,6 +689,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               </span>
               <UButton
                 icon="i-heroicons-plus"
+                :aria-label="t('increase_quantity')"
                 color="neutral"
                 variant="ghost"
                 size="sm"
@@ -676,6 +703,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
               :quantity="selectorQuantity || 1"
               :text="t('add_to_cart')"
               size="xl"
+              class="max-sm:min-h-11"
             />
           </div>
         </div>
@@ -699,6 +727,8 @@ el:
         label: Προϊόντα
   product_id: Αναγνωριστικό προϊόντος
   qty: Ποσότητα
+  decrease_quantity: Μείωση ποσότητας
+  increase_quantity: Αύξηση ποσότητας
   share: Μοιράσου το
   max_quantity_reached: Επιτεύχθηκε η μέγιστη ποσότητα
   reviews:
@@ -708,7 +738,7 @@ el:
   specifications: Προδιαγραφές
   no_description_available: Δεν υπάρχει διαθέσιμη περιγραφή
   no_specifications_available: Δεν υπάρχουν διαθέσιμες προδιαγραφές
-  add_to_cart: Αγορά
+  add_to_cart: Στο καλάθι
   out_of_stock: Μη διαθέσιμο
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
@@ -722,6 +752,8 @@ en:
         label: Products
   product_id: Product ID
   qty: Quantity
+  decrease_quantity: Decrease quantity
+  increase_quantity: Increase quantity
   share: Share it
   max_quantity_reached: Maximum quantity reached
   reviews:
@@ -731,7 +763,7 @@ en:
   specifications: Specifications
   no_description_available: No description available
   no_specifications_available: No specifications available
-  add_to_cart: Buy
+  add_to_cart: Add to cart
   out_of_stock: Unavailable
   low_stock: Low stock ({count})
   in_stock: In stock

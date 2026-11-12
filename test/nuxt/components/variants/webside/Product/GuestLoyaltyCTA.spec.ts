@@ -21,7 +21,8 @@ describe('webside Product/GuestLoyaltyCTA', () => {
 
     expect(wrapper.text()).toContain('+24')
     expect(wrapper.text()).toContain('Κέρδισε 24 πόντους')
-    expect(wrapper.find('a').attributes('href')).toBe('/account/signup')
+    // And back to the page it is on once signed up (here `/`).
+    expect(wrapper.find('a').attributes('href')).toBe('/account/signup?next=/')
   })
 
   it('renders nothing when the product earns no points', async () => {

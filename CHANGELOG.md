@@ -1,3 +1,10 @@
+# [3.339.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.338.0...v3.339.0) (2026-11-12)
+
+
+### Features
+
+* **webside:** one buy button from the theme, live category menus, two phone columns and a tab bar ([#455](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/455)) ([c6ac50d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c6ac50dc20659ef5bb743aad47a3aba699ece2f4)), closes [#447](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/447)
+
 # [3.338.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.2...v3.338.0) (2026-11-12)
 
 

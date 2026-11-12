@@ -96,6 +96,9 @@ export const AuthFlowRoutes = [
 
 export const AuthFlowRoutesSet = new Set<keyof RouteMapI18n>(AuthFlowRoutes)
 
+/** A page of the sign-in and sign-up flows. */
+export type AuthFlowRoute = (typeof AuthFlowRoutes)[number]
+
 export const isRouteProtected = (route: string) => {
   return AuthenticatedRoutesSet.has(route as keyof RouteMapI18n)
 }
@@ -105,6 +108,28 @@ export const isAuthFlowRoute = (route: string) => {
 }
 
 const AuthPageRoutesSet = new Set<keyof RouteMapI18n>([...AuthFlowRoutes, ...ReauthenticateRoutes])
+
+/**
+ * The paths of those pages (`AuthFlowRoutes`, `ReauthenticateRoutes`),
+ * without a language prefix, for code that has a path and no router (the
+ * `next` guard). `test/nuxt/utils/route.spec.ts` resolves every one of
+ * those routes and checks its path is here, so the two cannot drift.
+ */
+const AUTH_PAGE_PATHS: readonly RegExp[] = [
+  /^\/account\/login(?:\/code(?:\/confirm)?)?\/?$/,
+  /^\/account\/signup(?:\/passkey(?:\/create)?)?\/?$/,
+  /^\/account\/provider\/(?:callback|signup)\/?$/,
+  /^\/account\/verify-email(?:\/[^/]+)?\/?$/,
+  /^\/account\/password\/reset(?:\/key\/[^/]+)?\/?$/,
+  /^\/account\/2fa\/(?:authenticate|reauthenticate)\/(?:totp|webauthn|recovery-codes)\/?$/,
+  /^\/account\/reauthenticate\/?$/,
+]
+
+/** Whether `path` (any language, no query) is a sign-in, sign-up or re-authentication page. */
+export function isAuthPagePath(path: string): boolean {
+  const { route } = splitLocale(path)
+  return AUTH_PAGE_PATHS.some(pattern => pattern.test(route))
+}
 
 /** A sign-in, sign-up or re-authentication page: the `auth` kind of layout. */
 export const isAuthPageRoute = (route: string) => {

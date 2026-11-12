@@ -15,8 +15,9 @@ import { trees } from '~~/test/helpers/trees'
  * The request, the page logic and the empty state's words are one
  * implementation (`useProductListing`) that both trees run, so the
  * last suite below runs over both. The suites above it are the default
- * drawing's: its shared grid class and its page links, which webside's
- * List does not have.
+ * drawing's: its shared grid class and its pagination component. Both
+ * designs' page links, and the address they keep, are in
+ * `test/nuxt/composables/useProductListing.spec.ts`.
  */
 const pf = await vi.hoisted(async () =>
   (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
@@ -304,6 +305,20 @@ describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)'
     const cards = wrapper.findAllComponents({ name: own('ProductCard') })
     expect(cards.map(card => card.props('preload'))).toEqual([true, false, false])
     expect(cards.map(card => card.props('imgFetchPriority'))).toEqual(['high', undefined, undefined])
+  })
+
+  // The classes are the contract: happy-dom lays nothing out. Two
+  // columns on a phone in both designs (the 2026-10 UX audit: "a two-column
+  // grid … and a 44 px quick-add button"); webside's card draws itself
+  // compactly there.
+  it('lays its results in two columns on a phone', async () => {
+    returns(3)
+
+    const wrapper = await mount()
+
+    const grid = wrapper.findComponent({ name: own('ProductCard') }).element.parentElement!
+    expect([...grid.classList]).toContain('grid-cols-2')
+    expect([...grid.classList]).not.toContain('grid-cols-1')
   })
 
   it('says which filter to loosen when nothing matches, and offers to clear', async () => {

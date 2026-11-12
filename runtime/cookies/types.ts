@@ -32,7 +32,6 @@ export interface ModuleOptions {
   }
   cookieOptions: (CookieOptions & { readonly?: false | undefined }) | undefined
   isAcceptNecessaryButtonEnabled: boolean
-  isControlButtonEnabled: boolean
   isCookieIdVisible: boolean
   isCssEnabled: boolean
   isDashInDescriptionEnabled: boolean
@@ -55,7 +54,6 @@ export const DEFAULTS: Required<ModuleOptions> = {
     sameSite: 'strict',
   },
   isAcceptNecessaryButtonEnabled: true,
-  isControlButtonEnabled: true,
   isCookieIdVisible: true,
   isCssEnabled: true,
   isDashInDescriptionEnabled: true,

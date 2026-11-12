@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { t } = useStoreI18n('components/Storefront/Auth/ProviderSignup')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const authInfo = useAuthInfo()
 
 useHead({ title: () => t('title') })
@@ -18,7 +20,7 @@ const providerName = computed(() => authInfo?.pendingFlow?.provider?.name)
     <p class="text-center text-sm text-muted">
       {{ t('have_account') }}
       <ULink
-        :to="localePath('account-login')"
+        :to="localePath(authLink('account-login'))"
         class="font-semibold text-accent"
       >
         {{ t('login') }}

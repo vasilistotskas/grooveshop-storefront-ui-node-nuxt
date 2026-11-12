@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/ProviderSignup')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 </script>
 
 <template>
@@ -31,7 +33,7 @@ const localePath = useLocalePath()
 
       <UButton
         :label="t('login')"
-        :to="localePath('account-login')"
+        :to="localePath(authLink('account-login'))"
         color="secondary"
         size="md"
         type="button"

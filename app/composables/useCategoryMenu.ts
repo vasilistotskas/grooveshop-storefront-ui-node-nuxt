@@ -1,22 +1,18 @@
-import type { ProductCategory } from '~~/shared/openapi/types.gen'
-
 /**
  * The category tree as a two-level menu: the header's Shop dropdown and
- * the mobile menu's catalogue tab read the same shape.
+ * the phone menus' catalogue, in every design.
  *
- * Two levels, and a cap on each, on purpose. The whole tree is
- * serialised into the HTML of every SWR-cached page, so a store with a
- * deep catalogue would pay for its depth on every route while a shopper
- * reads at most one screenful of it. "All categories" carries the rest.
+ * Its own request, shaped for the menu before it reaches the payload
+ * (`transform`): the menus sit on every page, so what they read is
+ * serialised into the HTML of every SWR-cached page, and the whole
+ * category list (every field, every translation, every level) was paid
+ * on every route for at most eight entries. The listing pages read the
+ * whole list for their filters under `useAllCategories`'s key; both are
+ * one cached route on the server.
  *
- * The list comes from `useAllCategories`, which gates the REQUEST on
- * the catalogue flag; the flag here only empties the menu.
+ * The REQUEST is gated on the catalogue: a store without it asks for
+ * nothing.
  */
-
-/** Roots, and how many children each may contribute. */
-const MAX_ROOTS = 8
-const MAX_CHILDREN = 8
-
 export interface CategoryMenuEntry {
   id: number
   slug: string
@@ -34,34 +30,16 @@ export function useCategoryMenu() {
   const { locale } = useI18n({ useScope: 'global' })
   const catalogueEnabled = useStoreFeature('catalogue')
 
-  const { data } = useAllCategories()
-
-  const entries = computed<CategoryMenuEntry[]>(() => {
-    if (!catalogueEnabled.value) return []
-    const all = (data.value ?? []) as ProductCategory[]
-    if (!all.length) return []
-
-    const byParent = new Map<number | null, ProductCategory[]>()
-    for (const category of all) {
-      if (category.active === false) continue
-      const parent = category.parent ?? null
-      const siblings = byParent.get(parent)
-      if (siblings) siblings.push(category)
-      else byParent.set(parent, [category])
-    }
-
-    const build = (category: ProductCategory, depth: number): CategoryMenuEntry => categoryMenuEntry(
-      category,
-      locale.value,
-      depth === 0
-        ? (byParent.get(category.id) ?? [])
-            .slice(0, MAX_CHILDREN)
-            .map(child => build(child, depth + 1))
-        : [],
-    )
-
-    return (byParent.get(null) ?? []).slice(0, MAX_ROOTS).map(root => build(root, 0))
+  const { data } = useApi('/api/products/categories/all', {
+    key: computed(() => `category-menu-${locale.value}`),
+    dedupe: 'defer',
+    enabled: catalogueEnabled,
+    // Read by menus that mount after hydration too (the phone menus).
+    getCachedData: payloadCachedData,
+    transform: categories => categoryMenu(categories, locale.value),
   })
+
+  const entries = computed<CategoryMenuEntry[]>(() => (catalogueEnabled.value ? data.value ?? [] : []))
 
   return {
     categories: entries,

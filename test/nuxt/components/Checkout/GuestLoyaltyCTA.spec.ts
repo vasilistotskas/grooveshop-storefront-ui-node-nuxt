@@ -36,7 +36,8 @@ describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$
     expect(wrapper.text()).toContain(tree === 'default'
       ? 'Κέρδισε 24 πόντους με αυτή την παραγγελία'
       : '+24Κέρδισε 24 πόντους με αυτήν την παραγγελία!')
-    expect(wrapper.find('a').attributes('href')).toBe('/account/signup')
+    // And back to the page it is on once signed up (here `/`).
+    expect(wrapper.find('a').attributes('href')).toBe('/account/signup?next=/')
   })
 
   it.each([

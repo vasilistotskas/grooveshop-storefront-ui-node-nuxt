@@ -220,6 +220,8 @@ describe('auth plugin', () => {
   })
 
   describe('on reauthentication', () => {
+    // The page's path: its query stays behind (`returnTarget`), the
+    // settings page marking none of it view state.
     it('sends the visitor to the reauthentication flow with the current page as next', async () => {
       const change = await install()
       await change(SIGNED_IN)
@@ -230,7 +232,7 @@ describe('auth plugin', () => {
 
       expect(navigatedTo()).toMatchObject({
         path: '/account/reauthenticate',
-        query: { next: '/account/settings?section=email' },
+        query: { next: '/account/settings' },
       })
     })
 

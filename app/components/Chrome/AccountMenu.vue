@@ -14,6 +14,7 @@
 const { t, n } = useStoreI18n('components/Chrome/AccountMenu')
 const localePath = useLocalePath()
 const { loggedIn, user } = useUserSession()
+const { signIn } = useAuthLinks()
 const { signOut } = useSignOut()
 const menu = useAccountQuickMenu(['overview', 'orders', 'favourites', 'rewards', 'security'])
 
@@ -122,14 +123,14 @@ const MENU_UI = { content: 'w-72' }
 
     <UButton
       v-else
-      :to="localePath('account-login')"
+      :to="localePath(signIn)"
       :label="t('login')"
       size="sm"
     />
 
     <template #fallback>
       <UButton
-        :to="localePath('account-login')"
+        :to="localePath(signIn)"
         :label="t('login')"
         size="sm"
       />

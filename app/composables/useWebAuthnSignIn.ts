@@ -23,11 +23,15 @@ export function usePasskeyLogin(options: {
   async function login() {
     try {
       loading.value = true
-      const currentPath = router.currentRoute.value.path
-      const currentQuery = router.currentRoute.value.query
+      const current = router.currentRoute.value
 
-      if (!currentQuery.next) {
-        await router.replace({ query: { next: currentPath } })
+      // Signing in from a page (the sign-in sheet over an article) comes
+      // back to it: the page's path, its query only where the page marks it
+      // view state (`returnTarget`). On the sign-in page itself the guard
+      // drops it again (`returnPath`).
+      const back = returnTarget(current)
+      if (!current.query.next && back) {
+        await router.replace({ query: { next: back } })
       }
 
       await clear()

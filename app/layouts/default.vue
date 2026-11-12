@@ -69,17 +69,16 @@ const showUserChrome = computed(
   () => isAccountRoute.value && !onAuthFlowRoute.value && loggedIn.value && user.value,
 )
 
-// The webside design's tab bar is `fixed bottom-0` and nothing used to
-// reserve room for it, so it covered the end of the footer (merchant
-// identity + opening hours). Reserve its height — min-h-12 plus its
-// safe-area padding — only while it is rendered, and only below `lg`,
-// which is the breakpoint `MobileOrTabletOnly` (max-width: 1023px)
-// shows it at. A designed storefront's footer keeps its own last line
+// The webside design's tab bar and sticky add-to-cart bar are strips
+// along the screen's bottom edge, so they would cover the end of the
+// footer (merchant identity + opening hours). The footer keeps clear of
+// whatever the dock holds there (`--dock-*` in app/assets/css/main.css):
+// the bottom inset, plus each bar's height while it is on screen. A designed storefront's footer keeps its own last line
 // clear of its floating dock, so it gets no strip of ground under it.
 const footerClass = computed(() =>
-  mobileBottomNavEnabled.value && !resolveDesign(tenantStore.schemaName)
-    ? 'pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0'
-    : '',
+  resolveDesign(tenantStore.schemaName)
+    ? ''
+    : 'pb-[calc(var(--dock-inset)+var(--dock-tabbar)+var(--dock-bar))]',
 )
 </script>
 

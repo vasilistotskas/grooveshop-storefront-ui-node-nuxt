@@ -168,17 +168,30 @@ const arrowButton = {
               :user-id="user?.id"
               :favourite-id="getFavouriteIdByProductId(item.product.id)"
               size="sm"
+              class="
+                relative
+                after:absolute after:-inset-2
+              "
             />
           </div>
           <div
             v-if="cartEnabled"
             class="absolute right-0 bottom-0"
           >
+            <!-- 36px, with a 44px hit area: the ::after grows up and to
+                 the left only, since the picture clips what passes its
+                 corner. -->
             <LazyWebsideButtonProductAddToCart
               :product="item.product"
               :quantity="1"
               :text="t('add_to_cart')"
+              size="lg"
               icon-only
+              class="
+                relative
+                after:absolute after:-top-2 after:right-0 after:bottom-0
+                after:-left-2
+              "
             />
           </div>
         </div>
@@ -250,7 +263,7 @@ const arrowButton = {
 
 <i18n lang="yaml">
 el:
-  add_to_cart: "Προσθήκη στο καλάθι"
+  add_to_cart: "Στο καλάθι"
   view_product: "Προβολή προϊόντος"
   title:
     pdp: "Μπορεί να σου αρέσουν"

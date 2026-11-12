@@ -141,15 +141,10 @@ export default defineNuxtPlugin({
     async function handleLoggedIn() {
       try {
         const router = useRouter()
-        const route = router.currentRoute.value
-        const localePath = useLocalePath()
-        const returnToPath = safeRelativePath(route.query.next?.toString())
-        const loginPath = localePath(RedirectToURLs.LOGIN_URL)
-        const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
-        const redirectTo = isRedirectingToLogin || !returnToPath
-          ? RedirectToURLs.LOGIN_REDIRECT_URL
-          : returnToPath as keyof RouteMapI18n
-        return await navigateToUrl({ path: redirectTo })
+        // `returnPath` drops a destination off the store and one that is
+        // an auth page itself (no return to the sign-in form).
+        const returnToPath = returnPath(router.currentRoute.value.query.next) as keyof RouteMapI18n | undefined
+        return await navigateToUrl({ path: returnToPath ?? RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
         log.error({ action: 'auth:loggedIn', error })
@@ -159,7 +154,7 @@ export default defineNuxtPlugin({
     async function handleReauthenticated() {
       try {
         const router = useRouter()
-        const safeNext = safeRelativePath(router.currentRoute.value.query.next?.toString()) as keyof RouteMapI18n | undefined
+        const safeNext = returnPath(router.currentRoute.value.query.next) as keyof RouteMapI18n | undefined
         return await navigateToUrl({ path: safeNext || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
@@ -169,11 +164,11 @@ export default defineNuxtPlugin({
 
     async function handleReauthenticationRequired() {
       try {
-        const next = useRouter().currentRoute.value.fullPath
+        const next = returnTarget(useRouter().currentRoute.value)
         const flowPath = getReauthenticationFlowPath(authState.value)
         if (flowPath) {
           log.info('auth', 'Navigating to reauthentication flow')
-          return await navigateToUrl({ path: flowPath, query: { next } })
+          return await navigateToUrl({ path: flowPath, query: next ? { next } : undefined })
         }
         else {
           log.warn('auth', 'No reauthentication flow found')

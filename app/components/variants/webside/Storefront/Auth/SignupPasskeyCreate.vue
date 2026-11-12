@@ -2,6 +2,8 @@
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/SignupPasskeyCreate')
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const items = computed(() => [
   {
@@ -15,7 +17,7 @@ const items = computed(() => [
     icon: t('breadcrumb.items.account.icon'),
   },
   {
-    to: localePath('account-signup-passkey-create'),
+    to: localePath(authLink('account-signup-passkey-create')),
     label: t('breadcrumb.items.account-signup-passkey-create.label'),
     icon: t('breadcrumb.items.account-signup-passkey-create.icon'),
     current: true,
