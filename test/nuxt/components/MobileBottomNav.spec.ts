@@ -74,6 +74,24 @@ describe('MobileBottomNav', () => {
     expect(other!.classes()).toContain('shrink-0')
   })
 
+  // Below a 336px dock (four icons, the pill's padding and icon, and
+  // «Αποθηκευμένα») the active name would be cut: it is left to the
+  // accessibility tree, and the pill's fill and `aria-current` mark the tab.
+  it('shows the active tab\'s icon alone where the dock is too narrow for its name', async () => {
+    const wrapper = await mountNav()
+
+    expect(wrapper.get('nav').classes()).toContain('@container/dock')
+    const [active, other] = wrapper.findAll('nav [data-slot="item"]')
+    const link = active!.get('[data-slot="link"]')
+    expect(link.attributes('aria-current')).toBe('page')
+    expect(link.classes()).toContain('bg-inverted')
+    const label = link.get('[data-slot="linkLabel"]')
+    expect(label.classes()).toContain('@max-[21rem]/dock:sr-only')
+    expect(label.classes()).not.toContain('sr-only')
+    expect(label.text()).not.toBe('')
+    expect(other!.get('[data-slot="linkLabel"]').classes()).toContain('sr-only')
+  })
+
   it('names the navigation', async () => {
     const wrapper = await mountNav()
 
