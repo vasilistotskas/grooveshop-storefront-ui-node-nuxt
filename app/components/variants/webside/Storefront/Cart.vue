@@ -179,7 +179,7 @@ useSeoMeta({
         lg:flex-row lg:gap-8
       "
     >
-      <div class="grid w-full content-start gap-6">
+      <div class="grid w-full grid-cols-[minmax(0,1fr)] content-start gap-6">
         <div
           class="
             flex flex-col gap-2
@@ -336,7 +336,7 @@ useSeoMeta({
             role="status"
             aria-live="polite"
             aria-atomic="true"
-            class="grid gap-4"
+            class="grid grid-cols-[minmax(0,1fr)] gap-4"
           >
             <!-- Wholesale badge — line prices/totals below are already
                  server-computed with the group pricing. -->

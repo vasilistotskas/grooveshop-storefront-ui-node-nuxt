@@ -111,4 +111,27 @@ describe('the default design controls are 44px targets on a phone', () => {
 
     expect(boundAttribute(list!, 'ui')).toMatch(/list: 'flex-wrap /)
   })
+
+  // The browser is the real check (the cart page scrolled sideways by 62px at 320, 22px at 360):
+  // a grid's implicit column is as wide as its widest child's min-content, and a button's one-line
+  // label is 326px, so the column is clamped and the sentence wraps.
+  const flat = (file: string) => readSource(resolve(COMPONENTS, file)).replace(/\s+/g, ' ')
+
+  it.each([
+    'Storefront/Cart.vue',
+    'Storefront/Checkout.vue',
+    'variants/webside/Storefront/Cart.vue',
+  ])('%s holds its phone column at the viewport, whatever the min-content of a child', (file) => {
+    expect(flat(file)).toContain('grid-cols-[minmax(0,1fr)]')
+  })
+
+  it.each([
+    'Checkout/CouponPicker.vue',
+    'variants/webside/Checkout/CouponPicker.vue',
+  ])('%s draws its coupon sentence in a span that wraps, not a truncated button label', (file) => {
+    const source = flat(file)
+
+    expect(source).toContain('<span class="min-w-0 text-start">{{ triggerLabel }}</span>')
+    expect(source).not.toContain(':label="triggerLabel"')
+  })
 })
