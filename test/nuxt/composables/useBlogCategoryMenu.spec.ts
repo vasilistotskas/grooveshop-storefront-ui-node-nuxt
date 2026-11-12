@@ -11,29 +11,32 @@ mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
 const CATEGORIES_URL = '/api/blog/categories'
+const KEY = 'blog-category-menu-el'
 
 const page = (results: ReturnType<typeof makeBlogCategory>[]) => ({ count: results.length, next: null, previous: null, results })
 
+/** The menu once its request has answered (or been refused). */
 async function menu() {
   let result!: ReturnType<typeof useBlogCategoryMenu>
   await mountSuspended(defineComponent({
-    async setup() {
+    setup() {
       result = useBlogCategoryMenu()
-      await useBlogCategories().request
       return () => h('div')
     },
   }), { route: false })
+  await vi.waitFor(() => expect(useNuxtApp()._asyncData[KEY]?.status.value).not.toBe('pending'))
   return result
 }
 
 /**
  * The blog's topics as the header's Blog dropdown and the phone menus
  * list them: the top-level topics, capped, each with its page and post
- * count, from the one blog-category reader.
+ * count. The menus sit on every page, so this is cut to that shape
+ * BEFORE it reaches the payload.
  */
 describe('useBlogCategoryMenu', () => {
   beforeEach(() => {
-    clearNuxtData()
+    clearNuxtData([KEY])
     setTenant()
     setTenantFeatures({ blog: true })
   })
@@ -62,6 +65,17 @@ describe('useBlogCategoryMenu', () => {
     const { blogCategories } = await menu()
 
     expect(blogCategories.value.map(topic => topic.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
+  })
+
+  it('keeps only the menu in the payload, not the category list', async () => {
+    api.routes({
+      [CATEGORIES_URL]: page([makeBlogCategory({ id: 1, translations: { el: { name: 'Κινητό', description: 'Οδηγοί για το κινητό σου' } } })]),
+    })
+
+    const { blogCategories } = await menu()
+
+    expect(useNuxtApp().payload.data[KEY]).toEqual(blogCategories.value)
+    expect(JSON.stringify(useNuxtApp().payload.data[KEY])).not.toContain('Οδηγοί')
   })
 
   it('is empty, and asks for nothing, when the store has no blog', async () => {

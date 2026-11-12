@@ -1,11 +1,13 @@
 import type { ProductCategory } from '~~/shared/openapi/types.gen'
 
 /**
- * The store's whole category list, ONE entry for every reader: the
- * header's Shop menu, the mobile menu, the category band and the product
- * filters. They used to hold it under two keys (`category-menu` and
+ * The store's whole category list, ONE entry for every reader that needs
+ * all of it: the product filters, the category path of a product. They
+ * used to hold it under two keys (`category-menu` and
  * `all-categories-<locale>`), so a listing page fetched it twice and
- * serialised it into its payload twice.
+ * serialised it into its payload twice. The menus, on every page, read
+ * their own two-level cut of the same cached route (`useCategoryMenu`),
+ * so the whole list is in the payload only of the pages that use it.
  *
  * No locale in the key: the response carries every translation and is
  * byte-identical whatever `X-Language` says (checked 2026-09-25); readers

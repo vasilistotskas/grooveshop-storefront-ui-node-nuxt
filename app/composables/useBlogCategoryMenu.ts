@@ -1,21 +1,16 @@
 /**
  * The blog's topics as a menu: the header's Blog dropdown and the phone
- * menu's Blog section, in every design. The blog's counterpart of
- * `useCategoryMenu`.
+ * menus' Blog section, in every design. The blog's counterpart of
+ * `useCategoryMenu`, and shaped the same way: its own request, cut down
+ * to what the menus draw before it reaches the payload (`transform`),
+ * since the menus sit on every page. The blog's own pages read the
+ * whole list under `useBlogCategories`'s key; both are one cached route
+ * on the server.
  *
- * The top-level topics only, capped like the catalogue's roots: the
- * list is serialised into the HTML of every page whose header shows it,
- * and "all articles" carries the rest.
- *
- * Read from `useBlogCategories`, the one reader of the blog's category
- * list, so a blog page that also draws its filter pills asks Django
- * once. That reader gates the REQUEST on the `blog` feature and answers
- * an empty list when it is off or the request failed.
+ * Gated on the `blog` feature, and the REQUEST is what is gated: a
+ * store with the blog off asks for nothing. A list that failed to load
+ * is an empty menu.
  */
-
-/** How many topics a menu lists. */
-const MAX_TOPICS = 8
-
 export interface BlogCategoryMenuEntry {
   id: number
   label: string
@@ -28,20 +23,19 @@ export interface BlogCategoryMenuEntry {
 
 export function useBlogCategoryMenu() {
   const { locale } = useI18n({ useScope: 'global' })
-  const { categories } = useBlogCategories()
+  const enabled = useStoreFeature('blog')
 
-  const entries = computed<BlogCategoryMenuEntry[]>(() =>
-    categories.value
-      .filter(category => category.parent == null)
-      .slice(0, MAX_TOPICS)
-      .map(category => ({
-        id: category.id,
-        label: extractTranslated(category, 'name', locale.value) ?? category.slug,
-        to: blogCategoryPath(category.id, category.slug),
-        imagePath: category.mainImagePath,
-        postCount: category.postCount,
-      })),
-  )
+  const { data } = useApi('/api/blog/categories', {
+    key: computed(() => `blog-category-menu-${locale.value}`),
+    query: computed(() => ({ pageSize: BLOG_CATEGORIES_LIMIT, languageCode: locale.value })),
+    dedupe: 'defer',
+    enabled,
+    // Read by menus that mount after hydration too (the phone menus).
+    getCachedData: payloadCachedData,
+    transform: page => blogCategoryMenu(page.results, locale.value),
+  })
+
+  const entries = computed<BlogCategoryMenuEntry[]>(() => (enabled.value ? data.value ?? [] : []))
 
   return {
     blogCategories: entries,
