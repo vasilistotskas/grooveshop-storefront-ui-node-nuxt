@@ -44,24 +44,21 @@ const label = computed(
 )
 
 /**
- * Where "see all" goes when the operator has not said: the listing sorted as
- * the rail is (`PRODUCT_LISTING_SORT`), and its link says so, which is what
- * tells three rails on one page apart. The orders with no listing sort open
- * the listing as it is, under the generic label. A rule that hides sold-out
- * products opens it filtered to what is in stock (`productRailStockQuery`).
+ * "See all". Only the operator's own link replaces where it goes; otherwise it
+ * is the listing sorted as the rail is (`PRODUCT_LISTING_SORT`), filtered to
+ * what is in stock when the rule hides sold-out products
+ * (`productRailStockQuery`), whatever words the operator gave it. Without
+ * their words it says which listing (what tells three rails on one page
+ * apart), and the generic label where there is no listing sort or the link is
+ * the operator's.
  */
 const cta = computed(() => {
-  if (props.ctaText || props.ctaLink) {
-    return {
-      text: props.ctaText || t('all_products'),
-      link: props.ctaLink ? linkTo(props.ctaLink) : localePath('products'),
-    }
-  }
   const sort = PRODUCT_LISTING_SORT[kind.value]
   const query = { ...(sort && { sort }), ...productRailStockQuery(props.products.descriptor) }
+  const listing = Object.keys(query).length ? localePath({ path: '/products', query }) : localePath('products')
   return {
-    text: sort ? t(`all.${kind.value}`) : t('all_products'),
-    link: Object.keys(query).length ? localePath({ path: '/products', query }) : localePath('products'),
+    text: props.ctaText || (sort && !props.ctaLink ? t(`all.${kind.value}`) : t('all_products')),
+    link: props.ctaLink ? linkTo(props.ctaLink) : listing,
   }
 })
 </script>

@@ -103,10 +103,22 @@ describe('PageSection/ProductsSlider', () => {
     expect(seeAll(wrapper)).toEqual(['Δες τα', '/offers'])
   })
 
-  it('sends an operator link text without a target to the listing', async () => {
-    const wrapper = await mountSlider({ ctaText: 'Δες τα' })
+  // Only the operator's link replaces where "see all" goes: their words
+  // alone keep the rail's listing, its order and its stock filter.
+  it.each([
+    [rule('newest'), '/products?sort=-createdAt'],
+    [rule('newest', 'inStockOnly'), '/products?sort=-createdAt&inStock=true'],
+    [rule('topRated', 'inStockOnly'), '/products?inStock=true'],
+  ])('keeps the listing of %j when the operator words the link without a target', async (descriptor, href) => {
+    const wrapper = await mountSlider({ products: products([7, 8], descriptor), ctaText: 'Δες τα' })
 
-    expect(seeAll(wrapper)).toEqual(['Δες τα', '/products'])
+    expect(seeAll(wrapper)).toEqual(['Δες τα', href])
+  })
+
+  it('names an operator link without words generically, since it may lead anywhere', async () => {
+    const wrapper = await mountSlider({ products: products([7, 8], rule('newest', 'inStockOnly')), ctaLink: '/offers' })
+
+    expect(seeAll(wrapper)).toEqual([t('all_products'), '/offers'])
   })
 
   // The colour scheme reaches the band, which draws it as Nuxt UI's subtree

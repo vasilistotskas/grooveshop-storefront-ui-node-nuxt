@@ -85,6 +85,13 @@ describe('PageSection/ProductsGrid', () => {
     expect([link.text(), link.attributes('href')]).toEqual(['Δες τα', '/offers'])
   })
 
+  it('keeps the in-stock listing when the operator words the link without a target', async () => {
+    const wrapper = await mountGrid({ products: products([7, 8], { ...newest, stock: 'inStockOnly' }), ctaText: 'Δες τα' })
+
+    const link = wrapper.find('a')
+    expect([link.text(), link.attributes('href')]).toEqual(['Δες τα', '/products?inStock=true'])
+  })
+
   it('renders nothing when the list is empty', async () => {
     const wrapper = await mountGrid({ products: products([]) })
 
