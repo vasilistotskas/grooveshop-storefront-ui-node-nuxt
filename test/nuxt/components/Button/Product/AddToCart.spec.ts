@@ -40,7 +40,7 @@ mockNuxtImport('useToast', () => () => toast)
 mockNuxtImport('useMediaQuery', () => () => ref(viewport.desktop))
 mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://media.test/${path}`)
 
-const UNAVAILABLE = 'Μή Διαθέσιμο'
+const UNAVAILABLE = 'Μη διαθέσιμο'
 const BUY = 'Στο καλάθι'
 
 /** Put `lines` in the cart, and make a write answer with it, as Django answers with the cart. */

@@ -1,23 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import MobileBottomNav from '~/components/variants/webside/MobileBottomNav.vue'
+import { useCartStore } from '~/stores/cart'
+import { makeCart } from '~~/test/fixtures/cart'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
- * Webside's phone tab bar. Its entries are `useBottomNavItems` (own spec);
- * here, which tabs webside asks for, and that the bar docks: the sticky
- * add-to-cart bar, the assistant and the cookie notice read its height
- * from `data-dock` (`app/assets/css/main.css`), so a bar that stops
- * marking itself would let them sit under it again.
+ * Webside's phone tab bar: which tabs a visitor gets and where they
+ * lead (each tab's own rules are `useBottomNavItems`'s spec), and that
+ * the bar docks: the sticky add-to-cart bar, the assistant and the
+ * cookie notice read its height from `data-dock`
+ * (`app/assets/css/main.css`), so a bar that stops marking itself would
+ * let them sit under it again.
  */
-const { nav } = vi.hoisted(() => ({
-  nav: { options: undefined as Parameters<typeof useBottomNavItems>[0] },
-}))
-
-mockNuxtImport('useBottomNavItems', () => (options: Parameters<typeof useBottomNavItems>[0]) => {
-  nav.options = options
-  return { items: computed(() => [{ label: 'Αρχική', icon: 'i-heroicons-home', to: '/', active: true }]) }
-})
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(false),
   user: ref(null),
@@ -31,28 +27,48 @@ mockNuxtImport('useUserSession', () => () => ({
 const stubs = { MobileOrTabletOnly: { template: '<div><slot /></div>' } }
 
 const mountNav = (props: { includeCart?: boolean } = {}) =>
-  mountSuspended(MobileBottomNav, { route: false, props, global: { stubs } })
+  mountSuspended(MobileBottomNav, { route: '/', props, global: { stubs } })
+
+const t = (key: string) => useNuxtApp().$i18n.t(key)
+
+/** The tabs as a visitor meets them: name and destination. */
+const tabs = (wrapper: Awaited<ReturnType<typeof mountNav>>) =>
+  wrapper.findAll('nav a').map(link => [link.text(), link.attributes('href')])
 
 describe('webside MobileBottomNav', () => {
-  beforeEach(() => {
-    nav.options = undefined
+  beforeEach(async () => {
+    setTenant()
+    setTenantFeatures({ catalogue: true, blog: true, cart: true })
+    await useCartStore().cleanCartState()
+    useCartStore().cart = makeCart({ totalItems: 0 })
   })
 
-  it('asks for Home, Shop, Blog, Cart and Account, with the cart icon of its header and buy button', async () => {
-    await mountNav()
+  it('leads to Home, the shop, the blog, the cart and sign-in, in that order', async () => {
+    const wrapper = await mountNav()
 
-    expect(nav.options).toMatchObject({
-      tabs: ['home', 'shop', 'blog', 'cart', 'account'],
-      icons: { cart: 'i-heroicons-shopping-cart' },
-      accountAvatar: true,
-      includeCart: true,
-    })
+    expect(tabs(wrapper)).toEqual([
+      [t('home'), '/'],
+      [t('shop'), '/products'],
+      [t('blog'), '/blog'],
+      [t('cart.title'), '/cart'],
+      [t('account'), '/account/login?next=/'],
+    ])
   })
 
-  it('hands on the layout\'s word about the cart', async () => {
-    await mountNav({ includeCart: false })
+  it('draws the cart with the cart icon of the header and the buy button, and its count', async () => {
+    useCartStore().cart = makeCart({ totalItems: 2 })
 
-    expect(nav.options?.includeCart).toBe(false)
+    const wrapper = await mountNav()
+    const cart = wrapper.find('nav a[href="/cart"]')
+
+    expect(cart.find('.i-heroicons\\:shopping-cart').exists()).toBe(true)
+    expect(cart.text()).toContain('2')
+  })
+
+  it('leaves the cart out where the layout asks it to', async () => {
+    const wrapper = await mountNav({ includeCart: false })
+
+    expect(tabs(wrapper).map(([, href]) => href)).not.toContain('/cart')
   })
 
   it('is named in the page\'s language', async () => {

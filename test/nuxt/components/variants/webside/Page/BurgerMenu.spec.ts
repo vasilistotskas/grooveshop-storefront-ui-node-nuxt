@@ -77,6 +77,9 @@ const COPY = {
   allProducts: 'Όλα τα προϊόντα',
   allArticles: 'Όλα τα άρθρα',
   appearance: 'Εμφάνιση',
+  signInPrompt: 'Συνδέσου για παραγγελίες και αγαπημένα.',
+  // Nuxt UI's own Greek for the colour-mode choices.
+  dark: 'Σκοτεινό',
 }
 
 const t = (key: string) => useNuxtApp().$i18n.t(key)
@@ -156,12 +159,12 @@ describe('webside Page/BurgerMenu', () => {
     it('greets a signed-out visitor with sign-in and sign-up, and no sign-out', async () => {
       const wrapper = await openMenu()
 
-      const card = dialog().findAll('p').find(p => p.text().startsWith(COPY.greeting))
+      const greeting = dialog().findAll('p').map(p => p.text()).find(text => text.startsWith(COPY.greeting))
       const links = dialog().findAll('a').map(link => [link.text(), link.attributes('href')])
       const signOut = dialog().findAll('button').some(button => button.text() === t('logout'))
       wrapper.unmount()
 
-      expect(card).toBeDefined()
+      expect(greeting).toBe(`${COPY.greeting} ${COPY.signInPrompt}`)
       expect(links).toEqual(expect.arrayContaining([
         [t('login'), '/account/login?next=/'],
         [t('register'), '/account/signup?next=/'],
@@ -281,13 +284,21 @@ describe('webside Page/BurgerMenu', () => {
     })
   })
 
-  it('offers the appearance: light, dark or the device\'s', async () => {
+  it('lets the shopper choose the appearance: light, dark or the device\'s', async () => {
+    const colorMode = useColorMode()
+    colorMode.preference = 'system'
     const wrapper = await openMenu()
 
-    const select = dialog().find(`[aria-label="${COPY.appearance}"]`)
+    await dialog().get(`[aria-label="${COPY.appearance}"]`).trigger('click')
+    const options = await vi.waitFor(() => {
+      const found = new DOMWrapper(document.body).findAll('[role="option"]')
+      expect(found).toHaveLength(3)
+      return found
+    })
+    await options.find(option => option.text() === COPY.dark)!.trigger('click')
     wrapper.unmount()
 
-    expect(select.exists()).toBe(true)
+    expect(colorMode.preference).toBe('dark')
   })
 
   // The size IS the contract here: every control in the menu is at
