@@ -20,6 +20,8 @@ import { BROWSER_ACCEPT, requestWithHost, sendJson } from '../helpers/e2e'
 
 const POST_ID = 31
 const POST_SLUG = 'a-post-with-comments'
+const EMPTY_POST_ID = 32
+const EMPTY_POST_SLUG = 'a-post-without-comments'
 const COMMENTS = [3, 2, 1].map(id => makeBlogComment({
   id,
   translations: { el: { content: `Σχόλιο του επισκέπτη ${id}` } },
@@ -43,6 +45,18 @@ const DESIGNS = [
   ['webside\'s design', 'blog-comments-webside.localhost', 'webside'],
 ] as const
 
+/** A post as its detail serves it. */
+function postDetail(id: number, slug: string, commentsCount: number) {
+  return {
+    ...makeBlogPost({ id, slug, commentsCount }),
+    translations: { el: { title: 'Άρθρο', subtitle: '', body: '<p>Το κείμενο.</p>' } },
+    author: makeBlogAuthor(),
+    category: CATEGORY,
+    likes: [],
+    userHasLiked: false,
+  }
+}
+
 /** The stores' upstream: a tenant with the blog and its comments on, one post with three comments; everything else falls through to the page-render stub. */
 export function blogCommentsUpstream(req: IncomingMessage, res: ServerResponse, url: URL): boolean {
   const domain = url.searchParams.get('domain') ?? ''
@@ -59,6 +73,14 @@ export function blogCommentsUpstream(req: IncomingMessage, res: ServerResponse, 
     }))
     return true
   }
+  if (url.pathname === `/api/v1/blog/post/${EMPTY_POST_ID}/comments`) {
+    sendJson(res, { count: 0, links: { next: null, previous: null }, results: [] })
+    return true
+  }
+  if (url.pathname === `/api/v1/blog/post/${EMPTY_POST_ID}`) {
+    sendJson(res, postDetail(EMPTY_POST_ID, EMPTY_POST_SLUG, 0))
+    return true
+  }
   if (url.pathname === `/api/v1/blog/post/${POST_ID}/comments`) {
     const page = Number(url.searchParams.get('page') ?? 1)
     const size = Number(url.searchParams.get('pageSize') ?? COMMENTS.length)
@@ -67,15 +89,7 @@ export function blogCommentsUpstream(req: IncomingMessage, res: ServerResponse, 
     return true
   }
   if (url.pathname === `/api/v1/blog/post/${POST_ID}`) {
-    const post = makeBlogPost({ id: POST_ID, slug: POST_SLUG, commentsCount: COMMENTS.length })
-    sendJson(res, {
-      ...post,
-      translations: { el: { title: 'Άρθρο με σχόλια', subtitle: '', body: '<p>Το κείμενο.</p>' } },
-      author: makeBlogAuthor(),
-      category: CATEGORY,
-      likes: [],
-      userHasLiked: false,
-    })
+    sendJson(res, postDetail(POST_ID, POST_SLUG, COMMENTS.length))
     return true
   }
   if (url.pathname === `/api/v1/blog/category/${CATEGORY.id}`) {
@@ -96,6 +110,17 @@ export function describeBlogComments(): void {
       for (const comment of COMMENTS) expect(html).toContain(`Σχόλιο του επισκέπτη ${comment.id}`)
       expect(html).toContain('3 σχόλια')
       expect(html).not.toContain('Συνδέσου για να γράψεις ένα σχόλιο')
+    }, 120000)
+  })
+
+  describe.each(DESIGNS)('a post with no comments in %s', (_name, host) => {
+    it('is sent with the guest empty state and no form: what a signed-in reader hydrates over', async () => {
+      const page = await requestWithHost(`/blog/post/${EMPTY_POST_ID}/${EMPTY_POST_SLUG}`, host, BROWSER_ACCEPT)
+      const html = page.body.replace(/<script[\s\S]*?<\/script>/g, '')
+
+      expect(page.statusCode).toBe(200)
+      expect(html).toContain('Συνδέσου για να γράψεις ένα σχόλιο')
+      expect(html).not.toContain('add-comment-form')
     }, 120000)
   })
 
