@@ -4,7 +4,9 @@ import type { ElementNode } from '../../helpers/sourceText'
 import { COMPONENTS, boundAttribute, classesOf, readSource, sfcTemplate, walkElements } from '../../helpers/sourceText'
 
 /**
- * The default design's shared chrome and cards are 44px targets on a phone
+ * The default design's shared chrome and cards, and webside's cart line (which the
+ * product-page rule does not reach: it holds the product page of both designs),
+ * are 44px targets on a phone
  * (the real-browser check, 2026-11-12, measured 28-36px). happy-dom lays
  * nothing out, so the classes that size them are the contract, as in the
  * product page's own rule:
@@ -52,6 +54,9 @@ const TARGETS: Target[] = [
   { file: 'Pagination/PageNumber.vue', tag: 'UPagination', has: 'total', where: 'ui', kind: 'size' },
   { file: 'Pagination/Cursor.vue', tag: 'UButton', has: 'load.more', where: 'class', kind: 'height' },
   { file: 'Chrome/Footer.vue', tag: 'UColorModeSelect', has: 'neutral', where: 'ui', kind: 'height' },
+  { file: 'variants/webside/Cart/ItemCard.vue', tag: 'UButton', has: 'i-fa6-solid-trash', where: 'class', kind: 'size' },
+  { file: 'variants/webside/Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'increment', kind: 'size' },
+  { file: 'variants/webside/Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'decrement', kind: 'size' },
 ]
 
 const SIZE = /(?<![\w:-])(?:max-sm:)?min-h-11(?![\w-])/
@@ -140,5 +145,12 @@ describe('the default design controls are 44px targets on a phone', () => {
 
     expect(source).toContain('max-sm:min-w-0 max-sm:shrink')
     expect(source).toContain('max-sm:gap-2')
+  })
+
+  it('variants/webside/Cart/ItemCard.vue wraps its row on a phone so the 128px stepper and the 44px bin fit its 192px column', () => {
+    const source = flat('variants/webside/Cart/ItemCard.vue')
+
+    expect(source).toContain('flex flex-wrap items-end justify-between')
+    expect(source).toContain('max-sm:w-32')
   })
 })
