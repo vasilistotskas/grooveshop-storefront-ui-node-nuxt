@@ -69,6 +69,7 @@ const buttonAreaLabel = computed(() => {
     :color="favouriteId ? 'error' : 'neutral'"
     variant="subtle"
     :aria-label="buttonAreaLabel"
+    :aria-pressed="favouriteId ? 'true' : 'false'"
     :title="buttonAreaLabel"
     :loading="isLoading"
     :disabled="isLoading"

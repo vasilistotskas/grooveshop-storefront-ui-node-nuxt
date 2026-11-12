@@ -7,6 +7,7 @@ import WebsideButtonProductAddToFavourite from '~/components/variants/webside/Bu
 import type { ProductFavouriteWrite } from '~~/shared/openapi/types.gen'
 import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
@@ -33,7 +34,9 @@ mockNuxtImport('useUserSession', () => () => ({
 
 const FAVOURITE: ProductFavouriteWrite = { id: 11, product: 5 }
 
-describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavourite))('$tree Button/Product/AddToFavourite', ({ C }) => {
+describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavourite))('$tree Button/Product/AddToFavourite', ({ tree, C }) => {
+  const COPY = inlineCopy(tree === 'default' ? 'app/components/Button/Product/AddToFavourite.vue' : 'app/components/variants/webside/Button/Product/AddToFavourite.vue')
+
   beforeEach(() => {
     setTenant()
     loggedIn.value = true
@@ -94,6 +97,16 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     }))
     expect(useUserStore().favouriteProductIds).toEqual({})
     expect(control(wrapper).props('loading')).toBe(false)
+  })
+
+  it.each([
+    [null, 'false', 'add'],
+    [11, 'true', 'remove'],
+  ] as const)('says whether it is pressed: favourite %s', async (favouriteId, pressed, label) => {
+    const button = control(await mount(favouriteId))
+
+    expect(button.attributes('aria-pressed')).toBe(pressed)
+    expect(button.attributes('aria-label')).toBe(COPY[label])
   })
 
   it('asks a guest to sign in instead of calling Django', async () => {
