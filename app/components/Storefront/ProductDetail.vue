@@ -410,15 +410,18 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
           >
             <template v-if="cartEnabled">
               <label
+                v-if="productStock > 0"
                 class="sr-only"
                 for="quantity"
               >{{ t('qty') }}</label>
+              <!-- Nothing to choose for a product that cannot be bought: the
+                   button then has the row, and its «unavailable» in full. -->
               <UInputNumber
+                v-if="productStock > 0"
                 id="quantity"
                 v-model="selectorQuantity"
                 :min="1"
                 :max="product.stock || 1"
-                :disabled="productStock === 0"
                 :increment="{ color: 'neutral', variant: 'ghost', size: 'md' }"
                 :decrement="{ color: 'neutral', variant: 'ghost', size: 'md' }"
                 :ui="{

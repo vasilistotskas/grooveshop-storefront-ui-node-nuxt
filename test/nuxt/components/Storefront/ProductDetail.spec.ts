@@ -452,6 +452,22 @@ describe('default ProductDetail', () => {
     expect(notify.attributes('data-sold-out')).toBe('true')
   })
 
+  it('draws no quantity for a sold-out product, and its button says so in full', async () => {
+    serve(makeProduct({ id: 123, stock: 0 }))
+    const wrapper = await mountPage()
+    const button = wrapper.findAll('button').find(b => b.text() === 'Μή Διαθέσιμο')!
+
+    expect(wrapper.find('#quantity').exists()).toBe(false)
+    expect(button.find('[data-slot="label"]').classes()).not.toContain('truncate')
+  })
+
+  it('draws the quantity for a product in stock', async () => {
+    serve(makeProduct({ id: 123, stock: 5 }))
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('#quantity').exists()).toBe(true)
+  })
+
   it('marks the page for the footer to keep clear of the sticky buy bar', async () => {
     serve(makeProduct({ id: 123 }))
     const wrapper = await mountPage()
