@@ -406,7 +406,7 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
 
           <div
             ref="buyRow"
-            class="flex items-stretch gap-2.5"
+            class="flex flex-wrap items-stretch gap-2.5"
           >
             <template v-if="cartEnabled">
               <label
@@ -436,7 +436,13 @@ useFaqSchema(extractTranslated(product.value, 'description', locale.value))
                 :quantity="selectorQuantity || 1"
                 :text="t('add_to_cart')"
                 size="lg"
-                class="min-w-0 flex-1"
+                :class="[
+                  'min-h-13 min-w-0 flex-1',
+                  // On a phone the stepper (128px) and the favourite leave this
+                  // button about 144px, which «Στο καλάθι» and its icon do not
+                  // fit on one line: it takes a row of its own under them.
+                  productStock > 0 && 'max-sm:order-last max-sm:basis-full',
+                ]"
               />
             </template>
             <ButtonProductAddToFavourite

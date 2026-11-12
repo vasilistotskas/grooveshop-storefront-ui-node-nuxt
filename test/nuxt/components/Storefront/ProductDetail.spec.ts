@@ -461,6 +461,22 @@ describe('default ProductDetail', () => {
     expect(button.find('[data-slot="label"]').classes()).not.toContain('truncate')
   })
 
+  // The buy box's own button: the sticky bar's is not 52px tall.
+  const buyBoxButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
+    wrapper.findAll('button').find(b => b.classes().includes('min-h-13'))!
+
+  it('gives the add button a row of its own on a phone when there is a quantity beside it', async () => {
+    serve(makeProduct({ id: 123, stock: 5 }))
+
+    expect(buyBoxButton(await mountPage()).classes()).toEqual(expect.arrayContaining(['max-sm:basis-full', 'max-sm:order-last']))
+  })
+
+  it('leaves the sold-out button beside the favourite, with the whole row', async () => {
+    serve(makeProduct({ id: 123, stock: 0 }))
+
+    expect(buyBoxButton(await mountPage()).classes()).not.toContain('max-sm:basis-full')
+  })
+
   it('draws the quantity for a product in stock', async () => {
     serve(makeProduct({ id: 123, stock: 5 }))
     const wrapper = await mountPage()
