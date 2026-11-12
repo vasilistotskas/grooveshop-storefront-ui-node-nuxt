@@ -381,6 +381,8 @@ describe.each([
 })
 
 describe('default ProductDetail', () => {
+  /** The default design's word for a product that cannot be bought, from the button's own `<i18n>` block. */
+  const UNAVAILABLE = inlineCopy('app/components/Button/Product/AddToCart.vue').unavailable
   const empty = { count: 0, next: null, previous: null, results: [] }
   const CATEGORIES = [
     makeCategory({ id: 1, name: { el: 'Φόρτιση', en: 'Charging' } }),
@@ -456,7 +458,7 @@ describe('default ProductDetail', () => {
   it('draws no quantity for a sold-out product, and its button says so in full', async () => {
     serve(makeProduct({ id: 123, stock: 0 }))
     const wrapper = await mountPage()
-    const button = wrapper.findAll('button').find(b => b.text() === 'Μη διαθέσιμο')!
+    const button = wrapper.findAll('button').find(b => b.text() === UNAVAILABLE)!
 
     expect(wrapper.find('#quantity').exists()).toBe(false)
     expect(button.find('[data-slot="label"]').classes()).not.toContain('truncate')
