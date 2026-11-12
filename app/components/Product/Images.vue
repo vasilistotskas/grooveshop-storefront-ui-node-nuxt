@@ -40,6 +40,13 @@ function show(index: number) {
   carousel.value?.emblaApi?.scrollTo(index)
 }
 
+// The zoom viewer moves `selected` too: the gallery follows it, jumping
+// rather than sliding, since it is under the viewer while it moves.
+watch(selected, (index) => {
+  const embla = carousel.value?.emblaApi
+  if (embla && embla.selectedScrollSnap() !== index) embla.scrollTo(index, true)
+})
+
 function openZoom() {
   if (slides.value.length) zoomOpen.value = true
 }
@@ -185,8 +192,8 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
     <LazyProductImageModal
       v-if="zoomOpen"
       v-model="zoomOpen"
+      v-model:index="selected"
       :images="slides"
-      :initial-index="selected"
       :product-name="productName"
     />
   </div>
