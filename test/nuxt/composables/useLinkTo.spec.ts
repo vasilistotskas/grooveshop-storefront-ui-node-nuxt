@@ -1,6 +1,17 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+
+// The `/en` case navigates for real, and vue-router loads a lazy page
+// component before it resolves the navigation: the home page's whole
+// component graph, which under the full parallel run can outlast the 5s test
+// budget. The test reads only the route's locale, so the page is an empty
+// component (as `plugins/auth.spec.ts` does).
+const { PageStub } = await vi.hoisted(async () => {
+  const { defineComponent } = await import('vue')
+  return { PageStub: defineComponent({ render: () => null }) }
+})
+vi.mock('~/pages/index.vue', () => ({ default: PageStub }))
 
 /**
  * A store-written link as a link component's `to`: someone else's https page
