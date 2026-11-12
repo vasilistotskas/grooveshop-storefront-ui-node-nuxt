@@ -17,6 +17,12 @@ withDefaults(defineProps<{
   placeholder?: string
   buttonText?: string
   surface?: 'default' | 'muted'
+  /**
+   * The heading's colour: the theme's heading colour, or its accent (the
+   * token the hero's accent line paints with), which keeps AA on both
+   * grounds in both designs: 5.38 to 9.44:1 from the designs' defaults.
+   */
+  headingColor?: 'default' | 'accent'
 }>(), {
   surface: 'muted',
 })
@@ -56,9 +62,12 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
           <h2
             class="
               font-display text-2xl font-semibold tracking-tight text-balance
-              wrap-break-word text-highlighted
+              wrap-break-word
               md:text-3xl
             "
+            :class="headingColor === 'accent' ? 'text-accent' : `
+              text-highlighted
+            `"
           >
             {{ heading || t('heading') }}
           </h2>

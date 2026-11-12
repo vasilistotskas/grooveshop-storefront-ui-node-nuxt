@@ -272,6 +272,10 @@
       "label": "Heading, second line",
       "help": "Drawn in the accent colour, as part of the same heading."
     },
+    "headingColor": {
+      "label": "Heading colour",
+      "help": "The theme's accent colour, as the second line of the hero section. Empty: the heading colour."
+    },
     "height": {
       "label": "Height"
     },
@@ -339,6 +343,10 @@
     },
     "page": {
       "label": "Page"
+    },
+    "phoneLayout": {
+      "label": "Layout on a phone",
+      "help": "On a phone: a row to swipe, or a list with a small picture, the category, the reading time and the title. Larger screens are the same either way. Empty: a row to swipe."
     },
     "placeholder": {
       "label": "Placeholder"
@@ -497,6 +505,14 @@
       "shipping": "Shipping",
       "ai": "AI assistants",
       "custom": "Your own"
+    },
+    "headingColor": {
+      "default": "Heading",
+      "accent": "Accent"
+    },
+    "phoneLayout": {
+      "row": "Row to swipe",
+      "list": "List"
     }
   },
   "routes": {

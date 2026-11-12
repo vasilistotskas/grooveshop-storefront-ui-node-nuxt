@@ -1,5 +1,5 @@
 {
-  "hash": "be82b2cbac6b4282",
+  "hash": "a40b516f01f8da1d",
   "blocks": [
     {
       "type": "about_content",
@@ -889,6 +889,13 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "phoneLayout": {
+            "type": "string",
+            "enum": [
+              "row",
+              "list"
+            ]
           }
         },
         "required": [
@@ -5681,6 +5688,13 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "headingColor": {
+            "type": "string",
+            "enum": [
+              "default",
+              "accent"
             ]
           }
         },

@@ -27,6 +27,8 @@ const props = defineProps<{
   posts: ResolvedQuery<BlogPost, DataDescriptor<'blogPost'>>
   /** `blog_posts_list`'s setting: a button reads the next posts of the same list below these. */
   loadMore?: boolean
+  /** `blog_posts_grid`'s setting: on a phone, the row to swipe (empty) or a list of compact rows. */
+  phoneLayout?: 'row' | 'list'
 }>()
 
 const { t } = useStoreI18n('components/PageSection/BlogPosts')
@@ -71,6 +73,7 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
       :posts="items"
       :category-name="categoryName"
       :stacked="loadMore"
+      :phone-layout="phoneLayout"
     />
     <PageSectionBlogPostsLoadMore
       v-if="loadMore"

@@ -80,6 +80,20 @@ describe('NewsletterSignup', () => {
     expect(wrapper.get('h2').classes()).toContain('wrap-break-word')
   })
 
+  // The class is the contract: the theme's heading colour, or its accent
+  // (the token the hero's accent line paints with), which is AA on both
+  // grounds in both designs.
+  it.each([
+    [undefined, 'text-highlighted', 'text-accent'],
+    ['default', 'text-highlighted', 'text-accent'],
+    ['accent', 'text-accent', 'text-highlighted'],
+  ] as const)('paints the heading in the colour the block sets: %s', async (headingColor, painted, not) => {
+    const classes = (await mountBand({ heading: 'Μάθε τα νέα μας', headingColor })).get('h2').classes()
+
+    expect(classes).toContain(painted)
+    expect(classes).not.toContain(not)
+  })
+
   it('renders the form with an UNTICKED consent box labelled by the shared sentence', async () => {
     const wrapper = await mountBand()
 

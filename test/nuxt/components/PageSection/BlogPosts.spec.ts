@@ -26,8 +26,9 @@ const RailStub = defineComponent({
     posts: { type: Array as () => { id: number, category: number }[], default: () => [] },
     categoryName: { type: Function, default: undefined },
     stacked: { type: Boolean, default: false },
+    phoneLayout: { type: String, default: undefined },
   },
-  setup: props => () => h('ol', { 'data-stacked': props.stacked }, props.posts.map(p =>
+  setup: props => () => h('ol', { 'data-stacked': props.stacked, 'data-phone-layout': props.phoneLayout }, props.posts.map(p =>
     h('li', { 'data-post': p.id, 'data-category': props.categoryName?.(p.category) }))),
 })
 
@@ -107,6 +108,18 @@ describe('PageSection/BlogPosts', () => {
     expect(wrapper.find('h2').text()).toBe('Νέα')
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual(['Περισσότερα', '/blog/category/5/news'])
+  })
+
+  // `blog_posts_grid`'s phone layout reaches the rail, which draws it
+  // (`Blog/Rail.spec.ts`); unset, the rail keeps its row to swipe.
+  it.each([
+    [undefined, undefined],
+    ['row', 'row'],
+    ['list', 'list'],
+  ] as const)('hands the phone layout %s to the rail', async (phoneLayout, handed) => {
+    const wrapper = await mountPosts({ phoneLayout })
+
+    expect(wrapper.get('ol').attributes('data-phone-layout')).toBe(handed)
   })
 
   describe('with `loadMore` on', () => {
