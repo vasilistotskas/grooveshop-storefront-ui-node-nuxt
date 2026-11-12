@@ -23,8 +23,10 @@ export function useAuthLinks() {
     return `${pathname}${search}`
   })
 
+  // Always a location object, never a bare route name: callers read its
+  // `query` (`next`) without narrowing.
   const link = (name: typeof RedirectToURLs.LOGIN_URL | 'account-signup') =>
-    computed<RouteLocationNamedI18n>(() => ({
+    computed<Exclude<RouteLocationNamedI18n, string>>(() => ({
       name,
       query: next.value ? { next: next.value } : undefined,
     }))
