@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { defineComponent, h, onMounted, ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import ButtonProductAddToFavourite from '~/components/Button/Product/AddToFavourite.vue'
@@ -170,6 +170,33 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     expect(toastAdd).toHaveBeenCalledTimes(1)
     expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error_occurred') }))
   })
+
+  // A heart that hydrates after another heart asked for its product (a rail
+  // hydrated on scroll, under the grid that asked) finds the store already
+  // knowing it. Its first render must still be the server's, the guest's,
+  // or Vue hydrates a pressed heart over unpressed HTML and, in production,
+  // never repairs it. After mount it shows the store's state as a patch.
+  it('draws the guest\'s heart in its first render and the store\'s after mount, whatever the store knew', async () => {
+    useUserStore().favouriteProductIds = { 5: 11 }
+    let firstRender: string | null | undefined
+    // A parent's mounted hook runs after the heart's, before the re-render
+    // its mount schedules: the DOM it reads is the heart's first render.
+    const Page = defineComponent({
+      setup() {
+        onMounted(() => {
+          firstRender = document.querySelector('[data-heart] [aria-pressed]')?.getAttribute('aria-pressed')
+        })
+        return () => h('div', { 'data-heart': '' }, [h(C, { productId: 5, productName: NAME, userId: 7, favouriteId: 11 })])
+      },
+    })
+
+    const wrapper = await mountSuspended(Page, { route: false, attachTo: document.body })
+    await flushPromises()
+
+    expect(firstRender).toBe('false')
+    expect(wrapper.get('[aria-pressed]').attributes('aria-pressed')).toBe('true')
+  })
+
 
   it('asks a guest to sign in instead of calling Django', async () => {
     loggedIn.value = false

@@ -39,7 +39,10 @@ const emit = defineEmits<{
 
 const { t } = useStoreI18n('components/Button/Product/AddToFavourite')
 
-const { isLoading, toggle: toggleFavourite } = useProductFavouriteToggle({
+// What the heart draws comes from the toggle, which holds it at the
+// guest's until mount (the server's render); `props.favouriteId` is the
+// store's state, for the click.
+const { isLoading, drawnFavouriteId, toggle: toggleFavourite } = useProductFavouriteToggle({
   productId: () => props.productId,
   userId: () => props.userId,
   favouriteId: () => props.favouriteId,
@@ -52,18 +55,18 @@ const { isLoading, toggle: toggleFavourite } = useProductFavouriteToggle({
 // announced twice ("remove from favourites, pressed"). The tooltip says
 // what a click does.
 const name = computed(() => t('name', { name: props.productName }))
-const action = computed(() => (props.favouriteId ? t('remove') : t('add')))
+const action = computed(() => (drawnFavouriteId.value ? t('remove') : t('add')))
 </script>
 
 <template>
   <UButton
     v-if="favouritesEnabled"
     :size="size"
-    :icon="favouriteId ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
-    :color="favouriteId ? 'error' : 'neutral'"
+    :icon="drawnFavouriteId ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
+    :color="drawnFavouriteId ? 'error' : 'neutral'"
     variant="subtle"
     :aria-label="name"
-    :aria-pressed="favouriteId ? 'true' : 'false'"
+    :aria-pressed="drawnFavouriteId ? 'true' : 'false'"
     :title="action"
     :loading="isLoading"
     :disabled="isLoading"

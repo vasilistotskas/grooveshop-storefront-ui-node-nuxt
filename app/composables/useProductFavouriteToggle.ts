@@ -11,6 +11,16 @@
  * itself. Not before mount: the page is rendered anonymously, and the
  * first client render must be that render. A sign-in later asks again.
  *
+ * For the same reason the heart DRAWS `drawnFavouriteId` from here, not the
+ * one it was given: the guest's (none) until it has mounted, the store's
+ * after. A heart that hydrates after another one asked for its product (a
+ * section hydrated on scroll, under the grid that already asked) would
+ * otherwise draw the store's answer in its first client render, over the
+ * anonymous HTML it was sent: a hydration mismatch Vue does not repair in
+ * production, which left the heart an outline for good. After mount it
+ * is an ordinary patch. The same shape as the session's after-hydration
+ * accessor: the server's state until mounted.
+ *
  * A favourite is created by product and deleted by its own id, so the
  * button says which one it holds (`favouriteId`, `null` for none yet);
  * `toggle` does the other. A guest gets "sign in first" and no request.
@@ -41,6 +51,10 @@ export function useProductFavouriteToggle(options: {
   const favouritesEnabled = useStoreFeature('favourites')
 
   const isLoading = ref(false)
+  const mounted = useMounted()
+
+  /** The favourite the heart draws: the guest's until it has mounted (see above). */
+  const drawnFavouriteId = computed(() => (mounted.value ? options.favouriteId() : null))
 
   onMounted(() => {
     watchEffect(() => {
@@ -110,5 +124,5 @@ export function useProductFavouriteToggle(options: {
     }
   }
 
-  return { isLoading, toggle }
+  return { isLoading, drawnFavouriteId, toggle }
 }
