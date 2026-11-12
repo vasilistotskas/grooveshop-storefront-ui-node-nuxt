@@ -21,7 +21,7 @@ const categories = (items: BlogCategory[]) => ({
 
 const ITEMS = [
   makeBlogCategory({ id: 3, slug: 'ai', postCount: 26, translations: { el: { name: LONG } } as BlogCategory['translations'], mainImagePath: 'media/uploads/blog/robot-solid.svg' }),
-  makeBlogCategory({ id: 4, slug: 'web', postCount: 1, translations: { el: { name: 'Web' } } as BlogCategory['translations'], mainImagePath: 'media/uploads/blog/web.png' }),
+  makeBlogCategory({ id: 4, slug: 'web', postCount: 1, translations: { el: { name: 'Web' } } as BlogCategory['translations'], mainImagePath: 'media/test/uploads/blog/web.png' }),
 ]
 
 const mountTiles = (props: Record<string, unknown> = {}) =>
@@ -51,6 +51,8 @@ describe('PageSection/BlogCategoryTiles', () => {
     const [withIcon, withPicture] = wrapper.findAll('ul > li')
     expect(withIcon!.find('img').exists()).toBe(false)
     expect(withPicture!.get('img').attributes('src')).toContain('web.png')
+    // On its own ground, not a white square: the tile follows the band's colour scheme.
+    expect(withPicture!.get('img').attributes('src')).toMatch(/\/transparent\//)
     // The tile's name says what it is: the picture is decoration.
     expect(withPicture!.get('img').attributes('alt')).toBe('')
   })

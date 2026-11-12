@@ -83,7 +83,6 @@ const tiles = computed(() => props.categories.items.map(category => ({
           <ImgWithFallback
             class="aspect-square size-6"
             alt=""
-            :background="'ffffff'"
             fit="fill"
             :format="'svg'"
             :height="25"
