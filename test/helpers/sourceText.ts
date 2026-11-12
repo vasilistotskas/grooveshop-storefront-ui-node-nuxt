@@ -49,16 +49,21 @@ const blank = (match: string) => match.replace(/[^\r\n]/g, ' ')
 /**
  * Blank out HTML, block and line comments, preserving line numbers.
  *
+ * One pass, left to right, so whichever comment opens first is the one:
+ * a `/*` inside a line comment (`// pages under /account/*`) opened a
+ * block comment when blocks went first, and blanked the code down to the
+ * next `*\/`, which a rule then never saw.
+ *
  * The line-comment pattern requires a non-`:` character before `//` so
  * that a `https://` inside a string survives. It is NOT string-aware
  * otherwise: a glob such as `'app/**\/*.vue'` opens a block comment, which
  * is why config files are parsed (`parseScript`) rather than stripped.
  */
 export function withoutComments(source: string): string {
-  return source
-    .replace(/<!--[\s\S]*?-->/g, blank)
-    .replace(/\/\*[\s\S]*?\*\//g, blank)
-    .replace(/(^|[^:])\/\/[^\r\n]*/gm, (match, lead: string) => lead + blank(match.slice(lead.length)))
+  return source.replace(
+    /<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|(^|[^:])\/\/[^\r\n]*/gm,
+    (match, lead: string | undefined) => (lead === undefined ? blank(match) : lead + blank(match.slice(lead.length))),
+  )
 }
 
 /**
