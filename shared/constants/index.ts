@@ -28,6 +28,16 @@ export const BLOG_POST_COMMENTS_ID = 'blog-post-comments'
  */
 export const FAVOURITES_LOOKUP_MAX_IDS = 100
 
+/**
+ * A product the server says is a favourite (`already_favourited`) before we
+ * know the favourite's id: its heart is pressed, and a removal asks for the
+ * id first (`resolveFavouriteId` in the user store).
+ */
+export const FAVOURITE_ID_UNKNOWN = 'unknown'
+
+/** What the user store holds for a favourite product: its favourite's id, or that it has one. */
+export type FavouriteId = number | typeof FAVOURITE_ID_UNKNOWN
+
 export const GSIAuthProcess = {
   LOGIN: 'login',
   CONNECT: 'connect',

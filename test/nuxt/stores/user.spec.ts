@@ -211,17 +211,6 @@ describe('useUserStore', () => {
       expect(asked()).toEqual([])
     })
 
-    it('asks again about a product it is told to refresh', async () => {
-      api.routes({ [LOOKUP]: holds({ 1: 100 }) })
-      store.lookUpFavourites([1])
-      await flushPromises()
-
-      store.lookUpFavourites([1], { refresh: true })
-      await flushPromises()
-
-      expect(asked()).toEqual([[1], [1]])
-    })
-
     it('asks once a session: a product asked about, held from a list or switched by a click is known', async () => {
       api.routes({ [LOOKUP]: holds({}) })
       store.lookUpFavourites([1])
@@ -280,8 +269,9 @@ describe('useUserStore', () => {
       expect(asked()).toEqual([[1], [1]])
     })
 
-    // A refresh asks again while the first question may still be out: the
-    // newer question's answer stands, in whichever order the answers arrive.
+    // A removal asks for a favourite's id while a mount's batch may still be
+    // out for the same product: the newer question's answer stands, in
+    // whichever order the two answers arrive.
     it('keeps the answer to the newest question about a product', async () => {
       const answers: Array<() => void> = []
       api.routes({ [LOOKUP]: (_url: string, options: { body: { productIds: number[] } }) => new Promise((resolve) => {
@@ -290,15 +280,75 @@ describe('useUserStore', () => {
       }) })
       store.lookUpFavourites([1])
       await flushPromises()
-      store.lookUpFavourites([1], { refresh: true })
+      const resolved = store.resolveFavouriteId(1)
       await flushPromises()
 
       answers[1]!()
-      await flushPromises()
+      await expect(resolved).resolves.toBe(100)
       answers[0]!()
       await flushPromises()
 
       expect(store.favouriteProductIds).toEqual({ 1: 100 })
+    })
+
+    // `already_favourited`: the server holds a favourite we have no id for.
+    it('presses a product it is told is a favourite, and finds its id when asked', async () => {
+      store.markFavouriteProduct(1)
+      expect(store.getFavouriteIdByProductId(1)).toBe(FAVOURITE_ID_UNKNOWN)
+
+      api.routes({ [LOOKUP]: holds({ 1: 100 }) })
+      await expect(store.resolveFavouriteId(1)).resolves.toBe(100)
+
+      expect(store.favouriteProductIds).toEqual({ 1: 100 })
+    })
+
+    it('lets a click made while the question was out win over its answer', async () => {
+      let answer!: () => void
+      api.routes({ [LOOKUP]: () => new Promise((resolve) => {
+        answer = () => resolve([favourite(1, 100)])
+      }) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      store.removeFavouriteProduct(1)
+      answer()
+      await flushPromises()
+
+      expect(store.favouriteProductIds).toEqual({})
+    })
+
+    it('forgets a lookup that failed, so the next heart asks again', async () => {
+      api.routes({ [LOOKUP]: failWith(502) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      api.routes({ [LOOKUP]: holds({ 1: 100 }) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      expect(asked()).toEqual([[1], [1]])
+      expect(store.favouriteProductIds).toEqual({ 1: 100 })
+    })
+
+    it('asks again after the shopper signs out and back in', async () => {
+      api.routes({ [LOOKUP]: holds({}) })
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      store.clearAccountState()
+      store.lookUpFavourites([1])
+      await flushPromises()
+
+      expect(asked()).toEqual([[1], [1]])
+    })
+
+    // The limit is the server's: the generated body schema is Django's
+    // serializer, `max_length=100`.
+    it('splits at the limit of the request body the server accepts', () => {
+      const ids = (count: number) => ({ productIds: Array.from({ length: count }, (_, index) => index + 1) })
+
+      expect(zGetProductFavouritesByProductsBody.safeParse(ids(FAVOURITES_LOOKUP_MAX_IDS)).success).toBe(true)
+      expect(zGetProductFavouritesByProductsBody.safeParse(ids(FAVOURITES_LOOKUP_MAX_IDS + 1)).success).toBe(false)
     })
   })
 

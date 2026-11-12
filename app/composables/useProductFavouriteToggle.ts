@@ -37,9 +37,11 @@
  * Except when the server says the shopper already has what they asked for:
  * `already_favourited` on an add (the heart showed the guest's state, or
  * another tab saved it) and a 404 on a removal (the favourite is gone).
- * The store then follows the server instead: the add asks the favourite's
- * id again (`lookUpFavourites` with `refresh`), the removal drops it, and
- * the shopper gets the toast of the change they wanted, not an error.
+ * The store then follows the server instead and the shopper gets the toast
+ * of the change they wanted, not an error. The add leaves the product a
+ * favourite whose id we do not know (`FAVOURITE_ID_UNKNOWN`): its heart is
+ * pressed, as the server says, and a removal asks for the id first
+ * (`resolveFavouriteId`), the one way to remove whatever the heart knew.
  *
  * Nothing is written after an await if the account changed meanwhile
  * (`favouriteSession`): an answer for a shopper who signed out never
@@ -48,7 +50,7 @@
 export function useProductFavouriteToggle(options: {
   productId: () => number
   userId: () => number | null | undefined
-  favouriteId: () => number | null
+  favouriteId: () => FavouriteId | null | undefined
   t: ReturnType<typeof useI18n>['t']
   onDeleted: (favouriteId: number) => void
 }) {
@@ -57,7 +59,7 @@ export function useProductFavouriteToggle(options: {
   const { notify } = useApiError()
   const { loggedIn, ready } = useUserSession()
   const userStore = useUserStore()
-  const { addFavouriteProduct, removeFavouriteProduct, lookUpFavourites } = userStore
+  const { addFavouriteProduct, markFavouriteProduct, removeFavouriteProduct, lookUpFavourites, resolveFavouriteId } = userStore
   const favouritesEnabled = useStoreFeature('favourites')
 
   const isLoading = ref(false)
@@ -117,10 +119,14 @@ export function useProductFavouriteToggle(options: {
         announce('added')
       }
       else {
-        removing = favouriteId
-        await $api(`/api/products/favourites/${removing}`, { method: 'DELETE' })
+        removing = favouriteId === FAVOURITE_ID_UNKNOWN ? await resolveFavouriteId(productId) : favouriteId
         if (!sameSession()) return
-        options.onDeleted(removing)
+        if (removing !== undefined) {
+          await $api(`/api/products/favourites/${removing}`, { method: 'DELETE' })
+          if (!sameSession()) return
+          options.onDeleted(removing)
+        }
+        // No favourite to delete: the server holds none any more.
         removeFavouriteProduct(productId)
         announce('removed')
       }
@@ -129,7 +135,7 @@ export function useProductFavouriteToggle(options: {
       if (!sameSession()) return
       const { code, status } = describeApiError(error)
       if (!favouriteId && code === 'already_favourited') {
-        lookUpFavourites([productId], { refresh: true })
+        markFavouriteProduct(productId)
         announce('added')
         return
       }

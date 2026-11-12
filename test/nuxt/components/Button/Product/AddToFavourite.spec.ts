@@ -158,6 +158,7 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     await flushPromises()
     return { wrapper, deleted }
   }
+  const pressed = (wrapper: Awaited<ReturnType<typeof mountFromStore>>['wrapper']) => wrapper.get('[aria-pressed]').attributes('aria-pressed')
   const clickHeart = async (wrapper: Awaited<ReturnType<typeof mountFromStore>>['wrapper']) => {
     const settled = wrapper.findComponent({ name: 'UButton' }).props('onClick')(new MouseEvent('click'))
     await flushPromises()
@@ -165,23 +166,45 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
   }
 
   // The heart showed the guest's state, or another tab changed it: the
-  // server already has what the shopper asked for, so the store follows it
-  // and the shopper hears of the change they wanted, not of an error.
-  it('takes the favourite the server already holds when an add answers already_favourited', async () => {
-    api.routes({
-      [LOOKUP]: [],
-      '/api/products/favourites': failWith(400, { detail: 'Υπάρχει ήδη', code: 'already_favourited' }),
-    })
-    const wrapper = await mount()
-    await flushPromises()
-    api.routes({ [LOOKUP]: HELD, '/api/products/favourites': failWith(400, { detail: 'Υπάρχει ήδη', code: 'already_favourited' }) })
+  // server already holds the favourite, so the heart is pressed, as the
+  // server says, whatever else happens, and the shopper hears of the change
+  // they wanted, not of an error. Its id is asked for only to remove it.
+  it('presses the heart when an add answers already_favourited, asking nothing more', async () => {
+    const { wrapper } = await mountFromStore()
+    api.routes({ [LOOKUP]: failWith(502), '/api/products/favourites': failWith(400, { detail: 'Υπάρχει ήδη', code: 'already_favourited' }) })
 
-    await click(wrapper)
+    await clickHeart(wrapper)
 
-    expect(useUserStore().favouriteProductIds).toEqual({ 5: 11 })
-    expect(api.callsTo(LOOKUP)).toHaveLength(2)
+    expect(pressed(wrapper)).toBe('true')
+    expect(api.callsTo(LOOKUP)).toHaveLength(1)
     expect(toastAdd).toHaveBeenCalledTimes(1)
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+  })
+
+  it('removes a favourite whose id it never had: asks for the id, then deletes it', async () => {
+    useUserStore().markFavouriteProduct(5)
+    api.routes({ [LOOKUP]: HELD, '/api/products/favourites/11': null })
+    const { wrapper, deleted } = await mountFromStore()
+
+    await clickHeart(wrapper)
+
+    expect(api.callsTo('/api/products/favourites/*').map(call => call.url)).toEqual([LOOKUP, '/api/products/favourites/11'])
+    expect(pressed(wrapper)).toBe('false')
+    expect(deleted).toEqual([11])
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: COPY.removed }))
+  })
+
+  it('says it could not remove a favourite whose id cannot be found, and keeps it pressed', async () => {
+    useUserStore().markFavouriteProduct(5)
+    api.routes({ [LOOKUP]: failWith(502) })
+    const { wrapper } = await mountFromStore()
+
+    await clickHeart(wrapper)
+
+    expect(api.callsTo('/api/products/favourites/*').map(call => call.url)).toEqual([LOOKUP])
+    expect(pressed(wrapper)).toBe('true')
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error_occurred'), color: 'error' }))
   })
 
   // A shared device: the shopper signs out while their click is out. Its

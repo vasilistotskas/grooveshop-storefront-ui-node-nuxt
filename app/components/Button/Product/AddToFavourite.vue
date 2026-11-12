@@ -22,8 +22,9 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
+  /** The store's `getFavouriteIdByProductId`: none, the favourite's id, or that there is one (`FAVOURITE_ID_UNKNOWN`). */
   favouriteId: {
-    type: Number as PropType<number | null>,
+    type: [Number, String] as PropType<FavouriteId | null>,
     required: false,
     default: null,
   },

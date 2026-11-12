@@ -1,6 +1,6 @@
 export const useUserStore = defineStore('user', () => {
   const account = ref<UserDetails | null>(null)
-  const favouriteProductIds = ref<Record<number, number>>({})
+  const favouriteProductIds = ref<Record<number, FavouriteId>>({})
   const blogLikedPosts = ref<number[]>([])
   const blogLikedComments = ref<number[]>([])
 
@@ -44,7 +44,7 @@ export const useUserStore = defineStore('user', () => {
    */
   const favouriteSession = () => session
 
-  const setFavourite = (productId: number, favouriteId: number | undefined) => {
+  const setFavourite = (productId: number, favouriteId: FavouriteId | undefined) => {
     if (favouriteId === undefined) {
       const { [productId]: _removed, ...rest } = favouriteProductIds.value
       favouriteProductIds.value = rest
@@ -59,6 +59,12 @@ export const useUserStore = defineStore('user', () => {
   const addFavouriteProduct = (favourite: CreateProductFavouriteResponse) => {
     changes.set(favourite.product, ++clicks)
     setFavourite(favourite.product, favourite.id)
+  }
+
+  /** A heart the shopper switched on that the server already held (`already_favourited`): pressed, its id asked for when it is removed. */
+  const markFavouriteProduct = (productId: number) => {
+    changes.set(productId, ++clicks)
+    setFavourite(productId, FAVOURITE_ID_UNKNOWN)
   }
 
   /** A heart the shopper switched off. */
@@ -105,24 +111,31 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
+   * The id of the product's favourite, asked of the server now: for a
+   * removal of a favourite whose id we never had (`FAVOURITE_ID_UNKNOWN`).
+   * `undefined` when it has none any more, or when the session changed;
+   * throws when the server cannot be asked.
+   */
+  const resolveFavouriteId = async (productId: number): Promise<number | undefined> =>
+    (await ask([productId]))?.get(productId)
+
+  /**
    * Asks the server which of `productIds` the shopper's favourites hold and
    * keeps the answer, a product with no favourite included. Every product
    * a page draws a heart for is asked about at most once a session: the
    * ids registered in one tick go in ONE request (a hundred at most, the
    * Django view's limit, so more are split), and a product already known
-   * or already waiting is skipped. `refresh` asks again about products
-   * whose state the server contradicted (`already_favourited`).
+   * or already waiting is skipped.
    *
    * Signed-in and in the browser only: pages are rendered and cached
    * anonymously, so a heart draws as the guest's until it mounts and asks.
    * A failed lookup is logged and forgotten, so the next heart that mounts
    * asks again; the hearts it concerned keep the guest's state.
    */
-  const lookUpFavourites = (productIds: readonly number[], options: { refresh?: boolean } = {}) => {
+  const lookUpFavourites = (productIds: readonly number[]) => {
     const { loggedIn } = useUserSession()
     if (import.meta.server || !loggedIn.value) return
     for (const productId of productIds) {
-      if (options.refresh) known.delete(productId)
       if (!known.has(productId)) pending.add(productId)
     }
     if (pending.size === 0 || batchScheduled) return
@@ -242,7 +255,9 @@ export const useUserStore = defineStore('user', () => {
     clearAccountState,
     getFavouriteIdByProductId,
     addFavouriteProduct,
+    markFavouriteProduct,
     removeFavouriteProduct,
+    resolveFavouriteId,
     favouriteSession,
     updateFavouriteProducts,
     lookUpFavourites,
