@@ -40,6 +40,10 @@
  * The store then follows the server instead: the add asks the favourite's
  * id again (`lookUpFavourites` with `refresh`), the removal drops it, and
  * the shopper gets the toast of the change they wanted, not an error.
+ *
+ * Nothing is written after an await if the account changed meanwhile
+ * (`favouriteSession`): an answer for a shopper who signed out never
+ * lands in the next shopper's session.
  */
 export function useProductFavouriteToggle(options: {
   productId: () => number
@@ -52,7 +56,8 @@ export function useProductFavouriteToggle(options: {
   const toast = useToast()
   const { notify } = useApiError()
   const { loggedIn, ready } = useUserSession()
-  const { addFavouriteProduct, removeFavouriteProduct, lookUpFavourites } = useUserStore()
+  const userStore = useUserStore()
+  const { addFavouriteProduct, removeFavouriteProduct, lookUpFavourites } = userStore
   const favouritesEnabled = useStoreFeature('favourites')
 
   const isLoading = ref(false)
@@ -94,6 +99,11 @@ export function useProductFavouriteToggle(options: {
 
     const productId = options.productId()
     const favouriteId = options.favouriteId()
+    const askedIn = userStore.favouriteSession()
+    /** Whether the shopper who clicked is still the one signed in. */
+    const sameSession = () => userStore.favouriteSession() === askedIn
+    // The favourite a removal deletes, once known.
+    let removing: number | undefined
     try {
       if (!favouriteId) {
         const favourite = await $api('/api/products/favourites', {
@@ -102,25 +112,29 @@ export function useProductFavouriteToggle(options: {
             product: productId,
           },
         })
+        if (!sameSession()) return
         addFavouriteProduct(favourite)
         announce('added')
       }
       else {
-        await $api(`/api/products/favourites/${favouriteId}`, { method: 'DELETE' })
-        options.onDeleted(favouriteId)
+        removing = favouriteId
+        await $api(`/api/products/favourites/${removing}`, { method: 'DELETE' })
+        if (!sameSession()) return
+        options.onDeleted(removing)
         removeFavouriteProduct(productId)
         announce('removed')
       }
     }
     catch (error) {
+      if (!sameSession()) return
       const { code, status } = describeApiError(error)
       if (!favouriteId && code === 'already_favourited') {
         lookUpFavourites([productId], { refresh: true })
         announce('added')
         return
       }
-      if (favouriteId && status === 404) {
-        options.onDeleted(favouriteId)
+      if (removing !== undefined && status === 404) {
+        options.onDeleted(removing)
         removeFavouriteProduct(productId)
         announce('removed')
         return

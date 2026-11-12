@@ -11,14 +11,20 @@ export const useUserStore = defineStore('user', () => {
   // The favourite lookup's bookkeeping, private to this store instance (one
   // per app, so never shared between requests) and never serialised:
   // `known` holds the products whose state the server has told us this
-  // session, `pending` the ones waiting for the next batch, and `changes`
-  // the click that last changed each product, so a lookup that was already
-  // on its way cannot undo it.
+  // session, `pending` the ones waiting for the next batch, `changes` the
+  // click that last changed each product and `latestLookup` the lookup that
+  // last asked about it, so an answer that was already on its way when a
+  // click or a newer question came cannot undo them. `session` counts the
+  // account resets: an answer to a question asked in an earlier session
+  // (the shopper signed out, maybe another signed in) is dropped whole.
   const known = new Set<number>()
   const pending = new Set<number>()
   let batchScheduled = false
   let clicks = 0
   const changes = new Map<number, number>()
+  let lookups = 0
+  const latestLookup = new Map<number, number>()
+  let session = 0
 
   const clearAccountState = () => {
     account.value = null
@@ -28,7 +34,15 @@ export const useUserStore = defineStore('user', () => {
     known.clear()
     pending.clear()
     changes.clear()
+    session++
   }
+
+  /**
+   * The session an asynchronous write was asked in: whoever writes into
+   * the store after an await compares it with `favouriteSession()` then and
+   * writes nothing if they differ.
+   */
+  const favouriteSession = () => session
 
   const setFavourite = (productId: number, favouriteId: number | undefined) => {
     if (favouriteId === undefined) {
@@ -53,9 +67,41 @@ export const useUserStore = defineStore('user', () => {
     setFavourite(productId, undefined)
   }
 
-  /** Favourites the caller holds already (the favourites page's own list). */
+  /**
+   * Favourites the caller holds already (the favourites page's own list).
+   * Only the signed-in shopper's: a list that was on its way when the
+   * account changed belongs to someone else.
+   */
   const updateFavouriteProducts = (favourites: GetProductFavouritesByProductsResponse) => {
-    favourites.forEach(favourite => setFavourite(favourite.productId, favourite.id))
+    const owner = useUserSession().user.value?.id
+    favourites
+      .filter(favourite => favourite.userId === owner)
+      .forEach(favourite => setFavourite(favourite.productId, favourite.id))
+  }
+
+  /**
+   * Asks the server about `productIds` and keeps what it answers, a product
+   * with no favourite included, except for a product a click or a newer
+   * question changed since, and nothing at all if the session changed.
+   * Answers the favourites by product, or `undefined` for a dropped answer.
+   */
+  const ask = async (productIds: number[]): Promise<Map<number, number> | undefined> => {
+    const askedIn = session
+    const lookup = ++lookups
+    const askedAt = clicks
+    productIds.forEach(productId => latestLookup.set(productId, lookup))
+    const favourites = await $api('/api/products/favourites/favourites-by-products', {
+      method: 'POST',
+      body: { productIds },
+    })
+    if (askedIn !== session) return undefined
+    const answered = new Map(favourites.map(favourite => [favourite.productId, favourite.id]))
+    for (const productId of productIds) {
+      if (latestLookup.get(productId) !== lookup) continue
+      if ((changes.get(productId) ?? 0) > askedAt) continue
+      setFavourite(productId, answered.get(productId))
+    }
+    return answered
   }
 
   /**
@@ -93,21 +139,13 @@ export const useUserStore = defineStore('user', () => {
 
   const lookUpBatch = async (productIds: number[]) => {
     productIds.forEach(productId => known.add(productId))
-    const asked = clicks
+    const askedIn = session
     try {
-      const favourites = await $api('/api/products/favourites/favourites-by-products', {
-        method: 'POST',
-        body: { productIds },
-      })
-      const answered = new Map(favourites.map(favourite => [favourite.productId, favourite.id]))
-      for (const productId of productIds) {
-        // A click after the question was asked is newer than its answer.
-        if ((changes.get(productId) ?? 0) > asked) continue
-        setFavourite(productId, answered.get(productId))
-      }
+      await ask(productIds)
     }
     catch (error) {
-      productIds.forEach(productId => known.delete(productId))
+      // Not in a later session: its `known` is its own.
+      if (askedIn === session) productIds.forEach(productId => known.delete(productId))
       log.error({ action: 'favourite:lookup', error })
     }
   }
@@ -205,6 +243,7 @@ export const useUserStore = defineStore('user', () => {
     getFavouriteIdByProductId,
     addFavouriteProduct,
     removeFavouriteProduct,
+    favouriteSession,
     updateFavouriteProducts,
     lookUpFavourites,
     blogPostLiked,

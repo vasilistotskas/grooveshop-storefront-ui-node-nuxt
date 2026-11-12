@@ -142,6 +142,28 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     expect(button.attributes('title')).toBe(COPY[action])
   })
 
+  /** The heart as a card draws it: its favourite read from the store, so a click shows. */
+  const mountFromStore = async () => {
+    const deleted: number[] = []
+    const Card = defineComponent({
+      setup: () => () => h(C, {
+        productId: 5,
+        productName: NAME,
+        userId: 7,
+        favouriteId: useUserStore().getFavouriteIdByProductId(5) ?? null,
+        onFavouriteDelete: (id: number) => deleted.push(id),
+      }),
+    })
+    const wrapper = await mountSuspended(Card, { route: false })
+    await flushPromises()
+    return { wrapper, deleted }
+  }
+  const clickHeart = async (wrapper: Awaited<ReturnType<typeof mountFromStore>>['wrapper']) => {
+    const settled = wrapper.findComponent({ name: 'UButton' }).props('onClick')(new MouseEvent('click'))
+    await flushPromises()
+    return settled
+  }
+
   // The heart showed the guest's state, or another tab changed it: the
   // server already has what the shopper asked for, so the store follows it
   // and the shopper hears of the change they wanted, not of an error.
@@ -160,6 +182,35 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     expect(api.callsTo(LOOKUP)).toHaveLength(2)
     expect(toastAdd).toHaveBeenCalledTimes(1)
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+  })
+
+  // A shared device: the shopper signs out while their click is out. Its
+  // answer is theirs, not the next session's.
+  it.each([
+    ['an added favourite', (resolve: (value: unknown) => void) => resolve(FAVOURITE)],
+    ['already_favourited', (_resolve: unknown, reject: (reason: unknown) => void) => {
+      try {
+        failWith(400, { code: 'already_favourited' })()
+      }
+      catch (error) {
+        reject(error)
+      }
+    }],
+  ])('writes nothing when the shopper signed out before the click was answered: %s', async (_case, settle) => {
+    let answer!: () => void
+    api.routes({ [LOOKUP]: [], '/api/products/favourites': () => new Promise((resolve, reject) => {
+      answer = () => settle(resolve, reject)
+    }) })
+    const { wrapper } = await mountFromStore()
+    const settled = clickHeart(wrapper)
+
+    useUserStore().clearAccountState()
+    answer()
+    await settled
+    await flushPromises()
+
+    expect(useUserStore().favouriteProductIds).toEqual({})
+    expect(toastAdd).not.toHaveBeenCalled()
   })
 
   it('drops a favourite that is already gone when a removal answers 404', async () => {
