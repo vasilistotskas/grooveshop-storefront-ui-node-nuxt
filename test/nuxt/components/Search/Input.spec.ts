@@ -6,6 +6,7 @@ import SearchInput from '~/components/Search/Input.vue'
 import WebsideSearchInput from '~/components/variants/webside/Search/Input.vue'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The control that opens the search palette. In the header (`compact`)
@@ -47,6 +48,18 @@ describe('Search/Input', () => {
     expect(section.get('button').classes()).toEqual(expect.arrayContaining(['h-11', 'sm:h-10.5']))
     expect(header.findAll('button').at(-1)!.classes()).toEqual(expect.arrayContaining(['h-10.5']))
     expect(header.findAll('button').at(-1)!.classes()).not.toContain('h-11')
+  })
+
+  it('gives a hero’s large field one tab stop: its button beside it is for a pointer only, and opens the same palette', async () => {
+    const wrapper = await mountSuspended(SearchInput, { route: false, props: { size: 'lg' } })
+
+    const buttons = wrapper.findAll('button')
+    expect(buttons).toHaveLength(2)
+    // Tab stops, and what assistive tech meets: the field alone in both.
+    expect(buttons.map(button => button.attributes('tabindex') !== '-1')).toEqual([true, false])
+    expect(buttons.map(button => button.attributes('aria-hidden') !== 'true')).toEqual([true, false])
+    await buttons[1]!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
   })
 
   it('opens the palette', async () => {
@@ -159,6 +172,11 @@ describe('the search shortcut', () => {
 })
 
 describe('webside Search/Input', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ blog: true })
+  })
+
   it('names the field by its visible text on a desktop, with no label of its own to contradict it', async () => {
     const wrapper = await mountSuspended(WebsideSearchInput, { route: false })
 
@@ -167,5 +185,24 @@ describe('webside Search/Input', () => {
     const button = wrapper.find('button')
     expect(button.attributes('aria-label')).toBeUndefined()
     expect(button.text()).toContain(inlineCopy('app/components/variants/webside/Search/Input.vue').search.placeholder)
+  })
+
+  // The class is the contract, the browser the real check (44x44 at 390,
+  // 2026-11-13): the phone's 24px icon has a hit area 10px around it.
+  it('is a 44px target on a phone', async () => {
+    const wrapper = await mountSuspended(WebsideSearchInput, { route: false })
+
+    expect(wrapper.get('button').classes()).toEqual(expect.arrayContaining(['relative', 'max-lg:after:absolute', 'max-lg:after:-inset-2.5']))
+  })
+
+  it.each([
+    ['articles and products while the store runs its blog', true, 'placeholder'],
+    ['products alone without it', false, 'placeholder_products'],
+  ])('names %s', async (_case, blog, key) => {
+    setTenantFeatures({ blog })
+
+    const wrapper = await mountSuspended(WebsideSearchInput, { route: false })
+
+    expect(wrapper.get('button').text()).toContain(inlineCopy('app/components/variants/webside/Search/Input.vue').search[key])
   })
 })

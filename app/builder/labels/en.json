@@ -305,7 +305,8 @@
       "label": "External link"
     },
     "icon": {
-      "label": "Icon"
+      "label": "Icon",
+      "help": "In a blog post band, shown by the Card with posts layout only."
     },
     "image": {
       "label": "Image"
@@ -327,7 +328,8 @@
       "label": "Label"
     },
     "layout": {
-      "label": "Layout"
+      "label": "Layout",
+      "help": "Card (shopping promises): the promises on one raised card, which rises over a bold band right above it; its heading is read out to screen readers only, and Background does not apply. Card with posts (blog posts): the heading, the Icon and the posts in one tinted card; Background, Style, Layout on a phone and Load more button do not apply."
     },
     "link": {
       "label": "Link"
@@ -338,7 +340,7 @@
     },
     "look": {
       "label": "Style",
-      "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had."
+      "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. A slider of categories, and a post band with the Load more button, keep their usual look."
     },
     "marquee": {
       "label": "Scrolling row"

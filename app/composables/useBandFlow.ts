@@ -19,3 +19,19 @@ export function provideBandFlow(flow: BandFlow) {
 export function useBandFlow(): BandFlow {
   return inject(BAND_FLOW, 'ruled')
 }
+
+const FOLLOWS_BAND: InjectionKey<boolean> = Symbol('follows-band')
+
+/**
+ * Whether the section sits right under a band of its open run (a bold hero,
+ * a bold band): the shell that lays the run out says so per section. A section
+ * that rises over the band above (`store_assurances` as a card) rises only
+ * then, never as a page's first section nor under a framed one.
+ */
+export function provideFollowsBand(follows: boolean) {
+  provide(FOLLOWS_BAND, follows)
+}
+
+export function useFollowsBand(): boolean {
+  return inject(FOLLOWS_BAND, false)
+}

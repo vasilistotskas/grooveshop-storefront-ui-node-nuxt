@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import Spotlight from '~/components/Product/Spotlight.vue'
@@ -199,7 +199,7 @@ describe('Product/Spotlight', () => {
       const wrapper = await mountSpotlight({ look: 'bold' })
 
       const rating = wrapper.get('[role="img"]')
-      expect(rating.text().replace(/\s+/g, ' ')).toBe('4,5 (3 κριτικές)')
+      expect(rating.text().replace(/\s+/g, ' ')).toBe('4,5 (3 αξιολογήσεις)')
       expect(rating.classes()).toContain('max-sm:hidden')
       expect(wrapper.find('.text-success').text()).toBe(t('in_stock'))
     })
@@ -212,5 +212,31 @@ describe('Product/Spotlight', () => {
       expect(String(attrs.class).split(/\s+/)).toEqual(expect.arrayContaining(['min-h-12', 'max-sm:size-12', 'max-sm:*:data-[slot=label]:sr-only']))
       expect(besidePrice).toBe(true)
     })
+  })
+})
+
+/**
+ * A store's edited wording is the card's, whatever its look: the bold card
+ * draws `Product/Spotlight`'s texts, so switching to it keeps what the store
+ * wrote.
+ */
+describe('Product/Spotlight, a store\u2019s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ cart: true, productReviews: true, productAlerts: true })
+    useTextOverrides().value = { el: { 'components/Product/Spotlight': { in_stock: 'Άμεσα διαθέσιμο' } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the card as it was', {}],
+    ['the bold card', { look: 'bold' }],
+  ])('shows them in %s', async (_case, props) => {
+    const wrapper = await mountSpotlight(props)
+
+    expect(wrapper.text()).toContain('Άμεσα διαθέσιμο')
   })
 })

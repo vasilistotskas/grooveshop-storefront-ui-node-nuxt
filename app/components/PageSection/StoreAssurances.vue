@@ -38,6 +38,9 @@ const DESK_COLUMNS = [
   'lg:grid-cols-3',
   'lg:grid-cols-4',
 ] as const
+
+/** The card rises 36px over a band right above it (`useFollowsBand`), never over a framed section or the header. */
+const followsBand = useFollowsBand()
 </script>
 
 <template>
@@ -46,8 +49,9 @@ const DESK_COLUMNS = [
     :aria-label="heading || t('label')"
     class="
       relative z-10 w-full pt-5
-      lg:-mt-9 lg:pt-0
+      lg:pt-0
     "
+    :class="followsBand ? 'lg:-mt-9' : undefined"
   >
     <UContainer>
       <ul

@@ -16,11 +16,16 @@ const props = withDefaults(defineProps<{
   product: ProductCard
   /** The buy button; the store's `cart` feature decides too. */
   showAddToCart?: boolean
+  /**
+   * The section's own texts (its `useStoreI18n` namespace), so a store's
+   * edited wording follows when it switches look.
+   */
+  texts: (key: string, named?: Record<string, unknown>, plural?: number) => string
 }>(), {
   showAddToCart: true,
 })
 
-const { t } = useStoreI18n('components/Product/SpotlightBold')
+const t = props.texts
 const { $i18n } = useNuxtApp()
 const productReviewsEnabled = useStoreFeature('productReviews')
 
@@ -192,18 +197,3 @@ const buyInput = computed<DesignPartInput>(() => ({ ...partInput.value, leadingI
     </div>
   </article>
 </template>
-
-<i18n lang="yaml">
-el:
-  add_to_cart: Στο καλάθι
-  add_named: 'Στο καλάθι: {name}'
-  in_stock: Διαθέσιμο
-  sold_out: Εξαντλήθηκε
-  only_n_left: 'Μόνο {count} απέμεινε | Μόνο {count} απέμειναν'
-en:
-  add_to_cart: Add to cart
-  add_named: 'Add to cart: {name}'
-  in_stock: In stock
-  sold_out: Sold out
-  only_n_left: 'Only {count} left | Only {count} left'
-</i18n>

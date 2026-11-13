@@ -59,7 +59,8 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
   // The classes are the contract: the close button is a 44px target on a
   // phone (WCAG 2.5.5), its height reached through a pseudo-element so the
   // bar keeps its own; happy-dom lays nothing out.
-  it('gives the close button a 44px target on a phone without growing the bar', async () => {
+  // webside's close button is the bar's own height instead (its own suite).
+  it.runIf(tree === 'default')('gives the close button a 44px target on a phone without growing the bar', async () => {
     setting.value = bar({})
 
     const wrapper = await mountBar()
@@ -260,16 +261,20 @@ describe('webside Chrome/AnnouncementBar, its own look', () => {
   })
 
   // The classes are the contract, the browser the real check: each link is
-  // 40px tall in the 40px bar, its hit area 2px beyond above and below (44px,
-  // WCAG 2.5.5); happy-dom lays nothing out.
-  it('makes each link a 44px target without growing the bar', async () => {
+  // the bar's full 40px tall, with no overhang that the sticky header would
+  // paint over (measured at 390 and 1440, 2026-11-13); happy-dom lays
+  // nothing out.
+  it('makes each link and the close button as tall as the bar, with nothing hanging out of it', async () => {
     setting.value = bar({ link: '/info/shipping', shortText: 'Δωρεάν αποστολή' })
 
     const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
 
     const links = wrapper.findAll('a[href="/info/shipping"]')
     expect(links).toHaveLength(2)
-    for (const link of links) expect(link.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-y-0.5']))
+    for (const link of links) expect(link.classes().some(name => name.startsWith('after:'))).toBe(false)
+    const close = wrapper.get('[data-slot="close"]').classes()
+    expect(close).toEqual(expect.arrayContaining(['h-10', 'min-w-11']))
+    expect(close.some(name => name.startsWith('after:'))).toBe(false)
     expect(links.map(link => link.classes().some(name => name === 'min-h-10' || name === 'leading-10'))).toEqual([true, true])
   })
 

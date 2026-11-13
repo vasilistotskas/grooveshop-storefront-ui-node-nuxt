@@ -14,7 +14,7 @@ defineProps<{
 
 <template>
   <PageSectionProductsGrid :products="products">
-    <template #list="{ items, showAddToCart, phoneHidden, categories }">
+    <template #list="{ items, showAddToCart, phoneLimit, categories }">
       <!-- Two columns 12px apart on a phone; from `sm` up as many 260px
            columns as fit, 24px apart: four at 1440 in the store's measure. -->
       <ol
@@ -29,7 +29,7 @@ defineProps<{
           :key="product.id"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
-          :data-phone-hidden="phoneHidden(index)"
+          :data-phone-hidden="phoneHidden(phoneLimit, index)"
         />
         <PageSectionProductsCategoryTile :categories="categories" />
       </ol>

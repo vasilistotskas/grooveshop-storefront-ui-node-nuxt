@@ -19,18 +19,18 @@ const props = defineProps<{
   phoneLayout?: 'list'
   /** How many of the posts a phone shows, the first ones; all of them when unset. */
   phoneLimit?: number
+  /** `Blog/Rail`'s texts (its `useStoreI18n` namespace), so a store's edited wording follows the look. */
+  texts: (key: string, named?: Record<string, unknown>, plural?: number) => string
 }>()
 
-const { t, locale } = useStoreI18n('components/Blog/RailBold')
+const { locale } = useI18n()
+const t = props.texts
 const localePath = useLocalePath()
 const { blogPostUrl } = useUrls()
 
 const title = (post: BlogPost) => extractTranslated(post, 'title', locale.value) ?? ''
 
 const list = computed(() => props.phoneLayout === 'list')
-
-/** The attribute that hides a post past the phone's limit below `sm` (`main.css`); none within it. */
-const phoneHidden = (index: number): '' | undefined => (props.phoneLimit !== undefined && index >= props.phoneLimit ? '' : undefined)
 </script>
 
 <template>
@@ -74,7 +74,7 @@ const phoneHidden = (index: number): '' | undefined => (props.phoneLimit !== und
             lg:w-auto
           `,
       ]"
-      :data-phone-hidden="phoneHidden(index)"
+      :data-phone-hidden="phoneHidden(phoneLimit, index)"
     >
       <div
         class="overflow-hidden bg-elevated"
@@ -173,10 +173,3 @@ const phoneHidden = (index: number): '' | undefined => (props.phoneLimit !== und
     </li>
   </ul>
 </template>
-
-<i18n lang="yaml">
-el:
-  reading_minutes: '{minutes}′'
-en:
-  reading_minutes: '{minutes} min'
-</i18n>

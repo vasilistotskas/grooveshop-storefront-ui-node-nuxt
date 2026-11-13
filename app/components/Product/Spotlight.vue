@@ -36,6 +36,9 @@ const props = withDefaults(defineProps<{
 })
 
 const { t } = useStoreI18n('components/Product/Spotlight')
+/** This component's texts, for its bold look (`Product/SpotlightBold`). */
+const texts = (key: string, named: Record<string, unknown> = {}, plural?: number) =>
+  plural === undefined ? t(key, named) : t(key, named, plural)
 const { $i18n } = useNuxtApp()
 const productReviewsEnabled = useStoreFeature('productReviews')
 
@@ -53,6 +56,7 @@ const { name, to, soldOut, lowStockCount, displayFinalPrice, wasPrice, announcem
     v-if="look === 'bold'"
     :product="product"
     :show-add-to-cart="showAddToCart"
+    :texts="texts"
   />
   <article
     v-else

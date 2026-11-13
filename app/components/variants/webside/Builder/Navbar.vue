@@ -19,8 +19,9 @@ const cartEnabled = useStoreFeature('cart')
 // Search lists the catalogue: no catalogue, no search page to search on.
 const searchServing = useGatedRoute('/search')
 // The phone's row as the board draws it: search and favourites. The cart is
-// the tab bar's when the store shows one, the theme the menu's.
-const tabBarShown = useStorePreference('mobileBottomNav')
+// the tab bar's when the tab bar carries it (not on account pages, nor
+// without a tab bar), the theme the burger menu's.
+const tabBarCart = useTabBarCart()
 const savedPostsServing = useGatedRoute('/account/favourites/posts')
 const { signIn } = useAuthLinks()
 const localePath = useLocalePath()
@@ -136,7 +137,7 @@ onMounted(() => {
                 size="xl"
                 variant="ghost"
               />
-              <WebsideCartButton v-if="cartEnabled && !tabBarShown" />
+              <WebsideCartButton v-if="cartEnabled && !tabBarCart" />
               <!-- The select is ~150px wide with its label and chevron: on
                    a phone that squeezed the logo to nothing and, with the
                    notifications bell of a signed-in shopper, pushed the

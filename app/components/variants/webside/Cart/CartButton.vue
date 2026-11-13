@@ -40,8 +40,13 @@ const displayCount = computed<string | number>(() => {
     :text="displayCount"
     :ui="color === 'secondary' ? { base: 'text-(--ui-on-secondary)' } : undefined"
   >
+    <!-- A 24px icon, a 44px target below `lg` (WCAG 2.5.5): the hit area
+         reaches 10px around it, so the icon and its count stay put. -->
     <UButton
-      class="p-0"
+      class="
+        relative p-0
+        max-lg:after:absolute max-lg:after:-inset-2.5
+      "
       icon="i-heroicons-shopping-cart"
       :size="size"
       color="neutral"

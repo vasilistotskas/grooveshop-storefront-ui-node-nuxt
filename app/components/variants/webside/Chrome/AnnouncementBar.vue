@@ -40,13 +40,12 @@ const shortTextTag = computed(() => (link.value ? resolveComponent('NuxtLink') :
       `,
       center: 'justify-center gap-3',
       icon: ['size-4', tinted && 'text-highlighted'],
-      // A 44px target on a phone (WCAG 2.5.5): 44px wide, and its hit area
-      // reaching 6px above and below the 32px button, so the bar keeps its
-      // height. Nothing hangs out sideways (`overhang-is-clipped.spec.ts`).
+      // The bar's full height and 44px wide on a phone: nothing is above the
+      // bar and the sticky header paints over what reached below it, so the
+      // target is the button itself.
       close: [
         `
-          relative min-w-11 justify-center
-          after:absolute after:inset-x-0 after:-inset-y-1.5
+          h-10 min-w-11 justify-center
           sm:min-w-10
         `,
         tinted && `
@@ -64,9 +63,10 @@ const shortTextTag = computed(() => (link.value ? resolveComponent('NuxtLink') :
     }"
   >
     <!-- `title` stays the plain sentence: it is the banner's name, which
-         a pair of width-toggled spans would double. Each link is a 44px
-         target (WCAG 2.5.5) in the 40px bar: 40px tall, its hit area
-         reaching 2px above and below (`::after`). -->
+         a pair of width-toggled spans would double. Each link is the bar's
+         full 40px tall (WCAG 2.5.8): nothing is above the bar, and the sticky
+         header paints over anything that reached below it, so a larger hit
+         area would be one nobody can tap. -->
     <template #title>
       <span
         class="min-w-0 truncate"
@@ -82,8 +82,7 @@ const shortTextTag = computed(() => (link.value ? resolveComponent('NuxtLink') :
         v-if="shortText"
         :to="link"
         class="
-          relative min-w-0 truncate leading-10 font-bold
-          after:absolute after:inset-x-0 after:-inset-y-0.5
+          min-w-0 truncate leading-10 font-bold
           sm:hidden
         "
       >
@@ -93,8 +92,7 @@ const shortTextTag = computed(() => (link.value ? resolveComponent('NuxtLink') :
         v-if="link"
         :to="link"
         class="
-          relative inline-flex min-h-10 shrink-0 items-center font-semibold
-          after:absolute after:inset-x-0 after:-inset-y-0.5
+          inline-flex min-h-10 shrink-0 items-center font-semibold
           hover:underline
           focus-visible:outline-2 focus-visible:outline-secondary
         "

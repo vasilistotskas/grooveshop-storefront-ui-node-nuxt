@@ -135,6 +135,14 @@ describe('webside Cart/CartButton', () => {
     expect(link.attributes('aria-label')).toBe('Καλάθι')
   })
 
+  // The class is the contract, the browser the real check (44x44 at 390,
+  // 2026-11-13): a 24px icon whose hit area reaches 10px around it below `lg`.
+  it('is a 44px target on a phone without moving the icon or its count', async () => {
+    const wrapper = await mountSuspended(WebsideCartButton, { route: false })
+
+    expect(wrapper.get('a').classes()).toEqual(expect.arrayContaining(['relative', 'max-lg:after:absolute', 'max-lg:after:-inset-2.5']))
+  })
+
   it.each([
     { case: 'a line exceeds the stock', item: { quantity: 3, product: { stock: 2 } }, color: 'warning' },
     { case: 'a product is sold out', item: { quantity: 1, product: { stock: 0 } }, color: 'warning' },

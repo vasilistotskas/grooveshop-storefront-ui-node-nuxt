@@ -83,7 +83,9 @@ const large = computed(() => !props.compact && props.size === 'lg')
 
     <!-- A hero's field: white on any band, body-size type, and its own
          button beside it that opens the same palette (a phone has no room
-         for it beside a 50px field). -->
+         for it beside a 50px field). The field is the one control a keyboard
+         or a screen reader meets: the button repeats it for a pointer, so it
+         takes no tab stop and is hidden from assistive tech. -->
     <template v-if="large">
       <UButton
         color="neutral"
@@ -109,6 +111,8 @@ const large = computed(() => !props.compact && props.size === 'lg')
         :label="t('search.submit')"
         color="secondary"
         size="xl"
+        tabindex="-1"
+        aria-hidden="true"
         class="
           h-13 shrink-0 px-5.5 text-base font-semibold
           max-sm:hidden

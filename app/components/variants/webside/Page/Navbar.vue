@@ -402,8 +402,14 @@ const items = computed(() => [
       </div>
       <!-- As the board draws the bar: the menus beside the logo, then the
            search field (440px at most) and the icons at the far end. -->
+      <!-- No box of its own below `lg` (`contents`): on a phone it holds
+           nothing, and an empty flex child took a share of the row and a
+           gap from the logo. -->
       <div
-        class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-6"
+        class="
+          ml-auto flex min-w-0 flex-1 items-center justify-end gap-6
+          max-lg:contents
+        "
       >
         <LazyWebsideSearchInput
           v-if="searchServing && !isMobileOrTablet"

@@ -42,10 +42,9 @@ describe('one newsletter form a page', () => {
       return false
     })
 
-    // The bold look is its own component, marked the same way.
-    expect(roots.map(node => node.tag)).toEqual(['PageSectionNewsletterSignupBold', 'PageSectionBand'])
-    expect(roots.filter(node => node.tag === 'PageSectionBand').map(node => hasStatic(node, 'data-newsletter-section'))).toEqual([true])
-    expect(hasStatic(rootOf('PageSection/NewsletterSignupBold.vue'), 'data-newsletter-section')).toBe(true)
+    // The bold look is the first branch, the band as it always was the second: both marked.
+    expect(roots.map(node => node.tag)).toEqual(['section', 'PageSectionBand'])
+    expect(roots.map(node => hasStatic(node, 'data-newsletter-section'))).toEqual([true, true])
   })
 
   // Every place a footer draws its form, in both designs: each form's root,

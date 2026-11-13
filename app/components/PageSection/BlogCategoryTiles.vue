@@ -26,12 +26,16 @@ const { t } = useStoreI18n('components/PageSection/BlogCategoryTiles')
 const linkTo = useLinkTo()
 
 const { tiles, ctaLabel } = useBlogCategoryTiles(props, count => t('posts', { count }, count))
+/** This component's texts, for its bold look (`PageSection/BlogCategoryTilesBold`). */
+const texts = (key: string, named: Record<string, unknown> = {}, plural?: number) =>
+  plural === undefined ? t(key, named) : t(key, named, plural)
 </script>
 
 <template>
   <PageSectionBlogCategoryTilesBold
     v-if="look === 'bold'"
     v-bind="props"
+    :texts="texts"
   />
   <PageSectionBand
     v-else-if="tiles.length"

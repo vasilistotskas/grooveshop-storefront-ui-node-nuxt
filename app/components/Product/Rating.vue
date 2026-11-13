@@ -92,7 +92,7 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
 el:
   rated_by: "Βαθμολογία {n} στα 5, από {count} αξιολόγηση | Βαθμολογία {n} στα 5, από {count} αξιολογήσεις"
   n_reviews: "{count} αξιολόγηση | {count} αξιολογήσεις"
-  n_reviews_bracketed: "({count} κριτική) | ({count} κριτικές)"
+  n_reviews_bracketed: "({count} αξιολόγηση) | ({count} αξιολογήσεις)"
   out_of_five: βαθμολογία στα 5
 en:
   rated_by: "Rated {n} out of 5, from {count} review | Rated {n} out of 5, from {count} reviews"

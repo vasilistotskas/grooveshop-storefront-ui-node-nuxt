@@ -22,7 +22,11 @@ import { makeBuilderSection } from '~~/test/fixtures/builderPage'
 const stubs = {
   PageSectionRenderer: defineComponent({
     props: { section: { type: Object as PropType<BuilderSection>, required: true } },
-    setup: props => () => h('div', { 'data-section': props.section.id }),
+    setup: (props) => {
+      // What the section learns from its run: whether a band is right above it.
+      const followsBand = useFollowsBand()
+      return () => h('div', { 'data-section': props.section.id, 'data-follows-band': String(followsBand) })
+    },
   }),
 }
 
@@ -81,5 +85,13 @@ describe('webside SectionsShell', () => {
     const wrapper = await mountShell([bold('a', 'newsletter_signup')], { after: () => h('form', { 'data-test': 'form' }) })
 
     expect(wrapper.find('section [data-test="form"]').exists()).toBe(true)
+  })
+
+  it('tells a section of an open run whether a band is right above it, never the run’s first', async () => {
+    const card = (id: string) => makeBuilderSection({ id, componentType: 'store_assurances', props: { layout: 'card' } })
+    const wrapper = await mountShell([card('a'), framed('b', 'rich_text'), card('c'), bold('d', 'hero_showcase'), card('e')])
+
+    const follows = Object.fromEntries(wrapper.findAll('[data-section]').map(node => [node.attributes('data-section'), node.attributes('data-follows-band')]))
+    expect(follows).toEqual({ a: 'false', b: 'false', c: 'false', d: 'true', e: 'true' })
   })
 })

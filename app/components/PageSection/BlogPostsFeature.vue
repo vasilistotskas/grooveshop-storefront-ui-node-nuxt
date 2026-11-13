@@ -25,6 +25,8 @@ const props = defineProps<{
   ctaLink: RouteLocationRaw
   colorScheme?: SectionColorScheme
   posts: readonly BlogPost[]
+  /** How many of the posts a phone shows, the first ones; all of them when unset (`phoneHidden`). */
+  phoneLimit?: number
 }>()
 
 const { t, locale } = useStoreI18n('components/PageSection/BlogPostsFeature')
@@ -65,8 +67,8 @@ const items = computed(() => props.posts.map(post => ({
           <span
             v-if="icon"
             class="
-              grid size-13 place-items-center rounded-[0.625rem]
-              bg-(--ds-accent-tint) text-accent
+              grid size-13 place-items-center rounded-lg bg-(--ds-accent-tint)
+              text-accent
               max-lg:hidden
             "
           >
@@ -112,13 +114,14 @@ const items = computed(() => props.posts.map(post => ({
           "
         >
           <li
-            v-for="post in items"
+            v-for="(post, index) in items"
             :key="post.id"
             class="
-              group relative flex items-center gap-3 overflow-hidden
-              rounded-[0.625rem] border border-default bg-muted p-2.5
+              group relative flex items-center gap-3 overflow-hidden rounded-lg
+              border border-default bg-muted p-2.5
               lg:flex-col lg:items-stretch lg:gap-0 lg:p-0
             "
+            :data-phone-hidden="phoneHidden(phoneLimit, index)"
           >
             <div
               class="

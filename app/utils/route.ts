@@ -154,3 +154,8 @@ export function isSecurityPage(name: string): boolean {
     || name === 'account-2fa'
     || name.startsWith('account-2fa-')
 }
+
+/** Whether a route's base name is an account page (`/account/**`): the pages that draw the account's own chrome. */
+export function isAccountRouteName(name: unknown): boolean {
+  return typeof name === 'string' && (name === 'account' || name.startsWith('account-'))
+}

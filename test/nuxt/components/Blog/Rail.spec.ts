@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogRail from '~/components/Blog/Rail.vue'
-import BlogRailBold from '~/components/Blog/RailBold.vue'
 import type { BlogPost } from '~~/shared/openapi/types.gen'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { inlineT } from '~~/test/helpers/inlineCopy'
@@ -94,14 +93,14 @@ describe('BlogRail', () => {
  * compact row ruled above. The classes are the contract; the browser is the
  * real check.
  */
-describe('Blog/RailBold', () => {
+describe('Blog/Rail, the bold look', () => {
   const POSTS = [
     makeBlogPost({ id: 3, slug: 'gan', category: 2, readingTime: 6, publishedAt: '2026-11-11T08:00:00Z' }),
     makeBlogPost({ id: 4, slug: 'usb-c', category: 2, readingTime: 7, publishedAt: '2026-11-10T08:00:00Z' }),
   ]
   const categoryName = (id: number) => (id === 2 ? 'Κινητό' : undefined)
   const mountBold = (props: { posts: BlogPost[], categoryName?: (id: number) => string | undefined, phoneLayout?: 'list', phoneLimit?: number }) =>
-    mountSuspended(BlogRailBold, { route: false, props, global: { stubs: { ImgWithFallback: true } } })
+    mountSuspended(BlogRail, { route: false, props: { ...props, look: 'bold' as const }, global: { stubs: { ImgWithFallback: true } } })
 
   it('says category, minutes and date on one line, with no badge', async () => {
     const wrapper = await mountBold({ posts: POSTS, categoryName })
@@ -140,5 +139,36 @@ describe('BlogRail with a phone limit', () => {
 
     expect(limited.findAll('li').map(row => row.attributes('data-phone-hidden') !== undefined)).toEqual([false, true])
     expect(open.findAll('li[data-phone-hidden]')).toHaveLength(0)
+  })
+})
+
+/**
+ * A store's edited wording is the rail's, whatever its look: the bold teaser
+ * draws `Blog/Rail`'s texts, so switching to it keeps what the store wrote.
+ */
+describe('Blog/Rail, a store’s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    useTextOverrides().value = { el: { 'components/Blog/Rail': {
+      reading_time: '{minutes} λεπτά διάβασμα',
+      reading_minutes: '{minutes} λεπτά διάβασμα',
+    } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the rail as it was', undefined],
+    ['the bold rail', 'bold' as const],
+  ])('shows them in %s', async (_case, look) => {
+    const wrapper = await mountSuspended(BlogRail, {
+      route: false,
+      props: { posts: [makeBlogPost({ id: 3, slug: 'gan', readingTime: 6 })], look },
+      global: { stubs: { ImgWithFallback: true } },
+    })
+
+    expect(wrapper.text()).toContain('6 λεπτά διάβασμα')
   })
 })

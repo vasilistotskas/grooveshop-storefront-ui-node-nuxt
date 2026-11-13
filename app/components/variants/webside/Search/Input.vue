@@ -2,12 +2,16 @@
 const { t } = useStoreI18n('components/variants/webside/Search/Input')
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
+// The field names what the palette searches: posts too only while the store
+// runs its blog (the palette's Blog tab follows the same switch).
+const blogEnabled = useStoreFeature('blog')
 
 const searchQuery = ref(
   Array.isArray(route.query.query)
     ? route.query.query[0] ?? ''
     : route.query.query ?? '',
 )
+const placeholder = computed(() => t(blogEnabled.value ? 'search.placeholder' : 'search.placeholder_products'))
 const isModalOpen = ref(false)
 // The palette (and the search library behind it) loads the first time it opens.
 const modalMounted = useMountOnFirstOpen(isModalOpen)
@@ -29,7 +33,7 @@ useSearchShortcut(true, openSearchModal)
     "
   >
     <UButton
-      :label="isMobileOrTablet ? undefined : t('search.placeholder')"
+      :label="isMobileOrTablet ? undefined : placeholder"
       color="neutral"
       :variant="isMobileOrTablet ? 'ghost' : 'outline'"
       size="md"
@@ -44,8 +48,12 @@ useSearchShortcut(true, openSearchModal)
         `,
         label: 'font-normal',
       }"
-      class="md:max-w-md"
-      :aria-label="isMobileOrTablet ? t('search.placeholder') : undefined"
+      class="
+        relative
+        max-lg:after:absolute max-lg:after:-inset-2.5
+        md:max-w-md
+      "
+      :aria-label="isMobileOrTablet ? placeholder : undefined"
       @click="openSearchModal"
     >
       <template #default>
@@ -60,7 +68,7 @@ useSearchShortcut(true, openSearchModal)
               class="size-5"
             />
             <span>
-              {{ t('search.placeholder') }}
+              {{ placeholder }}
             </span>
           </div>
           <div
@@ -100,7 +108,9 @@ useSearchShortcut(true, openSearchModal)
 el:
   search:
     placeholder: Αναζήτηση άρθρων και προϊόντων
+    placeholder_products: Αναζήτηση προϊόντων
 en:
   search:
     placeholder: Search articles and products
+    placeholder_products: Search products
 </i18n>

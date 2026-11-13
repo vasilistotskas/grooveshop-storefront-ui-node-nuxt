@@ -79,6 +79,7 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
     :cta-link="ctaLink ? linkTo(ctaLink) : allPostsLink"
     :color-scheme="colorScheme"
     :posts="posts.items"
+    :phone-limit="phoneLimit"
   />
   <PageSectionBand
     v-else-if="posts.items.length"
@@ -92,20 +93,13 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
     :color-scheme="colorScheme"
     :look="look"
   >
-    <BlogRailBold
-      v-if="look === 'bold' && !loadMore"
-      :posts="items"
-      :category-name="categoryName"
-      :phone-layout="phoneLayout"
-      :phone-limit="phoneLimit"
-    />
     <BlogRail
-      v-else
       :posts="items"
       :category-name="categoryName"
       :stacked="loadMore"
       :phone-layout="phoneLayout"
       :phone-limit="phoneLimit"
+      :look="look"
     />
     <PageSectionBlogPostsLoadMore
       v-if="loadMore"

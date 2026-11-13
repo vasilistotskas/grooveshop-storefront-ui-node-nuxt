@@ -201,4 +201,10 @@ describe('PageSection/BlogPosts as a feature card', () => {
     expect(order.indexOf('ul')).toBeLessThan(order.length - 1)
     expect(card.findAll('li')).toHaveLength(2)
   })
+
+  it('marks the posts past the phone limit, which a phone does not show', async () => {
+    const wrapper = await mountPosts({ layout: 'feature', phoneLimit: 1 })
+
+    expect(wrapper.findAll('li').map(row => row.attributes('data-phone-hidden') !== undefined)).toEqual([false, true])
+  })
 })

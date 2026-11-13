@@ -18,12 +18,16 @@ const props = defineProps<{
   categories: ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
   /** Always `bold` here: the setting that chose this look. */
   look?: 'bold'
+  /**
+   * The section's own texts (its `useStoreI18n` namespace), so a store's
+   * edited wording follows when it switches look.
+   */
+  texts: (key: string, named?: Record<string, unknown>, plural?: number) => string
 }>()
 
-const { t } = useStoreI18n('components/PageSection/BlogCategoryTilesBold')
 const linkTo = useLinkTo()
 
-const { tiles, ctaLabel } = useBlogCategoryTiles(props, count => t('posts', { count }, count))
+const { tiles, ctaLabel } = useBlogCategoryTiles(props, count => props.texts('posts', { count }, count))
 </script>
 
 <template>
@@ -115,10 +119,3 @@ const { tiles, ctaLabel } = useBlogCategoryTiles(props, count => t('posts', { co
     </ul>
   </PageSectionBandBold>
 </template>
-
-<i18n lang="yaml">
-el:
-  posts: '{count} άρθρο | {count} άρθρα'
-en:
-  posts: '{count} article | {count} articles'
-</i18n>

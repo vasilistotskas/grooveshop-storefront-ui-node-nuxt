@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogCategoryTiles from '~/components/PageSection/BlogCategoryTiles.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
@@ -127,5 +127,29 @@ describe('PageSection/BlogCategoryTiles in its bold look', () => {
 
     expect(counted.get('a[href="/blog"]').text()).toBe('Όλα τα 87 άρθρα')
     expect(plain.get('a[href="/blog"]').text()).toBe('Όλα τα άρθρα')
+  })
+})
+
+/**
+ * A store's edited wording is the tiles', whatever their look: the bold tiles
+ * draw `PageSection/BlogCategoryTiles`' texts.
+ */
+describe('PageSection/BlogCategoryTiles, a store\u2019s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    useTextOverrides().value = { el: { 'components/PageSection/BlogCategoryTiles': { posts: '{count} κείμενο | {count} κείμενα' } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the tiles as they were', {}],
+    ['the bold tiles', { look: 'bold' }],
+  ])('shows them in %s', async (_case, props) => {
+    const wrapper = await mountTiles(props)
+
+    expect(wrapper.text()).toContain('26 κείμενα')
   })
 })

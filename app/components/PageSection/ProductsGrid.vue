@@ -39,8 +39,8 @@ defineSlots<{
   list?(props: {
     items: readonly ProductCard[]
     showAddToCart: boolean
-    /** `data-phone-hidden`'s value for the product at an index: set past the phone's limit (`main.css`), absent within it. */
-    phoneHidden: (index: number) => '' | undefined
+    /** How many products a phone shows: `phoneHidden(phoneLimit, index)` marks the rest. */
+    phoneLimit: number | undefined
     categories: readonly ProductCategory[]
   }): unknown
 }>()
@@ -48,9 +48,6 @@ defineSlots<{
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
 const linkTo = useLinkTo()
-
-/** The attribute that hides a product past the phone's limit below `sm` (`main.css`); none within it. */
-const phoneHidden = (index: number): '' | undefined => (props.phoneLimit !== undefined && index >= props.phoneLimit ? '' : undefined)
 
 const categoryItems = computed(() => props.categoryTile?.items ?? [])
 
@@ -76,7 +73,7 @@ const label = computed(
       name="list"
       :items="products.items"
       :show-add-to-cart="showAddToCart"
-      :phone-hidden="phoneHidden"
+      :phone-limit="phoneLimit"
       :categories="categoryItems"
     >
       <!-- The grid closes with the categories' tile when the band lists
@@ -94,7 +91,7 @@ const label = computed(
           :key="product.id"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
-          :data-phone-hidden="phoneHidden(index)"
+          :data-phone-hidden="phoneHidden(phoneLimit, index)"
         />
         <PageSectionProductsCategoryTile :categories="categoryItems" />
       </UPageGrid>
@@ -111,7 +108,7 @@ const label = computed(
           :key="product.id"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
-          :data-phone-hidden="phoneHidden(index)"
+          :data-phone-hidden="phoneHidden(phoneLimit, index)"
         />
       </UPageGrid>
     </slot>

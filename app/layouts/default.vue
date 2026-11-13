@@ -44,11 +44,10 @@ const routeName = computed(() => $routeBaseName(route))
 
 // Account pages get the user-area chrome (account info banner + sidebar
 // on lg+). Single layout, route-aware — replaces the old user.vue.
-const isAccountRoute = computed(() => {
-  const name = routeName.value
-  if (typeof name !== 'string') return false
-  return name === 'account' || name.startsWith('account-')
-})
+const isAccountRoute = computed(() => isAccountRouteName(routeName.value))
+// Whether the tab bar draws the Cart tab here: the one answer a design's
+// header reads too, so it draws its own cart button when the tab bar does not.
+const tabBarCart = useTabBarCart()
 
 // Auth-flow pages (login, signup, OAuth callback, password reset, MFA
 // challenge) live under /account/* but must NOT render the user chrome
@@ -141,7 +140,7 @@ const footerClass = computed(() =>
     <component
       :is="mobileNav"
       v-if="mobileBottomNavEnabled"
-      :include-cart="!isAccountRoute"
+      :include-cart="tabBarCart"
     />
     <ClientOnly>
       <component :is="assistant" />
