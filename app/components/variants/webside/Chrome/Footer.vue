@@ -5,6 +5,7 @@ const { isMobileOrTablet } = useDevice()
 <template>
   <MobileOrTabletOnly>
     <div
+      data-footer-newsletter
       class="
         px-4 pt-6
         lg:hidden

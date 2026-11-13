@@ -232,7 +232,7 @@
     },
     "colorScheme": {
       "label": "Colour scheme",
-      "help": "Light or dark in both of the page's colour modes. Empty: as the page."
+      "help": "Light or dark in both of the page's colour modes. Default: as the page."
     },
     "columns": {
       "label": "Columns"
@@ -274,6 +274,10 @@
     "headingAccent": {
       "label": "Heading, second line",
       "help": "Drawn in the accent colour, as part of the same heading."
+    },
+    "headingColor": {
+      "label": "Heading colour",
+      "help": "Accent: the theme's accent colour, as the second line of the hero section. Default: the heading colour."
     },
     "height": {
       "label": "Height"
@@ -342,6 +346,10 @@
     },
     "page": {
       "label": "Page"
+    },
+    "phoneLayout": {
+      "label": "Layout on a phone",
+      "help": "List: on a phone, rows with a small picture, the category, the reading time and the title. Default: a row to swipe. Larger screens are the same either way."
     },
     "placeholder": {
       "label": "Placeholder"
@@ -500,6 +508,12 @@
       "shipping": "Shipping",
       "ai": "AI assistants",
       "custom": "Your own"
+    },
+    "headingColor": {
+      "accent": "Accent"
+    },
+    "phoneLayout": {
+      "list": "List"
     }
   },
   "routes": {

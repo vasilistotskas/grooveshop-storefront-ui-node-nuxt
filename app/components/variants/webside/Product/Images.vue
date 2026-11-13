@@ -22,7 +22,14 @@ const altOf = useProductImageAlt(images, () => props.productName)
 const selectedImage = ref(images.value?.find(image => image.isMain || image.id === images.value?.[0]?.id))
 const selectedImageId = ref(selectedImage.value?.id)
 const isModalOpen = ref(false)
-const modalInitialIndex = ref(0)
+/** The shown photograph's place in the gallery, which the zoom viewer reads and moves. */
+const selectedIndex = computed({
+  get: () => Math.max(0, images.value?.findIndex(image => image.id === selectedImageId.value) ?? 0),
+  set: (index: number) => {
+    const image = images.value?.[index]
+    if (image) selectedImageId.value = image.id
+  },
+})
 
 watch(
   () => selectedImageId.value,
@@ -37,13 +44,7 @@ watch(
 
 function openModal(index?: number) {
   if (images.value && images.value.length > 0) {
-    if (index !== undefined) {
-      modalInitialIndex.value = index
-    }
-    else {
-      const currentIndex = images.value.findIndex(img => img.id === selectedImageId.value)
-      modalInitialIndex.value = currentIndex >= 0 ? currentIndex : 0
-    }
+    if (index !== undefined) selectedIndex.value = index
     isModalOpen.value = true
   }
 }
@@ -205,10 +206,9 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
 
     <LazyWebsideProductImageModal
       v-if="images && isModalOpen"
-      :key="`modal-${modalInitialIndex}`"
       v-model="isModalOpen"
+      v-model:index="selectedIndex"
       :images="images"
-      :initial-index="modalInitialIndex"
       :product-name="productName"
     />
   </div>

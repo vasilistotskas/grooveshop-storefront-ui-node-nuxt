@@ -12,6 +12,8 @@ export default defineBlock({
     placeholder: builderField.text(100).optional(),
     buttonText: builderField.text(60).optional(),
     surface: builderField.surface().optional(),
+    /** The heading in the theme's accent, as the hero's accent line; left out, in the heading colour. */
+    headingColor: z.enum(['accent']).optional(),
   }),
   translatable: ['/heading', '/description', '/placeholder', '/buttonText'],
   upgrade: { 1: upgradeTitleIntoHeading },
