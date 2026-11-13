@@ -76,6 +76,7 @@ function issueDigest(issues: readonly ValidationIssue[]) {
  * (`evlog-client-error-level.ts`) and not a server fault.
  */
 export const CLIENT_CLOSED_REQUEST = 499
+export const CLIENT_CLOSED_REQUEST_TEXT = 'Client Closed Request'
 
 /** Node's error for a request body cut off by its client: `Error('aborted')`, `code: 'ECONNRESET'`. */
 function isAbortedRequestBody(value: unknown): boolean {
@@ -118,7 +119,7 @@ function rejectError(
     // The client closed the request: nothing went wrong here, and there is
     // no one to answer. A warning naming the route, never an error.
     log.warn({ action: 'request:aborted', ...failingRoute(event) })
-    throw createError({ status: CLIENT_CLOSED_REQUEST, statusText: 'Client Closed Request' })
+    throw createError({ status: CLIENT_CLOSED_REQUEST, statusText: CLIENT_CLOSED_REQUEST_TEXT })
   }
   const requestIssues = requestIssuesOf(error)
   if (requestIssues) {
