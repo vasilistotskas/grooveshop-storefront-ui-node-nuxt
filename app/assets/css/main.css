@@ -81,10 +81,12 @@
   /* The accent as a pale TINT behind accent text: an icon tile, the
      announcement strip. Volt reads its own soft accent (below). */
   --ds-accent-tint: color-mix(in srgb, var(--ui-secondary) 7%, white);
-  /* An accent heading on a page ground: the accent's deep shade where it
-     reads (8.7:1 on white); `.dark` takes the accent as text, since the
-     deep shade reads at 1.9:1 on the dark ground. */
-  --ds-accent-heading: var(--ui-secondary-deep);
+  /* An accent heading, the accent AS A HEADING: the store's theme computes
+     it for each scheme from its accent and the grounds the heading sits on,
+     at 4.5:1 or more (`accentHeadingOn`, `shared/theme/compile.ts`). These
+     are what it gives the platform accent: #003DFF's deep shade, 9.09:1 on
+     white (`compile.spec.ts` holds them equal). */
+  --ds-accent-heading: #0031cc;
   /* A raised card's shadow, and a picture's on a dark band. */
   --ds-raised-shadow: 0 8px 24px rgb(0 0 0 / 0.06);
   --ds-picture-shadow: 0 24px 48px rgb(0 0 0 / 0.35);
@@ -284,7 +286,8 @@
       transparent 1px
     );
   --ds-accent-tint: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
-  --ds-accent-heading: var(--ui-secondary-text);
+  /* #3364FF a fifth of the way to white: 5.18:1 on neutral 900. */
+  --ds-accent-heading: #5c83ff;
   --ds-raised-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
   --ui-on-secondary: #ffffff;
   /* 80% accent / 20% white: 4.18:1 -> 6.05:1 against --ui-bg, and still
@@ -389,6 +392,8 @@
   --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 85%, black);
   --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 9%, white);
   --ds-accent-tint: var(--ui-secondary-soft);
+  /* Volt's own: the store's deep shade (the theme does not compute it here). */
+  --ds-accent-heading: var(--ui-secondary-deep);
   --ds-lattice-accent: var(--ds-lattice);
 
   /* The status colours are the theme's, and dark enough to be TEXT on
@@ -450,6 +455,7 @@
   --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 85%, white);
   --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 18%, #17171a);
   --ds-accent-tint: var(--ui-secondary-soft);
+  --ds-accent-heading: var(--ui-secondary-text);
   --ds-lattice-accent: var(--ds-lattice);
 
   --ui-on-success: #0e0e10;

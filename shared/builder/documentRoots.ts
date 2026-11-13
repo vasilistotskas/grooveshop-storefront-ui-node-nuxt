@@ -46,13 +46,19 @@ type ThemeDesign = StorefrontDesign | null
  *   background (SC 1.4.11). The text ON them is `--ui-on-*`, picked per
  *   colour (`readableTextOn`), so it needs no rule.
  * - **Both**: `accent` also warns against 3:1 on the muted ground
- *   (`--ui-bg-muted`), where a band draws it as large text: the newsletter
- *   band's accent heading, the showcase hero's accent line (SC 1.4.3, large
- *   text). The text paints `--ui-secondary-text`: the accent itself on a
- *   light ground (webside), else the accent mixed away from the ground
- *   (toward white on a dark one, toward black on Volt's light one), never
- *   closer to it. A rule names a colour and cannot mix one, so it checks the
- *   accent, and the text it holds is at least as far from the ground.
+ *   (`--ui-bg-muted`), where a band draws it as large text (`text-accent`):
+ *   the newsletter band's accent heading, the showcase hero's accent line
+ *   (SC 1.4.3, large text). The text paints `--ui-secondary-text`: the
+ *   accent itself on a light ground (webside), else the accent mixed away
+ *   from the ground (toward white on a dark one, toward black on Volt's light
+ *   one), never closer to it. A rule names a colour and cannot mix one, so it
+ *   checks the accent, and the text it holds is at least as far from the
+ *   ground.
+ * - **No rule** for the bold look's accent heading (`--ds-accent-heading`)
+ *   on a store with its own design: the theme computes it per scheme at
+ *   4.5:1 or more on the page and the muted ground, the grounds below
+ *   (`accentHeadingOn`, `shared/theme/compile.ts`, held to them by
+ *   `compile.spec.ts`), so a rule on it could never warn.
  *
  * `test/unit/shared/builder/documentRoots.spec.ts` holds every token a rule
  * names to the stylesheet of its design, so a design that changes its

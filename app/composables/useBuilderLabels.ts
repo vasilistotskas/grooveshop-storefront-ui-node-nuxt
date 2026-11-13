@@ -81,8 +81,11 @@ export function useBuilderLabels() {
     },
     /** What a setting is called, by its path (`prompt.title`): one name per setting, whichever block has it. */
     settingLabel: (path: string) => read(`settings.${path}.label`),
-    /** The setting's help line, for the settings that have one. */
-    settingHelp: (path: string): string | undefined => labels.te(`settings.${path}.help`, DEFAULT_LOCALE) ? read(`settings.${path}.help`) : undefined,
+    /** A setting's help line in the form of a block of `type`, for the settings that have one: the block's own, else the shared one (`builderSettingHelpKey`). */
+    settingHelp: (type: string, path: string): string | undefined => {
+      const key = builderSettingHelpKey(type, path)
+      return key ? read(key) : undefined
+    },
     /** What a page's own setting is called (`seoTitle`, `heading`: the root settings of a page or template). */
     documentSettingLabel: (key: string) => read(`documentSettings.${key}.label`),
     /** A page's own setting's help line. */

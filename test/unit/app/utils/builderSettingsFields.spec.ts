@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
 import { builderField } from '~~/shared/builder/fields'
+import { BUILDER_ICONS } from '~~/shared/builder/icons'
 import { NAVIGATION_ROUTES } from '~~/shared/constants/builder'
 import { BUILDER_TEXTAREA_MIN_LENGTH } from '~~/shared/constants/builderEditor'
 import {
@@ -27,7 +28,7 @@ const block = defineBlock({
     autoplayMs: z.union([z.literal(0), builderField.integer(3000, 15000)]).optional(),
     marquee: builderField.boolean().optional(),
     backgroundColor: builderField.hexColor().optional(),
-    icon: builderField.icon(64).optional(),
+    icon: builderField.icon().optional(),
     embedUrl: builderField.httpsUrl().optional(),
     ctaLink: builderField.link().optional(),
     productId: builderField.id().optional(),
@@ -60,7 +61,7 @@ describe('builderSettingsFields', () => {
     expect(fields.get('autoplayMs')).toMatchObject({ kind: 'number', integer: true })
     expect(fields.get('marquee')).toMatchObject({ kind: 'boolean' })
     expect(fields.get('backgroundColor')).toMatchObject({ kind: 'color' })
-    expect(fields.get('icon')).toMatchObject({ kind: 'icon' })
+    expect(fields.get('icon')).toMatchObject({ kind: 'icon', options: BUILDER_ICONS })
     expect(fields.get('embedUrl')).toMatchObject({ kind: 'url' })
     expect(fields.get('ctaLink')).toMatchObject({ kind: 'link' })
     expect(fields.get('productId')).toMatchObject({ kind: 'record', refKind: 'product' })
