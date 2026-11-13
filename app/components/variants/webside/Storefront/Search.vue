@@ -18,6 +18,7 @@ const {
   productCount,
   guideCount,
   openCount,
+  noResults,
   pending,
   relaxedQuery,
   selectTab,
@@ -297,6 +298,32 @@ useHead({
         </div>
       </div>
 
+      <!-- The open tab has nothing but the other has: say which, and open it. -->
+      <div
+        v-else-if="displayResults.length === 0 && !pending && !noResults"
+        class="
+          flex flex-col items-center justify-center gap-4 py-16 text-center
+        "
+      >
+        <h2
+          class="
+            text-2xl font-semibold text-gray-900
+            dark:text-gray-100
+          "
+        >
+          {{ tab === 'products' ? t('page.open_empty.products') : t('page.open_empty.guides') }}
+        </h2>
+        <UButton
+          color="neutral"
+          trailing-icon="i-heroicons-arrow-right"
+          @click="() => selectTab(tab === 'products' ? 'guides' : 'products')"
+        >
+          {{ tab === 'products'
+            ? t('page.open_empty.show_guides', { count: guideCount }, guideCount)
+            : t('page.open_empty.show_products', { count: productCount }, productCount) }}
+        </UButton>
+      </div>
+
       <div
         v-else-if="
           displayResults.length === 0
@@ -435,6 +462,11 @@ el:
       title: "Δεν βρέθηκαν αποτελέσματα"
       description: "Δεν βρέθηκαν αποτελέσματα για \"{query}\". Δοκιμάστε διαφορετικούς όρους αναζήτησης"
       clear_search: "Εκκαθάριση αναζήτησης"
+    open_empty:
+      products: "Δεν βρέθηκαν προϊόντα"
+      guides: "Δεν βρέθηκαν άρθρα"
+      show_guides: "Δείτε το άρθρο | Δείτε τα {count} άρθρα"
+      show_products: "Δείτε το προϊόν | Δείτε τα {count} προϊόντα"
     shortcuts:
       focus_search: "Εστίαση στην αναζήτηση"
       clear_search: "Εκκαθάριση αναζήτησης"
@@ -460,6 +492,11 @@ en:
       title: "No results found"
       description: "No results were found for \"{query}\". Try different search terms"
       clear_search: "Clear the search"
+    open_empty:
+      products: "No products found"
+      guides: "No articles found"
+      show_guides: "See the article | See the {count} articles"
+      show_products: "See the product | See the {count} products"
     shortcuts:
       focus_search: "Focus the search"
       clear_search: "Clear the search"

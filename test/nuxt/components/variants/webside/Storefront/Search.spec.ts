@@ -49,10 +49,10 @@ const STUBS = {
 const PRODUCTS = '/api/products/search'
 const GUIDES = '/api/search/blog-posts'
 
-function answer({ productTotal = 2, guideTotal = 1 } = {}) {
+function answer({ products = 2, productTotal = products, guideTotal = 1 } = {}) {
   api.routes({
     [PRODUCTS]: makeProductSearchResponse({
-      results: [1, 2].map(i => makeProductSearchHit({ id: i, master: i, name: `Προϊόν ${i}` })),
+      results: Array.from({ length: products }, (_, i) => makeProductSearchHit({ id: i + 1, master: i + 1, name: `Προϊόν ${i + 1}` })),
       estimatedTotalHits: productTotal,
     }),
     [GUIDES]: makeBlogPostSearchResponse({
@@ -92,8 +92,8 @@ describe('webside Storefront/Search', () => {
     expect(wrapper.text()).toContain(own(wrapper, 'page.empty.title'))
   })
 
-  it('lists products a page at a time and counts the articles without fetching them', async () => {
-    const wrapper = await render({ query: 'καλώδιο', page: '2' })
+  it('lists products a page at a time and, on their named tab, counts the articles without fetching them', async () => {
+    const wrapper = await render({ query: 'καλώδιο', tab: 'products', page: '2' })
 
     expect(lastQuery(PRODUCTS)).toMatchObject({ query: 'καλώδιο', limit: 12, offset: 12 })
     expect(lastQuery(GUIDES)).toMatchObject({ query: 'καλώδιο', limit: 0, offset: 0 })
@@ -144,7 +144,42 @@ describe('webside Storefront/Search', () => {
     const wrapper = await render({ query: 'καλώδιο' })
 
     const hrefs = wrapper.findAll('a').map(a => a.attributes('href')).filter(href => href?.includes('page='))
-    expect(hrefs).toContain(`/search?query=${encodeURIComponent('καλώδιο')}&page=2`)
+    expect(hrefs).toContain(`/search?query=${encodeURIComponent('καλώδιο')}&tab=products&page=2`)
+  })
+
+  // 2026-11-13, webside.gr/search?query=security: 0 products, 4 articles,
+  // and the page said «no results».
+  it('opens the articles when only they have results', async () => {
+    answer({ products: 0, guideTotal: 4 })
+
+    const wrapper = await render({ query: 'security' })
+
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toContain(own(wrapper, 'page.tabs.blog_posts_label'))
+    expect(wrapper.findAll('[data-test="result"]').map(result => result.text())).toEqual(['Άρθρο 1'])
+    expect(lastQuery(GUIDES)).toMatchObject({ limit: 12, offset: 0 })
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.no_results.title'))
+  })
+
+  it('on a named products tab with no products, says so and offers the articles rather than «no results»', async () => {
+    answer({ products: 0, guideTotal: 4 })
+
+    const wrapper = await render({ query: 'security', tab: 'products' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.open_empty.products'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.no_results.title'))
+    const toArticles = wrapper.findAll('button:not([role="tab"])').find(button => button.text().includes('4'))
+    expect(toArticles?.text()).toMatch(/4/)
+    await toArticles?.trigger('click')
+
+    expect(navigateToMock).toHaveBeenCalledWith({ query: { query: 'security', tab: 'guides' } })
+  })
+
+  it('says «no results» only when neither list has any', async () => {
+    answer({ products: 0, guideTotal: 0 })
+
+    const wrapper = await render({ query: 'xyzzy' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.no_results.title'))
   })
 
   it('reports which result was opened, at its place in the whole result set', async () => {

@@ -106,13 +106,18 @@ describe('Storefront/Search', () => {
     expect(wrapper.text()).toContain(own(wrapper, 'start.title'))
   })
 
-  it('finds products a page at a time and the first few guides beside them', async () => {
+  // With no tab named the open tab is not known until the counts are, so
+  // the guides search asks for a whole page: whichever tab opens, it has
+  // what it shows from the first two requests.
+  it('finds products a page at a time and the first few of a page of guides beside them', async () => {
+    answer({ guides: 5 })
+
     const wrapper = await render({ query: 'καλώδιο' })
 
     expect(lastQuery(PRODUCTS)).toMatchObject({ query: 'καλώδιο', limit: 12, offset: 0 })
-    expect(lastQuery(GUIDES)).toMatchObject({ query: 'καλώδιο', limit: 3, offset: 0 })
+    expect(lastQuery(GUIDES)).toMatchObject({ query: 'καλώδιο', limit: 12, offset: 0 })
     expect(wrapper.findAll('[data-test="card"]').map(card => card.text())).toEqual(['Προϊόν 1', 'Προϊόν 2'])
-    expect(wrapper.find('aside').findAll('[data-test="guide"]').map(guide => guide.text())).toEqual(['Οδηγός 1'])
+    expect(wrapper.find('aside').findAll('[data-test="guide"]').map(guide => guide.text())).toEqual(['Οδηγός 1', 'Οδηγός 2', 'Οδηγός 3'])
   })
 
   it('pages the open tab only: guides from their own offset, products from the start', async () => {
@@ -123,7 +128,7 @@ describe('Storefront/Search', () => {
   })
 
   it('keeps the guides beside the products on their first few while the products page on', async () => {
-    await render({ query: 'καλώδιο', page: '3' })
+    await render({ query: 'καλώδιο', tab: 'products', page: '3' })
 
     expect(lastQuery(PRODUCTS)).toMatchObject({ limit: 12, offset: 24 })
     expect(lastQuery(GUIDES)).toMatchObject({ limit: 3, offset: 0 })
@@ -167,6 +172,43 @@ describe('Storefront/Search', () => {
 
     expect(wrapper.text()).toContain(own(wrapper, 'empty.title'))
     expect(wrapper.findAll('[data-test="card"]')).toHaveLength(0)
+  })
+
+  // 2026-11-13, webside, «security»: 0 products and 4 articles opened on
+  // «no results», since the page opened the products whenever the URL named
+  // no tab.
+  it('opens the guides when only they have results, from the same two requests', async () => {
+    answer({ products: 0, guides: 4 })
+
+    const wrapper = await render({ query: 'security' })
+
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toContain(own(wrapper, 'tabs.guides'))
+    expect(wrapper.findAll('[data-test="guide"]').map(guide => guide.text())).toEqual(['Οδηγός 1', 'Οδηγός 2', 'Οδηγός 3', 'Οδηγός 4'])
+    expect(wrapper.text()).not.toContain(own(wrapper, 'empty.title'))
+    expect(api.callsTo(PRODUCTS)).toHaveLength(1)
+    expect(api.callsTo(GUIDES)).toHaveLength(1)
+  })
+
+  it('honours a tab the URL names, and with no products there shows the guides beside them at every width', async () => {
+    answer({ products: 0, guides: 2 })
+
+    const wrapper = await render({ query: 'security', tab: 'products' })
+
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toContain(own(wrapper, 'tabs.products'))
+    expect(wrapper.text()).toContain(own(wrapper, 'empty_products.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'empty.title'))
+    const aside = wrapper.get('aside')
+    expect(aside.findAll('[data-test="guide"]').map(guide => guide.text())).toEqual(['Οδηγός 1', 'Οδηγός 2'])
+    expect(aside.classes()).not.toContain('hidden')
+  })
+
+  it('names the open tab in its page links, so a later page pages that list', async () => {
+    answer({ products: 0, guides: 12, guideTotal: 30 })
+
+    const wrapper = await render({ query: 'security' })
+
+    const next = wrapper.findAll('a').find(a => a.attributes('href')?.includes('page=2'))
+    expect(next?.attributes('href')).toContain('tab=guides')
   })
 
   it('links each trending search to its results', async () => {

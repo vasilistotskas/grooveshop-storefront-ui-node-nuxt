@@ -413,6 +413,7 @@ const items = computed(() => [
       >
         <LazyWebsideSearchInput
           v-if="searchServing && !isMobileOrTablet"
+          compact
           class="max-w-110 flex-1"
         />
         <ul

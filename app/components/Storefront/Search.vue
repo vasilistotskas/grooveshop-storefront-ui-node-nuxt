@@ -26,6 +26,8 @@ const {
   productCount,
   guideCount,
   openCount,
+  noResults,
+  asideGuides,
   pending,
   relaxedQuery,
   selectTab,
@@ -216,7 +218,7 @@ useHead({
       </div>
 
       <UEmpty
-        v-else-if="!openCount"
+        v-else-if="noResults"
         icon="i-heroicons-magnifying-glass-minus"
         :title="t('empty.title')"
         :description="t('empty.description', { query })"
@@ -231,7 +233,16 @@ useHead({
         "
       >
         <div class="flex flex-col gap-10">
+          <!-- No products, but guides: say so, and the guides beside it
+               show at every width rather than on a desk only. -->
+          <UEmpty
+            v-if="!productCount"
+            icon="i-heroicons-magnifying-glass-minus"
+            :title="t('empty_products.title')"
+            :description="t('empty_products.description', { query })"
+          />
           <ol
+            v-else
             class="
               grid grid-cols-2 gap-3.5
               lg:grid-cols-3 lg:gap-6
@@ -255,11 +266,12 @@ useHead({
         </div>
 
         <aside
-          v-if="guides?.results.length"
-          class="
-            hidden flex-col gap-3
+          v-if="asideGuides.length"
+          class="flex-col gap-3"
+          :class="productCount ? `
+            hidden
             lg:flex
-          "
+          ` : 'flex'"
           :aria-labelledby="'search-guides-heading'"
         >
           <h2
@@ -269,7 +281,7 @@ useHead({
             {{ t('from_guides') }}
           </h2>
           <SearchGuideCard
-            v-for="(post, index) in guides.results"
+            v-for="(post, index) in asideGuides"
             :key="post.id"
             :post="post"
             @click="onGuideClick(post, index)"
@@ -338,6 +350,9 @@ el:
   empty:
     title: Δεν βρέθηκαν αποτελέσματα
     description: "Τίποτα για «{query}». Δοκίμασε μια πιο γενική λέξη ή ένα από τα δημοφιλή."
+  empty_products:
+    title: Δεν βρέθηκαν προϊόντα
+    description: "Κανένα προϊόν για «{query}», αλλά οι οδηγοί έχουν."
   start:
     title: Ξεκίνα την αναζήτηση
     description: Γράψε το όνομα ενός προϊόντος, μιας μάρκας ή ενός θέματος.
@@ -361,6 +376,9 @@ en:
   empty:
     title: No results found
     description: "Nothing for “{query}”. Try a broader word or one of the trending searches."
+  empty_products:
+    title: No products found
+    description: "No product for “{query}”, but the guides have some."
   start:
     title: Start your search
     description: Type the name of a product, a brand or a topic.

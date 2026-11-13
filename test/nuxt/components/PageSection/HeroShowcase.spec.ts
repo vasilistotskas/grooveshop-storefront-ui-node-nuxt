@@ -17,8 +17,17 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 const device = vi.hoisted(() => ({ mobile: { value: false } }))
 mockNuxtImport('useDevice', () => () => ({ isMobileOrTablet: device.mobile }))
 
+// The search field is the DESIGN's (`resolvePart('search_field')`), loaded
+// with a bare `import()`: each design's field is a stand-in naming its design
+// and showing the props it got.
+const searchField = vi.hoisted(() => (design: string) => ({
+  __esModule: true,
+  default: { props: ['placeholder', 'size'], template: `<div data-test="search" data-design="${design}" :placeholder="placeholder" :size="size" />` },
+}))
+vi.mock('~/components/Search/Input.vue', () => searchField('default'))
+vi.mock('~/components/variants/webside/Search/Input.vue', () => searchField('webside'))
+
 const stubs = {
-  SearchInput: { template: '<div data-test="search" />' },
   ProductSpotlight: { props: ['product', 'showAddToCart'], template: '<div data-test="spotlight" :data-id="product.id" :data-cart="String(showAddToCart)" />' },
 }
 
@@ -176,6 +185,19 @@ describe('PageSection/HeroShowcase', () => {
       expect(wrapper.find('[data-test="spotlight"]').exists()).toBe(false)
       expect(wrapper.find('img').exists()).toBe(true)
     })
+  })
+
+  // One search per page: the hero's field is the store's own, the one its
+  // header opens, never the platform's beside it.
+  it.each([
+    ['the platform’s', 'shop_a', 'default'],
+    ['webside’s own', 'webside', 'webside'],
+  ])('mounts %s search field for the store', async (_case, schemaName, design) => {
+    setTenant({ schemaName })
+
+    const wrapper = await mountHero()
+
+    await vi.waitFor(() => expect(wrapper.get('[data-test="search"]').attributes('data-design')).toBe(design))
   })
 
   it('offers the search only when the block asks for it', async () => {

@@ -329,9 +329,12 @@ const variants: Record<string, Component> = {
  * (`DesignPartInput`): the two designs' restock alerts take different props,
  * and an attribute one does not declare would fall through onto its root.
  * A design with no entry gets the platform's part.
+ *
+ * `search_field` is the store's search field inside a shared section (the
+ * hero's, the search band's): each design's own field and the palette it
+ * opens, so a page has one search whichever field a shopper uses, the
+ * header's included.
  */
-export type DesignPartKey = 'product_add_to_cart' | 'product_restock_alert'
-
 /** What a shared component knows when it asks for a product's part. */
 export interface DesignPartInput {
   product: ProductCard
@@ -345,13 +348,35 @@ export interface DesignPartInput {
   leadingIcon?: boolean
 }
 
-export interface DesignPart {
-  component: Component
-  /** The props this design's component takes for the product. */
-  props: (input: DesignPartInput) => Record<string, unknown>
+/** What a shared section knows when it asks for the store's search field. */
+export interface SearchFieldPartInput {
+  /** The field's own wording, a section's setting, in place of the design's. */
+  placeholder?: string
+  /** `lg`: a hero's field (`Search/Input` says what it draws). */
+  size?: 'md' | 'lg'
 }
 
-const partDefaults: Record<DesignPartKey, DesignPart> = {
+/** What each part is asked with. */
+interface DesignPartInputs {
+  product_add_to_cart: DesignPartInput
+  product_restock_alert: DesignPartInput
+  search_field: SearchFieldPartInput
+}
+
+export type DesignPartKey = keyof DesignPartInputs
+
+export interface DesignPart<K extends DesignPartKey = DesignPartKey> {
+  component: Component
+  /** The props this design's component takes for what the shared component knows. */
+  props: (input: DesignPartInputs[K]) => Record<string, unknown>
+}
+
+type DesignParts = { [K in DesignPartKey]: DesignPart<K> }
+
+/** `part:<key>@<schema>`: a design's own component for a part. */
+type PartVariants = { [K in DesignPartKey as `part:${K}@${string}`]?: DesignPart<K> }
+
+const partDefaults: DesignParts = {
   product_add_to_cart: {
     component: lazy(() => import('~/components/Button/Product/AddToCart.vue')),
     props: ({ product, addToCartLabel, addToCartName }) => ({ product, text: addToCartName, label: addToCartLabel }),
@@ -360,10 +385,14 @@ const partDefaults: Record<DesignPartKey, DesignPart> = {
     component: lazy(() => import('~/components/Product/RestockAlert.vue')),
     props: ({ product, name }) => ({ productId: product.id, productName: name, productImage: product.mainImagePath }),
   },
+  search_field: {
+    component: lazy(() => import('~/components/Search/Input.vue')),
+    props: ({ placeholder, size }) => ({ placeholder, size }),
+  },
 }
 
 /** A design's own parts, keyed `part:<key>@<schema>`. */
-const partVariants: Record<string, DesignPart> = {
+const partVariants: PartVariants = {
   // webside's button names itself by its visible text.
   'part:product_add_to_cart@webside': {
     component: lazy(() => import('~/components/variants/webside/Button/Product/AddToCart.vue')),
@@ -372,6 +401,11 @@ const partVariants: Record<string, DesignPart> = {
   'part:product_restock_alert@webside': {
     component: lazy(() => import('~/components/variants/webside/Product/NotifyMe.vue')),
     props: ({ product }) => ({ productId: product.id, kind: 'restock' }),
+  },
+  // webside's own field and the palette it opens, the header's: one search on the page.
+  'part:search_field@webside': {
+    component: lazy(() => import('~/components/variants/webside/Search/Input.vue')),
+    props: ({ placeholder, size }) => ({ placeholder, size }),
   },
 }
 
@@ -407,6 +441,7 @@ export function resolvePage(key: PageKey, tenantSchema?: string | null): Compone
 }
 
 /** The tenant's design part for `key`, or the platform's. */
-export function resolvePart(key: DesignPartKey, tenantSchema?: string | null): DesignPart {
-  return (tenantSchema && partVariants[`part:${key}@${tenantSchema}`]) || partDefaults[key]
+export function resolvePart<K extends DesignPartKey>(key: K, tenantSchema?: string | null): DesignPart<K>
+export function resolvePart(key: DesignPartKey, tenantSchema?: string | null): DesignParts[DesignPartKey] {
+  return (tenantSchema ? partVariants[`part:${key}@${tenantSchema}`] : undefined) ?? partDefaults[key]
 }
