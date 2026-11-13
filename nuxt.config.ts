@@ -407,7 +407,7 @@ export default defineNuxtConfig({
     // Plugins listed here run BEFORE every module's server plugin (modules
     // append to this list, scanned server/plugins/ come after both). Only
     // what must see a request first belongs here; see the file.
-    plugins: ['~~/server/early-plugins/runtime-config'],
+    plugins: ['~~/server/early-plugins/runtime-config', '~~/server/early-plugins/client-abort-status'],
     // The renderer, cached for a merchant's custom pages
     // (`CUSTOM_PAGE_ROUTES` in shared/constants/prerender.ts says why no
     // route rule can do it). Not scanned: it answers exactly these routes.

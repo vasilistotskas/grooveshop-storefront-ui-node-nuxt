@@ -123,7 +123,10 @@ onMounted(() => {
                 lg:sr-only
               "
             >
-              <LazyWebsideSearchInput v-if="searchServing" />
+              <LazyWebsideSearchInput
+                v-if="searchServing"
+                compact
+              />
               <UButton
                 v-if="savedPostsServing"
                 :aria-label="t('favourites')"

@@ -68,6 +68,8 @@ const { shown, alt, linkName, pictureLink, spotlight, search, buttons, hasHeadin
  * In the component, where Nuxt's component transform resolves it.
  */
 const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtLink') : 'div'))
+/** The store's own search field: the header's search, in every design. */
+const searchField = useSearchFieldPart()
 </script>
 
 <template>
@@ -176,7 +178,10 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
           lg:col-start-1 lg:row-start-2 lg:mt-7
         "
       >
-        <SearchInput :placeholder="searchPlaceholder" />
+        <component
+          :is="searchField.component"
+          v-bind="searchField.props({ placeholder: searchPlaceholder })"
+        />
       </div>
 
       <div

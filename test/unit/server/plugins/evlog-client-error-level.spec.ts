@@ -18,7 +18,7 @@ async function levelAfter(error: unknown) {
 }
 
 describe('server/plugins/evlog-client-error-level', () => {
-  it.each([404, 401, 400])('downgrades a %s to warn', async (statusCode) => {
+  it.each([404, 401, 400, 499])('downgrades a %s to warn', async (statusCode) => {
     expect(await levelAfter(createError({ statusCode }))).toBe('warn')
   })
 

@@ -70,8 +70,47 @@ function issueDigest(issues: readonly ValidationIssue[]) {
 }
 
 /**
- * Throw `error` as the response, mapped: a malformed request, a drifted
- * response, an upstream failure, anything else. The error handler of Nitro
+ * nginx's "Client Closed Request": the client went away before it was
+ * answered. Nothing was sent back (there is no one to read it); the status
+ * is for the logs, a 4xx, so the request's wide event is a warning
+ * (`evlog-client-error-level.ts`) and not a server fault.
+ */
+export const CLIENT_CLOSED_REQUEST = 499
+export const CLIENT_CLOSED_REQUEST_TEXT = 'Client Closed Request'
+
+/** Node's error for a request body cut off by its client: `Error('aborted')`, `code: 'ECONNRESET'`. */
+function isAbortedRequestBody(value: unknown): boolean {
+  return value instanceof Error
+    && !(value instanceof FetchError)
+    && (value as { code?: unknown }).code === 'ECONNRESET'
+    && value.message === 'aborted'
+}
+
+/**
+ * Whether `error` is the CLIENT going away mid-request, not a server fault.
+ * A route reading the body (`readValidatedBody` → `event.req.text()`) of a
+ * request whose connection closes mid-body gets Node's `Error('aborted')`
+ * with `code: 'ECONNRESET'` from the body stream (reproduced 2026-11-13: a
+ * POST whose client closed the socket after half its body). On staging an
+ * editor tab closing mid-heartbeat answered `POST /api/builder/presence` and
+ * `/api/builder/preview` with 500s, logged as errors, that never reached
+ * Django, and the promote's smoke counted them as server faults.
+ *
+ * The error itself, or as the `cause` of the error Nitro wraps an unhandled
+ * throw in. A failed upstream call is never this: a `FetchError` is no client
+ * abort whatever its cause, and Django's response cut off mid-body reaches us
+ * as undici's own unwrapped `TypeError('terminated')`, which has neither the
+ * message nor the code. Both stay a 5xx, as does any other `ECONNRESET` (a
+ * store, a socket).
+ */
+export function isClientAbort(error: unknown): boolean {
+  if (!(error instanceof Error) || error instanceof FetchError) return false
+  return isAbortedRequestBody(error) || isAbortedRequestBody(error.cause)
+}
+
+/**
+ * Throw `error` as the response, mapped: a client that went away, a
+ * malformed request, a drifted response, an upstream failure, anything else. The error handler of Nitro
  * puts a thrown error's `data` one level down (`error.data.data`), so this
  * is the path for failures that carry no body worth forwarding, and for the
  * allauth flows, whose client reads that wrapper.
@@ -80,6 +119,12 @@ function rejectError(
   event: RequestEvent,
   error: unknown,
 ): never {
+  if (isClientAbort(error)) {
+    // The client closed the request: nothing went wrong here, and there is
+    // no one to answer. A warning naming the route, never an error.
+    log.warn({ action: 'request:aborted', ...failingRoute(event) })
+    throw createError({ status: CLIENT_CLOSED_REQUEST, statusText: CLIENT_CLOSED_REQUEST_TEXT })
+  }
   const requestIssues = requestIssuesOf(error)
   if (requestIssues) {
     // The REQUEST is wrong — client behaviour, the same call the
@@ -290,7 +335,9 @@ export async function handleAllAuthError(
   event: RequestEvent,
   error: unknown,
 ) {
-  await syncAllAuthSessionFromError(event, error)
+  // A request its client closed carries no allauth answer: nothing to
+  // reconcile, and not the "unexpected" error the sync would log.
+  if (!isClientAbort(error)) await syncAllAuthSessionFromError(event, error)
   rejectError(event, error)
 }
 
