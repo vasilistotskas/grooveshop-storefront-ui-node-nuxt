@@ -19,6 +19,10 @@ const storeDescription = computed(() =>
 
 <template>
   <UFooter
+    :ui="{ bottom: `
+      pt-0 pb-7
+      lg:pt-0 lg:pb-7
+    ` }"
     class="
       mt-6 hidden border-t-2 border-primary-500 bg-primary-50
       md:block
@@ -114,9 +118,6 @@ const storeDescription = computed(() =>
              out. -->
         <WebsideMerchantIdentity v-if="merchantIdentityColumnIndex === -1" />
         <WebsideFooterHoursBadge />
-        <!-- The copyright, the ways to pay and the carriers, the cookie
-             settings: one row, read from the store's data. -->
-        <WebsideFooterLegal />
       </div>
     </template>
 
@@ -127,6 +128,20 @@ const storeDescription = computed(() =>
         :button-size="'sm'"
         :icon-class="'text-xl'"
       />
+    </template>
+
+    <!-- The footer's last row, the full width of the page: the copyright at
+         the left end, the ways to pay, the carriers and the cookie settings
+         at the right (read from the store's data). -->
+    <template #bottom>
+      <UContainer>
+        <WebsideFooterLegal
+          class="
+            border-t border-primary-200 pt-5
+            dark:border-primary-700
+          "
+        />
+      </UContainer>
     </template>
   </UFooter>
 </template>

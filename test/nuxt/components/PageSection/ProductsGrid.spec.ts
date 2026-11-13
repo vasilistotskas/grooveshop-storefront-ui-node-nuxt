@@ -128,3 +128,31 @@ describe('PageSection/ProductsGrid: phone limit and category tile', () => {
     expect(tile.get('a[href*="/products/category/5"]').text()).toContain('2')
   })
 })
+
+/**
+ * The bold band's link: «Όλα τα προϊόντα» on a desk, «Δες όλα τα προϊόντα» on
+ * a phone (the boards), both the block's own wording. A store that wrote its
+ * own link text gets that text everywhere.
+ */
+describe('PageSection/ProductsGrid in the bold look, its link', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('says the phone’s own words on a phone and the desk’s on a desk', async () => {
+    const wrapper = await mountGrid({ products: products([1, 2]), look: 'bold' })
+
+    // The desk's link sits beside the heading; the phone's is the button
+    // under the grid, the last link of the band.
+    const links = wrapper.findAll('a[href^="/products"]')
+    expect(links.at(-1)!.text()).toBe(COPY.all_products_phone)
+    expect(links[0]!.findAll('span').find(span => span.classes().includes('max-sm:hidden'))!.text()).toBe(COPY.all_products)
+  })
+
+  it('uses the store’s own link text at every width', async () => {
+    const wrapper = await mountGrid({ products: products([1, 2]), look: 'bold', ctaText: 'Στο κατάστημα' })
+
+    expect(wrapper.text()).not.toContain(COPY.all_products_phone)
+    expect(wrapper.text()).toContain('Στο κατάστημα')
+  })
+})

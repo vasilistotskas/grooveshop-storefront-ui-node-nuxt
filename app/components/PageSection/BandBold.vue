@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
   bleed?: boolean
   /** Where the link goes on a phone: beside the heading, under the content as a button, or nowhere. */
   phoneCta?: 'inline' | 'below' | 'none'
-  /** A shorter link text for the phone's row ("All"). */
+  /** The link's text on a phone, beside the heading ("All") or as the button under the content ("See all products"). */
   phoneCtaText?: string
 }>(), {
   surface: 'default',
@@ -162,7 +162,7 @@ const hasLink = computed(() => !!(props.ctaText && props.ctaLink))
       <UButton
         v-if="phoneCta === 'below' && hasLink"
         :to="ctaLink"
-        :label="ctaText"
+        :label="phoneCtaText || ctaText"
         color="neutral"
         variant="outline"
         size="xl"

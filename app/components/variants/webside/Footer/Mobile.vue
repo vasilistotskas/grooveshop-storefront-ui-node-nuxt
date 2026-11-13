@@ -56,7 +56,7 @@ const items = computed<AccordionItem[]>(() =>
         label: `
           truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)
         `,
-        trailingIcon: 'size-4 text-(--ui-on-secondary)',
+        trailingIcon: 'size-4.5 text-(--ui-on-secondary)',
       }"
     >
       <template #body="{ index }">

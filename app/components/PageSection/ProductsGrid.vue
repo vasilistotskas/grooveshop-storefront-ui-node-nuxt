@@ -68,6 +68,7 @@ const label = computed(
     :color-scheme="colorScheme"
     :look="look"
     :phone-cta="look === 'bold' ? 'below' : undefined"
+    :phone-cta-text="ctaText ? undefined : t('all_products_phone')"
   >
     <slot
       name="list"
@@ -118,6 +119,7 @@ const label = computed(
 <i18n lang="yaml">
 el:
   all_products: Όλα τα προϊόντα
+  all_products_phone: Δες όλα τα προϊόντα
   heading:
     picked: Επιλεγμένα προϊόντα
     newest: Νέες αφίξεις
@@ -129,6 +131,7 @@ el:
     priceDesc: Premium επιλογές
 en:
   all_products: All products
+  all_products_phone: See all products
   heading:
     picked: Selected products
     newest: New arrivals

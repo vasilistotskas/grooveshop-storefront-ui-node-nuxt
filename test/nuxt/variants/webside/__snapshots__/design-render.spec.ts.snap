@@ -160,16 +160,19 @@ exports[`webside design render > auth frame > is what the default layout draws a
           <div class="flex w-full flex-col gap-1">
             <!--v-if-->
             <!--v-if-->
-            <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem]">
-              <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
-              <p>
-                <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
-              </p>
-            </div>
           </div>
         </div>
       </div>
-      <!--v-if-->
+      <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+        <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+            <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+            <p>
+              <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
   <!--v-if-->
@@ -368,16 +371,19 @@ exports[`webside design render > default layout with the webside schema 1`] = `
           <div class="flex w-full flex-col gap-1">
             <!--v-if-->
             <!--v-if-->
-            <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem]">
-              <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
-              <p>
-                <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
-              </p>
-            </div>
           </div>
         </div>
       </div>
-      <!--v-if-->
+      <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+        <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+            <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+            <p>
+              <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
   <!--v-if-->
@@ -534,16 +540,19 @@ exports[`webside design render > footer desktop 1`] = `
       <div class="flex w-full flex-col gap-1">
         <!--v-if-->
         <!--v-if-->
-        <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem]">
-          <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
-          <p>
-            <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
-          </p>
-        </div>
       </div>
     </div>
   </div>
-  <!--v-if-->
+  <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+    <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+        <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+        <p>
+          <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+        </p>
+      </div>
+    </div>
+  </div>
 </footer>"
 `;
 
@@ -551,7 +560,7 @@ exports[`webside design render > footer mobile 1`] = `
 "<footer class="w-full bg-primary-50 md:pb-11 lg:hidden dark:bg-primary-900">
   <div data-slot="root" class="w-full flex flex-col gap-2 px-4 pt-6">
     <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-default last:border-b-0 border-0">
-      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 cursor-pointer min-h-12 gap-3 rounded-md bg-(--ui-secondary) px-4 py-2.5"><span class="iconify i-heroicons:rectangle-group shrink-0 size-5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="text-start break-words truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)">Όροι και Προϋποθέσεις</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span></button></div>
+      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 cursor-pointer min-h-12 gap-3 rounded-md bg-(--ui-secondary) px-4 py-2.5"><span class="iconify i-heroicons:rectangle-group shrink-0 size-5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="text-start break-words truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)">Όροι και Προϋποθέσεις</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4.5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span></button></div>
       <div role="region" aria-labelledby="ID" data-state="closed" data-orientation="vertical" style="--reka-accordion-content-width: var(--reka-collapsible-content-width); --reka-accordion-content-height: var(--reka-collapsible-content-height); --reka-collapsible-content-height: 0px; --reka-collapsible-content-width: 0px;" data-slot="content" class="data-[state=open]:animate-[accordion-down_200ms_var(--ease-out)] data-[state=closed]:animate-[accordion-up_200ms_var(--ease-out)] data-[state=closed]:overflow-hidden focus:outline-none" id="ID" hidden="">
         <div data-slot="body" class="text-sm pb-3.5">
           <div class="text-primary-950 dark:text-primary-50"><a href="/terms-of-use" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) font-medium">
@@ -570,7 +579,7 @@ exports[`webside design render > footer mobile 1`] = `
       </div>
     </div>
     <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-default last:border-b-0 border-0">
-      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 cursor-pointer min-h-12 gap-3 rounded-md bg-(--ui-secondary) px-4 py-2.5"><span class="iconify i-heroicons:chat-bubble-left-right shrink-0 size-5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="text-start break-words truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)">Κέντρο βοηθείας</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span></button></div>
+      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 cursor-pointer min-h-12 gap-3 rounded-md bg-(--ui-secondary) px-4 py-2.5"><span class="iconify i-heroicons:chat-bubble-left-right shrink-0 size-5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="text-start break-words truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)">Κέντρο βοηθείας</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4.5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span></button></div>
       <div role="region" aria-labelledby="ID" data-state="closed" data-orientation="vertical" style="--reka-accordion-content-width: var(--reka-collapsible-content-width); --reka-accordion-content-height: var(--reka-collapsible-content-height); --reka-collapsible-content-height: 0px; --reka-collapsible-content-width: 0px;" data-slot="content" class="data-[state=open]:animate-[accordion-down_200ms_var(--ease-out)] data-[state=closed]:animate-[accordion-up_200ms_var(--ease-out)] data-[state=closed]:overflow-hidden focus:outline-none" id="ID" hidden="">
         <div data-slot="body" class="text-sm pb-3.5">
           <div class="text-primary-950 dark:text-primary-50"><a href="/contact" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) font-medium">
@@ -1504,16 +1513,19 @@ exports[`webside design render > signed in > account chrome 1`] = `
           <div class="flex w-full flex-col gap-1">
             <!--v-if-->
             <!--v-if-->
-            <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem]">
-              <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
-              <p>
-                <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
-              </p>
-            </div>
           </div>
         </div>
       </div>
-      <!--v-if-->
+      <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+        <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+            <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+            <p>
+              <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
   <!--v-if-->
