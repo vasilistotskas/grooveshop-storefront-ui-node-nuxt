@@ -12,8 +12,8 @@ import type { CalendarDateTime } from '@internationalized/date'
  * what it holds. A refusal lists every problem by document, each with a way
  * to what it is about: the node, or the theme panel's contrast rule. A
  * theme rule that only warns (Django refuses the error rules alone) is
- * listed too, and does not stop the publish. ADMIN and OWNER only: STAFF see
- * no button.
+ * listed by name, each with the same way to its rule, and does not stop
+ * the publish. ADMIN and OWNER only: STAFF see no button.
  *
  * They go live now, or at a time the staff member picks (Django's `POST
  * builder/schedules`): validated and frozen now, released then. The time is
@@ -23,7 +23,7 @@ import type { CalendarDateTime } from '@internationalized/date'
  * they saw them.
  */
 const { t, locale } = useStoreI18n('components/Builder/Publish')
-const { documentLabel, groupLabel } = useBuilderLabels()
+const { documentLabel, groupLabel, contrastRuleLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
 const toast = useToast()
@@ -403,9 +403,28 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'
             variant="subtle"
             icon="i-lucide-contrast"
             :title="t('themeWarnings.title', { count: themeWarnings.length }, themeWarnings.length)"
-            :description="t('themeWarnings.description')"
-            :actions="[{ label: t('show'), color: 'warning', variant: 'link', size: 'xs', onClick: () => showThemeRule(themeWarnings[0]?.rule.id) }]"
-          />
+          >
+            <template #description>
+              <p>{{ t('themeWarnings.description') }}</p>
+              <ul class="mt-1 flex flex-col gap-1">
+                <li
+                  v-for="warning in themeWarnings"
+                  :key="warning.rule.id"
+                  class="flex items-start justify-between gap-2"
+                >
+                  <span class="font-medium">{{ contrastRuleLabel(warning.rule.id) }}</span>
+                  <UButton
+                    color="warning"
+                    variant="link"
+                    size="xs"
+                    class="shrink-0"
+                    :label="t('show')"
+                    @click="() => showThemeRule(warning.rule.id)"
+                  />
+                </li>
+              </ul>
+            </template>
+          </UAlert>
         </form>
         <section
           v-if="failed.length || pending.length"

@@ -166,6 +166,18 @@
       "label": "Γιατί μικρομάθηση"
     }
   },
+  "contrastRules": {
+    "body-text-light": "Κείμενο, φωτεινό",
+    "body-text-dark": "Κείμενο, σκούρο",
+    "muted-text-light": "Δευτερεύον κείμενο, φωτεινό",
+    "muted-text-dark": "Δευτερεύον κείμενο, σκούρο",
+    "action-light": "Κουμπιά, φωτεινό",
+    "action-dark": "Κουμπιά, σκούρο",
+    "accent-light": "Έμφαση, φωτεινό",
+    "accent-dark": "Έμφαση, σκούρο",
+    "accent-muted-light": "Έμφαση σε απαλό φόντο, φωτεινό",
+    "accent-muted-dark": "Έμφαση σε απαλό φόντο, σκούρο"
+  },
   "documents": {
     "theme": "Θέμα: χρώματα, γωνίες, γραμματοσειρές"
   },

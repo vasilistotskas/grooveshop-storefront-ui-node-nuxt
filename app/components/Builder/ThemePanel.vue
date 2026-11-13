@@ -13,6 +13,7 @@
  * only the action and accent colours have rules.
  */
 const { t } = useStoreI18n('components/Builder/ThemePanel')
+const { contrastRuleLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const tenantStore = useTenantStore()
 
@@ -220,7 +221,7 @@ function fix(rule: ContrastRule): void {
             class="flex items-center justify-between gap-2 py-2 text-sm"
           >
             <span class="min-w-0">
-              {{ t(`rule.${outcome.rule.id}`) }}
+              {{ contrastRuleLabel(outcome.rule.id) }}
               <span class="text-muted">{{ t('contrast.ratio', { ratio: outcome.ratio.toFixed(2), min: outcome.rule.min }) }}</span>
             </span>
             <span class="flex shrink-0 items-center gap-2">
@@ -323,17 +324,6 @@ el:
     blocks: Εμποδίζει τη δημοσίευση
     warns: Χαμηλή
     fix: Διόρθωση
-  rule:
-    body-text-light: Κείμενο, φωτεινό
-    body-text-dark: Κείμενο, σκούρο
-    muted-text-light: Δευτερεύον κείμενο, φωτεινό
-    muted-text-dark: Δευτερεύον κείμενο, σκούρο
-    action-light: Κουμπιά, φωτεινό
-    action-dark: Κουμπιά, σκούρο
-    accent-light: Έμφαση, φωτεινό
-    accent-dark: Έμφαση, σκούρο
-    accent-muted-light: Έμφαση σε απαλό φόντο, φωτεινό
-    accent-muted-dark: Έμφαση σε απαλό φόντο, σκούρο
 en:
   missing:
     title: The theme is not set up yet
@@ -402,15 +392,4 @@ en:
     blocks: Blocks publishing
     warns: Low
     fix: Fix
-  rule:
-    body-text-light: Text, light
-    body-text-dark: Text, dark
-    muted-text-light: Secondary text, light
-    muted-text-dark: Secondary text, dark
-    action-light: Buttons, light
-    action-dark: Buttons, dark
-    accent-light: Accent, light
-    accent-dark: Accent, dark
-    accent-muted-light: Accent on the muted ground, light
-    accent-muted-dark: Accent on the muted ground, dark
 </i18n>

@@ -997,7 +997,7 @@ describe('editing the structure of a page', () => {
         expect(boxes[boxes.length - 1]!.hasAttribute('data-disabled')).toBe(true)
       })
 
-      it('is scheduled for a time with the page, and listed by its name among the publishes to come', async () => {
+      it('is scheduled for a time on its own, the page having no changes, and listed by its name among the publishes to come', async () => {
         setTenant({ schemaName: 'demo' })
         const PENDING = { id: 5, status: 'pending', documents: [BUILDER_THEME_DOCUMENT], scheduledFor: '2026-11-20T08:00:00Z', note: '', scheduledBy: null, executedAt: null, release: null, failure: null, acknowledgedAt: null }
         routes(themeDefaultsFor('volt'), {
@@ -1008,6 +1008,7 @@ describe('editing the structure of a page', () => {
         const wrapper = await open()
 
         await openPublish(wrapper)
+        expect(entries().map(([, checked]) => checked)).toEqual(['false', 'false', 'false', 'true'])
         expect(document.querySelector('[role="dialog"] section')?.textContent).toContain(THEME_LABEL)
         ;[...document.querySelectorAll<HTMLElement>('[role="dialog"] [role="radio"]')].find(radio => radio.closest('[data-slot="item"]')?.textContent?.includes('Σε συγκεκριμένη ώρα'))!.click()
         await flushPromises()
@@ -1022,7 +1023,7 @@ describe('editing the structure of a page', () => {
       // webside's design keeps its body text readable: a failing error rule
       // is Django's refusal (`insufficient_contrast`), which holds the
       // publish and leads to the rule in the theme panel.
-      it('lists Django\'s refusal of a failing error rule, holds the publish, and leads to the rule', async () => {
+      it('lists Django\'s refusal of a failing error rule when the theme alone is picked, holds the publish, and leads to the rule', async () => {
         setTenant({ schemaName: 'webside' })
         const problem = { document: BUILDER_THEME_DOCUMENT, path: '/settings/colors/light/neutral/scale/700', code: 'insufficient_contrast', message: 'Η αντίθεση του κειμένου είναι 2.1:1, χρειάζεται 4.5:1.', params: { rule: 'body-text-light', ratio: '2.1', min: '4.5' } }
         routes(themeDefaultsFor(null), { [CHECK_URL]: { ok: false, changed: [BUILDER_THEME_DOCUMENT], problems: [problem] } })
@@ -1030,6 +1031,7 @@ describe('editing the structure of a page', () => {
 
         await openPublish(wrapper)
         await vi.waitFor(() => expect(document.body.textContent).toContain(`${THEME_LABEL}: ${problem.message}`))
+        expect(entries().map(([, checked]) => checked)).toEqual(['false', 'false', 'false', 'true'])
         expect(dialogButton('Δημοσίευση τώρα').disabled).toBe(true)
         dialogButton('Εμφάνιση').click()
 
@@ -1038,8 +1040,9 @@ describe('editing the structure of a page', () => {
         expect(api.callsTo(PUBLISH_URL)).toHaveLength(0)
       })
 
-      // Volt's accent on its white page: a warning rule, the editor's only.
-      it('shows a failing warning rule at publish, leads to it, and does not hold the publish', async () => {
+      // Volt's accent on its white page and on its muted ground: warning
+      // rules, the editor's only.
+      it('shows the failing warning rules at publish by name, and does not hold the publish', async () => {
         setTenant({ schemaName: 'demo' })
         const pale = themeDefaultsFor('volt')
         pale.colors.light.accent = '#ffff00'
@@ -1047,7 +1050,9 @@ describe('editing the structure of a page', () => {
         const wrapper = await open()
 
         await openPublish(wrapper)
-        expect(document.body.textContent).toContain('Ένα ζεύγος χρωμάτων του θέματος έχει λιγότερη αντίθεση από την προτεινόμενη')
+        expect(document.body.textContent).toContain('2 ζεύγη χρωμάτων του θέματος έχουν λιγότερη αντίθεση από την προτεινόμενη')
+        expect(document.body.textContent).toContain('Έμφαση, φωτεινό')
+        expect(document.body.textContent).toContain('Έμφαση σε απαλό φόντο, φωτεινό')
         await vi.waitFor(() => expect(dialogButton('Δημοσίευση τώρα').disabled).toBe(false))
         dialogButton('Δημοσίευση τώρα').click()
         await vi.waitFor(() => expect(api.callsTo(PUBLISH_URL)).toHaveLength(1))
@@ -1066,10 +1071,12 @@ describe('editing the structure of a page', () => {
         boxes[boxes.length - 1]!.click()
         await flushPromises()
 
-        expect(document.body.textContent).not.toContain('Ένα ζεύγος χρωμάτων του θέματος')
+        expect(document.body.textContent).not.toContain('χρωμάτων του θέματος')
       })
 
-      it('leads from the warning to its rule in the theme panel', async () => {
+      // The pale accent fails on the page and on the muted ground: the second
+      // warning's Show leads to the second rule, not the first.
+      it('leads from each warning to its own rule in the theme panel', async () => {
         setTenant({ schemaName: 'demo' })
         const pale = themeDefaultsFor('volt')
         pale.colors.light.accent = '#ffff00'
@@ -1077,10 +1084,37 @@ describe('editing the structure of a page', () => {
         const wrapper = await openInPage()
 
         await openPublish(wrapper)
-        dialogButton('Εμφάνιση').click()
+        const shows = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] li button')]
+        await vi.waitFor(() => expect(shows()).toHaveLength(2))
+        shows()[1]!.click()
 
         await vi.waitFor(() => expect(useRoute().query.panel).toBe('theme'))
-        await vi.waitFor(() => expect(document.activeElement?.id).toBe('theme-rule-accent-light'))
+        await vi.waitFor(() => expect(document.activeElement?.id).toBe('theme-rule-accent-muted-light'))
+      })
+
+      // The accent on the muted ground (the newsletter band's heading): an
+      // accent that clears 3:1 on the page and not there, as in
+      // `documentRoots.spec.ts`. The warning counts and names that rule
+      // alone, and leads to it.
+      it.each([
+        ['webside', null, 'dark', '#606060', 'accent-muted-dark', 'Έμφαση σε απαλό φόντο, σκούρο'],
+        ['demo', 'volt', 'light', '#949494', 'accent-muted-light', 'Έμφαση σε απαλό φόντο, φωτεινό'],
+      ] as const)('names the muted-ground accent rule on %s', async (schemaName, design, scheme, accent, rule, name) => {
+        setTenant({ schemaName })
+        const theme = themeDefaultsFor(design)
+        theme.colors[scheme].accent = accent
+        routes(theme)
+        const wrapper = await openInPage()
+
+        await openPublish(wrapper)
+        const warning = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"] [data-slot="root"]')].find(alert => alert.textContent?.includes('ζεύγος χρωμάτων'))
+        await vi.waitFor(() => expect(warning()).toBeDefined())
+        expect(warning()!.querySelector('[data-slot="title"]')?.textContent).toBe('Ένα ζεύγος χρωμάτων του θέματος έχει λιγότερη αντίθεση από την προτεινόμενη')
+        expect([...warning()!.querySelectorAll('li')].map(row => row.querySelector('span')?.textContent)).toEqual([name])
+        warning()!.querySelector<HTMLButtonElement>('li button')!.click()
+
+        await vi.waitFor(() => expect(document.activeElement?.id).toBe(`theme-rule-${rule}`))
+        expect(document.getElementById(`theme-rule-${rule}`)?.textContent).toContain(name)
       })
     })
 

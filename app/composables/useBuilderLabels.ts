@@ -65,6 +65,8 @@ export function useBuilderLabels() {
     categoryLabel: (category: (typeof BUILDER_BLOCK_CATEGORIES)[number]) => read(`categories.${category}`),
     /** What a store feature a block needs is called, as it reads after "needs". */
     featureLabel: (feature: StoreFeatureName) => read(`features.${feature}`),
+    /** What a contrast rule of the theme is called, by its id (`themeContrastRulesFor`): the theme panel's rows and the Publish dialog's warning. */
+    contrastRuleLabel: (id: string) => read(`contrastRules.${id}`),
     /** What a page document is called: a page type by its name, a page the store made by its address. */
     documentLabel: (key: string): string => {
       const { kind, name = key } = parseBuilderDocumentKey(key)
