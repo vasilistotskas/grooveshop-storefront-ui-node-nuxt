@@ -45,19 +45,29 @@ type ThemeDesign = StorefrontDesign | null
  *   which fill buttons, links and focus rings, warn against 3:1 on the
  *   background (SC 1.4.11). The text ON them is `--ui-on-*`, picked per
  *   colour (`readableTextOn`), so it needs no rule.
+ * - **Both**: `accent` also warns against 3:1 on the muted ground
+ *   (`--ui-bg-muted`), where a band draws it as large text: the newsletter
+ *   band's accent heading, the showcase hero's accent line (SC 1.4.3, large
+ *   text). The text paints `--ui-secondary-text`: the accent itself on a
+ *   light ground (webside), else the accent mixed away from the ground
+ *   (toward white on a dark one, toward black on Volt's light one), never
+ *   closer to it. A rule names a colour and cannot mix one, so it checks the
+ *   accent, and the text it holds is at least as far from the ground.
  *
  * `test/unit/shared/builder/documentRoots.spec.ts` holds every token a rule
  * names to the stylesheet of its design, so a design that changes its
  * surfaces cannot leave a rule checking what it no longer paints.
  */
 export function themeContrastRulesFor(design: ThemeDesign): readonly ContrastRule[] {
-  const brand = (light: ContrastSide, dark: ContrastSide): ContrastRule[] => [
+  const brand = (light: ContrastSide, dark: ContrastSide, muted: { light: ContrastSide, dark: ContrastSide }): ContrastRule[] => [
     { id: 'action-light', foreground: '/colors/light/action', background: light, min: 3, severity: 'warning' },
     { id: 'action-dark', foreground: '/colors/dark/action', background: dark, min: 3, severity: 'warning' },
     { id: 'accent-light', foreground: '/colors/light/accent', background: light, min: 3, severity: 'warning' },
     { id: 'accent-dark', foreground: '/colors/dark/accent', background: dark, min: 3, severity: 'warning' },
+    { id: 'accent-muted-light', foreground: '/colors/light/accent', background: muted.light, min: 3, severity: 'warning' },
+    { id: 'accent-muted-dark', foreground: '/colors/dark/accent', background: muted.dark, min: 3, severity: 'warning' },
   ]
-  if (design === 'volt') return brand(VOLT_BACKGROUND.light, VOLT_BACKGROUND.dark)
+  if (design === 'volt') return brand(VOLT_BACKGROUND.light, VOLT_BACKGROUND.dark, VOLT_MUTED_BACKGROUND)
   const light = '/colors/light/neutral/scale/50'
   const dark = '/colors/dark/neutral/scale/950'
   return [
@@ -65,12 +75,22 @@ export function themeContrastRulesFor(design: ThemeDesign): readonly ContrastRul
     { id: 'body-text-dark', foreground: '/colors/dark/neutral/scale/200', background: dark, min: 4.5, severity: 'error' },
     { id: 'muted-text-light', foreground: '/colors/light/neutral/scale/500', background: light, min: 4.5, severity: 'warning' },
     { id: 'muted-text-dark', foreground: '/colors/dark/neutral/scale/400', background: dark, min: 4.5, severity: 'warning' },
-    ...brand(light, dark),
+    ...brand(light, dark, MUTED_BACKGROUND),
   ]
 }
 
 /** Groove Volt's page background, light and dark: `--ui-bg` of `[data-design="volt"]`, a design token the theme does not hold. */
 export const VOLT_BACKGROUND = { light: '#ffffff', dark: '#17171a' } as const
+
+/** Groove Volt's muted ground, light and dark: `--ui-bg-muted` of `[data-design="volt"]`, a design token too. */
+export const VOLT_MUTED_BACKGROUND = { light: '#f7f7f5', dark: '#0e0e10' } as const
+
+/**
+ * The muted ground of a store with its own templates: `main.css` paints it
+ * white in the light scheme, a literal no theme changes, and neutral 900 in
+ * the dark, the store's own scale.
+ */
+export const MUTED_BACKGROUND = { light: '#ffffff', dark: '/colors/dark/neutral/scale/900' } as const
 
 /** The theme's root for a design: the one schema, that design's contrast rules and the theme a new store of it starts with. */
 export function themeRootFor(design: ThemeDesign): DocumentRoot {

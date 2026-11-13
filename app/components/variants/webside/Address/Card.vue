@@ -106,7 +106,7 @@ const addressDetails = computed(() => {
     <div class="mb-4 flex items-start justify-between gap-2">
       <h3
         class="
-          text-lg font-bold text-gray-900
+          text-lg font-bold wrap-anywhere text-gray-900
           dark:text-gray-100
         "
       >

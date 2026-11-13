@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
 import { evaluateContrastRules } from '~~/shared/builder/contrastRules'
-import { VOLT_BACKGROUND, builderDocumentRootsFor, themeContrastRulesFor, themeRootFor } from '~~/shared/builder/documentRoots'
+import { MUTED_BACKGROUND, VOLT_BACKGROUND, VOLT_MUTED_BACKGROUND, builderDocumentRootsFor, themeContrastRulesFor, themeRootFor } from '~~/shared/builder/documentRoots'
 import { CONTAINER_MAP, FONT_ALLOWLIST } from '~~/shared/theme/constants'
 import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { zThemeSettings } from '~~/shared/theme/settings'
@@ -135,6 +135,39 @@ describe('themeContrastRulesFor', () => {
   it('compares Volt\'s colours against the background the Volt block paints', () => {
     expect(VOLT_BACKGROUND.light).toBe(volt.light['--ui-bg'])
     expect(VOLT_BACKGROUND.dark).toBe(volt.dark['--ui-bg'])
+  })
+
+  // The accent drawn as large text on the muted ground (the newsletter band's
+  // accent heading, the showcase hero's accent line): held against the muted
+  // ground each design really paints.
+  it('compares the accent against the muted ground each design paints', () => {
+    expect(MUTED_BACKGROUND.light).toBe(base.light['--ui-bg-muted'])
+    expect(base.dark['--ui-bg-muted']).toBe('var(--ui-color-neutral-900)')
+    expect(MUTED_BACKGROUND.dark).toBe('/colors/dark/neutral/scale/900')
+    expect(VOLT_MUTED_BACKGROUND.light).toBe(volt.light['--ui-bg-muted'])
+    expect(VOLT_MUTED_BACKGROUND.dark).toBe(volt.dark['--ui-bg-muted'])
+
+    for (const [design, muted] of [[null, MUTED_BACKGROUND], ['volt', VOLT_MUTED_BACKGROUND]] as const) {
+      const rules = Object.fromEntries(themeContrastRulesFor(design).map(rule => [rule.id, rule]))
+      expect(rules['accent-muted-light']).toEqual({ id: 'accent-muted-light', foreground: '/colors/light/accent', background: muted.light, min: 3, severity: 'warning' })
+      expect(rules['accent-muted-dark']).toEqual({ id: 'accent-muted-dark', foreground: '/colors/dark/accent', background: muted.dark, min: 3, severity: 'warning' })
+    }
+  })
+
+  // An accent that clears 3:1 on the page and not on the muted ground: the
+  // ground the new rules add is the one that catches it. Webside's dark muted
+  // ground (neutral 900) is lighter than its page (950); Volt's light one
+  // (#f7f7f5) is darker than its page (white).
+  it.each([
+    [null, 'dark', '#606060', 'accent-muted-dark'],
+    ['volt', 'light', '#949494', 'accent-muted-light'],
+  ] as const)('warns, for design %s, on a %s accent the muted ground cannot carry', (design, scheme, accent, failing) => {
+    const defaults = themeDefaultsFor(design)
+    const theme = { ...defaults, colors: { ...defaults.colors, [scheme]: { ...defaults.colors[scheme], accent } } }
+
+    const failed = evaluateContrastRules(theme, themeContrastRulesFor(design)).filter(({ pass }) => !pass)
+
+    expect(failed.map(({ rule }) => [rule.id, rule.severity])).toEqual([[failing, 'warning']])
   })
 })
 

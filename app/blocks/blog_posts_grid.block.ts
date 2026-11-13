@@ -6,7 +6,11 @@ export default defineBlock({
   version: 2,
   kinds: ['section'],
   feature: 'blog',
-  schema: z.object(builderField.blogRail(24)),
+  schema: z.object({
+    ...builderField.blogRail(24),
+    /** Below `sm`: a list of compact rows; left out, the row to swipe. From `sm` up the same either way. */
+    phoneLayout: z.enum(['list']).optional(),
+  }),
   translatable: ['/heading', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeBlogRail(3, 24) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { posts: { mode: 'filter', ordering: 'newest', limit: 3 } } }],

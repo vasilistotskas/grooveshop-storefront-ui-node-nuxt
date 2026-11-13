@@ -134,7 +134,7 @@ const formattedTotal = computed(() => {
 
     <div class="flex min-w-0 flex-1 flex-col">
       <div class="min-w-0">
-        <h3 class="text-base font-medium">
+        <h3 class="text-base font-medium wrap-anywhere">
           <Anchor
             :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
             :title="alt"

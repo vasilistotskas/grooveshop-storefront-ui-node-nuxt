@@ -73,7 +73,7 @@ async function makeDefault() {
     :aria-label="address.title"
   >
     <div class="flex items-center justify-between gap-3">
-      <h2 class="font-semibold text-highlighted">
+      <h2 class="font-semibold wrap-anywhere text-highlighted">
         {{ address.title }}
       </h2>
       <UBadge

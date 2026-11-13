@@ -79,6 +79,9 @@ describe('webside Footer/Newsletter', () => {
     const input = wrapper.find('input[type="email"]')
     expect(wrapper.find(`label[for="${input.attributes('id')}"]`).text()).toBe('Διεύθυνση email')
     expect(wrapper.find(`#${input.attributes('aria-describedby')}`).exists()).toBe(true)
+    // Its name is its state key, by which an address typed before the
+    // footer hydrated is kept (`useKeepTypedBeforeHydration`).
+    expect(input.attributes('name')).toBe('email')
   })
 
   it('subscribes a ticked form, then says to check the inbox', async () => {

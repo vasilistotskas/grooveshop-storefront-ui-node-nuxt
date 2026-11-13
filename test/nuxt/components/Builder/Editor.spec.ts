@@ -14,6 +14,10 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import Sortable from 'sortablejs'
 import type { SortableEvent } from 'sortablejs'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
+import publishSource from '~/components/Builder/Publish.vue?raw'
+import conflictSource from '~/components/Builder/ConflictDialog.vue?raw'
+import labels from '~/builder/labels/el.json'
+import { componentTexts } from '~~/test/helpers/componentTexts'
 
 /**
  * The page editor around a signed-in staff member: it opens the page the
@@ -929,6 +933,198 @@ describe('editing the structure of a page', () => {
       expect(document.body.textContent).not.toContain('Προγραμματισμένες δημοσιεύσεις')
     })
 
+    // The theme is a document like the page: every page draws with it, so
+    // it is offered with the page and its groups, picked when it has
+    // changes, and released now or at a time with them.
+    describe('the theme', () => {
+      const THEME_URL = documentUrl(BUILDER_THEME_DOCUMENT)
+      const THEME_LABEL = labels.documents.theme
+      const publishTexts = componentTexts(publishSource, 'Publish.vue')
+      /** The warning's title for `count` failing warning rules, as the dialog words it. */
+      const warningTitle = (count: number) => publishTexts.t('themeWarnings.title', { count }, count)
+      const themeDocument = (settings: ThemeSettings, changed = true) => ({ ...detail(BUILDER_THEME_DOCUMENT, 'theme', { settings, sections: {}, order: [] }), hasUnpublishedChanges: changed })
+      const THEME_CHECK = { ok: true, changed: [BUILDER_THEME_DOCUMENT], problems: [] }
+
+      function routes(settings: ThemeSettings, extra: Record<string, unknown> = {}) {
+        api.routes({
+          '/api/builder/documents': [...LIST, row(BUILDER_THEME_DOCUMENT, 'theme')],
+          [documentUrl('template:home')]: HOME,
+          [documentUrl('group:header')]: HEADER,
+          [documentUrl('group:footer')]: FOOTER,
+          [THEME_URL]: themeDocument(settings),
+          [CHECK_URL]: THEME_CHECK,
+          '/api/builder/presence': NOBODY_ELSE,
+          [SCHEDULES_URL]: NO_SCHEDULES,
+          [PUBLISH_URL]: { ...RELEASE, documents: [{ key: BUILDER_THEME_DOCUMENT, versionNumber: 2, changed: true }] },
+          ...extra,
+        })
+      }
+
+      /** Each entry of "What to publish": its name, and whether it is picked. */
+      const entries = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"] [role="checkbox"]')]
+        .map(box => [box.closest('[data-slot="item"]')?.textContent?.trim().split('Έχει')[0]!.split('Χωρίς')[0]!.trim(), box.getAttribute('aria-checked')])
+
+      afterEach(() => {
+        setTenant()
+      })
+
+      /** The editor in the page itself, so the focus can move into the theme panel. */
+      async function openInPage() {
+        const wrapper = await mountSuspended(framed(session), { route: '/_builder', attachTo: document.body })
+        await vi.waitFor(() => expect(useBuilderEditorStore().status).not.toBe('loading'))
+        await flushPromises()
+        return wrapper
+      }
+
+      it('is offered with the page and its groups, picked when it has changes, and goes live with a publish now', async () => {
+        setTenant({ schemaName: 'demo' })
+        routes(themeDefaultsFor('volt'))
+        const wrapper = await open()
+
+        await openPublish(wrapper)
+        expect(entries().at(-1)).toEqual([THEME_LABEL, 'true'])
+        expect(entries().slice(0, -1).map(([, checked]) => checked)).toEqual(['false', 'false', 'false'])
+        await vi.waitFor(() => expect(dialogButton('Δημοσίευση τώρα').disabled).toBe(false))
+        dialogButton('Δημοσίευση τώρα').click()
+        await vi.waitFor(() => expect(api.callsTo(PUBLISH_URL)).toHaveLength(1))
+
+        expect(api.callsTo(CHECK_URL)[0]!.options).toMatchObject({ body: { documents: [BUILDER_THEME_DOCUMENT] } })
+        expect(api.callsTo(PUBLISH_URL)[0]!.options).toMatchObject({ method: 'POST', body: { documents: [BUILDER_THEME_DOCUMENT] } })
+      })
+
+      it('cannot be picked when it has nothing to publish', async () => {
+        setTenant({ schemaName: 'demo' })
+        routes(themeDefaultsFor('volt'), { [THEME_URL]: themeDocument(themeDefaultsFor('volt'), false) })
+        const wrapper = await open()
+
+        await openPublish(wrapper)
+
+        expect(entries().at(-1)).toEqual([THEME_LABEL, 'false'])
+        const boxes = document.querySelectorAll<HTMLElement>('[role="dialog"] [role="checkbox"]')
+        expect(boxes[boxes.length - 1]!.hasAttribute('data-disabled')).toBe(true)
+      })
+
+      it('is scheduled for a time on its own, the page having no changes, and listed by its name among the publishes to come', async () => {
+        setTenant({ schemaName: 'demo' })
+        const PENDING = { id: 5, status: 'pending', documents: [BUILDER_THEME_DOCUMENT], scheduledFor: '2026-11-20T08:00:00Z', note: '', scheduledBy: null, executedAt: null, release: null, failure: null, acknowledgedAt: null }
+        routes(themeDefaultsFor('volt'), {
+          [SCHEDULES_URL]: (_url: string, options: { method?: string, body: { documents: string[], scheduledFor: string } }) => options.method === 'POST'
+            ? { ...PENDING, id: 6, documents: options.body.documents, scheduledFor: options.body.scheduledFor }
+            : { count: 1, results: [PENDING] },
+        })
+        const wrapper = await open()
+
+        await openPublish(wrapper)
+        expect(entries().map(([, checked]) => checked)).toEqual(['false', 'false', 'false', 'true'])
+        expect(document.querySelector('[role="dialog"] section')?.textContent).toContain(THEME_LABEL)
+        ;[...document.querySelectorAll<HTMLElement>('[role="dialog"] [role="radio"]')].find(radio => radio.closest('[data-slot="item"]')?.textContent?.includes('Σε συγκεκριμένη ώρα'))!.click()
+        await flushPromises()
+        dialogButton('Προγραμματισμός').click()
+        const scheduled = () => api.callsTo(SCHEDULES_URL).filter(call => call.options?.method === 'POST')
+        await vi.waitFor(() => expect(scheduled()).toHaveLength(1))
+
+        expect(scheduled()[0]!.options.body.documents).toEqual([BUILDER_THEME_DOCUMENT])
+        expect(api.callsTo(PUBLISH_URL)).toHaveLength(0)
+      })
+
+      // webside's design keeps its body text readable: a failing error rule
+      // is Django's refusal (`insufficient_contrast`), which holds the
+      // publish and leads to the rule in the theme panel.
+      it('lists Django\'s refusal of a failing error rule when the theme alone is picked, holds the publish, and leads to the rule', async () => {
+        setTenant({ schemaName: 'webside' })
+        const problem = { document: BUILDER_THEME_DOCUMENT, path: '/settings/colors/light/neutral/scale/700', code: 'insufficient_contrast', message: 'Η αντίθεση του κειμένου είναι 2.1:1, χρειάζεται 4.5:1.', params: { rule: 'body-text-light', ratio: '2.1', min: '4.5' } }
+        routes(themeDefaultsFor(null), { [CHECK_URL]: { ok: false, changed: [BUILDER_THEME_DOCUMENT], problems: [problem] } })
+        const wrapper = await openInPage()
+
+        await openPublish(wrapper)
+        await vi.waitFor(() => expect(document.body.textContent).toContain(`${THEME_LABEL}: ${problem.message}`))
+        expect(entries().map(([, checked]) => checked)).toEqual(['false', 'false', 'false', 'true'])
+        expect(dialogButton('Δημοσίευση τώρα').disabled).toBe(true)
+        dialogButton('Εμφάνιση').click()
+
+        await vi.waitFor(() => expect(useRoute().query.panel).toBe('theme'))
+        await vi.waitFor(() => expect(document.activeElement?.id).toBe('theme-rule-body-text-light'))
+        expect(api.callsTo(PUBLISH_URL)).toHaveLength(0)
+      })
+
+      // Volt's accent on its white page and on its muted ground: warning
+      // rules, the editor's only.
+      it('shows the failing warning rules at publish by name, and does not hold the publish', async () => {
+        setTenant({ schemaName: 'demo' })
+        const pale = themeDefaultsFor('volt')
+        pale.colors.light.accent = '#ffff00'
+        routes(pale)
+        const wrapper = await open()
+
+        await openPublish(wrapper)
+        expect(document.body.textContent).toContain(warningTitle(2))
+        expect(document.body.textContent).toContain(labels.contrastRules['accent-light'])
+        expect(document.body.textContent).toContain(labels.contrastRules['accent-muted-light'])
+        await vi.waitFor(() => expect(dialogButton('Δημοσίευση τώρα').disabled).toBe(false))
+        dialogButton('Δημοσίευση τώρα').click()
+        await vi.waitFor(() => expect(api.callsTo(PUBLISH_URL)).toHaveLength(1))
+        expect(api.callsTo(PUBLISH_URL)[0]!.options).toMatchObject({ body: { documents: [BUILDER_THEME_DOCUMENT] } })
+      })
+
+      it('says nothing of the theme\'s contrast while the theme is not picked', async () => {
+        setTenant({ schemaName: 'demo' })
+        const pale = themeDefaultsFor('volt')
+        pale.colors.light.accent = '#ffff00'
+        routes(pale)
+        const wrapper = await open()
+
+        await openPublish(wrapper)
+        const boxes = document.querySelectorAll<HTMLElement>('[role="dialog"] [role="checkbox"]')
+        boxes[boxes.length - 1]!.click()
+        await flushPromises()
+
+        expect(document.body.textContent).not.toContain(publishTexts.t('themeWarnings.description'))
+      })
+
+      // The pale accent fails on the page and on the muted ground: the second
+      // warning's Show leads to the second rule, not the first.
+      it('leads from each warning to its own rule in the theme panel', async () => {
+        setTenant({ schemaName: 'demo' })
+        const pale = themeDefaultsFor('volt')
+        pale.colors.light.accent = '#ffff00'
+        routes(pale)
+        const wrapper = await openInPage()
+
+        await openPublish(wrapper)
+        const shows = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] li button')]
+        await vi.waitFor(() => expect(shows()).toHaveLength(2))
+        shows()[1]!.click()
+
+        await vi.waitFor(() => expect(useRoute().query.panel).toBe('theme'))
+        await vi.waitFor(() => expect(document.activeElement?.id).toBe('theme-rule-accent-muted-light'))
+      })
+
+      // The accent on the muted ground (the newsletter band's heading): an
+      // accent that clears 3:1 on the page and not there, as in
+      // `documentRoots.spec.ts`. The warning counts and names that rule
+      // alone, and leads to it.
+      it.each([
+        ['webside', null, 'dark', '#606060', 'accent-muted-dark'],
+        ['demo', 'volt', 'light', '#949494', 'accent-muted-light'],
+      ] as const)('names the muted-ground accent rule on %s', async (schemaName, design, scheme, accent, rule) => {
+        const name = labels.contrastRules[rule]
+        setTenant({ schemaName })
+        const theme = themeDefaultsFor(design)
+        theme.colors[scheme].accent = accent
+        routes(theme)
+        const wrapper = await openInPage()
+
+        await openPublish(wrapper)
+        const warning = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"] [data-slot="root"]')].find(alert => alert.querySelector('[data-slot="title"]')?.textContent === warningTitle(1))
+        await vi.waitFor(() => expect(warning()).toBeDefined())
+        expect([...warning()!.querySelectorAll('li')].map(row => row.querySelector('span')?.textContent)).toEqual([name])
+        warning()!.querySelector<HTMLButtonElement>('li button')!.click()
+
+        await vi.waitFor(() => expect(document.activeElement?.id).toBe(`theme-rule-${rule}`))
+        expect(document.getElementById(`theme-rule-${rule}`)?.textContent).toContain(name)
+      })
+    })
+
     it('offers STAFF no way to publish', async () => {
       const wrapper = await open(HERO, { ...session, staff: { ...session.staff, role: 'staff' } })
 
@@ -1202,7 +1398,7 @@ describe('editing the structure of a page', () => {
       })
       await button(wrapper, 'Μετακίνηση κάτω').trigger('click')
       await saveNow()
-      await vi.waitFor(() => expect(document.body.textContent).toContain('Η σελίδα αποθηκεύτηκε στο μεταξύ από: Nikos'))
+      await vi.waitFor(() => expect(document.body.textContent).toContain(componentTexts(conflictSource, 'ConflictDialog.vue').t('title', { name: 'Nikos', document: labels.templates.home })))
       return wrapper
     }
 
@@ -1380,6 +1576,36 @@ describe('editing the structure of a page', () => {
 
       expect(colourInput(wrapper, 'Κύριο χρώμα').element.disabled).toBe(true)
       expect(wrapper.get<HTMLButtonElement>('[role="switch"]').element.disabled).toBe(true)
+    })
+
+    // Two people changing the theme: it is saved against the revision it
+    // was read at, like a page, so the second save is refused and that
+    // person is asked which theme to keep, the theme named.
+    it('asks which theme to keep when someone else saved it in between, and loads theirs', async () => {
+      setTenant({ schemaName: 'webside' })
+      routes(themeDefaultsFor(null))
+      const wrapper = await open('/_builder?panel=theme')
+      const theirs = themeDefaultsFor(null)
+      theirs.colors.light.primary = { source: '#7c3aed', scale: themeScaleFrom('#7c3aed') }
+      api.routes({
+        '/api/builder/documents': [...LIST, row(BUILDER_THEME_DOCUMENT, 'theme')],
+        '/api/builder/presence': NOBODY_ELSE,
+        [THEME_URL]: { ...themeDocument(theirs), draftRevision: 6 },
+        [THEME_DRAFT_URL]: failWith(409, { code: 'revision_conflict', detail: 'x', currentRevision: 6, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }),
+      })
+
+      await colourInput(wrapper, 'Κύριο χρώμα').setValue('#16a34a')
+      await saveNow()
+
+      expect(api.callsTo(THEME_DRAFT_URL).at(-1)!.options.headers).toEqual({ 'If-Match': '2' })
+      await vi.waitFor(() => expect(document.body.textContent).toContain(componentTexts(conflictSource, 'ConflictDialog.vue').t('title', { name: 'Nikos', document: labels.documents.theme })))
+      const loadTheirs = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(item => item.textContent?.trim() === 'Φόρτωσε την αποθηκευμένη')
+      await vi.waitFor(() => expect(loadTheirs()?.disabled).toBe(false))
+      loadTheirs()!.click()
+      await flushPromises()
+
+      expect(colourInput(wrapper, 'Κύριο χρώμα').element.value).toBe('#7c3aed')
+      expect(useBuilderAutosaveStore().stateOf(BUILDER_THEME_DOCUMENT)).toBe('saved')
     })
   })
 })

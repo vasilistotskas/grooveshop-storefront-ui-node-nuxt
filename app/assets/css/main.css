@@ -433,6 +433,19 @@
   }
 }
 
+/* One newsletter form a page. A page that draws the newsletter band
+   (`PageSection/NewsletterSignup`, marked `data-newsletter-section` only
+   when it is drawn: feature on, form available) draws no footer form
+   (`data-footer-newsletter`, in both designs). Decided by the server's
+   HTML, not by component state: on the server the footer's async setup
+   runs alongside the page body's, so it cannot know the page's sections
+   before it renders. The first paint has one form, nothing moves, and the
+   server and client markup are the same. A browser without `:has()`
+   shows both, as before. */
+:root:has([data-newsletter-section]) [data-footer-newsletter] {
+  display: none;
+}
+
 /* Mobile scroll polish.
    - ``overscroll-behavior-y: contain`` on the document stops vertical
      overscroll from cascading into pull-to-refresh / browser bounce,

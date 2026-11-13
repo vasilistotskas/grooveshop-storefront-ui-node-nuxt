@@ -131,7 +131,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           lg:gap-x-6
         "
       >
-        <h2 class="grid h-20">
+        <h2 class="grid h-20 wrap-anywhere">
           <Anchor
             :to="{ path: blogPostUrl(post.id, post.slug) }"
             :text="contentShorten(extractTranslated(post, 'title', locale), 0, 39)"

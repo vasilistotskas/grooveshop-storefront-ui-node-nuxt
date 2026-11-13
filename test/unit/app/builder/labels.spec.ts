@@ -4,7 +4,7 @@ import en from '~/builder/labels/en.json'
 import { BUILDER_BLOCK_CATEGORIES, BUILDER_EDITOR_GROUPS } from '~~/shared/constants/builderEditor'
 import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
 import { LINK_ROUTES } from '~~/shared/constants/builder'
-import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
+import { BUILDER_DOCUMENT_ROOTS, themeContrastRulesFor } from '~~/shared/builder/documentRoots'
 import { builderRouteLabelKey, builderSettingsFields, flattenSettingsFields } from '~/utils/builderSettingsFields'
 import { SUPPORTED_LOCALES } from '~~/i18n/locales'
 import type { SupportedLocale } from '~~/i18n/locales'
@@ -101,5 +101,11 @@ describe.each(SUPPORTED_LOCALES)('the editor labels in %s', (locale) => {
   it('name every section group the editor shows, and only those', () => {
     expect(Object.keys(labels.groups).sort()).toEqual([...BUILDER_EDITOR_GROUPS].sort())
     expect(Object.values(labels.groups).every(label => label.trim() !== '')).toBe(true)
+  })
+
+  // The theme panel's rows and the Publish dialog's warning name a rule by its id.
+  it('name every contrast rule of every design, and only those', () => {
+    const ids = ([null, 'volt'] as const).flatMap(design => themeContrastRulesFor(design).map(({ id }) => id))
+    expect(Object.keys(labels.contrastRules).sort()).toEqual([...new Set(ids)].sort())
   })
 })
