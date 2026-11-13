@@ -1,3 +1,10 @@
+## [3.341.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.1...v3.341.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* **search:** one search per design, the results tab that has results, and a closed request answered 499 ([#476](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/476)) ([c221b0a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c221b0a9d6889b07a053e234511aac23687c1a64))
+
 ## [3.341.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.0...v3.341.1) (2026-11-13)
 
 
