@@ -68,6 +68,7 @@ export function useBuilderLabels() {
     /** What a page document is called: a page type by its name, a page the store made by its address. */
     documentLabel: (key: string): string => {
       const { kind, name = key } = parseBuilderDocumentKey(key)
+      if (kind === 'theme') return read('documents.theme')
       return kind === 'template' && isStaticLayoutPageType(name) ? read(`templates.${name}`) : pagePath(name)
     },
     /** What a setting is called, by its path (`prompt.title`): one name per setting, whichever block has it. */

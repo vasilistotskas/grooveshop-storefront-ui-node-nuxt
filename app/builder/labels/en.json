@@ -166,6 +166,9 @@
       "label": "Why microlearning"
     }
   },
+  "documents": {
+    "theme": "Theme: colours, corners, fonts"
+  },
   "groups": {
     "header": "Header, on every page",
     "mobile": "Mobile menu, on every page",

@@ -214,7 +214,9 @@ function fix(rule: ContrastRule): void {
         <ul class="flex flex-col divide-y divide-default">
           <li
             v-for="outcome in outcomes"
+            :id="`theme-rule-${outcome.rule.id}`"
             :key="outcome.rule.id"
+            tabindex="-1"
             class="flex items-center justify-between gap-2 py-2 text-sm"
           >
             <span class="min-w-0">

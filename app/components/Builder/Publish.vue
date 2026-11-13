@@ -3,13 +3,17 @@ import { getLocalTimeZone, now, toCalendarDateTime, toZoned } from '@internation
 import type { CalendarDateTime } from '@internationalized/date'
 
 /**
- * Publishing the page being edited: the page and the section groups drawn
- * around it, released together (Django's `POST builder/publish`, through
+ * Publishing the page being edited: the page, the section groups drawn
+ * around it and the store's theme, which every page draws with, released
+ * together (Django's `POST builder/publish`, through
  * `POST /api/builder/publish`). The staff member picks which of them go
  * live; each one with changes is picked to begin with. Their drafts are
  * saved first (`useBuilderAutosaveStore().settle`), since Django releases
  * what it holds. A refusal lists every problem by document, each with a way
- * to the node it is about. ADMIN and OWNER only: STAFF see no button.
+ * to what it is about: the node, or the theme panel's contrast rule. A
+ * theme rule that only warns (Django refuses the error rules alone) is
+ * listed too, and does not stop the publish. ADMIN and OWNER only: STAFF see
+ * no button.
  *
  * They go live now, or at a time the staff member picks (Django's `POST
  * builder/schedules`): validated and frozen now, released then. The time is
@@ -24,7 +28,8 @@ const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
 const toast = useToast()
 const { notify } = useApiError()
-const { documentKey, openDocument, select } = useBuilderEditorView()
+const { documentKey, openDocument, select, openPanel } = useBuilderEditorView()
+const tenantStore = useTenantStore()
 
 /** How long a note may be, as Django's publish takes it (the generated request schema). */
 const NOTE_MAX_LENGTH = zPublishWriteRequest.shape.note.unwrap().unwrap().maxLength ?? undefined
@@ -52,8 +57,8 @@ let checks = 0
 /** The picks the last check was asked for. */
 let checkedPicks = ''
 
-/** The documents this view publishes: the page, then its groups, as the outline lists them. */
-const keys = computed(() => [documentKey.value, ...store.groups.map(({ key }) => key)].filter(key => store.opened[key]))
+/** The documents this view publishes: the page, then its groups, as the outline lists them, then the theme. */
+const keys = computed(() => [documentKey.value, ...store.groups.map(({ key }) => key), BUILDER_THEME_DOCUMENT].filter(key => store.opened[key]))
 
 /** Whether a document has anything to publish: changes Django holds as unpublished, or changes not saved yet. */
 function changed(key: string): boolean {
@@ -67,6 +72,20 @@ function labelOf(key: string): string {
   const group = store.groups.find(entry => entry.key === key)?.group
   return group ? groupLabel(group) : documentLabel(key)
 }
+
+/**
+ * The theme's contrast rules that fail as warnings, while the theme is
+ * picked: shown at publish, never in its way. Django refuses only a failing
+ * error rule (`insufficient_contrast`, among the problems); a warning is
+ * the editor's, measured on the working copy as the theme panel does.
+ */
+const themeWarnings = computed(() => {
+  if (!picked.value.includes(BUILDER_THEME_DOCUMENT)) return []
+  const settings = zThemeSettings.safeParse(store.theme?.copy.draft.settings)
+  if (!settings.success) return []
+  return evaluateContrastRules(settings.data, themeContrastRulesFor(resolveDesign(tenantStore.schemaName)))
+    .filter(outcome => !outcome.pass && outcome.rule.severity === 'warning')
+})
 
 const items = computed(() => keys.value.map(key => ({
   value: key,
@@ -228,8 +247,39 @@ async function acknowledge(schedule: Schedule): Promise<void> {
   }
 }
 
-/** Takes the staff member to the node a problem is about: its document, and the node selected. */
-async function show(problem: Pick<PublishProblem, 'document' | 'path'>): Promise<void> {
+/** Whether a problem has somewhere to be shown: the theme panel's rule, or a node. */
+const showable = (problem: PublishProblem) => problem.document === BUILDER_THEME_DOCUMENT || Boolean(builderProblemNodeId(problem.path))
+
+/** The element the focus goes to once the dialog has closed, in place of the Publish button. */
+let focusAfterClose: string | undefined
+
+/**
+ * The dialog gives the focus back to the Publish button as it closes;
+ * where it was closed to show something, the focus goes there instead.
+ */
+function onCloseAutoFocus(event: Event): void {
+  const target = focusAfterClose ? window.document.getElementById(focusAfterClose) : null
+  focusAfterClose = undefined
+  if (!target) return
+  event.preventDefault()
+  target.scrollIntoView({ block: 'center' })
+  target.focus()
+}
+
+/**
+ * Takes the staff member to a rule of the theme panel (`rule`, the id
+ * Django names in the problem's params, `ThemePanel`'s `theme-rule-<id>`):
+ * the panel opens and the rule takes the focus.
+ */
+async function showThemeRule(rule?: string): Promise<void> {
+  focusAfterClose = rule ? `theme-rule-${rule}` : undefined
+  await openPanel('theme')
+  open.value = false
+}
+
+/** Takes the staff member to what a problem is about: its document, and the node selected; a theme problem, to its rule. */
+async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'>): Promise<void> {
+  if (problem.document === BUILDER_THEME_DOCUMENT) return showThemeRule(problem.params?.rule)
   const key = problem.document ?? documentKey.value
   const nodeId = builderProblemNodeId(problem.path)
   open.value = false
@@ -257,6 +307,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path'>): Promise
       v-model:open="open"
       :title="t('title')"
       :description="t('description')"
+      :content="{ onCloseAutoFocus }"
     >
       <template #body>
         <form
@@ -334,7 +385,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path'>): Promise
                     >{{ labelOf(problem.document) }}: </span>{{ problem.message }}
                   </span>
                   <UButton
-                    v-if="builderProblemNodeId(problem.path)"
+                    v-if="showable(problem)"
                     color="error"
                     variant="link"
                     size="xs"
@@ -346,6 +397,15 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path'>): Promise
               </ul>
             </template>
           </UAlert>
+          <UAlert
+            v-if="themeWarnings.length"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-contrast"
+            :title="t('themeWarnings.title', { count: themeWarnings.length }, themeWarnings.length)"
+            :description="t('themeWarnings.description')"
+            :actions="[{ label: t('show'), color: 'warning', variant: 'link', size: 'xs', onClick: () => showThemeRule(themeWarnings[0]?.rule.id) }]"
+          />
         </form>
         <section
           v-if="failed.length || pending.length"
@@ -449,6 +509,9 @@ el:
     description: "Δεν δημοσιεύτηκε τίποτα. Αποθηκεύστε πρώτα: {documents}."
   problems: "Ένα πρόβλημα πρέπει να διορθωθεί πρώτα | {count} προβλήματα πρέπει να διορθωθούν πρώτα"
   show: Εμφάνιση
+  themeWarnings:
+    title: "Ένα ζεύγος χρωμάτων του θέματος έχει λιγότερη αντίθεση από την προτεινόμενη | {count} ζεύγη χρωμάτων του θέματος έχουν λιγότερη αντίθεση από την προτεινόμενη"
+    description: Δεν εμποδίζει τη δημοσίευση· κάποιοι πελάτες ίσως διαβάζουν δύσκολα.
   failed: Η δημοσίευση δεν έγινε
   checkFailed: Ο έλεγχος πριν από τη δημοσίευση δεν έγινε
   cancel: Άκυρο
@@ -491,6 +554,9 @@ en:
     description: "Nothing was published. Save these first: {documents}."
   problems: "One problem must be fixed first | {count} problems must be fixed first"
   show: Show
+  themeWarnings:
+    title: "One colour pair of the theme has less contrast than recommended | {count} colour pairs of the theme have less contrast than recommended"
+    description: It does not stop the publish; some shoppers may find them hard to read.
   failed: Publishing didn't work
   checkFailed: The check before publishing didn't work
   cancel: Cancel
