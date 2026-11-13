@@ -1,5 +1,5 @@
 {
-  "hash": "fd5501d5240527a5",
+  "hash": "213fe25d54a00224",
   "blocks": [
     {
       "type": "about_content",
@@ -6742,7 +6742,7 @@
             "minimum": 1,
             "maximum": 24
           },
-          "categories": {
+          "categoryTile": {
             "oneOf": [
               {
                 "type": "object",
@@ -6825,7 +6825,7 @@
           "onEmpty": "hide",
           "maxLimit": 24
         },
-        "/categories": {
+        "/categoryTile": {
           "field": "query",
           "source": "category",
           "onEmpty": "empty",

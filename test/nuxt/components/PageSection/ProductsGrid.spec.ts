@@ -120,7 +120,7 @@ describe('PageSection/ProductsGrid: phone limit and category tile', () => {
 
   it('ends the grid with a tile of the categories on a desk', async () => {
     const wrapper = await mountGrid({
-      categories: { status: 'ok', descriptor: { mode: 'roots', limit: 4 }, items: [makeProductCategory({ id: 5, slug: 'power-bank', recursiveProductCount: 2 })] },
+      categoryTile: { status: 'ok', descriptor: { mode: 'roots', limit: 4 }, items: [makeProductCategory({ id: 5, slug: 'power-bank', recursiveProductCount: 2 })] },
     })
 
     const tile = wrapper.get('li.border-dashed')

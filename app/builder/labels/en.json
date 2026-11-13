@@ -242,6 +242,10 @@
     "categories": {
       "label": "What it lists"
     },
+    "categoryTile": {
+      "label": "Category tile",
+      "help": "A last tile in the grid listing the shop's categories and how many products each holds, on a computer. Empty: no tile."
+    },
     "colorScheme": {
       "label": "Colour scheme",
       "help": "Light or dark in both of the page's colour modes. Default: as the page."

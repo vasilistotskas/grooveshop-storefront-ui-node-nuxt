@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<{
   /** How many of the products a phone shows, the first ones; all of them when unset. */
   phoneLimit?: number
   /** The categories a last tile of the grid lists, on a desk (`PageSection/ProductsCategoryTile`). */
-  categories?: ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
+  categoryTile?: ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
   /** The band's bold look (`PageSection/BandBold`): on a phone its link is a button under the grid. */
   look?: 'bold'
   /** What the band lists: the products, and the rule or hand-picked list they came from. */
@@ -52,7 +52,7 @@ const linkTo = useLinkTo()
 /** The attribute that hides a product past the phone's limit below `sm` (`main.css`); none within it. */
 const phoneHidden = (index: number): '' | undefined => (props.phoneLimit !== undefined && index >= props.phoneLimit ? '' : undefined)
 
-const categoryItems = computed(() => props.categories?.items ?? [])
+const categoryItems = computed(() => props.categoryTile?.items ?? [])
 
 const label = computed(
   () => props.heading || t(`heading.${productRailKind(props.products.descriptor)}`),

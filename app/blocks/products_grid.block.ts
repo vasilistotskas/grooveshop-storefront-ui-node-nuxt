@@ -14,7 +14,7 @@ export default defineBlock({
     /** How many of the products a phone shows, the first ones; left out, all of them. */
     phoneLimit: builderField.integer(1, 24).optional(),
     /** The categories a last tile of the grid lists, on a desk; left out, no tile. */
-    categories: builderField.query('category', { onEmpty: 'empty', maxLimit: 12 }).optional(),
+    categoryTile: builderField.query('category', { onEmpty: 'empty', maxLimit: 12 }).optional(),
     /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
     look: z.enum(['bold']).optional(),
   }),
