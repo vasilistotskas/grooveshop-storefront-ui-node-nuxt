@@ -1,5 +1,5 @@
 {
-  "hash": "b61ee2f176cae3ed",
+  "hash": "fd5501d5240527a5",
   "blocks": [
     {
       "type": "about_content",
@@ -255,6 +255,12 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -920,6 +926,12 @@
             "type": "string",
             "maxLength": 100,
             "pattern": "^i-[a-z0-9:-]+$"
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -4222,6 +4234,12 @@
               "light",
               "dark"
             ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "additionalProperties": false
@@ -5725,6 +5743,12 @@
             "enum": [
               "accent"
             ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "additionalProperties": false
@@ -6771,6 +6795,12 @@
               "onEmpty": "empty",
               "maxLimit": 12
             }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [

@@ -29,23 +29,56 @@ defineSlots<{
 }>()
 
 const runs = computed(() => sectionRuns(props.sections))
-
+const hasBands = computed(() => runs.value.some(run => run.bands))
+const opensWithBand = computed(() => runs.value[0]?.bands === true)
 /** What the page carries after its sections closes the last framed run, or a frame of its own after a band. */
-const afterOwnFrame = computed(() => !runs.value.length || runs.value.at(-1)!.bands)
+const endsWithBand = computed(() => runs.value.at(-1)?.bands === true)
 </script>
 
 <template>
-  <div>
+  <!-- No section draws its own band: the frame as it always was. -->
+  <WebsidePageWrapper v-if="!hasBands">
     <slot name="title" />
+    <section
+      class="
+        grid grid-cols-1 gap-4 pt-4
+        md:flex md:flex-col md:gap-8
+      "
+    >
+      <div
+        class="
+          grid grid-cols-1 gap-4
+          md:gap-8
+        "
+      >
+        <PageSectionRenderer
+          v-for="section in sections"
+          :key="section.id"
+          :section="section"
+        />
+      </div>
+      <slot name="after" />
+    </section>
+  </WebsidePageWrapper>
+  <div v-else>
+    <!-- The page's title keeps the store's measure: in the first frame,
+         or in a container of its own above a band. -->
+    <UContainer v-if="opensWithBand">
+      <slot name="title" />
+    </UContainer>
     <template
       v-for="(run, index) in runs"
-      :key="run.sections[0]!.id"
+      :key="run.key"
     >
       <WebsidePageBandRun
         v-if="run.bands"
         :sections="run.sections"
       />
       <WebsidePageWrapper v-else>
+        <slot
+          v-if="index === 0"
+          name="title"
+        />
         <section
           class="
             grid grid-cols-1 gap-4 pt-4
@@ -71,7 +104,7 @@ const afterOwnFrame = computed(() => !runs.value.length || runs.value.at(-1)!.ba
         </section>
       </WebsidePageWrapper>
     </template>
-    <WebsidePageWrapper v-if="afterOwnFrame && $slots.after">
+    <WebsidePageWrapper v-if="endsWithBand && $slots.after">
       <section
         class="
           grid grid-cols-1 gap-4 pt-4

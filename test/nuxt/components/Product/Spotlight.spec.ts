@@ -24,7 +24,7 @@ const stub = vi.hoisted(() => (part: string, props: string[]) => ({
   },
 }))
 vi.mock('~/components/Button/Product/AddToCart.vue', () => stub('default-cart', ['product', 'text', 'label']))
-vi.mock('~/components/variants/webside/Button/Product/AddToCart.vue', () => stub('webside-cart', ['product', 'text']))
+vi.mock('~/components/variants/webside/Button/Product/AddToCart.vue', () => stub('webside-cart', ['product', 'text', 'leadingIcon']))
 vi.mock('~/components/Product/RestockAlert.vue', () => stub('default-restock', ['productId', 'productName', 'productImage']))
 vi.mock('~/components/variants/webside/Product/NotifyMe.vue', () => stub('webside-restock', ['productId', 'kind']))
 
@@ -89,8 +89,7 @@ describe('Product/Spotlight', () => {
 
       expect(name).toBe('default-cart')
       // Only the class that makes it a 44px target on a phone; no prop it does not declare.
-      expect(attrs).toEqual({ class: expect.any(String) })
-      expect(String(attrs.class).split(/\s+/)).toEqual(['min-h-11', 'sm:min-h-0'])
+      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
       expect(props).toMatchObject({ text: t('add_named', { name: NAME }), label: t('add_to_cart') })
       expect((props.product as { id: number }).id).toBe(7)
     })
@@ -147,11 +146,8 @@ describe('Product/Spotlight', () => {
       const { name, props, attrs } = await part(await mountSpotlight())
 
       expect(name).toBe('webside-cart')
-      // Only classes, no prop it does not declare: a 48px target at every
-      // width, its icon alone in a 48px square on a phone (the label kept
-      // for a screen reader), the price beside it.
-      expect(attrs).toEqual({ class: expect.any(String) })
-      expect(String(attrs.class).split(/\s+/)).toEqual(expect.arrayContaining(['min-h-12', 'max-sm:size-12', 'max-sm:*:data-[slot=label]:sr-only']))
+      // Only the class that makes it a 44px target on a phone; no prop it does not declare.
+      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
       expect(props).toMatchObject({ text: t('add_to_cart') })
     })
 
@@ -184,5 +180,37 @@ describe('Product/Spotlight', () => {
     await flushPromises()
 
     expect(wrapper.find('[data-test="part"]').exists()).toBe(false)
+  })
+
+  /**
+   * The bold look (`look: 'bold'`, `Product/SpotlightBold`): one line of
+   * rating (one star, the figure, the count in brackets) and stock in its
+   * status colour, the price beside the store's button at every width, the
+   * button's icon before its label and alone on a phone. The classes are the
+   * contract; the browser is the real check.
+   */
+  describe('in its bold look', () => {
+    beforeEach(() => {
+      setTenant({ schemaName: 'webside' })
+      setTenantFeatures({ cart: true, productReviews: true, productAlerts: true })
+    })
+
+    it('quotes the rating with one star and the count in brackets, beside the stock in words', async () => {
+      const wrapper = await mountSpotlight({ look: 'bold' })
+
+      const rating = wrapper.get('[role="img"]')
+      expect(rating.text().replace(/\s+/g, ' ')).toBe('4,5 (3 κριτικές)')
+      expect(rating.classes()).toContain('max-sm:hidden')
+      expect(wrapper.find('.text-success').text()).toBe(t('in_stock'))
+    })
+
+    it('buys with the button of the store beside the price, its icon first, the icon alone on a phone', async () => {
+      const { name, props, attrs, besidePrice } = await part(await mountSpotlight({ look: 'bold' }))
+
+      expect(name).toBe('webside-cart')
+      expect(props).toEqual({ product: expect.objectContaining({ id: 7 }), text: 'Στο καλάθι', leadingIcon: true })
+      expect(String(attrs.class).split(/\s+/)).toEqual(expect.arrayContaining(['min-h-12', 'max-sm:size-12', 'max-sm:*:data-[slot=label]:sr-only']))
+      expect(besidePrice).toBe(true)
+    })
   })
 })

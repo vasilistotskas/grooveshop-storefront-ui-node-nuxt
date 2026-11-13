@@ -115,7 +115,7 @@ describe('PageSection/ProductsGrid: phone limit and category tile', () => {
   it('hides the products past the phone\'s limit below sm only', async () => {
     const wrapper = await mountGrid({ products: products([1, 2, 3]), phoneLimit: 2 })
 
-    expect(wrapper.findAll('[data-product]').map(card => card.classes().includes('max-sm:hidden'))).toEqual([false, false, true])
+    expect(wrapper.findAll('[data-product]').map(card => card.attributes('data-phone-hidden') !== undefined)).toEqual([false, false, true])
   })
 
   it('ends the grid with a tile of the categories on a desk', async () => {

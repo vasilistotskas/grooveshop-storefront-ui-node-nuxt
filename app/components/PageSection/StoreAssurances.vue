@@ -54,7 +54,7 @@ const DESK_COLUMNS = [
         class="
           grid grid-cols-2 gap-2
           lg:gap-1 lg:rounded-xl lg:border lg:border-default lg:bg-default
-          lg:p-2 lg:shadow-[0_8px_24px_rgb(0_0_0/0.06)]
+          lg:p-2 lg:shadow-(--ds-raised-shadow)
         "
         :class="DESK_COLUMNS[Math.min(rows.length, DESK_COLUMNS.length) - 1]"
       >
@@ -71,7 +71,7 @@ const DESK_COLUMNS = [
           <span
             class="
               grid size-9 shrink-0 place-items-center rounded-lg
-              bg-(--ui-secondary-soft) text-accent
+              bg-(--ds-accent-tint) text-accent
               lg:size-11
             "
           >

@@ -324,6 +324,7 @@ const onFavouriteDelete = () => emit('favourite-delete')
           :quantity="1"
           :text="`${t('add_to_cart')}: ${productName}`"
           :label="t('add_to_cart')"
+          leading-icon
           size="lg"
           class="
             ml-auto min-h-11 w-auto shrink-0 px-3.5 text-sm font-semibold

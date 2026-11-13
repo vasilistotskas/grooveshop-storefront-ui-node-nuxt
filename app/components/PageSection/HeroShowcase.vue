@@ -23,6 +23,10 @@
  * `colorScheme` is the band's: `dark` and `light` hold it in both
  * page modes; without one it follows the page. A store without a catalogue gets
  * no search and no product; one without a cart, no buy button.
+ *
+ * `look: 'bold'` draws the same parts as `PageSection/HeroShowcaseBold`;
+ * left out, this one, as it always was. Both read the settings through
+ * `useHeroShowcase`.
  */
 const props = withDefaults(defineProps<{
   eyebrow?: string
@@ -36,7 +40,7 @@ const props = withDefaults(defineProps<{
   imageDecorative?: boolean
   imageLink?: string
   showSearch?: boolean
-  /** The search field's own question. */
+  /** The search field's own question, in place of the store search's wording. */
   searchPlaceholder?: string
   ctaText?: string
   ctaLink?: string
@@ -45,6 +49,8 @@ const props = withDefaults(defineProps<{
   product?: ResolvedRef<ProductCard>
   showAddToCart?: boolean
   colorScheme?: SectionColorScheme
+  /** `bold`: the heavier, centred look (`PageSection/HeroShowcaseBold`). */
+  look?: 'bold'
 }>(), {
   showSearch: false,
   showAddToCart: true,
@@ -52,188 +58,30 @@ const props = withDefaults(defineProps<{
 
 const linkTo = useLinkTo()
 const leadsPage = useLeadsPage()
-const { isMobileOrTablet } = useDevice()
-const catalogueEnabled = useStoreFeature('catalogue')
 
-/** The picture a hero shows on this device, with the size a media asset carries, so its box is reserved before it loads. */
-const shown = computed(() => {
-  const image = heroImage(props, isMobileOrTablet.value)
-  return image?.width && image.height ? { ...image, width: image.width, height: image.height } : undefined
-})
-
-const headingText = computed(() => [props.heading, props.headingAccent].filter(Boolean).join(' '))
-
-const alt = computed(() => heroImageAlt(props, shown.value, headingText.value))
-
-/**
- * What the picture's link is called: the picture's description, else the
- * heading, decorative or not. A decorative picture keeps `alt=""` and names
- * its link with `aria-label` instead. With neither a description nor a
- * heading the link would have no name (WCAG 2.4.4, 4.1.2), so the picture is
- * then not a link.
- */
-const linkName = computed(() => heroImageAlt({ ...props, imageDecorative: false }, shown.value, headingText.value))
-const pictureLink = computed(() => (props.imageLink && linkName.value ? props.imageLink : undefined))
-
-const spotlight = computed(() =>
-  catalogueEnabled.value && props.product?.status === 'ok' ? props.product.value : undefined,
-)
-
-const search = computed(() => props.showSearch && catalogueEnabled.value)
-
-const buttons = computed(() => [
-  props.ctaText && props.ctaLink
-    ? { label: props.ctaText, to: linkTo(props.ctaLink), variant: 'solid' as const }
-    : null,
-  props.secondaryCtaText && props.secondaryCtaLink
-    ? { label: props.secondaryCtaText, to: linkTo(props.secondaryCtaLink), variant: 'outline' as const }
-    : null,
-].filter(button => button !== null))
-
-const hasHeading = computed(() => !!(props.heading || props.headingAccent))
-const hasCopy = computed(() => hasHeading.value || !!props.eyebrow || !!props.subheading)
-
-/** The right-hand column exists only when it holds something. */
-const twoColumns = computed(() => !!shown.value || !!spotlight.value)
-
-/** A hero with nothing to show is not a band. */
-const hasContent = computed(() => hasCopy.value || twoColumns.value || search.value || buttons.value.length > 0)
+const { shown, alt, linkName, pictureLink, spotlight, search, buttons, hasHeading, hasCopy, twoColumns, hasContent }
+  = useHeroShowcase(props)
 
 /**
  * Resolved here rather than named as a string in `:is`: a string that is
  * not a native tag renders as an unknown element (`PageSection/Band.vue`).
+ * In the component, where Nuxt's component transform resolves it.
  */
 const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtLink') : 'div'))
-
-/**
- * Each part's classes in the design the store is drawn in. Groove Volt keeps
- * its own; the base design (a store with its own templates, webside) draws
- * the board it was designed on: a heavier, tighter heading, the copy centred
- * against the picture and the product on a desk (the grid's two `1fr` rows
- * above and below the copy take up the difference), a white search field
- * with its button, and 48px buttons with the main one in the accent's deep
- * shade. The grid places every part, so the order a phone reads them in is
- * the markup's in both designs.
- */
-const VOLT_LOOK = {
-  section: 'bg-muted',
-  grid: `
-    gap-6 py-12
-    lg:gap-x-12 lg:gap-y-0 lg:py-22
-  `,
-  twoColumns: `
-    lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]
-    lg:grid-rows-[auto_auto_auto_1fr]
-  `,
-  copy: `
-    flex flex-col gap-4
-    lg:col-start-1 lg:row-start-1 lg:self-end
-  `,
-  heading: `
-    max-w-3xl font-display text-4xl font-semibold tracking-tight text-balance
-    wrap-break-word text-highlighted
-    md:text-5xl
-    lg:text-6xl
-  `,
-  subheading: `
-    max-w-2xl text-base text-pretty text-muted
-    md:text-lg
-  `,
-  picture: `
-    block overflow-hidden rounded-lg border border-default
-    lg:col-start-2 lg:row-start-1 lg:self-end
-  `,
-  search: `
-    w-full max-w-2xl
-    lg:col-start-1 lg:row-start-2 lg:mt-7
-  `,
-  searchScheme: '',
-  searchSize: 'md' as 'md' | 'lg',
-  buttons: `
-    flex gap-2
-    sm:flex-wrap sm:gap-3
-    lg:col-start-1 lg:row-start-3 lg:mt-6 lg:self-start
-  `,
-  button: `
-    min-h-12 min-w-0 flex-1 justify-center
-    max-sm:px-2 max-sm:text-sm
-    sm:min-h-0 sm:flex-none
-  `,
-  mainButton: '',
-  secondButton: '',
-  arrow: false,
-  spotlightWithPicture: 'lg:col-start-2 lg:row-span-3 lg:row-start-2 lg:mt-5 lg:self-start',
-  spotlightAlone: 'lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:self-center',
-}
-
-const OWN_LOOK: typeof VOLT_LOOK = {
-  section: 'bg-default',
-  grid: `
-    gap-4.5 pt-7 pb-6
-    lg:gap-x-12 lg:gap-y-0 lg:pt-18 lg:pb-20
-  `,
-  twoColumns: `
-    lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]
-    lg:grid-rows-[1fr_auto_auto_auto_1fr]
-  `,
-  copy: `
-    flex flex-col gap-4.5
-    lg:col-start-1 lg:row-start-2 lg:gap-6
-  `,
-  heading: `
-    max-w-3xl font-display text-4xl/[1.08] font-extrabold tracking-[-0.02em]
-    text-balance wrap-break-word text-highlighted
-    md:text-5xl/[1.04]
-    lg:text-[3.5rem]/[1.04]
-  `,
-  subheading: `
-    max-w-[32.5rem] text-base/normal text-pretty text-toned
-    md:text-lg/[1.55]
-  `,
-  picture: `
-    block overflow-hidden rounded-lg border border-default
-    lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-end lg:rounded-xl
-    lg:shadow-[0_24px_48px_rgb(0_0_0/0.35)]
-  `,
-  search: `
-    w-full max-w-[35rem]
-    lg:col-start-1 lg:row-start-3 lg:mt-6
-  `,
-  // The field is white on a dark band, as on a light one.
-  searchScheme: 'light',
-  searchSize: 'lg',
-  buttons: `
-    grid grid-cols-2 gap-2
-    sm:flex sm:flex-wrap sm:gap-3
-    lg:col-start-1 lg:row-start-4 lg:mt-6 lg:self-start
-  `,
-  button: `
-    min-h-12 min-w-0 justify-center px-2 text-[0.9375rem]
-    sm:flex-none sm:px-5
-  `,
-  mainButton: `
-    bg-(--ui-secondary-hover) font-bold
-    hover:bg-(--ui-secondary-hover)/90
-  `,
-  secondButton: 'font-semibold text-accent ring-accented',
-  arrow: true,
-  spotlightWithPicture: `
-    mt-1.5
-    lg:col-start-2 lg:row-span-3 lg:row-start-3 lg:mt-4 lg:self-start
-  `,
-  spotlightAlone: 'lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:self-center',
-}
-
-const design = useStorefrontDesign()
-const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
 </script>
 
 <template>
+  <PageSectionHeroShowcaseBold
+    v-if="look === 'bold'"
+    v-bind="props"
+  />
   <section
-    v-if="hasContent"
+    v-else-if="hasContent"
     :class="[
-      `relative isolate w-full bg-(image:--ds-lattice) bg-size-[1.5rem_1.5rem]`,
-      look.section,
+      `
+        relative isolate w-full bg-muted bg-(image:--ds-lattice)
+        bg-size-[1.5rem_1.5rem]
+      `,
       colorSchemeClass(colorScheme),
     ]"
   >
@@ -243,14 +91,22 @@ const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
          heading, and pushed the page sideways); two from `lg`. -->
     <UContainer
       :class="[
-        'grid grid-cols-[minmax(0,1fr)]',
-        look.grid,
-        twoColumns && look.twoColumns,
+        `
+          grid grid-cols-[minmax(0,1fr)] gap-6 py-12
+          lg:gap-x-12 lg:gap-y-0 lg:py-22
+        `,
+        twoColumns && `
+          lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]
+          lg:grid-rows-[auto_auto_auto_1fr]
+        `,
       ]"
     >
       <div
         v-if="hasCopy"
-        :class="look.copy"
+        class="
+          flex flex-col gap-4
+          lg:col-start-1 lg:row-start-1 lg:self-end
+        "
       >
         <!-- Sentence case, as the operator typed it: the eyebrow every
              hero and band uses. -->
@@ -263,7 +119,12 @@ const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
 
         <h1
           v-if="hasHeading"
-          :class="look.heading"
+          class="
+            max-w-3xl font-display text-4xl font-semibold tracking-tight
+            text-balance wrap-break-word text-highlighted
+            md:text-5xl
+            lg:text-6xl
+          "
         >
           {{ heading }}
           <span
@@ -274,7 +135,10 @@ const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
 
         <p
           v-if="subheading"
-          :class="look.subheading"
+          class="
+            max-w-2xl text-base text-pretty text-muted
+            md:text-lg
+          "
         >
           {{ subheading }}
         </p>
@@ -285,7 +149,10 @@ const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
         v-if="shown"
         :to="pictureLink ? linkTo(pictureLink) : undefined"
         :aria-label="pictureLink && !alt ? linkName : undefined"
-        :class="look.picture"
+        class="
+          block overflow-hidden rounded-lg border border-default
+          lg:col-start-2 lg:row-start-1 lg:self-end
+        "
       >
         <ImgWithFallback
           :src="shown.path"
@@ -304,17 +171,21 @@ const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
       <!-- Measured like the search band's field. -->
       <div
         v-if="search"
-        :class="[look.search, look.searchScheme]"
+        class="
+          w-full max-w-2xl
+          lg:col-start-1 lg:row-start-2 lg:mt-7
+        "
       >
-        <SearchInput
-          :placeholder="searchPlaceholder"
-          :size="look.searchSize"
-        />
+        <SearchInput :placeholder="searchPlaceholder" />
       </div>
 
       <div
         v-if="buttons.length"
-        :class="look.buttons"
+        class="
+          flex gap-2
+          sm:flex-wrap sm:gap-3
+          lg:col-start-1 lg:row-start-3 lg:mt-6 lg:self-start
+        "
       >
         <!-- On a phone the two share the row in equal columns, 48px tall
              (a target of at least 44px, WCAG 2.5.5), with the label of
@@ -332,12 +203,11 @@ const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
           :variant="button.variant"
           color="secondary"
           size="xl"
-          :trailing-icon="look.arrow && button.variant === 'solid' ? 'i-lucide-arrow-right' : undefined"
-          :class="[
-            look.button,
-            button.variant === 'solid' ? look.mainButton : look.secondButton,
-          ]"
-          :ui="{ trailingIcon: 'max-sm:hidden' }"
+          class="
+            min-h-12 min-w-0 flex-1 justify-center
+            max-sm:px-2 max-sm:text-sm
+            sm:min-h-0 sm:flex-none
+          "
         >
           <span class="text-center text-balance wrap-break-word">{{ button.label }}</span>
         </UButton>
@@ -347,7 +217,9 @@ const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
         v-if="spotlight"
         :product="spotlight"
         :show-add-to-cart="showAddToCart"
-        :class="shown ? look.spotlightWithPicture : look.spotlightAlone"
+        :class="shown
+          ? `lg:col-start-2 lg:row-span-3 lg:row-start-2 lg:mt-5 lg:self-start`
+          : `lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:self-center`"
       />
     </UContainer>
   </section>

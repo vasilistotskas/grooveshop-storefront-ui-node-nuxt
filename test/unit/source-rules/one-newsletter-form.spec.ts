@@ -15,19 +15,16 @@ const RULE = ':root:has([data-newsletter-section]) [data-footer-newsletter]'
 
 const hasStatic = (node: ElementNode, name: string) => node.props.some(prop => prop.type === 6 && prop.name === name)
 
-/** The template's top-level elements: the component's roots, one per `v-if` branch, and any reusable template defined beside them. */
-function rootsOf(file: string): ElementNode[] {
-  const roots: ElementNode[] = []
+/** The template's first element: the component's root. */
+function rootOf(file: string): ElementNode {
+  let root: ElementNode | undefined
   walkElements(sfcTemplate(resolve(COMPONENTS, file)), (node) => {
-    roots.push(node)
+    root ??= node
     return false
   })
-  if (!roots.length) throw new Error(`${file} has no template root`)
-  return roots
+  if (!root) throw new Error(`${file} has no template root`)
+  return root
 }
-
-/** The template's first element: the component's root. */
-const rootOf = (file: string): ElementNode => rootsOf(file)[0]!
 
 describe('one newsletter form a page', () => {
   it('hides the footer form while the page draws the newsletter band', () => {
@@ -38,13 +35,17 @@ describe('one newsletter form a page', () => {
     expect(css.slice(at, css.indexOf('}', at))).toMatch(/display:\s*none/)
   })
 
-  // Each root that draws the form, in either design's layout of the band:
-  // the band, and the base design's open section.
   it('marks the band, only where it draws its form', () => {
-    const roots = rootsOf('PageSection/NewsletterSignup.vue').filter(node => node.tag !== 'DefineContent')
+    const roots: ElementNode[] = []
+    walkElements(sfcTemplate(resolve(COMPONENTS, 'PageSection/NewsletterSignup.vue')), (node) => {
+      roots.push(node)
+      return false
+    })
 
-    expect(roots.map(node => node.tag)).toEqual(['section', 'PageSectionBand'])
-    for (const root of roots) expect(hasStatic(root, 'data-newsletter-section')).toBe(true)
+    // The bold look is its own component, marked the same way.
+    expect(roots.map(node => node.tag)).toEqual(['PageSectionNewsletterSignupBold', 'PageSectionBand'])
+    expect(roots.filter(node => node.tag === 'PageSectionBand').map(node => hasStatic(node, 'data-newsletter-section'))).toEqual([true])
+    expect(hasStatic(rootOf('PageSection/NewsletterSignupBold.vue'), 'data-newsletter-section')).toBe(true)
   })
 
   // Every place a footer draws its form, in both designs: each form's root,

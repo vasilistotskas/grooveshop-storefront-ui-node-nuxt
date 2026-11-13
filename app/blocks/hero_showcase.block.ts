@@ -29,6 +29,8 @@ export default defineBlock({
     product: builderField.ref('product', { onMissing: 'empty' }).optional(),
     showAddToCart: builderField.boolean().optional(),
     colorScheme: builderField.colorScheme().optional(),
+    /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
+    look: z.enum(['bold']).optional(),
   }),
   translatable: ['/eyebrow', '/heading', '/headingAccent', '/subheading', '/searchPlaceholder', '/ctaText', '/secondaryCtaText'],
   // A section's preset holds no starter text (the house pattern: only child

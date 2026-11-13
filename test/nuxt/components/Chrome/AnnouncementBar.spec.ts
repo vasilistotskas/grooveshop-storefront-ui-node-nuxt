@@ -53,7 +53,7 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
 
     expect(banner.props('title')).toBe('Δωρεάν αποστολή από 50 €')
     expect(banner.props('color')).toBe(tree === 'webside' ? undefined : 'neutral')
-    expect(wrapper.get('.banner').classes().includes('bg-(--ui-secondary-soft)')).toBe(tree === 'webside')
+    expect(wrapper.get('.banner').classes().includes('bg-(--ds-accent-tint)')).toBe(tree === 'webside')
   })
 
   // The classes are the contract: the close button is a 44px target on a
@@ -259,11 +259,25 @@ describe('webside Chrome/AnnouncementBar, its own look', () => {
     expect(wrapper.get('a[href="/info/shipping"]').text()).toBe('Λεπτομέρειες')
   })
 
+  // The classes are the contract, the browser the real check: each link is
+  // 40px tall in the 40px bar, its hit area 2px beyond above and below (44px,
+  // WCAG 2.5.5); happy-dom lays nothing out.
+  it('makes each link a 44px target without growing the bar', async () => {
+    setting.value = bar({ link: '/info/shipping', shortText: 'Δωρεάν αποστολή' })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    const links = wrapper.findAll('a[href="/info/shipping"]')
+    expect(links).toHaveLength(2)
+    for (const link of links) expect(link.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-y-0.5']))
+    expect(links.map(link => link.classes().some(name => name === 'min-h-10' || name === 'leading-10'))).toEqual([true, true])
+  })
+
   it('keeps a colour the operator picked, as a solid fill', async () => {
     setting.value = bar({ color: 'secondary' })
 
     const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
 
-    expect(wrapper.get('.banner').classes()).not.toContain('bg-(--ui-secondary-soft)')
+    expect(wrapper.get('.banner').classes()).not.toContain('bg-(--ds-accent-tint)')
   })
 })

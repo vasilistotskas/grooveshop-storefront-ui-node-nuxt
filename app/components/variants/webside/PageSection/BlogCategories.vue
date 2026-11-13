@@ -16,6 +16,8 @@ const props = defineProps<{
   ctaText?: string
   ctaLink?: string
   layout?: 'slider' | 'tiles'
+  /** `bold`: the tiles' bold look (`PageSection/BlogCategoryTilesBold`). */
+  look?: 'bold'
   categories: ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 }>()
 
@@ -40,6 +42,7 @@ const sliderClass = computed(() => [
     :cta-text="ctaText"
     :cta-link="ctaLink"
     :categories="categories"
+    :look="look"
   />
   <PageSectionBand
     v-else-if="categories.items.length && banded"

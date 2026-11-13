@@ -13,11 +13,17 @@ const props = withDefaults(defineProps<{
   count?: number | null
   /** Names the count ("12 reviews") instead of the bare "12". */
   verbose?: boolean
+  /**
+   * One star before the figure and the count in brackets ("★ 5,0 (1 review)"),
+   * where five stars crowd a short line (a bold hero's product card).
+   */
+  single?: boolean
   href?: string
 }>(), {
   average: null,
   count: null,
   verbose: false,
+  single: false,
   href: undefined,
 })
 
@@ -45,12 +51,27 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
     class="flex items-center gap-1.5"
     :class="href ? 'w-fit' : undefined"
   >
+    <UIcon
+      v-if="single"
+      name="i-heroicons-star-solid"
+      aria-hidden="true"
+      class="size-3.5 shrink-0 text-(--ui-rating)"
+    />
     <ProductReviewsStars
+      v-else
       :rate="average ?? 0"
       size="card"
       aria-hidden="true"
     />
     <span
+      v-if="single"
+      :aria-hidden="href ? undefined : 'true'"
+      class="text-[0.8125rem] text-muted"
+    >
+      <span class="font-semibold text-highlighted">{{ figure }}</span> {{ t('n_reviews_bracketed', { count: reviews }, reviews) }}
+    </span>
+    <span
+      v-else
       :aria-hidden="href ? undefined : 'true'"
       class="text-[0.8125rem] font-semibold text-muted"
       :class="href ? `
@@ -71,9 +92,11 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
 el:
   rated_by: "Βαθμολογία {n} στα 5, από {count} αξιολόγηση | Βαθμολογία {n} στα 5, από {count} αξιολογήσεις"
   n_reviews: "{count} αξιολόγηση | {count} αξιολογήσεις"
+  n_reviews_bracketed: "({count} κριτική) | ({count} κριτικές)"
   out_of_five: βαθμολογία στα 5
 en:
   rated_by: "Rated {n} out of 5, from {count} review | Rated {n} out of 5, from {count} reviews"
   n_reviews: "{count} review | {count} reviews"
+  n_reviews_bracketed: "({count} review) | ({count} reviews)"
   out_of_five: rated out of 5
 </i18n>

@@ -118,14 +118,14 @@ describe('PageSection/Band', () => {
 })
 
 /**
- * The base design (a store with its own templates, webside) draws its
+ * The bold look (`look: 'bold'`, `PageSection/BandBold`, every design): the
  * board's heading row; laid out `open` by its shell, its bands share the
  * page's ground without rules. The classes are the contract: happy-dom lays
  * nothing out, the browser is the real check.
  */
-describe('PageSection/Band in a design of its own', () => {
+describe('PageSection/Band in its bold look', () => {
   beforeEach(() => {
-    setTenant({ schemaName: 'webside' })
+    setTenant()
   })
 
   /** The band inside a shell that lays its bands out `open`. */
@@ -137,14 +137,14 @@ describe('PageSection/Band in a design of its own', () => {
   }), { route: false })
 
   it('sets the eyebrow in the accent, in capitals, over a heavier heading', async () => {
-    const wrapper = await mountSuspended(Band, { route: false, props: { eyebrow: 'Κατάστημα', heading: 'Χρήσιμα gadgets' } })
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', eyebrow: 'Κατάστημα', heading: 'Χρήσιμα gadgets' } })
 
     expect(wrapper.get('p').classes()).toEqual(expect.arrayContaining(['uppercase', 'text-accent', 'font-bold']))
     expect(wrapper.get('h2').classes()).toEqual(expect.arrayContaining(['font-extrabold', 'lg:text-[2.125rem]/[1.15]', 'wrap-break-word']))
   })
 
   it('draws "see all" as a plain accent link with its arrow, a 44px target', async () => {
-    const wrapper = await mountSuspended(Band, { route: false, props: { heading: 'Νέα άρθρα', ctaText: 'Όλα τα άρθρα', ctaLink: '/blog' } })
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Νέα άρθρα', ctaText: 'Όλα τα άρθρα', ctaLink: '/blog' } })
 
     const link = wrapper.get('a[href="/blog"]')
     expect(link.classes()).toEqual(expect.arrayContaining(['text-accent', 'min-h-11']))
@@ -156,7 +156,7 @@ describe('PageSection/Band in a design of its own', () => {
     ['below', true, true],
     ['none', true, false],
   ] as const)('puts the phone\'s link %s', async (phoneCta, hiddenInRow, buttonBelow) => {
-    const wrapper = await mountSuspended(Band, { route: false, props: { heading: 'Χρήσιμα gadgets', ctaText: 'Όλα τα προϊόντα', ctaLink: '/products', phoneCta } })
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Χρήσιμα gadgets', ctaText: 'Όλα τα προϊόντα', ctaLink: '/products', phoneCta } })
 
     const links = wrapper.findAll('a[href="/products"]')
     expect(links[0]!.classes().includes('max-sm:hidden')).toBe(hiddenInRow)
@@ -164,15 +164,23 @@ describe('PageSection/Band in a design of its own', () => {
   })
 
   it('shows a shorter link text on a phone where the section gives one', async () => {
-    const wrapper = await mountSuspended(Band, { route: false, props: { heading: 'Νέα άρθρα', ctaText: 'Όλα τα άρθρα', ctaLink: '/blog', phoneCtaText: 'Όλα' } })
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Νέα άρθρα', ctaText: 'Όλα τα άρθρα', ctaLink: '/blog', phoneCtaText: 'Όλα' } })
 
     const spans = wrapper.get('a[href="/blog"]').findAll('span').filter(span => span.text())
     expect(spans.map(span => [span.text(), span.classes()[0]])).toEqual([['Όλα', 'sm:hidden'], ['Όλα τα άρθρα', 'max-sm:hidden']])
   })
 
+  it('keeps the band as it was without the bold look', async () => {
+    const wrapper = await mountSuspended(Band, { route: false, props: { eyebrow: 'Κατάστημα', heading: 'Χ', ctaText: 'Όλα', ctaLink: '/products', phoneCta: 'below' } })
+
+    expect(wrapper.findComponent({ name: 'PageSectionBandBold' }).exists()).toBe(false)
+    expect(wrapper.get('h2').classes()).toContain('font-bold')
+    expect(wrapper.findAll('a[href="/products"]')).toHaveLength(1)
+  })
+
   it('keeps its rules and padding framed on a page, and drops the rules laid out open', async () => {
-    const framed = await mountSuspended(Band, { route: false, props: { heading: 'Χ' } })
-    const open = await mountOpen({ heading: 'Χ' })
+    const framed = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Χ' } })
+    const open = await mountOpen({ look: 'bold', heading: 'Χ' })
 
     expect(framed.get('section').classes()).toEqual(expect.arrayContaining(['border-y', 'py-12']))
     expect(open.get('section').classes()).not.toContain('border-y')

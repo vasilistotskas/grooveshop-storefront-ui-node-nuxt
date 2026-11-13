@@ -36,6 +36,8 @@ const props = defineProps<{
   layout?: 'feature'
   /** The feature card's icon. */
   icon?: string
+  /** `blog_posts_grid`'s setting: the band's bold look (`PageSection/BandBold`, `Blog/RailBold`). */
+  look?: 'bold'
 }>()
 
 const { t } = useStoreI18n('components/PageSection/BlogPosts')
@@ -88,8 +90,17 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
     :cta-link="ctaLink ? linkTo(ctaLink) : allPostsLink"
     :surface="surface"
     :color-scheme="colorScheme"
+    :look="look"
   >
+    <BlogRailBold
+      v-if="look === 'bold' && !loadMore"
+      :posts="items"
+      :category-name="categoryName"
+      :phone-layout="phoneLayout"
+      :phone-limit="phoneLimit"
+    />
     <BlogRail
+      v-else
       :posts="items"
       :category-name="categoryName"
       :stacked="loadMore"

@@ -81,58 +81,74 @@ const large = computed(() => !props.compact && props.size === 'lg')
       @click="openSearchModal"
     />
 
+    <!-- A hero's field: white on any band, body-size type, and its own
+         button beside it that opens the same palette (a phone has no room
+         for it beside a 50px field). -->
+    <template v-if="large">
+      <UButton
+        color="neutral"
+        variant="solid"
+        class="
+          h-12.5 min-w-0 flex-1 justify-start gap-2.5 bg-default ps-3.5
+          text-base font-normal text-muted
+          hover:bg-default
+          sm:h-13 sm:ps-4
+        "
+        :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
+        @click="openSearchModal"
+      >
+        <UIcon
+          name="i-lucide-search"
+          class="size-5 shrink-0"
+        />
+        <span class="flex-1 truncate text-start">
+          {{ label }}
+        </span>
+      </UButton>
+      <UButton
+        :label="t('search.submit')"
+        color="secondary"
+        size="xl"
+        class="
+          h-13 shrink-0 px-5.5 text-base font-semibold
+          max-sm:hidden
+        "
+        @click="openSearchModal"
+      />
+    </template>
     <UButton
+      v-else
       color="neutral"
-      :variant="large ? 'solid' : 'outline'"
+      variant="outline"
       :class="[
+        'justify-start gap-2 px-3.5 text-sm font-medium text-muted',
+        // A section's field is a target of at least 44px on a phone.
         compact ? `
           hidden h-10.5 w-75 min-w-36
           lg:flex
-        ` : large ? `
-          h-12.5 min-w-0 flex-1 bg-default ps-3.5
-          hover:bg-default
-          sm:h-13 sm:ps-4
         ` : `
           h-11 w-full
           sm:h-10.5
         `,
-        // A section's field is a target of at least 44px on a phone.
-        large
-          ? 'justify-start gap-2.5 text-base font-normal text-muted'
-          : 'justify-start gap-2 px-3.5 text-sm font-medium text-muted',
       ]"
       :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     >
       <UIcon
         name="i-lucide-search"
-        :class="large ? 'size-5 shrink-0' : 'size-4 shrink-0'"
+        class="size-4 shrink-0"
       />
       <span class="flex-1 truncate text-start">
         {{ label }}
       </span>
       <span
-        v-if="owner && !large"
+        v-if="owner"
         class="flex shrink-0 items-center gap-0.5"
       >
         <UKbd value="meta" />
         <UKbd value="K" />
       </span>
     </UButton>
-
-    <!-- The field's own button: it opens the same palette, as the field
-         does. A phone has no room beside a 50px field for it. -->
-    <UButton
-      v-if="large"
-      :label="t('search.submit')"
-      color="secondary"
-      size="xl"
-      class="
-        h-13 shrink-0 px-5.5 text-base font-semibold
-        max-sm:hidden
-      "
-      @click="openSearchModal"
-    />
 
     <LazySearchModal
       v-if="modalMounted"

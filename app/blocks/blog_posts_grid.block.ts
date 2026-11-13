@@ -22,6 +22,8 @@ export default defineBlock({
     layout: z.enum(['feature']).optional(),
     /** The icon on the feature card's tile. */
     icon: builderField.icon(100).optional(),
+    /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
+    look: z.enum(['bold']).optional(),
   }),
   translatable: ['/eyebrow', '/heading', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeBlogRail(3, 24) },

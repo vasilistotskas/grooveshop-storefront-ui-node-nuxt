@@ -51,8 +51,8 @@ const items = computed(() => props.posts.map(post => ({
       <div
         :class="colorSchemeClass(colorScheme)"
         class="
-          grid grid-cols-1 gap-3.5 rounded-xl bg-default bg-(image:--ds-lattice)
-          bg-size-[1.5rem_1.5rem] px-4.5 py-6
+          grid grid-cols-1 gap-3.5 rounded-xl bg-default
+          bg-(image:--ds-lattice-accent) bg-size-[1.5rem_1.5rem] px-4.5 py-6
           lg:grid-cols-2 lg:items-center lg:gap-x-10 lg:gap-y-4 lg:p-12
         "
       >
@@ -66,7 +66,7 @@ const items = computed(() => props.posts.map(post => ({
             v-if="icon"
             class="
               grid size-13 place-items-center rounded-[0.625rem]
-              bg-(--ui-secondary-soft) text-accent
+              bg-(--ds-accent-tint) text-accent
               max-lg:hidden
             "
           >

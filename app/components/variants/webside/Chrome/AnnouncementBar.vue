@@ -20,6 +20,8 @@ const linkTo = useLinkTo()
 /** The tint unless the operator picked a colour: then that colour, solid, with the inverted text Nuxt UI pairs it with. */
 const tinted = computed(() => !bar.value?.color)
 const link = computed(() => (bar.value?.link ? linkTo(bar.value.link) : undefined))
+/** The phone's wording is the link on a phone, where «Details» is not drawn. Resolved here, not named in `:is`. */
+const shortTextTag = computed(() => (link.value ? resolveComponent('NuxtLink') : 'span'))
 </script>
 
 <template>
@@ -31,7 +33,7 @@ const link = computed(() => (bar.value?.link ? linkTo(bar.value.link) : undefine
     :color="bar.color"
     :close="bar.dismissible !== false"
     :ui="{
-      root: ['z-40', tinted && 'bg-(--ui-secondary-soft)'],
+      root: ['z-40', tinted && 'bg-(--ds-accent-tint)'],
       container: `
         h-10 justify-center
         max-sm:pe-0
@@ -49,7 +51,7 @@ const link = computed(() => (bar.value?.link ? linkTo(bar.value.link) : undefine
         `,
         tinted && `
           text-highlighted
-          hover:bg-(--ui-secondary-soft)
+          hover:bg-(--ds-accent-tint)
         `,
       ],
       title: [
@@ -62,7 +64,9 @@ const link = computed(() => (bar.value?.link ? linkTo(bar.value.link) : undefine
     }"
   >
     <!-- `title` stays the plain sentence: it is the banner's name, which
-         a pair of width-toggled spans would double. -->
+         a pair of width-toggled spans would double. Each link is a 44px
+         target (WCAG 2.5.5) in the 40px bar: 40px tall, its hit area
+         reaching 2px above and below (`::after`). -->
     <template #title>
       <span
         class="min-w-0 truncate"
@@ -74,11 +78,12 @@ const link = computed(() => (bar.value?.link ? linkTo(bar.value.link) : undefine
         <template v-else>{{ text }}</template>
       </span>
       <component
-        :is="link ? resolveComponent('NuxtLink') : 'span'"
+        :is="shortTextTag"
         v-if="shortText"
         :to="link"
         class="
-          min-w-0 truncate font-bold
+          relative min-w-0 truncate leading-10 font-bold
+          after:absolute after:inset-x-0 after:-inset-y-0.5
           sm:hidden
         "
       >
@@ -88,7 +93,8 @@ const link = computed(() => (bar.value?.link ? linkTo(bar.value.link) : undefine
         v-if="link"
         :to="link"
         class="
-          inline-flex min-h-10 shrink-0 items-center font-semibold
+          relative inline-flex min-h-10 shrink-0 items-center font-semibold
+          after:absolute after:inset-x-0 after:-inset-y-0.5
           hover:underline
           focus-visible:outline-2 focus-visible:outline-secondary
         "

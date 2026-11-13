@@ -99,8 +99,8 @@ useSearchShortcut(true, openSearchModal)
 <i18n lang="yaml">
 el:
   search:
-    placeholder: Αναζήτηση...
+    placeholder: Αναζήτηση άρθρων και προϊόντων
 en:
   search:
-    placeholder: Search...
+    placeholder: Search articles and products
 </i18n>

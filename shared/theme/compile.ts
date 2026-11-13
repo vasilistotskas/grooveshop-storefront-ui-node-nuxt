@@ -51,6 +51,9 @@ export function themeCss(settings: ThemeSettings, design: StorefrontDesign | nul
     `--font-sans: ${fontStackValue(settings.fonts.sans)}`,
     `--font-display: ${fontStackValue(settings.fonts.display)}`,
     `--font-mono: ${fontStackValue(settings.fonts.mono)}`,
+    // The light accent's deep shade in BOTH schemes: a fill under white text
+    // that keeps the store's hue on a part forced dark (`main.css`).
+    `--ui-secondary-deep: color-mix(in srgb, ${settings.colors.light.accent} 80%, black)`,
   ]
   const light = [...shared, ...schemeTokens(settings.colors.light, defaults.colors.light.accent)]
   const dark = [...shared, ...schemeTokens(settings.colors.dark, defaults.colors.dark.accent)]

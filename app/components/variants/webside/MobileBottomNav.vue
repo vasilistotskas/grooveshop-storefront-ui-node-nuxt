@@ -61,7 +61,7 @@ onMounted(() => {
           h-[calc(var(--dock-tabbar-height)+var(--dock-inset)-var(--dock-edge))]
           w-full border-t border-neutral-200 bg-white
           pb-[calc(var(--dock-inset)-var(--dock-edge))]
-          shadow-[0_-6px_18px_rgb(0_0_0/0.08)] transition-transform duration-200
+          shadow-(--ds-dock-shadow) transition-transform duration-200
           motion-reduce:transition-none
           dark:border-neutral-800 dark:bg-neutral-900
           [&>div]:h-full

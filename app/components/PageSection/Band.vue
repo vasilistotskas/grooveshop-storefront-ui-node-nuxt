@@ -26,6 +26,9 @@
  * heading into a word per line at 390px. The link's hit area is at least
  * 44px tall there (WCAG 2.5.8 target size, 2.5.5 on a phone); from `sm` up
  * the row and the link are as they were.
+ *
+ * `look: 'bold'` hands the band to `PageSection/BandBold`, the heavier heading
+ * row of a section set in its bold look; left out, this one as it always was.
  */
 const props = withDefaults(defineProps<{
   /** Which page surface this band paints. */
@@ -53,17 +56,13 @@ const props = withDefaults(defineProps<{
   headingSize?: 'md' | 'lg'
   /** Drop the container for a band that runs edge to edge. */
   bleed?: boolean
-  /**
-   * Where the base design puts the link on a phone: beside the heading
-   * (`inline`), as a full-width button under the band's content
-   * (`below`), or nowhere (`none`). Groove Volt stacks it under the heading.
-   */
+  /** `bold`: the section's bold look (`PageSection/BandBold`). */
+  look?: 'bold'
+  /** In the bold look: where the link goes on a phone (`PageSection/BandBold`). */
   phoneCta?: 'inline' | 'below' | 'none'
-  /** A shorter link text for that phone row ("All"). */
+  /** In the bold look: a shorter link text for the phone's row. */
   phoneCtaText?: string
 }>(), {
-  phoneCta: 'inline',
-  phoneCtaText: undefined,
   surface: 'default',
   padding: 'md',
   headingSize: 'md',
@@ -84,132 +83,59 @@ defineSlots<{
 const container = computed(() =>
   props.bleed ? 'div' : resolveComponent('UContainer'),
 )
-
-/**
- * The base design (a store with its own templates, webside) draws its board's
- * heading row: the eyebrow in the accent, capitals; a heavier heading; the
- * "see all" as a plain accent link with an arrow; on a phone no sub-line, and
- * the link where the section asks for it (`phoneCta`). Laid out `open`
- * (`useBandFlow`), its bands share the page's ground without rules, each
- * spaced from the one above by its top padding. Groove Volt keeps its own.
- */
-const design = useStorefrontDesign()
-const own = computed(() => design.value !== 'volt')
-const open = useBandFlow() === 'open'
-
-const hasLink = computed(() => !!(props.ctaText && props.ctaLink))
 </script>
 
 <template>
+  <PageSectionBandBold
+    v-if="look === 'bold'"
+    :surface="surface"
+    :color-scheme="colorScheme"
+    :eyebrow="eyebrow"
+    :heading="heading"
+    :subheading="subheading"
+    :cta-text="ctaText"
+    :cta-link="ctaLink"
+    :padding="padding"
+    :bleed="bleed"
+    :phone-cta="phoneCta"
+    :phone-cta-text="phoneCtaText"
+  >
+    <template
+      v-if="$slots.header"
+      #header
+    >
+      <slot name="header" />
+    </template>
+    <slot />
+  </PageSectionBandBold>
   <section
+    v-else
     :class="[
       'w-full',
       colorSchemeClass(colorScheme),
-      own && open ? [
-        surface === 'muted' && 'border-y border-default bg-muted',
-        surface === 'inverted' && 'bg-inverted text-inverted',
-        padding !== 'none' && `
-          pt-11
-          lg:pt-22
-        `,
-      ] : [
-        surface === 'muted' && 'bg-muted',
-        surface === 'default' && 'border-y border-default bg-default',
-        surface === 'inverted' && 'bg-inverted text-inverted',
-        padding === 'md' && `
-          py-12
-          lg:py-22
-        `,
-        padding === 'sm' && `
-          py-8
-          lg:py-14
-        `,
-      ],
+      surface === 'muted' && 'bg-muted',
+      surface === 'default' && 'border-y border-default bg-default',
+      surface === 'inverted' && 'bg-inverted text-inverted',
+      padding === 'md' && `
+        py-12
+        lg:py-22
+      `,
+      padding === 'sm' && `
+        py-8
+        lg:py-14
+      `,
     ]"
   >
     <component
       :is="container"
-      class="flex flex-col"
-      :class="own ? `
-        gap-4
+      class="
+        flex flex-col gap-5
         lg:gap-7
-      ` : `
-        gap-5
-        lg:gap-7
-      `"
+      "
     >
       <slot name="header">
         <div
-          v-if="own && (heading || subheading || eyebrow || hasLink)"
-          class="
-            flex items-center justify-between gap-4
-            sm:items-end sm:gap-5
-          "
-        >
-          <div class="flex min-w-0 flex-col">
-            <p
-              v-if="eyebrow"
-              class="
-                mb-1 text-xs font-bold tracking-[0.06em] uppercase
-                lg:mb-1.5 lg:text-[0.8125rem]
-              "
-              :class="surface === 'inverted' ? 'text-(--ui-volt-on-inverted)' : `
-                text-accent
-              `"
-            >
-              {{ eyebrow }}
-            </p>
-            <h2
-              v-if="heading"
-              class="
-                font-display text-[1.625rem]/[1.2] font-extrabold text-balance
-                wrap-break-word
-                lg:text-[2.125rem]/[1.15]
-              "
-              :class="surface === 'inverted' ? 'text-inverted' : `
-                text-highlighted
-              `"
-            >
-              {{ heading }}
-            </h2>
-            <p
-              v-if="subheading"
-              class="
-                mt-2 max-w-2xl text-base
-                max-sm:hidden
-              "
-              :class="surface === 'inverted' ? 'text-inverted/75' : `text-muted`"
-            >
-              {{ subheading }}
-            </p>
-          </div>
-
-          <!-- A 44px target (WCAG 2.5.5), text alone with its arrow. -->
-          <NuxtLink
-            v-if="hasLink"
-            :to="ctaLink"
-            class="
-              inline-flex min-h-11 shrink-0 items-center gap-1.5 px-1 text-sm
-              font-semibold text-accent
-              hover:underline
-              focus-visible:outline-2 focus-visible:outline-secondary
-              sm:text-[0.9375rem]
-            "
-            :class="phoneCta !== 'inline' && 'max-sm:hidden'"
-          >
-            <template v-if="phoneCtaText">
-              <span class="sm:hidden">{{ phoneCtaText }}</span>
-              <span class="max-sm:hidden">{{ ctaText }}</span>
-            </template>
-            <template v-else>{{ ctaText }}</template>
-            <UIcon
-              name="i-lucide-arrow-right"
-              class="size-4 shrink-0"
-            />
-          </NuxtLink>
-        </div>
-        <div
-          v-else-if="heading || subheading || eyebrow || hasLink"
+          v-if="heading || subheading || eyebrow || (ctaText && ctaLink)"
           class="flex justify-between gap-4"
           :class="headingSize === 'lg'
             ? `
@@ -268,7 +194,7 @@ const hasLink = computed(() => !!(props.ctaText && props.ctaLink))
           </div>
 
           <UButton
-            v-if="hasLink"
+            v-if="ctaText && ctaLink"
             :to="ctaLink"
             :label="ctaText"
             size="sm"
@@ -288,23 +214,6 @@ const hasLink = computed(() => !!(props.ctaText && props.ctaLink))
       </slot>
 
       <slot />
-
-      <!-- The base design's phone: the link as a full-width button under
-           what the band lists, where a thumb finishes reading it. -->
-      <UButton
-        v-if="own && phoneCta === 'below' && hasLink"
-        :to="ctaLink"
-        :label="ctaText"
-        color="neutral"
-        variant="outline"
-        size="xl"
-        trailing-icon="i-lucide-arrow-right"
-        class="
-          min-h-12 w-full justify-center text-[0.9375rem] font-semibold
-          text-highlighted
-          sm:hidden
-        "
-      />
     </component>
   </section>
 </template>

@@ -341,6 +341,8 @@ export interface DesignPartInput {
   addToCartLabel: string
   /** The add-to-cart button's accessible name, which contains the label (WCAG 2.5.3: "Add to cart: «name»"). */
   addToCartName: string
+  /** The button's icon before its label rather than after, where the design's control can (a bold card). */
+  leadingIcon?: boolean
 }
 
 export interface DesignPart {
@@ -365,7 +367,7 @@ const partVariants: Record<string, DesignPart> = {
   // webside's button names itself by its visible text.
   'part:product_add_to_cart@webside': {
     component: lazy(() => import('~/components/variants/webside/Button/Product/AddToCart.vue')),
-    props: ({ product, addToCartLabel }) => ({ product, text: addToCartLabel }),
+    props: ({ product, addToCartLabel, leadingIcon }) => ({ product, text: addToCartLabel, leadingIcon }),
   },
   'part:product_restock_alert@webside': {
     component: lazy(() => import('~/components/variants/webside/Product/NotifyMe.vue')),

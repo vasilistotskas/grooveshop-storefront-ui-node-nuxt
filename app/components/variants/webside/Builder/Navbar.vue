@@ -18,6 +18,13 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 const cartEnabled = useStoreFeature('cart')
 // Search lists the catalogue: no catalogue, no search page to search on.
 const searchServing = useGatedRoute('/search')
+// The phone's row as the board draws it: search and favourites. The cart is
+// the tab bar's when the store shows one, the theme the menu's.
+const tabBarShown = useStorePreference('mobileBottomNav')
+const savedPostsServing = useGatedRoute('/account/favourites/posts')
+const { signIn } = useAuthLinks()
+const localePath = useLocalePath()
+const { t } = useStoreI18n('components/variants/webside/Builder/Navbar')
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
@@ -65,7 +72,7 @@ onMounted(() => {
         <div
           class="
             relative flex w-full items-center gap-4
-            lg:grid lg:grid-cols-[1fr_2fr_1fr]
+            lg:gap-6
           "
           :class="{ 'justify-between': isMobileOrTablet }"
         >
@@ -116,7 +123,20 @@ onMounted(() => {
               "
             >
               <LazyWebsideSearchInput v-if="searchServing" />
-              <WebsideCartButton v-if="cartEnabled" />
+              <UButton
+                v-if="savedPostsServing"
+                :aria-label="t('favourites')"
+                :to="loggedIn ? localePath('account-favourites-posts') : localePath(signIn)"
+                class="
+                  min-h-11 min-w-11 justify-center p-0
+                  hover:bg-transparent
+                "
+                color="neutral"
+                icon="i-heroicons-heart"
+                size="xl"
+                variant="ghost"
+              />
+              <WebsideCartButton v-if="cartEnabled && !tabBarShown" />
               <!-- The select is ~150px wide with its label and chevron: on
                    a phone that squeezed the logo to nothing and, with the
                    notifications bell of a signed-in shopper, pushed the
@@ -130,16 +150,6 @@ onMounted(() => {
                   max-sm:*:data-[slot=trailing]:hidden
                   max-sm:*:data-[slot=value]:hidden
                 "
-              />
-              <UColorModeButton
-                class="w-6"
-                :ui="{
-                  base: `
-                    cursor-pointer p-0
-                    hover:bg-transparent
-                  `,
-                  leadingIcon: 'size-6',
-                }"
               />
               <ClientOnly>
                 <LazyWebsideUserNotificationsBell v-if="loggedIn" />
@@ -167,3 +177,10 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  favourites: Αγαπημένα
+en:
+  favourites: Favourites
+</i18n>

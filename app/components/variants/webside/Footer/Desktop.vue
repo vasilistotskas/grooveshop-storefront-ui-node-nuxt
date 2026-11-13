@@ -1,8 +1,20 @@
 <script lang="ts" setup>
+/**
+ * webside's desk footer as its design board draws it: the store's logo and
+ * line about itself, then the link columns; under them one row with the
+ * copyright on the left and the ways to pay, the carriers and the cookie
+ * settings on the right (`Footer/Legal`). The seller identity stays, the law
+ * wants it on every page; the social links and the opening hours stay too
+ * (not on the board: the owner's call). The build version is gone.
+ */
 const { columns, merchantIdentityColumnIndex } = useFooterLinks()
-const runtimeConfig = useRuntimeConfig()
-
-const packageVersion = runtimeConfig.public.version
+const tenantStore = useTenantStore()
+const { locale } = useI18n({ useScope: 'global' })
+// The store's line about itself in the page's language (as the platform's
+// footer reads it).
+const storeDescription = computed(() =>
+  tenantStore.config ? localizedStoreDescription(tenantStore.config, locale.value) : '',
+)
 </script>
 
 <template>
@@ -17,8 +29,29 @@ const packageVersion = runtimeConfig.public.version
       <UContainer>
         <UFooterColumns
           :columns="columns"
-          :ui="{ center: 'xl:col-span-3' }"
+          :ui="{
+            root: `
+              grid gap-8
+              lg:grid-cols-5
+            `,
+            left: 'mb-0',
+            center: 'lg:col-span-4',
+          }"
         >
+          <template #left>
+            <div class="flex flex-col items-start gap-3">
+              <TenantLogo
+                :width="120"
+                :height="28"
+              />
+              <p
+                v-if="storeDescription"
+                class="text-sm/relaxed text-muted"
+              >
+                {{ storeDescription }}
+              </p>
+            </div>
+          </template>
           <!-- UFooterColumns draws only links under a column, so the columns
                are drawn here, with its classes: the seller identity sits
                under the column the operator marked for them. -->
@@ -75,31 +108,25 @@ const packageVersion = runtimeConfig.public.version
     </template>
 
     <template #left>
-      <div class="flex flex-col gap-1">
+      <div class="flex w-full flex-col gap-1">
         <!-- A footer with no marked column keeps the seller identity here:
              the law wants it on every page whichever way the footer is laid
              out. -->
         <WebsideMerchantIdentity v-if="merchantIdentityColumnIndex === -1" />
         <WebsideFooterHoursBadge />
         <!-- The copyright, the ways to pay and the carriers, the cookie
-             settings: one line, read from the store's data. -->
+             settings: one row, read from the store's data. -->
         <WebsideFooterLegal />
       </div>
     </template>
 
+    <!-- Not on the board, kept: the newsletter sits above the store's social
+         links on every footer (`webside-footer-newsletter.spec.ts`). -->
     <template #right>
-      <div class="flex items-center gap-6">
-        <WebsideSocials
-          :button-size="'sm'"
-          :icon-class="'text-xl'"
-        />
-        <span
-          class="
-            text-xs text-primary-950
-            dark:text-primary-300
-          "
-        >Version: {{ packageVersion }}</span>
-      </div>
+      <WebsideSocials
+        :button-size="'sm'"
+        :icon-class="'text-xl'"
+      />
     </template>
   </UFooter>
 </template>

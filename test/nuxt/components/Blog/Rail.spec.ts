@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogRail from '~/components/Blog/Rail.vue'
+import BlogRailBold from '~/components/Blog/RailBold.vue'
 import type { BlogPost } from '~~/shared/openapi/types.gen'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { inlineT } from '~~/test/helpers/inlineCopy'
@@ -88,43 +89,56 @@ describe('BlogRail', () => {
 })
 
 /**
- * The base design (a store with its own templates, webside) draws its board's
- * teaser: one meta line, the category in the accent and no badge, a 16:10
- * photograph, and every compact row ruled above. The classes are the
- * contract; the browser is the real check.
+ * The bold look (`Blog/RailBold`, `look: 'bold'`, every design): one meta line,
+ * the category in the accent and no badge, a 16:10 photograph, and every
+ * compact row ruled above. The classes are the contract; the browser is the
+ * real check.
  */
-describe('BlogRail in a design of its own', () => {
+describe('Blog/RailBold', () => {
   const POSTS = [
     makeBlogPost({ id: 3, slug: 'gan', category: 2, readingTime: 6, publishedAt: '2026-11-11T08:00:00Z' }),
     makeBlogPost({ id: 4, slug: 'usb-c', category: 2, readingTime: 7, publishedAt: '2026-11-10T08:00:00Z' }),
   ]
   const categoryName = (id: number) => (id === 2 ? 'Κινητό' : undefined)
-
-  beforeEach(() => {
-    setTenant({ schemaName: 'webside' })
-  })
+  const mountBold = (props: { posts: BlogPost[], categoryName?: (id: number) => string | undefined, phoneLayout?: 'list', phoneLimit?: number }) =>
+    mountSuspended(BlogRailBold, { route: false, props, global: { stubs: { ImgWithFallback: true } } })
 
   it('says category, minutes and date on one line, with no badge', async () => {
-    const wrapper = await mountRail({ posts: POSTS, categoryName })
+    const wrapper = await mountBold({ posts: POSTS, categoryName })
 
     expect(wrapper.findComponent({ name: 'UBadge' }).exists()).toBe(false)
     const meta = wrapper.get('[data-slot="meta"]')
     expect(meta.get('span').text()).toBe('Κινητό')
     expect(meta.get('span').classes()).toContain('text-accent')
-    expect(meta.text()).toContain('Κινητό · 6′ · ')
+    expect(meta.text().replace(/\s+/g, ' ')).toContain('Κινητό · 6′ · ')
   })
 
   it('rules every compact row above it, the first included', async () => {
-    const wrapper = await mountRail({ posts: POSTS, categoryName, phoneLayout: 'list' })
+    const wrapper = await mountBold({ posts: POSTS, categoryName, phoneLayout: 'list' })
 
-    expect(wrapper.get('ul').classes()).not.toContain('divide-y')
     for (const row of wrapper.findAll('li')) expect(row.classes()).toEqual(expect.arrayContaining(['border-t', 'sm:border-t-0']))
-    expect(wrapper.get('[data-slot="compact-meta"]').text()).toBe('Κινητό · 6′')
+    expect(wrapper.get('[data-slot="compact-meta"]').text().replace(/\s+/g, ' ')).toBe('Κινητό · 6′')
   })
 
-  it('hides the posts past the phone\'s limit below sm only', async () => {
-    const wrapper = await mountRail({ posts: POSTS, categoryName, phoneLayout: 'list', phoneLimit: 1 })
+  it('marks the posts past the limit for a phone, which a phone does not show', async () => {
+    const wrapper = await mountBold({ posts: POSTS, categoryName, phoneLayout: 'list', phoneLimit: 1 })
 
-    expect(wrapper.findAll('li').map(row => row.classes().includes('max-sm:hidden'))).toEqual([false, true])
+    expect(wrapper.findAll('li').map(row => row.attributes('data-phone-hidden') !== undefined)).toEqual([false, true])
+  })
+})
+
+describe('BlogRail with a phone limit', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('marks the posts past it, and nothing without one', async () => {
+    const posts = [makeBlogPost({ id: 3, slug: 'gan' }), makeBlogPost({ id: 4, slug: 'usb-c' })]
+
+    const limited = await mountRail({ posts, phoneLimit: 1 })
+    const open = await mountRail({ posts })
+
+    expect(limited.findAll('li').map(row => row.attributes('data-phone-hidden') !== undefined)).toEqual([false, true])
+    expect(open.findAll('li[data-phone-hidden]')).toHaveLength(0)
   })
 })

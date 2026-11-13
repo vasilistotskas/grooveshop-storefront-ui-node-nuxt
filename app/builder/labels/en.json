@@ -332,6 +332,10 @@
       "label": "Load more button",
       "help": "Shows a button that adds the next posts of the same list, when it has more than the band shows."
     },
+    "look": {
+      "label": "Style",
+      "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had."
+    },
     "marquee": {
       "label": "Scrolling row"
     },
@@ -536,6 +540,9 @@
     },
     "phoneLayout": {
       "list": "List"
+    },
+    "look": {
+      "bold": "Bold"
     }
   },
   "routes": {

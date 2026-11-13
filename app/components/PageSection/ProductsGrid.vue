@@ -25,8 +25,10 @@ const props = withDefaults(defineProps<{
   colorScheme?: SectionColorScheme
   /** How many of the products a phone shows, the first ones; all of them when unset. */
   phoneLimit?: number
-  /** The categories the grid's last tile lists (`PageSection/ProductsCategoryTile`), on a desk. */
+  /** The categories a last tile of the grid lists, on a desk (`PageSection/ProductsCategoryTile`). */
   categories?: ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
+  /** The band's bold look (`PageSection/BandBold`): on a phone its link is a button under the grid. */
+  look?: 'bold'
   /** What the band lists: the products, and the rule or hand-picked list they came from. */
   products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
@@ -34,15 +36,23 @@ const props = withDefaults(defineProps<{
 })
 
 defineSlots<{
-  list?(props: { items: readonly ProductCard[], showAddToCart: boolean, phoneHidden: (index: number) => boolean, categories: readonly ProductCategory[] }): unknown
+  list?(props: {
+    items: readonly ProductCard[]
+    showAddToCart: boolean
+    /** The attribute that hides the product at an index past the phone's limit (`main.css`). */
+    phoneHidden: (index: number) => Record<string, string>
+    categories: readonly ProductCategory[]
+  }): unknown
 }>()
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
 const linkTo = useLinkTo()
 
-/** Whether the product at `index` is past what a phone shows (`phoneLimit`): hidden below `sm` by CSS, so the cached render is one for every device. */
-const phoneHidden = (index: number) => props.phoneLimit !== undefined && index >= props.phoneLimit
+/** The attribute that hides a product past the phone's limit below `sm` (`main.css`); none within it. */
+const phoneHidden = (index: number): Record<string, string> => (props.phoneLimit !== undefined && index >= props.phoneLimit ? { 'data-phone-hidden': '' } : {})
+
+const categoryItems = computed(() => props.categories?.items ?? [])
 
 const label = computed(
   () => props.heading || t(`heading.${productRailKind(props.products.descriptor)}`),
@@ -59,16 +69,20 @@ const label = computed(
     :cta-link="ctaLink ? linkTo(ctaLink) : localePath({ path: '/products', query: productRailStockQuery(products.descriptor) })"
     :surface="surface"
     :color-scheme="colorScheme"
-    phone-cta="below"
+    :look="look"
+    :phone-cta="look === 'bold' ? 'below' : undefined"
   >
     <slot
       name="list"
       :items="products.items"
       :show-add-to-cart="showAddToCart"
       :phone-hidden="phoneHidden"
-      :categories="categories?.items ?? []"
+      :categories="categoryItems"
     >
+      <!-- The grid closes with the categories' tile when the band lists
+           them; otherwise it is the grid as it always was. -->
       <UPageGrid
+        v-if="categoryItems.length"
         as="ul"
         class="
           grid-cols-2 gap-3.5
@@ -78,11 +92,27 @@ const label = computed(
         <ProductCard
           v-for="(product, index) in products.items"
           :key="product.id"
+          v-bind="phoneHidden(index)"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
-          :class="phoneHidden(index) && 'max-sm:hidden'"
         />
-        <PageSectionProductsCategoryTile :categories="categories?.items ?? []" />
+        <PageSectionProductsCategoryTile :categories="categoryItems" />
+      </UPageGrid>
+      <UPageGrid
+        v-else
+        as="ul"
+        class="
+          grid-cols-2 gap-3.5
+          lg:grid-cols-4 lg:gap-6
+        "
+      >
+        <ProductCard
+          v-for="(product, index) in products.items"
+          :key="product.id"
+          v-bind="phoneHidden(index)"
+          :product="product"
+          :show-add-to-cart-button="showAddToCart"
+        />
       </UPageGrid>
     </slot>
   </PageSectionBand>

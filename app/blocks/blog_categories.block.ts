@@ -15,6 +15,8 @@ export default defineBlock({
     ctaLink: builderField.link().optional(),
     layout: z.enum(['slider', 'tiles']).optional(),
     categories: builderField.query('blogCategory', { onEmpty: 'hide' }),
+    /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
+    look: z.enum(['bold']).optional(),
   }),
   translatable: ['/eyebrow', '/title', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeBlogCategories(10) },

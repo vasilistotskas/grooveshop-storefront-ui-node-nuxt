@@ -94,17 +94,18 @@ describe('PageSection/BlogCategoryTiles', () => {
 })
 
 /**
- * The base design (a store with its own templates, webside): the icon beside
- * the name at every width, no sub-line and no link on a phone, and the link's
- * `{count}` read as the posts the categories hold.
+ * The bold look (`look: 'bold'`, `PageSection/BlogCategoryTilesBold`, every
+ * design): the icon beside the name at every width, no sub-line and no link on
+ * a phone; and in either look the link's `{count}` read as the posts the
+ * categories hold.
  */
-describe('PageSection/BlogCategoryTiles in a design of its own', () => {
+describe('PageSection/BlogCategoryTiles in its bold look', () => {
   beforeEach(() => {
-    setTenant({ schemaName: 'webside' })
+    setTenant()
   })
 
   it('draws each tile as one link, its icon beside the name and the count', async () => {
-    const wrapper = await mountTiles()
+    const wrapper = await mountTiles({ look: 'bold' })
 
     const links = wrapper.findAll('ul a')
     expect(links.length).toBeGreaterThan(0)
@@ -113,10 +114,18 @@ describe('PageSection/BlogCategoryTiles in a design of its own', () => {
   })
 
   it('reads {count} in the link as the posts the categories hold, and keeps the link off a phone', async () => {
-    const wrapper = await mountTiles({ ctaText: 'Όλα τα {count} άρθρα', ctaLink: '/blog', categories: categories([makeBlogCategory({ id: 1, postCount: 26 }), makeBlogCategory({ id: 2, postCount: 61 })]) })
+    const wrapper = await mountTiles({ look: 'bold', ctaText: 'Όλα τα {count} άρθρα', ctaLink: '/blog', categories: categories([makeBlogCategory({ id: 1, postCount: 26 }), makeBlogCategory({ id: 2, postCount: 61 })]) })
 
     const link = wrapper.get('a[href="/blog"]')
     expect(link.text()).toBe('Όλα τα 87 άρθρα')
     expect(link.classes()).toContain('max-sm:hidden')
+  })
+
+  it('reads {count} in the default look too, and leaves a text without it as typed', async () => {
+    const counted = await mountTiles({ ctaText: 'Όλα τα {count} άρθρα', ctaLink: '/blog', categories: categories([makeBlogCategory({ id: 1, postCount: 26 }), makeBlogCategory({ id: 2, postCount: 61 })]) })
+    const plain = await mountTiles({ ctaText: 'Όλα τα άρθρα', ctaLink: '/blog' })
+
+    expect(counted.get('a[href="/blog"]').text()).toBe('Όλα τα 87 άρθρα')
+    expect(plain.get('a[href="/blog"]').text()).toBe('Όλα τα άρθρα')
   })
 })

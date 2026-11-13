@@ -49,11 +49,25 @@
 
      Safe to change: nothing in the app used `bg-muted` before this. */
   --ui-bg-muted: #ffffff;
-  /* The graph-paper lattice behind a page hero and a dark band. A
-     gradient cannot be expressed as a Tailwind colour utility, so it is
-     a token: the line is the accent at 10% (the base design's board), the
-     same in both schemes. Volt draws its own (below). */
+  /* The graph-paper lattice behind a page hero. A gradient cannot be
+     expressed as a Tailwind colour utility, so it is a token: the line
+     is the neutral ramp at low alpha, which keeps it ~4.5% over the
+     dark ground the artboards use and lifts it to a legible 8% on the
+     light one, where the same alpha would disappear. */
   --ds-lattice:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      transparent 1px
+    );
+  /* The home board's graph paper (the base design's hero): the accent at
+     10%, redeclared in `.dark` so its accent is that scheme's. */
+  --ds-lattice-accent:
     linear-gradient(
       to right,
       color-mix(in srgb, var(--ui-secondary) 10%, transparent) 1px,
@@ -65,11 +79,17 @@
       transparent 1px
     );
   /* The accent as a pale TINT behind accent text: an icon tile, the
-     announcement strip. Volt has its own (below). */
-  --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 7%, white);
-  /* The accent's deep shade, a fill under white text: the hero's main
-     call to action. Volt has its own (below). */
-  --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 80%, black);
+     announcement strip. Volt reads its own soft accent (below). */
+  --ds-accent-tint: color-mix(in srgb, var(--ui-secondary) 7%, white);
+  /* An accent heading on a page ground: the accent's deep shade where it
+     reads (8.7:1 on white); `.dark` takes the accent as text, since the
+     deep shade reads at 1.9:1 on the dark ground. */
+  --ds-accent-heading: var(--ui-secondary-deep);
+  /* A raised card's shadow, and a picture's on a dark band. */
+  --ds-raised-shadow: 0 8px 24px rgb(0 0 0 / 0.06);
+  --ds-picture-shadow: 0 24px 48px rgb(0 0 0 / 0.35);
+  /* What stands on the bottom edge (a tab bar) casts upward. */
+  --ds-dock-shadow: 0 -6px 18px rgb(0 0 0 / 0.08);
   --ui-liked: #FF00BD;
   /* The surface of a Google sign-in button: the colour "G" may sit only on
      Google's own light, dark or neutral fill and stroke (Sign in with Google
@@ -81,6 +101,12 @@
   --ui-container: var(--container-8xl);
 
   --ui-secondary: #003DFF;
+  /* The light scheme's accent at its deep shade, the SAME in both schemes
+     (`.dark` repeats it): a fill under white text that keeps the store's
+     own hue on a part forced dark, where the dark accent would wash it
+     out. The store's theme writes it from its light accent
+     (`shared/theme/compile.ts`). */
+  --ui-secondary-deep: color-mix(in srgb, #003DFF 80%, black);
   /* Text color for solid --ui-secondary surfaces. White suits the
      platform blue; tenant themes emit a luminance-picked value. */
   --ui-on-secondary: #ffffff;
@@ -191,6 +217,15 @@
   --dock-fab: calc(var(--dock-fab-size) + var(--dock-gap));
 }
 
+/* An item past a section's phone limit (`phoneLimit`: a product grid, a
+   band of posts): hidden below `sm`, by CSS, so the cached render is one
+   for every device. Unlayered, so it wins over the item's display utility. */
+@media (width < 40rem) {
+  [data-phone-hidden] {
+    display: none;
+  }
+}
+
 /* The floating funding strip's measured height (Chrome/FundingBanner.vue),
    which already includes the safe area. Phones only: from `sm` up it is
    a card in the bottom-left corner. */
@@ -218,12 +253,20 @@
   --google-signin-fill: #131314;
   --google-signin-stroke: #8e918f;
   --ui-bg-muted: var(--ui-color-neutral-900);
-  --ui-secondary: #3364FF;
-  --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
-  --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 80%, black);
-  /* Redeclared so its accent is this scheme's (a custom property's var()
-     resolves where it is declared). */
   --ds-lattice:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      transparent 1px
+    );
+  --ui-secondary: #3364FF;
+  --ui-secondary-deep: color-mix(in srgb, #003DFF 80%, black);
+  --ds-lattice-accent:
     linear-gradient(
       to right,
       color-mix(in srgb, var(--ui-secondary) 10%, transparent) 1px,
@@ -234,6 +277,9 @@
       color-mix(in srgb, var(--ui-secondary) 10%, transparent) 1px,
       transparent 1px
     );
+  --ds-accent-tint: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
+  --ds-accent-heading: var(--ui-secondary-text);
+  --ds-raised-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
   --ui-on-secondary: #ffffff;
   /* 80% accent / 20% white: 4.18:1 -> 6.05:1 against --ui-bg, and still
      unmistakably the brand hue. Mixing toward white can only RAISE
@@ -336,6 +382,8 @@
   --ui-secondary-text: color-mix(in srgb, var(--ui-secondary) 85%, black);
   --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 85%, black);
   --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 9%, white);
+  --ds-accent-tint: var(--ui-secondary-soft);
+  --ds-lattice-accent: var(--ds-lattice);
 
   /* The status colours are the theme's, and dark enough to be TEXT on
      their own tint and to carry white text as a fill — hence the white
@@ -347,21 +395,6 @@
   --ui-warning-soft: #fff4d6;
   --ui-error-soft: #fdecec;
   --ui-info-soft: #e8edff;
-
-  /* Volt's lattice: the neutral ramp at low alpha, ~4.5% over the dark
-     ground and a legible 8% on the light one, where the same alpha
-     would disappear. */
-  --ds-lattice:
-    linear-gradient(
-      to right,
-      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
-      transparent 1px
-    );
 
   /* Only overlays get a shadow; cards are flat with a line. */
   --ui-scrim: rgb(23 23 26 / 0.45);
@@ -410,6 +443,8 @@
   --ui-secondary-text: color-mix(in oklab, var(--ui-secondary) 80%, white);
   --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 85%, white);
   --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 18%, #17171a);
+  --ds-accent-tint: var(--ui-secondary-soft);
+  --ds-lattice-accent: var(--ds-lattice);
 
   --ui-on-success: #0e0e10;
   --ui-on-warning: #0e0e10;
@@ -417,18 +452,6 @@
   --ui-warning-soft: color-mix(in srgb, var(--ui-warning) 14%, #17171a);
   --ui-error-soft: color-mix(in srgb, var(--ui-error) 14%, #17171a);
   --ui-info-soft: color-mix(in srgb, var(--ui-info) 14%, #17171a);
-
-  --ds-lattice:
-    linear-gradient(
-      to right,
-      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
-      transparent 1px
-    );
 
   --ui-scrim: rgb(0 0 0 / 0.6);
   --ui-overlay-shadow: 0 24px 64px -16px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.3);
