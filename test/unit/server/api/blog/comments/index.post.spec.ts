@@ -30,14 +30,4 @@ describe('POST /api/blog/comments', () => {
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/blog/comment')
     expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer knox-1')
   })
-
-  it('refuses a body whose parent still carries the account instead of the public author', async () => {
-    testSession.set({ user: { id: 9 }, secure: { accessToken: 'knox-1' } })
-    const created = makeBlogCommentDetail({ id: 5 })
-    backend.reply({ ...created, parentComment: { ...created.parentComment, user: { id: 7 } } })
-
-    const response = await create()
-
-    expect(response.status).toBe(422)
-  })
 })

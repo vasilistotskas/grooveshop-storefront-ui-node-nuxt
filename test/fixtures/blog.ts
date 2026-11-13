@@ -47,7 +47,8 @@ export function makeBlogComment(overrides: Partial<BlogComment> = {}): BlogComme
  */
 export function makeBlogCommentDetail(overrides: Partial<BlogCommentDetail> = {}): BlogCommentDetail {
   const { user, ...comment } = makeBlogComment({ isReply: true, parent: 1, ...overrides })
-  const author = { id: 7, username: 'user7', firstName: 'Νίκος', lastName: 'Αντωνίου', mainImagePath: '' }
+  // Comment 1's author: the public author makeBlogComment gives a comment.
+  const author = makeBlogComment({ id: 1 }).user
   return {
     ...comment,
     user,
