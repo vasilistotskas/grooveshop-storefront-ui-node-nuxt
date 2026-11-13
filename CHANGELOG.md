@@ -1,3 +1,10 @@
+# [3.341.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.1...v3.341.0) (2026-11-13)
+
+
+### Features
+
+* **builder:** the home blocks draw the design board's look, and webside's chrome and card follow it ([#474](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/474)) ([2e6775f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2e6775f41d0aa8d9c5b89766bdc3dbc310e59f9b))
+
 ## [3.340.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.0...v3.340.1) (2026-11-13)
 
 
