@@ -9,6 +9,7 @@ import { defineBlock } from '~~/shared/builder/defineBlock'
 import { builderField } from '~~/shared/builder/fields'
 import { BUILDER_ICONS } from '~~/shared/builder/icons'
 import labels from '~~/app/builder/labels/el.json'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import postsGrid from '~/blocks/blog_posts_grid.block'
 import footerColumn from '~/blocks/footer_column.block'
 import type { BlockDefinition } from '~~/shared/types/builder'
@@ -34,6 +35,9 @@ const photoBand = defineBlock({
 beforeEach(() => {
   api.routes({ '/api/builder/media/4': makeAsset({ id: 4, path: 'https://assets.example.test/hero.jpg' }) })
 })
+
+/** The field's own copy (el): its "section's own default" choice. */
+const fieldLabels = inlineCopy('app/components/Builder/SettingField.vue')
 
 const iconTile = defineBlock({
   type: 'icon_tile',
@@ -94,6 +98,24 @@ describe('BuilderSettingField, an icon setting', () => {
     const options = [...document.body.querySelectorAll('[role="option"]')]
     // The section's own default (no icon) first, then every icon of the list.
     expect(options).toHaveLength(BUILDER_ICONS.length + 1)
+  })
+
+  it('stores the icon picked, and clears it when the section’s own default is picked', async () => {
+    const { wrapper, updates } = await mount({ icon: 'i-lucide-shield' }, iconTile)
+    const pick = async (name: string) => {
+      await wrapper.get('button[role="combobox"]').trigger('click')
+      await flushPromises()
+      const option = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.textContent?.trim() === name)
+      expect(option, name).toBeInstanceOf(HTMLElement)
+      // Reka selects an item on pointer-up, as a pointer does.
+      option?.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await flushPromises()
+    }
+
+    await pick(labels.options.icon['i-heroicons-truck'])
+    await pick(fieldLabels.default)
+
+    expect(updates).toEqual([['icon', 'i-heroicons-truck'], ['icon', undefined]])
   })
 })
 
