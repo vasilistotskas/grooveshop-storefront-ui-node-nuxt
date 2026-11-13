@@ -311,8 +311,10 @@ const items = computed(() => [
               root: 'static',
               list: 'gap-4',
               item: 'py-0',
+              // The board's 15px, in the heading colour: Nuxt UI's muted
+              // link colour read at 4.4:1 on the bar.
               link: `
-                px-0 text-lg font-semibold capitalize
+                px-0 text-[0.9375rem] font-semibold text-highlighted capitalize
                 after:inset-x-0 after:-bottom-1 after:h-0.5
               `,
               linkTrailingIcon: 'size-4',

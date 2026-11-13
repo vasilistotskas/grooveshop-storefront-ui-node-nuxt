@@ -128,7 +128,7 @@ describe('webside Cart/CartButton', () => {
   it.each([
     { case: 'a line exceeds the stock', item: { quantity: 3, product: { stock: 2 } }, color: 'warning' },
     { case: 'a product is sold out', item: { quantity: 1, product: { stock: 0 } }, color: 'warning' },
-    { case: 'every line is in stock', item: { quantity: 2, product: { stock: 2 } }, color: 'success' },
+    { case: 'every line is in stock', item: { quantity: 2, product: { stock: 2 } }, color: 'secondary' },
   ])('is $color when $case', async ({ item, color }) => {
     useCartStore().cart = makeCart({ items: [item] })
 

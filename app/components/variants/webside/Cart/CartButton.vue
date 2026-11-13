@@ -14,9 +14,11 @@ defineProps({
   },
 })
 
+// The count in the accent, as webside's board draws it: white on the
+// accent reads at 6.5:1, where white on the green read at 3.2:1.
 const color = computed(() => {
   if (hasStockIssues.value) return 'warning'
-  return 'success'
+  return 'secondary'
 })
 
 // Cap the badge at "99+" so a runaway count (returning customer with a
