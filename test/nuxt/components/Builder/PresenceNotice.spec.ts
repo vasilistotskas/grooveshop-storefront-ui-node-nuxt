@@ -5,7 +5,11 @@ import { createPinia, setActivePinia } from 'pinia'
 import type { Pinia } from 'pinia'
 import BuilderPresenceNotice from '~/components/Builder/PresenceNotice.vue'
 import { useBuilderPresenceStore } from '~/stores/builderPresence'
+import presenceSource from '~/components/Builder/PresenceNotice.vue?raw'
+import labels from '~/builder/labels/el.json'
 import { failWith } from '~~/test/helpers/api'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import { makeBuilderDocumentRow } from '~~/test/fixtures/builderDocument'
 
 /**
  * The soft "Maria is editing" notice: the editor tells Django which documents
@@ -83,18 +87,11 @@ describe('the presence notice', () => {
   // with the page (`documentsWith`), so the heartbeat names them, and the
   // notice names each as the outline and the Publish dialog do.
   describe('with the documents the page is edited with', () => {
-    const listed = (key: string, kind: DocumentList['kind']): DocumentList => ({ key, kind, draftRevision: 2, updatedAt: '2026-11-02T10:00:00+02:00', updatedBy: null, publishedVersion: 1, hasUnpublishedChanges: false })
-
     // The component reads the app's Pinia, not the one the file's beforeEach makes active.
     const editorStore = () => useBuilderEditorStore(useNuxtApp().$pinia as Pinia)
 
     beforeEach(() => {
-      editorStore().documents = [
-        listed('template:home', 'template'),
-        listed('group:header', 'group'),
-        listed('group:footer', 'group'),
-        listed(BUILDER_THEME_DOCUMENT, 'theme'),
-      ]
+      editorStore().documents = ['template:home', 'group:header', 'group:footer', BUILDER_THEME_DOCUMENT].map(key => makeBuilderDocumentRow({ key }))
     })
 
     afterEach(() => {
@@ -116,10 +113,12 @@ describe('the presence notice', () => {
       const wrapper = await mountSuspended(BuilderPresenceNotice, { route: false })
       await flushPromises()
 
+      // Each line is the component's own `line` text naming the document as the editor labels do.
+      const texts = componentTexts(presenceSource, 'PresenceNotice.vue')
       const lines = wrapper.findAll('[role="status"] li').map(line => line.text())
       expect(lines).toEqual([
-        'Eleni επεξεργάζεται: Υποσέλιδο, σε κάθε σελίδα',
-        'Nikos επεξεργάζεται: Θέμα: χρώματα, γωνίες, γραμματοσειρές',
+        texts.t('line', { names: 'Eleni', document: labels.groups.footer }, 1),
+        texts.t('line', { names: 'Nikos', document: labels.documents.theme }, 1),
       ])
     })
   })

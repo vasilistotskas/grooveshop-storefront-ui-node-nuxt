@@ -14,6 +14,10 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import Sortable from 'sortablejs'
 import type { SortableEvent } from 'sortablejs'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
+import publishSource from '~/components/Builder/Publish.vue?raw'
+import conflictSource from '~/components/Builder/ConflictDialog.vue?raw'
+import labels from '~/builder/labels/el.json'
+import { componentTexts } from '~~/test/helpers/componentTexts'
 
 /**
  * The page editor around a signed-in staff member: it opens the page the
@@ -934,7 +938,10 @@ describe('editing the structure of a page', () => {
     // changes, and released now or at a time with them.
     describe('the theme', () => {
       const THEME_URL = documentUrl(BUILDER_THEME_DOCUMENT)
-      const THEME_LABEL = 'Θέμα: χρώματα, γωνίες, γραμματοσειρές'
+      const THEME_LABEL = labels.documents.theme
+      const publishTexts = componentTexts(publishSource, 'Publish.vue')
+      /** The warning's title for `count` failing warning rules, as the dialog words it. */
+      const warningTitle = (count: number) => publishTexts.t('themeWarnings.title', { count }, count)
       const themeDocument = (settings: ThemeSettings, changed = true) => ({ ...detail(BUILDER_THEME_DOCUMENT, 'theme', { settings, sections: {}, order: [] }), hasUnpublishedChanges: changed })
       const THEME_CHECK = { ok: true, changed: [BUILDER_THEME_DOCUMENT], problems: [] }
 
@@ -1050,9 +1057,9 @@ describe('editing the structure of a page', () => {
         const wrapper = await open()
 
         await openPublish(wrapper)
-        expect(document.body.textContent).toContain('2 ζεύγη χρωμάτων του θέματος έχουν λιγότερη αντίθεση από την προτεινόμενη')
-        expect(document.body.textContent).toContain('Έμφαση, φωτεινό')
-        expect(document.body.textContent).toContain('Έμφαση σε απαλό φόντο, φωτεινό')
+        expect(document.body.textContent).toContain(warningTitle(2))
+        expect(document.body.textContent).toContain(labels.contrastRules['accent-light'])
+        expect(document.body.textContent).toContain(labels.contrastRules['accent-muted-light'])
         await vi.waitFor(() => expect(dialogButton('Δημοσίευση τώρα').disabled).toBe(false))
         dialogButton('Δημοσίευση τώρα').click()
         await vi.waitFor(() => expect(api.callsTo(PUBLISH_URL)).toHaveLength(1))
@@ -1071,7 +1078,7 @@ describe('editing the structure of a page', () => {
         boxes[boxes.length - 1]!.click()
         await flushPromises()
 
-        expect(document.body.textContent).not.toContain('χρωμάτων του θέματος')
+        expect(document.body.textContent).not.toContain(publishTexts.t('themeWarnings.description'))
       })
 
       // The pale accent fails on the page and on the muted ground: the second
@@ -1097,9 +1104,10 @@ describe('editing the structure of a page', () => {
       // `documentRoots.spec.ts`. The warning counts and names that rule
       // alone, and leads to it.
       it.each([
-        ['webside', null, 'dark', '#606060', 'accent-muted-dark', 'Έμφαση σε απαλό φόντο, σκούρο'],
-        ['demo', 'volt', 'light', '#949494', 'accent-muted-light', 'Έμφαση σε απαλό φόντο, φωτεινό'],
-      ] as const)('names the muted-ground accent rule on %s', async (schemaName, design, scheme, accent, rule, name) => {
+        ['webside', null, 'dark', '#606060', 'accent-muted-dark'],
+        ['demo', 'volt', 'light', '#949494', 'accent-muted-light'],
+      ] as const)('names the muted-ground accent rule on %s', async (schemaName, design, scheme, accent, rule) => {
+        const name = labels.contrastRules[rule]
         setTenant({ schemaName })
         const theme = themeDefaultsFor(design)
         theme.colors[scheme].accent = accent
@@ -1107,9 +1115,8 @@ describe('editing the structure of a page', () => {
         const wrapper = await openInPage()
 
         await openPublish(wrapper)
-        const warning = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"] [data-slot="root"]')].find(alert => alert.textContent?.includes('ζεύγος χρωμάτων'))
+        const warning = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"] [data-slot="root"]')].find(alert => alert.querySelector('[data-slot="title"]')?.textContent === warningTitle(1))
         await vi.waitFor(() => expect(warning()).toBeDefined())
-        expect(warning()!.querySelector('[data-slot="title"]')?.textContent).toBe('Ένα ζεύγος χρωμάτων του θέματος έχει λιγότερη αντίθεση από την προτεινόμενη')
         expect([...warning()!.querySelectorAll('li')].map(row => row.querySelector('span')?.textContent)).toEqual([name])
         warning()!.querySelector<HTMLButtonElement>('li button')!.click()
 
@@ -1391,7 +1398,7 @@ describe('editing the structure of a page', () => {
       })
       await button(wrapper, 'Μετακίνηση κάτω').trigger('click')
       await saveNow()
-      await vi.waitFor(() => expect(document.body.textContent).toContain('Αρχική σελίδα: αποθηκεύτηκε στο μεταξύ από: Nikos'))
+      await vi.waitFor(() => expect(document.body.textContent).toContain(componentTexts(conflictSource, 'ConflictDialog.vue').t('title', { name: 'Nikos', document: labels.templates.home })))
       return wrapper
     }
 
@@ -1591,7 +1598,7 @@ describe('editing the structure of a page', () => {
       await saveNow()
 
       expect(api.callsTo(THEME_DRAFT_URL).at(-1)!.options.headers).toEqual({ 'If-Match': '2' })
-      await vi.waitFor(() => expect(document.body.textContent).toContain('Θέμα: χρώματα, γωνίες, γραμματοσειρές: αποθηκεύτηκε στο μεταξύ από: Nikos'))
+      await vi.waitFor(() => expect(document.body.textContent).toContain(componentTexts(conflictSource, 'ConflictDialog.vue').t('title', { name: 'Nikos', document: labels.documents.theme })))
       const loadTheirs = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(item => item.textContent?.trim() === 'Φόρτωσε την αποθηκευμένη')
       await vi.waitFor(() => expect(loadTheirs()?.disabled).toBe(false))
       loadTheirs()!.click()

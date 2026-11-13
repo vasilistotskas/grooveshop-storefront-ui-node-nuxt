@@ -3,6 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { createPinia, setActivePinia } from 'pinia'
 import { useBuilderEditorStore } from '~/stores/builderEditor'
 import { moveNode, setNodeHidden, setNodeSetting } from '~/utils/builderWorkingCopy'
+import { makeBuilderDocumentRow } from '~~/test/fixtures/builderDocument'
 
 /**
  * The editor's documents and its undo history: a change is recorded and
@@ -28,7 +29,7 @@ const envelope = (key: string, draft: unknown, i18n: unknown = {}): DocumentDeta
   i18n,
   draftCatalogueHash: 'h',
 })
-const row = (key: string) => ({ key, kind: key.split(':')[0], draftRevision: 3, updatedAt: '2026-11-02T10:00:00+02:00', updatedBy: null, publishedVersion: 1, hasUnpublishedChanges: false })
+const row = (key: string) => makeBuilderDocumentRow({ key })
 
 const HOME_DRAFT = {
   sections: { a: { type: 'hero_banner@2', settings: {} }, b: { type: 'products_grid@3', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } } },

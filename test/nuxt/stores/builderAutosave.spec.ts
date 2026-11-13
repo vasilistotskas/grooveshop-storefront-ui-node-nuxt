@@ -6,6 +6,7 @@ import { useBuilderEditorStore } from '~/stores/builderEditor'
 import { setNodeHidden } from '~/utils/builderWorkingCopy'
 import { readBuilderRecovery } from '~/utils/builderRecovery'
 import { failWith } from '~~/test/helpers/api'
+import { makeBuilderDocumentRow } from '~~/test/fixtures/builderDocument'
 
 /**
  * The editor's autosave: a change waits out the autosave delay, then the
@@ -35,7 +36,7 @@ const envelope = (revision: number, overrides: Record<string, unknown> = {}) => 
   draftCatalogueHash: 'h',
   ...overrides,
 })
-const row = { key: HOME, kind: 'template', draftRevision: 3, updatedAt: '2026-11-02T10:00:00+02:00', updatedBy: null, publishedVersion: 1, hasUnpublishedChanges: false }
+const row = makeBuilderDocumentRow({ key: HOME })
 
 const saves = () => api.callsTo(DRAFT)
 
