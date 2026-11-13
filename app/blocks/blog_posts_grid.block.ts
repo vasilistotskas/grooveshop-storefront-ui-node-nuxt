@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** The latest blog posts as a grid. */
 export default defineBlock({
   type: 'blog_posts_grid',
-  version: 2,
+  version: 3,
   kinds: ['section'],
   feature: 'blog',
   schema: z.object({
@@ -21,12 +21,12 @@ export default defineBlock({
      */
     layout: z.enum(['feature']).optional(),
     /** The icon on the feature card's tile. */
-    icon: builderField.icon(100).optional(),
+    icon: builderField.icon().optional(),
     /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
     look: z.enum(['bold']).optional(),
   }),
   translatable: ['/eyebrow', '/heading', '/subheading', '/ctaText'],
-  upgrade: { 1: upgradeBlogRail(3, 24) },
+  upgrade: { 1: upgradeBlogRail(3, 24), 2: upgradeIconSetting },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { posts: { mode: 'filter', ordering: 'newest', limit: 3 } } }],
   editor: { category: 'blog' },
 })

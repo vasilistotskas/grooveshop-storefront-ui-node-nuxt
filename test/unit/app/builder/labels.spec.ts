@@ -27,7 +27,7 @@ const blockTypes = Object.values(modules).map(module => module.default.type).sor
 const fields = Object.values(modules).flatMap(module => flattenSettingsFields(builderSettingsFields(module.default)))
 const settingPaths = [...new Set(fields.map(field => field.path))].sort()
 /** The choices each setting name offers, across blocks: `options.<name>.<value>`. */
-const choices = fields.flatMap(field => field.kind === 'choice' ? field.options.map(value => `${field.path.split('.').at(-1)}.${value}`) : [])
+const choices = fields.flatMap(field => field.kind === 'choice' || field.kind === 'icon' ? field.options.map(value => `${field.path.split('.').at(-1)}.${value}`) : [])
 const choiceKeys = [...new Set(choices)].sort()
 
 /** The labels object flattened to dotted keys whose values are text. */

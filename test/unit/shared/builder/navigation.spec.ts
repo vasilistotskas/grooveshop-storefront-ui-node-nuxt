@@ -29,13 +29,13 @@ const link = (settings: Record<string, unknown>) => node('nav_link', settings)
 
 const header = () => menu(node('header_menu', {}, {
   products: link({ label: 'Προϊόντα', route: '/products' }),
-  about: link({ label: 'Σχετικά', icon: 'i-lucide-info', page: 'about' }),
+  about: link({ label: 'Σχετικά', icon: 'i-heroicons-information-circle', page: 'about' }),
   terms: link({ label: 'Όροι χρήσης', contentPage: 'terms' }),
   blog: link({ label: 'Blog μας', href: 'https://blog.example.com' }),
 }))
 
 const footer = () => menu(node('footer_menu', {}, {
-  company: node('footer_column', { label: 'Εταιρεία', icon: 'i-lucide-building' }, {
+  company: node('footer_column', { label: 'Εταιρεία', icon: 'i-heroicons-building-storefront' }, {
     about: link({ label: 'Σχετικά', page: 'about' }),
     privacy: link({ label: 'Απόρρητο', contentPage: 'privacy' }),
   }),
@@ -49,7 +49,7 @@ describe('navigationItems', () => {
     expect(navigationItems(header(), everything, registry)).toEqual({
       header: [
         { label: 'Προϊόντα', to: '/products' },
-        { label: 'Σχετικά', to: '/about', icon: 'i-lucide-info' },
+        { label: 'Σχετικά', to: '/about', icon: 'i-heroicons-information-circle' },
         { label: 'Όροι χρήσης', to: '/terms-of-use' },
         { label: 'Blog μας', href: 'https://blog.example.com' },
       ],
@@ -86,7 +86,7 @@ describe('navigationItems', () => {
   it('gives the footer its columns with their links', () => {
     expect(navigationItems(footer(), everything, registry)).toEqual({
       footer: [
-        { label: 'Εταιρεία', icon: 'i-lucide-building', children: [{ label: 'Σχετικά', to: '/about' }, { label: 'Απόρρητο', to: '/privacy-policy' }] },
+        { label: 'Εταιρεία', icon: 'i-heroicons-building-storefront', children: [{ label: 'Σχετικά', to: '/about' }, { label: 'Απόρρητο', to: '/privacy-policy' }] },
         { label: 'Στοιχεία', showsMerchantIdentity: true, children: [{ label: 'Επικοινωνία', to: '/contact' }] },
       ],
     })
@@ -110,7 +110,7 @@ describe('navigationItems', () => {
     const section = document.sections[document.order[0]!]!
     section.blocks![section.blockOrder![0]!]!.disabled = true
 
-    expect(navigationItems(document, everything, registry).header?.[0]).toEqual({ label: 'Σχετικά', to: '/about', icon: 'i-lucide-info' })
+    expect(navigationItems(document, everything, registry).header?.[0]).toEqual({ label: 'Σχετικά', to: '/about', icon: 'i-heroicons-information-circle' })
 
     section.disabled = true
     expect(navigationItems(document, everything, registry)).toEqual({})

@@ -16,15 +16,17 @@ const upgraded = (type: string, settings: Record<string, unknown>) => {
   return { node, parsed: definition.schema.safeParse(node.settings) }
 }
 
+// The version a version 1 node reaches: the grid went on to 3 when its icon
+// took the builder's list (`upgradeIconSetting`), which leaves these alone.
 describe.each([
-  ['blog_posts_grid', 'count', 3],
-  ['blog_posts_list', 'pageSize', 3],
-  ['blog_posts_carousel', 'count', 6],
-] as const)('%s, version 1 to 2', (type, sizeKey, defaultSize) => {
+  ['blog_posts_grid', 'count', 3, 3],
+  ['blog_posts_list', 'pageSize', 3, 2],
+  ['blog_posts_carousel', 'count', 6, 2],
+] as const)('%s, version 1 to 2', (type, sizeKey, defaultSize, current) => {
   it('turns the category and the size into the descriptor of what it lists, newest first', () => {
     const { node, parsed } = upgraded(type, { categoryId: 5, [sizeKey]: 4, heading: 'Νέα', surface: 'muted' })
 
-    expect(node.type).toBe(`${type}@2`)
+    expect(node.type).toBe(`${type}@${current}`)
     expect(node.settings).toEqual({
       heading: 'Νέα',
       surface: 'muted',

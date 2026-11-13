@@ -83,13 +83,17 @@ const record = computed(() => {
   return kind && (typeof stored === 'number' || typeof stored === 'string') ? builderLinkRefOf(kind, stored) : undefined
 })
 
-/** A choice's items: its values, and "the section's own default" first when the setting may be left out. */
+/**
+ * A choice's items: its values, and "the section's own default" first when
+ * the setting may be left out. An icon's item shows the icon beside its name.
+ */
 const choiceItems = computed(() => {
   const field = props.field
-  if (field.kind !== 'choice' && field.kind !== 'route') return []
+  if (field.kind !== 'choice' && field.kind !== 'route' && field.kind !== 'icon') return []
   const items = field.options.map(option => ({
     label: field.kind === 'route' ? routeLabel(option) : optionLabel(field.path, option),
     value: option,
+    ...(field.kind === 'icon' && { icon: option }),
   }))
   return field.required ? items : [{ label: t('default'), value: UNSET }, ...items]
 })
@@ -232,9 +236,10 @@ function addMediaItem(id: number | undefined): void {
       @update:model-value="setChoice"
     />
     <USelect
-      v-else-if="field.kind === 'choice' || field.kind === 'route'"
+      v-else-if="field.kind === 'choice' || field.kind === 'route' || field.kind === 'icon'"
       :model-value="choice"
       :items="(choiceItems as SelectItem[])"
+      :leading-icon="field.kind === 'icon' && choice !== UNSET ? choice : undefined"
       :disabled="locked"
       class="w-full"
       @update:model-value="setChoice"
@@ -324,15 +329,6 @@ function addMediaItem(id: number | undefined): void {
         @update:model-value="set"
       />
     </div>
-    <UInput
-      v-else-if="field.kind === 'icon'"
-      :model-value="text"
-      :placeholder="t('iconPlaceholder')"
-      :disabled="locked"
-      :leading-icon="text || undefined"
-      class="w-full"
-      @update:model-value="set"
-    />
     <BuilderLinkField
       v-else-if="field.kind === 'link'"
       :label="label"
@@ -466,7 +462,6 @@ el:
   "off": Όχι
   urlPlaceholder: https://
   hexPlaceholder: "#1E4FD8"
-  iconPlaceholder: i-lucide-star
   pickColour: "Επιλογή χρώματος: {name}"
   item: "{name}, {number}"
   itemUp: "Μετακίνηση πάνω: {number}"
@@ -481,7 +476,6 @@ en:
   "off": "Off"
   urlPlaceholder: https://
   hexPlaceholder: "#1E4FD8"
-  iconPlaceholder: i-lucide-star
   pickColour: "Pick a colour for {name}"
   item: "{name}, {number}"
   itemUp: "Move {number} up"
