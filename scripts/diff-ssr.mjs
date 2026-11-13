@@ -94,7 +94,9 @@ function readMeta(dir, slug) {
  * a preload for a hashed chunk never survives as a stray difference.
  */
 function normaliseCapture(html, meta) {
-  const payloadMatch = html.match(/<script type="application\/json"[^>]*id="__NUXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)
+  // Attribute order is not fixed: a page rendered per request (no Nitro
+  // cache) carries its CSP `nonce` before `type`.
+  const payloadMatch = html.match(/<script\b[^>]*\bid="__NUXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)
   const payload = payloadMatch ? normalisePayload(payloadMatch[1]) : ''
 
   let body = html
@@ -108,7 +110,7 @@ function normaliseCapture(html, meta) {
   // @nuxtjs/i18n serialises the messages the render USED, in the order
   // the components asked for them — a stable set with an unstable
   // order. The translated text is compared where it is painted.
-  body = body.replace(/<script type="application\/json"[^>]*data-nuxt-i18n="[^"]*"[^>]*>[\s\S]*?<\/script>/g, '<script data-nuxt-i18n></script>')
+  body = body.replace(/<script\b[^>]*\bdata-nuxt-i18n="[^"]*"[^>]*>[\s\S]*?<\/script>/g, '<script data-nuxt-i18n></script>')
   // 1. CSP nonces (fresh per request) and the build-hashed asset names.
   body = body.replace(/\s+nonce="[^"]*"/g, '')
   body = body.replace(/\/_nuxt\/[A-Za-z0-9_.-]+\.(js|css|mjs)/g, '/_nuxt/HASH.$1')
