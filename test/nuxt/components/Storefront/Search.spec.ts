@@ -211,6 +211,51 @@ describe('Storefront/Search', () => {
     expect(next?.attributes('href')).toContain('tab=guides')
   })
 
+  it('on a named guides tab with no guides, says so and offers the products rather than an empty list', async () => {
+    answer({ products: 2, guides: 0 })
+
+    const wrapper = await render({ query: 'καλώδιο', tab: 'guides' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'empty_guides.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'empty.title'))
+    const toProducts = wrapper.findAll('button:not([role="tab"])').find(button => button.text() === own(wrapper, 'empty_guides.show_products'))
+    await toProducts?.trigger('click')
+
+    expect(navigateToMock).toHaveBeenCalledWith({ query: { query: 'καλώδιο', tab: 'products' } })
+  })
+
+  // A page past the end of a list that has results (an old or edited link)
+  // is not an empty tab: it offers that list's first page, never the other
+  // tab and never «no products».
+  it.each([
+    ['products', { products: 0, productTotal: 5, guides: 0 }],
+    ['guides', { products: 2, guides: 0, guideTotal: 5 }],
+  ] as const)('on a %s page past the end, offers that list\u2019s first page', async (tab, found) => {
+    answer(found)
+
+    const wrapper = await render({ query: 'καλώδιο', tab, page: '3' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'empty_page.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'empty_products.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'empty_guides.title'))
+    const first = wrapper.findAll('a').find(a => a.text() === own(wrapper, 'empty_page.first'))
+    expect(first?.attributes('href')).toBe(`/search?query=${encodeURIComponent('καλώδιο')}&tab=${tab}`)
+  })
+
+  // A link with a page but no tab (from before the tabs) that opens the
+  // guides by their results shows their first page, which is what was
+  // fetched: the pagination agrees, and its next page is the second.
+  it('shows the first page of guides a tabless link opened, with its pagination on that page', async () => {
+    answer({ products: 0, guides: 12, guideTotal: 30 })
+
+    const wrapper = await render({ query: 'security', page: '2' })
+
+    expect(lastQuery(GUIDES)).toMatchObject({ limit: 12, offset: 0 })
+    expect(api.callsTo(GUIDES)).toHaveLength(1)
+    expect(wrapper.get('a[aria-current="page"]').attributes('href')).toBe('/search?query=security&tab=guides')
+    expect(wrapper.get('a[data-slot="next"]').attributes('href')).toBe('/search?query=security&tab=guides&page=2')
+  })
+
   it('links each trending search to its results', async () => {
     const wrapper = await render({})
 

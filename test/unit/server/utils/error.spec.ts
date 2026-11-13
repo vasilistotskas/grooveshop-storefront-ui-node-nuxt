@@ -269,8 +269,13 @@ describe('handleError', () => {
       expect(log.warn).not.toHaveBeenCalledWith(expect.objectContaining({ action: 'request:aborted' }))
     })
 
-    it('keeps an upstream reset (ofetch\u2019s FetchError) a 500 at error', async () => {
-      backend.failOnce()
+    // ofetch wraps any failed upstream call in a FetchError, Django's response
+    // cut off mid-body (Node's very same Error('aborted')) included.
+    it.each([
+      ['a refused connection', () => new TypeError('fetch failed')],
+      ['a response cut off mid-body', abortedRequestBodyError],
+    ])('keeps an upstream failure (ofetch\u2019s FetchError around %s) a 500 at error', async (_case, cause) => {
+      backend.failOnce(await cause() as Error)
       const upstream = await rejectionOf($fetch('http://backend.test/api/v1/upstream', { method: 'POST' }), FetchError)
 
       const thrown = thrownBy(() => handleError(probe(), upstream))

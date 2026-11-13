@@ -20,6 +20,17 @@ export type SearchTab = 'products' | 'guides'
  * shows the first `asideGuides`; on a named products tab it asks for those
  * alone.
  *
+ * The page applies to the open list. A URL with no tab pages the products
+ * (the links from before the tabs); when it opens the guides by their
+ * results, it shows their first page, which is what the guides search
+ * fetched, so the list, its pagination and its next link agree with no
+ * second request.
+ *
+ * An open tab with nothing to show is one of two cases: the tab is empty
+ * while the other has results (`emptyTab`: offer the other tab), or the tab
+ * has results but not on this page (`emptyPage`, an old or edited link:
+ * offer its first page).
+ *
  * Shared by every drawing of the page (`Storefront/Search.vue` and the
  * tenants' own). Call it from a body's `<script setup>`, before the
  * first `await`.
@@ -42,9 +53,10 @@ export async function useStorefrontSearch(options: { asideGuides: number }) {
     if (value === 'products') return 'products'
     return value === 'guides' && blogEnabled.value ? 'guides' : null
   })
-  const page = computed(() => Math.max(1, Number(firstOf(route.query.page)) || 1))
+  /** The page the URL asks for; `page` is the open list's. */
+  const requestedPage = computed(() => Math.max(1, Number(firstOf(route.query.page)) || 1))
   const limit = ref(12)
-  const offset = computed(() => (page.value - 1) * limit.value)
+  const offset = computed(() => (requestedPage.value - 1) * limit.value)
 
   /**
    * The URL for a state change; `page` drops back to the first unless given.
@@ -106,8 +118,22 @@ export async function useStorefrontSearch(options: { asideGuides: number }) {
   const noResults = computed(() => productCount.value === 0 && guideCount.value === 0)
   /** The guides beside the products, at most `asideGuides` of them. */
   const asideGuides = computed(() => (guides.value?.results ?? []).slice(0, options.asideGuides))
+  /** The open list's page: the first of the guides when the results, not the URL, opened them. */
+  const page = computed(() => namedTab.value === null && tab.value === 'guides' ? 1 : requestedPage.value)
   const openCount = computed(() => tab.value === 'guides' ? guideCount.value : productCount.value)
+  /** What the open tab shows on this page. */
+  const openResults = computed<SearchResult[]>(() =>
+    (tab.value === 'guides' ? guides.value?.results : products.value?.results) ?? [])
   const pending = computed(() => (tab.value === 'guides' ? guidesStatus : productsStatus).value === 'pending')
+  /**
+   * The open tab has nothing while the other has results, so the other is
+   * the one to offer. Its count is positive by construction, and the guides
+   * count only with the blog on.
+   */
+  const emptyTab = computed(() => !noResults.value && openCount.value === 0)
+  const otherTab = computed<SearchTab>(() => tab.value === 'products' ? 'guides' : 'products')
+  /** The open tab has results, none of them on this page. */
+  const emptyPage = computed(() => openCount.value > 0 && !pending.value && openResults.value.length === 0)
   // The engine widened the query when nothing matched it: say so, the
   // results are not the ones that were asked for.
   const relaxedQuery = computed(() => (tab.value === 'guides' ? guides : products).value?.relaxedQuery ?? null)
@@ -162,7 +188,11 @@ export async function useStorefrontSearch(options: { asideGuides: number }) {
     productCount,
     guideCount,
     openCount,
+    openResults,
     noResults,
+    emptyTab,
+    otherTab,
+    emptyPage,
     asideGuides,
     pending,
     relaxedQuery,

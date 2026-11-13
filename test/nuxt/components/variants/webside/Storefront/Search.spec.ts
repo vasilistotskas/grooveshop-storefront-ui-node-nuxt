@@ -50,14 +50,14 @@ const PRODUCTS = '/api/products/search'
 const GUIDES = '/api/search/blog-posts'
 
 /** What the two searches find; the products' total defaults to the hits on the page. */
-function answer({ products = 2, productTotal, guideTotal = 1 }: { products?: number, productTotal?: number, guideTotal?: number } = {}) {
+function answer({ products = 2, productTotal, guides = 1, guideTotal = 1 }: { products?: number, productTotal?: number, guides?: number, guideTotal?: number } = {}) {
   api.routes({
     [PRODUCTS]: makeProductSearchResponse({
       results: Array.from({ length: products }, (_, i) => makeProductSearchHit({ id: i + 1, master: i + 1, name: `Προϊόν ${i + 1}` })),
       estimatedTotalHits: productTotal ?? products,
     }),
     [GUIDES]: makeBlogPostSearchResponse({
-      results: [makeBlogPostSearchHit({ id: 1, master: 1, title: 'Άρθρο 1' })],
+      results: Array.from({ length: guides }, (_, i) => makeBlogPostSearchHit({ id: i + 1, master: i + 1, title: `Άρθρο ${i + 1}` })),
       estimatedTotalHits: guideTotal,
     }),
     '/api/search/click': {},
@@ -181,6 +181,51 @@ describe('webside Storefront/Search', () => {
     const wrapper = await render({ query: 'xyzzy' })
 
     expect(wrapper.text()).toContain(own(wrapper, 'page.no_results.title'))
+  })
+
+  // A page past the end of a list that has results (an old or edited link)
+  // is not an empty tab: it offers that list's first page, never the other
+  // tab (here there are no articles, or no blog at all) and never «no products».
+  it.each([
+    ['with no articles', true],
+    ['without the blog', false],
+  ])('on a products page past the end %s, offers the first page of products', async (_case, blog) => {
+    setTenantFeatures({ blog })
+    answer({ products: 0, productTotal: 5, guides: 0, guideTotal: 0 })
+
+    const wrapper = await render({ query: 'καλώδιο', tab: 'products', page: '3' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.empty_page.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.open_empty.products'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.no_results.title'))
+    expect(wrapper.findAll('button:not([role="tab"])').map(button => button.text()).join(' ')).not.toMatch(/0/)
+    const first = wrapper.findAll('a').find(a => a.text() === own(wrapper, 'page.empty_page.first'))
+    expect(first?.attributes('href')).toBe(`/search?query=${encodeURIComponent('καλώδιο')}&tab=products`)
+  })
+
+  it('on an articles page past the end, offers the first page of articles', async () => {
+    answer({ products: 2, guides: 0, guideTotal: 5 })
+
+    const wrapper = await render({ query: 'καλώδιο', tab: 'guides', page: '3' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.empty_page.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.open_empty.guides'))
+    const first = wrapper.findAll('a').find(a => a.text() === own(wrapper, 'page.empty_page.first'))
+    expect(first?.attributes('href')).toBe(`/search?query=${encodeURIComponent('καλώδιο')}&tab=guides`)
+  })
+
+  // A link with a page but no tab (from before the tabs) that opens the
+  // articles by their results shows their first page, which is what was
+  // fetched: the pagination agrees, and its next page is the second.
+  it('shows the first page of articles a tabless link opened, with its pagination on that page', async () => {
+    answer({ products: 0, guides: 12, guideTotal: 30 })
+
+    const wrapper = await render({ query: 'security', page: '2' })
+
+    expect(lastQuery(GUIDES)).toMatchObject({ limit: 12, offset: 0 })
+    expect(api.callsTo(GUIDES)).toHaveLength(1)
+    expect(wrapper.get('a[aria-current="page"]').attributes('href')).toBe('/search?query=security&tab=guides')
+    expect(wrapper.get('a[data-slot="next"]').attributes('href')).toBe('/search?query=security&tab=guides&page=2')
   })
 
   it('reports which result was opened, at its place in the whole result set', async () => {

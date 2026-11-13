@@ -98,10 +98,13 @@ function isAbortedRequestBody(value: unknown): boolean {
  *
  * The error itself, or as the `cause` of the error Nitro wraps an unhandled
  * throw in. An upstream reset is not this: ofetch wraps it in a `FetchError`,
- * which stays a 5xx, as does any other `ECONNRESET` (a store, a socket).
+ * whatever its cause (Django's own response cut off mid-body is that same
+ * `Error('aborted')` inside one), and it stays a 5xx, as does any other
+ * `ECONNRESET` (a store, a socket).
  */
 export function isClientAbort(error: unknown): boolean {
-  return isAbortedRequestBody(error) || (error instanceof Error && isAbortedRequestBody(error.cause))
+  if (!(error instanceof Error) || error instanceof FetchError) return false
+  return isAbortedRequestBody(error) || isAbortedRequestBody(error.cause)
 }
 
 /**
