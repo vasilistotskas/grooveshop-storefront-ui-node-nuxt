@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductsGrid from '~/components/PageSection/ProductsGrid.vue'
-import { makeProductCard } from '~~/test/fixtures/product'
+import { makeProductCard, makeProductCategory } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
@@ -104,5 +104,55 @@ describe('PageSection/ProductsGrid', () => {
     const wrapper = await mountGrid({ colorScheme })
 
     expect(wrapper.get('section').classes()).toContain(colorScheme)
+  })
+})
+
+describe('PageSection/ProductsGrid: phone limit and category tile', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('hides the products past the phone\'s limit below sm only', async () => {
+    const wrapper = await mountGrid({ products: products([1, 2, 3]), phoneLimit: 2 })
+
+    expect(wrapper.findAll('[data-product]').map(card => card.attributes('data-phone-hidden') !== undefined)).toEqual([false, false, true])
+  })
+
+  it('ends the grid with a tile of the categories on a desk', async () => {
+    const wrapper = await mountGrid({
+      categoryTile: { status: 'ok', descriptor: { mode: 'roots', limit: 4 }, items: [makeProductCategory({ id: 5, slug: 'power-bank', recursiveProductCount: 2 })] },
+    })
+
+    const tile = wrapper.get('li.border-dashed')
+    expect(tile.classes()).toContain('max-sm:hidden')
+    expect(tile.get('a[href*="/products/category/5"]').text()).toContain('2')
+  })
+})
+
+/**
+ * The bold band's link: «Όλα τα προϊόντα» on a desk, «Δες όλα τα προϊόντα» on
+ * a phone (the boards), both the block's own wording. A store that wrote its
+ * own link text gets that text everywhere.
+ */
+describe('PageSection/ProductsGrid in the bold look, its link', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('says the phone’s own words on a phone and the desk’s on a desk', async () => {
+    const wrapper = await mountGrid({ products: products([1, 2]), look: 'bold' })
+
+    // The desk's link sits beside the heading; the phone's is the button
+    // under the grid, the last link of the band.
+    const links = wrapper.findAll('a[href^="/products"]')
+    expect(links.at(-1)!.text()).toBe(COPY.all_products_phone)
+    expect(links[0]!.findAll('span').find(span => span.classes().includes('max-sm:hidden'))!.text()).toBe(COPY.all_products)
+  })
+
+  it('uses the store’s own link text at every width', async () => {
+    const wrapper = await mountGrid({ products: products([1, 2]), look: 'bold', ctaText: 'Στο κατάστημα' })
+
+    expect(wrapper.text()).not.toContain(COPY.all_products_phone)
+    expect(wrapper.text()).toContain('Στο κατάστημα')
   })
 })

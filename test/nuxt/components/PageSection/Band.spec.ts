@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { defineComponent, h } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import Band from '~/components/PageSection/Band.vue'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The frame every page-builder section renders inside: a full-width
@@ -11,6 +13,11 @@ const mountBand = (props: Record<string, unknown> = {}, slots: Record<string, ()
   mountSuspended(Band, { route: false, props, slots })
 
 describe('PageSection/Band', () => {
+  // Groove Volt, the platform's design: a store with none of its own.
+  beforeEach(() => {
+    setTenant()
+  })
+
   it('puts its content inside a real container, not a literal element', async () => {
     // The regression this guards: `<component :is="'UContainer'">`
     // resolves a STRING as an unknown ELEMENT, so `<UContainer>`
@@ -107,5 +114,76 @@ describe('PageSection/Band', () => {
     const wrapper = await mountBand({ heading: 'Χρήσιμα gadgets' })
 
     expect(wrapper.get('h2').classes()).toContain('wrap-break-word')
+  })
+})
+
+/**
+ * The bold look (`look: 'bold'`, `PageSection/BandBold`, every design): the
+ * board's heading row; laid out `open` by its shell, its bands share the
+ * page's ground without rules. The classes are the contract: happy-dom lays
+ * nothing out, the browser is the real check.
+ */
+describe('PageSection/Band in its bold look', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  /** The band inside a shell that lays its bands out `open`. */
+  const mountOpen = (props: Record<string, unknown>) => mountSuspended(defineComponent({
+    setup() {
+      provideBandFlow('open')
+      return () => h(Band, props, { default: () => 'body' })
+    },
+  }), { route: false })
+
+  it('sets the eyebrow in the accent, in capitals, over a heavier heading', async () => {
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', eyebrow: 'Κατάστημα', heading: 'Χρήσιμα gadgets' } })
+
+    expect(wrapper.get('p').classes()).toEqual(expect.arrayContaining(['uppercase', 'text-accent', 'font-bold']))
+    expect(wrapper.get('h2').classes()).toEqual(expect.arrayContaining(['font-extrabold', 'lg:text-[2.125rem]/[1.15]', 'wrap-break-word']))
+  })
+
+  it('draws "see all" as a plain accent link with its arrow, a 44px target', async () => {
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Νέα άρθρα', ctaText: 'Όλα τα άρθρα', ctaLink: '/blog' } })
+
+    const link = wrapper.get('a[href="/blog"]')
+    expect(link.classes()).toEqual(expect.arrayContaining(['text-accent', 'min-h-11']))
+    expect(link.findComponent({ name: 'UButton' }).exists()).toBe(false)
+  })
+
+  it.each([
+    ['inline', false, false],
+    ['below', true, true],
+    ['none', true, false],
+  ] as const)('puts the phone\'s link %s', async (phoneCta, hiddenInRow, buttonBelow) => {
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Χρήσιμα gadgets', ctaText: 'Όλα τα προϊόντα', ctaLink: '/products', phoneCta } })
+
+    const links = wrapper.findAll('a[href="/products"]')
+    expect(links[0]!.classes().includes('max-sm:hidden')).toBe(hiddenInRow)
+    expect(links.length === 2 && links[1]!.classes().includes('sm:hidden')).toBe(buttonBelow)
+  })
+
+  it('shows a shorter link text on a phone where the section gives one', async () => {
+    const wrapper = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Νέα άρθρα', ctaText: 'Όλα τα άρθρα', ctaLink: '/blog', phoneCtaText: 'Όλα' } })
+
+    const spans = wrapper.get('a[href="/blog"]').findAll('span').filter(span => span.text())
+    expect(spans.map(span => [span.text(), span.classes()[0]])).toEqual([['Όλα', 'sm:hidden'], ['Όλα τα άρθρα', 'max-sm:hidden']])
+  })
+
+  it('keeps the band as it was without the bold look', async () => {
+    const wrapper = await mountSuspended(Band, { route: false, props: { eyebrow: 'Κατάστημα', heading: 'Χ', ctaText: 'Όλα', ctaLink: '/products', phoneCta: 'below' } })
+
+    expect(wrapper.findComponent({ name: 'PageSectionBandBold' }).exists()).toBe(false)
+    expect(wrapper.get('h2').classes()).toContain('font-bold')
+    expect(wrapper.findAll('a[href="/products"]')).toHaveLength(1)
+  })
+
+  it('keeps its rules and padding framed on a page, and drops the rules laid out open', async () => {
+    const framed = await mountSuspended(Band, { route: false, props: { look: 'bold', heading: 'Χ' } })
+    const open = await mountOpen({ look: 'bold', heading: 'Χ' })
+
+    expect(framed.get('section').classes()).toEqual(expect.arrayContaining(['border-y', 'py-12']))
+    expect(open.get('section').classes()).not.toContain('border-y')
+    expect(open.get('section').classes()).toEqual(expect.arrayContaining(['pt-11', 'lg:pt-22']))
   })
 })

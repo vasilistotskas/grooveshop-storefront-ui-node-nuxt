@@ -16,6 +16,10 @@ export interface StoreAssuranceFacts {
   carrierPrices: Array<{ carrier: string, price: number }>
   /** How the shopper can pay, as one phrase ("Card or cash on delivery"). */
   payment: string | null
+  /** The same ways to pay one by one, each capitalised ("Card", "Cash on delivery"). */
+  paymentWays: string[]
+  /** The carriers the store ships with, by name, cheapest first. */
+  carriers: string[]
   /** How many days the shopper has to send it back. */
   returnDays: number | null
   /** The store's return policy, once it has published one. */
@@ -101,21 +105,35 @@ export async function useStoreAssuranceFacts() {
     return [...cheapest.values()].filter(({ price }) => price > 0).sort((a, b) => a.price - b.price)
   })
 
-  const payment = computed(() => {
+  /** The ways to pay the store takes, in the order a phrase lists them, in the page's words. */
+  const paymentParts = computed(() => {
     const labels = new Set(
       (payWays.data.value?.results ?? []).flatMap(payWay =>
         payWay.settlement ? [SETTLEMENT_LABEL[payWay.settlement]] : [],
       ),
     )
-    if (labels.size === 0) return null
+    return PAYMENT_LABELS
+      .filter(part => labels.has(part))
+      .map(part => $i18n.t(`product_assurances.payment_${part}`))
+  })
 
+  const capitalised = (text: string) => {
     const locale = $i18n.locale.value
-    const phrase = new Intl.ListFormat(locale, { type: 'disjunction' }).format(
-      PAYMENT_LABELS
-        .filter(part => labels.has(part))
-        .map(part => $i18n.t(`product_assurances.payment_${part}`)),
-    )
-    return phrase.charAt(0).toLocaleUpperCase(locale) + phrase.slice(1)
+    return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1)
+  }
+
+  const payment = computed(() => {
+    if (paymentParts.value.length === 0) return null
+    return capitalised(new Intl.ListFormat($i18n.locale.value, { type: 'disjunction' }).format(paymentParts.value))
+  })
+
+  const carriers = computed(() => {
+    const cheapest = new Map<string, { name: string, price: number }>()
+    for (const entry of countryRates.value) {
+      const known = cheapest.get(entry.providerCode)
+      if (!known || entry.price < known.price) cheapest.set(entry.providerCode, { name: entry.providerName, price: entry.price })
+    }
+    return [...cheapest.values()].sort((a, b) => a.price - b.price).map(({ name }) => name)
   })
 
   return computed<StoreAssuranceFacts | null>(() => ({
@@ -124,6 +142,8 @@ export async function useStoreAssuranceFacts() {
     freeShippingFrom: freeShippingFrom.value,
     carrierPrices: carrierPrices.value,
     payment: payment.value,
+    paymentWays: paymentParts.value.map(capitalised),
+    carriers: carriers.value,
     returnDays: returnWindowDays(values.value?.returnWindowDays),
     returnPolicy: published.value.has(LEGAL_ROUTE_SLUGS['return-policy'])
       ? localePath('return-policy')

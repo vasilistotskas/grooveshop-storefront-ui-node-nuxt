@@ -4,13 +4,29 @@
       "label": "About us"
     },
     "blog_categories": {
-      "label": "Blog categories"
+      "label": "Blog categories",
+      "settings": {
+        "look": {
+          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. A slider of categories keeps its usual look."
+        }
+      }
     },
     "blog_posts_carousel": {
       "label": "Blog post carousel"
     },
     "blog_posts_grid": {
-      "label": "Blog post grid"
+      "label": "Blog post grid",
+      "settings": {
+        "icon": {
+          "help": "Shown by the Card with posts layout only."
+        },
+        "layout": {
+          "help": "Card with posts: the heading, the Icon and the posts in one tinted card; Background, Style, Layout on a phone and Load more button do not apply."
+        },
+        "look": {
+          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. With the Load more button the band keeps its usual look."
+        }
+      }
     },
     "blog_posts_list": {
       "label": "Blog post list"
@@ -136,7 +152,12 @@
       "label": "Figures"
     },
     "store_assurances": {
-      "label": "Shopping promises"
+      "label": "Shopping promises",
+      "settings": {
+        "layout": {
+          "help": "Card: the promises on one raised card, which rises over a bold band right above it; its heading is read out to screen readers only, and Background does not apply."
+        }
+      }
     },
     "story_timeline": {
       "label": "Our story"
@@ -242,6 +263,10 @@
     "categories": {
       "label": "What it lists"
     },
+    "categoryTile": {
+      "label": "Category tile",
+      "help": "A last tile in the grid listing the shop's categories and how many products each holds, on a computer. Empty: no tile."
+    },
     "colorScheme": {
       "label": "Colour scheme",
       "help": "Light or dark in both of the page's colour modes. Default: as the page."
@@ -332,6 +357,10 @@
       "label": "Load more button",
       "help": "Shows a button that adds the next posts of the same list, when it has more than the band shows."
     },
+    "look": {
+      "label": "Style",
+      "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had."
+    },
     "marquee": {
       "label": "Scrolling row"
     },
@@ -362,6 +391,10 @@
     "phoneLayout": {
       "label": "Layout on a phone",
       "help": "List: on a phone, rows with a small picture, the category, the reading time and the title. Default: a row to swipe. Larger screens are the same either way."
+    },
+    "phoneLimit": {
+      "label": "How many on a phone",
+      "help": "A phone shows only the first ones. Empty: all of them. Larger screens are unchanged."
     },
     "placeholder": {
       "label": "Placeholder"
@@ -405,6 +438,10 @@
     },
     "route": {
       "label": "Store page"
+    },
+    "searchPlaceholder": {
+      "label": "Search field text",
+      "help": "The question inside the field. Empty: “Search the shop”."
     },
     "secondaryCtaLink": {
       "label": "Second button link"
@@ -507,7 +544,9 @@
     "layout": {
       "slider": "Slider",
       "grid": "Grid",
-      "tiles": "Tiles"
+      "tiles": "Tiles",
+      "card": "Card",
+      "feature": "Card with posts"
     },
     "height": {
       "sm": "Small",
@@ -526,6 +565,49 @@
     },
     "phoneLayout": {
       "list": "List"
+    },
+    "look": {
+      "bold": "Bold"
+    },
+    "icon": {
+      "i-fa6-solid-desktop": "Desktop computer",
+      "i-fa6-solid-globe": "Globe",
+      "i-fa6-solid-microchip": "Microchip",
+      "i-fa6-solid-mobile": "Mobile phone",
+      "i-fa6-solid-network-wired": "Wired network",
+      "i-fa6-solid-robot": "Robot",
+      "i-fa6-solid-shield": "Shield, solid",
+      "i-fa6-solid-shuffle": "Shuffle",
+      "i-heroicons-arrow-uturn-left": "Return arrow",
+      "i-heroicons-briefcase": "Briefcase",
+      "i-heroicons-building-storefront": "Storefront",
+      "i-heroicons-chat-bubble-left-right": "Conversation",
+      "i-heroicons-globe-europe-africa": "Globe, Europe",
+      "i-heroicons-hand-raised": "Raised hand",
+      "i-heroicons-information-circle": "Information",
+      "i-heroicons-lifebuoy": "Lifebuoy",
+      "i-heroicons-light-bulb": "Light bulb",
+      "i-heroicons-lock-closed": "Padlock",
+      "i-heroicons-rectangle-group": "Sections",
+      "i-heroicons-shield-check": "Shield with check, rounded",
+      "i-heroicons-shopping-bag": "Shopping bag",
+      "i-heroicons-sparkles": "Sparkles",
+      "i-heroicons-sun": "Sun",
+      "i-heroicons-truck": "Truck",
+      "i-lucide-battery-charging": "Battery charging",
+      "i-lucide-code": "Code",
+      "i-lucide-cpu": "Processor",
+      "i-lucide-drafting-compass": "Drafting compass",
+      "i-lucide-gauge": "Gauge",
+      "i-lucide-graduation-cap": "Graduation cap",
+      "i-lucide-hard-hat": "Hard hat",
+      "i-lucide-radio": "Radio",
+      "i-lucide-shield": "Shield",
+      "i-lucide-shield-check": "Shield with check",
+      "i-lucide-sliders-horizontal": "Sliders",
+      "i-lucide-traffic-cone": "Traffic cone",
+      "i-lucide-wrench": "Wrench",
+      "i-lucide-zap": "Lightning"
     }
   },
   "routes": {

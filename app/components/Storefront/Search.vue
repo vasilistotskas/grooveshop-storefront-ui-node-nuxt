@@ -26,6 +26,10 @@ const {
   productCount,
   guideCount,
   openCount,
+  noResults,
+  emptyTab,
+  emptyPage,
+  asideGuides,
   pending,
   relaxedQuery,
   selectTab,
@@ -216,7 +220,7 @@ useHead({
       </div>
 
       <UEmpty
-        v-else-if="!openCount"
+        v-else-if="noResults"
         icon="i-heroicons-magnifying-glass-minus"
         :title="t('empty.title')"
         :description="t('empty.description', { query })"
@@ -231,7 +235,22 @@ useHead({
         "
       >
         <div class="flex flex-col gap-10">
+          <!-- No products, but guides: say so, and the guides beside it
+               show at every width rather than on a desk only. -->
+          <UEmpty
+            v-if="emptyTab"
+            icon="i-heroicons-magnifying-glass-minus"
+            :title="t('empty_products.title')"
+            :description="t('empty_products.description', { query })"
+          />
+          <UEmpty
+            v-else-if="emptyPage"
+            icon="i-heroicons-magnifying-glass-minus"
+            :title="t('empty_page.title')"
+            :actions="[{ label: t('empty_page.first'), color: 'neutral', to: pageLink(1) }]"
+          />
           <ol
+            v-else
             class="
               grid grid-cols-2 gap-3.5
               lg:grid-cols-3 lg:gap-6
@@ -255,11 +274,9 @@ useHead({
         </div>
 
         <aside
-          v-if="guides?.results.length"
-          class="
-            hidden flex-col gap-3
-            lg:flex
-          "
+          v-if="asideGuides.length"
+          class="flex-col gap-3"
+          :class="productCount ? ['hidden', 'lg:flex'] : 'flex'"
           :aria-labelledby="'search-guides-heading'"
         >
           <h2
@@ -269,7 +286,7 @@ useHead({
             {{ t('from_guides') }}
           </h2>
           <SearchGuideCard
-            v-for="(post, index) in guides.results"
+            v-for="(post, index) in asideGuides"
             :key="post.id"
             :post="post"
             @click="onGuideClick(post, index)"
@@ -281,7 +298,22 @@ useHead({
         v-else
         class="mt-6 flex flex-col gap-10"
       >
+        <!-- No guides, but products: say so, and open them. -->
+        <UEmpty
+          v-if="emptyTab"
+          icon="i-heroicons-magnifying-glass-minus"
+          :title="t('empty_guides.title')"
+          :description="t('empty_guides.description', { query })"
+          :actions="[{ label: t('empty_guides.show_products'), color: 'neutral', onClick: () => selectTab('products') }]"
+        />
+        <UEmpty
+          v-else-if="emptyPage"
+          icon="i-heroicons-magnifying-glass-minus"
+          :title="t('empty_page.title')"
+          :actions="[{ label: t('empty_page.first'), color: 'neutral', to: pageLink(1) }]"
+        />
         <ul
+          v-else
           class="
             grid gap-3
             lg:grid-cols-2
@@ -338,6 +370,16 @@ el:
   empty:
     title: Δεν βρέθηκαν αποτελέσματα
     description: "Τίποτα για «{query}». Δοκίμασε μια πιο γενική λέξη ή ένα από τα δημοφιλή."
+  empty_products:
+    title: Δεν βρέθηκαν προϊόντα
+    description: "Κανένα προϊόν για «{query}», αλλά οι οδηγοί έχουν."
+  empty_guides:
+    title: Δεν βρέθηκαν οδηγοί
+    description: "Κανένας οδηγός για «{query}», αλλά τα προϊόντα έχουν."
+    show_products: Δες τα προϊόντα
+  empty_page:
+    title: Δεν υπάρχουν αποτελέσματα σε αυτή τη σελίδα
+    first: Στην πρώτη σελίδα
   start:
     title: Ξεκίνα την αναζήτηση
     description: Γράψε το όνομα ενός προϊόντος, μιας μάρκας ή ενός θέματος.
@@ -361,6 +403,16 @@ en:
   empty:
     title: No results found
     description: "Nothing for “{query}”. Try a broader word or one of the trending searches."
+  empty_products:
+    title: No products found
+    description: "No product for “{query}”, but the guides have some."
+  empty_guides:
+    title: No guides found
+    description: "No guide for “{query}”, but the products have some."
+    show_products: See the products
+  empty_page:
+    title: There are no results on this page
+    first: To the first page
   start:
     title: Start your search
     description: Type the name of a product, a brand or a topic.

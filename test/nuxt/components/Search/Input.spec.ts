@@ -6,6 +6,7 @@ import SearchInput from '~/components/Search/Input.vue'
 import WebsideSearchInput from '~/components/variants/webside/Search/Input.vue'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The control that opens the search palette. In the header (`compact`)
@@ -49,6 +50,18 @@ describe('Search/Input', () => {
     expect(header.findAll('button').at(-1)!.classes()).not.toContain('h-11')
   })
 
+  it('gives a hero’s large field one tab stop: its button beside it is for a pointer only, and opens the same palette', async () => {
+    const wrapper = await mountSuspended(SearchInput, { route: false, props: { size: 'lg' } })
+
+    const buttons = wrapper.findAll('button')
+    expect(buttons).toHaveLength(2)
+    // Tab stops, and what assistive tech meets: the field alone in both.
+    expect(buttons.map(button => button.attributes('tabindex') !== '-1')).toEqual([true, false])
+    expect(buttons.map(button => button.attributes('aria-hidden') !== 'true')).toEqual([true, false])
+    await buttons[1]!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
+  })
+
   it('opens the palette', async () => {
     const wrapper = await mountSuspended(SearchInput, { route: false })
 
@@ -69,25 +82,26 @@ describe('the search shortcut', () => {
    * The fields of one page, mounted together as a page holds them (each field
    * is told apart by its place in the page, `useId`): `fields` lists which
    * is the header's, and `shown` which are drawn, so a test can take one away.
-   * The header's field is `header`: the default design's compact field, or
-   * webside's own; a section's field is the shared one in every design.
+   * `field` is the design's own field, the header's (`compact`) and every
+   * section's alike: the section's is the `search_field` part, so a page has
+   * one search, its design's.
    */
-  async function mountPage(fields: boolean[], header: Component = SearchInput) {
+  async function mountPage(fields: boolean[], field: Component = SearchInput) {
     const shown = ref(fields.map(() => true))
     const Page = defineComponent({
       setup: () => () => h('div', fields.map((isHeader, index) => shown.value[index]
-        ? h('div', { 'data-field': index }, [isHeader ? h(header, header === SearchInput ? { compact: true } : {}) : h(SearchInput)])
+        ? h('div', { 'data-field': index }, [isHeader ? h(field, { compact: true }) : h(field)])
         : null)),
     })
     const page = await mountSuspended(Page, { route: false })
-    const field = (index: number) => page.get(`[data-field="${index}"]`)
+    const at = (index: number) => page.get(`[data-field="${index}"]`)
     return {
       shown,
-      opened: (index: number) => field(index).find('[data-test="palette"]').attributes('data-open') === 'true',
-      paletteMounted: (index: number) => field(index).find('[data-test="palette"]').exists(),
+      opened: (index: number) => at(index).find('[data-test="palette"]').attributes('data-open') === 'true',
+      paletteMounted: (index: number) => at(index).find('[data-test="palette"]').exists(),
       advertises: (index: number) => ({
-        hint: field(index).findAll('kbd').length > 0,
-        keys: field(index).findAll('[aria-keyshortcuts]').length > 0,
+        hint: at(index).findAll('kbd').length > 0,
+        keys: at(index).findAll('[aria-keyshortcuts]').length > 0,
       }),
     }
   }
@@ -159,13 +173,67 @@ describe('the search shortcut', () => {
 })
 
 describe('webside Search/Input', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ blog: true })
+  })
+
   it('names the field by its visible text on a desktop, with no label of its own to contradict it', async () => {
-    const wrapper = await mountSuspended(WebsideSearchInput, { route: false })
+    const wrapper = await mountSuspended(WebsideSearchInput, { route: false, props: { compact: true } })
 
     // WCAG 2.5.3: an aria-label that is not the visible text (the key hint
     // is part of it) is a name a voice-control user cannot say.
     const button = wrapper.find('button')
     expect(button.attributes('aria-label')).toBeUndefined()
     expect(button.text()).toContain(inlineCopy('app/components/variants/webside/Search/Input.vue').search.placeholder)
+  })
+
+  // The class is the contract, the browser the real check (44x44 at 390,
+  // 2026-11-13): the phone's 24px icon has a hit area 10px around it.
+  it('is a 44px target on a phone', async () => {
+    const wrapper = await mountSuspended(WebsideSearchInput, { route: false, props: { compact: true } })
+
+    expect(wrapper.get('button').classes()).toEqual(expect.arrayContaining(['relative', 'max-lg:after:absolute', 'max-lg:after:-inset-2.5']))
+  })
+
+  it.each([
+    ['articles and products while the store runs its blog', true, 'placeholder'],
+    ['products alone without it', false, 'placeholder_products'],
+  ])('names %s', async (_case, blog, key) => {
+    setTenantFeatures({ blog })
+
+    const wrapper = await mountSuspended(WebsideSearchInput, { route: false, props: { compact: true } })
+
+    expect(wrapper.get('button').text()).toContain(inlineCopy('app/components/variants/webside/Search/Input.vue').search[key])
+  })
+
+  /**
+   * webside's field in a shared section (the `search_field` part: the hero,
+   * the search band): always the field, on every device, and a hero's (`lg`)
+   * with the «Search» button beside it, the same palette behind both.
+   */
+  describe('in a section', () => {
+    const copy = inlineCopy('app/components/variants/webside/Search/Input.vue').search
+
+    it('draws the field with the section\u2019s own wording, or the design\u2019s', async () => {
+      const own = await mountSuspended(WebsideSearchInput, { route: false, props: { placeholder: 'Τι θες να μάθεις;' } })
+      const stock = await mountSuspended(WebsideSearchInput, { route: false })
+
+      expect(own.get('button').text()).toContain('Τι θες να μάθεις;')
+      expect(stock.get('button').text()).toContain(copy.placeholder)
+    })
+
+    it('gives a hero\u2019s field one tab stop: its «Search» button is for a pointer only, and opens the same palette', async () => {
+      const wrapper = await mountSuspended(WebsideSearchInput, { route: false, props: { size: 'lg' } })
+
+      const buttons = wrapper.findAll('button')
+      expect(buttons.map(button => button.text())).toEqual([expect.stringContaining(copy.placeholder), copy.submit])
+      expect(buttons.map(button => button.attributes('tabindex') !== '-1')).toEqual([true, false])
+      expect(buttons.map(button => button.attributes('aria-hidden') !== 'true')).toEqual([true, false])
+      // The hero's measures, 50px on a phone and 52px from `sm` up: the classes are the contract.
+      expect(buttons[0]?.classes()).toEqual(expect.arrayContaining(['h-12.5', 'sm:h-13']))
+      await buttons[1]?.trigger('click')
+      await vi.waitFor(() => expect(wrapper.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
+    })
   })
 })

@@ -1,11 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogRail from '~/components/Blog/Rail.vue'
 import type { BlogPost } from '~~/shared/openapi/types.gen'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { inlineT } from '~~/test/helpers/inlineCopy'
+import { setTenant } from '~~/test/helpers/tenant'
 
-const mountRail = (props: { posts: BlogPost[], categoryName?: (id: number) => string | undefined, stacked?: boolean, phoneLayout?: 'list' }) =>
+const mountRail = (props: { posts: BlogPost[], categoryName?: (id: number) => string | undefined, stacked?: boolean, phoneLayout?: 'list', phoneLimit?: number }) =>
   mountSuspended(BlogRail, { route: false, props, global: { stubs: { ImgWithFallback: true } } })
 
 /**
@@ -15,6 +16,11 @@ const mountRail = (props: { posts: BlogPost[], categoryName?: (id: number) => st
  * footer.
  */
 describe('BlogRail', () => {
+  // Groove Volt, the platform's design; the base design's teaser is below.
+  beforeEach(() => {
+    setTenant()
+  })
+
   it('links each card to its post, under the post\'s title', async () => {
     const wrapper = await mountRail({ posts: [makeBlogPost({ id: 3, slug: 'gan' }), makeBlogPost({ id: 4, slug: 'usb-c' })] })
 
@@ -78,5 +84,91 @@ describe('BlogRail', () => {
       expect(wrapper.get('ul').attributes('data-phone-layout')).toBeUndefined()
       expect(wrapper.find('[data-slot="compact-meta"]').exists()).toBe(false)
     })
+  })
+})
+
+/**
+ * The bold look (`Blog/RailBold`, `look: 'bold'`, every design): one meta line,
+ * the category in the accent and no badge, a 16:10 photograph, and every
+ * compact row ruled above. The classes are the contract; the browser is the
+ * real check.
+ */
+describe('Blog/Rail, the bold look', () => {
+  const POSTS = [
+    makeBlogPost({ id: 3, slug: 'gan', category: 2, readingTime: 6, publishedAt: '2026-11-11T08:00:00Z' }),
+    makeBlogPost({ id: 4, slug: 'usb-c', category: 2, readingTime: 7, publishedAt: '2026-11-10T08:00:00Z' }),
+  ]
+  const categoryName = (id: number) => (id === 2 ? 'Κινητό' : undefined)
+  const mountBold = (props: { posts: BlogPost[], categoryName?: (id: number) => string | undefined, phoneLayout?: 'list', phoneLimit?: number }) =>
+    mountSuspended(BlogRail, { route: false, props: { ...props, look: 'bold' as const }, global: { stubs: { ImgWithFallback: true } } })
+
+  it('says category, minutes and date on one line, with no badge', async () => {
+    const wrapper = await mountBold({ posts: POSTS, categoryName })
+
+    expect(wrapper.findComponent({ name: 'UBadge' }).exists()).toBe(false)
+    const meta = wrapper.get('[data-slot="meta"]')
+    expect(meta.get('span').text()).toBe('Κινητό')
+    expect(meta.get('span').classes()).toContain('text-accent')
+    expect(meta.text().replace(/\s+/g, ' ')).toContain('Κινητό · 6′ · ')
+  })
+
+  it('rules every compact row above it, the first included', async () => {
+    const wrapper = await mountBold({ posts: POSTS, categoryName, phoneLayout: 'list' })
+
+    for (const row of wrapper.findAll('li')) expect(row.classes()).toEqual(expect.arrayContaining(['border-t', 'sm:border-t-0']))
+    expect(wrapper.get('[data-slot="compact-meta"]').text().replace(/\s+/g, ' ')).toBe('Κινητό · 6′')
+  })
+
+  it('marks the posts past the limit for a phone, which a phone does not show', async () => {
+    const wrapper = await mountBold({ posts: POSTS, categoryName, phoneLayout: 'list', phoneLimit: 1 })
+
+    expect(wrapper.findAll('li').map(row => row.attributes('data-phone-hidden') !== undefined)).toEqual([false, true])
+  })
+})
+
+describe('BlogRail with a phone limit', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('marks the posts past it, and nothing without one', async () => {
+    const posts = [makeBlogPost({ id: 3, slug: 'gan' }), makeBlogPost({ id: 4, slug: 'usb-c' })]
+
+    const limited = await mountRail({ posts, phoneLimit: 1 })
+    const open = await mountRail({ posts })
+
+    expect(limited.findAll('li').map(row => row.attributes('data-phone-hidden') !== undefined)).toEqual([false, true])
+    expect(open.findAll('li[data-phone-hidden]')).toHaveLength(0)
+  })
+})
+
+/**
+ * A store's edited wording is the rail's, whatever its look: the bold teaser
+ * draws `Blog/Rail`'s texts, so switching to it keeps what the store wrote.
+ */
+describe('Blog/Rail, a store’s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    useTextOverrides().value = { el: { 'components/Blog/Rail': {
+      reading_time: '{minutes} λεπτά διάβασμα',
+      reading_minutes: '{minutes} λεπτά διάβασμα',
+    } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the rail as it was', undefined],
+    ['the bold rail', 'bold' as const],
+  ])('shows them in %s', async (_case, look) => {
+    const wrapper = await mountSuspended(BlogRail, {
+      route: false,
+      props: { posts: [makeBlogPost({ id: 3, slug: 'gan', readingTime: 6 })], look },
+      global: { stubs: { ImgWithFallback: true } },
+    })
+
+    expect(wrapper.text()).toContain('6 λεπτά διάβασμα')
   })
 })

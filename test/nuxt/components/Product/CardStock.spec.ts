@@ -22,7 +22,7 @@ const CARDS: { name: string, C: Component, soldOut: string }[] = [
   ...trees(ProductCard, WebsideProductCard).map(({ tree, C }) => ({
     name: `${tree} Product/Card`,
     C,
-    soldOut: tree === 'default' ? 'Εξαντλήθηκε' : 'Εξαντλημένο',
+    soldOut: 'Εξαντλήθηκε',
   })),
   { name: 'webside AccountArea/Product/Card', C: WebsideAccountAreaProductCard, soldOut: 'Εξαντλημένο' },
 ]

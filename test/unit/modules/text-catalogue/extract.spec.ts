@@ -145,13 +145,13 @@ describe('buildTextCatalogue over the real tree', () => {
     // 4471 entries on 2026-10-28; a block the walk misses would be silent.
     expect(real.entries.length).toBeGreaterThan(4000)
     expect(find('components/Chrome/Footer', 'pay_with')?.defaults.en).toBe('Pay with')
-    expect(find('components/variants/webside/Footer/Desktop', 'cookie_settings')).toBeDefined()
+    expect(find('components/variants/webside/Footer/Legal', 'cookie_settings')?.defaults).toEqual({ el: 'Ρυθμίσεις cookies', en: 'Cookie settings' })
     expect(find('global', 'cancel')).toBeDefined()
   })
 
   it('gives each store with a design of its own a view, and the default store the shared tree', () => {
     expect(Object.keys(real.views)).toEqual(['default', 'ekfyseosfyteias', 'webside'])
-    expect(real.views.webside!.namespaces).toContain('components/variants/webside/Footer/Desktop')
+    expect(real.views.webside!.namespaces).toContain('components/variants/webside/Footer/Legal')
     expect(real.views.webside!.namespaces).not.toContain('components/Chrome/Footer')
     expect(real.views.default!.namespaces).toContain('components/Chrome/Footer')
     expect(real.views.default!.namespaces.filter(namespace => namespace.includes('variants/'))).toEqual([])

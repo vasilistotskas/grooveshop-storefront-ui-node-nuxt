@@ -1,3 +1,24 @@
+## [3.341.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.1...v3.341.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* **search:** one search per design, the results tab that has results, and a closed request answered 499 ([#476](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/476)) ([c221b0a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c221b0a9d6889b07a053e234511aac23687c1a64))
+
+## [3.341.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.0...v3.341.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* **builder:** editor icons in the server render, block-specific help, a computed accent heading, phone footer bars as drawn ([#475](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/475)) ([3a1f941](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3a1f94125ee673ced170fc2ef704c6c3d267d56e))
+
+# [3.341.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.1...v3.341.0) (2026-11-13)
+
+
+### Features
+
+* **builder:** the home blocks draw the design board's look, and webside's chrome and card follow it ([#474](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/474)) ([2e6775f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2e6775f41d0aa8d9c5b89766bdc3dbc310e59f9b))
+
 ## [3.340.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.0...v3.340.1) (2026-11-13)
 
 

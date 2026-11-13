@@ -11,11 +11,14 @@
  */
 withDefaults(defineProps<{
   /** The operator's section title, from the section row itself. */
+  eyebrow?: string
   title?: string
   subheading?: string
   ctaText?: string
   ctaLink?: string
   layout?: 'slider' | 'tiles'
+  /** `bold`: the tiles' bold look (`PageSection/BlogCategoryTilesBold`). */
+  look?: 'bold'
   categories: ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 }>(), {
   layout: 'slider',
@@ -27,14 +30,17 @@ const linkTo = useLinkTo()
 <template>
   <PageSectionBlogCategoryTiles
     v-if="layout === 'tiles'"
+    :eyebrow="eyebrow"
     :title="title"
     :subheading="subheading"
     :cta-text="ctaText"
     :cta-link="ctaLink"
     :categories="categories"
+    :look="look"
   />
   <PageSectionBand
     v-else-if="categories.items.length"
+    :eyebrow="eyebrow"
     :heading="title"
     :subheading="subheading"
     :cta-text="ctaText"

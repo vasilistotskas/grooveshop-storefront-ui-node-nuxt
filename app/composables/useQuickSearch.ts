@@ -59,10 +59,12 @@ export function useQuickSearch(options: { query: Ref<string>, open: MaybeRefOrGe
   /**
    * Through localePath: a bare '/search' dropped the /en prefix, so an
    * English quick search opened the Greek results page, which found
-   * nothing for an English word.
+   * nothing for an English word. A new history entry: the page the palette
+   * was opened on stays one «back» away (a replace dropped it, so «back»
+   * from the results skipped it).
    */
   function goToSearchPage(query: string) {
-    return router.replace(localePath({ name: 'search', query: { query } }))
+    return router.push(localePath({ name: 'search', query: { query } }))
   }
 
   return {

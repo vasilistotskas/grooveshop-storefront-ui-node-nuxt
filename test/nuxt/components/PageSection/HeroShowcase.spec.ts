@@ -17,8 +17,17 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 const device = vi.hoisted(() => ({ mobile: { value: false } }))
 mockNuxtImport('useDevice', () => () => ({ isMobileOrTablet: device.mobile }))
 
+// The search field is the DESIGN's (`resolvePart('search_field')`), loaded
+// with a bare `import()`: each design's field is a stand-in naming its design
+// and showing the props it got.
+const searchField = vi.hoisted(() => (design: string) => ({
+  __esModule: true,
+  default: { props: ['placeholder', 'size'], template: `<div data-test="search" data-design="${design}" :placeholder="placeholder" :size="size" />` },
+}))
+vi.mock('~/components/Search/Input.vue', () => searchField('default'))
+vi.mock('~/components/variants/webside/Search/Input.vue', () => searchField('webside'))
+
 const stubs = {
-  SearchInput: { template: '<div data-test="search" />' },
   ProductSpotlight: { props: ['product', 'showAddToCart'], template: '<div data-test="spotlight" :data-id="product.id" :data-cart="String(showAddToCart)" />' },
 }
 
@@ -178,6 +187,19 @@ describe('PageSection/HeroShowcase', () => {
     })
   })
 
+  // One search per page: the hero's field is the store's own, the one its
+  // header opens, never the platform's beside it.
+  it.each([
+    ['the platform’s', 'shop_a', 'default'],
+    ['webside’s own', 'webside', 'webside'],
+  ])('mounts %s search field for the store', async (_case, schemaName, design) => {
+    setTenant({ schemaName })
+
+    const wrapper = await mountHero()
+
+    await vi.waitFor(() => expect(wrapper.get('[data-test="search"]').attributes('data-design')).toBe(design))
+  })
+
   it('offers the search only when the block asks for it', async () => {
     expect((await mountHero()).find('[data-test="search"]').exists()).toBe(true)
     expect((await mountHero({ showSearch: false })).find('[data-test="search"]').exists()).toBe(false)
@@ -305,5 +327,53 @@ describe('PageSection/HeroShowcase', () => {
     })
 
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+})
+
+/**
+ * The bold look (`look: 'bold'`, `PageSection/HeroShowcaseBold`, every design)
+ * draws the board's hero: a heavier, tighter heading; a white search field with its own
+ * question; 48px buttons, the main one in the accent's deep shade with an
+ * arrow; the copy centred against the picture and the product on a desk.
+ * The classes are the contract; the browser is the real check.
+ */
+describe('PageSection/HeroShowcase in its bold look', () => {
+  beforeEach(() => {
+    device.mobile.value = false
+    setTenant()
+    setTenantFeatures({ catalogue: true, cart: true })
+  })
+
+  it('sets the heading at 56px and 800 on a desk, 36px on a phone', async () => {
+    const wrapper = await mountHero({ look: 'bold' })
+
+    expect(wrapper.get('h1').classes()).toEqual(expect.arrayContaining(['font-extrabold', 'text-4xl/[1.08]', 'lg:text-[3.5rem]/[1.04]']))
+  })
+
+  it('draws the search white on the dark band, with the block\'s own question and the large field', async () => {
+    const wrapper = await mountHero({ look: 'bold', searchPlaceholder: 'Τι θες να μάθεις ή να βρεις;', colorScheme: 'dark' })
+
+    const search = wrapper.get('[data-test="search"]')
+    expect(search.element.parentElement!.classList).toContain('light')
+    expect(search.attributes('placeholder')).toBe('Τι θες να μάθεις ή να βρεις;')
+    expect(search.attributes('size')).toBe('lg')
+  })
+
+  it('draws two 48px buttons, the main one in the accent\'s deep shade with an arrow', async () => {
+    const wrapper = await mountHero({ look: 'bold' })
+
+    const [main, second] = wrapper.findAllComponents({ name: 'UButton' })
+    expect(main!.props('trailingIcon')).toBe('i-lucide-arrow-right')
+    // The deep fill and the text picked for IT, never the accent's own
+    // (`--ui-on-secondary-deep`, `shared/theme/compile.ts`): a pair.
+    expect(wrapper.get('a[href="/products"]').classes()).toEqual(expect.arrayContaining(['min-h-12', 'bg-(--ui-secondary-deep)', 'text-(--ui-on-secondary-deep)', 'font-bold']))
+    expect(second!.props('trailingIcon')).toBeUndefined()
+    expect(wrapper.get('a[href="/blog"]').classes()).toEqual(expect.arrayContaining(['min-h-12', 'text-accent']))
+  })
+
+  it('centres the copy against the picture and the product on a desk', async () => {
+    const wrapper = await mountHero({ look: 'bold' })
+
+    expect(wrapper.get('section > div').classes()).toEqual(expect.arrayContaining(['lg:grid-rows-[1fr_auto_auto_auto_1fr]', 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]']))
   })
 })

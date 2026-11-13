@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { BLOCK_REF_KINDS, DATA_LIMITS, DATA_SCHEMA_MARKER, LINK_ROUTES, LINK_SCHEMA_MARKER, SECTION_COLOR_SCHEMES } from '../constants/builder'
 import type { BlockRefKind, DataDeclaration, DataMissing, DataSource } from '../types/builder'
 import { DATA_DESCRIPTORS } from './dataSources'
+import { BUILDER_ICONS } from './icons'
 import { recordId } from './recordId'
 
 /**
@@ -22,7 +23,6 @@ const text = (max: number) => z.string().max(max)
  */
 export const BUILDER_FIELD_PATTERNS = {
   httpsUrl: /^https:\/\//,
-  icon: /^i-[a-z0-9:-]+$/,
   hexColor: /^#[0-9a-fA-F]{6}$/,
 } as const
 
@@ -125,8 +125,8 @@ export const builderField = {
   number: (min: number, max: number) => z.number().min(min).max(max),
   link,
   httpsUrl,
-  /** An icon name of the icon sets, `i-<set>:<name>`. */
-  icon: (max?: number) => (max === undefined ? z.string() : z.string().max(max)).regex(BUILDER_FIELD_PATTERNS.icon),
+  /** One of the icons the builder offers (`BUILDER_ICONS`): the editor shows them as a choice, and the server paints each one. */
+  icon: () => z.enum(BUILDER_ICONS),
   hexColor: () => z.string().regex(BUILDER_FIELD_PATTERNS.hexColor),
   /** An id of a record in the store: a positive integer. */
   id: recordId,

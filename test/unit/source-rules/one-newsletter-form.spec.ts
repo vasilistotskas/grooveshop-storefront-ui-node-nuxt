@@ -36,10 +36,15 @@ describe('one newsletter form a page', () => {
   })
 
   it('marks the band, only where it draws its form', () => {
-    const band = rootOf('PageSection/NewsletterSignup.vue')
+    const roots: ElementNode[] = []
+    walkElements(sfcTemplate(resolve(COMPONENTS, 'PageSection/NewsletterSignup.vue')), (node) => {
+      roots.push(node)
+      return false
+    })
 
-    expect(band.tag).toBe('PageSectionBand')
-    expect(hasStatic(band, 'data-newsletter-section')).toBe(true)
+    // The bold look is the first branch, the band as it always was the second: both marked.
+    expect(roots.map(node => node.tag)).toEqual(['section', 'PageSectionBand'])
+    expect(roots.map(node => hasStatic(node, 'data-newsletter-section'))).toEqual([true, true])
   })
 
   // Every place a footer draws its form, in both designs: each form's root,

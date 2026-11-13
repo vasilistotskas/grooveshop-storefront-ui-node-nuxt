@@ -14,9 +14,13 @@ defineProps({
   },
 })
 
+// The count in the accent, as webside's board draws it, in the accent's own
+// text colour: white reads at 6.5:1 on the light accent and 4.7:1 on the
+// dark one, where white on the green read at 3.2:1 (Nuxt UI pairs a fill
+// with the inverted text, near-black in the dark scheme: 3.7:1).
 const color = computed(() => {
   if (hasStockIssues.value) return 'warning'
-  return 'success'
+  return 'secondary'
 })
 
 // Cap the badge at "99+" so a runaway count (returning customer with a
@@ -34,9 +38,15 @@ const displayCount = computed<string | number>(() => {
     :color="color"
     :show="!pending"
     :text="displayCount"
+    :ui="color === 'secondary' ? { base: 'text-(--ui-on-secondary)' } : undefined"
   >
+    <!-- A 24px icon, a 44px target below `lg` (WCAG 2.5.5): the hit area
+         reaches 10px around it, so the icon and its count stay put. -->
     <UButton
-      class="p-0"
+      class="
+        relative p-0
+        max-lg:after:absolute max-lg:after:-inset-2.5
+      "
       icon="i-heroicons-shopping-cart"
       :size="size"
       color="neutral"

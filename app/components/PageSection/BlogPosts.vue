@@ -17,6 +17,7 @@
 const props = defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
   title?: string
+  eyebrow?: string
   heading?: string
   subheading?: string
   ctaText?: string
@@ -29,6 +30,14 @@ const props = defineProps<{
   loadMore?: boolean
   /** `blog_posts_grid`'s setting: on a phone, the row to swipe (empty) or a list of compact rows. */
   phoneLayout?: 'list'
+  /** `blog_posts_grid`'s setting: how many of the posts a phone shows, the first ones. */
+  phoneLimit?: number
+  /** `blog_posts_grid`'s setting: one feature card (`PageSection/BlogPostsFeature`) instead of the band. */
+  layout?: 'feature'
+  /** The feature card's icon. */
+  icon?: string
+  /** `blog_posts_grid`'s setting: the band's bold look (`PageSection/BandBold`, `Blog/RailBold`). */
+  look?: 'bold'
 }>()
 
 const { t } = useStoreI18n('components/PageSection/BlogPosts')
@@ -60,20 +69,37 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
 </script>
 
 <template>
+  <PageSectionBlogPostsFeature
+    v-if="layout === 'feature' && posts.items.length"
+    :eyebrow="eyebrow"
+    :heading="heading || title || t('heading')"
+    :subheading="subheading"
+    :icon="icon"
+    :cta-text="ctaText || t('all_posts')"
+    :cta-link="ctaLink ? linkTo(ctaLink) : allPostsLink"
+    :color-scheme="colorScheme"
+    :posts="posts.items"
+    :phone-limit="phoneLimit"
+  />
   <PageSectionBand
-    v-if="posts.items.length"
+    v-else-if="posts.items.length"
+    :eyebrow="eyebrow"
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
+    :phone-cta-text="ctaText ? undefined : t('all_short')"
     :cta-link="ctaLink ? linkTo(ctaLink) : allPostsLink"
     :surface="surface"
     :color-scheme="colorScheme"
+    :look="look"
   >
     <BlogRail
       :posts="items"
       :category-name="categoryName"
       :stacked="loadMore"
       :phone-layout="phoneLayout"
+      :phone-limit="phoneLimit"
+      :look="look"
     />
     <PageSectionBlogPostsLoadMore
       v-if="loadMore"
@@ -89,9 +115,11 @@ const { items, hasMore, loading, added, loadMore: loadNext } = useBlogPostsLoadM
 el:
   heading: Από το blog
   all_posts: Όλα τα άρθρα
+  all_short: Όλα
   load_error: Δεν φορτώθηκαν τα επόμενα άρθρα
 en:
   heading: From the blog
   all_posts: All posts
+  all_short: All
   load_error: The next posts could not be loaded
 </i18n>

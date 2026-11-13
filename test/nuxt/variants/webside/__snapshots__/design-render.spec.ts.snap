@@ -1,15 +1,16 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`webside design render > announcement bar with a promo code 1`] = `
-"<div class="banner relative w-full transition-colors bg-inverted outline-(--ui-bg)/25 -outline-offset-3 has-[>a:focus-visible]:outline-3 hover:bg-inverted/90 z-40" data-banner-id="banner-spring" data-slot="root"><a href="/offers" aria-label="Δωρεάν αποστολή από 50 €" class="focus:outline-none"><span class="absolute inset-0" aria-hidden="true"></span></a>
-  <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-3 h-9.5 justify-center" data-slot="container">
+"<div class="banner relative w-full transition-colors z-40 bg-(--ds-accent-tint)" data-banner-id="banner-spring" data-slot="root">
+  <!--v-if-->
+  <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-3 h-10 justify-center max-sm:pe-0" data-slot="container">
     <div data-slot="left" class="hidden lg:flex-1 lg:flex lg:items-center"></div>
-    <div data-slot="center" class="flex items-center gap-1.5 min-w-0 justify-center">
+    <div data-slot="center" class="flex items-center min-w-0 justify-center gap-3">
       <!--v-if-->
-      <div data-slot="title" class="text-inverted min-w-0 truncate text-sm font-semibold"><span class="max-sm:hidden">Δωρεάν αποστολή από 50 €</span><span class="sm:hidden">Δωρεάν αποστολή 50 €</span><span class="ms-2 rounded-md bg-default px-1.5 py-0.5 font-mono text-xs font-bold tracking-[0.04em] text-highlighted">WELCOME10</span></div>
+      <div data-slot="title" class="truncate flex min-w-0 items-center gap-3 text-sm/5 font-normal max-sm:text-[0.8125rem] text-highlighted"><span class="min-w-0 truncate max-sm:hidden">Δωρεάν αποστολή από 50 €</span><a href="/offers" class="min-w-0 truncate leading-10 font-bold sm:hidden">Δωρεάν αποστολή 50 €</a><a href="/offers" class="inline-flex min-h-10 shrink-0 items-center font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-secondary max-sm:hidden text-accent">Λεπτομέρειες</a><span class="shrink-0 rounded-md bg-default px-1.5 py-0.5 font-mono text-xs font-bold tracking-[0.04em] text-highlighted">WELCOME10</span></div>
       <!--v-if-->
     </div>
-    <div data-slot="right" class="lg:flex-1 flex items-center justify-end"><button type="button" data-slot="close" aria-label="Κλείσιμο" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent p-1.5 text-inverted hover:bg-default/10 focus-visible:bg-default/10 -me-1.5 lg:me-0 relative min-w-11 justify-center after:absolute after:inset-x-0 after:-inset-y-1.5 sm:min-w-0"><span class="iconify i-lucide:x shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+    <div data-slot="right" class="lg:flex-1 flex items-center justify-end"><button type="button" data-slot="close" aria-label="Κλείσιμο" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent p-1.5 focus-visible:bg-default/10 -me-1.5 lg:me-0 h-10 min-w-11 justify-center sm:min-w-10 text-highlighted hover:bg-(--ds-accent-tint)"><span class="iconify i-lucide:x shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
         <!--v-if-->
         <!--v-if-->
       </button></div>
@@ -27,38 +28,27 @@ exports[`webside design render > auth frame > is what the default layout draws a
         <div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
           <div id="navbar-banner"></div>
           <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-            <div class="flex gap-2 py-3 md:flex md:py-4">
-              <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
+            <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
+              <div class="relative flex w-full items-center gap-4 lg:gap-6">
                 <!--v-if-->
-                <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+                <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
-                <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
-                    <!--v-if-->
-                    <div class="flex w-full items-center justify-between">
-                      <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση...</span></div>
-                      <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
-                    </div>
-                    <!--v-if-->
-                  </button>
-                  <!--v-if-->
-                </div>
-                <div class="ml-auto hidden items-center lg:flex">
+                <div class="hidden items-center lg:flex">
                   <div class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
                     <!---->
                     <!---->
                     <nav data-slot="root" aria-label="Πλοήγηση" class="flex gap-1.5 [&amp;>div]:min-w-0 items-center justify-between static" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
                       <div style="position: relative;">
                         <ul data-slot="list" class="isolate min-w-0 flex items-center gap-4" data-orientation="horizontal">
-                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                               <!--v-if--><span data-slot="linkLabel" class="truncate">Κατάστημα<!--v-if--></span>
                               <!--v-if-->
                             </a>
                             <!--v-if-->
                             <!--v-if-->
                           </li>
-                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                               <!--v-if--><span data-slot="linkLabel" class="truncate">Blog<!--v-if--></span>
                               <!--v-if-->
                             </a>
@@ -73,26 +63,38 @@ exports[`webside design render > auth frame > is what the default layout draws a
                         <!---->
                       </div>
                     </nav>
-                    <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-                      <!--v-if-->
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
-                          <!--v-if-->
-                          <!--v-if-->
-                        </a></li>
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
-                          <!--v-if-->
-                          <!--v-if-->
-                        </button></li>
-                      <!--v-if-->
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center">
-                        <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
-                            <!--v-if-->
-                            <!--v-if-->
-                          </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>
-                      </li>
-                      <li class="relative grid items-center justify-center justify-items-center"><a href="/account/login" class="w-full flex size-[30px] items-center self-center text-[1.5rem] text-primary-700 hover:text-primary-900 dark:text-primary-200 hover:dark:text-primary-50" aria-label="Σύνδεση" title="Σύνδεση"><span class="iconify i-fa6-solid:circle-user" aria-hidden="true"></span><span class="sr-only">Σύνδεση</span></a></li>
-                    </ul>
                   </div>
+                </div>
+                <div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-6 max-lg:contents">
+                  <div class="relative flex items-center md:w-full max-w-110 flex-1"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 relative max-lg:after:absolute max-lg:after:-inset-2.5 md:max-w-md">
+                      <!--v-if-->
+                      <div class="flex w-full items-center justify-between">
+                        <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση άρθρων και προϊόντων</span></div>
+                        <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
+                      </div>
+                      <!--v-if-->
+                    </button>
+                    <!--v-if-->
+                  </div>
+                  <ul class="hidden items-center gap-3 text-primary-950 lg:flex dark:border-primary-500 dark:text-primary-50">
+                    <!--v-if-->
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                        <!--v-if-->
+                        <!--v-if-->
+                      </a></li>
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
+                        <!--v-if-->
+                        <!--v-if-->
+                      </button></li>
+                    <!--v-if-->
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center">
+                      <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent relative p-0 max-lg:after:absolute max-lg:after:-inset-2.5"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                          <!--v-if-->
+                          <!--v-if-->
+                        </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-secondary top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform text-(--ui-on-secondary)">0</span></div>
+                    </li>
+                    <li class="relative grid items-center justify-center justify-items-center"><a href="/account/login" class="w-full flex size-[30px] items-center self-center text-[1.5rem] text-primary-700 hover:text-primary-900 dark:text-primary-200 hover:dark:text-primary-50" aria-label="Σύνδεση" title="Σύνδεση"><span class="iconify i-fa6-solid:circle-user" aria-hidden="true"></span><span class="sr-only">Σύνδεση</span></a></li>
+                  </ul>
                 </div>
                 <!--v-if-->
               </div>
@@ -120,9 +122,14 @@ exports[`webside design render > auth frame > is what the default layout draws a
     <footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
       <div data-slot="top" class="py-8 lg:py-12">
         <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
-          <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8">
-            <!--v-if-->
-            <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
+          <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8 grid gap-8 lg:grid-cols-5">
+            <div data-slot="left" class="xl:mb-0 mb-0">
+              <div class="flex flex-col items-start gap-3"><img width="120" height="28" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_240x56/img/logo-navbar.png 2x" style="object-fit: contain; width: 120px; height: 28px;" class="object-left" alt="" src="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png">
+                <!--v-if-->
+                <!--v-if-->
+              </div>
+            </div>
+            <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-2 lg:col-span-4">
               <div>
                 <h2 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h2>
                 <ul class="mt-6 space-y-4">
@@ -147,23 +154,25 @@ exports[`webside design render > auth frame > is what the default layout draws a
         </div>
       </div>
       <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-4 lg:flex lg:items-center lg:justify-between lg:gap-x-3" data-slot="container">
-        <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3">
-          <div class="flex items-center gap-6"><span class="text-xs text-primary-950 dark:text-primary-300">Version: VERSION</span></div>
-        </div>
+        <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3"></div>
         <div data-slot="center" class="mt-3 lg:mt-0 lg:order-2 flex items-center justify-center"></div>
         <div data-slot="left" class="flex items-center justify-center lg:justify-start lg:flex-1 gap-x-1.5 mt-3 lg:mt-0 lg:order-1">
-          <div class="flex flex-col gap-1">
+          <div class="flex w-full flex-col gap-1">
             <!--v-if-->
             <!--v-if-->
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950 dark:text-primary-100"><span> © 2026&nbsp; <a href="/" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-2 hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0 text-primary-950 dark:text-primary-50"><!--v-if--><span data-slot="label" class="truncate">undefined™.</span>
-              <!--v-if--></a> Με επιφύλαξη παντός δικαιώματος. </span><span aria-hidden="true" class="text-primary-400">·</span><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-xs gap-1.5 text-muted hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0"><span class="iconify i-unjs:cookie-es shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Ρυθμίσεις cookies</span>
-                <!--v-if-->
-              </button>
-            </div>
           </div>
         </div>
       </div>
-      <!--v-if-->
+      <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+        <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+            <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+            <p>
+              <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
   <!--v-if-->
@@ -222,10 +231,10 @@ exports[`webside design render > blog post card mobile 1`] = `
 `;
 
 exports[`webside design render > cart button 1`] = `
-"<div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+"<div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent relative p-0 max-lg:after:absolute max-lg:after:-inset-2.5"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
     <!--v-if-->
     <!--v-if-->
-  </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>"
+  </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-secondary top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform text-(--ui-on-secondary)">0</span></div>"
 `;
 
 exports[`webside design render > default layout with the webside schema 1`] = `
@@ -238,38 +247,27 @@ exports[`webside design render > default layout with the webside schema 1`] = `
         <div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
           <div id="navbar-banner"></div>
           <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-            <div class="flex gap-2 py-3 md:flex md:py-4">
-              <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
+            <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
+              <div class="relative flex w-full items-center gap-4 lg:gap-6">
                 <!--v-if-->
-                <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+                <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
-                <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
-                    <!--v-if-->
-                    <div class="flex w-full items-center justify-between">
-                      <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση...</span></div>
-                      <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
-                    </div>
-                    <!--v-if-->
-                  </button>
-                  <!--v-if-->
-                </div>
-                <div class="ml-auto hidden items-center lg:flex">
+                <div class="hidden items-center lg:flex">
                   <div class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
                     <!---->
                     <!---->
                     <nav data-slot="root" aria-label="Πλοήγηση" class="flex gap-1.5 [&amp;>div]:min-w-0 items-center justify-between static" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
                       <div style="position: relative;">
                         <ul data-slot="list" class="isolate min-w-0 flex items-center gap-4" data-orientation="horizontal">
-                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                               <!--v-if--><span data-slot="linkLabel" class="truncate">Κατάστημα<!--v-if--></span>
                               <!--v-if-->
                             </a>
                             <!--v-if-->
                             <!--v-if-->
                           </li>
-                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                               <!--v-if--><span data-slot="linkLabel" class="truncate">Blog<!--v-if--></span>
                               <!--v-if-->
                             </a>
@@ -284,26 +282,38 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                         <!---->
                       </div>
                     </nav>
-                    <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-                      <!--v-if-->
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login?next=/" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
-                          <!--v-if-->
-                          <!--v-if-->
-                        </a></li>
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
-                          <!--v-if-->
-                          <!--v-if-->
-                        </button></li>
-                      <!--v-if-->
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center">
-                        <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
-                            <!--v-if-->
-                            <!--v-if-->
-                          </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>
-                      </li>
-                      <li class="relative grid items-center justify-center justify-items-center"><a href="/account/login?next=/" class="w-full flex size-[30px] items-center self-center text-[1.5rem] text-primary-700 hover:text-primary-900 dark:text-primary-200 hover:dark:text-primary-50" aria-label="Σύνδεση" title="Σύνδεση"><span class="iconify i-fa6-solid:circle-user" aria-hidden="true"></span><span class="sr-only">Σύνδεση</span></a></li>
-                    </ul>
                   </div>
+                </div>
+                <div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-6 max-lg:contents">
+                  <div class="relative flex items-center md:w-full max-w-110 flex-1"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 relative max-lg:after:absolute max-lg:after:-inset-2.5 md:max-w-md">
+                      <!--v-if-->
+                      <div class="flex w-full items-center justify-between">
+                        <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση άρθρων και προϊόντων</span></div>
+                        <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
+                      </div>
+                      <!--v-if-->
+                    </button>
+                    <!--v-if-->
+                  </div>
+                  <ul class="hidden items-center gap-3 text-primary-950 lg:flex dark:border-primary-500 dark:text-primary-50">
+                    <!--v-if-->
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login?next=/" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                        <!--v-if-->
+                        <!--v-if-->
+                      </a></li>
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
+                        <!--v-if-->
+                        <!--v-if-->
+                      </button></li>
+                    <!--v-if-->
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center">
+                      <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent relative p-0 max-lg:after:absolute max-lg:after:-inset-2.5"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                          <!--v-if-->
+                          <!--v-if-->
+                        </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-secondary top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform text-(--ui-on-secondary)">0</span></div>
+                    </li>
+                    <li class="relative grid items-center justify-center justify-items-center"><a href="/account/login?next=/" class="w-full flex size-[30px] items-center self-center text-[1.5rem] text-primary-700 hover:text-primary-900 dark:text-primary-200 hover:dark:text-primary-50" aria-label="Σύνδεση" title="Σύνδεση"><span class="iconify i-fa6-solid:circle-user" aria-hidden="true"></span><span class="sr-only">Σύνδεση</span></a></li>
+                  </ul>
                 </div>
                 <!--v-if-->
               </div>
@@ -323,9 +333,14 @@ exports[`webside design render > default layout with the webside schema 1`] = `
     <footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
       <div data-slot="top" class="py-8 lg:py-12">
         <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
-          <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8">
-            <!--v-if-->
-            <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
+          <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8 grid gap-8 lg:grid-cols-5">
+            <div data-slot="left" class="xl:mb-0 mb-0">
+              <div class="flex flex-col items-start gap-3"><img width="120" height="28" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_240x56/img/logo-navbar.png 2x" style="object-fit: contain; width: 120px; height: 28px;" class="object-left" alt="" src="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png">
+                <!--v-if-->
+                <!--v-if-->
+              </div>
+            </div>
+            <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-2 lg:col-span-4">
               <div>
                 <h2 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h2>
                 <ul class="mt-6 space-y-4">
@@ -350,23 +365,25 @@ exports[`webside design render > default layout with the webside schema 1`] = `
         </div>
       </div>
       <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-4 lg:flex lg:items-center lg:justify-between lg:gap-x-3" data-slot="container">
-        <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3">
-          <div class="flex items-center gap-6"><span class="text-xs text-primary-950 dark:text-primary-300">Version: VERSION</span></div>
-        </div>
+        <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3"></div>
         <div data-slot="center" class="mt-3 lg:mt-0 lg:order-2 flex items-center justify-center"></div>
         <div data-slot="left" class="flex items-center justify-center lg:justify-start lg:flex-1 gap-x-1.5 mt-3 lg:mt-0 lg:order-1">
-          <div class="flex flex-col gap-1">
+          <div class="flex w-full flex-col gap-1">
             <!--v-if-->
             <!--v-if-->
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950 dark:text-primary-100"><span> © 2026&nbsp; <a href="/" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-2 hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0 text-primary-950 dark:text-primary-50"><!--v-if--><span data-slot="label" class="truncate">undefined™.</span>
-              <!--v-if--></a> Με επιφύλαξη παντός δικαιώματος. </span><span aria-hidden="true" class="text-primary-400">·</span><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-xs gap-1.5 text-muted hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0"><span class="iconify i-unjs:cookie-es shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Ρυθμίσεις cookies</span>
-                <!--v-if-->
-              </button>
-            </div>
           </div>
         </div>
       </div>
-      <!--v-if-->
+      <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+        <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+            <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+            <p>
+              <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
   <!--v-if-->
@@ -485,9 +502,14 @@ exports[`webside design render > footer desktop 1`] = `
 "<footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
   <div data-slot="top" class="py-8 lg:py-12">
     <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
-      <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8">
-        <!--v-if-->
-        <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
+      <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8 grid gap-8 lg:grid-cols-5">
+        <div data-slot="left" class="xl:mb-0 mb-0">
+          <div class="flex flex-col items-start gap-3"><img width="120" height="28" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_240x56/img/logo-navbar.png 2x" style="object-fit: contain; width: 120px; height: 28px;" class="object-left" alt="" src="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png">
+            <!--v-if-->
+            <!--v-if-->
+          </div>
+        </div>
+        <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-2 lg:col-span-4">
           <div>
             <h2 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h2>
             <ul class="mt-6 space-y-4">
@@ -512,31 +534,35 @@ exports[`webside design render > footer desktop 1`] = `
     </div>
   </div>
   <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-4 lg:flex lg:items-center lg:justify-between lg:gap-x-3" data-slot="container">
-    <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3">
-      <div class="flex items-center gap-6"><span class="text-xs text-primary-950 dark:text-primary-300">Version: VERSION</span></div>
-    </div>
+    <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3"></div>
     <div data-slot="center" class="mt-3 lg:mt-0 lg:order-2 flex items-center justify-center"></div>
     <div data-slot="left" class="flex items-center justify-center lg:justify-start lg:flex-1 gap-x-1.5 mt-3 lg:mt-0 lg:order-1">
-      <div class="flex flex-col gap-1">
+      <div class="flex w-full flex-col gap-1">
         <!--v-if-->
         <!--v-if-->
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950 dark:text-primary-100"><span> © 2026&nbsp; <a href="/" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-2 hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0 text-primary-950 dark:text-primary-50"><!--v-if--><span data-slot="label" class="truncate">undefined™.</span>
-          <!--v-if--></a> Με επιφύλαξη παντός δικαιώματος. </span><span aria-hidden="true" class="text-primary-400">·</span><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-xs gap-1.5 text-muted hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0"><span class="iconify i-unjs:cookie-es shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Ρυθμίσεις cookies</span>
-            <!--v-if-->
-          </button>
-        </div>
       </div>
     </div>
   </div>
-  <!--v-if-->
+  <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+    <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+        <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+        <p>
+          <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+        </p>
+      </div>
+    </div>
+  </div>
 </footer>"
 `;
 
 exports[`webside design render > footer mobile 1`] = `
 "<footer class="w-full bg-primary-50 md:pb-11 lg:hidden dark:bg-primary-900">
-  <div data-slot="root" class="w-full">
-    <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-b border-default last:border-b-0">
-      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 rounded-md cursor-pointer gap-3 bg-(--ui-secondary) px-3 py-2.5"><span class="iconify i-heroicons:rectangle-group shrink-0 size-5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="text-start break-words truncate text-base font-medium text-(--ui-on-secondary)">Όροι και Προϋποθέσεις</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span></button></div>
+  <div data-slot="root" class="w-full flex flex-col gap-2 px-4 pt-6">
+    <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-default last:border-b-0 border-0">
+      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 cursor-pointer min-h-12 gap-3 rounded-md bg-(--ui-secondary) px-4 py-2.5">
+          <!--v-if--><span data-slot="label" class="text-start break-words truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)">Όροι και Προϋποθέσεις</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4.5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span>
+        </button></div>
       <div role="region" aria-labelledby="ID" data-state="closed" data-orientation="vertical" style="--reka-accordion-content-width: var(--reka-collapsible-content-width); --reka-accordion-content-height: var(--reka-collapsible-content-height); --reka-collapsible-content-height: 0px; --reka-collapsible-content-width: 0px;" data-slot="content" class="data-[state=open]:animate-[accordion-down_200ms_var(--ease-out)] data-[state=closed]:animate-[accordion-up_200ms_var(--ease-out)] data-[state=closed]:overflow-hidden focus:outline-none" id="ID" hidden="">
         <div data-slot="body" class="text-sm pb-3.5">
           <div class="text-primary-950 dark:text-primary-50"><a href="/terms-of-use" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) font-medium">
@@ -554,8 +580,10 @@ exports[`webside design render > footer mobile 1`] = `
         </div>
       </div>
     </div>
-    <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-b border-default last:border-b-0">
-      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 rounded-md cursor-pointer gap-3 bg-(--ui-secondary) px-3 py-2.5"><span class="iconify i-heroicons:chat-bubble-left-right shrink-0 size-5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="text-start break-words truncate text-base font-medium text-(--ui-on-secondary)">Κέντρο βοηθείας</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span></button></div>
+    <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-default last:border-b-0 border-0">
+      <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 cursor-pointer min-h-12 gap-3 rounded-md bg-(--ui-secondary) px-4 py-2.5">
+          <!--v-if--><span data-slot="label" class="text-start break-words truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)">Κέντρο βοηθείας</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4.5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span>
+        </button></div>
       <div role="region" aria-labelledby="ID" data-state="closed" data-orientation="vertical" style="--reka-accordion-content-width: var(--reka-collapsible-content-width); --reka-accordion-content-height: var(--reka-collapsible-content-height); --reka-collapsible-content-height: 0px; --reka-collapsible-content-width: 0px;" data-slot="content" class="data-[state=open]:animate-[accordion-down_200ms_var(--ease-out)] data-[state=closed]:animate-[accordion-up_200ms_var(--ease-out)] data-[state=closed]:overflow-hidden focus:outline-none" id="ID" hidden="">
         <div data-slot="body" class="text-sm pb-3.5">
           <div class="text-primary-950 dark:text-primary-50"><a href="/contact" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) font-medium">
@@ -570,9 +598,15 @@ exports[`webside design render > footer mobile 1`] = `
       </div>
     </div>
   </div>
-  <div class="flex flex-col items-center gap-2 px-4 text-center">
+  <div class="flex flex-col items-center gap-2 px-4 pt-3 text-center">
     <!--v-if-->
     <!--v-if-->
+  </div>
+  <div class="flex gap-x-3 gap-y-1 text-muted flex-col items-center text-center text-xs/normal px-4 pt-3 pb-6">
+    <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+    <p>
+      <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+    </p>
   </div>
 </footer>"
 `;
@@ -722,34 +756,34 @@ exports[`webside design render > login form on a phone draws its hero as an imag
 `;
 
 exports[`webside design render > mobile bottom nav 1`] = `
-"<nav data-slot="root" aria-label="Γρήγορη πλοήγηση" data-dock="tabbar" data-dock-flush="" class="gap-1.5 [&amp;>div]:min-w-0 items-center justify-between fixed inset-x-0 bottom-(--dock-edge) z-50 block h-[calc(var(--dock-tabbar-height)+var(--dock-inset)-var(--dock-edge))] w-full border-t border-primary-200 bg-primary-50/90 pb-[calc(var(--dock-inset)-var(--dock-edge))] backdrop-blur-md transition-transform duration-200 motion-reduce:transition-none dark:border-primary-700 dark:bg-primary-900/90 [&amp;>div]:h-full translate-y-0" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
+"<nav data-slot="root" aria-label="Γρήγορη πλοήγηση" data-dock="tabbar" data-dock-flush="" class="gap-1.5 [&amp;>div]:min-w-0 items-center justify-between fixed inset-x-0 bottom-(--dock-edge) z-50 block h-[calc(var(--dock-tabbar-height)+var(--dock-inset)-var(--dock-edge))] w-full border-t border-neutral-200 bg-white pb-[calc(var(--dock-inset)-var(--dock-edge))] shadow-(--ds-dock-shadow) transition-transform duration-200 motion-reduce:transition-none dark:border-neutral-800 dark:bg-neutral-900 [&amp;>div]:h-full translate-y-0" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
   <div style="position: relative;">
     <ul data-slot="list" class="isolate min-w-0 flex items-center size-full" data-orientation="horizontal">
-      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/" data-reka-collection-item="" data-active="" aria-current="page" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors data-[state=open]:before:bg-elevated/50 text-primary hover:before:bg-elevated/50 before:transition-colors after:bg-primary relative flex min-h-12 w-full flex-col items-center justify-center gap-0.5 px-0 before:bg-transparent data-active:text-(--ui-secondary) data-active:before:bg-secondary/10 dark:before:bg-transparent"><span class="iconify i-heroicons:home shrink-0 text-primary group-data-[state=open]:text-primary size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium tracking-tight">Αρχική<!--v-if--></span>
+      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/" data-reka-collection-item="" data-active="" aria-current="page" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors data-[state=open]:before:bg-elevated/50 hover:before:bg-elevated/50 before:transition-colors after:bg-primary relative flex min-h-12 w-full flex-col items-center justify-center gap-0.75 px-0 text-neutral-600 before:bg-transparent data-active:text-accent dark:text-neutral-400 dark:before:bg-transparent"><span class="iconify i-heroicons:home shrink-0 group-data-[state=open]:text-primary size-5.5 text-current" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[0.625rem] leading-tight font-semibold tracking-tight min-[22.5rem]:text-[0.6875rem]">Αρχική<!--v-if--></span>
           <!--v-if-->
         </a>
         <!--v-if-->
         <!--v-if-->
       </li>
-      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.5 px-0 before:bg-transparent data-active:text-(--ui-secondary) data-active:before:bg-secondary/10 dark:before:bg-transparent"><span class="iconify i-heroicons:building-storefront shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium tracking-tight">Κατάστημα<!--v-if--></span>
+      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.75 px-0 text-neutral-600 before:bg-transparent data-active:text-accent dark:text-neutral-400 dark:before:bg-transparent"><span class="iconify i-heroicons:building-storefront shrink-0 group-hover:text-default transition-colors group-data-[state=open]:text-default size-5.5 text-current" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[0.625rem] leading-tight font-semibold tracking-tight min-[22.5rem]:text-[0.6875rem]">Κατάστημα<!--v-if--></span>
           <!--v-if-->
         </a>
         <!--v-if-->
         <!--v-if-->
       </li>
-      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.5 px-0 before:bg-transparent data-active:text-(--ui-secondary) data-active:before:bg-secondary/10 dark:before:bg-transparent"><span class="iconify i-heroicons:newspaper shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium tracking-tight">Blog<!--v-if--></span>
+      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.75 px-0 text-neutral-600 before:bg-transparent data-active:text-accent dark:text-neutral-400 dark:before:bg-transparent"><span class="iconify i-heroicons:newspaper shrink-0 group-hover:text-default transition-colors group-data-[state=open]:text-default size-5.5 text-current" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[0.625rem] leading-tight font-semibold tracking-tight min-[22.5rem]:text-[0.6875rem]">Blog<!--v-if--></span>
           <!--v-if-->
         </a>
         <!--v-if-->
         <!--v-if-->
       </li>
-      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/cart" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.5 px-0 before:bg-transparent data-active:text-(--ui-secondary) data-active:before:bg-secondary/10 dark:before:bg-transparent"><span class="iconify i-heroicons:shopping-cart shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium tracking-tight">Καλάθι<!--v-if--></span>
+      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/cart" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.75 px-0 text-neutral-600 before:bg-transparent data-active:text-accent dark:text-neutral-400 dark:before:bg-transparent"><span class="iconify i-heroicons:shopping-cart shrink-0 group-hover:text-default transition-colors group-data-[state=open]:text-default size-5.5 text-current" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[0.625rem] leading-tight font-semibold tracking-tight min-[22.5rem]:text-[0.6875rem]">Καλάθι<!--v-if--></span>
           <!--v-if-->
         </a>
         <!--v-if-->
         <!--v-if-->
       </li>
-      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/account/login?next=/" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.5 px-0 before:bg-transparent data-active:text-(--ui-secondary) data-active:before:bg-secondary/10 dark:before:bg-transparent"><span class="iconify i-heroicons:user shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium tracking-tight">Λογαριασμός<!--v-if--></span>
+      <li data-menu-item="" data-slot="item" class="flex min-w-0 flex-1 items-center py-0"><a href="/account/login?next=/" data-reka-collection-item="" data-slot="link" class="group font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 w-full flex-col items-center justify-center gap-0.75 px-0 text-neutral-600 before:bg-transparent data-active:text-accent dark:text-neutral-400 dark:before:bg-transparent"><span class="iconify i-heroicons:user shrink-0 group-hover:text-default transition-colors group-data-[state=open]:text-default size-5.5 text-current" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[0.625rem] leading-tight font-semibold tracking-tight min-[22.5rem]:text-[0.6875rem]">Λογαριασμός<!--v-if--></span>
           <!--v-if-->
         </a>
         <!--v-if-->
@@ -769,38 +803,27 @@ exports[`webside design render > navbar 1`] = `
 "<div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
   <div id="navbar-banner"></div>
   <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-    <div class="flex gap-2 py-3 md:flex md:py-4">
-      <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
+    <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
+      <div class="relative flex w-full items-center gap-4 lg:gap-6">
         <!--v-if-->
-        <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+        <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
             <!--v-if--><span class="sr-only">Webside</span>
           </a></div>
-        <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
-            <!--v-if-->
-            <div class="flex w-full items-center justify-between">
-              <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση...</span></div>
-              <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
-            </div>
-            <!--v-if-->
-          </button>
-          <!--v-if-->
-        </div>
-        <div class="ml-auto hidden items-center lg:flex">
+        <div class="hidden items-center lg:flex">
           <div class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
             <!---->
             <!---->
             <nav data-slot="root" aria-label="Πλοήγηση" class="flex gap-1.5 [&amp;>div]:min-w-0 items-center justify-between static" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
               <div style="position: relative;">
                 <ul data-slot="list" class="isolate min-w-0 flex items-center gap-4" data-orientation="horizontal">
-                  <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                  <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                       <!--v-if--><span data-slot="linkLabel" class="truncate">Κατάστημα<!--v-if--></span>
                       <!--v-if-->
                     </a>
                     <!--v-if-->
                     <!--v-if-->
                   </li>
-                  <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                  <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                       <!--v-if--><span data-slot="linkLabel" class="truncate">Blog<!--v-if--></span>
                       <!--v-if-->
                     </a>
@@ -815,26 +838,38 @@ exports[`webside design render > navbar 1`] = `
                 <!---->
               </div>
             </nav>
-            <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-              <!--v-if-->
-              <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login?next=/" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
-                  <!--v-if-->
-                  <!--v-if-->
-                </a></li>
-              <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
-                  <!--v-if-->
-                  <!--v-if-->
-                </button></li>
-              <!--v-if-->
-              <li class="relative grid max-w-6 items-center justify-center justify-items-center">
-                <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
-                    <!--v-if-->
-                    <!--v-if-->
-                  </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>
-              </li>
-              <li class="relative grid items-center justify-center justify-items-center"><a href="/account/login?next=/" class="w-full flex size-[30px] items-center self-center text-[1.5rem] text-primary-700 hover:text-primary-900 dark:text-primary-200 hover:dark:text-primary-50" aria-label="Σύνδεση" title="Σύνδεση"><span class="iconify i-fa6-solid:circle-user" aria-hidden="true"></span><span class="sr-only">Σύνδεση</span></a></li>
-            </ul>
           </div>
+        </div>
+        <div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-6 max-lg:contents">
+          <div class="relative flex items-center md:w-full max-w-110 flex-1"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 relative max-lg:after:absolute max-lg:after:-inset-2.5 md:max-w-md">
+              <!--v-if-->
+              <div class="flex w-full items-center justify-between">
+                <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση άρθρων και προϊόντων</span></div>
+                <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
+              </div>
+              <!--v-if-->
+            </button>
+            <!--v-if-->
+          </div>
+          <ul class="hidden items-center gap-3 text-primary-950 lg:flex dark:border-primary-500 dark:text-primary-50">
+            <!--v-if-->
+            <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login?next=/" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                <!--v-if-->
+                <!--v-if-->
+              </a></li>
+            <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
+                <!--v-if-->
+                <!--v-if-->
+              </button></li>
+            <!--v-if-->
+            <li class="relative grid max-w-6 items-center justify-center justify-items-center">
+              <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent relative p-0 max-lg:after:absolute max-lg:after:-inset-2.5"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                  <!--v-if-->
+                  <!--v-if-->
+                </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-secondary top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform text-(--ui-on-secondary)">0</span></div>
+            </li>
+            <li class="relative grid items-center justify-center justify-items-center"><a href="/account/login?next=/" class="w-full flex size-[30px] items-center self-center text-[1.5rem] text-primary-700 hover:text-primary-900 dark:text-primary-200 hover:dark:text-primary-50" aria-label="Σύνδεση" title="Σύνδεση"><span class="iconify i-fa6-solid:circle-user" aria-hidden="true"></span><span class="sr-only">Σύνδεση</span></a></li>
+          </ul>
         </div>
         <!--v-if-->
       </div>
@@ -940,44 +975,30 @@ exports[`webside design render > product alert confirmation 1`] = `
 `;
 
 exports[`webside design render > product card 1`] = `
-"<li data-v-X="" data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default max-sm:@container/card product-card group relative size-full max-w-full transition-all duration-300 focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1 hover:scale-[1.02] hover:shadow-xl">
-  <!--v-if-->
-  <div data-slot="body" class="p-0 sm:p-0">
-    <div data-v-X="" class="relative overflow-hidden bg-white dark:bg-neutral-800">
-      <div data-v-X="" class="absolute top-4 left-4 z-10 flex flex-col gap-2 @max-3xs/card:inset-x-2 @max-3xs/card:top-auto @max-3xs/card:bottom-2 @max-3xs/card:gap-1"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md bg-error/10 text-error w-fit font-bold"><!--v-if--> -16% <!--v-if--></span>
+"<li data-v-X="" class="product-card group relative w-full max-w-full max-sm:@container/card">
+  <div data-v-X="" class="flex size-full flex-col gap-3 rounded-lg border border-neutral-200 bg-white px-2.5 pt-2.5 pb-3.5 transition-colors focus-within:ring-1 focus-within:ring-primary hover:border-neutral-300 @max-3xs/card:gap-2 @max-3xs/card:rounded-none @max-3xs/card:border-0 @max-3xs/card:bg-transparent @max-3xs/card:p-0 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 @max-3xs/card:dark:bg-transparent">
+    <div data-v-X="" class="relative aspect-square overflow-hidden rounded-md bg-neutral-100 @max-3xs/card:rounded-lg"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block size-full"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif 1x" class="size-full object-cover" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif"></a>
+      <div data-v-X="" class="pointer-events-none absolute top-2 left-2 flex flex-col items-start gap-1.5 @max-3xs/card:top-auto @max-3xs/card:bottom-1.5 @max-3xs/card:left-1.5 @max-3xs/card:gap-1"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 bg-error/10 text-error w-fit rounded-full font-bold"><!--v-if--> -16% <!--v-if--></span>
         <!--v-if-->
-      </div>
-      <div data-v-X="" class="absolute top-4 right-4 z-10 flex gap-2 @max-3xs/card:top-1.5 @max-3xs/card:right-1.5">
-        <!--v-if--><button data-v-X="" type="button" data-slot="base" aria-label="Αγαπημένο: Mini Power Bank 5000mAh" aria-pressed="false" title="Προσθήκη στα αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-elevated active:bg-accented/75 disabled:bg-elevated aria-disabled:bg-elevated outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5 cursor-pointer hover:bg-transparent relative after:absolute after:-inset-1.5"><span class="iconify i-heroicons:heart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
-          <!--v-if-->
-          <!--v-if-->
-        </button>
-      </div><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block">
-        <div data-v-X="" class="aspect-4/3 max-w-full overflow-hidden @max-3xs/card:aspect-square"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif 1x" class="size-full max-w-full bg-white object-contain" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif"></div>
-      </a>
+      </div><button data-v-X="" type="button" data-slot="base" aria-label="Αγαπημένο: Mini Power Bank 5000mAh" aria-pressed="false" title="Προσθήκη στα αγαπημένα" class="font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-2 ring ring-inset ring-accented active:bg-accented/75 disabled:bg-elevated aria-disabled:bg-elevated outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-2 cursor-pointer absolute top-1.5 right-1.5 size-11 justify-center rounded-full bg-white/90 text-neutral-900 after:absolute after:-inset-1.5 hover:bg-white @max-3xs/card:top-2 @max-3xs/card:right-2 @max-3xs/card:size-8"><span class="iconify i-heroicons:heart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+        <!--v-if-->
+        <!--v-if-->
+      </button>
     </div>
-    <div data-v-X="" class="flex flex-col gap-4 p-4 @max-3xs/card:gap-2 @max-3xs/card:p-2.5"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
-        <h3 data-v-X="" class="line-clamp-2 min-h-12 text-lg leading-snug font-bold wrap-anywhere text-neutral-950 transition-colors group-hover/link:text-primary-600 @max-3xs/card:min-h-10 @max-3xs/card:text-sm dark:text-neutral-50 dark:group-hover/link:text-primary-400">Mini Power Bank 5000mAh</h3>
+    <div data-v-X="" class="flex flex-1 flex-col gap-1 px-1 @max-3xs/card:px-0"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
+        <h3 data-v-X="" class="line-clamp-2 text-base/[1.35] font-semibold wrap-anywhere text-neutral-900 transition-colors group-hover/link:text-accent @max-3xs/card:text-sm/[1.3] dark:text-white">Mini Power Bank 5000mAh</h3>
       </a>
-      <!--v-if-->
-      <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 h-5 @max-3xs/card:flex-wrap @max-3xs/card:overflow-hidden @max-3xs/card:*:min-h-5"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
+      <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 @max-3xs/card:hidden"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
         <!--v-if--></span></span></span><span aria-hidden="true" class="text-[0.8125rem] font-semibold text-muted">4,0 · 3</span>
         <!--v-if-->
       </div>
-      <div data-v-X="" class="flex flex-col gap-4 @max-3xs/card:flex-row @max-3xs/card:flex-wrap @max-3xs/card:items-end @max-3xs/card:justify-between @max-3xs/card:gap-x-1 @max-3xs/card:gap-y-2">
-        <div data-v-X="" class="flex flex-col gap-2 @max-3xs/card:grow @max-3xs/card:basis-0 @max-[8.625rem]/card:basis-full">
-          <div data-v-X="" class="flex items-center gap-2"><span data-v-X="" class="inline-flex flex-wrap items-baseline gap-x-1.5"><s class="text-sm text-neutral-700 dark:text-neutral-300">20,00&nbsp;€</s><span class="text-xs text-muted">Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση</span></span></div>
-          <div data-v-X="" class="flex items-baseline justify-between">
-            <div data-v-X="" class="flex flex-col gap-1"><span data-v-X="" class="text-xs text-neutral-600 @max-3xs/card:hidden dark:text-neutral-300">Τελική Τιμή</span><span data-v-X="" class="text-2xl font-bold text-neutral-950 @max-3xs/card:text-lg dark:text-neutral-50">16,63&nbsp;€</span></div>
-          </div>
-        </div><button data-v-X="" type="button" data-slot="base" aria-label="Στο καλάθι: Mini Power Bank 5000mAh" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 cursor-pointer tap-press px-3 py-2 text-base gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) place-content-center place-items-center w-full transition-all duration-300 hover:scale-105 @max-3xs/card:ml-auto @max-3xs/card:size-11 @max-3xs/card:shrink-0 @max-3xs/card:p-0 @max-3xs/card:*:data-[slot=label]:sr-only @max-[8.625rem]/card:w-full">
-          <!--v-if--><span data-slot="label" class="truncate">Στο καλάθι</span><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="trailingIcon"></span>
-        </button>
-      </div>
-      <!--v-if-->
+    </div>
+    <div data-v-X="" class="mt-auto flex flex-wrap items-center justify-between gap-x-2.5 gap-y-2 px-1 @max-3xs/card:gap-x-1.5 @max-3xs/card:px-0">
+      <div data-v-X="" class="flex flex-col @max-[8.625rem]/card:basis-full"><span data-v-X="" class="inline-flex flex-wrap items-baseline gap-x-1.5"><s class="text-xs text-neutral-700 dark:text-neutral-300">20,00&nbsp;€</s><span class="text-xs text-muted">Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση</span></span><span data-v-X="" class="text-xl font-extrabold whitespace-nowrap text-neutral-900 tabular-nums @max-3xs/card:text-[1.0625rem] dark:text-white">16,63&nbsp;€</span></div><button data-v-X="" type="button" data-slot="base" aria-label="Στο καλάθι: Mini Power Bank 5000mAh" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press py-2 gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) place-content-center place-items-center ml-auto min-h-11 w-auto shrink-0 px-3.5 text-sm font-semibold @max-3xs/card:size-11 @max-3xs/card:p-0 @max-3xs/card:*:data-[slot=label]:sr-only @max-[8.625rem]/card:w-full"><span class="iconify i-heroicons:shopping-cart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Στο καλάθι</span>
+        <!--v-if-->
+      </button>
     </div>
   </div>
-  <!--v-if-->
 </li>"
 `;
 
@@ -1090,46 +1111,33 @@ exports[`webside design render > section products_grid 1`] = `
         <!--v-if--><span data-slot="label" class="truncate">Όλα τα προϊόντα</span><span class="iconify i-heroicons:arrow-right shrink-0 size-4" aria-hidden="true" data-slot="trailingIcon"></span>
       </a>
     </div>
-    <ol class="grid grid-cols-2 items-center justify-center gap-3 sm:gap-4 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
-      <li data-v-X="" data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default max-sm:@container/card product-card group relative size-full max-w-full transition-all duration-300 focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1 hover:scale-[1.02] hover:shadow-xl">
-        <!--v-if-->
-        <div data-slot="body" class="p-0 sm:p-0">
-          <div data-v-X="" class="relative overflow-hidden bg-white dark:bg-neutral-800">
-            <div data-v-X="" class="absolute top-4 left-4 z-10 flex flex-col gap-2 @max-3xs/card:inset-x-2 @max-3xs/card:top-auto @max-3xs/card:bottom-2 @max-3xs/card:gap-1"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md bg-error/10 text-error w-fit font-bold"><!--v-if--> -16% <!--v-if--></span>
+    <ol class="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(min(100%,16.25rem),1fr))] sm:gap-6">
+      <li data-v-X="" class="product-card group relative w-full max-w-full max-sm:@container/card">
+        <div data-v-X="" class="flex size-full flex-col gap-3 rounded-lg border border-neutral-200 bg-white px-2.5 pt-2.5 pb-3.5 transition-colors focus-within:ring-1 focus-within:ring-primary hover:border-neutral-300 @max-3xs/card:gap-2 @max-3xs/card:rounded-none @max-3xs/card:border-0 @max-3xs/card:bg-transparent @max-3xs/card:p-0 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 @max-3xs/card:dark:bg-transparent">
+          <div data-v-X="" class="relative aspect-square overflow-hidden rounded-md bg-neutral-100 @max-3xs/card:rounded-lg"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block size-full"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif 1x" class="size-full object-cover" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif"></a>
+            <div data-v-X="" class="pointer-events-none absolute top-2 left-2 flex flex-col items-start gap-1.5 @max-3xs/card:top-auto @max-3xs/card:bottom-1.5 @max-3xs/card:left-1.5 @max-3xs/card:gap-1"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 bg-error/10 text-error w-fit rounded-full font-bold"><!--v-if--> -16% <!--v-if--></span>
               <!--v-if-->
-            </div>
-            <div data-v-X="" class="absolute top-4 right-4 z-10 flex gap-2 @max-3xs/card:top-1.5 @max-3xs/card:right-1.5">
-              <!--v-if--><button data-v-X="" type="button" data-slot="base" aria-label="Αγαπημένο: Mini Power Bank 5000mAh" aria-pressed="false" title="Προσθήκη στα αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-elevated active:bg-accented/75 disabled:bg-elevated aria-disabled:bg-elevated outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5 cursor-pointer hover:bg-transparent relative after:absolute after:-inset-1.5"><span class="iconify i-heroicons:heart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
-                <!--v-if-->
-                <!--v-if-->
-              </button>
-            </div><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block">
-              <div data-v-X="" class="aspect-4/3 max-w-full overflow-hidden @max-3xs/card:aspect-square"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif 1x" class="size-full max-w-full bg-white object-contain" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif"></div>
-            </a>
+            </div><button data-v-X="" type="button" data-slot="base" aria-label="Αγαπημένο: Mini Power Bank 5000mAh" aria-pressed="false" title="Προσθήκη στα αγαπημένα" class="font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-2 ring ring-inset ring-accented active:bg-accented/75 disabled:bg-elevated aria-disabled:bg-elevated outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-2 cursor-pointer absolute top-1.5 right-1.5 size-11 justify-center rounded-full bg-white/90 text-neutral-900 after:absolute after:-inset-1.5 hover:bg-white @max-3xs/card:top-2 @max-3xs/card:right-2 @max-3xs/card:size-8"><span class="iconify i-heroicons:heart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+              <!--v-if-->
+              <!--v-if-->
+            </button>
           </div>
-          <div data-v-X="" class="flex flex-col gap-4 p-4 @max-3xs/card:gap-2 @max-3xs/card:p-2.5"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
-              <h3 data-v-X="" class="line-clamp-2 min-h-12 text-lg leading-snug font-bold wrap-anywhere text-neutral-950 transition-colors group-hover/link:text-primary-600 @max-3xs/card:min-h-10 @max-3xs/card:text-sm dark:text-neutral-50 dark:group-hover/link:text-primary-400">Mini Power Bank 5000mAh</h3>
+          <div data-v-X="" class="flex flex-1 flex-col gap-1 px-1 @max-3xs/card:px-0"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
+              <h3 data-v-X="" class="line-clamp-2 text-base/[1.35] font-semibold wrap-anywhere text-neutral-900 transition-colors group-hover/link:text-accent @max-3xs/card:text-sm/[1.3] dark:text-white">Mini Power Bank 5000mAh</h3>
             </a>
-            <!--v-if-->
-            <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 h-5 @max-3xs/card:flex-wrap @max-3xs/card:overflow-hidden @max-3xs/card:*:min-h-5"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
+            <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 @max-3xs/card:hidden"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
               <!--v-if--></span></span></span><span aria-hidden="true" class="text-[0.8125rem] font-semibold text-muted">4,0 · 3</span>
               <!--v-if-->
             </div>
-            <div data-v-X="" class="flex flex-col gap-4 @max-3xs/card:flex-row @max-3xs/card:flex-wrap @max-3xs/card:items-end @max-3xs/card:justify-between @max-3xs/card:gap-x-1 @max-3xs/card:gap-y-2">
-              <div data-v-X="" class="flex flex-col gap-2 @max-3xs/card:grow @max-3xs/card:basis-0 @max-[8.625rem]/card:basis-full">
-                <div data-v-X="" class="flex items-center gap-2"><span data-v-X="" class="inline-flex flex-wrap items-baseline gap-x-1.5"><s class="text-sm text-neutral-700 dark:text-neutral-300">20,00&nbsp;€</s><span class="text-xs text-muted">Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση</span></span></div>
-                <div data-v-X="" class="flex items-baseline justify-between">
-                  <div data-v-X="" class="flex flex-col gap-1"><span data-v-X="" class="text-xs text-neutral-600 @max-3xs/card:hidden dark:text-neutral-300">Τελική Τιμή</span><span data-v-X="" class="text-2xl font-bold text-neutral-950 @max-3xs/card:text-lg dark:text-neutral-50">16,63&nbsp;€</span></div>
-                </div>
-              </div><button data-v-X="" type="button" data-slot="base" aria-label="Στο καλάθι: Mini Power Bank 5000mAh" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 cursor-pointer tap-press px-3 py-2 text-base gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) place-content-center place-items-center w-full transition-all duration-300 hover:scale-105 @max-3xs/card:ml-auto @max-3xs/card:size-11 @max-3xs/card:shrink-0 @max-3xs/card:p-0 @max-3xs/card:*:data-[slot=label]:sr-only @max-[8.625rem]/card:w-full">
-                <!--v-if--><span data-slot="label" class="truncate">Στο καλάθι</span><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="trailingIcon"></span>
-              </button>
-            </div>
-            <!--v-if-->
+          </div>
+          <div data-v-X="" class="mt-auto flex flex-wrap items-center justify-between gap-x-2.5 gap-y-2 px-1 @max-3xs/card:gap-x-1.5 @max-3xs/card:px-0">
+            <div data-v-X="" class="flex flex-col @max-[8.625rem]/card:basis-full"><span data-v-X="" class="inline-flex flex-wrap items-baseline gap-x-1.5"><s class="text-xs text-neutral-700 dark:text-neutral-300">20,00&nbsp;€</s><span class="text-xs text-muted">Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση</span></span><span data-v-X="" class="text-xl font-extrabold whitespace-nowrap text-neutral-900 tabular-nums @max-3xs/card:text-[1.0625rem] dark:text-white">16,63&nbsp;€</span></div><button data-v-X="" type="button" data-slot="base" aria-label="Στο καλάθι: Mini Power Bank 5000mAh" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press py-2 gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) place-content-center place-items-center ml-auto min-h-11 w-auto shrink-0 px-3.5 text-sm font-semibold @max-3xs/card:size-11 @max-3xs/card:p-0 @max-3xs/card:*:data-[slot=label]:sr-only @max-[8.625rem]/card:w-full"><span class="iconify i-heroicons:shopping-cart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Στο καλάθι</span>
+              <!--v-if-->
+            </button>
           </div>
         </div>
-        <!--v-if-->
       </li>
+      <!--v-if-->
     </ol>
   </div>
 </section>"
@@ -1154,44 +1162,30 @@ exports[`webside design render > section products_slider 1`] = `
       <div data-slot="viewport" class="overflow-hidden -my-3 py-3">
         <div data-slot="container" class="flex flex-row ms-0 items-stretch" style="transform: translate3d(0px,0px,0px);">
           <div role="group" aria-roledescription="διαφάνεια" data-slot="item" class="min-w-0 shrink-0 basis-[78%] px-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-            <div data-v-X="" data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default max-sm:@container/card product-card group relative size-full max-w-full transition-all duration-300 focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1 hover:scale-[1.02] hover:shadow-xl">
-              <!--v-if-->
-              <div data-slot="body" class="p-0 sm:p-0">
-                <div data-v-X="" class="relative overflow-hidden bg-white dark:bg-neutral-800">
-                  <div data-v-X="" class="absolute top-4 left-4 z-10 flex flex-col gap-2 @max-3xs/card:inset-x-2 @max-3xs/card:top-auto @max-3xs/card:bottom-2 @max-3xs/card:gap-1"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md bg-error/10 text-error w-fit font-bold"><!--v-if--> -16% <!--v-if--></span>
+            <div data-v-X="" class="product-card group relative w-full max-w-full max-sm:@container/card">
+              <div data-v-X="" class="flex size-full flex-col gap-3 rounded-lg border border-neutral-200 bg-white px-2.5 pt-2.5 pb-3.5 transition-colors focus-within:ring-1 focus-within:ring-primary hover:border-neutral-300 @max-3xs/card:gap-2 @max-3xs/card:rounded-none @max-3xs/card:border-0 @max-3xs/card:bg-transparent @max-3xs/card:p-0 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 @max-3xs/card:dark:bg-transparent">
+                <div data-v-X="" class="relative aspect-square overflow-hidden rounded-md bg-neutral-100 @max-3xs/card:rounded-lg"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block size-full"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif 1x" class="size-full object-cover" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif"></a>
+                  <div data-v-X="" class="pointer-events-none absolute top-2 left-2 flex flex-col items-start gap-1.5 @max-3xs/card:top-auto @max-3xs/card:bottom-1.5 @max-3xs/card:left-1.5 @max-3xs/card:gap-1"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 bg-error/10 text-error w-fit rounded-full font-bold"><!--v-if--> -16% <!--v-if--></span>
                     <!--v-if-->
-                  </div>
-                  <div data-v-X="" class="absolute top-4 right-4 z-10 flex gap-2 @max-3xs/card:top-1.5 @max-3xs/card:right-1.5">
-                    <!--v-if--><button data-v-X="" type="button" data-slot="base" aria-label="Αγαπημένο: Mini Power Bank 5000mAh" aria-pressed="false" title="Προσθήκη στα αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-elevated active:bg-accented/75 disabled:bg-elevated aria-disabled:bg-elevated outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5 cursor-pointer hover:bg-transparent relative after:absolute after:-inset-1.5"><span class="iconify i-heroicons:heart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
-                      <!--v-if-->
-                      <!--v-if-->
-                    </button>
-                  </div><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block">
-                    <div data-v-X="" class="aspect-4/3 max-w-full overflow-hidden @max-3xs/card:aspect-square"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif 1x" class="size-full max-w-full bg-white object-contain" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif"></div>
-                  </a>
+                  </div><button data-v-X="" type="button" data-slot="base" aria-label="Αγαπημένο: Mini Power Bank 5000mAh" aria-pressed="false" title="Προσθήκη στα αγαπημένα" class="font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-2 ring ring-inset ring-accented active:bg-accented/75 disabled:bg-elevated aria-disabled:bg-elevated outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-2 cursor-pointer absolute top-1.5 right-1.5 size-11 justify-center rounded-full bg-white/90 text-neutral-900 after:absolute after:-inset-1.5 hover:bg-white @max-3xs/card:top-2 @max-3xs/card:right-2 @max-3xs/card:size-8"><span class="iconify i-heroicons:heart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+                    <!--v-if-->
+                    <!--v-if-->
+                  </button>
                 </div>
-                <div data-v-X="" class="flex flex-col gap-4 p-4 @max-3xs/card:gap-2 @max-3xs/card:p-2.5"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
-                    <h3 data-v-X="" class="line-clamp-2 min-h-12 text-lg leading-snug font-bold wrap-anywhere text-neutral-950 transition-colors group-hover/link:text-primary-600 @max-3xs/card:min-h-10 @max-3xs/card:text-sm dark:text-neutral-50 dark:group-hover/link:text-primary-400">Mini Power Bank 5000mAh</h3>
+                <div data-v-X="" class="flex flex-1 flex-col gap-1 px-1 @max-3xs/card:px-0"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
+                    <h3 data-v-X="" class="line-clamp-2 text-base/[1.35] font-semibold wrap-anywhere text-neutral-900 transition-colors group-hover/link:text-accent @max-3xs/card:text-sm/[1.3] dark:text-white">Mini Power Bank 5000mAh</h3>
                   </a>
-                  <!--v-if-->
-                  <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 h-5 @max-3xs/card:flex-wrap @max-3xs/card:overflow-hidden @max-3xs/card:*:min-h-5"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
+                  <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 @max-3xs/card:hidden"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
                     <!--v-if--></span></span></span><span aria-hidden="true" class="text-[0.8125rem] font-semibold text-muted">4,0 · 3</span>
                     <!--v-if-->
                   </div>
-                  <div data-v-X="" class="flex flex-col gap-4 @max-3xs/card:flex-row @max-3xs/card:flex-wrap @max-3xs/card:items-end @max-3xs/card:justify-between @max-3xs/card:gap-x-1 @max-3xs/card:gap-y-2">
-                    <div data-v-X="" class="flex flex-col gap-2 @max-3xs/card:grow @max-3xs/card:basis-0 @max-[8.625rem]/card:basis-full">
-                      <div data-v-X="" class="flex items-center gap-2"><span data-v-X="" class="inline-flex flex-wrap items-baseline gap-x-1.5"><s class="text-sm text-neutral-700 dark:text-neutral-300">20,00&nbsp;€</s><span class="text-xs text-muted">Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση</span></span></div>
-                      <div data-v-X="" class="flex items-baseline justify-between">
-                        <div data-v-X="" class="flex flex-col gap-1"><span data-v-X="" class="text-xs text-neutral-600 @max-3xs/card:hidden dark:text-neutral-300">Τελική Τιμή</span><span data-v-X="" class="text-2xl font-bold text-neutral-950 @max-3xs/card:text-lg dark:text-neutral-50">16,63&nbsp;€</span></div>
-                      </div>
-                    </div><button data-v-X="" type="button" data-slot="base" aria-label="Στο καλάθι: Mini Power Bank 5000mAh" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 cursor-pointer tap-press px-3 py-2 text-base gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) place-content-center place-items-center w-full transition-all duration-300 hover:scale-105 @max-3xs/card:ml-auto @max-3xs/card:size-11 @max-3xs/card:shrink-0 @max-3xs/card:p-0 @max-3xs/card:*:data-[slot=label]:sr-only @max-[8.625rem]/card:w-full">
-                      <!--v-if--><span data-slot="label" class="truncate">Στο καλάθι</span><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="trailingIcon"></span>
-                    </button>
-                  </div>
-                  <!--v-if-->
+                </div>
+                <div data-v-X="" class="mt-auto flex flex-wrap items-center justify-between gap-x-2.5 gap-y-2 px-1 @max-3xs/card:gap-x-1.5 @max-3xs/card:px-0">
+                  <div data-v-X="" class="flex flex-col @max-[8.625rem]/card:basis-full"><span data-v-X="" class="inline-flex flex-wrap items-baseline gap-x-1.5"><s class="text-xs text-neutral-700 dark:text-neutral-300">20,00&nbsp;€</s><span class="text-xs text-muted">Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση</span></span><span data-v-X="" class="text-xl font-extrabold whitespace-nowrap text-neutral-900 tabular-nums @max-3xs/card:text-[1.0625rem] dark:text-white">16,63&nbsp;€</span></div><button data-v-X="" type="button" data-slot="base" aria-label="Στο καλάθι: Mini Power Bank 5000mAh" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press py-2 gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) place-content-center place-items-center ml-auto min-h-11 w-auto shrink-0 px-3.5 text-sm font-semibold @max-3xs/card:size-11 @max-3xs/card:p-0 @max-3xs/card:*:data-[slot=label]:sr-only @max-[8.625rem]/card:w-full"><span class="iconify i-heroicons:shopping-cart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Στο καλάθι</span>
+                    <!--v-if-->
+                  </button>
                 </div>
               </div>
-              <!--v-if-->
             </div>
           </div>
         </div>
@@ -1277,38 +1271,27 @@ exports[`webside design render > signed in > account chrome 1`] = `
         <div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
           <div id="navbar-banner"></div>
           <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-            <div class="flex gap-2 py-3 md:flex md:py-4">
-              <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
+            <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
+              <div class="relative flex w-full items-center gap-4 lg:gap-6">
                 <!--v-if-->
-                <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+                <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
-                <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
-                    <!--v-if-->
-                    <div class="flex w-full items-center justify-between">
-                      <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση...</span></div>
-                      <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
-                    </div>
-                    <!--v-if-->
-                  </button>
-                  <!--v-if-->
-                </div>
-                <div class="ml-auto hidden items-center lg:flex">
+                <div class="hidden items-center lg:flex">
                   <div class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
                     <!---->
                     <!---->
                     <nav data-slot="root" aria-label="Πλοήγηση" class="flex gap-1.5 [&amp;>div]:min-w-0 items-center justify-between static" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
                       <div style="position: relative;">
                         <ul data-slot="list" class="isolate min-w-0 flex items-center gap-4" data-orientation="horizontal">
-                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/products" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                               <!--v-if--><span data-slot="linkLabel" class="truncate">Κατάστημα<!--v-if--></span>
                               <!--v-if-->
                             </a>
                             <!--v-if-->
                             <!--v-if-->
                           </li>
-                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-lg font-semibold capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
+                          <li data-menu-item="" data-slot="item" class="min-w-0 py-0"><a href="/blog" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:block after:rounded-full after:transition-colors hover:text-highlighted transition-colors data-[state=open]:text-highlighted px-0 text-[0.9375rem] font-semibold text-highlighted capitalize after:inset-x-0 after:-bottom-1 after:h-0.5">
                               <!--v-if--><span data-slot="linkLabel" class="truncate">Blog<!--v-if--></span>
                               <!--v-if-->
                             </a>
@@ -1323,39 +1306,51 @@ exports[`webside design render > signed in > account chrome 1`] = `
                         <!---->
                       </div>
                     </nav>
-                    <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
+                  </div>
+                </div>
+                <div class="ml-auto flex min-w-0 flex-1 items-center justify-end gap-6 max-lg:contents">
+                  <div class="relative flex items-center md:w-full max-w-110 flex-1"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 relative max-lg:after:absolute max-lg:after:-inset-2.5 md:max-w-md">
                       <!--v-if-->
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/favourites/posts" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                      <div class="flex w-full items-center justify-between">
+                        <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση άρθρων και προϊόντων</span></div>
+                        <div class="hidden items-center gap-1 sm:flex"><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> Ctrl </kbd><kbd class="inline-flex items-center justify-center px-1 rounded-sm font-medium font-sans uppercase h-4 min-w-[16px] text-[10px] ring ring-inset ring-accented text-default bg-default"> K </kbd></div>
+                      </div>
+                      <!--v-if-->
+                    </button>
+                    <!--v-if-->
+                  </div>
+                  <ul class="hidden items-center gap-3 text-primary-950 lg:flex dark:border-primary-500 dark:text-primary-50">
+                    <!--v-if-->
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/favourites/posts" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
+                        <!--v-if-->
+                        <!--v-if-->
+                      </a></li>
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
+                        <!--v-if-->
+                        <!--v-if-->
+                      </button></li>
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center">
+                      <!---->
+                    </li>
+                    <li class="relative grid max-w-6 items-center justify-center justify-items-center">
+                      <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent relative p-0 max-lg:after:absolute max-lg:after:-inset-2.5"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
                           <!--v-if-->
                           <!--v-if-->
-                        </a></li>
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
-                          <!--v-if-->
-                          <!--v-if-->
-                        </button></li>
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center">
-                        <!---->
-                      </li>
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center">
-                        <div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
-                            <!--v-if-->
-                            <!--v-if-->
-                          </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>
-                      </li>
-                      <li class="relative grid items-center justify-center justify-items-center"><button class="cursor-pointer bg-transparent p-0" id="ID" type="button" aria-haspopup="menu" aria-expanded="false" data-state="closed" aria-label="Προφίλ" data-clarity-mask="true">
-                          <div title="" class="gap-0 flex flex-col items-center" arrow="">
-                            <div class="group relative"><span data-slot="root" class="inline-flex items-center justify-center shrink-0 select-none rounded-full align-middle size-7 text-sm bg-elevated transition-opacity"><img width="28" height="28" data-nuxt-img="" srcset="/_ipx/s_28x28/img/default.png 1x, /_ipx/s_56x56/img/default.png 2x" alt="Μαρία Παπαδοπούλου" data-slot="image" class="h-full w-full rounded-[inherit] object-cover" src="/_ipx/s_28x28/img/default.png"></span>
-                              <!--v-if-->
-                            </div>
+                        </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-secondary top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform text-(--ui-on-secondary)">0</span></div>
+                    </li>
+                    <li class="relative grid items-center justify-center justify-items-center"><button class="cursor-pointer bg-transparent p-0" id="ID" type="button" aria-haspopup="menu" aria-expanded="false" data-state="closed" aria-label="Προφίλ" data-clarity-mask="true">
+                        <div title="" class="gap-0 flex flex-col items-center" arrow="">
+                          <div class="group relative"><span data-slot="root" class="inline-flex items-center justify-center shrink-0 select-none rounded-full align-middle size-7 text-sm bg-elevated transition-opacity"><img width="28" height="28" data-nuxt-img="" srcset="/_ipx/s_28x28/img/default.png 1x, /_ipx/s_56x56/img/default.png 2x" alt="Μαρία Παπαδοπούλου" data-slot="image" class="h-full w-full rounded-[inherit] object-cover" src="/_ipx/s_28x28/img/default.png"></span>
                             <!--v-if-->
                           </div>
-                        </button>
-                        <!---->
-                        <!--teleport start-->
-                        <!--teleport end-->
-                      </li>
-                    </ul>
-                  </div>
+                          <!--v-if-->
+                        </div>
+                      </button>
+                      <!---->
+                      <!--teleport start-->
+                      <!--teleport end-->
+                    </li>
+                  </ul>
                 </div>
                 <!--v-if-->
               </div>
@@ -1484,9 +1479,14 @@ exports[`webside design render > signed in > account chrome 1`] = `
     <footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
       <div data-slot="top" class="py-8 lg:py-12">
         <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
-          <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8">
-            <!--v-if-->
-            <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
+          <nav data-slot="root" class="xl:grid xl:grid-cols-3 xl:gap-8 grid gap-8 lg:grid-cols-5">
+            <div data-slot="left" class="xl:mb-0 mb-0">
+              <div class="flex flex-col items-start gap-3"><img width="120" height="28" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_240x56/img/logo-navbar.png 2x" style="object-fit: contain; width: 120px; height: 28px;" class="object-left" alt="" src="/_ipx/q_90&amp;fit_inside&amp;s_120x28/img/logo-navbar.png">
+                <!--v-if-->
+                <!--v-if-->
+              </div>
+            </div>
+            <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-2 lg:col-span-4">
               <div>
                 <h2 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h2>
                 <ul class="mt-6 space-y-4">
@@ -1511,23 +1511,25 @@ exports[`webside design render > signed in > account chrome 1`] = `
         </div>
       </div>
       <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-4 lg:flex lg:items-center lg:justify-between lg:gap-x-3" data-slot="container">
-        <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3">
-          <div class="flex items-center gap-6"><span class="text-xs text-primary-950 dark:text-primary-300">Version: VERSION</span></div>
-        </div>
+        <div data-slot="right" class="lg:flex-1 flex items-center justify-center lg:justify-end gap-x-1.5 lg:order-3"></div>
         <div data-slot="center" class="mt-3 lg:mt-0 lg:order-2 flex items-center justify-center"></div>
         <div data-slot="left" class="flex items-center justify-center lg:justify-start lg:flex-1 gap-x-1.5 mt-3 lg:mt-0 lg:order-1">
-          <div class="flex flex-col gap-1">
+          <div class="flex w-full flex-col gap-1">
             <!--v-if-->
             <!--v-if-->
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950 dark:text-primary-100"><span> © 2026&nbsp; <a href="/" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-2 hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0 text-primary-950 dark:text-primary-50"><!--v-if--><span data-slot="label" class="truncate">undefined™.</span>
-              <!--v-if--></a> Με επιφύλαξη παντός δικαιώματος. </span><span aria-hidden="true" class="text-primary-400">·</span><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-xs gap-1.5 text-muted hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-0"><span class="iconify i-unjs:cookie-es shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Ρυθμίσεις cookies</span>
-                <!--v-if-->
-              </button>
-            </div>
           </div>
         </div>
       </div>
-      <!--v-if-->
+      <div data-slot="bottom" class="py-8 lg:py-12 pt-0 pb-7 lg:pt-0 lg:pb-7">
+        <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex gap-x-3 gap-y-1 text-muted flex-wrap items-center justify-between text-[0.8125rem] border-t border-primary-200 pt-5 dark:border-primary-700">
+            <p> © 2026&nbsp;<a href="/" class="text-muted hover:text-default">™</a>. Με επιφύλαξη παντός δικαιώματος. </p>
+            <p>
+              <!--v-if--><button type="button" class="inline-flex min-h-11 items-center text-accent hover:underline focus-visible:outline-2 focus-visible:outline-secondary sm:min-h-0">Ρυθμίσεις cookies</button>
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
   <!--v-if-->

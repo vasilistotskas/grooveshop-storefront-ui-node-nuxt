@@ -7,35 +7,42 @@
  * desk; the heading, sub-line and call to action are the band's.
  *
  * Renders nothing when the blog has no categories yet, as the rail does.
+ *
+ * `look: 'bold'` is `PageSection/BlogCategoryTilesBold`, the same tiles
+ * (`useBlogCategoryTiles`) drawn the bold way.
  */
 const props = defineProps<{
+  eyebrow?: string
   title?: string
   subheading?: string
   ctaText?: string
   ctaLink?: string
   categories: ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
+  /** `bold`: the bold look (`PageSection/BlogCategoryTilesBold`). */
+  look?: 'bold'
 }>()
 
-const { t, locale } = useStoreI18n('components/PageSection/BlogCategoryTiles')
-const localePath = useLocalePath()
+const { t } = useStoreI18n('components/PageSection/BlogCategoryTiles')
 const linkTo = useLinkTo()
 
-const tiles = computed(() => props.categories.items.map(category => ({
-  id: category.id,
-  name: extractTranslated(category, 'name', locale.value) ?? '',
-  icon: deriveIconName(category.mainImagePath) ?? undefined,
-  imagePath: category.mainImagePath,
-  posts: t('posts', { count: category.postCount }, category.postCount),
-  to: localePath({ name: 'blog-category-id-slug', params: { id: category.id, slug: category.slug } }),
-})))
+const { tiles, ctaLabel } = useBlogCategoryTiles(props, count => t('posts', { count }, count))
+/** This component's texts, for its bold look (`PageSection/BlogCategoryTilesBold`). */
+const texts = (key: string, named: Record<string, unknown> = {}, plural?: number) =>
+  plural === undefined ? t(key, named) : t(key, named, plural)
 </script>
 
 <template>
+  <PageSectionBlogCategoryTilesBold
+    v-if="look === 'bold'"
+    v-bind="props"
+    :texts="texts"
+  />
   <PageSectionBand
-    v-if="tiles.length"
+    v-else-if="tiles.length"
+    :eyebrow="eyebrow"
     :heading="title"
     :subheading="subheading"
-    :cta-text="ctaText"
+    :cta-text="ctaLabel"
     :cta-link="ctaLink ? linkTo(ctaLink) : undefined"
   >
     <UPageGrid

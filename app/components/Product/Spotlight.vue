@@ -21,51 +21,45 @@
  * text and price rows sit beside the picture (the text column and the
  * price row become its items, `max-sm:contents`); from `sm` up it is
  * the row it always was, the button beside the price.
+ *
+ * `look: 'bold'` is `Product/SpotlightBold`: the same product read the same
+ * way (`useProductSpotlight`), drawn heavier.
  */
 const props = withDefaults(defineProps<{
   product: ProductCard
   /** The buy button; the store's `cart` feature decides too. */
   showAddToCart?: boolean
+  /** `bold`: the heavier card a bold hero draws (`Product/SpotlightBold`). */
+  look?: 'bold'
 }>(), {
   showAddToCart: true,
 })
 
-const { t, locale } = useStoreI18n('components/Product/Spotlight')
+const { t } = useStoreI18n('components/Product/Spotlight')
+/** This component's texts, for its bold look (`Product/SpotlightBold`). */
+const texts = (key: string, named: Record<string, unknown> = {}, plural?: number) =>
+  plural === undefined ? t(key, named) : t(key, named, plural)
 const { $i18n } = useNuxtApp()
-const localePath = useLocalePath()
-const { productUrl } = useUrls()
-const tenantStore = useTenantStore()
-const cartEnabled = useStoreFeature('cart')
 const productReviewsEnabled = useStoreFeature('productReviews')
-const productAlertsEnabled = useStoreFeature('productAlerts')
 
 const { product } = toRefs(props)
-const productId = computed(() => product.value.id)
 
-const { displayFinalPrice, wasPrice, announcement } = useShopperPrice(productId, product)
-
-const name = computed(() => extractTranslated(product.value, 'name', locale.value) ?? '')
-const to = computed(() => localePath({ path: productUrl(product.value.id, product.value.slug) }))
-const soldOut = computed(() => (product.value.stock ?? 0) <= 0)
-const lowStockCount = computed(() => lowStockLeft(product.value))
-
-const partInput = computed<DesignPartInput>(() => ({
-  product: product.value,
-  name: name.value,
-  addToCartLabel: t('add_to_cart'),
-  addToCartName: t('add_named', { name: name.value }),
-}))
-
-const buy = computed(() => {
-  if (soldOut.value) {
-    return productAlertsEnabled.value ? resolvePart('product_restock_alert', tenantStore.schemaName) : null
-  }
-  return cartEnabled.value && props.showAddToCart ? resolvePart('product_add_to_cart', tenantStore.schemaName) : null
-})
+const { name, to, soldOut, lowStockCount, displayFinalPrice, wasPrice, announcement, partInput, buy }
+  = useProductSpotlight(product, () => props.showAddToCart, {
+    label: () => t('add_to_cart'),
+    name: name => t('add_named', { name }),
+  })
 </script>
 
 <template>
+  <ProductSpotlightBold
+    v-if="look === 'bold'"
+    :product="product"
+    :show-add-to-cart="showAddToCart"
+    :texts="texts"
+  />
   <article
+    v-else
     class="
       relative flex overflow-hidden rounded-lg border border-default bg-default
       max-sm:grid max-sm:grid-cols-[8.5rem_minmax(0,1fr)]

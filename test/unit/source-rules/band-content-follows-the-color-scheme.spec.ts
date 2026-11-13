@@ -33,6 +33,13 @@ const FILES = [
   'Products/Rail.vue',
   'Blog/Rail.vue',
   'Blog/Post/Card.vue',
+  'PageSection/HeroShowcaseBold.vue',
+  'PageSection/BandBold.vue',
+  'PageSection/BlogCategoryTilesBold.vue',
+  'PageSection/BlogPostsFeature.vue',
+  'PageSection/ProductsCategoryTile.vue',
+  'Product/SpotlightBold.vue',
+  'Blog/RailBold.vue',
 ].map(file => resolve(COMPONENTS, file))
 
 const PALETTE = 'slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'

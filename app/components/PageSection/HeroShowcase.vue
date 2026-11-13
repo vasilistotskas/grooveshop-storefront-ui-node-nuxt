@@ -23,6 +23,10 @@
  * `colorScheme` is the band's: `dark` and `light` hold it in both
  * page modes; without one it follows the page. A store without a catalogue gets
  * no search and no product; one without a cart, no buy button.
+ *
+ * `look: 'bold'` draws the same parts as `PageSection/HeroShowcaseBold`;
+ * left out, this one, as it always was. Both read the settings through
+ * `useHeroShowcase`.
  */
 const props = withDefaults(defineProps<{
   eyebrow?: string
@@ -36,6 +40,8 @@ const props = withDefaults(defineProps<{
   imageDecorative?: boolean
   imageLink?: string
   showSearch?: boolean
+  /** The search field's own question, in place of the store search's wording. */
+  searchPlaceholder?: string
   ctaText?: string
   ctaLink?: string
   secondaryCtaText?: string
@@ -43,6 +49,8 @@ const props = withDefaults(defineProps<{
   product?: ResolvedRef<ProductCard>
   showAddToCart?: boolean
   colorScheme?: SectionColorScheme
+  /** `bold`: the heavier, centred look (`PageSection/HeroShowcaseBold`). */
+  look?: 'bold'
 }>(), {
   showSearch: false,
   showAddToCart: true,
@@ -50,63 +58,27 @@ const props = withDefaults(defineProps<{
 
 const linkTo = useLinkTo()
 const leadsPage = useLeadsPage()
-const { isMobileOrTablet } = useDevice()
-const catalogueEnabled = useStoreFeature('catalogue')
 
-/** The picture a hero shows on this device, with the size a media asset carries, so its box is reserved before it loads. */
-const shown = computed(() => {
-  const image = heroImage(props, isMobileOrTablet.value)
-  return image?.width && image.height ? { ...image, width: image.width, height: image.height } : undefined
-})
-
-const headingText = computed(() => [props.heading, props.headingAccent].filter(Boolean).join(' '))
-
-const alt = computed(() => heroImageAlt(props, shown.value, headingText.value))
-
-/**
- * What the picture's link is called: the picture's description, else the
- * heading, decorative or not. A decorative picture keeps `alt=""` and names
- * its link with `aria-label` instead. With neither a description nor a
- * heading the link would have no name (WCAG 2.4.4, 4.1.2), so the picture is
- * then not a link.
- */
-const linkName = computed(() => heroImageAlt({ ...props, imageDecorative: false }, shown.value, headingText.value))
-const pictureLink = computed(() => (props.imageLink && linkName.value ? props.imageLink : undefined))
-
-const spotlight = computed(() =>
-  catalogueEnabled.value && props.product?.status === 'ok' ? props.product.value : undefined,
-)
-
-const search = computed(() => props.showSearch && catalogueEnabled.value)
-
-const buttons = computed(() => [
-  props.ctaText && props.ctaLink
-    ? { label: props.ctaText, to: linkTo(props.ctaLink), variant: 'solid' as const }
-    : null,
-  props.secondaryCtaText && props.secondaryCtaLink
-    ? { label: props.secondaryCtaText, to: linkTo(props.secondaryCtaLink), variant: 'outline' as const }
-    : null,
-].filter(button => button !== null))
-
-const hasHeading = computed(() => !!(props.heading || props.headingAccent))
-const hasCopy = computed(() => hasHeading.value || !!props.eyebrow || !!props.subheading)
-
-/** The right-hand column exists only when it holds something. */
-const twoColumns = computed(() => !!shown.value || !!spotlight.value)
-
-/** A hero with nothing to show is not a band. */
-const hasContent = computed(() => hasCopy.value || twoColumns.value || search.value || buttons.value.length > 0)
+const { shown, alt, linkName, pictureLink, spotlight, search, buttons, hasHeading, hasCopy, twoColumns, hasContent }
+  = useHeroShowcase(props)
 
 /**
  * Resolved here rather than named as a string in `:is`: a string that is
  * not a native tag renders as an unknown element (`PageSection/Band.vue`).
+ * In the component, where Nuxt's component transform resolves it.
  */
 const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtLink') : 'div'))
+/** The store's own search field: the header's search, in every design. */
+const searchField = useSearchFieldPart()
 </script>
 
 <template>
+  <PageSectionHeroShowcaseBold
+    v-if="look === 'bold'"
+    v-bind="props"
+  />
   <section
-    v-if="hasContent"
+    v-else-if="hasContent"
     :class="[
       `
         relative isolate w-full bg-muted bg-(image:--ds-lattice)
@@ -206,7 +178,10 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
           lg:col-start-1 lg:row-start-2 lg:mt-7
         "
       >
-        <SearchInput />
+        <component
+          :is="searchField.component"
+          v-bind="searchField.props({ placeholder: searchPlaceholder })"
+        />
       </div>
 
       <div

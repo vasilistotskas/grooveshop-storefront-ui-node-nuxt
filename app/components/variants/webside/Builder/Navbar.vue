@@ -18,6 +18,14 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 const cartEnabled = useStoreFeature('cart')
 // Search lists the catalogue: no catalogue, no search page to search on.
 const searchServing = useGatedRoute('/search')
+// The phone's row as the board draws it: search and favourites. The cart is
+// the tab bar's when the tab bar carries it (not on account pages, nor
+// without a tab bar), the theme the burger menu's.
+const tabBarCart = useTabBarCart()
+const savedPostsServing = useGatedRoute('/account/favourites/posts')
+const { signIn } = useAuthLinks()
+const localePath = useLocalePath()
+const { t } = useStoreI18n('components/variants/webside/Builder/Navbar')
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
@@ -54,16 +62,18 @@ onMounted(() => {
         lg:px-8
       "
     >
+      <!-- 56px on a phone and 72px on a desk, as webside's board draws
+           the bar: a 44px row of targets and its padding. -->
       <div
         class="
-          flex gap-2 py-3
-          md:flex md:py-4
+          flex gap-2 py-1.5
+          md:flex md:py-3.5
         "
       >
         <div
           class="
             relative flex w-full items-center gap-4
-            lg:grid lg:grid-cols-[1fr_2fr_1fr]
+            lg:gap-6
           "
           :class="{ 'justify-between': isMobileOrTablet }"
         >
@@ -78,7 +88,14 @@ onMounted(() => {
                  with two h1s, and pages without one advertised the store
                  name as their h1. Each page now owns its single h1
                  (PageTitle, or its own markup). -->
-            <div class="grid justify-items-start">
+            <!-- Left on a phone, beside the menu button, where the board
+                 puts it; the actions take the far end. -->
+            <div
+              class="
+                grid justify-items-start
+                max-lg:flex-1
+              "
+            >
               <Anchor
                 :to="'index'"
                 :aria-label="appTitle"
@@ -91,10 +108,7 @@ onMounted(() => {
                   :width="145"
                   :height="44"
                   priority
-                  img-class="
-                    object-center
-                    lg:object-left
-                  "
+                  img-class="object-left"
                 />
                 <span class="sr-only">{{ appTitle }}</span>
               </Anchor>
@@ -109,8 +123,24 @@ onMounted(() => {
                 lg:sr-only
               "
             >
-              <LazyWebsideSearchInput v-if="searchServing" />
-              <WebsideCartButton v-if="cartEnabled" />
+              <LazyWebsideSearchInput
+                v-if="searchServing"
+                compact
+              />
+              <UButton
+                v-if="savedPostsServing"
+                :aria-label="t('favourites')"
+                :to="loggedIn ? localePath('account-favourites-posts') : localePath(signIn)"
+                class="
+                  min-h-11 min-w-11 justify-center p-0
+                  hover:bg-transparent
+                "
+                color="neutral"
+                icon="i-heroicons-heart"
+                size="xl"
+                variant="ghost"
+              />
+              <WebsideCartButton v-if="cartEnabled && !tabBarCart" />
               <!-- The select is ~150px wide with its label and chevron: on
                    a phone that squeezed the logo to nothing and, with the
                    notifications bell of a signed-in shopper, pushed the
@@ -124,16 +154,6 @@ onMounted(() => {
                   max-sm:*:data-[slot=trailing]:hidden
                   max-sm:*:data-[slot=value]:hidden
                 "
-              />
-              <UColorModeButton
-                class="w-6"
-                :ui="{
-                  base: `
-                    cursor-pointer p-0
-                    hover:bg-transparent
-                  `,
-                  leadingIcon: 'size-6',
-                }"
               />
               <ClientOnly>
                 <LazyWebsideUserNotificationsBell v-if="loggedIn" />
@@ -161,3 +181,10 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  favourites: Αγαπημένα
+en:
+  favourites: Favourites
+</i18n>

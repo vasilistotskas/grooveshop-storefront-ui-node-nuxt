@@ -135,3 +135,49 @@ export function sectionsProvideHours(
 ): boolean {
   return (sections ?? []).some(section => section.componentType === 'business_hours')
 }
+
+/**
+ * Whether a section draws its own full-width band in a look that lays it edge
+ * to edge, its own container inside: the bold look (`look: 'bold'`) of the
+ * hero, the product grid, the posts, the tiles and the newsletter, the
+ * promises as a card (`layout: 'card'`) and the posts as a feature card
+ * (`layout: 'feature'`). A design whose shell holds its sections in a
+ * container with a gap between them (webside's) lays these out of it, edge
+ * to edge and with no gap, so a band is not framed twice; every other section,
+ * and these in the look they always had, stays framed as before.
+ */
+export function sectionDrawsBand(section: SectionLike): boolean {
+  const props = (section.props ?? {}) as { look?: unknown, layout?: unknown }
+  switch (section.componentType) {
+    case 'hero_showcase':
+    case 'products_grid':
+    case 'newsletter_signup':
+      return props.look === 'bold'
+    case 'blog_posts_grid':
+      return props.look === 'bold' || props.layout === 'feature'
+    case 'blog_categories':
+      return props.look === 'bold' && props.layout === 'tiles'
+    case 'store_assurances':
+      return props.layout === 'card'
+    default:
+      return false
+  }
+}
+
+/**
+ * A section list cut into runs of neighbours that draw their own band and
+ * runs that do not, in order, each keyed by its first section's id: what a
+ * shell that frames only the second kind lays out.
+ */
+export function sectionRuns<T extends SectionLike & { id: string }>(
+  sections: readonly T[],
+): Array<{ key: string, bands: boolean, sections: T[] }> {
+  const runs: Array<{ key: string, bands: boolean, sections: T[] }> = []
+  for (const section of sections) {
+    const bands = sectionDrawsBand(section)
+    const last = runs.at(-1)
+    if (last && last.bands === bands) last.sections.push(section)
+    else runs.push({ key: section.id, bands, sections: [section] })
+  }
+  return runs
+}

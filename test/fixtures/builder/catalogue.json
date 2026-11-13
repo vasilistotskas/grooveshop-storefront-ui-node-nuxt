@@ -1,5 +1,5 @@
 {
-  "hash": "31955c11cc7941c1",
+  "hash": "39e64e5e739a8434",
   "blocks": [
     {
       "type": "about_content",
@@ -42,6 +42,10 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
           "title": {
             "type": "string",
             "maxLength": 200
@@ -251,6 +255,12 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -259,6 +269,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/eyebrow",
         "/title",
         "/subheading",
         "/ctaText"
@@ -616,9 +627,9 @@
     },
     {
       "type": "blog_posts_grid",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -895,6 +906,70 @@
             "enum": [
               "list"
             ]
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phoneLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "feature"
+            ]
+          },
+          "icon": {
+            "type": "string",
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -903,6 +978,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/eyebrow",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -1776,9 +1852,9 @@
     },
     {
       "type": "feature_item",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1795,8 +1871,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 100,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           }
         },
         "required": [
@@ -2614,9 +2728,9 @@
     },
     {
       "type": "footer_column",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2629,8 +2743,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 64,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           },
           "showsMerchantIdentity": {
             "type": "boolean"
@@ -3823,6 +3975,10 @@
           "showSearch": {
             "type": "boolean"
           },
+          "searchPlaceholder": {
+            "type": "string",
+            "maxLength": 100
+          },
           "ctaText": {
             "type": "string",
             "maxLength": 100
@@ -4192,6 +4348,12 @@
               "light",
               "dark"
             ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "additionalProperties": false
@@ -4201,6 +4363,7 @@
         "/heading",
         "/headingAccent",
         "/subheading",
+        "/searchPlaceholder",
         "/ctaText",
         "/secondaryCtaText"
       ],
@@ -5557,9 +5720,9 @@
     },
     {
       "type": "nav_link",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -5572,8 +5735,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 64,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           },
           "page": {
             "type": "string",
@@ -5693,6 +5894,12 @@
             "type": "string",
             "enum": [
               "accent"
+            ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
             ]
           }
         },
@@ -6677,6 +6884,75 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phoneLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "categoryTile": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "roots"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  }
+                },
+                "required": [
+                  "mode",
+                  "limit"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "children"
+                  },
+                  "parent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  }
+                },
+                "required": [
+                  "mode",
+                  "parent",
+                  "limit"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-data": {
+              "field": "query",
+              "source": "category",
+              "onEmpty": "empty",
+              "maxLimit": 12
+            }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -6685,6 +6961,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/eyebrow",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -6699,6 +6976,12 @@
           "source": "product",
           "onEmpty": "hide",
           "maxLimit": 24
+        },
+        "/categoryTile": {
+          "field": "query",
+          "source": "category",
+          "onEmpty": "empty",
+          "maxLimit": 12
         }
       },
       "limits": {},
@@ -7485,6 +7768,12 @@
           "heading": {
             "type": "string",
             "maxLength": 200
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "card"
+            ]
           }
         },
         "additionalProperties": false
@@ -7702,9 +7991,9 @@
     },
     {
       "type": "timeline_entry",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -7725,8 +8014,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 100,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           }
         },
         "required": [
@@ -7756,9 +8083,9 @@
     },
     {
       "type": "trust_badge",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -7794,7 +8121,46 @@
           },
           "icon": {
             "type": "string",
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           },
           "href": {
             "anyOf": [

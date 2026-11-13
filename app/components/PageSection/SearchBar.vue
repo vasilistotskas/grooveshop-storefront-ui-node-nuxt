@@ -7,6 +7,9 @@ defineProps<{
   /** The operator's section title, from the section row itself. */
   title?: string
 }>()
+
+/** The store's own search field: the header's search, in every design. */
+const searchField = useSearchFieldPart()
 </script>
 
 <template>
@@ -17,7 +20,10 @@ defineProps<{
     <!-- Measured, not centred: the band left-aligns its heading, so a
          centred field would sit away from the title above it. -->
     <div class="w-full max-w-2xl">
-      <SearchInput />
+      <component
+        :is="searchField.component"
+        v-bind="searchField.props({})"
+      />
     </div>
   </PageSectionBand>
 </template>

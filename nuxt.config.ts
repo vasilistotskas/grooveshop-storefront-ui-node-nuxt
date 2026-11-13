@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE, LOCALE_FILES } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { CLIENT_CHUNK_BUDGET_BYTES, ROUTE_BOOT_CHUNK_NAME, SHARED_CHUNK_MAX_MODULE_BYTES, SHARED_CHUNK_MIN_ENTRIES, SHARED_CHUNK_NAME, isRouteBootModule, isStyleModuleId } from './shared/constants/clientChunks.ts'
+import { BUILDER_ICONS, builderIconBundleName } from './shared/builder/icons.ts'
 import { RSS_FEED_PATHS } from './shared/constants/feeds.ts'
 import { CACHED_PAGE_VARIES, CUSTOM_PAGE_ROUTES, PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
 import { FONT_FAMILY_NAMES, FONT_STYLES, FONT_WEIGHTS } from './shared/theme/constants.ts'
@@ -406,7 +407,7 @@ export default defineNuxtConfig({
     // Plugins listed here run BEFORE every module's server plugin (modules
     // append to this list, scanned server/plugins/ come after both). Only
     // what must see a request first belongs here; see the file.
-    plugins: ['~~/server/early-plugins/runtime-config'],
+    plugins: ['~~/server/early-plugins/runtime-config', '~~/server/early-plugins/client-abort-status'],
     // The renderer, cached for a merchant's custom pages
     // (`CUSTOM_PAGE_ROUTES` in shared/constants/prerender.ts says why no
     // route rule can do it). Not scanned: it answers exactly these routes.
@@ -1131,46 +1132,12 @@ export default defineNuxtConfig({
         'i-lucide:plus',
         'i-lucide:sun',
         'i-lucide:upload',
-        // Authored in the DATABASE, not in this repo: builder
-        // documents (menu links, footer columns, sections) carry an
-        // `icon` setting (see the `builderField.icon` settings of
-        // `app/blocks`). No scanner can see those, so a CMS icon has
-        // to be declared here to render server-side.
-        //
-        // Add a genuinely new one in Django and SSR cannot resolve it:
-        // the browser recovers it from /api/_nuxt_icon (relative, which
-        // works in a browser even though it cannot on the server), but
-        // only once that component hydrates — and a lazily-hydrated
-        // section may never do so, which is how the footer socials
-        // stayed permanently blank. The signal is @nuxt/icon's own
-        // `[Icon] failed to load icon \`X\`` warning: after this commit
-        // it is rare and precise, and it means "add X to this list".
-        // Keep it in step with the seeders.
-        'i-fa6-solid:desktop',
-        'i-fa6-solid:globe',
-        'i-fa6-solid:microchip',
-        'i-fa6-solid:mobile',
-        'i-fa6-solid:network-wired',
-        'i-fa6-solid:robot',
-        'i-fa6-solid:shield',
-        'i-fa6-solid:shuffle',
-        'i-heroicons:arrow-uturn-left',
-        'i-heroicons:globe-europe-africa',
-        'i-heroicons:hand-raised',
-        'i-heroicons:sun',
-        'i-lucide:battery-charging',
-        'i-lucide:code',
-        'i-lucide:cpu',
-        'i-lucide:drafting-compass',
-        'i-lucide:gauge',
-        'i-lucide:graduation-cap',
-        'i-lucide:hard-hat',
-        'i-lucide:radio',
-        'i-lucide:shield-check',
-        'i-lucide:sliders-horizontal',
-        'i-lucide:traffic-cone',
-        'i-lucide:wrench',
-        'i-lucide:zap',
+        // Chosen in the page builder, so in the DATABASE, where no scan
+        // sees them: every icon a builder setting may hold is one of
+        // `BUILDER_ICONS` (`builderField.icon()` is that enum), so the
+        // server paints each of them. An icon a store picks outside the
+        // list cannot be saved; one added to it is bundled with it.
+        ...BUILDER_ICONS.map(builderIconBundleName),
         // The phone field's country badge (`Form/CountryFlag.vue`) names a
         // flag from DATA — `i-circle-flags:<alpha2>` — so no scan sees it, and
         // the whole collection (~250 country flags) is far over the size

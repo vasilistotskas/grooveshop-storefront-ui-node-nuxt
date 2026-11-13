@@ -83,6 +83,12 @@ mockNuxtImport('$fetch', () => api)
 mockNuxtImport('useRequestApi', () => () => api)
 
 /**
+ * The routes of a test, over the one answer that cannot be `{}`: the
+ * shipping policy is a list (the footer's carriers read it), empty here.
+ */
+const routes = (table: Parameters<typeof api.routes>[0]) => api.routes({ '/api/shipping/policy': [], ...table })
+
+/**
  * Signed out for everything captured before the account area joined webside's design;
  * the account cases sign in. The full surface, because the auth plugin
  * reads it while the app boots.
@@ -293,6 +299,7 @@ describe('webside design render', () => {
     // `useApi` caches by key on the shared app: without this a section
     // would render whatever an earlier test's mount left behind.
     clearNuxtData()
+    routes({})
     setPersonalizationConsent(true)
     clearNuxtState('recently-viewed:items')
     localStorage.removeItem(RECENTLY_VIEWED_KEY)
@@ -333,7 +340,7 @@ describe('webside design render', () => {
   })
 
   it('announcement bar with a promo code', async () => {
-    api.routes({
+    routes({
       '/api/settings/public': {
         settings: {},
         announcementBar: {
@@ -526,7 +533,7 @@ describe('webside design render', () => {
   })
 
   it('section recently_viewed', async () => {
-    api.routes({ '/api/settings/public': { settings: { RECENTLY_VIEWED_ENABLED: 'true' } } })
+    routes({ '/api/settings/public': { settings: { RECENTLY_VIEWED_ENABLED: 'true' } } })
     localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(RECENTLY_VIEWED))
 
     await expectSnapshot(RecentlyViewed, {}, (html) => {
@@ -541,7 +548,7 @@ describe('webside design render', () => {
     }
 
     it('shows the photo and line the store set beside the page', async () => {
-      api.routes({ '/api/settings/public': AUTH_PANEL })
+      routes({ '/api/settings/public': AUTH_PANEL })
 
       await expectSnapshot(AuthFrame, { slots: { default: () => h('p', 'page') } }, (html) => {
         expect(html).toContain('Ό,τι χρειάζεσαι')
@@ -553,7 +560,7 @@ describe('webside design render', () => {
     })
 
     it('is what the default layout draws around a sign-in page', async () => {
-      api.routes({ '/api/settings/public': AUTH_PANEL })
+      routes({ '/api/settings/public': AUTH_PANEL })
 
       await expectSnapshot(DefaultLayout, { route: '/account/login', slots: { default: () => h('p', 'page') } }, (html) => {
         expect(html).toContain('Ό,τι χρειάζεσαι')
@@ -597,7 +604,7 @@ describe('webside design render', () => {
       // The store runs the programme: the feature is on.
       const tenant = useTenantStore()
       tenant.setConfig({ ...tenant.config!, features: { ...tenant.config!.features, loyalty: true } })
-      api.routes({
+      routes({
         '/api/settings/public': { settings: {}, values: makePublicValues() },
         '/api/loyalty/summary': makeSummary(),
         '/api/loyalty/tiers': [makeTier()],
@@ -607,13 +614,13 @@ describe('webside design render', () => {
     })
 
     it('account orders', async () => {
-      api.routes({ '/api/orders/my-orders': page([makeOrderListItem({ id: 7 })], 10) })
+      routes({ '/api/orders/my-orders': page([makeOrderListItem({ id: 7 })], 10) })
 
       await expectSnapshot(AccountOrders, { route: '/account/orders' })
     })
 
     it('account favourite products', async () => {
-      api.routes({
+      routes({
         '/api/user/account/1/favourite-products': page([FAVOURITE], 10),
         '/api/products/favourites/favourites-by-products': [],
       })
@@ -624,13 +631,13 @@ describe('webside design render', () => {
     })
 
     it('account addresses', async () => {
-      api.routes({ '/api/user/addresses': page([], 10) })
+      routes({ '/api/user/addresses': page([], 10) })
 
       await expectSnapshot(AccountAddresses, { route: '/account/addresses' })
     })
 
     it('account settings', async () => {
-      api.routes({ '/api/user/account/1': USER })
+      routes({ '/api/user/account/1': USER })
 
       await expectSnapshot(AccountSettings, { route: '/account/settings' })
     })

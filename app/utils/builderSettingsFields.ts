@@ -7,9 +7,10 @@
  * - `text` / `textarea`: a string, a textarea once it may hold more than
  *   `BUILDER_TEXTAREA_MIN_LENGTH` characters;
  * - `choice`: one of an enum's values; `route` when every value is one of
- *   the fixed routes a link may name (`LINK_ROUTES`);
+ *   the fixed routes a link may name (`LINK_ROUTES`); `icon` when every value
+ *   is one of the icons the builder offers (`BUILDER_ICONS`);
  * - `number`, `boolean`;
- * - `color`, `icon`, `url`: the shared formats (`BUILDER_FIELD_PATTERNS`);
+ * - `color`, `url`: the shared formats (`BUILDER_FIELD_PATTERNS`);
  * - `link`: a link setting (`linkRefs`), `{ href } | { route } | { ref }`;
  * - `record`: an id of another record (`refs`, or a `builderField.ref` data setting);
  * - `media`: an id of an image of the media library, a `record` of kind `media`;
@@ -23,9 +24,9 @@
  */
 export type BuilderSettingField
   = | BuilderTextField
-    | { kind: 'choice' | 'route', path: string, pointer: SettingsPointer, required: boolean, options: readonly string[] }
+    | { kind: 'choice' | 'route' | 'icon', path: string, pointer: SettingsPointer, required: boolean, options: readonly string[] }
     | { kind: 'number', path: string, pointer: SettingsPointer, required: boolean, integer: boolean, min?: number, max?: number }
-    | { kind: 'boolean' | 'color' | 'icon' | 'url' | 'link' | 'richText' | 'media', path: string, pointer: SettingsPointer, required: boolean }
+    | { kind: 'boolean' | 'color' | 'url' | 'link' | 'richText' | 'media', path: string, pointer: SettingsPointer, required: boolean }
     | { kind: 'record', path: string, pointer: SettingsPointer, required: boolean, refKind: BlockRefKind }
     | { kind: 'query', path: string, pointer: SettingsPointer, required: boolean, source: DataSource, maxLimit: number }
     | { kind: 'list' | 'mediaList', path: string, pointer: SettingsPointer, required: boolean, maxItems?: number }
@@ -46,11 +47,12 @@ const isSchema = (value: unknown): value is JsonSchema => typeof value === 'obje
 
 const numberOf = (value: unknown): number | undefined => typeof value === 'number' ? value : undefined
 
-const FORMAT_OF_PATTERN = new Map<string, 'color' | 'icon' | 'url'>([
+const FORMAT_OF_PATTERN = new Map<string, 'color' | 'url'>([
   [BUILDER_FIELD_PATTERNS.hexColor.source, 'color'],
-  [BUILDER_FIELD_PATTERNS.icon.source, 'icon'],
   [BUILDER_FIELD_PATTERNS.httpsUrl.source, 'url'],
 ])
+
+const ICONS: readonly string[] = BUILDER_ICONS
 
 function fieldOf(
   schema: JsonSchema,
@@ -70,6 +72,7 @@ function fieldOf(
   if (Array.isArray(schema.enum)) {
     const options = schema.enum.map(String)
     const routes: readonly string[] = LINK_ROUTES
+    if (options.every(option => ICONS.includes(option))) return { ...base, kind: 'icon', options }
     return { ...base, kind: options.every(option => routes.includes(option)) ? 'route' : 'choice', options }
   }
   if (Array.isArray(schema.anyOf) && schema.anyOf.every(option => isSchema(option) && (option.type === 'number' || option.type === 'integer'))) {

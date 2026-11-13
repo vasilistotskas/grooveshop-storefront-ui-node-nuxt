@@ -27,6 +27,10 @@ const props = defineProps<{
   stacked?: boolean
   /** Below `sm`: the row to swipe (`row`, the default) or a list of compact rows. */
   phoneLayout?: 'list'
+  /** How many of the posts a phone shows, the first ones; all of them when unset (`data-phone-hidden`, `main.css`). */
+  phoneLimit?: number
+  /** `bold`: the bold teaser (`Blog/RailBold`), with this rail's texts. A `stacked` rail keeps this look. */
+  look?: 'bold'
 }>()
 
 const { t, locale } = useStoreI18n('components/Blog/Rail')
@@ -36,13 +40,25 @@ const { blogPostUrl } = useUrls()
 const title = (post: BlogPost) => extractTranslated(post, 'title', locale.value) ?? ''
 
 const list = computed(() => props.phoneLayout === 'list' && !props.stacked)
+
+/** This rail's texts, for its bold look (`Blog/RailBold`). */
+const texts = (key: string, named: Record<string, unknown> = {}, plural?: number) =>
+  plural === undefined ? t(key, named) : t(key, named, plural)
 </script>
 
 <template>
   <!-- On a phone the row runs to the viewport's edges, so it can scroll
        there: it takes the container's gutters back as its own padding. -->
+  <BlogRailBold
+    v-if="look === 'bold' && !stacked"
+    :posts="posts"
+    :category-name="categoryName"
+    :phone-layout="phoneLayout"
+    :phone-limit="phoneLimit"
+    :texts="texts"
+  />
   <ul
-    v-if="posts.length"
+    v-else-if="posts.length"
     :data-phone-layout="list ? 'list' : undefined"
     :class="list
       ? `
@@ -68,7 +84,7 @@ const list = computed(() => props.phoneLayout === 'list' && !props.stacked)
     <!-- A compact row is a grid: the thumbnail spans both rows, the meta
          and the title stack beside it. From `sm` up, the card as ever. -->
     <li
-      v-for="post in posts"
+      v-for="(post, index) in posts"
       :key="post.id"
       class="group relative"
       :class="list
@@ -86,6 +102,7 @@ const list = computed(() => props.phoneLayout === 'list' && !props.stacked)
             lg:w-auto
           `,
         ]"
+      :data-phone-hidden="phoneHidden(phoneLimit, index)"
     >
       <div
         :class="list
@@ -186,6 +203,8 @@ const list = computed(() => props.phoneLayout === 'list' && !props.stacked)
 <i18n lang="yaml">
 el:
   reading_time: '{minutes} λεπτό ανάγνωσης | {minutes} λεπτά ανάγνωσης'
+  reading_minutes: '{minutes}′'
 en:
   reading_time: '{minutes} min read'
+  reading_minutes: '{minutes} min'
 </i18n>

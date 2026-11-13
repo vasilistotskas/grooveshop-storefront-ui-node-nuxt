@@ -33,6 +33,13 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
+  // The icon before the label, as the bold product cards draw it; after it
+  // everywhere else.
+  leadingIcon: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 // A browse-only store takes no orders: there is nothing to buy, so no
@@ -129,7 +136,7 @@ const { addToCart } = useAddToCart({
     icon="i-heroicons-shopping-cart"
     :label="visibleLabel"
     :size="size"
-    :trailing="true"
+    :trailing="!leadingIcon"
     loading-auto
     :color="buttonColor"
     :variant="buttonVariant"
