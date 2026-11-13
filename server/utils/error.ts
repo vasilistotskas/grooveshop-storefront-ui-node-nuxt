@@ -97,10 +97,11 @@ function isAbortedRequestBody(value: unknown): boolean {
  * Django, and the promote's smoke counted them as server faults.
  *
  * The error itself, or as the `cause` of the error Nitro wraps an unhandled
- * throw in. An upstream reset is not this: ofetch wraps it in a `FetchError`,
- * whatever its cause (Django's own response cut off mid-body is that same
- * `Error('aborted')` inside one), and it stays a 5xx, as does any other
- * `ECONNRESET` (a store, a socket).
+ * throw in. A failed upstream call is never this: a `FetchError` is no client
+ * abort whatever its cause, and Django's response cut off mid-body reaches us
+ * as undici's own unwrapped `TypeError('terminated')`, which has neither the
+ * message nor the code. Both stay a 5xx, as does any other `ECONNRESET` (a
+ * store, a socket).
  */
 export function isClientAbort(error: unknown): boolean {
   if (!(error instanceof Error) || error instanceof FetchError) return false

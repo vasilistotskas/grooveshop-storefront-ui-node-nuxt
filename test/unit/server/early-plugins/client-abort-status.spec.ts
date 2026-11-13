@@ -74,9 +74,9 @@ describe('server/early-plugins/client-abort-status', () => {
     expect(await requestThrough(readsThenThrows(() => new Error('boom')), '{}', 2)).toEqual({ logged: 500, answered: 500 })
   })
 
-  // Django's response cut off mid-body: ofetch's FetchError around Node's
-  // very same Error('aborted'). The upstream failed, not the client.
-  it('keeps an upstream failure a 500, though its cause is Node’s aborted body', async () => {
+  // A FetchError is an upstream failure whatever its cause, even one built
+  // around Node's aborted-body error: the guard holds for any cause.
+  it('keeps a FetchError a 500, whatever its cause', async () => {
     const aborted = await abortedRequestBodyError()
     const upstream = readsThenThrows(async () => {
       backend.failOnce(aborted as Error)

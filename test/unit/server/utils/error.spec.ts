@@ -262,6 +262,9 @@ describe('handleError', () => {
       ['an error of our own', () => new Error('boom')],
       ['an "aborted" error that is no connection reset', () => new Error('aborted')],
       ['a connection reset that is not an aborted body (a store, a socket)', () => Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' })],
+      // Django's response cut off mid-body: ofetch reads the body outside its
+      // FetchError wrapping, so undici's own error arrives unwrapped.
+      ['an upstream response cut off mid-body (undici’s "terminated")', () => new TypeError('terminated')],
     ])('keeps %s a 500 at error', (_case, error) => {
       const thrown = thrownBy(() => handleError(probe(), error()))
 
@@ -269,12 +272,12 @@ describe('handleError', () => {
       expect(log.warn).not.toHaveBeenCalledWith(expect.objectContaining({ action: 'request:aborted' }))
     })
 
-    // ofetch wraps any failed upstream call in a FetchError, Django's response
-    // cut off mid-body (Node's very same Error('aborted')) included.
+    // A FetchError is an upstream failure whatever its cause, even one built
+    // around Node's aborted-body error: the guard holds for any cause.
     it.each([
       ['a refused connection', () => new TypeError('fetch failed')],
-      ['a response cut off mid-body', abortedRequestBodyError],
-    ])('keeps an upstream failure (ofetch\u2019s FetchError around %s) a 500 at error', async (_case, cause) => {
+      ['Node\u2019s aborted-body error', abortedRequestBodyError],
+    ])('keeps a FetchError around %s a 500 at error', async (_case, cause) => {
       backend.failOnce(await cause() as Error)
       const upstream = await rejectionOf($fetch('http://backend.test/api/v1/upstream', { method: 'POST' }), FetchError)
 
