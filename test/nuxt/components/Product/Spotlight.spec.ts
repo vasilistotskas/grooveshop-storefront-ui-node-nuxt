@@ -212,6 +212,16 @@ describe('Product/Spotlight', () => {
       expect(String(attrs.class).split(/\s+/)).toEqual(expect.arrayContaining(['min-h-12', 'max-sm:size-12', 'max-sm:*:data-[slot=label]:sr-only']))
       expect(besidePrice).toBe(true)
     })
+
+    // The class is the contract, the browser the real check: at 320px a
+    // 12.345,67 € price overran the button beside it; the row now wraps
+    // and the button takes its own line (measured, 2026-11-13).
+    it('lets the button drop under a price too long to sit beside it', async () => {
+      const wrapper = await mountSpotlight({ look: 'bold' })
+      await vi.waitFor(() => expect(wrapper.find('[data-test="part"]').exists()).toBe(true))
+
+      expect(wrapper.get('[data-test="part"]').element.closest('.justify-between')!.classList.contains('flex-wrap')).toBe(true)
+    })
   })
 })
 

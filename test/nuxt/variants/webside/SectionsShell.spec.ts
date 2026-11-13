@@ -84,7 +84,12 @@ describe('webside SectionsShell', () => {
   it('carries what follows the sections in a frame of its own after a band', async () => {
     const wrapper = await mountShell([bold('a', 'newsletter_signup')], { after: () => h('form', { 'data-test': 'form' }) })
 
-    expect(wrapper.find('section [data-test="form"]').exists()).toBe(true)
+    // The form's frame is the shell's last run, after the band's.
+    const runs = [...wrapper.element.children]
+    const formRun = runs.findIndex(run => run.contains(wrapper.get('[data-test="form"]').element))
+    const bandRun = runs.findIndex(run => run.querySelector('[data-section="a"]') !== null)
+    expect(runs[formRun]!.querySelector('section')).not.toBeNull()
+    expect([bandRun, formRun]).toEqual([runs.length - 2, runs.length - 1])
   })
 
   it('tells a section of an open run whether a band is right above it, never the run’s first', async () => {

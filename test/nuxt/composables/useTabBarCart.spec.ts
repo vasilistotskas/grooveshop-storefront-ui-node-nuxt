@@ -11,6 +11,16 @@ import WebsideBuilderNavbar from '~/components/variants/webside/Builder/Navbar.v
  * hid it whenever a tab bar was on, so account pages had none).
  */
 const device = vi.hoisted(() => ({ mobile: { value: true } }))
+
+// Only the routes matter: the pages they would load are empty here, so the
+// navigations do not transform them (`.claude/rules/testing.md`).
+const { PageStub } = await vi.hoisted(async () => {
+  const { defineComponent } = await import('vue')
+  return { PageStub: defineComponent({ render: () => null }) }
+})
+vi.mock('~/pages/products/index.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/index.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/login/index.vue', () => ({ default: PageStub }))
 mockNuxtImport('useDevice', () => () => ({ isMobileOrTablet: device.mobile, isMobile: device.mobile, isDesktop: { value: false } }))
 
 const Probe = defineComponent({

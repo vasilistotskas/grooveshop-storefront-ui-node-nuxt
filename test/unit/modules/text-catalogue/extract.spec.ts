@@ -145,7 +145,7 @@ describe('buildTextCatalogue over the real tree', () => {
     // 4471 entries on 2026-10-28; a block the walk misses would be silent.
     expect(real.entries.length).toBeGreaterThan(4000)
     expect(find('components/Chrome/Footer', 'pay_with')?.defaults.en).toBe('Pay with')
-    expect(find('components/variants/webside/Footer/Legal', 'cookie_settings')).toBeDefined()
+    expect(find('components/variants/webside/Footer/Legal', 'cookie_settings')?.defaults).toEqual({ el: 'Ρυθμίσεις cookies', en: 'Cookie settings' })
     expect(find('global', 'cancel')).toBeDefined()
   })
 

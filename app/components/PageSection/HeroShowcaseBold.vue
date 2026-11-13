@@ -184,7 +184,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
             sm:flex-none sm:px-5
           "
           :class="button.variant === 'solid' ? `
-            bg-(--ui-secondary-deep) font-bold
+            bg-(--ui-secondary-deep) font-bold text-(--ui-on-secondary-deep)
             hover:bg-(--ui-secondary-deep)/90
           ` : 'font-semibold text-accent ring-accented'"
           :ui="{ trailingIcon: 'max-sm:hidden' }"

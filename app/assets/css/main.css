@@ -107,6 +107,9 @@
      out. The store's theme writes it from its light accent
      (`shared/theme/compile.ts`). */
   --ui-secondary-deep: color-mix(in srgb, #003DFF 80%, black);
+  /* The text on that fill: white on the platform blue's deep shade (9.1:1);
+     a store's theme picks it for its own accent (`readableTextOn`). */
+  --ui-on-secondary-deep: #ffffff;
   /* Text color for solid --ui-secondary surfaces. White suits the
      platform blue; tenant themes emit a luminance-picked value. */
   --ui-on-secondary: #ffffff;
@@ -266,6 +269,9 @@
     );
   --ui-secondary: #3364FF;
   --ui-secondary-deep: color-mix(in srgb, #003DFF 80%, black);
+  /* The text on that fill: white on the platform blue's deep shade (9.1:1);
+     a store's theme picks it for its own accent (`readableTextOn`). */
+  --ui-on-secondary-deep: #ffffff;
   --ds-lattice-accent:
     linear-gradient(
       to right,

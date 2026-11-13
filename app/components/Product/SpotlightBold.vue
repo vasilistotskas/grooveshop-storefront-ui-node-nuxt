@@ -136,9 +136,11 @@ const buyInput = computed<DesignPartInput>(() => ({ ...partInput.value, leadingI
         </p>
       </div>
 
+      <!-- Wraps: a long price (12.345,67 €) beside the 48px button
+           overran it at 320px; the button then takes its own line. -->
       <div
         class="
-          mt-auto flex items-center justify-between gap-2 pt-1.5
+          mt-auto flex flex-wrap items-center justify-between gap-2 pt-1.5
           sm:gap-3 sm:pt-2.5
         "
       >
