@@ -268,10 +268,7 @@ useHead({
         <aside
           v-if="asideGuides.length"
           class="flex-col gap-3"
-          :class="productCount ? `
-            hidden
-            lg:flex
-          ` : 'flex'"
+          :class="productCount ? ['hidden', 'lg:flex'] : 'flex'"
           :aria-labelledby="'search-guides-heading'"
         >
           <h2
