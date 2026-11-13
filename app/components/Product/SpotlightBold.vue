@@ -136,15 +136,19 @@ const buyInput = computed<DesignPartInput>(() => ({ ...partInput.value, leadingI
         </p>
       </div>
 
-      <!-- Wraps: a long price (12.345,67 €) beside the 48px button
-           overran it at 320px; the button then takes its own line. -->
+      <!-- The button stays at the right, beside the price, whenever the
+           price itself fits: the price block's basis is its longest single
+           line (`w-min`, then `grow`), so a prior price goes under the price
+           first. Only a price too long for the row with the button
+           (12.345,67 € at 320px) sends the button to a line of its own,
+           still at the right (`ml-auto`). -->
       <div
         class="
           mt-auto flex flex-wrap items-center justify-between gap-2 pt-1.5
           sm:gap-3 sm:pt-2.5
         "
       >
-        <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
+        <div class="flex w-min min-w-0 grow flex-wrap items-baseline gap-x-2">
           <span
             class="
               text-xl font-extrabold text-highlighted tabular-nums
@@ -169,7 +173,7 @@ const buyInput = computed<DesignPartInput>(() => ({ ...partInput.value, leadingI
         <!-- Above the stretched link, so it stays clickable. -->
         <div
           v-if="buy && !soldOut"
-          class="relative z-10 shrink-0"
+          class="relative z-10 ml-auto shrink-0"
         >
           <component
             :is="buy.component"

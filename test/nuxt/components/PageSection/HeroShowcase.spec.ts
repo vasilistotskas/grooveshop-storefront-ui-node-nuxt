@@ -342,7 +342,9 @@ describe('PageSection/HeroShowcase in its bold look', () => {
 
     const [main, second] = wrapper.findAllComponents({ name: 'UButton' })
     expect(main!.props('trailingIcon')).toBe('i-lucide-arrow-right')
-    expect(wrapper.get('a[href="/products"]').classes()).toEqual(expect.arrayContaining(['min-h-12', 'bg-(--ui-secondary-deep)', 'font-bold']))
+    // The deep fill and the text picked for IT, never the accent's own
+    // (`--ui-on-secondary-deep`, `shared/theme/compile.ts`): a pair.
+    expect(wrapper.get('a[href="/products"]').classes()).toEqual(expect.arrayContaining(['min-h-12', 'bg-(--ui-secondary-deep)', 'text-(--ui-on-secondary-deep)', 'font-bold']))
     expect(second!.props('trailingIcon')).toBeUndefined()
     expect(wrapper.get('a[href="/blog"]').classes()).toEqual(expect.arrayContaining(['min-h-12', 'text-accent']))
   })

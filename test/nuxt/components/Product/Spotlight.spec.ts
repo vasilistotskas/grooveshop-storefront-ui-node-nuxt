@@ -213,14 +213,21 @@ describe('Product/Spotlight', () => {
       expect(besidePrice).toBe(true)
     })
 
-    // The class is the contract, the browser the real check: at 320px a
-    // 12.345,67 € price overran the button beside it; the row now wraps
-    // and the button takes its own line (measured, 2026-11-13).
-    it('lets the button drop under a price too long to sit beside it', async () => {
-      const wrapper = await mountSpotlight({ look: 'bold' })
+    // The classes are the contract, the browser the real check (2026-11-13,
+    // 320 to 1440, webside and demo): the price block's basis is its longest
+    // single line (`w-min grow`), so a prior price goes UNDER the price and
+    // the button stays beside it; only a price too long for the row sends
+    // the button to a line of its own, at the right (`ml-auto`).
+    it('keeps the button beside a discounted price, the prior price under it, and at the right when it drops', async () => {
+      const wrapper = await mountSpotlight({ look: 'bold', product: product({ effectivePrice: 129.9, priorPrice: 159.9, announcedDiscountPercent: 19 }) })
       await vi.waitFor(() => expect(wrapper.find('[data-test="part"]').exists()).toBe(true))
 
-      expect(wrapper.get('[data-test="part"]').element.closest('.justify-between')!.classList.contains('flex-wrap')).toBe(true)
+      const row = wrapper.get('[data-test="part"]').element.closest('.justify-between')!
+      const [block, button] = [...row.children] as [Element, Element]
+      expect(block.textContent).toContain('159,90')
+      expect(row.classList.contains('flex-wrap')).toBe(true)
+      expect([...block.classList]).toEqual(expect.arrayContaining(['w-min', 'grow', 'flex-wrap']))
+      expect(button.classList.contains('ml-auto')).toBe(true)
     })
   })
 })
