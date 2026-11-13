@@ -243,21 +243,21 @@ describe('Webside Search/Modal', () => {
     })
   })
 
-  it('opens the full results page from "view all", remembering the query', async () => {
-    const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+  it('opens the full results page from "view all" as a new history entry, remembering the query', async () => {
+    const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
     const wrapper = await openModal(C, 'laptop')
 
     modalButton(own(wrapper, 'search.view_all_results')).click()
     await nextTick()
 
-    expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
+    expect(push).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
     expect(wrapper.emitted('update:open')).toEqual([[false]])
     expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
   })
 
   it('keeps the language: an English search opens the English results', async () => {
     const { $i18n } = useNuxtApp()
-    const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+    const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
     $i18n.locale.value = 'en'
     try {
       const wrapper = await openModal(C, 'laptop')
@@ -265,7 +265,7 @@ describe('Webside Search/Modal', () => {
       modalButton(own(wrapper, 'search.view_all_results')).click()
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith('/en/search?query=laptop')
+      expect(push).toHaveBeenCalledExactlyOnceWith('/en/search?query=laptop')
     }
     finally {
       $i18n.locale.value = 'el'
@@ -494,20 +494,20 @@ describe('Search/Modal (palette)', () => {
 
   describe('see all', () => {
     it('opens the full results page, remembering the query', async () => {
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       const wrapper = await openModal(SearchModal, 'laptop')
 
       modalButton('Δες και τα 5 αποτελέσματα').click()
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
+      expect(push).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
       expect(wrapper.emitted('update:open')).toEqual([[false]])
       expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
     })
 
     it('keeps the language: an English search opens the English results', async () => {
       const { $i18n } = useNuxtApp()
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       $i18n.locale.value = 'en'
       try {
         await openModal(SearchModal, 'laptop')
@@ -515,7 +515,7 @@ describe('Search/Modal (palette)', () => {
         modalButton('See all 5 results').click()
         await nextTick()
 
-        expect(replace).toHaveBeenCalledExactlyOnceWith('/en/search?query=laptop')
+        expect(push).toHaveBeenCalledExactlyOnceWith('/en/search?query=laptop')
       }
       finally {
         $i18n.locale.value = 'el'
@@ -524,13 +524,13 @@ describe('Search/Modal (palette)', () => {
 
     it('is offered whenever there is a query, even for a search that found nothing', async () => {
       api.routes({ '/api/search': answering(() => searchResponse([], [])) })
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       await openModal(SearchModal, 'zzz')
 
       modalButton('Αναζήτηση για «zzz»').click()
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=zzz')
+      expect(push).toHaveBeenCalledExactlyOnceWith('/search?query=zzz')
     })
 
     it('is not offered before there is a query', async () => {
@@ -549,14 +549,14 @@ describe('Search/Modal (palette)', () => {
     }
 
     it('searches for what was typed, rather than opening the row the palette highlighted on its own', async () => {
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       const wrapper = await openModal(SearchModal, 'laptop')
 
       const event = pressKey('Enter')
       await nextTick()
 
       expect(event.defaultPrevented).toBe(true)
-      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
+      expect(push).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
       expect(trackResultClick).not.toHaveBeenCalled()
       expect(wrapper.emitted('update:open')).toEqual([[false]])
       expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
@@ -565,51 +565,53 @@ describe('Search/Modal (palette)', () => {
     it('searches for what was typed while the results are still on their way, not for a recent search', async () => {
       localStorage.setItem('search:recent:el', JSON.stringify(['κινητό']))
       api.routes({ '/api/search': () => new Promise(() => {}) })
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       const wrapper = await openModal(SearchModal, 'laptop')
 
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
+      expect(push).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
       expect(wrapper.emitted('update:query')).toBeUndefined()
     })
 
     it('searches for a query that found nothing', async () => {
       api.routes({ '/api/search': answering(() => searchResponse([], [])) })
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       await openModal(SearchModal, 'zzz')
 
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=zzz')
+      expect(push).toHaveBeenCalledExactlyOnceWith('/search?query=zzz')
     })
 
     it('leaves Enter to the palette once the shopper has moved to a row with the arrow keys', async () => {
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       await openModal(SearchModal, 'laptop')
 
       pressKey('ArrowDown')
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).not.toHaveBeenCalled()
+      // The palette's row may navigate (a product); the search page must not open.
+      expect(push).not.toHaveBeenCalledWith(expect.stringContaining('/search'))
     })
 
     it('leaves Enter to the palette once the pointer is on a row', async () => {
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       await openModal(SearchModal, 'laptop')
 
       document.querySelector('[role="option"]')!.dispatchEvent(new Event('pointermove', { bubbles: true }))
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).not.toHaveBeenCalled()
+      // The palette's row may navigate (a product); the search page must not open.
+      expect(push).not.toHaveBeenCalledWith(expect.stringContaining('/search'))
     })
 
     it('goes back to searching for the query after the shopper types again', async () => {
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       const wrapper = await openModal(SearchModal, 'laptop')
       pressKey('ArrowDown')
 
@@ -617,29 +619,30 @@ describe('Search/Modal (palette)', () => {
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptops')
+      expect(push).toHaveBeenCalledExactlyOnceWith('/search?query=laptops')
     })
 
     it('does nothing for an empty query, where Enter picks the highlighted recent search', async () => {
       localStorage.setItem('search:recent:el', JSON.stringify(['κινητό']))
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       const wrapper = await openModal(SearchModal)
 
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).not.toHaveBeenCalled()
+      expect(push).not.toHaveBeenCalled()
       expect(wrapper.emitted('update:query')).toEqual([['κινητό']])
     })
 
     it('does not take the Enter that confirms an input-method composition', async () => {
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
       await openModal(SearchModal, 'laptop')
 
       pressKey('Enter', { isComposing: true })
       await nextTick()
 
-      expect(replace).not.toHaveBeenCalled()
+      // The palette's row may navigate (a product); the search page must not open.
+      expect(push).not.toHaveBeenCalledWith(expect.stringContaining('/search'))
     })
   })
 

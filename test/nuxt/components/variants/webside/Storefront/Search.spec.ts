@@ -49,11 +49,12 @@ const STUBS = {
 const PRODUCTS = '/api/products/search'
 const GUIDES = '/api/search/blog-posts'
 
-function answer({ products = 2, productTotal = products, guideTotal = 1 } = {}) {
+/** What the two searches find; the products' total defaults to the hits on the page. */
+function answer({ products = 2, productTotal, guideTotal = 1 }: { products?: number, productTotal?: number, guideTotal?: number } = {}) {
   api.routes({
     [PRODUCTS]: makeProductSearchResponse({
       results: Array.from({ length: products }, (_, i) => makeProductSearchHit({ id: i + 1, master: i + 1, name: `Προϊόν ${i + 1}` })),
-      estimatedTotalHits: productTotal,
+      estimatedTotalHits: productTotal ?? products,
     }),
     [GUIDES]: makeBlogPostSearchResponse({
       results: [makeBlogPostSearchHit({ id: 1, master: 1, title: 'Άρθρο 1' })],
