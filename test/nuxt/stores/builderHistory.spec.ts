@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { createPinia, setActivePinia } from 'pinia'
 import { failWith } from '~~/test/helpers/api'
+import { makeBuilderDocumentRow } from '~~/test/fixtures/builderDocument'
 import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { useBuilderEditorStore } from '~/stores/builderEditor'
 import { useBuilderHistoryStore } from '~/stores/builderHistory'
@@ -47,7 +48,7 @@ const version = (number: number) => ({
 
 async function openEditor(hasUnpublishedChanges: boolean) {
   api.routes({
-    '/api/builder/documents': [{ key: HOME, kind: 'template', draftRevision: 3, updatedAt: '2026-11-02T10:00:00+02:00', updatedBy: null, publishedVersion: 1, hasUnpublishedChanges }],
+    '/api/builder/documents': [makeBuilderDocumentRow({ key: HOME, hasUnpublishedChanges })],
     [url]: envelope(3, DRAFT, hasUnpublishedChanges),
     [`${url}/versions`]: (_url: string, options?: { query?: { page?: number } }) => ({
       count: 31,

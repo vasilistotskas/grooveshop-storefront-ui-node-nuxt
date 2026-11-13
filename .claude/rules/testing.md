@@ -99,10 +99,11 @@ and fake timers for debounce, polling and timeouts
 | `test/helpers/asyncData.ts` | `createAsyncDataMock()` shaped like Nuxt's `AsyncData` |
 | `test/helpers/tenant.ts` | `setTenant(overrides)` on the active Pinia's tenant store |
 | `test/helpers/trees.ts` | `trees(Default, Webside)` for running one spec body over both component trees |
+| `test/helpers/componentTexts.ts` | `componentTexts(source, filename)`: a component's own `<i18n>` texts formatted by vue-i18n, for its exact copy (`import source from '~/components/X.vue?raw'`) |
 | `test/helpers/sourceText.ts` | the source-rule toolkit: file walks, memoised SFC/AST parsing, `classesOf`, `componentName` |
 | `test/helpers/nitro/` | the server harness (below) |
 | `test/helpers/e2e.ts` | dev-server boot, fake Django, `requestWithHost` |
-| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeOrder`, `makeContentPage`, `makeBlogComment`, `makeBlogCategory`, `makeSubscriptionTopic`, `makeUserSubscription`, `makeUserDetails`, `validTenantConfig`, … |
+| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeOrder`, `makeContentPage`, `makeBuilderDocumentRow`, `makeBlogComment`, `makeBlogCategory`, `makeSubscriptionTopic`, `makeUserSubscription`, `makeUserDetails`, `validTenantConfig`, … |
 | `test/fixtures/allauth.ts` | allauth replies: `makeSessionResponse`, `makePendingFlowResponse(id)`, `makeBadResponse(...errors)`, `makeAllAuthConfig`, and `asProxiedError(body)` — a body as the app's `$fetch` throws it |
 
 Every fixture factory's defaults are parsed against its Zod schema (the
@@ -176,7 +177,9 @@ of hand-building a payload in a second spec.
   route handler — components, pages and composables take no response hooks
   on a call they await (`test/unit/source-rules/api-errors-are-caught.spec.ts`).
 - **i18n returns real Greek.** For exact copy assert
-  `useNuxtApp().$i18n.t('key', params)` rather than hardcoding the string.
+  `useNuxtApp().$i18n.t('key', params)` rather than hardcoding the string;
+  a component's own `<i18n>` block is not on `$i18n`, so its copy comes from
+  `componentTexts`, and the page builder's names from `app/builder/labels/<locale>.json`.
 
 ## `unit` project: the server harness
 

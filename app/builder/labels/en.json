@@ -166,6 +166,21 @@
       "label": "Why microlearning"
     }
   },
+  "contrastRules": {
+    "body-text-light": "Text, light",
+    "body-text-dark": "Text, dark",
+    "muted-text-light": "Secondary text, light",
+    "muted-text-dark": "Secondary text, dark",
+    "action-light": "Buttons, light",
+    "action-dark": "Buttons, dark",
+    "accent-light": "Accent, light",
+    "accent-dark": "Accent, dark",
+    "accent-muted-light": "Accent on the muted ground, light",
+    "accent-muted-dark": "Accent on the muted ground, dark"
+  },
+  "documents": {
+    "theme": "Theme: colours, corners, fonts"
+  },
   "groups": {
     "header": "Header, on every page",
     "mobile": "Mobile menu, on every page",
