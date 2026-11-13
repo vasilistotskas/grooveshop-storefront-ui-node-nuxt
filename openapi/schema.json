@@ -61135,7 +61135,7 @@
                                 "type": "string"
                             },
                             "user": {
-                                "$ref": "#/components/schemas/UserDetails"
+                                "$ref": "#/components/schemas/UserPublic"
                             },
                             "createdAt": {
                                 "type": "string",
@@ -61171,7 +61171,7 @@
                                     "type": "string"
                                 },
                                 "user": {
-                                    "$ref": "#/components/schemas/UserDetails"
+                                    "$ref": "#/components/schemas/UserPublic"
                                 }
                             },
                             "required": [
