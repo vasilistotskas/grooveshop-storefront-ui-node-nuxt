@@ -30,7 +30,7 @@ const title = (post: BlogPost) => extractTranslated(post, 'title', locale.value)
 const list = computed(() => props.phoneLayout === 'list')
 
 /** The attribute that hides a post past the phone's limit below `sm` (`main.css`); none within it. */
-const phoneHidden = (index: number): Record<string, string> => (props.phoneLimit !== undefined && index >= props.phoneLimit ? { 'data-phone-hidden': '' } : {})
+const phoneHidden = (index: number): '' | undefined => (props.phoneLimit !== undefined && index >= props.phoneLimit ? '' : undefined)
 </script>
 
 <template>
@@ -59,7 +59,6 @@ const phoneHidden = (index: number): Record<string, string> => (props.phoneLimit
     <li
       v-for="(post, index) in posts"
       :key="post.id"
-      v-bind="phoneHidden(index)"
       class="group relative"
       :class="[
         list
@@ -75,6 +74,7 @@ const phoneHidden = (index: number): Record<string, string> => (props.phoneLimit
             lg:w-auto
           `,
       ]"
+      :data-phone-hidden="phoneHidden(index)"
     >
       <div
         class="overflow-hidden bg-elevated"

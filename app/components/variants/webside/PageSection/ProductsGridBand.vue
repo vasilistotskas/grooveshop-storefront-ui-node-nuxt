@@ -28,8 +28,8 @@ defineProps<{
           v-for="(product, index) in items"
           :key="product.id"
           :product="product"
-          v-bind="phoneHidden(index)"
           :show-add-to-cart-button="showAddToCart"
+          :data-phone-hidden="phoneHidden(index)"
         />
         <PageSectionProductsCategoryTile :categories="categories" />
       </ol>

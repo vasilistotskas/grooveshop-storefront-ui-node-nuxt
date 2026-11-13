@@ -14,8 +14,10 @@ defineProps({
   },
 })
 
-// The count in the accent, as webside's board draws it: white on the
-// accent reads at 6.5:1, where white on the green read at 3.2:1.
+// The count in the accent, as webside's board draws it, in the accent's own
+// text colour: white reads at 6.5:1 on the light accent and 4.7:1 on the
+// dark one, where white on the green read at 3.2:1 (Nuxt UI pairs a fill
+// with the inverted text, near-black in the dark scheme: 3.7:1).
 const color = computed(() => {
   if (hasStockIssues.value) return 'warning'
   return 'secondary'
@@ -36,6 +38,7 @@ const displayCount = computed<string | number>(() => {
     :color="color"
     :show="!pending"
     :text="displayCount"
+    :ui="color === 'secondary' ? { base: 'text-(--ui-on-secondary)' } : undefined"
   >
     <UButton
       class="p-0"

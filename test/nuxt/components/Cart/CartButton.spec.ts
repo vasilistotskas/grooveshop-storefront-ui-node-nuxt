@@ -117,6 +117,16 @@ describe('webside Cart/CartButton', () => {
     expect(count(wrapper).text()).toBe(shown)
   })
 
+  // White on the accent in both schemes (4.7:1 on the dark one); Nuxt UI's
+  // inverted text is near-black there (3.7:1). The class is the contract.
+  it('writes the count in the own text colour of the accent', async () => {
+    useCartStore().cart = makeCart({ items: [{ quantity: 1, product: { stock: 2 } }] })
+
+    const wrapper = await mountSuspended(WebsideCartButton, { route: false })
+
+    expect(chip(wrapper).props('ui')).toEqual({ base: 'text-(--ui-on-secondary)' })
+  })
+
   it('links to the cart under an accessible name', async () => {
     const wrapper = await mountSuspended(WebsideCartButton, { route: false })
     const link = wrapper.find('a')

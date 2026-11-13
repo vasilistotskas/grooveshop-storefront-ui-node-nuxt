@@ -39,8 +39,8 @@ defineSlots<{
   list?(props: {
     items: readonly ProductCard[]
     showAddToCart: boolean
-    /** The attribute that hides the product at an index past the phone's limit (`main.css`). */
-    phoneHidden: (index: number) => Record<string, string>
+    /** `data-phone-hidden`'s value for the product at an index: set past the phone's limit (`main.css`), absent within it. */
+    phoneHidden: (index: number) => '' | undefined
     categories: readonly ProductCategory[]
   }): unknown
 }>()
@@ -50,7 +50,7 @@ const localePath = useLocalePath()
 const linkTo = useLinkTo()
 
 /** The attribute that hides a product past the phone's limit below `sm` (`main.css`); none within it. */
-const phoneHidden = (index: number): Record<string, string> => (props.phoneLimit !== undefined && index >= props.phoneLimit ? { 'data-phone-hidden': '' } : {})
+const phoneHidden = (index: number): '' | undefined => (props.phoneLimit !== undefined && index >= props.phoneLimit ? '' : undefined)
 
 const categoryItems = computed(() => props.categories?.items ?? [])
 
@@ -92,9 +92,9 @@ const label = computed(
         <ProductCard
           v-for="(product, index) in products.items"
           :key="product.id"
-          v-bind="phoneHidden(index)"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
+          :data-phone-hidden="phoneHidden(index)"
         />
         <PageSectionProductsCategoryTile :categories="categoryItems" />
       </UPageGrid>
@@ -109,9 +109,9 @@ const label = computed(
         <ProductCard
           v-for="(product, index) in products.items"
           :key="product.id"
-          v-bind="phoneHidden(index)"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
+          :data-phone-hidden="phoneHidden(index)"
         />
       </UPageGrid>
     </slot>
