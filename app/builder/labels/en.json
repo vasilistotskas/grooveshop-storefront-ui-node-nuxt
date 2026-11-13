@@ -229,7 +229,7 @@
     },
     "colorScheme": {
       "label": "Colour scheme",
-      "help": "Light or dark in both of the page's colour modes. Empty: as the page."
+      "help": "Light or dark in both of the page's colour modes. Default: as the page."
     },
     "columns": {
       "label": "Columns"
