@@ -20,8 +20,18 @@
  */
 const props = withDefaults(defineProps<{
   compact?: boolean
+  /** The field's own wording, in place of "Search the shop" (a hero's question). */
+  placeholder?: string
+  /**
+   * `lg` is a hero's field: 50px tall on a phone and 52px from `sm` up, in
+   * body-size type, with a «Search» button beside it from `sm` up that opens
+   * the same palette. Not for the header (`compact`).
+   */
+  size?: 'md' | 'lg'
 }>(), {
   compact: false,
+  placeholder: undefined,
+  size: 'md',
 })
 
 const { t } = useStoreI18n('components/Search/Input')
@@ -43,6 +53,9 @@ function openSearchModal() {
 const { owner } = useSearchShortcut(props.compact, openSearchModal)
 
 const KEY_SHORTCUTS = 'Control+K Meta+K /'
+
+const label = computed(() => props.placeholder || t('search.placeholder'))
+const large = computed(() => !props.compact && props.size === 'lg')
 </script>
 
 <template>
@@ -50,6 +63,7 @@ const KEY_SHORTCUTS = 'Control+K Meta+K /'
     :class="[
       'flex items-center',
       compact ? 'min-w-0' : 'w-full',
+      large && 'gap-2',
     ]"
   >
     <UButton
@@ -62,43 +76,63 @@ const KEY_SHORTCUTS = 'Control+K Meta+K /'
         max-sm:min-h-11 max-sm:min-w-11
         lg:hidden
       "
-      :aria-label="t('search.placeholder')"
+      :aria-label="label"
       :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     />
 
     <UButton
       color="neutral"
-      variant="outline"
+      :variant="large ? 'solid' : 'outline'"
       :class="[
-        'justify-start gap-2 px-3.5 text-sm font-medium text-muted',
-        // A section's field is a target of at least 44px on a phone.
         compact ? `
           hidden h-10.5 w-75 min-w-36
           lg:flex
+        ` : large ? `
+          h-12.5 min-w-0 flex-1 bg-default ps-3.5
+          hover:bg-default
+          sm:h-13 sm:ps-4
         ` : `
           h-11 w-full
           sm:h-10.5
         `,
+        // A section's field is a target of at least 44px on a phone.
+        large
+          ? 'justify-start gap-2.5 text-base font-normal text-muted'
+          : 'justify-start gap-2 px-3.5 text-sm font-medium text-muted',
       ]"
       :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     >
       <UIcon
         name="i-lucide-search"
-        class="size-4 shrink-0"
+        :class="large ? 'size-5 shrink-0' : 'size-4 shrink-0'"
       />
       <span class="flex-1 truncate text-start">
-        {{ t('search.placeholder') }}
+        {{ label }}
       </span>
       <span
-        v-if="owner"
+        v-if="owner && !large"
         class="flex shrink-0 items-center gap-0.5"
       >
         <UKbd value="meta" />
         <UKbd value="K" />
       </span>
     </UButton>
+
+    <!-- The field's own button: it opens the same palette, as the field
+         does. A phone has no room beside a 50px field for it. -->
+    <UButton
+      v-if="large"
+      :label="t('search.submit')"
+      color="secondary"
+      size="xl"
+      class="
+        h-13 shrink-0 px-5.5 text-base font-semibold
+        max-sm:hidden
+      "
+      @click="openSearchModal"
+    />
 
     <LazySearchModal
       v-if="modalMounted"
@@ -112,7 +146,9 @@ const KEY_SHORTCUTS = 'Control+K Meta+K /'
 el:
   search:
     placeholder: Αναζήτηση στο κατάστημα
+    submit: Αναζήτηση
 en:
   search:
     placeholder: Search the shop
+    submit: Search
 </i18n>

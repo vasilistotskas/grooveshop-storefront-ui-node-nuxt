@@ -36,6 +36,8 @@ const props = withDefaults(defineProps<{
   imageDecorative?: boolean
   imageLink?: string
   showSearch?: boolean
+  /** The search field's own question. */
+  searchPlaceholder?: string
   ctaText?: string
   ctaLink?: string
   secondaryCtaText?: string
@@ -102,16 +104,136 @@ const hasContent = computed(() => hasCopy.value || twoColumns.value || search.va
  * not a native tag renders as an unknown element (`PageSection/Band.vue`).
  */
 const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtLink') : 'div'))
+
+/**
+ * Each part's classes in the design the store is drawn in. Groove Volt keeps
+ * its own; the base design (a store with its own templates, webside) draws
+ * the board it was designed on: a heavier, tighter heading, the copy centred
+ * against the picture and the product on a desk (the grid's two `1fr` rows
+ * above and below the copy take up the difference), a white search field
+ * with its button, and 48px buttons with the main one in the accent's deep
+ * shade. The grid places every part, so the order a phone reads them in is
+ * the markup's in both designs.
+ */
+const VOLT_LOOK = {
+  section: 'bg-muted',
+  grid: `
+    gap-6 py-12
+    lg:gap-x-12 lg:gap-y-0 lg:py-22
+  `,
+  twoColumns: `
+    lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]
+    lg:grid-rows-[auto_auto_auto_1fr]
+  `,
+  copy: `
+    flex flex-col gap-4
+    lg:col-start-1 lg:row-start-1 lg:self-end
+  `,
+  heading: `
+    max-w-3xl font-display text-4xl font-semibold tracking-tight text-balance
+    wrap-break-word text-highlighted
+    md:text-5xl
+    lg:text-6xl
+  `,
+  subheading: `
+    max-w-2xl text-base text-pretty text-muted
+    md:text-lg
+  `,
+  picture: `
+    block overflow-hidden rounded-lg border border-default
+    lg:col-start-2 lg:row-start-1 lg:self-end
+  `,
+  search: `
+    w-full max-w-2xl
+    lg:col-start-1 lg:row-start-2 lg:mt-7
+  `,
+  searchScheme: '',
+  searchSize: 'md' as 'md' | 'lg',
+  buttons: `
+    flex gap-2
+    sm:flex-wrap sm:gap-3
+    lg:col-start-1 lg:row-start-3 lg:mt-6 lg:self-start
+  `,
+  button: `
+    min-h-12 min-w-0 flex-1 justify-center
+    max-sm:px-2 max-sm:text-sm
+    sm:min-h-0 sm:flex-none
+  `,
+  mainButton: '',
+  secondButton: '',
+  arrow: false,
+  spotlightWithPicture: 'lg:col-start-2 lg:row-span-3 lg:row-start-2 lg:mt-5 lg:self-start',
+  spotlightAlone: 'lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:self-center',
+}
+
+const OWN_LOOK: typeof VOLT_LOOK = {
+  section: 'bg-default',
+  grid: `
+    gap-4.5 pt-7 pb-6
+    lg:gap-x-12 lg:gap-y-0 lg:pt-18 lg:pb-20
+  `,
+  twoColumns: `
+    lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]
+    lg:grid-rows-[1fr_auto_auto_auto_1fr]
+  `,
+  copy: `
+    flex flex-col gap-4.5
+    lg:col-start-1 lg:row-start-2 lg:gap-6
+  `,
+  heading: `
+    max-w-3xl font-display text-4xl/[1.08] font-extrabold tracking-[-0.02em]
+    text-balance wrap-break-word text-highlighted
+    md:text-5xl/[1.04]
+    lg:text-[3.5rem]/[1.04]
+  `,
+  subheading: `
+    max-w-[32.5rem] text-base/normal text-pretty text-toned
+    md:text-lg/[1.55]
+  `,
+  picture: `
+    block overflow-hidden rounded-lg border border-default
+    lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-end lg:rounded-xl
+    lg:shadow-[0_24px_48px_rgb(0_0_0/0.35)]
+  `,
+  search: `
+    w-full max-w-[35rem]
+    lg:col-start-1 lg:row-start-3 lg:mt-6
+  `,
+  // The field is white on a dark band, as on a light one.
+  searchScheme: 'light',
+  searchSize: 'lg',
+  buttons: `
+    grid grid-cols-2 gap-2
+    sm:flex sm:flex-wrap sm:gap-3
+    lg:col-start-1 lg:row-start-4 lg:mt-6 lg:self-start
+  `,
+  button: `
+    min-h-12 min-w-0 justify-center px-2 text-[0.9375rem]
+    sm:flex-none sm:px-5
+  `,
+  mainButton: `
+    bg-(--ui-secondary-hover) font-bold
+    hover:bg-(--ui-secondary-hover)/90
+  `,
+  secondButton: 'font-semibold text-accent ring-accented',
+  arrow: true,
+  spotlightWithPicture: `
+    mt-1.5
+    lg:col-start-2 lg:row-span-3 lg:row-start-3 lg:mt-4 lg:self-start
+  `,
+  spotlightAlone: 'lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:self-center',
+}
+
+const design = useStorefrontDesign()
+const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
 </script>
 
 <template>
   <section
     v-if="hasContent"
     :class="[
-      `
-        relative isolate w-full bg-muted bg-(image:--ds-lattice)
-        bg-size-[1.5rem_1.5rem]
-      `,
+      `relative isolate w-full bg-(image:--ds-lattice) bg-size-[1.5rem_1.5rem]`,
+      look.section,
       colorSchemeClass(colorScheme),
     ]"
   >
@@ -121,22 +243,14 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
          heading, and pushed the page sideways); two from `lg`. -->
     <UContainer
       :class="[
-        `
-          grid grid-cols-[minmax(0,1fr)] gap-6 py-12
-          lg:gap-x-12 lg:gap-y-0 lg:py-22
-        `,
-        twoColumns && `
-          lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]
-          lg:grid-rows-[auto_auto_auto_1fr]
-        `,
+        'grid grid-cols-[minmax(0,1fr)]',
+        look.grid,
+        twoColumns && look.twoColumns,
       ]"
     >
       <div
         v-if="hasCopy"
-        class="
-          flex flex-col gap-4
-          lg:col-start-1 lg:row-start-1 lg:self-end
-        "
+        :class="look.copy"
       >
         <!-- Sentence case, as the operator typed it: the eyebrow every
              hero and band uses. -->
@@ -149,12 +263,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
 
         <h1
           v-if="hasHeading"
-          class="
-            max-w-3xl font-display text-4xl font-semibold tracking-tight
-            text-balance wrap-break-word text-highlighted
-            md:text-5xl
-            lg:text-6xl
-          "
+          :class="look.heading"
         >
           {{ heading }}
           <span
@@ -165,10 +274,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
 
         <p
           v-if="subheading"
-          class="
-            max-w-2xl text-base text-pretty text-muted
-            md:text-lg
-          "
+          :class="look.subheading"
         >
           {{ subheading }}
         </p>
@@ -179,10 +285,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
         v-if="shown"
         :to="pictureLink ? linkTo(pictureLink) : undefined"
         :aria-label="pictureLink && !alt ? linkName : undefined"
-        class="
-          block overflow-hidden rounded-lg border border-default
-          lg:col-start-2 lg:row-start-1 lg:self-end
-        "
+        :class="look.picture"
       >
         <ImgWithFallback
           :src="shown.path"
@@ -201,21 +304,17 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
       <!-- Measured like the search band's field. -->
       <div
         v-if="search"
-        class="
-          w-full max-w-2xl
-          lg:col-start-1 lg:row-start-2 lg:mt-7
-        "
+        :class="[look.search, look.searchScheme]"
       >
-        <SearchInput />
+        <SearchInput
+          :placeholder="searchPlaceholder"
+          :size="look.searchSize"
+        />
       </div>
 
       <div
         v-if="buttons.length"
-        class="
-          flex gap-2
-          sm:flex-wrap sm:gap-3
-          lg:col-start-1 lg:row-start-3 lg:mt-6 lg:self-start
-        "
+        :class="look.buttons"
       >
         <!-- On a phone the two share the row in equal columns, 48px tall
              (a target of at least 44px, WCAG 2.5.5), with the label of
@@ -233,11 +332,12 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
           :variant="button.variant"
           color="secondary"
           size="xl"
-          class="
-            min-h-12 min-w-0 flex-1 justify-center
-            max-sm:px-2 max-sm:text-sm
-            sm:min-h-0 sm:flex-none
-          "
+          :trailing-icon="look.arrow && button.variant === 'solid' ? 'i-lucide-arrow-right' : undefined"
+          :class="[
+            look.button,
+            button.variant === 'solid' ? look.mainButton : look.secondButton,
+          ]"
+          :ui="{ trailingIcon: 'max-sm:hidden' }"
         >
           <span class="text-center text-balance wrap-break-word">{{ button.label }}</span>
         </UButton>
@@ -247,9 +347,7 @@ const pictureFrame = computed(() => (pictureLink.value ? resolveComponent('NuxtL
         v-if="spotlight"
         :product="spotlight"
         :show-add-to-cart="showAddToCart"
-        :class="shown
-          ? `lg:col-start-2 lg:row-span-3 lg:row-start-2 lg:mt-5 lg:self-start`
-          : `lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:self-center`"
+        :class="shown ? look.spotlightWithPicture : look.spotlightAlone"
       />
     </UContainer>
   </section>

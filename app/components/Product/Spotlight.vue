@@ -62,22 +62,125 @@ const buy = computed(() => {
   }
   return cartEnabled.value && props.showAddToCart ? resolvePart('product_add_to_cart', tenantStore.schemaName) : null
 })
+
+const design = useStorefrontDesign()
+const look = computed(() => (design.value === 'volt' ? VOLT_LOOK : OWN_LOOK))
+</script>
+
+<script lang="ts">
+/**
+ * Each part's classes per design. Groove Volt keeps its own. The base design
+ * (a store with its own templates, webside) draws its board's card: a raised
+ * tile with a larger radius, the picture on a light tile, the rating and the
+ * stock on one line (the stock alone on a phone, as words in its status
+ * colour), and the price beside the buy button at every width; on a phone
+ * the button is its icon alone, 48px square, its label kept for a screen
+ * reader.
+ */
+const VOLT_LOOK = {
+  card: `
+    relative flex overflow-hidden rounded-lg border border-default bg-default
+    max-sm:grid max-sm:grid-cols-[8.5rem_minmax(0,1fr)]
+  `,
+  picture: `
+    w-34 shrink-0 bg-elevated
+    max-sm:row-span-2
+    sm:w-42
+  `,
+  body: `
+    flex min-w-0 flex-1 flex-col gap-1.5 p-3.5
+    max-sm:contents
+    sm:p-5
+  `,
+  copy: `
+    flex min-w-0 flex-col gap-1.5
+    max-sm:px-3.5 max-sm:pt-3.5
+  `,
+  title: `
+    line-clamp-2 text-[0.9375rem]/snug font-bold text-pretty wrap-break-word
+    sm:text-lg/snug
+  `,
+  facts: 'contents',
+  rating: '',
+  stockWords: false,
+  row: `
+    mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-1.5
+    max-sm:contents
+  `,
+  prices: `
+    flex flex-wrap items-baseline gap-x-2
+    max-sm:col-start-2 max-sm:self-end max-sm:px-3.5 max-sm:pt-1.5
+    max-sm:pb-3.5
+  `,
+  price: `
+    font-mono text-xl font-bold text-highlighted tabular-nums
+    sm:text-2xl
+  `,
+  buy: `
+    relative z-10
+    max-sm:col-span-2 max-sm:p-3.5
+    max-sm:*:w-full max-sm:*:justify-center
+  `,
+  buyControl: `
+    min-h-11
+    sm:min-h-0
+  `,
+  restock: `
+    relative z-10 w-full pt-1
+    max-sm:col-span-2 max-sm:p-3.5
+    max-sm:*:w-full max-sm:*:justify-center
+  `,
+}
+
+const OWN_LOOK: typeof VOLT_LOOK = {
+  card: 'relative flex overflow-hidden rounded-xl border border-default bg-muted',
+  picture: `
+    w-34 shrink-0 bg-(--ui-color-neutral-100)
+    sm:w-42
+  `,
+  body: `
+    flex min-w-0 flex-1 flex-col gap-1 px-3.5 py-3
+    sm:gap-1.5 sm:px-5 sm:py-4.5
+  `,
+  copy: `
+    flex min-w-0 flex-col gap-1
+    sm:gap-1.5
+  `,
+  title: `
+    line-clamp-2 text-[0.9375rem]/[1.3] font-bold text-pretty wrap-break-word
+    sm:text-[1.1875rem]/[1.3]
+  `,
+  facts: `
+    flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs
+    sm:text-[0.8125rem]
+  `,
+  rating: 'max-sm:hidden',
+  stockWords: true,
+  row: `
+    mt-auto flex items-center justify-between gap-2 pt-1.5
+    sm:gap-3 sm:pt-2.5
+  `,
+  prices: 'flex min-w-0 flex-wrap items-baseline gap-x-2',
+  price: `
+    text-xl font-extrabold text-highlighted tabular-nums
+    sm:text-[1.625rem]
+  `,
+  buy: 'relative z-10 shrink-0',
+  // On a phone the icon alone fills a 48px square; the label stays for a
+  // screen reader (the accessible name holds it, WCAG 2.5.3).
+  buyControl: `
+    min-h-12 w-auto
+    max-sm:size-12 max-sm:justify-center max-sm:p-0
+    max-sm:*:data-[slot=label]:sr-only
+    sm:px-4.5
+  `,
+  restock: 'relative z-10 w-full pt-1',
+}
 </script>
 
 <template>
-  <article
-    class="
-      relative flex overflow-hidden rounded-lg border border-default bg-default
-      max-sm:grid max-sm:grid-cols-[8.5rem_minmax(0,1fr)]
-    "
-  >
-    <div
-      class="
-        w-34 shrink-0 bg-elevated
-        max-sm:row-span-2
-        sm:w-42
-      "
-    >
+  <article :class="look.card">
+    <div :class="look.picture">
       <!-- Not a link of its own: the name's stretched link covers the
            whole card, and a second one here would be a second tab stop
            to the same page. -->
@@ -95,26 +198,9 @@ const buy = computed(() => {
       />
     </div>
 
-    <div
-      class="
-        flex min-w-0 flex-1 flex-col gap-1.5 p-3.5
-        max-sm:contents
-        sm:p-5
-      "
-    >
-      <div
-        class="
-          flex min-w-0 flex-col gap-1.5
-          max-sm:px-3.5 max-sm:pt-3.5
-        "
-      >
-        <h2
-          class="
-            line-clamp-2 text-[0.9375rem]/snug font-bold text-pretty
-            wrap-break-word
-            sm:text-lg/snug
-          "
-        >
+    <div :class="look.body">
+      <div :class="look.copy">
+        <h2 :class="look.title">
           <NuxtLink
             :to="to"
             class="
@@ -128,54 +214,62 @@ const buy = computed(() => {
           </NuxtLink>
         </h2>
 
-        <ProductRating
-          v-if="productReviewsEnabled"
-          :average="product.reviewAverage"
-          :count="product.reviewCount"
-        />
-
-        <!-- The words in the reading colours, the state in the dot: a
-             status colour as 12px type misses AA on a light ground. -->
-        <p class="flex items-center gap-1.5 text-xs font-semibold text-toned">
-          <span
-            aria-hidden="true"
-            class="size-2 shrink-0 rounded-full"
-            :class="soldOut ? 'bg-accented' : lowStockCount ? 'bg-warning' : `
-              bg-success
-            `"
+        <div :class="look.facts">
+          <ProductRating
+            v-if="productReviewsEnabled"
+            :average="product.reviewAverage"
+            :count="product.reviewCount"
+            :class="look.rating"
           />
-          <template v-if="soldOut">
-            {{ t('sold_out') }}
-          </template>
-          <template v-else-if="lowStockCount">
-            {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
-          </template>
-          <template v-else>
-            {{ t('in_stock') }}
-          </template>
-        </p>
+
+          <!-- The base design: the state as words in its status colour.
+               Volt: the words in the reading colours, the state in the
+               dot, since a status colour as 12px type misses AA on a light
+               ground. -->
+          <p
+            v-if="look.stockWords"
+            class="font-semibold"
+            :class="soldOut ? 'text-muted' : lowStockCount ? 'text-warning' : `
+              text-success
+            `"
+          >
+            <template v-if="soldOut">
+              {{ t('sold_out') }}
+            </template>
+            <template v-else-if="lowStockCount">
+              {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
+            </template>
+            <template v-else>
+              {{ t('in_stock') }}
+            </template>
+          </p>
+          <p
+            v-else
+            class="flex items-center gap-1.5 text-xs font-semibold text-toned"
+          >
+            <span
+              aria-hidden="true"
+              class="size-2 shrink-0 rounded-full"
+              :class="soldOut ? 'bg-accented' : lowStockCount ? 'bg-warning' : `
+                bg-success
+              `"
+            />
+            <template v-if="soldOut">
+              {{ t('sold_out') }}
+            </template>
+            <template v-else-if="lowStockCount">
+              {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
+            </template>
+            <template v-else>
+              {{ t('in_stock') }}
+            </template>
+          </p>
+        </div>
       </div>
 
-      <div
-        class="
-          mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2
-          pt-1.5
-          max-sm:contents
-        "
-      >
-        <div
-          class="
-            flex flex-wrap items-baseline gap-x-2
-            max-sm:col-start-2 max-sm:self-end max-sm:px-3.5 max-sm:pt-1.5
-            max-sm:pb-3.5
-          "
-        >
-          <span
-            class="
-              font-mono text-xl font-bold text-highlighted tabular-nums
-              sm:text-2xl
-            "
-          >
+      <div :class="look.row">
+        <div :class="look.prices">
+          <span :class="look.price">
             {{ $i18n.n(displayFinalPrice, 'currency') }}
           </span>
           <ProductPriorPrice
@@ -191,27 +285,18 @@ const buy = computed(() => {
           </s>
         </div>
 
-        <!-- Above the stretched link, so it stays clickable. On a
-             phone, the card's last row, and the control fills it: set on
+        <!-- Above the stretched link, so it stays clickable. Volt, on a
+             phone: the card's last row, and the control fills it, set on
              the row's children (`*:`), so any design's control does,
              whatever it lets through its attributes. -->
         <div
           v-if="buy && !soldOut"
-          class="
-            relative z-10
-            max-sm:col-span-2 max-sm:p-3.5
-            max-sm:*:w-full max-sm:*:justify-center
-          "
+          :class="look.buy"
         >
-          <!-- A target of at least 44px on a phone, whatever size the
-               design's button is; as the design draws it from `sm` up. -->
           <component
             :is="buy.component"
             v-bind="buy.props(partInput)"
-            class="
-              min-h-11
-              sm:min-h-0
-            "
+            :class="look.buyControl"
           />
         </div>
       </div>
@@ -223,11 +308,7 @@ const buy = computed(() => {
            button does. -->
       <div
         v-if="buy && soldOut"
-        class="
-          relative z-10 w-full pt-1
-          max-sm:col-span-2 max-sm:p-3.5
-          max-sm:*:w-full max-sm:*:justify-center
-        "
+        :class="look.restock"
       >
         <component
           :is="buy.component"

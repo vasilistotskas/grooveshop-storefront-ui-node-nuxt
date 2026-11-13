@@ -181,3 +181,24 @@ describe('PageSection/BlogPosts', () => {
     expect(wrapper.get('section').classes()).toContain(colorScheme)
   })
 })
+
+describe('PageSection/BlogPosts as a feature card', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ blog: true })
+  })
+
+  it('draws one card in the section\'s scheme: the copy, the posts, then its button', async () => {
+    const wrapper = await mountPosts({ layout: 'feature', eyebrow: 'Ψηφιακή ασφάλεια', heading: 'Προστάτεψε τους λογαριασμούς σου', icon: 'i-lucide-shield', ctaText: 'Ξεκίνα από την Ασφάλεια', ctaLink: '/blog', colorScheme: 'dark' })
+
+    expect(wrapper.find('ol[data-stacked]').exists()).toBe(false)
+    const card = wrapper.get('section > div > div')
+    expect(card.classes()).toEqual(expect.arrayContaining(['dark', 'rounded-xl']))
+    expect(card.get('h2').text()).toBe('Προστάτεψε τους λογαριασμούς σου')
+    // The button closes the card on a phone: after the posts in the markup.
+    const order = [...card.element.children].map(child => child.tagName.toLowerCase())
+    expect(order.at(-1)).toBe('a')
+    expect(order.indexOf('ul')).toBeLessThan(order.length - 1)
+    expect(card.findAll('li')).toHaveLength(2)
+  })
+})

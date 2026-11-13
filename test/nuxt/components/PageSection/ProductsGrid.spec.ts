@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductsGrid from '~/components/PageSection/ProductsGrid.vue'
-import { makeProductCard } from '~~/test/fixtures/product'
+import { makeProductCard, makeProductCategory } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
@@ -104,5 +104,27 @@ describe('PageSection/ProductsGrid', () => {
     const wrapper = await mountGrid({ colorScheme })
 
     expect(wrapper.get('section').classes()).toContain(colorScheme)
+  })
+})
+
+describe('PageSection/ProductsGrid: phone limit and category tile', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('hides the products past the phone\'s limit below sm only', async () => {
+    const wrapper = await mountGrid({ products: products([1, 2, 3]), phoneLimit: 2 })
+
+    expect(wrapper.findAll('[data-product]').map(card => card.classes().includes('max-sm:hidden'))).toEqual([false, false, true])
+  })
+
+  it('ends the grid with a tile of the categories on a desk', async () => {
+    const wrapper = await mountGrid({
+      categories: { status: 'ok', descriptor: { mode: 'roots', limit: 4 }, items: [makeProductCategory({ id: 5, slug: 'power-bank', recursiveProductCount: 2 })] },
+    })
+
+    const tile = wrapper.get('li.border-dashed')
+    expect(tile.classes()).toContain('max-sm:hidden')
+    expect(tile.get('a[href*="/products/category/5"]').text()).toContain('2')
   })
 })

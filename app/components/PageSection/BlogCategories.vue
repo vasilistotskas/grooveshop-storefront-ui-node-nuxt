@@ -11,6 +11,7 @@
  */
 withDefaults(defineProps<{
   /** The operator's section title, from the section row itself. */
+  eyebrow?: string
   title?: string
   subheading?: string
   ctaText?: string
@@ -27,6 +28,7 @@ const linkTo = useLinkTo()
 <template>
   <PageSectionBlogCategoryTiles
     v-if="layout === 'tiles'"
+    :eyebrow="eyebrow"
     :title="title"
     :subheading="subheading"
     :cta-text="ctaText"
@@ -35,6 +37,7 @@ const linkTo = useLinkTo()
   />
   <PageSectionBand
     v-else-if="categories.items.length"
+    :eyebrow="eyebrow"
     :heading="title"
     :subheading="subheading"
     :cta-text="ctaText"

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   HEADING_SECTION_TYPES,
+  sectionRuns,
   sectionsHeadingText,
   sectionsProvideForm,
   sectionsProvideHours,
@@ -117,5 +118,30 @@ describe('pageSections', () => {
     expect(sectionsHeadingText([{ componentType: 'rich_text', props: { heading: 'x' } }]))
       .toBeUndefined()
     expect(sectionsHeadingText(undefined)).toBeUndefined()
+  })
+})
+
+describe('sectionRuns', () => {
+  const at = (componentType: string, props?: unknown) => ({ componentType, props })
+
+  it('cuts a list into runs of bands and of framed sections, in order', () => {
+    const runs = sectionRuns([at('hero_carousel'), at('hero_showcase'), at('store_assurances'), at('products_grid'), at('recently_viewed'), at('newsletter_signup')])
+
+    expect(runs.map(run => [run.bands, run.sections.map(section => section.componentType)])).toEqual([
+      [false, ['hero_carousel']],
+      [true, ['hero_showcase', 'store_assurances', 'products_grid']],
+      [false, ['recently_viewed']],
+      [true, ['newsletter_signup']],
+    ])
+  })
+
+  it('counts the blog categories as a band in their tiles only', () => {
+    expect(sectionRuns([at('blog_categories', { layout: 'tiles' })])[0]!.bands).toBe(true)
+    expect(sectionRuns([at('blog_categories', { layout: 'slider' })])[0]!.bands).toBe(false)
+    expect(sectionRuns([at('blog_categories')])[0]!.bands).toBe(false)
+  })
+
+  it('has no run for no section', () => {
+    expect(sectionRuns([])).toEqual([])
   })
 })

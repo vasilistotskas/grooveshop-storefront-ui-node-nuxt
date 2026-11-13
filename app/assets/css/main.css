@@ -49,22 +49,27 @@
 
      Safe to change: nothing in the app used `bg-muted` before this. */
   --ui-bg-muted: #ffffff;
-  /* The graph-paper lattice behind a page hero. A gradient cannot be
-     expressed as a Tailwind colour utility, so it is a token: the line
-     is the neutral ramp at low alpha, which keeps it ~4.5% over the
-     dark ground the artboards use and lifts it to a legible 8% on the
-     light one, where the same alpha would disappear. */
+  /* The graph-paper lattice behind a page hero and a dark band. A
+     gradient cannot be expressed as a Tailwind colour utility, so it is
+     a token: the line is the accent at 10% (the base design's board), the
+     same in both schemes. Volt draws its own (below). */
   --ds-lattice:
     linear-gradient(
       to right,
-      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      color-mix(in srgb, var(--ui-secondary) 10%, transparent) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      color-mix(in srgb, var(--ui-secondary) 10%, transparent) 1px,
       transparent 1px
     );
+  /* The accent as a pale TINT behind accent text: an icon tile, the
+     announcement strip. Volt has its own (below). */
+  --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 7%, white);
+  /* The accent's deep shade, a fill under white text: the hero's main
+     call to action. Volt has its own (below). */
+  --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 80%, black);
   --ui-liked: #FF00BD;
   /* The surface of a Google sign-in button: the colour "G" may sit only on
      Google's own light, dark or neutral fill and stroke (Sign in with Google
@@ -171,6 +176,8 @@
 }
 
 :root:has([data-dock="tabbar"][data-dock-flush]) {
+  /* The edge-to-edge strip (webside's) is 68px tall, as its board draws it. */
+  --dock-tabbar-height: 4.25rem;
   --dock-tabbar: var(--dock-tabbar-height);
   --dock-floor: calc(var(--dock-inset) + var(--dock-tabbar-height));
   --dock-floor-pad: 0px;
@@ -211,18 +218,22 @@
   --google-signin-fill: #131314;
   --google-signin-stroke: #8e918f;
   --ui-bg-muted: var(--ui-color-neutral-900);
+  --ui-secondary: #3364FF;
+  --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
+  --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 80%, black);
+  /* Redeclared so its accent is this scheme's (a custom property's var()
+     resolves where it is declared). */
   --ds-lattice:
     linear-gradient(
       to right,
-      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      color-mix(in srgb, var(--ui-secondary) 10%, transparent) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      color-mix(in srgb, var(--ui-secondary) 10%, transparent) 1px,
       transparent 1px
     );
-  --ui-secondary: #3364FF;
   --ui-on-secondary: #ffffff;
   /* 80% accent / 20% white: 4.18:1 -> 6.05:1 against --ui-bg, and still
      unmistakably the brand hue. Mixing toward white can only RAISE
@@ -337,6 +348,21 @@
   --ui-error-soft: #fdecec;
   --ui-info-soft: #e8edff;
 
+  /* Volt's lattice: the neutral ramp at low alpha, ~4.5% over the dark
+     ground and a legible 8% on the light one, where the same alpha
+     would disappear. */
+  --ds-lattice:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      transparent 1px
+    );
+
   /* Only overlays get a shadow; cards are flat with a line. */
   --ui-scrim: rgb(23 23 26 / 0.45);
   --ui-overlay-shadow: 0 24px 64px -16px rgb(23 23 26 / 0.28), 0 2px 8px rgb(23 23 26 / 0.06);
@@ -391,6 +417,18 @@
   --ui-warning-soft: color-mix(in srgb, var(--ui-warning) 14%, #17171a);
   --ui-error-soft: color-mix(in srgb, var(--ui-error) 14%, #17171a);
   --ui-info-soft: color-mix(in srgb, var(--ui-info) 14%, #17171a);
+
+  --ds-lattice:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      transparent 1px
+    );
 
   --ui-scrim: rgb(0 0 0 / 0.6);
   --ui-overlay-shadow: 0 24px 64px -16px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.3);

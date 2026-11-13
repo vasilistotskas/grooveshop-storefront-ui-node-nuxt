@@ -15,6 +15,7 @@
  * the band stays this one, and the card keeps the columns it was laid out for.
  */
 const props = withDefaults(defineProps<{
+  eyebrow?: string
   heading?: string
   subheading?: string
   ctaText?: string
@@ -22,6 +23,10 @@ const props = withDefaults(defineProps<{
   showAddToCart?: boolean
   surface?: 'default' | 'muted'
   colorScheme?: SectionColorScheme
+  /** How many of the products a phone shows, the first ones; all of them when unset. */
+  phoneLimit?: number
+  /** The categories the grid's last tile lists (`PageSection/ProductsCategoryTile`), on a desk. */
+  categories?: ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
   /** What the band lists: the products, and the rule or hand-picked list they came from. */
   products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
@@ -29,12 +34,15 @@ const props = withDefaults(defineProps<{
 })
 
 defineSlots<{
-  list?(props: { items: readonly ProductCard[], showAddToCart: boolean }): unknown
+  list?(props: { items: readonly ProductCard[], showAddToCart: boolean, phoneHidden: (index: number) => boolean, categories: readonly ProductCategory[] }): unknown
 }>()
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
 const linkTo = useLinkTo()
+
+/** Whether the product at `index` is past what a phone shows (`phoneLimit`): hidden below `sm` by CSS, so the cached render is one for every device. */
+const phoneHidden = (index: number) => props.phoneLimit !== undefined && index >= props.phoneLimit
 
 const label = computed(
   () => props.heading || t(`heading.${productRailKind(props.products.descriptor)}`),
@@ -44,17 +52,21 @@ const label = computed(
 <template>
   <PageSectionBand
     v-if="products.items.length"
+    :eyebrow="eyebrow"
     :heading="label"
     :subheading="subheading"
     :cta-text="ctaText || t('all_products')"
     :cta-link="ctaLink ? linkTo(ctaLink) : localePath({ path: '/products', query: productRailStockQuery(products.descriptor) })"
     :surface="surface"
     :color-scheme="colorScheme"
+    phone-cta="below"
   >
     <slot
       name="list"
       :items="products.items"
       :show-add-to-cart="showAddToCart"
+      :phone-hidden="phoneHidden"
+      :categories="categories?.items ?? []"
     >
       <UPageGrid
         as="ul"
@@ -64,11 +76,13 @@ const label = computed(
         "
       >
         <ProductCard
-          v-for="product in products.items"
+          v-for="(product, index) in products.items"
           :key="product.id"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
+          :class="phoneHidden(index) && 'max-sm:hidden'"
         />
+        <PageSectionProductsCategoryTile :categories="categories?.items ?? []" />
       </UPageGrid>
     </slot>
   </PageSectionBand>

@@ -92,3 +92,31 @@ describe('PageSection/BlogCategoryTiles', () => {
     expect(wrapper.find('section').exists()).toBe(false)
   })
 })
+
+/**
+ * The base design (a store with its own templates, webside): the icon beside
+ * the name at every width, no sub-line and no link on a phone, and the link's
+ * `{count}` read as the posts the categories hold.
+ */
+describe('PageSection/BlogCategoryTiles in a design of its own', () => {
+  beforeEach(() => {
+    setTenant({ schemaName: 'webside' })
+  })
+
+  it('draws each tile as one link, its icon beside the name and the count', async () => {
+    const wrapper = await mountTiles()
+
+    const links = wrapper.findAll('ul a')
+    expect(links.length).toBeGreaterThan(0)
+    expect(links[0]!.classes()).toEqual(expect.arrayContaining(['flex', 'items-center', 'min-h-15', 'sm:min-h-19']))
+    expect(wrapper.findComponent({ name: 'UPageCard' }).exists()).toBe(false)
+  })
+
+  it('reads {count} in the link as the posts the categories hold, and keeps the link off a phone', async () => {
+    const wrapper = await mountTiles({ ctaText: 'Όλα τα {count} άρθρα', ctaLink: '/blog', categories: categories([makeBlogCategory({ id: 1, postCount: 26 }), makeBlogCategory({ id: 2, postCount: 61 })]) })
+
+    const link = wrapper.get('a[href="/blog"]')
+    expect(link.text()).toBe('Όλα τα 87 άρθρα')
+    expect(link.classes()).toContain('max-sm:hidden')
+  })
+})

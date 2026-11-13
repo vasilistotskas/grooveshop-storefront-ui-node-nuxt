@@ -9,6 +9,7 @@
  * Renders nothing when the blog has no categories yet, as the rail does.
  */
 const props = defineProps<{
+  eyebrow?: string
   title?: string
   subheading?: string
   ctaText?: string
@@ -16,7 +17,7 @@ const props = defineProps<{
   categories: ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 }>()
 
-const { t, locale } = useStoreI18n('components/PageSection/BlogCategoryTiles')
+const { t, n, locale } = useStoreI18n('components/PageSection/BlogCategoryTiles')
 const localePath = useLocalePath()
 const linkTo = useLinkTo()
 
@@ -28,17 +29,116 @@ const tiles = computed(() => props.categories.items.map(category => ({
   posts: t('posts', { count: category.postCount }, category.postCount),
   to: localePath({ name: 'blog-category-id-slug', params: { id: category.id, slug: category.slug } }),
 })))
+
+/**
+ * The base design (a store with its own templates, webside) draws its board's
+ * tiles: the icon on an accent tint beside the name and the count at every
+ * width (36px on a phone, 44px from `sm`), a chevron on a desk, and on a
+ * phone no sub-line and no link (`phoneCta`). Groove Volt keeps its own.
+ */
+/**
+ * The link's text with `{count}` read as how many posts the categories hold
+ * between them («Όλα τα {count} άρθρα»), so the figure never goes stale.
+ */
+const ctaLabel = computed(() => {
+  if (!props.ctaText?.includes('{count}')) return props.ctaText
+  const total = props.categories.items.reduce((sum, category) => sum + category.postCount, 0)
+  return props.ctaText.replaceAll('{count}', n(total))
+})
+
+const design = useStorefrontDesign()
+const own = computed(() => design.value !== 'volt')
 </script>
 
 <template>
   <PageSectionBand
     v-if="tiles.length"
+    :eyebrow="eyebrow"
     :heading="title"
     :subheading="subheading"
-    :cta-text="ctaText"
+    :cta-text="ctaLabel"
     :cta-link="ctaLink ? linkTo(ctaLink) : undefined"
+    phone-cta="none"
   >
+    <ul
+      v-if="own"
+      class="
+        grid grid-cols-2 gap-2
+        sm:grid-cols-[repeat(auto-fill,minmax(min(100%,17.5rem),1fr))] sm:gap-4
+      "
+    >
+      <li
+        v-for="tile in tiles"
+        :key="tile.id"
+      >
+        <NuxtLink
+          :to="tile.to"
+          class="
+            flex h-full min-h-15 items-center gap-2.5 rounded-lg border
+            border-default bg-default px-2.5 py-2 text-highlighted
+            transition-colors
+            hover:border-accented
+            focus-visible:outline-2 focus-visible:outline-secondary
+            sm:min-h-19 sm:gap-3.5 sm:px-4 sm:py-3.5
+          "
+        >
+          <span
+            class="
+              grid size-9 shrink-0 place-items-center rounded-lg
+              bg-(--ui-secondary-soft) text-accent
+              sm:size-11
+            "
+          >
+            <UIcon
+              v-if="tile.icon"
+              :name="tile.icon"
+              class="
+                size-4.5
+                sm:size-5.5
+              "
+            />
+            <ImgWithFallback
+              v-else
+              class="aspect-square size-5"
+              alt=""
+              fit="fill"
+              :format="'svg'"
+              :height="25"
+              :src="tile.imagePath"
+              :width="25"
+              quality="80"
+              loading="lazy"
+              :modifiers="{
+                position: 'entropy',
+              }"
+            />
+          </span>
+          <span class="flex min-w-0 flex-1 flex-col">
+            <span
+              class="
+                text-sm font-bold wrap-break-word
+                sm:text-base
+              "
+            >{{ tile.name }}</span>
+            <span
+              class="
+                text-xs text-muted
+                sm:text-[0.8125rem]
+              "
+            >{{ tile.posts }}</span>
+          </span>
+          <UIcon
+            name="i-lucide-chevron-right"
+            class="
+              size-4.5 shrink-0 text-muted
+              max-sm:hidden
+            "
+          />
+        </NuxtLink>
+      </li>
+    </ul>
     <UPageGrid
+      v-else
       as="ul"
       class="
         grid-cols-2 gap-3

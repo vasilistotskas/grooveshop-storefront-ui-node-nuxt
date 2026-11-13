@@ -363,6 +363,10 @@
       "label": "Layout on a phone",
       "help": "List: on a phone, rows with a small picture, the category, the reading time and the title. Default: a row to swipe. Larger screens are the same either way."
     },
+    "phoneLimit": {
+      "label": "How many on a phone",
+      "help": "A phone shows only the first ones. Empty: all of them. Larger screens are unchanged."
+    },
     "placeholder": {
       "label": "Placeholder"
     },
@@ -405,6 +409,10 @@
     },
     "route": {
       "label": "Store page"
+    },
+    "searchPlaceholder": {
+      "label": "Search field text",
+      "help": "The question inside the field. Empty: “Search the shop”."
     },
     "secondaryCtaLink": {
       "label": "Second button link"
@@ -507,7 +515,9 @@
     "layout": {
       "slider": "Slider",
       "grid": "Grid",
-      "tiles": "Tiles"
+      "tiles": "Tiles",
+      "card": "Card",
+      "feature": "Card with posts"
     },
     "height": {
       "sm": "Small",

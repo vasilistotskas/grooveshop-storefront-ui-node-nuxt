@@ -89,7 +89,8 @@ describe('Product/Spotlight', () => {
 
       expect(name).toBe('default-cart')
       // Only the class that makes it a 44px target on a phone; no prop it does not declare.
-      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
+      expect(attrs).toEqual({ class: expect.any(String) })
+      expect(String(attrs.class).split(/\s+/)).toEqual(['min-h-11', 'sm:min-h-0'])
       expect(props).toMatchObject({ text: t('add_named', { name: NAME }), label: t('add_to_cart') })
       expect((props.product as { id: number }).id).toBe(7)
     })
@@ -146,8 +147,11 @@ describe('Product/Spotlight', () => {
       const { name, props, attrs } = await part(await mountSpotlight())
 
       expect(name).toBe('webside-cart')
-      // Only the class that makes it a 44px target on a phone; no prop it does not declare.
-      expect(attrs).toEqual({ class: 'min-h-11 sm:min-h-0' })
+      // Only classes, no prop it does not declare: a 48px target at every
+      // width, its icon alone in a 48px square on a phone (the label kept
+      // for a screen reader), the price beside it.
+      expect(attrs).toEqual({ class: expect.any(String) })
+      expect(String(attrs.class).split(/\s+/)).toEqual(expect.arrayContaining(['min-h-12', 'max-sm:size-12', 'max-sm:*:data-[slot=label]:sr-only']))
       expect(props).toMatchObject({ text: t('add_to_cart') })
     })
 

@@ -7,6 +7,8 @@ export default defineBlock({
   kinds: ['section'],
   feature: 'blog',
   schema: z.object({
+    /** The small line above the heading. */
+    eyebrow: builderField.text(100).optional(),
     title: builderField.text(200).optional(),
     subheading: builderField.text(500).optional(),
     ctaText: builderField.text(100).optional(),
@@ -14,7 +16,7 @@ export default defineBlock({
     layout: z.enum(['slider', 'tiles']).optional(),
     categories: builderField.query('blogCategory', { onEmpty: 'hide' }),
   }),
-  translatable: ['/title', '/subheading', '/ctaText'],
+  translatable: ['/eyebrow', '/title', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeBlogCategories(10) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { categories: { limit: 10 } } }],
   editor: { title: ['title'], category: 'blog' },

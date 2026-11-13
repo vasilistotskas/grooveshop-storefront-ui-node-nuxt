@@ -135,3 +135,47 @@ export function sectionsProvideHours(
 ): boolean {
   return (sections ?? []).some(section => section.componentType === 'business_hours')
 }
+
+/**
+ * Section types whose component is a full-width band in every design, its
+ * own container inside (`PageSection/Band.vue`, the hero's section): the
+ * band paints edge to edge and keeps the store's measure within. The base
+ * shell stacks every section that way; a design whose shell holds its
+ * sections in a container with a gap between them (webside's) lays these out
+ * of it, edge to edge and with no gap, so a band is not framed twice.
+ * `blog_categories` is one in its `tiles` layout only: its slider is drawn
+ * bare in a design's own.
+ */
+export const BAND_SECTION_TYPES: ReadonlySet<string> = new Set([
+  'hero_showcase',
+  'store_assurances',
+  'products_grid',
+  'blog_posts_grid',
+  'newsletter_signup',
+])
+
+/** Whether a section draws its own full-width band (`BAND_SECTION_TYPES`). */
+export function sectionDrawsBand(section: SectionLike): boolean {
+  if (section.componentType === 'blog_categories') {
+    return (section.props as { layout?: unknown } | undefined)?.layout === 'tiles'
+  }
+  return BAND_SECTION_TYPES.has(section.componentType)
+}
+
+/**
+ * A section list cut into runs of neighbours that draw their own band and
+ * runs that do not, in order: what a shell that frames only the second kind
+ * lays out.
+ */
+export function sectionRuns<T extends SectionLike>(
+  sections: readonly T[],
+): Array<{ bands: boolean, sections: T[] }> {
+  const runs: Array<{ bands: boolean, sections: T[] }> = []
+  for (const section of sections) {
+    const bands = sectionDrawsBand(section)
+    const last = runs.at(-1)
+    if (last && last.bands === bands) last.sections.push(section)
+    else runs.push({ bands, sections: [section] })
+  }
+  return runs
+}

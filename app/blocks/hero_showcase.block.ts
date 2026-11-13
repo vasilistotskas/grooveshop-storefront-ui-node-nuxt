@@ -20,6 +20,8 @@ export default defineBlock({
     imageDecorative: builderField.boolean().optional(),
     imageLink: builderField.link().optional(),
     showSearch: builderField.boolean().optional(),
+    /** The search field's own question, in place of the store search's wording. */
+    searchPlaceholder: builderField.text(100).optional(),
     ctaText: builderField.text(100).optional(),
     ctaLink: builderField.link().optional(),
     secondaryCtaText: builderField.text(100).optional(),
@@ -28,7 +30,7 @@ export default defineBlock({
     showAddToCart: builderField.boolean().optional(),
     colorScheme: builderField.colorScheme().optional(),
   }),
-  translatable: ['/eyebrow', '/heading', '/headingAccent', '/subheading', '/ctaText', '/secondaryCtaText'],
+  translatable: ['/eyebrow', '/heading', '/headingAccent', '/subheading', '/searchPlaceholder', '/ctaText', '/secondaryCtaText'],
   // A section's preset holds no starter text (the house pattern: only child
   // blocks do, `presets` in the labels). The search field is what makes a
   // new hero draw something on the canvas before the merchant writes a word.

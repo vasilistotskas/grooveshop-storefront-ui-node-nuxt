@@ -52,170 +52,218 @@ const errorMessage = computed(() => {
 async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>) {
   await subscribe(event.data)
 }
+
+/**
+ * The base design (a store with its own templates, webside), laid out `open`
+ * (`useBandFlow`), draws its board's newsletter: on a desk a muted band
+ * between two rules, 88px below the band above, the promise on the left and
+ * the form on the right (at most 480px); on a phone a bordered muted card,
+ * the form stacked under the promise. Both with a heavier heading. Groove
+ * Volt, and a band framed on a page, keep the band as it was.
+ */
+const design = useStorefrontDesign()
+const own = design.value !== 'volt' && useBandFlow() === 'open'
+
+const [DefineContent, ReuseContent] = createReusableTemplate()
 </script>
 
 <template>
+  <DefineContent>
+    <div
+      class="flex flex-col"
+      :class="own ? `
+        gap-2.5 rounded-xl border border-default bg-muted px-4 py-5
+        lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-x-12
+        lg:gap-y-6 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-0
+        lg:py-12
+      ` : `
+        gap-5
+        md:flex-row md:items-center md:justify-between md:gap-10
+      `"
+    >
+      <div
+        class="flex flex-col gap-2"
+        :class="own ? 'lg:flex-[1_1_22.5rem]' : 'max-w-2xl'"
+      >
+        <h2
+          class="font-display text-balance wrap-break-word"
+          :class="[
+            own ? `
+              text-[1.375rem]/[1.25] font-extrabold
+              lg:text-[1.875rem]/[1.2]
+            ` : `
+              text-2xl font-semibold tracking-tight
+              md:text-3xl
+            `,
+            headingColor === 'accent' ? 'text-accent' : 'text-highlighted',
+          ]"
+        >
+          {{ heading || t('heading') }}
+        </h2>
+        <p
+          class="text-pretty text-muted"
+          :class="own ? `
+            text-[0.9375rem]/normal
+            lg:text-lg/normal
+          ` : `
+            text-base
+            md:text-lg
+          `"
+        >
+          {{ description || t('description') }}
+        </p>
+      </div>
+
+      <div
+        class="w-full"
+        :class="own ? `
+          mt-1
+          lg:mt-0 lg:max-w-120 lg:flex-[1_1_22.5rem]
+        ` : 'md:max-w-md'"
+      >
+        <div
+          v-if="outcome === 'pending_confirmation'"
+          role="status"
+          class="flex items-start gap-3"
+        >
+          <UIcon
+            name="i-heroicons-envelope-open"
+            class="mt-0.5 size-6 shrink-0 text-success"
+          />
+          <div class="flex flex-col gap-1">
+            <p class="font-semibold text-highlighted">
+              {{ t('sent.title') }}
+            </p>
+            <p class="text-sm text-muted">
+              {{ t('sent.description') }}
+            </p>
+          </div>
+        </div>
+
+        <div
+          v-else-if="outcome === 'already_subscribed'"
+          role="status"
+          class="flex items-start gap-3"
+        >
+          <UIcon
+            name="i-heroicons-check-circle"
+            class="mt-0.5 size-6 shrink-0 text-success"
+          />
+          <div class="flex flex-col items-start gap-1">
+            <p class="font-semibold text-highlighted">
+              {{ t('already.title') }}
+            </p>
+            <p class="text-sm text-muted">
+              {{ t('already.description') }}
+            </p>
+            <ULink
+              :to="localePath('account-subscriptions')"
+              class="
+                text-sm text-primary underline underline-offset-2
+                hover:text-primary/80
+              "
+            >
+              {{ t('already.manage') }}
+            </ULink>
+          </div>
+        </div>
+
+        <UForm
+          v-else
+          :schema="schema"
+          :state="state"
+          class="flex flex-col gap-3"
+          @submit="onSubmit"
+        >
+          <div
+            class="flex flex-col gap-2"
+            :class="own ? `
+              gap-2.5
+              lg:flex-row lg:items-start lg:gap-2
+            ` : 'sm:flex-row sm:items-start'"
+          >
+            <UFormField
+              name="email"
+              :label="t('email_label')"
+              :ui="{ label: 'sr-only' }"
+              class="flex-1"
+            >
+              <UInput
+                v-model="state.email"
+                type="email"
+                autocomplete="email"
+                size="xl"
+                :placeholder="placeholder || t('placeholder')"
+                class="w-full"
+                :ui="{ base: own ? 'min-h-12' : `
+                  min-h-11
+                  sm:min-h-0
+                ` }"
+              />
+            </UFormField>
+            <UButton
+              type="submit"
+              :label="buttonText || t('submit')"
+              :loading="submitting"
+              color="secondary"
+              size="xl"
+              trailing-icon="i-heroicons-arrow-right"
+              class="shrink-0 justify-center"
+              :class="own ? 'min-h-12 px-5 text-[0.9375rem] font-semibold' : `
+                min-h-11
+                sm:min-h-0
+              `"
+            />
+          </div>
+
+          <UFormField name="consent">
+            <UCheckbox
+              v-model="state.consent"
+              :ui="{ label: 'text-sm/relaxed text-muted' }"
+            >
+              <template #label>
+                {{ consent.before }}<ULink
+                  :to="localePath('privacy-policy')"
+                  class="
+                    text-primary underline underline-offset-2
+                    hover:text-primary/80
+                  "
+                >{{ consent.privacy }}</ULink>{{ consent.after }}
+              </template>
+            </UCheckbox>
+          </UFormField>
+
+          <p
+            v-if="errorMessage"
+            role="alert"
+            class="text-sm whitespace-pre-line text-error"
+          >
+            {{ errorMessage }}
+          </p>
+        </UForm>
+      </div>
+    </div>
+  </DefineContent>
+
+  <section
+    v-if="available && own"
+    data-newsletter-section
+    class="
+      w-full pt-11
+      lg:mt-22 lg:border-y lg:border-default lg:bg-muted lg:pt-0
+    "
+  >
+    <UContainer>
+      <ReuseContent />
+    </UContainer>
+  </section>
   <PageSectionBand
-    v-if="available"
+    v-else-if="available"
     :surface="surface"
     data-newsletter-section
   >
     <template #header>
-      <div
-        class="
-          flex flex-col gap-5
-          md:flex-row md:items-center md:justify-between md:gap-10
-        "
-      >
-        <div class="flex max-w-2xl flex-col gap-2">
-          <h2
-            class="
-              font-display text-2xl font-semibold tracking-tight text-balance
-              wrap-break-word
-              md:text-3xl
-            "
-            :class="headingColor === 'accent' ? 'text-accent' : `
-              text-highlighted
-            `"
-          >
-            {{ heading || t('heading') }}
-          </h2>
-          <p
-            class="
-              text-base text-pretty text-muted
-              md:text-lg
-            "
-          >
-            {{ description || t('description') }}
-          </p>
-        </div>
-
-        <div
-          class="
-            w-full
-            md:max-w-md
-          "
-        >
-          <div
-            v-if="outcome === 'pending_confirmation'"
-            role="status"
-            class="flex items-start gap-3"
-          >
-            <UIcon
-              name="i-heroicons-envelope-open"
-              class="mt-0.5 size-6 shrink-0 text-success"
-            />
-            <div class="flex flex-col gap-1">
-              <p class="font-semibold text-highlighted">
-                {{ t('sent.title') }}
-              </p>
-              <p class="text-sm text-muted">
-                {{ t('sent.description') }}
-              </p>
-            </div>
-          </div>
-
-          <div
-            v-else-if="outcome === 'already_subscribed'"
-            role="status"
-            class="flex items-start gap-3"
-          >
-            <UIcon
-              name="i-heroicons-check-circle"
-              class="mt-0.5 size-6 shrink-0 text-success"
-            />
-            <div class="flex flex-col items-start gap-1">
-              <p class="font-semibold text-highlighted">
-                {{ t('already.title') }}
-              </p>
-              <p class="text-sm text-muted">
-                {{ t('already.description') }}
-              </p>
-              <ULink
-                :to="localePath('account-subscriptions')"
-                class="
-                  text-sm text-primary underline underline-offset-2
-                  hover:text-primary/80
-                "
-              >
-                {{ t('already.manage') }}
-              </ULink>
-            </div>
-          </div>
-
-          <UForm
-            v-else
-            :schema="schema"
-            :state="state"
-            class="flex flex-col gap-3"
-            @submit="onSubmit"
-          >
-            <div
-              class="
-                flex flex-col gap-2
-                sm:flex-row sm:items-start
-              "
-            >
-              <UFormField
-                name="email"
-                :label="t('email_label')"
-                :ui="{ label: 'sr-only' }"
-                class="flex-1"
-              >
-                <UInput
-                  v-model="state.email"
-                  type="email"
-                  autocomplete="email"
-                  size="xl"
-                  :placeholder="placeholder || t('placeholder')"
-                  class="w-full"
-                  :ui="{ base: `
-                    min-h-11
-                    sm:min-h-0
-                  ` }"
-                />
-              </UFormField>
-              <UButton
-                type="submit"
-                :label="buttonText || t('submit')"
-                :loading="submitting"
-                color="secondary"
-                size="xl"
-                trailing-icon="i-heroicons-arrow-right"
-                class="
-                  min-h-11 shrink-0 justify-center
-                  sm:min-h-0
-                "
-              />
-            </div>
-
-            <UFormField name="consent">
-              <UCheckbox
-                v-model="state.consent"
-                :ui="{ label: 'text-sm/relaxed text-muted' }"
-              >
-                <template #label>
-                  {{ consent.before }}<ULink
-                    :to="localePath('privacy-policy')"
-                    class="
-                      text-primary underline underline-offset-2
-                      hover:text-primary/80
-                    "
-                  >{{ consent.privacy }}</ULink>{{ consent.after }}
-                </template>
-              </UCheckbox>
-            </UFormField>
-
-            <p
-              v-if="errorMessage"
-              role="alert"
-              class="text-sm whitespace-pre-line text-error"
-            >
-              {{ errorMessage }}
-            </p>
-          </UForm>
-        </div>
-      </div>
+      <ReuseContent />
     </template>
   </PageSectionBand>
 </template>
