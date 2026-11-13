@@ -50,6 +50,7 @@ async function mount(settings: Record<string, unknown>) {
   const wrapper = await mountSuspended(defineComponent({
     render: () => h(UApp, null, {
       default: () => h(BuilderSettingField, {
+        blockType: gallery.type,
         field: field!,
         settings,
         errors: new Map(),
@@ -165,7 +166,7 @@ describe('BuilderSettingField, a list of images', () => {
     const settings = ref<Record<string, unknown>>({ artworks: [4, 8, 4] })
     const wrapper = await mountSuspended(defineComponent({
       render: () => h(UApp, null, {
-        default: () => h(BuilderSettingField, { field: field!, settings: settings.value, errors: new Map(), disabled: false }),
+        default: () => h(BuilderSettingField, { blockType: gallery.type, field: field!, settings: settings.value, errors: new Map(), disabled: false }),
       }),
     }), { attachTo: document.body })
     await flushPromises()

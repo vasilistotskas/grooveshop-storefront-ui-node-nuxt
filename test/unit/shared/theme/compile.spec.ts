@@ -1,14 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { evaluateContrastRules } from '~~/shared/builder/contrastRules'
+import { contrastSideColor, evaluateContrastRules } from '~~/shared/builder/contrastRules'
 import { themeContrastRulesFor } from '~~/shared/builder/documentRoots'
-import { themeCss } from '~~/shared/theme/compile'
+import { ownDesignTextGrounds, themeCss } from '~~/shared/theme/compile'
 import { CONTAINER_MAP, fontStackValue } from '~~/shared/theme/constants'
 import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { resolveDesign } from '~~/shared/theme/design'
 import { zThemeSettings } from '~~/shared/theme/settings'
 import published from '~~/test/fixtures/builder/theme-published.json'
 import rendered from '~~/test/fixtures/builder/theme-rendered.json'
-import { declarations, renderedTokens } from '~~/test/helpers/themeRender'
+import { MAIN_CSS, declarations, renderedTokens } from '~~/test/helpers/themeRender'
+import { contrastRatio } from '~~/shared/utils/contrast'
 
 /**
  * What `themeCss` writes for a theme. That a seeded theme renders a store as
@@ -94,5 +95,65 @@ describe.each(Object.entries(published))('the published theme of the production 
     const blocking = evaluateContrastRules(settings, themeContrastRulesFor(design)).filter(({ rule, pass }) => rule.severity === 'error' && !pass)
 
     expect(blocking).toEqual([])
+  })
+})
+
+/**
+ * The accent as a heading (`--ds-accent-heading`, the bold newsletter's
+ * accent heading), computed per scheme for a store with its own design: the
+ * accent a fifth of the way from the grounds, and further until it reads at
+ * 4.5:1 on every ground it sits on (`accentHeadingOn`). Groove Volt keeps its
+ * own treatment in its stylesheet, so its theme writes none.
+ */
+describe('the accent heading', () => {
+  const own = themeDefaultsFor(null)
+  const withAccents = (light: string, dark: string) => ({
+    ...own,
+    colors: { light: { ...own.colors.light, accent: light }, dark: { ...own.colors.dark, accent: dark } },
+  })
+  const headings = (settings: typeof own) => ({
+    light: declarations(themeCss(settings, null), 'html:root')['--ds-accent-heading']!,
+    dark: declarations(themeCss(settings, null), 'html.dark')['--ds-accent-heading']!,
+  })
+
+  it('is webside’s deep shade on light, #0031cc, and its accent a fifth toward white on dark', () => {
+    expect(headings(own)).toEqual({ light: '#0031cc', dark: '#5c83ff' })
+  })
+
+  it.each([
+    ['webside’s blue', '#003dff', '#3364ff'],
+    ['a bright yellow', '#ffff00', '#ffff00'],
+    ['a dark navy', '#1a1a80', '#1a1a80'],
+  ])('reads at 4.5:1 or more on every ground of each scheme, for %s', (_case, light, dark) => {
+    const settings = withAccents(light, dark)
+    const grounds = ownDesignTextGrounds(settings)
+    const colour = headings(settings)
+
+    for (const scheme of ['light', 'dark'] as const) {
+      for (const ground of grounds[scheme]) expect(contrastRatio(colour[scheme], ground), `${scheme} on ${ground}`).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it('is left to Groove Volt’s own stylesheet', () => {
+    const volt = themeDefaultsFor('volt')
+    for (const selector of ['html:root', 'html.dark']) expect(declarations(themeCss(volt, 'volt'), selector)).not.toHaveProperty('--ds-accent-heading')
+  })
+
+  // The stylesheet's value for a store with no theme is what the theme
+  // would compute for the platform's own accent.
+  it('falls back, without a theme, to what the theme computes for the platform accent', () => {
+    expect(declarations(MAIN_CSS, ':root')['--ds-accent-heading']).toBe(headings(own).light)
+    expect(declarations(MAIN_CSS, '.dark')['--ds-accent-heading']).toBe(headings(own).dark)
+  })
+
+  // The grounds it is computed for are the grounds the theme's contrast rules check.
+  it('is computed on the grounds the contrast rules check', () => {
+    const rules = themeContrastRulesFor(null)
+    const background = (id: string) => contrastSideColor(own, rules.find(rule => rule.id === id)!.background)
+
+    expect(ownDesignTextGrounds(own)).toEqual({
+      light: [background('body-text-light'), background('accent-muted-light')],
+      dark: [background('body-text-dark'), background('accent-muted-dark')],
+    })
   })
 })

@@ -9,6 +9,8 @@ import { defineBlock } from '~~/shared/builder/defineBlock'
 import { builderField } from '~~/shared/builder/fields'
 import { BUILDER_ICONS } from '~~/shared/builder/icons'
 import labels from '~~/app/builder/labels/el.json'
+import postsGrid from '~/blocks/blog_posts_grid.block'
+import footerColumn from '~/blocks/footer_column.block'
 import type { BlockDefinition } from '~~/shared/types/builder'
 import { makeAsset } from '~~/test/fixtures/media'
 
@@ -40,12 +42,14 @@ const iconTile = defineBlock({
   schema: z.object({ icon: builderField.icon().optional() }),
 })
 
-async function mount(settings: Record<string, unknown>, block: BlockDefinition = photoBand) {
-  const [field] = builderSettingsFields(block)
+async function mount(settings: Record<string, unknown>, block: BlockDefinition = photoBand, path?: string) {
+  const fields = builderSettingsFields(block)
+  const field = path === undefined ? fields[0] : fields.find(candidate => candidate.path === path)
   const updates: Array<[string, unknown]> = []
   const wrapper = await mountSuspended(defineComponent({
     render: () => h(UApp, null, {
       default: () => h(BuilderSettingField, {
+        blockType: block.type,
         field: field!,
         settings,
         errors: new Map(),
@@ -90,5 +94,22 @@ describe('BuilderSettingField, an icon setting', () => {
     const options = [...document.body.querySelectorAll('[role="option"]')]
     // The section's own default (no icon) first, then every icon of the list.
     expect(options).toHaveLength(BUILDER_ICONS.length + 1)
+  })
+})
+
+/**
+ * A help line follows the block, not the setting's name: the posts band's
+ * icon line is its own, and a footer column's icon field shows none
+ * (2026-11-13: it showed the posts band's).
+ */
+describe('BuilderSettingField, a help line', () => {
+  it.each([
+    ['the posts band', postsGrid, labels.blocks.blog_posts_grid.settings.icon.help],
+    ['a footer column', footerColumn, undefined],
+  ])('on %s’s icon field is its own', async (_case, block, help) => {
+    const { wrapper } = await mount({}, block, 'icon')
+
+    const shown = wrapper.find('[data-slot="help"]')
+    expect(shown.exists() ? shown.text() : undefined).toBe(help)
   })
 })

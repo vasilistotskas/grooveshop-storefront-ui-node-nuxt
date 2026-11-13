@@ -4,13 +4,29 @@
       "label": "About us"
     },
     "blog_categories": {
-      "label": "Blog categories"
+      "label": "Blog categories",
+      "settings": {
+        "look": {
+          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. A slider of categories keeps its usual look."
+        }
+      }
     },
     "blog_posts_carousel": {
       "label": "Blog post carousel"
     },
     "blog_posts_grid": {
-      "label": "Blog post grid"
+      "label": "Blog post grid",
+      "settings": {
+        "icon": {
+          "help": "Shown by the Card with posts layout only."
+        },
+        "layout": {
+          "help": "Card with posts: the heading, the Icon and the posts in one tinted card; Background, Style, Layout on a phone and Load more button do not apply."
+        },
+        "look": {
+          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. With the Load more button the band keeps its usual look."
+        }
+      }
     },
     "blog_posts_list": {
       "label": "Blog post list"
@@ -136,7 +152,12 @@
       "label": "Figures"
     },
     "store_assurances": {
-      "label": "Shopping promises"
+      "label": "Shopping promises",
+      "settings": {
+        "layout": {
+          "help": "Card: the promises on one raised card, which rises over a bold band right above it; its heading is read out to screen readers only, and Background does not apply."
+        }
+      }
     },
     "story_timeline": {
       "label": "Our story"
@@ -305,8 +326,7 @@
       "label": "External link"
     },
     "icon": {
-      "label": "Icon",
-      "help": "In a blog post band, shown by the Card with posts layout only."
+      "label": "Icon"
     },
     "image": {
       "label": "Image"
@@ -328,8 +348,7 @@
       "label": "Label"
     },
     "layout": {
-      "label": "Layout",
-      "help": "Card (shopping promises): the promises on one raised card, which rises over a bold band right above it; its heading is read out to screen readers only, and Background does not apply. Card with posts (blog posts): the heading, the Icon and the posts in one tinted card; Background, Style, Layout on a phone and Load more button do not apply."
+      "label": "Layout"
     },
     "link": {
       "label": "Link"
@@ -340,7 +359,7 @@
     },
     "look": {
       "label": "Style",
-      "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. A slider of categories, and a post band with the Load more button, keep their usual look."
+      "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had."
     },
     "marquee": {
       "label": "Scrolling row"

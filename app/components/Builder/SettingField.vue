@@ -2,6 +2,8 @@
 import type { SelectItem } from '@nuxt/ui'
 
 const props = defineProps<{
+  /** The block whose setting this is: a setting's help may be the block's own (`builderSettingHelpKey`). */
+  blockType: string
   field: BuilderSettingField
   /** The node's settings, the field's value read from them by its path. */
   settings: Readonly<Record<string, unknown>>
@@ -39,7 +41,7 @@ const locked = computed(() => props.disabled || !translatable.value)
 /** A translatable field with text in the draft and none in the language being edited. */
 const untranslated = computed(() => props.translation !== undefined && translatable.value && fallback.value !== undefined && fallback.value !== '' && (value.value === undefined || value.value === ''))
 const label = computed(() => settingLabel(props.field.path))
-const help = computed(() => settingHelp(props.field.path))
+const help = computed(() => settingHelp(props.blockType, props.field.path))
 const error = computed(() => props.errors.get(props.field.path))
 
 const text = computed(() => typeof value.value === 'string' ? value.value : '')
@@ -170,6 +172,7 @@ function addMediaItem(id: number | undefined): void {
     <BuilderSettingField
       v-for="child in field.fields"
       :key="child.path"
+      :block-type="blockType"
       :field="child"
       :settings="settings"
       :errors="errors"

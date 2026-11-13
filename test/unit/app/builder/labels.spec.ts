@@ -26,9 +26,27 @@ const blockTypes = Object.values(modules).map(module => module.default.type).sor
 /** Every settings field of every block, depth first. */
 const fields = Object.values(modules).flatMap(module => flattenSettingsFields(builderSettingsFields(module.default)))
 const settingPaths = [...new Set(fields.map(field => field.path))].sort()
+/** Each block's settings fields, depth first, by block type. */
+const fieldsOf = new Map(Object.values(modules).map(module => [module.default.type, flattenSettingsFields(builderSettingsFields(module.default))]))
+/** The blocks that have a setting at `path`. */
+const blocksWith = (path: string) => [...fieldsOf].filter(([, own]) => own.some(field => field.path === path)).map(([type]) => type)
+/** Whether a block's setting at `path` offers `value` among its choices. */
+const offers = (type: string, path: string, value: string) => (fieldsOf.get(type) ?? []).some(field =>
+  field.path === path && (field.kind === 'choice' || field.kind === 'icon') && field.options.includes(value))
 /** The choices each setting name offers, across blocks: `options.<name>.<value>`. */
 const choices = fields.flatMap(field => field.kind === 'choice' || field.kind === 'icon' ? field.options.map(value => `${field.path.split('.').at(-1)}.${value}`) : [])
 const choiceKeys = [...new Set(choices)].sort()
+
+/** Whether `text` names `label` as a word of its own, not inside a longer one («Large» is not in «Larger»). */
+const mentions = (text: string, label: string) => {
+  const at = text.indexOf(label)
+  if (at === -1) return false
+  const isWordChar = (char: string | undefined) => char !== undefined && /[\p{L}\p{N}]/u.test(char)
+  for (let start = at; start !== -1; start = text.indexOf(label, start + 1)) {
+    if (!isWordChar(text[start - 1]) && !isWordChar(text[start + label.length])) return true
+  }
+  return false
+}
 
 /** The labels object flattened to dotted keys whose values are text. */
 function keysOf(tree: Record<string, unknown>, prefix = ''): string[] {
@@ -101,6 +119,42 @@ describe.each(SUPPORTED_LOCALES)('the editor labels in %s', (locale) => {
   it('name every section group the editor shows, and only those', () => {
     expect(Object.keys(labels.groups).sort()).toEqual([...BUILDER_EDITOR_GROUPS].sort())
     expect(Object.values(labels.groups).every(label => label.trim() !== '')).toBe(true)
+  })
+
+  // A line true of one block only is written under that block
+  // (`blocks.<type>.settings.<path>.help`, `builderSettingHelpKey`), where no
+  // other block with the setting reads it.
+  it('explain a block\u2019s own setting only under a setting that block has', () => {
+    const own = Object.entries(labels.blocks).flatMap(([type, block]) => 'settings' in block ? keysOf(block.settings).map(key => ({ type, key })) : [])
+    const stray = own.filter(({ type, key }) => !key.endsWith('.help') || !blocksWith(key.slice(0, -'.help'.length)).includes(type))
+
+    expect(own.length).toBeGreaterThan(0)
+    expect(stray).toEqual([])
+  })
+
+  // A shared help line shows on every block with the setting, so it may not
+  // name a choice some of them do not offer: the posts band's icon line named
+  // its «Κάρτα με άρθρα» layout and showed on the footer columns (2026-11-13).
+  it('name in a shared help line no choice that a block with the setting lacks', () => {
+    const optionLabels = keysOf(labels.options).map((key) => {
+      const [name, ...value] = key.split('.')
+      return { name: name!, value: value.join('.'), label: String(key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], labels.options)) }
+    })
+    const leaks = keysOf(labels.settings).filter(key => key.endsWith('.help')).flatMap((key) => {
+      const path = key.slice(0, -'.help'.length)
+      const help = String(key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], labels.settings))
+      const named = [...new Set(optionLabels.map(({ label }) => label))].filter(label => mentions(help, label))
+      return named.flatMap((label) => {
+        // A label the setting's own choices carry names that choice; any other names its own setting's.
+        const ownChoice = optionLabels.filter(option => option.label === label && option.name === path)
+        const meant = ownChoice.length > 0 ? ownChoice : optionLabels.filter(option => option.label === label)
+        return blocksWith(path)
+          .filter(type => !meant.some(({ name, value }) => offers(type, name, value)))
+          .map(type => `${path}: «${label}» (${meant.map(({ name, value }) => `${name}.${value}`).join(', ')}) on ${type}`)
+      })
+    })
+
+    expect(leaks).toEqual([])
   })
 
   // The theme panel's rows and the Publish dialog's warning name a rule by its id.
