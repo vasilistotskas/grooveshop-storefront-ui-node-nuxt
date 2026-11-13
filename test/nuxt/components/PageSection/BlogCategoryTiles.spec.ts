@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BlogCategoryTiles from '~/components/PageSection/BlogCategoryTiles.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
@@ -90,5 +90,66 @@ describe('PageSection/BlogCategoryTiles', () => {
     const wrapper = await mountTiles({ categories: categories([]) })
 
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+})
+
+/**
+ * The bold look (`look: 'bold'`, `PageSection/BlogCategoryTilesBold`, every
+ * design): the icon beside the name at every width, no sub-line and no link on
+ * a phone; and in either look the link's `{count}` read as the posts the
+ * categories hold.
+ */
+describe('PageSection/BlogCategoryTiles in its bold look', () => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('draws each tile as one link, its icon beside the name and the count', async () => {
+    const wrapper = await mountTiles({ look: 'bold' })
+
+    const links = wrapper.findAll('ul a')
+    expect(links.length).toBeGreaterThan(0)
+    expect(links[0]!.classes()).toEqual(expect.arrayContaining(['flex', 'items-center', 'min-h-15', 'sm:min-h-19']))
+    expect(wrapper.findComponent({ name: 'UPageCard' }).exists()).toBe(false)
+  })
+
+  it('reads {count} in the link as the posts the categories hold, and keeps the link off a phone', async () => {
+    const wrapper = await mountTiles({ look: 'bold', ctaText: 'Όλα τα {count} άρθρα', ctaLink: '/blog', categories: categories([makeBlogCategory({ id: 1, postCount: 26 }), makeBlogCategory({ id: 2, postCount: 61 })]) })
+
+    const link = wrapper.get('a[href="/blog"]')
+    expect(link.text()).toBe('Όλα τα 87 άρθρα')
+    expect(link.classes()).toContain('max-sm:hidden')
+  })
+
+  it('reads {count} in the default look too, and leaves a text without it as typed', async () => {
+    const counted = await mountTiles({ ctaText: 'Όλα τα {count} άρθρα', ctaLink: '/blog', categories: categories([makeBlogCategory({ id: 1, postCount: 26 }), makeBlogCategory({ id: 2, postCount: 61 })]) })
+    const plain = await mountTiles({ ctaText: 'Όλα τα άρθρα', ctaLink: '/blog' })
+
+    expect(counted.get('a[href="/blog"]').text()).toBe('Όλα τα 87 άρθρα')
+    expect(plain.get('a[href="/blog"]').text()).toBe('Όλα τα άρθρα')
+  })
+})
+
+/**
+ * A store's edited wording is the tiles', whatever their look: the bold tiles
+ * draw `PageSection/BlogCategoryTiles`' texts.
+ */
+describe('PageSection/BlogCategoryTiles, a store\u2019s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    useTextOverrides().value = { el: { 'components/PageSection/BlogCategoryTiles': { posts: '{count} κείμενο | {count} κείμενα' } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the tiles as they were', {}],
+    ['the bold tiles', { look: 'bold' }],
+  ])('shows them in %s', async (_case, props) => {
+    const wrapper = await mountTiles(props)
+
+    expect(wrapper.text()).toContain('26 κείμενα')
   })
 })

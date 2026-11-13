@@ -7,14 +7,18 @@ export default defineBlock({
   kinds: ['section'],
   feature: 'blog',
   schema: z.object({
+    /** The small line above the heading. */
+    eyebrow: builderField.text(100).optional(),
     title: builderField.text(200).optional(),
     subheading: builderField.text(500).optional(),
     ctaText: builderField.text(100).optional(),
     ctaLink: builderField.link().optional(),
     layout: z.enum(['slider', 'tiles']).optional(),
     categories: builderField.query('blogCategory', { onEmpty: 'hide' }),
+    /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
+    look: z.enum(['bold']).optional(),
   }),
-  translatable: ['/title', '/subheading', '/ctaText'],
+  translatable: ['/eyebrow', '/title', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeBlogCategories(10) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { categories: { limit: 10 } } }],
   editor: { title: ['title'], category: 'blog' },

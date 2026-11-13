@@ -4,6 +4,16 @@ import type { StorefrontDesign } from './design.ts'
 import type { ThemeColorScheme, ThemeSettings } from './settings.ts'
 import { readableTextOn } from '../utils/contrast.ts'
 
+/**
+ * The accent's deep shade: each sRGB channel at 80%, which is what
+ * `color-mix(in srgb, <accent> 80%, black)` draws (`main.css` writes the
+ * platform accent's that way), as a hex so the text on it can be picked.
+ */
+function deepShadeOf(accent: string): string {
+  const channel = (index: number) => Math.round(Number.parseInt(accent.slice(1 + index * 2, 3 + index * 2), 16) * 0.8)
+  return `#${[0, 1, 2].map(index => channel(index).toString(16).padStart(2, '0')).join('')}`
+}
+
 /** The custom properties a colour scheme sets. */
 function schemeTokens(colours: ThemeColorScheme, designAccent: string): string[] {
   const tokens = [
@@ -45,12 +55,19 @@ function schemeTokens(colours: ThemeColorScheme, designAccent: string): string[]
  */
 export function themeCss(settings: ThemeSettings, design: StorefrontDesign | null): string {
   const defaults = themeDefaultsFor(design)
+  const deep = deepShadeOf(settings.colors.light.accent)
   const shared = [
     `--ui-radius: ${settings.radius}`,
     `--ui-container: ${CONTAINER_MAP[settings.container]}`,
     `--font-sans: ${fontStackValue(settings.fonts.sans)}`,
     `--font-display: ${fontStackValue(settings.fonts.display)}`,
     `--font-mono: ${fontStackValue(settings.fonts.mono)}`,
+    // The light accent's deep shade in BOTH schemes: a fill that keeps the
+    // store's hue on a part forced dark (`main.css`), and the readable text
+    // on it, which is not the accent's own: a bright accent stays light at
+    // 80% and takes ink, where the accent itself may have taken white.
+    `--ui-secondary-deep: ${deep}`,
+    `--ui-on-secondary-deep: ${readableTextOn(deep)}`,
   ]
   const light = [...shared, ...schemeTokens(settings.colors.light, defaults.colors.light.accent)]
   const dark = [...shared, ...schemeTokens(settings.colors.dark, defaults.colors.dark.accent)]

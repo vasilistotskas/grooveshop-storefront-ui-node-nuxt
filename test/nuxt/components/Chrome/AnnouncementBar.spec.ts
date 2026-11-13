@@ -43,25 +43,29 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
     freeShippingInfo.mockImplementation(() => ({ data: computed(() => freeShipping.value) }))
   })
 
-  it('shows the operator\'s text in ink by default', async () => {
+  // The platform's strip is ink by default; webside's is the accent's pale
+  // tint with the heading colour on it, as its board draws it.
+  it('shows the text of the operator in the own look of the design by default', async () => {
     setting.value = bar({})
 
     const wrapper = await mountBar()
     const banner = wrapper.findComponent({ name: 'UBanner' })
 
     expect(banner.props('title')).toBe('Δωρεάν αποστολή από 50 €')
-    expect(banner.props('color')).toBe('neutral')
+    expect(banner.props('color')).toBe(tree === 'webside' ? undefined : 'neutral')
+    expect(wrapper.get('.banner').classes().includes('bg-(--ds-accent-tint)')).toBe(tree === 'webside')
   })
 
   // The classes are the contract: the close button is a 44px target on a
   // phone (WCAG 2.5.5), its height reached through a pseudo-element so the
   // bar keeps its own; happy-dom lays nothing out.
-  it('gives the close button a 44px target on a phone without growing the bar', async () => {
+  // webside's close button is the bar's own height instead (its own suite).
+  it.runIf(tree === 'default')('gives the close button a 44px target on a phone without growing the bar', async () => {
     setting.value = bar({})
 
     const wrapper = await mountBar()
 
-    expect(wrapper.get('[data-slot="close"]').classes()).toEqual(expect.arrayContaining(['relative', 'min-w-11', 'sm:min-w-0', 'after:absolute', 'after:-inset-y-1.5']))
+    expect(wrapper.get('[data-slot="close"]').classes()).toEqual(expect.arrayContaining(['relative', 'min-w-11', 'after:absolute', 'after:-inset-y-1.5']))
   })
 
   it('keeps a colour the operator picked', async () => {
@@ -220,5 +224,65 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
     const wrapper = await mountBar()
 
     expect(wrapper.findComponent({ name: 'UBanner' }).exists()).toBe(false)
+  })
+})
+
+/**
+ * webside's own strip: the phone's wording set in bold as the sentence's lead
+ * (a phone shows it alone), and the bar's link as a visible «Λεπτομέρειες»
+ * after the sentence rather than the whole bar.
+ */
+describe('webside Chrome/AnnouncementBar, its own look', () => {
+  beforeEach(() => {
+    setting.value = null
+    dispatchCutoff.value = '15:00'
+    freeShipping.value = null
+    freeShippingInfo.mockReset()
+    freeShippingInfo.mockImplementation(() => ({ data: computed(() => freeShipping.value) }))
+  })
+
+  it('sets the phone\'s wording in bold as the lead of the sentence it opens', async () => {
+    setting.value = bar({ text: 'Δωρεάν αποστολή από 50 € · Έως {dispatchCutoff} φεύγει σήμερα', shortText: 'Δωρεάν αποστολή από 50 €', i18n: {} })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    const sentence = wrapper.get('[data-slot="title"] > span')
+    expect(sentence.get('strong').text()).toBe('Δωρεάν αποστολή από 50 €')
+    expect(sentence.text()).toBe('Δωρεάν αποστολή από 50 € · Έως 15:00 φεύγει σήμερα')
+  })
+
+  it('links with a visible «Λεπτομέρειες», and the bar itself is no link', async () => {
+    setting.value = bar({ link: '/info/shipping' })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    expect(wrapper.findComponent({ name: 'UBanner' }).props('to')).toBeUndefined()
+    expect(wrapper.get('a[href="/info/shipping"]').text()).toBe('Λεπτομέρειες')
+  })
+
+  // The classes are the contract, the browser the real check: each link is
+  // the bar's full 40px tall, with no overhang that the sticky header would
+  // paint over (measured at 390 and 1440, 2026-11-13); happy-dom lays
+  // nothing out.
+  it('makes each link and the close button as tall as the bar, with nothing hanging out of it', async () => {
+    setting.value = bar({ link: '/info/shipping', shortText: 'Δωρεάν αποστολή' })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    const links = wrapper.findAll('a[href="/info/shipping"]')
+    expect(links).toHaveLength(2)
+    for (const link of links) expect(link.classes().some(name => name.startsWith('after:'))).toBe(false)
+    const close = wrapper.get('[data-slot="close"]').classes()
+    expect(close).toEqual(expect.arrayContaining(['h-10', 'min-w-11']))
+    expect(close.some(name => name.startsWith('after:'))).toBe(false)
+    expect(links.map(link => link.classes().some(name => name === 'min-h-10' || name === 'leading-10'))).toEqual([true, true])
+  })
+
+  it('keeps a colour the operator picked, as a solid fill', async () => {
+    setting.value = bar({ color: 'secondary' })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    expect(wrapper.get('.banner').classes()).not.toContain('bg-(--ds-accent-tint)')
   })
 })

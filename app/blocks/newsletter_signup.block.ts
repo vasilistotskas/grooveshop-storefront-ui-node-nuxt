@@ -14,6 +14,8 @@ export default defineBlock({
     surface: builderField.surface().optional(),
     /** The heading in the theme's accent, as the hero's accent line; left out, in the heading colour. */
     headingColor: z.enum(['accent']).optional(),
+    /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
+    look: z.enum(['bold']).optional(),
   }),
   translatable: ['/heading', '/description', '/placeholder', '/buttonText'],
   upgrade: { 1: upgradeTitleIntoHeading },

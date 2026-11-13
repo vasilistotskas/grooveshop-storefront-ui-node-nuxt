@@ -15,6 +15,7 @@
  * the band stays this one, and the card keeps the columns it was laid out for.
  */
 const props = withDefaults(defineProps<{
+  eyebrow?: string
   heading?: string
   subheading?: string
   ctaText?: string
@@ -22,6 +23,12 @@ const props = withDefaults(defineProps<{
   showAddToCart?: boolean
   surface?: 'default' | 'muted'
   colorScheme?: SectionColorScheme
+  /** How many of the products a phone shows, the first ones; all of them when unset. */
+  phoneLimit?: number
+  /** The categories a last tile of the grid lists, on a desk (`PageSection/ProductsCategoryTile`). */
+  categoryTile?: ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
+  /** The band's bold look (`PageSection/BandBold`): on a phone its link is a button under the grid. */
+  look?: 'bold'
   /** What the band lists: the products, and the rule or hand-picked list they came from. */
   products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
@@ -29,12 +36,20 @@ const props = withDefaults(defineProps<{
 })
 
 defineSlots<{
-  list?(props: { items: readonly ProductCard[], showAddToCart: boolean }): unknown
+  list?(props: {
+    items: readonly ProductCard[]
+    showAddToCart: boolean
+    /** How many products a phone shows: `phoneHidden(phoneLimit, index)` marks the rest. */
+    phoneLimit: number | undefined
+    categories: readonly ProductCategory[]
+  }): unknown
 }>()
 
 const { t } = useStoreI18n('components/PageSection/ProductsGrid')
 const localePath = useLocalePath()
 const linkTo = useLinkTo()
+
+const categoryItems = computed(() => props.categoryTile?.items ?? [])
 
 const label = computed(
   () => props.heading || t(`heading.${productRailKind(props.products.descriptor)}`),
@@ -44,19 +59,28 @@ const label = computed(
 <template>
   <PageSectionBand
     v-if="products.items.length"
+    :eyebrow="eyebrow"
     :heading="label"
     :subheading="subheading"
     :cta-text="ctaText || t('all_products')"
     :cta-link="ctaLink ? linkTo(ctaLink) : localePath({ path: '/products', query: productRailStockQuery(products.descriptor) })"
     :surface="surface"
     :color-scheme="colorScheme"
+    :look="look"
+    :phone-cta="look === 'bold' ? 'below' : undefined"
+    :phone-cta-text="ctaText ? undefined : t('all_products_phone')"
   >
     <slot
       name="list"
       :items="products.items"
       :show-add-to-cart="showAddToCart"
+      :phone-limit="phoneLimit"
+      :categories="categoryItems"
     >
+      <!-- The grid closes with the categories' tile when the band lists
+           them; otherwise it is the grid as it always was. -->
       <UPageGrid
+        v-if="categoryItems.length"
         as="ul"
         class="
           grid-cols-2 gap-3.5
@@ -64,10 +88,28 @@ const label = computed(
         "
       >
         <ProductCard
-          v-for="product in products.items"
+          v-for="(product, index) in products.items"
           :key="product.id"
           :product="product"
           :show-add-to-cart-button="showAddToCart"
+          :data-phone-hidden="phoneHidden(phoneLimit, index)"
+        />
+        <PageSectionProductsCategoryTile :categories="categoryItems" />
+      </UPageGrid>
+      <UPageGrid
+        v-else
+        as="ul"
+        class="
+          grid-cols-2 gap-3.5
+          lg:grid-cols-4 lg:gap-6
+        "
+      >
+        <ProductCard
+          v-for="(product, index) in products.items"
+          :key="product.id"
+          :product="product"
+          :show-add-to-cart-button="showAddToCart"
+          :data-phone-hidden="phoneHidden(phoneLimit, index)"
         />
       </UPageGrid>
     </slot>
@@ -77,6 +119,7 @@ const label = computed(
 <i18n lang="yaml">
 el:
   all_products: Όλα τα προϊόντα
+  all_products_phone: Δες όλα τα προϊόντα
   heading:
     picked: Επιλεγμένα προϊόντα
     newest: Νέες αφίξεις
@@ -88,6 +131,7 @@ el:
     priceDesc: Premium επιλογές
 en:
   all_products: All products
+  all_products_phone: See all products
   heading:
     picked: Selected products
     newest: New arrivals

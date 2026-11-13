@@ -54,6 +54,21 @@ describe('themeCss', () => {
     expect(light['--ui-on-secondary']).toBe('#000000')
     expect(declarations(themeCss(theme, null), 'html:root')).not.toHaveProperty('--ui-on-secondary')
   })
+
+  // The deep shade is the light accent at 80% (what `color-mix(... 80%,
+  // black)` draws), and its text is picked for THAT fill: a bright yellow
+  // stays light at 80% (white would read 1.7:1 there), the platform blue
+  // takes white.
+  it.each([
+    ['#ffff00', '#cccc00', '#171717'],
+    ['#003dff', '#0031cc', '#ffffff'],
+  ])('writes the deep shade of %s and the readable text on it, in both schemes', (accent, deep, text) => {
+    const css = themeCss({ ...theme, colors: { ...theme.colors, light: { ...theme.colors.light, accent } } }, null)
+
+    for (const selector of ['html:root', 'html.dark']) {
+      expect(declarations(css, selector)).toMatchObject({ '--ui-secondary-deep': deep, '--ui-on-secondary-deep': text })
+    }
+  })
 })
 
 /**

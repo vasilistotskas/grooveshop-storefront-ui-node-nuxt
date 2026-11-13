@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import Spotlight from '~/components/Product/Spotlight.vue'
@@ -24,7 +24,7 @@ const stub = vi.hoisted(() => (part: string, props: string[]) => ({
   },
 }))
 vi.mock('~/components/Button/Product/AddToCart.vue', () => stub('default-cart', ['product', 'text', 'label']))
-vi.mock('~/components/variants/webside/Button/Product/AddToCart.vue', () => stub('webside-cart', ['product', 'text']))
+vi.mock('~/components/variants/webside/Button/Product/AddToCart.vue', () => stub('webside-cart', ['product', 'text', 'leadingIcon']))
 vi.mock('~/components/Product/RestockAlert.vue', () => stub('default-restock', ['productId', 'productName', 'productImage']))
 vi.mock('~/components/variants/webside/Product/NotifyMe.vue', () => stub('webside-restock', ['productId', 'kind']))
 
@@ -180,5 +180,80 @@ describe('Product/Spotlight', () => {
     await flushPromises()
 
     expect(wrapper.find('[data-test="part"]').exists()).toBe(false)
+  })
+
+  /**
+   * The bold look (`look: 'bold'`, `Product/SpotlightBold`): one line of
+   * rating (one star, the figure, the count in brackets) and stock in its
+   * status colour, the price beside the store's button at every width, the
+   * button's icon before its label and alone on a phone. The classes are the
+   * contract; the browser is the real check.
+   */
+  describe('in its bold look', () => {
+    beforeEach(() => {
+      setTenant({ schemaName: 'webside' })
+      setTenantFeatures({ cart: true, productReviews: true, productAlerts: true })
+    })
+
+    it('quotes the rating with one star and the count in brackets, beside the stock in words', async () => {
+      const wrapper = await mountSpotlight({ look: 'bold' })
+
+      const rating = wrapper.get('[role="img"]')
+      expect(rating.text().replace(/\s+/g, ' ')).toBe('4,5 (3 αξιολογήσεις)')
+      expect(rating.classes()).toContain('max-sm:hidden')
+      expect(wrapper.find('.text-success').text()).toBe(t('in_stock'))
+    })
+
+    it('buys with the button of the store beside the price, its icon first, the icon alone on a phone', async () => {
+      const { name, props, attrs, besidePrice } = await part(await mountSpotlight({ look: 'bold' }))
+
+      expect(name).toBe('webside-cart')
+      expect(props).toEqual({ product: expect.objectContaining({ id: 7 }), text: 'Στο καλάθι', leadingIcon: true })
+      expect(String(attrs.class).split(/\s+/)).toEqual(expect.arrayContaining(['min-h-12', 'max-sm:size-12', 'max-sm:*:data-[slot=label]:sr-only']))
+      expect(besidePrice).toBe(true)
+    })
+
+    // The classes are the contract, the browser the real check (2026-11-13,
+    // 320 to 1440, webside and demo): the price block's basis is its longest
+    // single line (`w-min grow`), so a prior price goes UNDER the price and
+    // the button stays beside it; only a price too long for the row sends
+    // the button to a line of its own, at the right (`ml-auto`).
+    it('keeps the button beside a discounted price, the prior price under it, and at the right when it drops', async () => {
+      const wrapper = await mountSpotlight({ look: 'bold', product: product({ effectivePrice: 129.9, priorPrice: 159.9, announcedDiscountPercent: 19 }) })
+      await vi.waitFor(() => expect(wrapper.find('[data-test="part"]').exists()).toBe(true))
+
+      const row = wrapper.get('[data-test="part"]').element.closest('.justify-between')!
+      const [block, button] = [...row.children] as [Element, Element]
+      expect(block.textContent).toContain('159,90')
+      expect(row.classList.contains('flex-wrap')).toBe(true)
+      expect([...block.classList]).toEqual(expect.arrayContaining(['w-min', 'grow', 'flex-wrap']))
+      expect(button.classList.contains('ml-auto')).toBe(true)
+    })
+  })
+})
+
+/**
+ * A store's edited wording is the card's, whatever its look: the bold card
+ * draws `Product/Spotlight`'s texts, so switching to it keeps what the store
+ * wrote.
+ */
+describe('Product/Spotlight, a store\u2019s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ cart: true, productReviews: true, productAlerts: true })
+    useTextOverrides().value = { el: { 'components/Product/Spotlight': { in_stock: 'Άμεσα διαθέσιμο' } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the card as it was', {}],
+    ['the bold card', { look: 'bold' }],
+  ])('shows them in %s', async (_case, props) => {
+    const wrapper = await mountSpotlight(props)
+
+    expect(wrapper.text()).toContain('Άμεσα διαθέσιμο')
   })
 })

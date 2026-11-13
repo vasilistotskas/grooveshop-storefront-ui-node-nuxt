@@ -26,6 +26,9 @@
  * heading into a word per line at 390px. The link's hit area is at least
  * 44px tall there (WCAG 2.5.8 target size, 2.5.5 on a phone); from `sm` up
  * the row and the link are as they were.
+ *
+ * `look: 'bold'` hands the band to `PageSection/BandBold`, the heavier heading
+ * row of a section set in its bold look; left out, this one as it always was.
  */
 const props = withDefaults(defineProps<{
   /** Which page surface this band paints. */
@@ -53,6 +56,12 @@ const props = withDefaults(defineProps<{
   headingSize?: 'md' | 'lg'
   /** Drop the container for a band that runs edge to edge. */
   bleed?: boolean
+  /** `bold`: the section's bold look (`PageSection/BandBold`). */
+  look?: 'bold'
+  /** In the bold look: where the link goes on a phone (`PageSection/BandBold`). */
+  phoneCta?: 'inline' | 'below' | 'none'
+  /** In the bold look: a shorter link text for the phone's row. */
+  phoneCtaText?: string
 }>(), {
   surface: 'default',
   padding: 'md',
@@ -77,7 +86,30 @@ const container = computed(() =>
 </script>
 
 <template>
+  <PageSectionBandBold
+    v-if="look === 'bold'"
+    :surface="surface"
+    :color-scheme="colorScheme"
+    :eyebrow="eyebrow"
+    :heading="heading"
+    :subheading="subheading"
+    :cta-text="ctaText"
+    :cta-link="ctaLink"
+    :padding="padding"
+    :bleed="bleed"
+    :phone-cta="phoneCta"
+    :phone-cta-text="phoneCtaText"
+  >
+    <template
+      v-if="$slots.header"
+      #header
+    >
+      <slot name="header" />
+    </template>
+    <slot />
+  </PageSectionBandBold>
   <section
+    v-else
     :class="[
       'w-full',
       colorSchemeClass(colorScheme),

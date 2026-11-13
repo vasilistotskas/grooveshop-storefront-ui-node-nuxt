@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed } from 'vue'
+import { computed, defineComponent, h } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import StoreAssurances from '~/components/PageSection/StoreAssurances.vue'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
@@ -57,5 +57,47 @@ describe('PageSection/StoreAssurances', () => {
     const wrapper = await mountBand({ heading: 'Αγορές με σιγουριά' })
 
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+})
+
+/**
+ * `layout: 'card'`: the promises on one raised card risen over the band
+ * above on a desk, a two-by-two grid of bordered cards on a phone. The
+ * classes are the contract; the browser is the real check.
+ */
+describe('PageSection/StoreAssurances as a card', () => {
+  it('draws one card risen 36px over the band above on a desk, small cards two by two on a phone', async () => {
+    rows.value = [
+      { kind: 'delivery', icon: 'i-lucide-truck', title: 'Παράδοση σε 1–3 εργάσιμες', note: 'Έως 15:00' },
+      { kind: 'returns', icon: 'i-lucide-undo-2', title: 'Επιστροφή σε 14 ημέρες', to: '/return-policy' },
+    ]
+
+    const wrapper = await mountBand({ layout: 'card' })
+
+    const section = wrapper.get('section')
+    expect(section.attributes('aria-label')).toBe('Αγορές με σιγουριά')
+    expect(section.classes()).toEqual(expect.arrayContaining(['relative', 'z-10']))
+    expect(wrapper.get('ul').classes()).toEqual(expect.arrayContaining(['grid-cols-2', 'lg:rounded-xl', 'lg:border', 'lg:grid-cols-2']))
+    expect(wrapper.findAll('li').map(row => row.classes().includes('border'))).toEqual([true, true])
+    expect(wrapper.get('a[href="/return-policy"]').text()).toBe('Επιστροφή σε 14 ημέρες')
+    expect(wrapper.findComponent({ name: 'UPageFeature' }).exists()).toBe(false)
+  })
+
+  // The rise is the contract here: a class, since happy-dom lays nothing out.
+  it.each([
+    ['under a band of its open run', true, true],
+    ['first on the page, or under a framed section', false, false],
+  ])('rises 36px only %s', async (_case, follows, rises) => {
+    rows.value = [{ kind: 'delivery', icon: 'i-lucide-truck', title: 'Παράδοση σε 1–3 εργάσιμες' }]
+    const Host = defineComponent({
+      setup() {
+        provideFollowsBand(follows)
+        return () => h(StoreAssurances, { layout: 'card' })
+      },
+    })
+
+    const wrapper = await mountSuspended(Host, { route: false })
+
+    expect(wrapper.get('section').classes().includes('lg:-mt-9')).toBe(rises)
   })
 })

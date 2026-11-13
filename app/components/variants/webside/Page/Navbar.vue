@@ -267,12 +267,11 @@ const items = computed(() => [
     "
   >
     <template #menu>
-      <LazyWebsideSearchInput v-if="searchServing && !isMobileOrTablet" />
       <!-- Not positioned: a dropdown's panel is placed against the
            header's row, so it spans the header rather than this cluster. -->
       <div
         class="
-          ml-auto hidden items-center
+          hidden items-center
           lg:flex
         "
       >
@@ -311,8 +310,10 @@ const items = computed(() => [
               root: 'static',
               list: 'gap-4',
               item: 'py-0',
+              // The board's 15px, in the heading colour: Nuxt UI's muted
+              // link colour read at 4.4:1 on the bar.
               link: `
-                px-0 text-lg font-semibold capitalize
+                px-0 text-[0.9375rem] font-semibold text-highlighted capitalize
                 after:inset-x-0 after:-bottom-1 after:h-0.5
               `,
               linkTrailingIcon: 'size-4',
@@ -397,62 +398,90 @@ const items = computed(() => [
               </div>
             </template>
           </LazyUNavigationMenu>
-          <ul
+        </div>
+      </div>
+      <!-- As the board draws the bar: the menus beside the logo, then the
+           search field (440px at most) and the icons at the far end. -->
+      <!-- No box of its own below `lg` (`contents`): on a phone it holds
+           nothing, and an empty flex child took a share of the row and a
+           gap from the logo. -->
+      <div
+        class="
+          ml-auto flex min-w-0 flex-1 items-center justify-end gap-6
+          max-lg:contents
+        "
+      >
+        <LazyWebsideSearchInput
+          v-if="searchServing && !isMobileOrTablet"
+          class="max-w-110 flex-1"
+        />
+        <ul
+          class="
+            hidden items-center gap-3 text-primary-950
+            lg:flex
+            dark:border-primary-500 dark:text-primary-50
+          "
+        >
+          <li
+            v-if="tenantStore.isMultilingual"
             class="
-              flex items-center gap-3 pl-6 text-primary-950
-              dark:border-primary-500 dark:text-primary-50
+              relative grid items-center justify-center justify-items-center
             "
           >
+            <LazyWebsideLanguageSwitcher hydrate-on-interaction />
+          </li>
+          <li
+            v-if="savedPostsServing"
+            class="
+              relative grid max-w-6 items-center justify-center
+              justify-items-center
+            "
+          >
+            <UButton
+              :aria-label="t('favourites')"
+              :to="loggedIn ? localePath('account-favourites-posts') : localePath(signIn)"
+              class="p-0"
+              color="neutral"
+              icon="i-heroicons-heart"
+              size="xl"
+              type="button"
+              variant="ghost"
+              :ui="{
+                base: `
+                  cursor-pointer
+                  hover:bg-transparent
+                `,
+              }"
+            />
+          </li>
+          <li
+            class="
+              relative grid max-w-6 items-center justify-center
+              justify-items-center
+            "
+          >
+            <UColorModeButton
+              class="w-6"
+              :ui="{
+                base: `
+                  cursor-pointer p-0
+                  hover:bg-transparent
+                `,
+                leadingIcon: 'size-6',
+              }"
+            />
+          </li>
+          <ClientOnly>
             <li
-              v-if="tenantStore.isMultilingual"
-              class="
-                relative grid items-center justify-center justify-items-center
-              "
-            >
-              <LazyWebsideLanguageSwitcher hydrate-on-interaction />
-            </li>
-            <li
-              v-if="savedPostsServing"
+              v-if="loggedIn"
               class="
                 relative grid max-w-6 items-center justify-center
                 justify-items-center
               "
             >
-              <UButton
-                :aria-label="t('favourites')"
-                :to="loggedIn ? localePath('account-favourites-posts') : localePath(signIn)"
-                class="p-0"
-                color="neutral"
-                icon="i-heroicons-heart"
-                size="xl"
-                type="button"
-                variant="ghost"
-                :ui="{
-                  base: `
-                    cursor-pointer
-                    hover:bg-transparent
-                  `,
-                }"
-              />
+              <LazyWebsideUserNotificationsBell />
             </li>
-            <li
-              class="
-                relative grid max-w-6 items-center justify-center
-                justify-items-center
-              "
-            >
-              <UColorModeButton
-                class="w-6"
-                :ui="{
-                  base: `
-                    cursor-pointer p-0
-                    hover:bg-transparent
-                  `,
-                  leadingIcon: 'size-6',
-                }"
-              />
-            </li>
-            <ClientOnly>
+            <template #fallback>
               <li
                 v-if="loggedIn"
                 class="
@@ -460,126 +489,115 @@ const items = computed(() => [
                   justify-items-center
                 "
               >
-                <LazyWebsideUserNotificationsBell />
+                <UButton
+                  icon="i-heroicons-bell"
+                  color="neutral"
+                  size="xl"
+                  variant="ghost"
+                  class="p-0"
+                  :ui="{
+                    base: `
+                      cursor-pointer
+                      hover:bg-transparent
+                    `,
+                  }"
+                />
               </li>
-              <template #fallback>
-                <li
-                  v-if="loggedIn"
-                  class="
-                    relative grid max-w-6 items-center justify-center
-                    justify-items-center
-                  "
-                >
-                  <UButton
-                    icon="i-heroicons-bell"
-                    color="neutral"
-                    size="xl"
-                    variant="ghost"
-                    class="p-0"
-                    :ui="{
-                      base: `
-                        cursor-pointer
-                        hover:bg-transparent
-                      `,
-                    }"
-                  />
-                </li>
-              </template>
-            </ClientOnly>
-            <li
-              v-if="cartEnabled"
-              class="
-                relative grid max-w-6 items-center justify-center
-                justify-items-center
-              "
+            </template>
+          </ClientOnly>
+          <li
+            v-if="cartEnabled"
+            class="
+              relative grid max-w-6 items-center justify-center
+              justify-items-center
+            "
+          >
+            <WebsideCartButton />
+          </li>
+          <li
+            v-if="loggedIn && user"
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
+          >
+            <UDropdownMenu
+              :items="items"
+              :popper="{ placement: 'bottom-start' }"
             >
-              <WebsideCartButton />
-            </li>
-            <li
-              v-if="loggedIn && user"
-              class="
-                relative grid items-center justify-center justify-items-center
-              "
-            >
-              <UDropdownMenu
-                :items="items"
-                :popper="{ placement: 'bottom-start' }"
+              <!--
+                Reka's DropdownMenuTrigger forwards `type="button"`
+                to the element rendered by the default slot. When
+                that element was UserAvatar (a <div>), axe flagged
+                "Elements must only use supported ARIA attributes"
+                because `type` is not valid on <div>. Wrapping in
+                an explicit <button> gives Reka a real button to
+                set `type` on, and keeps the avatar visual.
+              -->
+              <button
+                type="button"
+                :aria-label="t('user.profile')"
+                data-clarity-mask="true"
+                class="cursor-pointer bg-transparent p-0"
               >
-                <!--
-                  Reka's DropdownMenuTrigger forwards `type="button"`
-                  to the element rendered by the default slot. When
-                  that element was UserAvatar (a <div>), axe flagged
-                  "Elements must only use supported ARIA attributes"
-                  because `type` is not valid on <div>. Wrapping in
-                  an explicit <button> gives Reka a real button to
-                  set `type` on, and keeps the avatar visual.
-                -->
-                <button
-                  type="button"
-                  :aria-label="t('user.profile')"
+                <UserAvatar
+                  :show-name="false"
+                  :user-account="user"
+                />
+              </button>
+
+              <template #account="{ item }">
+                <div
                   data-clarity-mask="true"
-                  class="cursor-pointer bg-transparent p-0"
+                  class="text-left"
                 >
-                  <UserAvatar
-                    :show-name="false"
-                    :user-account="user"
-                  />
-                </button>
-
-                <template #account="{ item }">
-                  <div
-                    data-clarity-mask="true"
-                    class="text-left"
-                  >
-                    <p>{{ t('email.title') }}</p>
-                    <p
-                      class="
-                        truncate font-medium text-primary-900
-                        dark:text-primary-50
-                      "
-                    >
-                      {{ item.label }}
-                    </p>
-                  </div>
-                </template>
-
-                <template #item="{ item }">
-                  <span class="truncate">{{ item.label }}</span>
-                  <UIcon
-                    v-if="item.icon"
-                    :name="item.icon"
+                  <p>{{ t('email.title') }}</p>
+                  <p
                     class="
-                      ms-auto size-4 shrink-0 text-primary-900
-                      dark:text-primary-100
+                      truncate font-medium text-primary-900
+                      dark:text-primary-50
                     "
-                  />
-                </template>
-              </UDropdownMenu>
-            </li>
-            <li
-              v-else
+                  >
+                    {{ item.label }}
+                  </p>
+                </div>
+              </template>
+
+              <template #item="{ item }">
+                <span class="truncate">{{ item.label }}</span>
+                <UIcon
+                  v-if="item.icon"
+                  :name="item.icon"
+                  class="
+                    ms-auto size-4 shrink-0 text-primary-900
+                    dark:text-primary-100
+                  "
+                />
+              </template>
+            </UDropdownMenu>
+          </li>
+          <li
+            v-else
+            class="
+              relative grid items-center justify-center justify-items-center
+            "
+          >
+            <Anchor
+              :title="t('login')"
+              :aria-label="t('login')"
+              :to="signIn"
               class="
-                relative grid items-center justify-center justify-items-center
+                flex size-[30px] items-center self-center text-[1.5rem]
+                text-primary-700
+                hover:text-primary-900
+                dark:text-primary-200
+                hover:dark:text-primary-50
               "
             >
-              <Anchor
-                :title="t('login')"
-                :aria-label="t('login')"
-                :to="signIn"
-                class="
-                  flex size-[30px] items-center self-center text-[1.5rem]
-                  text-primary-700
-                  hover:text-primary-900
-                  dark:text-primary-200
-                  hover:dark:text-primary-50
-                "
-              >
-                <UIcon name="i-fa6-solid-circle-user" />
-                <span class="sr-only">{{ t('login') }}</span>
-              </Anchor>
-            </li>
-          </ul>
-        </div>
+              <UIcon name="i-fa6-solid-circle-user" />
+              <span class="sr-only">{{ t('login') }}</span>
+            </Anchor>
+          </li>
+        </ul>
       </div>
     </template>
   </WebsideBuilderNavbar>

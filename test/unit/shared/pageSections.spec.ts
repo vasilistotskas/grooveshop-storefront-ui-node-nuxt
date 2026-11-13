@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   HEADING_SECTION_TYPES,
+  sectionRuns,
   sectionsHeadingText,
   sectionsProvideForm,
   sectionsProvideHours,
@@ -117,5 +118,50 @@ describe('pageSections', () => {
     expect(sectionsHeadingText([{ componentType: 'rich_text', props: { heading: 'x' } }]))
       .toBeUndefined()
     expect(sectionsHeadingText(undefined)).toBeUndefined()
+  })
+})
+
+describe('sectionRuns', () => {
+  const at = (id: string, componentType: string, props: Record<string, unknown> = {}) => ({ id, componentType, props })
+
+  it('cuts a list into runs of edge-to-edge bands and of framed sections, in order, keyed by their first section', () => {
+    const runs = sectionRuns([
+      at('a', 'hero_carousel'),
+      at('b', 'hero_showcase', { look: 'bold' }),
+      at('c', 'store_assurances', { layout: 'card' }),
+      at('d', 'products_grid', { look: 'bold' }),
+      at('e', 'recently_viewed'),
+      at('f', 'newsletter_signup', { look: 'bold' }),
+    ])
+
+    expect(runs.map(run => [run.key, run.bands, run.sections.map(section => section.id)])).toEqual([
+      ['a', false, ['a']],
+      ['b', true, ['b', 'c', 'd']],
+      ['e', false, ['e']],
+      ['f', true, ['f']],
+    ])
+  })
+
+  it('keeps every section in the look it always had framed', () => {
+    const runs = sectionRuns([
+      at('a', 'hero_showcase'),
+      at('b', 'store_assurances'),
+      at('c', 'products_grid'),
+      at('d', 'blog_posts_grid'),
+      at('e', 'newsletter_signup'),
+      at('f', 'blog_categories', { layout: 'tiles' }),
+    ])
+
+    expect(runs.map(run => run.bands)).toEqual([false])
+  })
+
+  it('lays the tiles out edge to edge in their bold look only, and the posts as a feature card', () => {
+    expect(sectionRuns([at('a', 'blog_categories', { layout: 'tiles', look: 'bold' })])[0]?.bands).toBe(true)
+    expect(sectionRuns([at('a', 'blog_categories', { layout: 'slider', look: 'bold' })])[0]?.bands).toBe(false)
+    expect(sectionRuns([at('a', 'blog_posts_grid', { layout: 'feature' })])[0]?.bands).toBe(true)
+  })
+
+  it('has no run for no section', () => {
+    expect(sectionRuns([])).toEqual([])
   })
 })

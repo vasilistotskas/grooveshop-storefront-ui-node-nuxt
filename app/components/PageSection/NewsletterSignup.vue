@@ -31,6 +31,8 @@ withDefaults(defineProps<{
    * nothing stops or flags a publish for it.
    */
   headingColor?: 'accent'
+  /** `bold`: the bold look, drawn by this component's first branch with the same texts and form. */
+  look?: 'bold'
 }>(), {
   surface: 'muted',
 })
@@ -52,11 +54,195 @@ const errorMessage = computed(() => {
 async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>) {
   await subscribe(event.data)
 }
+
+/** The bold look laid out `open` by its shell (`useBandFlow`): it keeps 88px from the band above. */
+const openFlow = useBandFlow() === 'open'
 </script>
 
 <template>
+  <!-- The bold look (`look: 'bold'`): on a desk a band between two rules,
+       88px below the band above when its shell lays bands out open, the
+       promise left and the form right (at most 480px); on a phone a bordered
+       card with the form under the promise. The heading is heavier, and an
+       accent heading takes `--ds-accent-heading`. The same signup, texts and
+       outcome states as the band below; only the layout differs. -->
+  <section
+    v-if="look === 'bold' && available"
+    data-newsletter-section
+    class="
+      w-full pt-11
+      lg:border-y lg:border-default lg:pt-0
+    "
+    :class="[
+      openFlow ? 'lg:mt-22' : 'lg:mt-0',
+      surface === 'muted' ? 'lg:bg-muted' : 'lg:bg-default',
+    ]"
+  >
+    <UContainer>
+      <div
+        class="
+          flex flex-col gap-2.5 rounded-xl border border-default px-4 py-5
+          lg:flex-row lg:flex-wrap lg:items-center lg:justify-between
+          lg:gap-x-12 lg:gap-y-6 lg:rounded-none lg:border-0 lg:bg-transparent
+          lg:px-0 lg:py-12
+        "
+        :class="surface === 'muted' ? 'bg-muted' : 'bg-default'"
+      >
+        <div
+          class="
+            flex flex-col gap-2
+            lg:flex-[1_1_22.5rem]
+          "
+        >
+          <h2
+            class="
+              font-display text-[1.375rem]/[1.25] font-extrabold text-balance
+              wrap-break-word
+              lg:text-[1.875rem]/[1.2]
+            "
+            :class="headingColor === 'accent' ? 'text-(--ds-accent-heading)' : `
+              text-highlighted
+            `"
+          >
+            {{ heading || t('heading') }}
+          </h2>
+          <p
+            class="
+              text-[0.9375rem]/normal text-pretty text-muted
+              lg:text-lg/normal
+            "
+          >
+            {{ description || t('description') }}
+          </p>
+        </div>
+
+        <div
+          class="
+            mt-1 w-full
+            lg:mt-0 lg:max-w-120 lg:flex-[1_1_22.5rem]
+          "
+        >
+          <div
+            v-if="outcome === 'pending_confirmation'"
+            role="status"
+            class="flex items-start gap-3"
+          >
+            <UIcon
+              name="i-heroicons-envelope-open"
+              class="mt-0.5 size-6 shrink-0 text-success"
+            />
+            <div class="flex flex-col gap-1">
+              <p class="font-semibold text-highlighted">
+                {{ t('sent.title') }}
+              </p>
+              <p class="text-sm text-muted">
+                {{ t('sent.description') }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            v-else-if="outcome === 'already_subscribed'"
+            role="status"
+            class="flex items-start gap-3"
+          >
+            <UIcon
+              name="i-heroicons-check-circle"
+              class="mt-0.5 size-6 shrink-0 text-success"
+            />
+            <div class="flex flex-col items-start gap-1">
+              <p class="font-semibold text-highlighted">
+                {{ t('already.title') }}
+              </p>
+              <p class="text-sm text-muted">
+                {{ t('already.description') }}
+              </p>
+              <ULink
+                :to="localePath('account-subscriptions')"
+                class="
+                  text-sm text-primary underline underline-offset-2
+                  hover:text-primary/80
+                "
+              >
+                {{ t('already.manage') }}
+              </ULink>
+            </div>
+          </div>
+
+          <UForm
+            v-else
+            :schema="schema"
+            :state="state"
+            class="flex flex-col gap-3"
+            @submit="onSubmit"
+          >
+            <div
+              class="
+                flex flex-col gap-2.5
+                lg:flex-row lg:items-start lg:gap-2
+              "
+            >
+              <UFormField
+                name="email"
+                :label="t('email_label')"
+                :ui="{ label: 'sr-only' }"
+                class="flex-1"
+              >
+                <UInput
+                  v-model="state.email"
+                  type="email"
+                  autocomplete="email"
+                  size="xl"
+                  :placeholder="placeholder || t('placeholder')"
+                  class="w-full"
+                  :ui="{ base: 'min-h-12' }"
+                />
+              </UFormField>
+              <UButton
+                type="submit"
+                :label="buttonText || t('submit')"
+                :loading="submitting"
+                color="secondary"
+                size="xl"
+                trailing-icon="i-heroicons-arrow-right"
+                class="
+                  min-h-12 shrink-0 justify-center px-5 text-[0.9375rem]
+                  font-semibold
+                "
+              />
+            </div>
+
+            <UFormField name="consent">
+              <UCheckbox
+                v-model="state.consent"
+                :ui="{ label: 'text-sm/relaxed text-muted' }"
+              >
+                <template #label>
+                  {{ consent.before }}<ULink
+                    :to="localePath('privacy-policy')"
+                    class="
+                      text-primary underline underline-offset-2
+                      hover:text-primary/80
+                    "
+                  >{{ consent.privacy }}</ULink>{{ consent.after }}
+                </template>
+              </UCheckbox>
+            </UFormField>
+
+            <p
+              v-if="errorMessage"
+              role="alert"
+              class="text-sm whitespace-pre-line text-error"
+            >
+              {{ errorMessage }}
+            </p>
+          </UForm>
+        </div>
+      </div>
+    </UContainer>
+  </section>
   <PageSectionBand
-    v-if="available"
+    v-else-if="available"
     :surface="surface"
     data-newsletter-section
   >

@@ -1,5 +1,5 @@
 {
-  "hash": "31955c11cc7941c1",
+  "hash": "213fe25d54a00224",
   "blocks": [
     {
       "type": "about_content",
@@ -42,6 +42,10 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
           "title": {
             "type": "string",
             "maxLength": 200
@@ -251,6 +255,12 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -259,6 +269,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/eyebrow",
         "/title",
         "/subheading",
         "/ctaText"
@@ -895,6 +906,32 @@
             "enum": [
               "list"
             ]
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phoneLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "feature"
+            ]
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 100,
+            "pattern": "^i-[a-z0-9:-]+$"
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -903,6 +940,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/eyebrow",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -3823,6 +3861,10 @@
           "showSearch": {
             "type": "boolean"
           },
+          "searchPlaceholder": {
+            "type": "string",
+            "maxLength": 100
+          },
           "ctaText": {
             "type": "string",
             "maxLength": 100
@@ -4192,6 +4234,12 @@
               "light",
               "dark"
             ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "additionalProperties": false
@@ -4201,6 +4249,7 @@
         "/heading",
         "/headingAccent",
         "/subheading",
+        "/searchPlaceholder",
         "/ctaText",
         "/secondaryCtaText"
       ],
@@ -5694,6 +5743,12 @@
             "enum": [
               "accent"
             ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "additionalProperties": false
@@ -6677,6 +6732,75 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phoneLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "categoryTile": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "roots"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  }
+                },
+                "required": [
+                  "mode",
+                  "limit"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "children"
+                  },
+                  "parent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  }
+                },
+                "required": [
+                  "mode",
+                  "parent",
+                  "limit"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-data": {
+              "field": "query",
+              "source": "category",
+              "onEmpty": "empty",
+              "maxLimit": 12
+            }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -6685,6 +6809,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/eyebrow",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -6699,6 +6824,12 @@
           "source": "product",
           "onEmpty": "hide",
           "maxLimit": 24
+        },
+        "/categoryTile": {
+          "field": "query",
+          "source": "category",
+          "onEmpty": "empty",
+          "maxLimit": 12
         }
       },
       "limits": {},
@@ -7485,6 +7616,12 @@
           "heading": {
             "type": "string",
             "maxLength": 200
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "card"
+            ]
           }
         },
         "additionalProperties": false

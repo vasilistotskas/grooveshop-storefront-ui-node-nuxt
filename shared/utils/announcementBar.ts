@@ -32,6 +32,17 @@ export function announcementShortText(
 }
 
 /**
+ * The sentence split at its lead: the phone's wording, when the full one
+ * opens with it ("Free shipping over 39,90 € · Orders by 15:00 leave the
+ * same day" over "Free shipping over 39,90 €"). `null` when it does not,
+ * or when the two are the same.
+ */
+export function announcementLead(text: string, shortText: string): { text: string, rest: string } | null {
+  if (!shortText || text === shortText || !text.startsWith(shortText)) return null
+  return { text: shortText, rest: text.slice(shortText.length) }
+}
+
+/**
  * The live figures a bar's wording may name as `{token}`. A merchant who
  * types "Free shipping over 39,90 €" keeps a second copy of a number that
  * lives in the shipping settings, and it goes stale the day that changes;

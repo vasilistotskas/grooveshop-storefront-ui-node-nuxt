@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ref, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import { flushPromises } from '@vue/test-utils'
@@ -284,5 +284,33 @@ describe('NewsletterSignup', () => {
 
     expect(wrapper.get('input[type="email"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
     expect(wrapper.get('button[type="submit"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
+  })
+})
+
+/**
+ * A store's edited wording is the band's, whatever its look: the bold look
+ * draws the same component's texts (`useStoreI18n('components/PageSection/NewsletterSignup')`),
+ * so switching to it keeps what the store wrote.
+ */
+describe('NewsletterSignup, a store\u2019s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ newsletter: true })
+    flags.available = true
+    useTextOverrides().value = { el: { 'components/PageSection/NewsletterSignup': { submit: 'Γράψου τώρα', heading: 'Τα νέα μας' } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the band as it was', {}],
+    ['the bold look', { look: 'bold' }],
+  ])('shows them in %s', async (_case, props) => {
+    const wrapper = await mountBand(props)
+
+    expect(wrapper.get('button[type="submit"]').text()).toBe('Γράψου τώρα')
+    expect(wrapper.get('h2').text()).toBe('Τα νέα μας')
   })
 })
