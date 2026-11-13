@@ -1,3 +1,10 @@
+# [3.340.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.2...v3.340.0) (2026-11-13)
+
+
+### Features
+
+* **builder:** a newsletter heading colour, a phone list for articles, one newsletter form a page, gallery and form fixes ([#464](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/464)) ([1d58be0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1d58be0a00b1e8f6765b492afa38faa1da2aac39))
+
 ## [3.339.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.1...v3.339.2) (2026-11-12)
 
 
