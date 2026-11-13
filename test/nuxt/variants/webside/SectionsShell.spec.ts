@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { h } from 'vue'
+import { defineComponent, h } from 'vue'
+import type { PropType } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import WebsideSectionsShell from '~/components/variants/webside/Page/SectionsShell.vue'
 import { makeBuilderSection } from '~~/test/fixtures/builderPage'
@@ -18,7 +19,10 @@ import { makeBuilderSection } from '~~/test/fixtures/builderPage'
  * 976 px wide). `grid-cols-1` is `minmax(0, 1fr)`.
  */
 const stubs = {
-  PageSectionRenderer: { props: ['section'], setup: (props: { section: { componentType: string } }) => () => h('div', { 'data-section': props.section.componentType }) },
+  PageSectionRenderer: defineComponent({
+    props: { section: { type: Object as PropType<BuilderSection>, required: true } },
+    setup: props => () => h('div', { 'data-section': props.section.componentType }),
+  }),
 }
 
 const mountShell = (sections: ReturnType<typeof makeBuilderSection>[], slots: Record<string, () => string> = {}) =>
@@ -48,8 +52,9 @@ describe('webside SectionsShell', () => {
       makeBuilderSection({ id: 'b', componentType: 'blog_categories', props: { layout: 'slider' } }),
     ])
 
-    expect(wrapper.findAll('section')).toHaveLength(1)
-    expect(wrapper.get('section [data-section]').exists()).toBe(true)
+    // The tiles stand edge to edge; the slider is framed.
+    expect(wrapper.findAll('section [data-section]').map(node => node.attributes('data-section'))).toEqual(['blog_categories'])
+    expect(wrapper.findAll('[data-section]')).toHaveLength(2)
   })
 
   it('keeps the column of each of its grids shrinkable', async () => {
