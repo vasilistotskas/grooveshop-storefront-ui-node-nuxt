@@ -1,3 +1,10 @@
+## [3.340.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.0...v3.340.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* **builder:** a changed theme can be published from the editor ([#471](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/471)) ([3c63c0b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3c63c0b5948cc9d76c6d04b682a681a6f18b9c28)), closes [#470](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/470) [#470](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/470)
+
 # [3.340.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.2...v3.340.0) (2026-11-13)
 
 
