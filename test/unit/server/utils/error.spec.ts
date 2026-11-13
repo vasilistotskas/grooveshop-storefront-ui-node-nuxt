@@ -11,6 +11,7 @@ import {
   isAllAuthError,
 } from '~~/server/utils/error'
 import { parseDataAs } from '~~/server/utils/parser'
+import { abortedRequestBodyError } from '~~/test/helpers/abortedRequestBody'
 import {
   backend,
   callRoute,
@@ -218,6 +219,63 @@ describe('handleError', () => {
 
       expect(thrown.status).toBe(500)
       expect(thrown.statusText).toBe(error.message)
+      expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+    })
+  })
+
+  /**
+   * A client that closed the request mid-body (an editor tab closing
+   * mid-heartbeat, staging 2026-11-13): Node's own error, from a real
+   * aborted socket. Not a server fault: 499 at warn, never a 500 at error,
+   * which the promote's smoke counts as one.
+   */
+  describe('a request its client closed', () => {
+    it('answers 499 "Client Closed Request", one warning naming the route, no error', async () => {
+      const aborted = await abortedRequestBodyError()
+
+      const thrown = thrownBy(() => handleError(probe(), aborted))
+
+      expect(thrown.status).toBe(499)
+      expect(thrown.statusText).toBe('Client Closed Request')
+      expect(log.warn).toHaveBeenCalledExactlyOnceWith({ action: 'request:aborted', method: 'GET', route: '/api/blog/posts' })
+      expect(log.error).not.toHaveBeenCalled()
+    })
+
+    it('reads it the same through allauth\u2019s handler', async () => {
+      const aborted = await abortedRequestBodyError()
+
+      const thrown = await (async () => {
+        try {
+          await handleAllAuthError(probe(), aborted)
+        }
+        catch (error) {
+          return error
+        }
+      })()
+
+      expect(isNuxtError(thrown) && thrown.status).toBe(499)
+      expect(log.error).not.toHaveBeenCalled()
+    })
+
+    // A genuine failure stays a server fault, whatever it looks like.
+    it.each([
+      ['an error of our own', () => new Error('boom')],
+      ['an "aborted" error that is no connection reset', () => new Error('aborted')],
+      ['a connection reset that is not an aborted body (a store, a socket)', () => Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' })],
+    ])('keeps %s a 500 at error', (_case, error) => {
+      const thrown = thrownBy(() => handleError(probe(), error()))
+
+      expect(thrown.status).toBe(500)
+      expect(log.warn).not.toHaveBeenCalledWith(expect.objectContaining({ action: 'request:aborted' }))
+    })
+
+    it('keeps an upstream reset (ofetch\u2019s FetchError) a 500 at error', async () => {
+      backend.failOnce()
+      const upstream = await rejectionOf($fetch('http://backend.test/api/v1/upstream', { method: 'POST' }), FetchError)
+
+      const thrown = thrownBy(() => handleError(probe(), upstream))
+
+      expect(thrown.status).toBe(500)
       expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
     })
   })

@@ -23,12 +23,25 @@ import { defineNitroPlugin } from 'nitropack/runtime'
  * our fault and breaks the page for the shopper, as though the shopper had
  * sent something malformed. `isResponseContractError` is auto-imported
  * from `server/utils/parser`.
+ *
+ * And one 5xx is not ours: a client that closed the request mid-body, in a
+ * route that did not map it (`handleError` answers it 499). Nitro wraps the
+ * throw in a 500, but the client went away (`isClientAbort`): a warning, so
+ * an editor tab closing mid-request is not a server fault in the promote's
+ * smoke check, which counts every server-side `error`.
  */
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('error', (error, { event }) => {
     // useLogger throws if evlog's request logger isn't initialised (an error
     // raised before the evlog plugin ran). Guard on it being present.
-    if (!event?.context.log || !isClientError(error)) return
+    if (!event?.context.log) return
+    // A client that went away mid-request, in a route that did not map it
+    // (`handleError` answers it 499): the client's doing, not a fault here.
+    if (isClientAbort(error)) {
+      useLogger(event).setLevel('warn')
+      return
+    }
+    if (!isClientError(error)) return
     if (isResponseContractError(error)) return
     useLogger(event).setLevel('warn')
   })
