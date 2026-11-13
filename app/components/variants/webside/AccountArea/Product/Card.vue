@@ -270,7 +270,7 @@ const onFavouriteDelete = () => emit('favourite-delete')
              higher layer and stay clickable. -->
         <h3
           class="
-            line-clamp-2 text-sm font-medium text-pretty
+            line-clamp-2 text-sm font-medium text-pretty wrap-anywhere
             md:text-base
           "
         >

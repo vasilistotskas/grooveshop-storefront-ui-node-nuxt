@@ -8,6 +8,9 @@
  * Laid out as a STATEMENT — the promise on the left, the one action on
  * the right — like `cta_banner`, so the two conversion bands read as
  * the same kind of thing and neither is a centred icon over a heading.
+ *
+ * A page that draws the band draws no second form: `data-newsletter-section`
+ * hides the footer's (`main.css`, "One newsletter form a page").
  */
 import type { FormSubmitEvent } from '@nuxt/ui'
 
@@ -17,6 +20,17 @@ withDefaults(defineProps<{
   placeholder?: string
   buttonText?: string
   surface?: 'default' | 'muted'
+  /**
+   * The heading's colour: the theme's heading colour, or its accent (the
+   * token the hero's accent line paints with). The heading is large text
+   * (24px and up), so AA asks 3:1: the theme's contrast rules check the
+   * accent against that on both grounds in both designs
+   * (`themeContrastRulesFor`: `accent-light` / `accent-dark` on the page,
+   * `accent-muted-light` / `accent-muted-dark` on the muted ground). They
+   * are warnings: the theme panel lists a failing one with a Fix, and
+   * nothing stops or flags a publish for it.
+   */
+  headingColor?: 'accent'
 }>(), {
   surface: 'muted',
 })
@@ -44,6 +58,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
   <PageSectionBand
     v-if="available"
     :surface="surface"
+    data-newsletter-section
   >
     <template #header>
       <div
@@ -56,9 +71,12 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
           <h2
             class="
               font-display text-2xl font-semibold tracking-tight text-balance
-              wrap-break-word text-highlighted
+              wrap-break-word
               md:text-3xl
             "
+            :class="headingColor === 'accent' ? 'text-accent' : `
+              text-highlighted
+            `"
           >
             {{ heading || t('heading') }}
           </h2>

@@ -6,10 +6,6 @@ const props = defineProps({
     type: Array as PropType<ProductImage[]>,
     required: true,
   },
-  initialIndex: {
-    type: Number,
-    default: 0,
-  },
   /** The name the page shows, which each photograph's alt text falls back to. */
   productName: {
     type: String,
@@ -18,12 +14,15 @@ const props = defineProps({
 })
 
 const modelValue = defineModel<boolean>({ required: true })
+/** The photograph shown is the gallery's own: the viewer opens on it, and the gallery is on whichever one the viewer closes on. */
+const activeIndex = defineModel<number>('index', { required: true })
 
 const { t } = useStoreI18n('components/variants/webside/Product/ImageModal')
 const img = useMediaStreamImage()
 const altOf = useProductImageAlt(() => props.images, () => props.productName)
 
-const activeIndex = ref(props.initialIndex)
+/** Where the carousel opens. Embla reads it once; bound to `activeIndex`, every move would re-initialise it. */
+const startIndex = activeIndex.value
 const carousel = useTemplateRef('carousel')
 const imageContainerRef = ref<HTMLElement | null>(null)
 
@@ -67,10 +66,6 @@ const magnifierStyle = computed(() => {
     backgroundPosition: `${bgX}% ${bgY}%`,
     backgroundSize: `${containerWidth.value * zoomLevel}px ${containerHeight.value * zoomLevel}px`,
   }
-})
-
-watch(() => props.initialIndex, (newIndex) => {
-  activeIndex.value = newIndex
 })
 
 watch(activeIndex, (newIndex) => {
@@ -239,7 +234,7 @@ watch(modelValue, (isOpen) => {
               ref="carousel"
               v-slot="{ item, index }"
               :items="images"
-              :start-index="activeIndex"
+              :start-index="startIndex"
               arrows
               :prev="{
                 color: 'neutral',

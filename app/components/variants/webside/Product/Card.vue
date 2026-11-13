@@ -304,7 +304,7 @@ const onFavouriteDelete = () => emit('favourite-delete')
       >
         <h3
           class="
-            line-clamp-2 min-h-12 text-lg leading-snug font-bold
+            line-clamp-2 min-h-12 text-lg leading-snug font-bold wrap-anywhere
             text-neutral-950 transition-colors
             group-hover/link:text-primary-600
             @max-3xs/card:min-h-10 @max-3xs/card:text-sm

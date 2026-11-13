@@ -1,5 +1,5 @@
 {
-  "hash": "be82b2cbac6b4282",
+  "hash": "31955c11cc7941c1",
   "blocks": [
     {
       "type": "about_content",
@@ -889,6 +889,12 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "phoneLayout": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
           }
         },
         "required": [
@@ -5682,6 +5688,12 @@
               "default",
               "muted"
             ]
+          },
+          "headingColor": {
+            "type": "string",
+            "enum": [
+              "accent"
+            ]
           }
         },
         "additionalProperties": false
@@ -8987,6 +8999,20 @@
           "id": "accent-dark",
           "foreground": "/colors/dark/accent",
           "background": "/colors/dark/neutral/scale/950",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "accent-muted-light",
+          "foreground": "/colors/light/accent",
+          "background": "#ffffff",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "accent-muted-dark",
+          "foreground": "/colors/dark/accent",
+          "background": "/colors/dark/neutral/scale/900",
           "min": 3,
           "severity": "warning"
         }
