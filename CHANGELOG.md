@@ -1,3 +1,10 @@
+## [3.341.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.0...v3.341.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* **builder:** editor icons in the server render, block-specific help, a computed accent heading, phone footer bars as drawn ([#475](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/475)) ([3a1f941](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3a1f94125ee673ced170fc2ef704c6c3d267d56e))
+
 # [3.341.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.1...v3.341.0) (2026-11-13)
 
 
