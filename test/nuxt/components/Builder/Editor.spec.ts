@@ -1391,7 +1391,7 @@ describe('editing the structure of a page', () => {
       })
       await button(wrapper, 'Μετακίνηση κάτω').trigger('click')
       await saveNow()
-      await vi.waitFor(() => expect(document.body.textContent).toContain('Η σελίδα αποθηκεύτηκε στο μεταξύ από: Nikos'))
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Αρχική σελίδα: αποθηκεύτηκε στο μεταξύ από: Nikos'))
       return wrapper
     }
 
@@ -1569,6 +1569,36 @@ describe('editing the structure of a page', () => {
 
       expect(colourInput(wrapper, 'Κύριο χρώμα').element.disabled).toBe(true)
       expect(wrapper.get<HTMLButtonElement>('[role="switch"]').element.disabled).toBe(true)
+    })
+
+    // Two people changing the theme: it is saved against the revision it
+    // was read at, like a page, so the second save is refused and that
+    // person is asked which theme to keep, the theme named.
+    it('asks which theme to keep when someone else saved it in between, and loads theirs', async () => {
+      setTenant({ schemaName: 'webside' })
+      routes(themeDefaultsFor(null))
+      const wrapper = await open('/_builder?panel=theme')
+      const theirs = themeDefaultsFor(null)
+      theirs.colors.light.primary = { source: '#7c3aed', scale: themeScaleFrom('#7c3aed') }
+      api.routes({
+        '/api/builder/documents': [...LIST, row(BUILDER_THEME_DOCUMENT, 'theme')],
+        '/api/builder/presence': NOBODY_ELSE,
+        [THEME_URL]: { ...themeDocument(theirs), draftRevision: 6 },
+        [THEME_DRAFT_URL]: failWith(409, { code: 'revision_conflict', detail: 'x', currentRevision: 6, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-02T11:00:00+02:00' }),
+      })
+
+      await colourInput(wrapper, 'Κύριο χρώμα').setValue('#16a34a')
+      await saveNow()
+
+      expect(api.callsTo(THEME_DRAFT_URL).at(-1)!.options.headers).toEqual({ 'If-Match': '2' })
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Θέμα: χρώματα, γωνίες, γραμματοσειρές: αποθηκεύτηκε στο μεταξύ από: Nikos'))
+      const loadTheirs = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(item => item.textContent?.trim() === 'Φόρτωσε την αποθηκευμένη')
+      await vi.waitFor(() => expect(loadTheirs()?.disabled).toBe(false))
+      loadTheirs()!.click()
+      await flushPromises()
+
+      expect(colourInput(wrapper, 'Κύριο χρώμα').element.value).toBe('#7c3aed')
+      expect(useBuilderAutosaveStore().stateOf(BUILDER_THEME_DOCUMENT)).toBe('saved')
     })
   })
 })

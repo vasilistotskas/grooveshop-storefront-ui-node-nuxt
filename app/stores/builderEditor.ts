@@ -90,9 +90,19 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
   const theme = computed(() => opened.value[BUILDER_THEME_DOCUMENT])
 
   /**
-   * Opens the document `key`, the store's section groups and its theme. The list is
-   * read again each time, so a page another editor made appears; a working
-   * copy already open is kept as it is.
+   * The documents the editor works on with the page `key`: the page, the
+   * section groups as the outline lists them, then the theme. What `open`
+   * opens, what the Publish dialog offers and what presence reports.
+   */
+  function documentsWith(key: string): string[] {
+    const themeKeys = documents.value.some(document => document.key === BUILDER_THEME_DOCUMENT) ? [BUILDER_THEME_DOCUMENT] : []
+    return [key, ...groups.value.map(group => group.key), ...themeKeys]
+  }
+
+  /**
+   * Opens the document `key` and those it is worked on with
+   * (`documentsWith`). The list is read again each time, so a page another
+   * editor made appears; a working copy already open is kept as it is.
    */
   async function open(key: string): Promise<void> {
     status.value = 'loading'
@@ -102,8 +112,7 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
         status.value = 'notFound'
         return
       }
-      const themeKeys = documents.value.some(document => document.key === BUILDER_THEME_DOCUMENT) ? [BUILDER_THEME_DOCUMENT] : []
-      const wanted = [key, ...groups.value.map(group => group.key), ...themeKeys].filter(wantedKey => !opened.value[wantedKey])
+      const wanted = documentsWith(key).filter(wantedKey => !opened.value[wantedKey])
       const fetched = await Promise.all(wanted.map(async wantedKey => [wantedKey, await read(wantedKey)] as const))
       const readable = fetched.filter((entry): entry is readonly [string, BuilderEditorDocument] => entry[1] !== undefined)
       if (readable.length < fetched.length) {
@@ -235,6 +244,7 @@ export const useBuilderEditorStore = defineStore('builderEditor', () => {
     pages,
     groups,
     theme,
+    documentsWith,
     canUndo,
     canRedo,
     open,

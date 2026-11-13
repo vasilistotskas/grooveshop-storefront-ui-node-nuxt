@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { createPinia, setActivePinia } from 'pinia'
+import type { Pinia } from 'pinia'
 import BuilderPresenceNotice from '~/components/Builder/PresenceNotice.vue'
 import { useBuilderPresenceStore } from '~/stores/builderPresence'
 import { failWith } from '~~/test/helpers/api'
@@ -76,6 +77,51 @@ describe('the presence notice', () => {
 
     expect(wrapper.find('[role="status"]').exists()).toBe(false)
     expect(useBuilderPresenceStore().others).toEqual({})
+  })
+
+  // The store has a header, a footer and a theme: the editor opens all three
+  // with the page (`documentsWith`), so the heartbeat names them, and the
+  // notice names each as the outline and the Publish dialog do.
+  describe('with the documents the page is edited with', () => {
+    const listed = (key: string, kind: DocumentList['kind']): DocumentList => ({ key, kind, draftRevision: 2, updatedAt: '2026-11-02T10:00:00+02:00', updatedBy: null, publishedVersion: 1, hasUnpublishedChanges: false })
+
+    // The component reads the app's Pinia, not the one the file's beforeEach makes active.
+    const editorStore = () => useBuilderEditorStore(useNuxtApp().$pinia as Pinia)
+
+    beforeEach(() => {
+      editorStore().documents = [
+        listed('template:home', 'template'),
+        listed('group:header', 'group'),
+        listed('group:footer', 'group'),
+        listed(BUILDER_THEME_DOCUMENT, 'theme'),
+      ]
+    })
+
+    afterEach(() => {
+      editorStore().documents = []
+    })
+
+    it('beats with the page, its groups and the theme', async () => {
+      api.routes({ '/api/builder/presence': { documents: {} } })
+
+      await mountSuspended(BuilderPresenceNotice, { route: false })
+      await flushPromises()
+
+      expect(api.callsTo('/api/builder/presence')[0]!.options).toMatchObject({ body: { documents: ['template:home', 'group:header', 'group:footer', BUILDER_THEME_DOCUMENT] } })
+    })
+
+    it('names the theme and a section group by what they are, not by an address', async () => {
+      api.routes({ '/api/builder/presence': { documents: { [BUILDER_THEME_DOCUMENT]: [entry(9, 'Nikos')], 'group:footer': [entry(11, 'Eleni')] } } })
+
+      const wrapper = await mountSuspended(BuilderPresenceNotice, { route: false })
+      await flushPromises()
+
+      const lines = wrapper.findAll('[role="status"] li').map(line => line.text())
+      expect(lines).toEqual([
+        'Eleni επεξεργάζεται: Υποσέλιδο, σε κάθε σελίδα',
+        'Nikos επεξεργάζεται: Θέμα: χρώματα, γωνίες, γραμματοσειρές',
+      ])
+    })
   })
 
   it('lets go of the documents when the editor is left', async () => {

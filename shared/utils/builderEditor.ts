@@ -1,8 +1,8 @@
 import { splitLocale } from '~~/shared/i18n/localeFromPath'
 import { isStaticLayoutPageType, STATIC_LAYOUT_ROUTES } from './staticLayoutRoutes'
-import { BUILDER_CANVAS_QUERY, BUILDER_EDITOR_ROUTE, BUILDER_SHARE_PAGE_QUERY, BUILDER_SHARE_ROUTE } from '../constants/builderEditor'
+import { BUILDER_CANVAS_QUERY, BUILDER_EDITOR_GROUPS, BUILDER_EDITOR_ROUTE, BUILDER_SHARE_PAGE_QUERY, BUILDER_SHARE_ROUTE } from '../constants/builderEditor'
 import type { BuilderDocumentKind } from '../types/builder'
-import type { BuilderSurface } from '../types/builderEditor'
+import type { BuilderEditorGroup, BuilderSurface } from '../types/builderEditor'
 
 /**
  * Whether a path is the page editor's own page, in any language
@@ -34,6 +34,11 @@ export function builderSharePath(token: string, page: string): string {
 export function parseBuilderDocumentKey(key: string): { kind: BuilderDocumentKind, name?: string } {
   const [kind, name] = key.split(':', 2) as [BuilderDocumentKind, string | undefined]
   return name === undefined ? { kind } : { kind, name }
+}
+
+/** Whether `name` is a section group the editor shows (`BUILDER_EDITOR_GROUPS`), as a `group:<name>` key names it. */
+export function isBuilderEditorGroup(name: string): name is BuilderEditorGroup {
+  return (BUILDER_EDITOR_GROUPS as readonly string[]).includes(name)
 }
 
 /** Whether a document key is a page the store draws on its own: a page it made, or a template. */

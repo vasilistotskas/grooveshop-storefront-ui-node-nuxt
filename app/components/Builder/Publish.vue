@@ -23,7 +23,7 @@ import type { CalendarDateTime } from '@internationalized/date'
  * they saw them.
  */
 const { t, locale } = useStoreI18n('components/Builder/Publish')
-const { documentLabel, groupLabel, contrastRuleLabel } = useBuilderLabels()
+const { documentLabel, contrastRuleLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
 const toast = useToast()
@@ -57,8 +57,8 @@ let checks = 0
 /** The picks the last check was asked for. */
 let checkedPicks = ''
 
-/** The documents this view publishes: the page, then its groups, as the outline lists them, then the theme. */
-const keys = computed(() => [documentKey.value, ...store.groups.map(({ key }) => key), BUILDER_THEME_DOCUMENT].filter(key => store.opened[key]))
+/** The documents this view publishes: the page, then its groups, as the outline lists them, then the theme (`documentsWith`). */
+const keys = computed(() => store.documentsWith(documentKey.value).filter(key => store.opened[key]))
 
 /** Whether a document has anything to publish: changes Django holds as unpublished, or changes not saved yet. */
 function changed(key: string): boolean {
@@ -67,11 +67,6 @@ function changed(key: string): boolean {
 }
 
 const anyChanged = computed(() => keys.value.some(changed))
-
-function labelOf(key: string): string {
-  const group = store.groups.find(entry => entry.key === key)?.group
-  return group ? groupLabel(group) : documentLabel(key)
-}
 
 /**
  * The theme's contrast rules that fail as warnings, while the theme is
@@ -89,7 +84,7 @@ const themeWarnings = computed(() => {
 
 const items = computed(() => keys.value.map(key => ({
   value: key,
-  label: labelOf(key),
+  label: documentLabel(key),
   description: changed(key) ? t('changed') : t('unchanged'),
   disabled: !changed(key),
 })))
@@ -362,7 +357,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'
             variant="subtle"
             icon="i-lucide-cloud-off"
             :title="t('unsaved.title')"
-            :description="t('unsaved.description', { documents: unsaved.map(labelOf).join(', ') })"
+            :description="t('unsaved.description', { documents: unsaved.map(documentLabel).join(', ') })"
           />
           <UAlert
             v-if="problems.length"
@@ -382,7 +377,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'
                     <span
                       v-if="problem.document"
                       class="font-medium"
-                    >{{ labelOf(problem.document) }}: </span>{{ problem.message }}
+                    >{{ documentLabel(problem.document) }}: </span>{{ problem.message }}
                   </span>
                   <UButton
                     v-if="showable(problem)"
@@ -444,7 +439,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'
             :actions="[{ label: t('schedules.acknowledge'), color: 'error', variant: 'outline', size: 'xs', loading: acting === schedule.id, onClick: () => acknowledge(schedule) }]"
           >
             <template #description>
-              <p>{{ schedule.documents.map(labelOf).join(', ') }}</p>
+              <p>{{ schedule.documents.map(documentLabel).join(', ') }}</p>
               <ul class="mt-1 list-disc ps-4">
                 <li
                   v-for="(problem, index) in schedule.failure ?? []"
@@ -453,7 +448,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'
                   <span
                     v-if="problem.document"
                     class="font-medium"
-                  >{{ labelOf(problem.document) }}: </span>{{ problem.message }}
+                  >{{ documentLabel(problem.document) }}: </span>{{ problem.message }}
                 </li>
               </ul>
             </template>
@@ -469,7 +464,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'
                   {{ formatTime(schedule.scheduledFor) }}
                 </p>
                 <p class="text-muted">
-                  {{ schedule.documents.map(labelOf).join(', ') }}
+                  {{ schedule.documents.map(documentLabel).join(', ') }}
                 </p>
                 <p
                   v-if="schedule.note || schedule.scheduledBy"

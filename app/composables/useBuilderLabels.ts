@@ -67,10 +67,16 @@ export function useBuilderLabels() {
     featureLabel: (feature: StoreFeatureName) => read(`features.${feature}`),
     /** What a contrast rule of the theme is called, by its id (`themeContrastRulesFor`): the theme panel's rows and the Publish dialog's warning. */
     contrastRuleLabel: (id: string) => read(`contrastRules.${id}`),
-    /** What a page document is called: a page type by its name, a page the store made by its address. */
+    /**
+     * What a document is called, wherever one is named (the publish dialog
+     * and its schedules, presence, share links, media in use): the theme and
+     * a section group as the outline names them, a page type by its name, a
+     * page the store made by its address.
+     */
     documentLabel: (key: string): string => {
       const { kind, name = key } = parseBuilderDocumentKey(key)
       if (kind === 'theme') return read('documents.theme')
+      if (kind === 'group' && isBuilderEditorGroup(name)) return read(`groups.${name}`)
       return kind === 'template' && isStaticLayoutPageType(name) ? read(`templates.${name}`) : pagePath(name)
     },
     /** What a setting is called, by its path (`prompt.title`): one name per setting, whichever block has it. */
