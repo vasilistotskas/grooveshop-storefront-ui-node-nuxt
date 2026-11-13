@@ -8,7 +8,7 @@ exports[`webside design render > announcement bar with a promo code 1`] = `
     <div data-slot="center" class="flex items-center min-w-0 justify-center gap-3">
       <!--v-if-->
       <div data-slot="title" class="truncate flex min-w-0 items-center gap-3 text-sm/5 font-normal max-sm:text-[0.8125rem] text-highlighted"><span class="min-w-0 truncate max-sm:hidden">Δωρεάν αποστολή από 50 €</span>
-        <nuxtlink to="/offers" class="min-w-0 truncate font-bold sm:hidden">Δωρεάν αποστολή 50 €</nuxtlink><a href="/offers" class="shrink-0 font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-secondary max-sm:hidden text-accent">Λεπτομέρειες</a><span class="shrink-0 rounded-md bg-default px-1.5 py-0.5 font-mono text-xs font-bold tracking-[0.04em] text-highlighted">WELCOME10</span>
+        <nuxtlink to="/offers" class="min-w-0 truncate font-bold sm:hidden">Δωρεάν αποστολή 50 €</nuxtlink><a href="/offers" class="inline-flex min-h-10 shrink-0 items-center font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-secondary max-sm:hidden text-accent">Λεπτομέρειες</a><span class="shrink-0 rounded-md bg-default px-1.5 py-0.5 font-mono text-xs font-bold tracking-[0.04em] text-highlighted">WELCOME10</span>
       </div>
       <!--v-if-->
     </div>
@@ -30,11 +30,10 @@ exports[`webside design render > auth frame > is what the default layout draws a
         <div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
           <div id="navbar-banner"></div>
           <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-            <div class="flex gap-2 py-3 md:flex md:py-4">
+            <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
               <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
                 <!--v-if-->
-                <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+                <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
                 <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
@@ -242,11 +241,10 @@ exports[`webside design render > default layout with the webside schema 1`] = `
         <div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
           <div id="navbar-banner"></div>
           <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-            <div class="flex gap-2 py-3 md:flex md:py-4">
+            <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
               <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
                 <!--v-if-->
-                <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+                <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
                 <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
@@ -781,11 +779,10 @@ exports[`webside design render > navbar 1`] = `
 "<div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
   <div id="navbar-banner"></div>
   <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-    <div class="flex gap-2 py-3 md:flex md:py-4">
+    <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
       <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
         <!--v-if-->
-        <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+        <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
             <!--v-if--><span class="sr-only">Webside</span>
           </a></div>
         <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
@@ -1243,11 +1240,10 @@ exports[`webside design render > signed in > account chrome 1`] = `
         <div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
           <div id="navbar-banner"></div>
           <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
-            <div class="flex gap-2 py-3 md:flex md:py-4">
+            <div class="flex gap-2 py-1.5 md:flex md:py-3.5">
               <div class="relative flex w-full items-center gap-4 lg:grid lg:grid-cols-[1fr_2fr_1fr]">
                 <!--v-if-->
-                <div class="grid justify-items-start"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-center
-                    lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
+                <div class="grid justify-items-start max-lg:flex-1"><a href="/" class="w-full flex items-center gap-2 overflow-hidden text-base font-bold md:w-auto" aria-label="Webside"><img width="145" height="44" data-nuxt-img="" srcset="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png 1x, /_ipx/q_90&amp;fit_inside&amp;s_290x88/img/logo-navbar.png 2x" style="object-fit: contain; width: 145px; height: 44px;" class="object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
                 <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">

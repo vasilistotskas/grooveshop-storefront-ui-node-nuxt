@@ -88,7 +88,7 @@ const link = computed(() => (bar.value?.link ? linkTo(bar.value.link) : undefine
         v-if="link"
         :to="link"
         class="
-          shrink-0 font-semibold
+          inline-flex min-h-10 shrink-0 items-center font-semibold
           hover:underline
           focus-visible:outline-2 focus-visible:outline-secondary
         "

@@ -54,10 +54,12 @@ onMounted(() => {
         lg:px-8
       "
     >
+      <!-- 56px on a phone and 72px on a desk, as webside's board draws
+           the bar: a 44px row of targets and its padding. -->
       <div
         class="
-          flex gap-2 py-3
-          md:flex md:py-4
+          flex gap-2 py-1.5
+          md:flex md:py-3.5
         "
       >
         <div
@@ -78,7 +80,14 @@ onMounted(() => {
                  with two h1s, and pages without one advertised the store
                  name as their h1. Each page now owns its single h1
                  (PageTitle, or its own markup). -->
-            <div class="grid justify-items-start">
+            <!-- Left on a phone, beside the menu button, where the board
+                 puts it; the actions take the far end. -->
+            <div
+              class="
+                grid justify-items-start
+                max-lg:flex-1
+              "
+            >
               <Anchor
                 :to="'index'"
                 :aria-label="appTitle"
@@ -91,10 +100,7 @@ onMounted(() => {
                   :width="145"
                   :height="44"
                   priority
-                  img-class="
-                    object-center
-                    lg:object-left
-                  "
+                  img-class="object-left"
                 />
                 <span class="sr-only">{{ appTitle }}</span>
               </Anchor>
