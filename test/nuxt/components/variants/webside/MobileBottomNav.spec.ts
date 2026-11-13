@@ -72,7 +72,7 @@ describe('webside MobileBottomNav', () => {
   })
 
   // The classes are the contract: happy-dom lays nothing out. Five tabs
-  // in equal columns (64px at 320), each label on one line in its column.
+  // in equal columns (64px at 320), each label (10px at 320, 11px from 360) on one line in its column.
   it('shares the bar\'s width between its tabs in equal columns', async () => {
     const wrapper = await mountNav()
 
@@ -82,7 +82,7 @@ describe('webside MobileBottomNav', () => {
       expect(item.classes()).toEqual(expect.arrayContaining(['min-w-0', 'flex-1']))
       expect(item.classes()).not.toContain('w-full')
       expect(item.get('[data-slot="link"]').classes()).toContain('px-0')
-      expect(item.get('[data-slot="linkLabel"]').classes()).toEqual(expect.arrayContaining(['tracking-tight', 'text-[10px]']))
+      expect(item.get('[data-slot="linkLabel"]').classes()).toEqual(expect.arrayContaining(['tracking-tight', 'text-[0.625rem]', 'min-[22.5rem]:text-[0.6875rem]']))
     }
   })
 

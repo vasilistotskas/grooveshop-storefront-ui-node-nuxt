@@ -1,12 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
-import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import WebsideProductCard from '~/components/variants/webside/Product/Card.vue'
 import { makeProduct } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
-
-// The browser shares: the share button is drawn (happy-dom has no Web Share).
-mockNuxtImport('useShare', () => () => ({ share: () => Promise.resolve(), isSupported: ref(true) }))
 
 /**
  * The webside card names a product through `extractTranslated`, so
@@ -111,10 +107,10 @@ describe('webside Product/Card in a narrow container', () => {
   })
 
   // The price is one unbreakable word («783,66 €»): squeezed beside the
-  // buy button it ran under it on a 122px card. The row wraps instead, the
-  // price column keeps its width (no `min-w-0`) from a zero basis, so the
-  // price alone decides when the button moves to a line of its own; below
-  // a 138px card it always does, the full width of the card.
+  // buy button it would run under it on a 122px card. The row wraps
+  // instead, and the price column keeps its own width (no `min-w-0`), so
+  // the price alone decides when the button moves to a line of its own;
+  // below a 138px card it always does, the full width of the card.
   it('never runs the price under the buy button: the button takes a line of its own where both do not fit', async () => {
     const wrapper = await mountCard()
     const buy = await vi.waitFor(() => {
@@ -124,17 +120,17 @@ describe('webside Product/Card in a narrow container', () => {
     })
 
     const row = buy.element.parentElement!
-    expect([...row.classList]).toEqual(expect.arrayContaining(['@max-3xs/card:flex-row', '@max-3xs/card:flex-wrap']))
+    expect([...row.classList]).toEqual(expect.arrayContaining(['flex', 'flex-wrap', 'justify-between']))
     const price = row.firstElementChild!
     expect(price.textContent).toContain('€')
-    expect([...price.classList]).toEqual(expect.arrayContaining(['@max-3xs/card:basis-0', '@max-3xs/card:grow', '@max-[8.625rem]/card:basis-full']))
+    expect([...price.classList]).toContain('@max-[8.625rem]/card:basis-full')
     expect([...price.classList]).not.toContain('min-w-0')
-    expect(buy.classes()).toEqual(expect.arrayContaining(['@max-3xs/card:shrink-0', '@max-3xs/card:ml-auto', '@max-[8.625rem]/card:w-full']))
+    expect(buy.classes()).toEqual(expect.arrayContaining(['shrink-0', 'ml-auto', '@max-[8.625rem]/card:w-full']))
   })
 
-  // The stars (78px) and «2,5 · 1» (33px) do not share a 102px row: the
-  // figures wrap whole to a second line the 20px row clips, never split.
-  it('keeps the rating on one line: figures that do not fit beside the stars are clipped whole', async () => {
+  // The board's card: the rating under the name on a desk, none in a
+  // phone's narrow card.
+  it('quotes the rating under the name, and leaves it out of a phone\'s narrow card', async () => {
     setTenantFeatures({ productReviews: true })
     const wrapper = await mountSuspended(WebsideProductCard, {
       props: { product: makeProduct({ id: 9, reviewAverage: 5, reviewCount: 1 }) },
@@ -144,24 +140,24 @@ describe('webside Product/Card in a narrow container', () => {
 
     const rating = wrapper.get('div[role="img"]')
     expect(rating.text()).toContain('2,5 · 1')
-    expect(rating.classes()).toEqual(expect.arrayContaining(['h-5', '@max-3xs/card:flex-wrap', '@max-3xs/card:overflow-hidden', '@max-3xs/card:*:min-h-5']))
+    expect(rating.classes()).toContain('@max-3xs/card:hidden')
   })
 
   // «Μόνο 12 απέμειναν» is 106px at 12px: two lines over the picture's
   // foot on a 122px card. Below 138px it is set at 10px (90px), on one line.
-  it('keeps the stock badge on one line on the narrowest card', async () => {
+  it('keeps the stock pill on one line on the narrowest card, at the picture\'s foot', async () => {
     const wrapper = await mountSuspended(WebsideProductCard, {
       props: { product: makeProduct({ id: 10, stock: 2, lowStockThreshold: 5 }) },
       global: { stubs: { ImgWithFallback: true } },
       route: false,
     })
 
-    const badge = wrapper.findAll('span').find(span => span.text() === 'Μόνο 2 απέμειναν')!
-    expect(badge.classes()).toEqual(expect.arrayContaining(['@max-[8.625rem]/card:text-[10px]', '@max-[8.625rem]/card:px-1.5']))
-    expect(badge.element.parentElement!.classList).toContain('@max-3xs/card:inset-x-2')
+    const pill = wrapper.findAll('span').find(span => span.text() === 'Μόνο 2 απέμειναν')!
+    expect(pill.classes()).toEqual(expect.arrayContaining(['rounded-full', '@max-[8.625rem]/card:text-[10px]', '@max-[8.625rem]/card:px-1.5']))
+    expect(pill.element.parentElement!.classList).toContain('@max-3xs/card:bottom-1.5')
   })
 
-  it('fits the sold-out card\'s restock button to a phone\'s narrow card only', async () => {
+  it('offers the restock alert beside the price when sold out, sized for a phone\'s narrow card', async () => {
     setTenantFeatures({ productAlerts: true })
     const wrapper = await mountSuspended(WebsideProductCard, {
       props: { product: makeProduct({ id: 8, stock: 0 }) },
@@ -175,24 +171,25 @@ describe('webside Product/Card in a narrow container', () => {
       return found!
     })
     const queries = restock.classes().filter(name => name.startsWith('@'))
-    expect(queries).toEqual(['@max-3xs/card:px-2', '@max-3xs/card:text-sm'])
+    // Its own phone sizing, and the card's: the whole row below a 138px card.
+    expect(queries).toEqual(expect.arrayContaining(['@max-3xs/card:px-2', '@max-3xs/card:text-sm', '@max-[8.625rem]/card:w-full']))
     // A 44px target on a phone, here and on the product page.
     expect(restock.classes()).toContain('max-sm:min-h-11')
+    expect(wrapper.text()).toContain('Εξαντλήθηκε')
   })
 
-  it('drops the share button and the price caption when compact', async () => {
+  it('draws no share button and no price caption', async () => {
     const wrapper = await mountCard()
 
-    const caption = wrapper.findAll('span').find(span => span.text() === 'Τελική Τιμή')!
-    expect(caption.classes()).toContain('@max-3xs/card:hidden')
-    expect(wrapper.get('button[aria-label="Κοινοποίηση"]').classes()).toContain('@max-3xs/card:hidden')
+    expect(wrapper.find('button[aria-label="Κοινοποίηση"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Τελική Τιμή')
   })
 
-  // WCAG 2.5.8 and the phone's 44px rule: the 32px corner buttons get a
-  // 44px hit area from a 6px ::after on every side.
-  it('gives its 32px corner buttons a 44px hit area', async () => {
+  // WCAG 2.5.8 and the phone's 44px rule: the heart is a round 44px
+  // button, and a 32px one in a phone's narrow card with a 44px hit area
+  // from a 6px ::after on every side.
+  it('draws the heart as a round 44px button, its hit area 44px when compact', async () => {
     const wrapper = await mountCard()
-    expect(wrapper.get('button[aria-label="Κοινοποίηση"]').classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-1.5']))
     const favourite = await vi.waitFor(() => {
       // The heart is the card's one toggle button: its name is the product's
       // (Button/Product/AddToFavourite), its state `aria-pressed`.
@@ -201,6 +198,6 @@ describe('webside Product/Card in a narrow container', () => {
       return found!
     })
 
-    expect(favourite.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-1.5']))
+    expect(favourite.classes()).toEqual(expect.arrayContaining(['size-11', 'rounded-full', '@max-3xs/card:size-8', 'after:absolute', 'after:-inset-1.5']))
   })
 })

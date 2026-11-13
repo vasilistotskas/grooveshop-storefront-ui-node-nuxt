@@ -43,14 +43,17 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
     freeShippingInfo.mockImplementation(() => ({ data: computed(() => freeShipping.value) }))
   })
 
-  it('shows the operator\'s text in ink by default', async () => {
+  // The platform's strip is ink by default; webside's is the accent's pale
+  // tint with the heading colour on it, as its board draws it.
+  it('shows the text of the operator in the own look of the design by default', async () => {
     setting.value = bar({})
 
     const wrapper = await mountBar()
     const banner = wrapper.findComponent({ name: 'UBanner' })
 
     expect(banner.props('title')).toBe('Δωρεάν αποστολή από 50 €')
-    expect(banner.props('color')).toBe('neutral')
+    expect(banner.props('color')).toBe(tree === 'webside' ? undefined : 'neutral')
+    expect(wrapper.get('.banner').classes().includes('bg-(--ui-secondary-soft)')).toBe(tree === 'webside')
   })
 
   // The classes are the contract: the close button is a 44px target on a
@@ -61,7 +64,7 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
 
     const wrapper = await mountBar()
 
-    expect(wrapper.get('[data-slot="close"]').classes()).toEqual(expect.arrayContaining(['relative', 'min-w-11', 'sm:min-w-0', 'after:absolute', 'after:-inset-y-1.5']))
+    expect(wrapper.get('[data-slot="close"]').classes()).toEqual(expect.arrayContaining(['relative', 'min-w-11', 'after:absolute', 'after:-inset-y-1.5']))
   })
 
   it('keeps a colour the operator picked', async () => {
@@ -220,5 +223,47 @@ describe.each(trees(ChromeAnnouncementBar, WebsideAnnouncementBar))('$tree Chrom
     const wrapper = await mountBar()
 
     expect(wrapper.findComponent({ name: 'UBanner' }).exists()).toBe(false)
+  })
+})
+
+/**
+ * webside's own strip: the phone's wording set in bold as the sentence's lead
+ * (a phone shows it alone), and the bar's link as a visible «Λεπτομέρειες»
+ * after the sentence rather than the whole bar.
+ */
+describe('webside Chrome/AnnouncementBar, its own look', () => {
+  beforeEach(() => {
+    setting.value = null
+    dispatchCutoff.value = '15:00'
+    freeShipping.value = null
+    freeShippingInfo.mockReset()
+    freeShippingInfo.mockImplementation(() => ({ data: computed(() => freeShipping.value) }))
+  })
+
+  it('sets the phone\'s wording in bold as the lead of the sentence it opens', async () => {
+    setting.value = bar({ text: 'Δωρεάν αποστολή από 50 € · Έως {dispatchCutoff} φεύγει σήμερα', shortText: 'Δωρεάν αποστολή από 50 €', i18n: {} })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    const sentence = wrapper.get('[data-slot="title"] > span')
+    expect(sentence.get('strong').text()).toBe('Δωρεάν αποστολή από 50 €')
+    expect(sentence.text()).toBe('Δωρεάν αποστολή από 50 € · Έως 15:00 φεύγει σήμερα')
+  })
+
+  it('links with a visible «Λεπτομέρειες», and the bar itself is no link', async () => {
+    setting.value = bar({ link: '/info/shipping' })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    expect(wrapper.findComponent({ name: 'UBanner' }).props('to')).toBeUndefined()
+    expect(wrapper.get('a[href="/info/shipping"]').text()).toBe('Λεπτομέρειες')
+  })
+
+  it('keeps a colour the operator picked, as a solid fill', async () => {
+    setting.value = bar({ color: 'secondary' })
+
+    const wrapper = await mountSuspended(WebsideAnnouncementBar, { route: false })
+
+    expect(wrapper.get('.banner').classes()).not.toContain('bg-(--ui-secondary-soft)')
   })
 })

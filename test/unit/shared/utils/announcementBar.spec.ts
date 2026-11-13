@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  announcementLead,
   announcementShortText,
   announcementText,
   announcementTexts,
@@ -64,5 +65,20 @@ describe('announcement tokens', () => {
     expect(missingAnnouncementTokens(texts, { dispatchCutoff: '15:00' })).toEqual(['freeShippingThreshold'])
     expect(missingAnnouncementTokens(texts, { dispatchCutoff: '15:00', freeShippingThreshold: '39,90 €' })).toEqual([])
     expect(missingAnnouncementTokens(['No figures {here}'], {})).toEqual([])
+  })
+})
+
+describe('announcementLead', () => {
+  it('splits the sentence at the wording for a phone it opens with', () => {
+    expect(announcementLead('Δωρεάν μεταφορικά από 39,90 € · Έως 15:00', 'Δωρεάν μεταφορικά από 39,90 €'))
+      .toEqual({ text: 'Δωρεάν μεταφορικά από 39,90 €', rest: ' · Έως 15:00' })
+  })
+
+  it.each([
+    ['no phone wording', 'Δωρεάν μεταφορικά', ''],
+    ['the same wording', 'Δωρεάν μεταφορικά', 'Δωρεάν μεταφορικά'],
+    ['a phone wording it does not open with', 'Έως 15:00 · Δωρεάν μεταφορικά', 'Δωρεάν μεταφορικά'],
+  ])('has no lead with %s', (_case, text, shortText) => {
+    expect(announcementLead(text, shortText)).toBeNull()
   })
 })

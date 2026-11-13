@@ -59,11 +59,11 @@ onMounted(() => {
         root: `
           fixed inset-x-0 bottom-(--dock-edge) z-50 block
           h-[calc(var(--dock-tabbar-height)+var(--dock-inset)-var(--dock-edge))]
-          w-full border-t border-primary-200 bg-primary-50/90
-          pb-[calc(var(--dock-inset)-var(--dock-edge))] backdrop-blur-md
-          transition-transform duration-200
+          w-full border-t border-neutral-200 bg-white
+          pb-[calc(var(--dock-inset)-var(--dock-edge))]
+          shadow-[0_-6px_18px_rgb(0_0_0/0.08)] transition-transform duration-200
           motion-reduce:transition-none
-          dark:border-primary-700 dark:bg-primary-900/90
+          dark:border-neutral-800 dark:bg-neutral-900
           [&>div]:h-full
           ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}
         `,
@@ -76,15 +76,20 @@ onMounted(() => {
         item: 'flex min-w-0 flex-1 items-center py-0',
         link: `
           relative flex min-h-12 w-full flex-col items-center justify-center
-          gap-0.5 px-0
+          gap-0.75 px-0 text-neutral-600
           before:bg-transparent
-          data-active:text-(--ui-secondary)
-          data-active:before:bg-secondary/10
+          data-active:text-accent
+          dark:text-neutral-400
           dark:before:bg-transparent
         `,
-        linkLabel: 'text-[10px] leading-tight font-medium tracking-tight',
-        linkLeadingIcon: 'size-6',
-        linkLeadingAvatar: 'size-6',
+        // 11px from 360px; 10px on a 320 screen, where «Λογαριασμός» at 11px
+        // would outgrow its 64px column.
+        linkLabel: `
+          text-[0.625rem] leading-tight font-semibold tracking-tight
+          min-[22.5rem]:text-[0.6875rem]
+        `,
+        linkLeadingIcon: 'size-5.5 text-current',
+        linkLeadingAvatar: 'size-5.5',
       }"
     />
   </MobileOrTabletOnly>

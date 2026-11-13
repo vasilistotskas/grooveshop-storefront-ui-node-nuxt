@@ -10,6 +10,7 @@
  * keeps only its slider.
  */
 const props = defineProps<{
+  eyebrow?: string
   title?: string
   subheading?: string
   ctaText?: string
@@ -22,7 +23,7 @@ const { isMobileOrTablet } = useDevice()
 const linkTo = useLinkTo()
 
 /** Whether the band has anything of its own to draw around the slider: the band draws a call to action only with its link. */
-const banded = computed(() => !!(props.title || props.subheading || (props.ctaText && props.ctaLink)))
+const banded = computed(() => !!(props.eyebrow || props.title || props.subheading || (props.ctaText && props.ctaLink)))
 
 const sliderClass = computed(() => [
   'w-full',
@@ -33,6 +34,7 @@ const sliderClass = computed(() => [
 <template>
   <PageSectionBlogCategoryTiles
     v-if="layout === 'tiles'"
+    :eyebrow="eyebrow"
     :title="title"
     :subheading="subheading"
     :cta-text="ctaText"
@@ -41,6 +43,7 @@ const sliderClass = computed(() => [
   />
   <PageSectionBand
     v-else-if="categories.items.length && banded"
+    :eyebrow="eyebrow"
     :heading="title"
     :subheading="subheading"
     :cta-text="ctaText"

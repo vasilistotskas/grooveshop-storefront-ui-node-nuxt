@@ -60,6 +60,10 @@ export function useAnnouncementBar() {
     bar.value ? fillAnnouncementTokens(announcementShortText(bar.value, locale.value), figures.value) : '',
   )
 
+  // The sentence's lead, when it opens with the phone's wording: what a
+  // design may set in bold, since a phone shows the bar as that alone.
+  const lead = computed(() => announcementLead(text.value, shortText.value))
+
   // Dismissal is remembered against this id, so a merchant re-shows the
   // bar to everyone by changing it. Without one `UBanner` does not
   // persist anything, which is the right default for an unversioned bar.
@@ -67,5 +71,5 @@ export function useAnnouncementBar() {
     bar.value?.dismissible === false ? undefined : bar.value?.id,
   )
 
-  return { bar, text, shortText, bannerId }
+  return { bar, text, shortText, lead, bannerId }
 }
