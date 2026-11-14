@@ -1,3 +1,10 @@
+## [3.341.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.2...v3.341.3) (2026-11-14)
+
+
+### Bug Fixes
+
+* **blog:** a reply's parent and ancestors are parsed as the public author ([#477](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/477)) ([592b61d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/592b61d1a3c45bba6b93cd33c3998b60611fa191)), closes [grooveshop-django-api#680](https://github.com/grooveshop-django-api/issues/680)
+
 ## [3.341.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.1...v3.341.2) (2026-11-13)
 
 
