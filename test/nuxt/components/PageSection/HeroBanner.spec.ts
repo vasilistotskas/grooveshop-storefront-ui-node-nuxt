@@ -72,3 +72,34 @@ describe('PageSection/HeroBanner image', () => {
     expect(wrapper.get('h1').text()).toBe('Καλώς ήρθατε')
   })
 })
+
+describe('PageSection/HeroBanner text colours', () => {
+  beforeEach(() => {
+    device.mobile.value = false
+  })
+
+  // The scheme class is the contract: `dark` switches every token inside the
+  // band (`colorSchemeClass`), so its ground and its copy move together.
+  it('draws a dark band with no image in the dark colour scheme, its copy on the scheme\'s tokens', async () => {
+    const wrapper = await mountBanner({ heading: 'Καλώς ήρθατε', subheading: 'Υπότιτλος', theme: 'dark' })
+
+    expect(wrapper.get('section').classes()).toEqual(expect.arrayContaining(['dark', 'text-default', 'bg-muted']))
+    expect(wrapper.get('h1').classes()).toContain('text-highlighted')
+    expect(wrapper.get('h1').classes()).not.toContain('text-white')
+    expect(wrapper.get('h1 + p').classes()).toContain('text-muted')
+  })
+
+  it('draws white copy over a photograph set to dark, without forcing a scheme', async () => {
+    const wrapper = await mountBanner({ heading: 'Καλώς ήρθατε', image: makeResolvedImage(ART), theme: 'dark' })
+
+    expect(wrapper.get('section').classes()).not.toContain('dark')
+    expect(wrapper.get('h1').classes()).toContain('text-white')
+  })
+
+  it.each(['light', 'auto'] as const)('leaves a %s band with no image in the page\'s colours', async (theme) => {
+    const wrapper = await mountBanner({ heading: 'Καλώς ήρθατε', theme })
+
+    expect(wrapper.get('section').classes()).not.toContain('dark')
+    expect(wrapper.get('h1').classes()).toContain('text-highlighted')
+  })
+})
