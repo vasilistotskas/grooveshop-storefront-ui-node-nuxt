@@ -35,6 +35,7 @@ interface ShopChatFailedTurn {
 /** What a turn tells the widget about the cart, on `done` and on `error`. */
 interface ChatTurnCart {
   cartId?: string
+  // Optional on `error`: a gateway older than this widget sends none there.
   cartMutated?: boolean
   cartTokenRefused?: boolean
 }
@@ -48,6 +49,7 @@ interface ChatErrorEvent extends ChatTurnCart {
 
 interface ChatDoneEvent extends ChatTurnCart {
   conversationId: string
+  cartMutated: boolean
 }
 
 /**
