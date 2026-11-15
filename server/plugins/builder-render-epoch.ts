@@ -19,6 +19,11 @@ import { defineNitroPlugin } from 'nitropack/runtime'
  * Only a render the page cache runs (Nitro gives its event `context.cache`)
  * reads the epoch: two reads of the shared storage per page-cache miss or
  * revalidation, none on a hit, none for a page that is never cached.
+ *
+ * The shared storage being down never fails a render (the page cache itself
+ * renders on when it cannot read): a render whose start cannot be read is not
+ * tracked, and one whose answer cannot be compared answers `no-store`, since a
+ * purge may have landed unseen.
  */
 export default defineNitroPlugin((nitroApp) => {
   /** The store and its epoch as each render started, by the render's event. */
@@ -27,14 +32,31 @@ export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('render:before', async ({ event }) => {
     const host = event.context.tenantHost
     if (!event.context.cache || !host) return
-    started.set(event, { host, epoch: await readBuilderEpoch(host) })
+    const epoch = await epochOf(host)
+    if (epoch !== undefined) started.set(event, { host, epoch })
   })
 
   nitroApp.hooks.hook('render:response', async (response, { event }) => {
     const render = started.get(event)
     if (!render) return
     started.delete(event)
-    if (await readBuilderEpoch(render.host) === render.epoch) return
+    if (await epochOf(render.host) === render.epoch) return
     response.headers = { ...response.headers, 'cache-control': 'no-store' }
   })
 })
+
+/** The store's builder epoch, or `undefined` when the shared storage cannot be read. */
+async function epochOf(host: string): Promise<string | undefined> {
+  try {
+    return await readBuilderEpoch(host)
+  }
+  catch (error) {
+    log.warn({
+      tag: 'builder-epoch',
+      message: 'builder epoch unreadable, the render goes on',
+      host,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return undefined
+  }
+}

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import plugin from '~~/server/plugins/builder-render-epoch'
 import { moveBuilderEpoch } from '~~/server/utils/builderDocumentPurge'
 import { createTestEvent, runNitroPlugin, useStorage } from '~~/test/helpers/nitro'
@@ -58,6 +58,28 @@ describe('server/plugins/builder-render-epoch', () => {
     const response = await render(cachedRender(), () => moveBuilderEpoch(DEMO))
 
     expect(response.headers['cache-control']).toBeUndefined()
+  })
+
+  it('renders on, untracked, when the shared storage cannot be read as it starts', async () => {
+    const getItem = vi.spyOn(useStorage(), 'getItem').mockRejectedValueOnce(new Error('redis down'))
+
+    const response = await render(cachedRender(), () => moveBuilderEpoch(WEBSIDE))
+
+    expect(response.headers['cache-control']).toBeUndefined()
+    getItem.mockRestore()
+  })
+
+  it('answers no-store when the shared storage cannot be read as it answers', async () => {
+    const storage = useStorage()
+    const real = storage.getItem.bind(storage)
+    const getItem = vi.spyOn(storage, 'getItem')
+      .mockImplementationOnce(real)
+      .mockRejectedValueOnce(new Error('redis down'))
+
+    const response = await render(cachedRender())
+
+    expect(response.headers['cache-control']).toBe('no-store')
+    getItem.mockRestore()
   })
 
   it('ignores a render the page cache does not store', async () => {
