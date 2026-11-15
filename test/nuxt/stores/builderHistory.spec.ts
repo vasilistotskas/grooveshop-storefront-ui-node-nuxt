@@ -93,6 +93,34 @@ describe('reading the history', () => {
     expect(history.status).toBe('error')
   })
 
+  // The panel switches documents while older versions of the last one are
+  // still being read: that read, failing late, is not the new one's error,
+  // and does not hold the new one's "Older versions" busy.
+  it('leaves the document switched to alone when an older page of the last one fails', async () => {
+    await openEditor(false)
+    let fail: (error: unknown) => void = () => {}
+    api.routes({
+      [`${url}/versions`]: (_url: string, options?: { query?: { page?: number } }) => options?.query?.page === 2
+        ? new Promise((_resolve, reject) => {
+            fail = reject
+          })
+        : { count: 31, totalPages: 2, results: [version(3), version(2)] },
+      [`/api/builder/documents/${BUILDER_THEME_DOCUMENT}/versions`]: { count: 1, totalPages: 1, results: [version(1)] },
+    })
+    const history = useBuilderHistoryStore()
+    await history.load(HOME)
+
+    const older = history.more()
+    await history.load(BUILDER_THEME_DOCUMENT)
+    expect(history.loadingMore).toBe(false)
+    fail(new Error('Bad Gateway'))
+    await older
+
+    expect(history.status).toBe('ready')
+    expect(history.loadingMore).toBe(false)
+    expect(history.versions.map(({ number }) => number)).toEqual([1])
+  })
+
   it('reads a version as a working copy the canvas can draw', async () => {
     await openEditor(false)
 
@@ -141,6 +169,7 @@ describe('restoring a version', () => {
     const body = { code: 'revision_conflict', detail: 'Someone else changed this document.', currentRevision: 5, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-03T10:05:00+02:00' }
     api.routes({
       [url]: envelope(3, DRAFT, false),
+      [`${url}/versions/2`]: { ...version(2), data: OLD_DRAFT, i18n: {}, refs: {} },
       [`${url}/versions/2/restore`]: failWith(409, body),
     })
 
@@ -155,6 +184,7 @@ describe('restoring a version', () => {
     await openEditor(false)
     api.routes({
       [url]: envelope(3, DRAFT, false),
+      [`${url}/versions/2`]: { ...version(2), data: OLD_DRAFT, i18n: {}, refs: {} },
       [`${url}/versions/2/restore`]: failWith(409, { code: 'revision_conflict' }),
     })
 
@@ -162,5 +192,112 @@ describe('restoring a version', () => {
 
     expect(result).toBe('failed')
     expect(useBuilderAutosaveStore().conflict).toBeUndefined()
+  })
+})
+
+/**
+ * The theme is a document like the page, opened with it: an earlier look is
+ * read for the preview and put back as the draft the theme panel edits and the
+ * canvas draws, and the next change saves against the restored revision.
+ */
+describe('the theme', () => {
+  const THEME_URL = `/api/builder/documents/${BUILDER_THEME_DOCUMENT}`
+  const themeDraft = (accent: string) => {
+    const settings = themeDefaultsFor(null)
+    settings.colors.light.accent = accent
+    return { settings, sections: {}, order: [] }
+  }
+  const themeEnvelope = (draftRevision: number, draft: unknown, hasUnpublishedChanges: boolean): DocumentDetail => ({
+    ...envelope(draftRevision, draft, hasUnpublishedChanges),
+    key: BUILDER_THEME_DOCUMENT,
+    kind: 'theme',
+  })
+  const accentOf = (copy: BuilderWorkingCopy | undefined) => zThemeSettings.parse(copy?.draft.settings).colors.light.accent
+
+  async function openWithTheme(extra: Record<string, unknown> = {}) {
+    api.routes({
+      '/api/builder/documents': [makeBuilderDocumentRow({ key: HOME }), makeBuilderDocumentRow({ key: BUILDER_THEME_DOCUMENT })],
+      [url]: envelope(3, DRAFT, false),
+      [THEME_URL]: themeEnvelope(5, themeDraft('#111111'), false),
+      [`${THEME_URL}/versions/2`]: { ...version(2), data: themeDraft('#222222'), i18n: {}, refs: {} },
+      [`${THEME_URL}/versions/2/restore`]: themeEnvelope(6, themeDraft('#222222'), true),
+      [`${THEME_URL}/draft`]: (_url: string, options: { body: BuilderWorkingCopy }) => themeEnvelope(7, options.body.draft, true),
+      ...extra,
+    })
+    const editor = useBuilderEditorStore()
+    editor.role = 'admin'
+    await editor.open(HOME)
+    return editor
+  }
+
+  it('reads an earlier theme as a copy the preview draws', async () => {
+    await openWithTheme()
+
+    const copy = await useBuilderHistoryStore().read(BUILDER_THEME_DOCUMENT, 2)
+
+    expect(accentOf(copy)).toBe('#222222')
+  })
+
+  it('reads a theme whose colours this build cannot read as one it cannot open', async () => {
+    await openWithTheme({ [`${THEME_URL}/versions/3`]: { ...version(3), data: { settings: { colors: 'old' }, sections: {}, order: [] }, i18n: {}, refs: {} } })
+
+    expect(await useBuilderHistoryStore().read(BUILDER_THEME_DOCUMENT, 3)).toBeUndefined()
+  })
+
+  it('puts an earlier theme back as the draft the editor draws, and saves the next change against it without a reload', async () => {
+    const editor = await openWithTheme()
+    const autosave = useBuilderAutosaveStore()
+
+    const result = await useBuilderHistoryStore().restore(BUILDER_THEME_DOCUMENT, 2, 'x')
+
+    expect(result).toBe('restored')
+    expect(api.callsTo(`${THEME_URL}/versions/2/restore`)[0]!.options.headers).toEqual({ 'If-Match': '5' })
+    expect(accentOf(editor.theme?.copy)).toBe('#222222')
+    expect(autosave.stateOf(BUILDER_THEME_DOCUMENT)).toBe('saved')
+
+    const next = themeDraft('#333333')
+    editor.change(BUILDER_THEME_DOCUMENT, { ...editor.theme!.copy, draft: { ...editor.theme!.copy.draft, settings: next.settings } })
+    await autosave.save(BUILDER_THEME_DOCUMENT)
+
+    expect(api.callsTo(`${THEME_URL}/draft`)[0]!.options.headers).toEqual({ 'If-Match': '6' })
+    expect(autosave.stateOf(BUILDER_THEME_DOCUMENT)).toBe('saved')
+  })
+
+  // Django puts back whatever a version holds, and the envelope of a theme
+  // takes any settings: an earlier theme this build cannot read would land as
+  // a draft the panel cannot edit, the canvas cannot draw and Django will not
+  // publish. It is refused before Django is asked, and remembered.
+  it('refuses to put back a theme whose settings this build cannot read, before asking Django', async () => {
+    const editor = await openWithTheme({ [`${THEME_URL}/versions/3`]: { ...version(3), data: { settings: { colors: 'old' }, sections: {}, order: [] }, i18n: {}, refs: {} } })
+    const history = useBuilderHistoryStore()
+    await history.load(BUILDER_THEME_DOCUMENT)
+
+    const result = await history.restore(BUILDER_THEME_DOCUMENT, 3, 'x')
+
+    expect(result).toBe('unreadable')
+    expect(api.callsTo(`${THEME_URL}/versions/3/restore`)).toHaveLength(0)
+    expect(api.callsTo(`${THEME_URL}/checkpoint`)).toHaveLength(0)
+    expect(accentOf(editor.theme?.copy)).toBe('#111111')
+    expect(history.unreadable.has(3)).toBe(true)
+  })
+
+  it('leaves the theme the editor holds as it is when the restored one cannot be opened', async () => {
+    const editor = await openWithTheme({ [`${THEME_URL}/versions/2/restore`]: themeEnvelope(6, { sections: 'old' }, true) })
+
+    const result = await useBuilderHistoryStore().restore(BUILDER_THEME_DOCUMENT, 2, 'x')
+
+    expect(result).toBe('unreadable')
+    expect(accentOf(editor.theme?.copy)).toBe('#111111')
+  })
+
+  it('hands a theme saved by someone else in between to the conflict dialog', async () => {
+    const body = { code: 'revision_conflict', detail: 'Someone else changed this document.', currentRevision: 8, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-03T10:05:00+02:00' }
+    const editor = await openWithTheme({ [`${THEME_URL}/versions/2/restore`]: failWith(409, body) })
+
+    const result = await useBuilderHistoryStore().restore(BUILDER_THEME_DOCUMENT, 2, 'x')
+
+    expect(result).toBe('conflict')
+    expect(useBuilderAutosaveStore().conflict).toMatchObject({ key: BUILDER_THEME_DOCUMENT, currentRevision: 8 })
+    expect(accentOf(editor.theme?.copy)).toBe('#111111')
   })
 })

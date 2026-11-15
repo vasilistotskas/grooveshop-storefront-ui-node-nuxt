@@ -1,6 +1,7 @@
 import { getActivePinia } from 'pinia'
 import { useBuilderAutosaveStore } from '~/stores/builderAutosave'
 import { useBuilderEditorStore } from '~/stores/builderEditor'
+import { useBuilderHistoryStore } from '~/stores/builderHistory'
 import { useBuilderLibraryStore } from '~/stores/builderLibrary'
 
 /**
@@ -11,7 +12,7 @@ import { useBuilderLibraryStore } from '~/stores/builderLibrary'
  */
 export function resetBuilderEditorStores(): void {
   const pinia = getActivePinia()
-  for (const store of [useBuilderAutosaveStore(), useBuilderEditorStore(), useBuilderLibraryStore()]) {
+  for (const store of [useBuilderAutosaveStore(), useBuilderEditorStore(), useBuilderHistoryStore(), useBuilderLibraryStore()]) {
     store.$dispose()
     if (pinia) Reflect.deleteProperty(pinia.state.value, store.$id)
   }
