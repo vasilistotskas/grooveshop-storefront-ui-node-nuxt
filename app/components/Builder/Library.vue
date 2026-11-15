@@ -69,6 +69,7 @@ function refusalText(offer: BuilderLibraryOffer): string | undefined {
     case 'feature': return t('refusal.feature', { feature: featureLabel(offer.definition.feature!) })
     case 'perTemplate': return t('refusal.perTemplate', { count: offer.definition.limits.maxPerTemplate })
     case 'full': return t('refusal.full', { count: parent.value ? builderEditorBlocks.get(builderBlockType(parent.value))?.limits.maxBlocks : 0 })
+    case 'lists': return t('refusal.lists', { count: DATA_LIMITS.maxQueriesPerDocument })
     default: return undefined
   }
 }
@@ -194,6 +195,7 @@ el:
     feature: "Χρειάζεται {feature}, που είναι κλειστό σε αυτό το κατάστημα."
     perTemplate: "Η σελίδα έχει ήδη όσα επιτρέπονται ({count})."
     full: "Δεν χωράει άλλο ({count} το πολύ)."
+    lists: "Η σελίδα έχει ήδη όσες λίστες επιτρέπονται ({count})."
   none:
     title: Τίποτα δεν ταιριάζει
     description: Δοκιμάστε άλλη λέξη ή άλλη κατηγορία.
@@ -208,6 +210,7 @@ en:
     feature: "Needs {feature}, which is off for this store."
     perTemplate: "The page already has as many as it may ({count})."
     full: "There's no room for more ({count} at most)."
+    lists: "The page already has as many lists as it may ({count})."
   none:
     title: Nothing matches
     description: Try another word or another category.

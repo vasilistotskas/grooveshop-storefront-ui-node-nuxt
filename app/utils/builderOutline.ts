@@ -126,6 +126,16 @@ export function builderOutlineDropIndex(drag: BuilderOutlineDrag, ref: string, o
 }
 
 /**
+ * Whether a problem of a refused save is about the document as a whole (its
+ * lists, its size): it names no node (`builderProblemNodeId`) and none of the
+ * document's own settings (`/settings/<key>`), so no section and no page
+ * setting can show it.
+ */
+export function builderDocumentProblem(path: string): boolean {
+  return builderProblemNodeId(path) === undefined && path.split('/')[1] !== 'settings'
+}
+
+/**
  * The node a problem of a refused save is about, from its JSON pointer into
  * what was sent: the deepest `/sections/<id>` or `/blocks/<id>` of the draft,
  * or the node of an overlay entry (`/i18n/<locale>/<id>/...`). `undefined`

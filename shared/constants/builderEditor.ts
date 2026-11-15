@@ -79,6 +79,14 @@ export const BUILDER_AUTOSAVE_DELAY_MS = 1000
  */
 export const BUILDER_AUTOSAVE_RETRY_MS = [2000, 5000, 15000, 30000] as const
 
+/**
+ * How long a save waits for the store's answer, in milliseconds. A save with
+ * no answer by then is taken as unanswered (tried again after
+ * `BUILDER_AUTOSAVE_RETRY_MS`, then offered to try again), never left
+ * "saving" with every later change queued behind it.
+ */
+export const BUILDER_SAVE_TIMEOUT_MS = 20_000
+
 /** The most steps undo walks back in one editing session. */
 export const BUILDER_HISTORY_LIMIT = 100
 

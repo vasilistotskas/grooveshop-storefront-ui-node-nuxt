@@ -85,9 +85,22 @@ async function revoke(link: PreviewLink): Promise<void> {
             class="w-full"
           />
         </UFormField>
-        <p class="text-sm text-toned">
-          {{ t('covers', { page: documentLabel(documentKey) }) }}
-        </p>
+        <!-- What the link freezes, from the documents it is made of: a store
+             without a header group is never told the link shows a header. -->
+        <div
+          class="text-sm text-toned"
+          data-share-covers
+        >
+          <p>{{ t('covers') }}</p>
+          <ul class="mt-1 list-disc ps-5">
+            <li
+              v-for="key in documents"
+              :key="key"
+            >
+              {{ documentLabel(key) }}
+            </li>
+          </ul>
+        </div>
         <UButton
           type="submit"
           icon="i-lucide-link"
@@ -195,7 +208,7 @@ el:
   note:
     label: Σημείωση
     hint: Προαιρετική, φαίνεται μόνο σε εσάς
-  covers: "Ο σύνδεσμος δείχνει το πρόχειρο της σελίδας: {page}, μαζί με την κεφαλίδα και το υποσέλιδο."
+  covers: "Ο σύνδεσμος δείχνει τα πρόχειρα, όπως αποθηκεύτηκαν:"
   create: Δημιουργία συνδέσμου
   createFailed: Ο σύνδεσμος δεν δημιουργήθηκε
   tryAgain: Δοκιμάστε ξανά σε λίγο.
@@ -225,7 +238,7 @@ en:
   note:
     label: Note
     hint: Optional, only you see it
-  covers: "The link shows the draft of the page: {page}, with the header and footer."
+  covers: "The link shows these drafts, as saved:"
   create: Create link
   createFailed: The link wasn't created
   tryAgain: Try again in a moment.

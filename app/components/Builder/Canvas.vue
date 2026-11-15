@@ -12,6 +12,7 @@ const props = defineProps<{
 const { t } = useStoreI18n('components/Builder/Canvas')
 const { documentLabel, nodeLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
+const autosave = useBuilderAutosaveStore()
 const { device, selected, locale, openDocument, select, setDevice } = useBuilderEditorView()
 const localePath = useLocalePath()
 const toast = useToast()
@@ -125,6 +126,27 @@ async function follow(path: string): Promise<void> {
   }
   toast.add({ title: t('elsewhere.title'), description: t('elsewhere.description', { path }), icon: 'i-lucide-info', color: 'info' })
 }
+
+/**
+ * Why the store refused the last save of a document drawn here, for what is
+ * wrong with the document as a whole (its lists, its size): no section and
+ * no page setting shows those, so the canvas says them, in the editor's own
+ * words for a code it knows and in the store's otherwise. A section group's
+ * reason is named by the group.
+ */
+const refusals = computed(() => Object.keys(documents.value).flatMap((key) => {
+  const document = store.opened[key]
+  if (autosave.stateOf(key) !== 'invalid' || !document) return []
+  return (autosave.saves[key]?.problems ?? []).filter(problem => builderDocumentProblem(problem.path)).map((problem) => {
+    const reason = problem.code === 'too_many_queries'
+      ? t('refused.codes.too_many_queries', { count: builderListCount(Object.values(document.copy.draft.sections), builderEditorBlocks), max: DATA_LIMITS.maxQueriesPerDocument })
+      : problem.message
+    return key === props.documentKey ? reason : `${documentLabel(key)}: ${reason}`
+  })
+}))
+
+/** Whether the changes are on their way to the store: a preview that failed then says they are still saved. */
+const saving = computed(() => (['saved', 'pending', 'saving'] as BuilderSaveState[]).includes(autosave.overall))
 
 const DEVICE_ICONS = {
   phone: 'i-lucide-smartphone',
@@ -260,12 +282,32 @@ const pageName = computed(() => documentLabel(props.documentKey))
     </div>
 
     <UAlert
+      v-if="refusals.length"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-circle-alert"
+      :title="t('refused.title')"
+      class="m-3 mb-0 shrink-0"
+    >
+      <template #description>
+        <ul class="flex flex-col gap-1">
+          <li
+            v-for="(reason, index) in refusals"
+            :key="index"
+          >
+            {{ reason }}
+          </li>
+        </ul>
+      </template>
+    </UAlert>
+
+    <UAlert
       v-if="state === 'failed'"
       color="warning"
       variant="subtle"
       icon="i-lucide-triangle-alert"
       :title="t('failed.title')"
-      :description="t('failed.description')"
+      :description="saving ? t('failed.description') : t('failed.notSaved')"
       :actions="[{ label: t('failed.retry'), color: 'warning', variant: 'outline', onClick: send }]"
       class="m-3 shrink-0"
     />
@@ -371,7 +413,12 @@ el:
   failed:
     title: Η προεπισκόπηση δεν ενημερώθηκε
     description: Δείχνει την τελευταία εκδοχή που μπόρεσε να σχεδιάσει. Οι αλλαγές σας αποθηκεύονται κανονικά.
+    notSaved: Δείχνει την τελευταία εκδοχή που μπόρεσε να σχεδιάσει. Οι τελευταίες αλλαγές σας δεν έχουν αποθηκευτεί.
     retry: Δοκιμή ξανά
+  refused:
+    title: Η σελίδα δεν αποθηκεύτηκε
+    codes:
+      too_many_queries: "Η σελίδα έχει {count} λίστες, ενώ επιτρέπονται έως {max}, και οι κρυμμένες ενότητες μετρούν. Αφαιρέστε μια ενότητα με λίστα προϊόντων, άρθρων ή κατηγοριών για να αποθηκευτεί."
   elsewhere:
     title: Αυτή η σελίδα δεν φτιάχνεται εδώ
     description: "Ο σύνδεσμος οδηγεί στο {path}, που δεν είναι σελίδα του επεξεργαστή."
@@ -394,7 +441,12 @@ en:
   failed:
     title: The preview didn't update
     description: It shows the last version it could draw. Your changes are still being saved.
+    notSaved: It shows the last version it could draw. Your latest changes are not saved.
     retry: Try again
+  refused:
+    title: The page was not saved
+    codes:
+      too_many_queries: "The page has {count} lists, and {max} at most are allowed, hidden sections included. Remove a section with a list of products, posts or categories to save it."
   elsewhere:
     title: This page isn't built here
     description: "The link leads to {path}, which isn't a page of the editor."

@@ -238,6 +238,27 @@ describe('the autosave', () => {
     expect(readBuilderRecovery(useRequestURL().host, HOME)).toBeUndefined()
   })
 
+  it('takes a save that gets no answer within the request timeout as unanswered, and tries again', async () => {
+    const editor = await openHome()
+    const autosave = useBuilderAutosaveStore()
+    // A request that gets no answer: ofetch rejects it once its `timeout`
+    // runs out, and without one it never settles.
+    api.routes({ [DRAFT]: (_url: string, options: { timeout?: number }) => new Promise((_resolve, reject) => {
+      if (options.timeout) setTimeout(() => reject(new TypeError('The operation was aborted due to timeout')), options.timeout)
+    }) })
+
+    changeOnce(editor)
+    await vi.advanceTimersByTimeAsync(BUILDER_AUTOSAVE_DELAY_MS)
+    expect(autosave.stateOf(HOME)).toBe('saving')
+    await vi.advanceTimersByTimeAsync(BUILDER_SAVE_TIMEOUT_MS)
+
+    expect(autosave.stateOf(HOME)).toBe('retrying')
+    api.routes({ [DRAFT]: () => envelope(4) })
+    await vi.advanceTimersByTimeAsync(BUILDER_AUTOSAVE_RETRY_MS[0])
+    expect(saves()).toHaveLength(2)
+    expect(autosave.stateOf(HOME)).toBe('saved')
+  })
+
   it('stops after every wait, keeps the changes, and tries again on request', async () => {
     const editor = await openHome()
     const autosave = useBuilderAutosaveStore()

@@ -16,6 +16,8 @@ import type { SortableEvent } from 'sortablejs'
 import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
 import publishSource from '~/components/Builder/Publish.vue?raw'
 import conflictSource from '~/components/Builder/ConflictDialog.vue?raw'
+import canvasSource from '~/components/Builder/Canvas.vue?raw'
+import shareSource from '~/components/Builder/ShareDialog.vue?raw'
 import labels from '~/builder/labels/el.json'
 import { componentTexts } from '~~/test/helpers/componentTexts'
 
@@ -285,6 +287,58 @@ describe('the preview', () => {
     expect(wrapper.text()).toContain('Η προεπισκόπηση δεν ενημερώθηκε')
     await wrapper.findAll('button').find(button => button.text() === 'Δοκιμή ξανά')!.trigger('click')
     expect(sent).toHaveBeenCalledTimes(1)
+  })
+
+  describe('when the store refuses a save for the page as a whole', () => {
+    const DRAFT = `${documentUrl('template:home')}/draft`
+    const TOO_MANY_LISTS = { path: '', code: 'too_many_queries', message: 'The document asks for too many lists.', document: null, params: null }
+
+    /** Moves the hero, so the page is saved and the store refuses it with `errors`. */
+    async function refuse(wrapper: Awaited<ReturnType<typeof openWithCanvas>>, errors: readonly Record<string, unknown>[]) {
+      api.routes({ [DRAFT]: failWith(400, { code: 'invalid_document', detail: 'x', errors }) })
+      await wrapper.get('button[aria-label="Μετακίνηση κάτω"]').trigger('click')
+      useBuilderAutosaveStore().flush()
+      await flushPromises()
+      await vi.waitFor(() => expect(useBuilderAutosaveStore().stateOf('template:home')).toBe('invalid'))
+      await flushPromises()
+    }
+
+    it('says why in the editor words for a known code, naming the limit and the count of the page', async () => {
+      const wrapper = await openWithCanvas('/_builder?node=template:home/hero')
+
+      await refuse(wrapper, [TOO_MANY_LISTS])
+
+      const texts = componentTexts(canvasSource, 'Canvas.vue')
+      expect(wrapper.text()).toContain(texts.t('refused.title'))
+      expect(wrapper.text()).toContain(texts.t('refused.codes.too_many_queries', { count: 1, max: DATA_LIMITS.maxQueriesPerDocument }))
+    })
+
+    it('says the reason the store gives for a code the editor has no words for, and nothing for a problem a section shows', async () => {
+      const wrapper = await openWithCanvas('/_builder?node=template:home/hero')
+
+      await refuse(wrapper, [
+        { path: '', code: 'document_too_large', message: 'Το έγγραφο είναι πολύ μεγάλο.', document: null, params: null },
+        { path: '/sections/hero/settings/heading', code: 'invalid_settings', message: 'Πολύ μεγάλο.', document: null, params: null },
+      ])
+
+      const texts = componentTexts(canvasSource, 'Canvas.vue')
+      // The innermost Nuxt UI root that holds the title: the alert itself.
+      const alert = wrapper.findAll('[data-slot="root"]').filter(item => item.text().includes(texts.t('refused.title'))).at(-1)!
+      expect(alert.findAll('li').map(item => item.text())).toEqual(['Το έγγραφο είναι πολύ μεγάλο.'])
+    })
+
+    it('does not say the changes are being saved when the preview fails while a save is refused', async () => {
+      const wrapper = await openWithCanvas('/_builder?node=template:home/hero')
+      const texts = componentTexts(canvasSource, 'Canvas.vue')
+      tell({ type: 'failed' })
+      await flushPromises()
+      expect(wrapper.text()).toContain(texts.t('failed.description'))
+
+      await refuse(wrapper, [TOO_MANY_LISTS])
+
+      expect(wrapper.text()).not.toContain(texts.t('failed.description'))
+      expect(wrapper.text()).toContain(texts.t('failed.notSaved'))
+    })
   })
 
   it('takes no message from another window', async () => {
@@ -1702,5 +1756,47 @@ describe('the page\'s own settings', () => {
     const wrapper = await open('/_builder?panel=page', { ...session, staff: { ...session.staff, role: 'staff' } })
 
     expect(control(wrapper, 'Τίτλος για τις μηχανές αναζήτησης').element.disabled).toBe(true)
+  })
+})
+
+describe('sharing a preview', () => {
+  const shareTexts = componentTexts(shareSource, 'ShareDialog.vue')
+
+  /** The store's documents, listed as `documents`, with no share link made yet. */
+  const store = (documents: typeof LIST) => api.routes({
+    '/api/builder/documents': documents,
+    '/api/builder/presence': NOBODY_ELSE,
+    '/api/builder/preview-links': [],
+    [documentUrl('template:home')]: HOME,
+    [documentUrl('group:header')]: HEADER,
+    [documentUrl('group:footer')]: FOOTER,
+  })
+
+  /** Opens the share dialog and answers the parts of the store it says the link shows. */
+  async function covered(wrapper: Awaited<ReturnType<typeof open>>) {
+    await wrapper.get(`button[aria-label="${shareTexts.t('title')}"]`).trigger('click')
+    await flushPromises()
+    const dialog = document.querySelector('[role="dialog"]')!
+    return { text: dialog.textContent!, parts: [...dialog.querySelectorAll('[data-share-covers] li')].map(item => item.textContent!.trim()) }
+  }
+
+  it('names the page and every section group the store has, as the link freezes them', async () => {
+    store(LIST)
+    const wrapper = await open()
+
+    const { parts } = await covered(wrapper)
+
+    expect(parts).toEqual(['Αρχική σελίδα', labels.groups.header, labels.groups.footer])
+  })
+
+  it('names no header in a store that has no header group', async () => {
+    store(LIST.filter(({ key }) => key !== 'group:header'))
+    const wrapper = await open()
+
+    const { text, parts } = await covered(wrapper)
+
+    expect(parts).toEqual(['Αρχική σελίδα', labels.groups.footer])
+    expect(text).not.toContain(labels.groups.header)
+    expect(text.toLocaleLowerCase('el')).not.toContain('κεφαλίδα')
   })
 })
