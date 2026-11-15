@@ -1,3 +1,11 @@
+## [3.341.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.3...v3.341.4) (2026-11-15)
+
+
+### Bug Fixes
+
+* **blog:** a comment by a deleted account parses and is signed as one ([#480](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/480)) ([9cc8828](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9cc8828724b29b0020fa698579ecf64e343e9287)), closes [vasilistotskas/grooveshop-django-api#709](https://github.com/vasilistotskas/grooveshop-django-api/issues/709) [vasilistotskas/grooveshop-django-api#682](https://github.com/vasilistotskas/grooveshop-django-api/issues/682)
+* **builder:** editor save feedback, list limit, clear control, share dialog and dark hero ([#478](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/478)) ([4a0dded](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a0ddedfb5f5b5092298c60fd5a32bae9c4af4ab)), closes [#448](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/448) [#450](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/450) [#451](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/451) [#468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/468) [#473](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/473)
+
 ## [3.341.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.2...v3.341.3) (2026-11-14)
 
 
