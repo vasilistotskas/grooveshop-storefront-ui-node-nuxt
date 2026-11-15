@@ -217,5 +217,7 @@
         "loyalty_redemption_invalid": "Point redemption is not available"
       }
     }
-  }
+  },
+  "pay_way_free_above": "Free on orders over {amount}",
+  "delivery_unlocks_payment": "Additional payment method:"
 }

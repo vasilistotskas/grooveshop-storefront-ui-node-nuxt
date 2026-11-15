@@ -1,3 +1,10 @@
+## [3.341.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.5...v3.341.6) (2026-11-15)
+
+
+### Bug Fixes
+
+* **i18n:** the English checkout bundle holds every key the Greek one has ([#486](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/486)) ([886c3fa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/886c3fa497f34f163aa784e6912021ac293003d6)), closes [#183](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/183)
+
 ## [3.341.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.4...v3.341.5) (2026-11-15)
 
 
