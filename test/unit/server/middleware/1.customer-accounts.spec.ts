@@ -60,23 +60,64 @@ describe('server/middleware/1.customer-accounts', () => {
       await expect(run({ method, url }, false)).resolves.toBeUndefined()
     })
 
-    it('answers the session route with no shopper and ends a session from before the switch-off', async () => {
-      testSession.set({
+    describe('a session from before the switch-off', () => {
+      const CART = '0b7c5c6e-1c1a-4c1f-9d4a-6f0f3c7a2b10'
+      const PAGE = { url: '/checkout', headers: { accept: 'text/html,application/xhtml+xml' } }
+      const signedIn = (extra: Record<string, unknown> = {}) => testSession.set({
         user: { id: 42 },
         secure: { sessionToken: 'st', accessToken: 'at' },
-        cartId: '0b7c5c6e-1c1a-4c1f-9d4a-6f0f3c7a2b10',
+        ...extra,
       })
 
-      expect(await run({ url: '/api/_auth/session' }, false)).toEqual({})
-      expect(testSession.data.user).toBeUndefined()
-      expect(testSession.data.secure).toBeUndefined()
-    })
+      // The page's own request is the one whose response the browser
+      // gets: the session the SSR render asks for goes through an internal
+      // fetch whose `Set-Cookie` never leaves the server.
+      it('ends the signed-in identity on the page request, keeping the cart', async () => {
+        signedIn({ cartId: CART, viewedPosts: ['7'] })
 
-    it('leaves a guest\'s session (their cart) alone', async () => {
-      testSession.set({ cartId: '0b7c5c6e-1c1a-4c1f-9d4a-6f0f3c7a2b10' })
+        await expect(run(PAGE, false)).resolves.toBeUndefined()
 
-      expect(await run({ url: '/api/_auth/session' }, false)).toEqual({})
-      expect(testSession.data).toEqual({ cartId: '0b7c5c6e-1c1a-4c1f-9d4a-6f0f3c7a2b10' })
+        expect(testSession.data).toEqual({ cartId: CART, viewedPosts: ['7'] })
+        // Rewritten with the cart's own cookie lifetime, as a cart write is.
+        expect(testSession.writeConfig).toMatchObject({ cookie: { maxAge: 60 * 60 * 24 * 30 } })
+      })
+
+      it('ends a session that held nothing but the identity', async () => {
+        signedIn()
+
+        await run(PAGE, false)
+
+        expect(testSession.data).toEqual({})
+      })
+
+      it('answers the session route with no shopper, writing nothing there', async () => {
+        signedIn({ cartId: CART })
+
+        expect(await run({ url: '/api/_auth/session' }, false)).toEqual({})
+        expect(testSession.data.user).toEqual({ id: 42 })
+      })
+
+      // A guest cart built since the switch-off lives in the same session:
+      // no request may drop it.
+      it.each([
+        ['the page request', PAGE],
+        ['the session route', { url: '/api/_auth/session' }],
+        ['a cart request', { url: '/api/cart' }],
+      ])('leaves a guest’s cart alone on %s', async (_label, req) => {
+        testSession.set({ cartId: CART })
+
+        await run(req, false)
+
+        expect(testSession.data).toEqual({ cartId: CART })
+      })
+
+      it('leaves the session to the module on a store with accounts', async () => {
+        signedIn({ cartId: CART })
+
+        await run(PAGE, true)
+
+        expect(testSession.data.user).toEqual({ id: 42 })
+      })
     })
   })
 

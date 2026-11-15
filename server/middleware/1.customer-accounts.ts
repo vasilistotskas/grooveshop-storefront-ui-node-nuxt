@@ -22,6 +22,12 @@ const CUSTOMER_ACCOUNT_PATHS = [
 /** nuxt-auth-utils' session route, which every page asks on the client. */
 const SESSION_ROUTE = '/api/_auth/session'
 
+/** A page the browser itself loads (not the app's `/api`, not an asset). */
+const isPageRequest = (event: { req: Request, url: URL }) =>
+  event.req.method === 'GET'
+  && !event.url.pathname.startsWith('/api/')
+  && (event.req.headers.get('accept') ?? '').includes('text/html')
+
 const isCustomerAccountPath = (pathname: string) =>
   CUSTOMER_ACCOUNT_PATHS.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`))
 
@@ -34,10 +40,16 @@ const isCustomerAccountPath = (pathname: string) =>
  * the protected-resource metadata is not sent to an authorization server
  * that is not there.
  *
- * Django no longer accepts a credential issued before the switch-off, so a
- * session holding one is ended (as a sign-out ends it) the first time the
- * app asks who the visitor is, and the visitor is answered as a guest.
- * A guest's session, which holds only their cart, is left alone.
+ * Django no longer accepts a credential issued before the switch-off. The
+ * session route answers every visitor as a guest, and a session that still
+ * holds a signed-in shopper or their tokens loses them on the next page the
+ * browser loads (`isPageRequest`): the page's own response is the one the
+ * browser keeps a cookie from, while the session the SSR render asks for
+ * travels through an internal fetch whose `Set-Cookie` never leaves the
+ * server. Only the identity goes (`dropSignedInIdentity`): the cart and
+ * anything else in the session stay, so a guest cart built since the
+ * switch-off survives, and no API request rewrites the session beside a
+ * cart write in flight.
  *
  * After `0.tenant.ts`, which resolves the store for every path here (none
  * is in its bypass list); a request without a store is not decided here.
@@ -47,10 +59,11 @@ export default defineEventHandler(async (event) => {
   if (!tenant || storeFeatureOn(tenant, 'customerAccounts')) return
 
   const { pathname } = event.url
-  if (pathname === SESSION_ROUTE && event.req.method === 'GET') {
+  if (pathname === SESSION_ROUTE && event.req.method === 'GET') return {}
+
+  if (isPageRequest(event)) {
     const session = await readUserSession(event)
-    if (session.user || session.secure) await clearShopperSession(event)
-    return {}
+    if (session.user || session.secure) await dropSignedInIdentity(event)
   }
 
   if (isCustomerAccountPath(pathname)) {

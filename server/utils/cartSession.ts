@@ -141,6 +141,25 @@ export async function clearCartSession(event: RequestEvent): Promise<void> {
   await updateCartSession(event, { cartId: undefined })
 }
 
+/**
+ * Take the signed-in shopper (`user`) and their tokens (`secure`) out of
+ * the session and keep the rest: the cart, the posts already counted. For a
+ * store that switched customer accounts off
+ * (`server/middleware/1.customer-accounts.ts`): Django no longer accepts
+ * those tokens, while a cart built since then is the visitor's as a guest
+ * (and a user cart's id is one Django's guest carts never match). Rewritten
+ * with the cart's own cookie lifetime, as a cart write is; a session left
+ * with nothing is cleared.
+ */
+export async function dropSignedInIdentity(event: RequestEvent): Promise<void> {
+  const { user: _user, secure: _secure, id: _id, ...rest } = await getUserSession(event)
+  if (Object.values(rest).every(value => value === undefined)) {
+    await clearUserSession(event)
+    return
+  }
+  await replaceUserSession(event, rest, CART_SESSION_CONFIG)
+}
+
 export const useCartSession = (event: RequestEvent) => {
   return {
     getSession: () => getCartSession(event),
