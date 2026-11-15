@@ -32,17 +32,22 @@ interface ShopChatFailedTurn {
   turnId: string
 }
 
-interface ChatErrorEvent {
+/** What a turn tells the widget about the cart, on `done` and on `error`. */
+interface ChatTurnCart {
+  cartId?: string
+  cartMutated?: boolean
+  cartTokenRefused?: boolean
+}
+
+interface ChatErrorEvent extends ChatTurnCart {
   message: string
   code?: string
   retryAfter?: number
+  conversationId?: string
 }
 
-interface ChatDoneEvent {
+interface ChatDoneEvent extends ChatTurnCart {
   conversationId: string
-  cartId?: string
-  cartMutated: boolean
-  cartTokenRefused?: boolean
 }
 
 /**
@@ -55,8 +60,13 @@ interface ChatDoneEvent {
  * (running|done|error), `products` lists the ids a product tool surfaced
  * (`zChatProductsEvent`), `error` carries a localized message (and
  * `code: rate_limited` with `retryAfter` seconds when the model was
- * throttled), `done` closes the turn with `{conversationId, cartId?,
- * cartMutated, cartTokenRefused}`. Pre-stream failures are plain JSON
+ * throttled) and, with `done`'s cart members (`cartId?`, `cartMutated`,
+ * `cartTokenRefused`), what the failed turn did to the cart: the store
+ * keeps a cart change it accepted whatever became of the turn. It also
+ * carries `conversationId` when the failed turn stored its conversation
+ * to keep a visitor cart its tools filled; the retry continues it.
+ * `done` closes the turn with `{conversationId, cartId?, cartMutated,
+ * cartTokenRefused}`. Pre-stream failures are plain JSON
  * `{error}` — 409 means the conversation hit its turn cap and a fresh
  * one must be started; a 429 (from any layer) carries `Retry-After`.
  *
@@ -212,6 +222,21 @@ export const useShopChat = () => {
       status.value = 'error'
     }
 
+    // `done` and `error` say the same about the cart: drop a refused
+    // pass, and after a change the store accepted take the cart the
+    // assistant created for a browser that had none, else refresh.
+    const applyTurnCart = async (turn: ChatTurnCart, sentCartToken: string | undefined, sentCartId: string | undefined) => {
+      if (turn.cartTokenRefused) cartPass.value = null
+      if (turn.cartMutated) {
+        cartMutated.value = true
+        // A browser that had no cart takes the one the assistant
+        // created: refreshing would reload its own, still none, and the
+        // assistant reported an add the shopper's cart never showed.
+        if (!sentCartToken && !sentCartId && turn.cartId) await cartStore.claimCart(turn.cartId)
+        else await cartStore.refreshCart()
+      }
+    }
+
     // This run's own: reset() drops the shared one when it aborts.
     const runController = new AbortController()
     controller = runController
@@ -310,6 +335,15 @@ export const useShopChat = () => {
 
       if (streamError !== null) {
         const failure = streamError as ChatErrorEvent
+        if (failure.conversationId) conversationId.value = failure.conversationId
+        // The turn's error is what the shopper reads: a cart call that
+        // fails here must not replace it.
+        try {
+          await applyTurnCart(failure, cartToken, sentCartId)
+        }
+        catch (error) {
+          log.error({ action: 'shopChat:failedTurnCart', error })
+        }
         failTurn(failure.code === 'rate_limited'
           ? rateLimitedMessage(failure.retryAfter)
           : failure.message)
@@ -323,15 +357,7 @@ export const useShopChat = () => {
       }
       const turn = done as ChatDoneEvent
       conversationId.value = turn.conversationId
-      if (turn.cartTokenRefused) cartPass.value = null
-      if (turn.cartMutated) {
-        cartMutated.value = true
-        // A browser that had no cart takes the one the assistant
-        // created: refreshing would reload its own, still none, and the
-        // assistant reported an add the shopper's cart never showed.
-        if (!cartToken && !sentCartId && turn.cartId) await cartStore.claimCart(turn.cartId)
-        else await cartStore.refreshCart()
-      }
+      await applyTurnCart(turn, cartToken, sentCartId)
       status.value = 'ready'
     }
     catch (error) {
