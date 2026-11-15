@@ -17,6 +17,7 @@ import type { BuilderSessionInfo } from '~~/shared/schemas/builderSession'
 import publishSource from '~/components/Builder/Publish.vue?raw'
 import conflictSource from '~/components/Builder/ConflictDialog.vue?raw'
 import canvasSource from '~/components/Builder/Canvas.vue?raw'
+import shareSource from '~/components/Builder/ShareDialog.vue?raw'
 import labels from '~/builder/labels/el.json'
 import { componentTexts } from '~~/test/helpers/componentTexts'
 
@@ -1755,5 +1756,47 @@ describe('the page\'s own settings', () => {
     const wrapper = await open('/_builder?panel=page', { ...session, staff: { ...session.staff, role: 'staff' } })
 
     expect(control(wrapper, 'Τίτλος για τις μηχανές αναζήτησης').element.disabled).toBe(true)
+  })
+})
+
+describe('sharing a preview', () => {
+  const shareTexts = componentTexts(shareSource, 'ShareDialog.vue')
+
+  /** The store's documents, listed as `documents`, with no share link made yet. */
+  const store = (documents: typeof LIST) => api.routes({
+    '/api/builder/documents': documents,
+    '/api/builder/presence': NOBODY_ELSE,
+    '/api/builder/preview-links': [],
+    [documentUrl('template:home')]: HOME,
+    [documentUrl('group:header')]: HEADER,
+    [documentUrl('group:footer')]: FOOTER,
+  })
+
+  /** Opens the share dialog and answers the parts of the store it says the link shows. */
+  async function covered(wrapper: Awaited<ReturnType<typeof open>>) {
+    await wrapper.get(`button[aria-label="${shareTexts.t('title')}"]`).trigger('click')
+    await flushPromises()
+    const dialog = document.querySelector('[role="dialog"]')!
+    return { text: dialog.textContent!, parts: [...dialog.querySelectorAll('[data-share-covers] li')].map(item => item.textContent!.trim()) }
+  }
+
+  it('names the page and every section group the store has, as the link freezes them', async () => {
+    store(LIST)
+    const wrapper = await open()
+
+    const { parts } = await covered(wrapper)
+
+    expect(parts).toEqual(['Αρχική σελίδα', labels.groups.header, labels.groups.footer])
+  })
+
+  it('names no header in a store that has no header group', async () => {
+    store(LIST.filter(({ key }) => key !== 'group:header'))
+    const wrapper = await open()
+
+    const { text, parts } = await covered(wrapper)
+
+    expect(parts).toEqual(['Αρχική σελίδα', labels.groups.footer])
+    expect(text).not.toContain(labels.groups.header)
+    expect(text.toLocaleLowerCase('el')).not.toContain('κεφαλίδα')
   })
 })
