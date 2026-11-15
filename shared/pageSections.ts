@@ -27,8 +27,6 @@ export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'hero_banner',
   // Its `heading` and `headingAccent` are the two lines of one h1.
   'hero_showcase',
-  // Owns the whole contact page, heading included.
-  'contact_panel',
 ])
 
 /**
@@ -102,27 +100,6 @@ export function sectionsHeadingText(
   if (owner.componentType === 'hero_carousel') return heroCarouselHeading(owner.props) || undefined
   // A heading drawn on two lines (`hero_showcase`'s accent line) is one h1, so one title.
   return propsHeading(owner.props) || undefined
-}
-
-/**
- * Section types that render a page's PRIMARY form.
- *
- * Same rule as the heading, one layer out: a page that ships a form of
- * its own has to stand down when the tenant's layout already carries
- * one, or the visitor is offered the same enquiry twice. `/contact` is
- * the only page this applies to today.
- */
-export const FORM_SECTION_TYPES: ReadonlySet<string> = new Set([
-  'contact_panel',
-])
-
-/** Whether a rendered section list already provides the page's form. */
-export function sectionsProvideForm(
-  sections: readonly { componentType: string }[] | undefined,
-): boolean {
-  return (sections ?? []).some(section =>
-    FORM_SECTION_TYPES.has(section.componentType),
-  )
 }
 
 /**

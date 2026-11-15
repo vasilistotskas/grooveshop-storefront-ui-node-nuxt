@@ -35,13 +35,8 @@ const hasSide = computed(() => hasMethods.value || showHours.value)
       <!-- The FORM is what wants a narrow measure — not the page. The
            constraint used to sit on PageWrapper, which also squeezed
            the breadcrumb and the branded band to 2xl and left this
-           page visibly narrower than every other one.
-           Skipped entirely when the tenant's layout carries its own
-           enquiry form (`contact_panel`): the visitor would otherwise
-           be offered the same form twice, the second time without the
-           subject and the offices the design asks for. -->
+           page visibly narrower than every other one. -->
       <div
-        v-if="!sectionsProvideForm(brandSections)"
         class="mx-auto w-full"
         :class="hasSide ? 'max-w-5xl' : 'max-w-2xl'"
       >

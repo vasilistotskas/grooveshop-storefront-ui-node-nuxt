@@ -26,8 +26,10 @@ interface SocketOptions {
   autoReconnect: boolean
 }
 
-const { session, sockets, callAuthChangeHookMock, mockLog } = vi.hoisted(() => ({
-  session: { loggedIn: undefined as undefined | Ref<boolean> },
+const { session, channel, sockets, callAuthChangeHookMock, mockLog } = vi.hoisted(() => ({
+  session: { loggedIn: undefined as undefined | Ref<boolean>, fetch: undefined as undefined | (() => Promise<void>) },
+  /** The tabs' `notifications` BroadcastChannel: unsupported unless a test turns it on. */
+  channel: { supported: false, post: undefined as undefined | ((message: Record<string, unknown>) => void), data: undefined as undefined | Ref<Record<string, unknown> | null> },
   sockets: [] as Array<{ url: string, options: SocketOptions, close: ReturnType<typeof vi.fn> }>,
   callAuthChangeHookMock: vi.fn(() => Promise.resolve()),
   mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
@@ -41,7 +43,7 @@ mockNuxtImport('useUserSession', () => () => {
     user: ref(null),
     session: ref({}),
     ready: ref(true),
-    fetch: vi.fn(() => Promise.resolve()),
+    fetch: session.fetch ?? vi.fn(() => Promise.resolve()),
     clear: vi.fn(() => Promise.resolve()),
   }
 })
@@ -51,7 +53,11 @@ mockNuxtImport('useWebSocket', () => (url: string, options: SocketOptions) => {
   return socket
 })
 mockNuxtImport('useWebNotification', () => () => ({ isSupported: ref(false), show: vi.fn() }))
-mockNuxtImport('useBroadcastChannel', () => () => ({ isSupported: ref(false), post: vi.fn(), data: ref(null) }))
+mockNuxtImport('useBroadcastChannel', () => () => ({
+  isSupported: ref(channel.supported),
+  post: channel.post ?? vi.fn(),
+  data: channel.data ?? ref(null),
+}))
 mockNuxtImport('callAuthChangeHook', () => callAuthChangeHookMock)
 
 const TICKET = '/api/websocket/user/ticket'
@@ -207,6 +213,80 @@ class FakeSocket {
  * `useWebSocket` with the plugin's own options. Django answers each ping
  * with a pong; with no answer the socket is closed and a new one opened.
  */
+/**
+ * The tabs of one browser share one session cookie. A sign-out in one tab is
+ * posted to the others, which reset; a sign-in is posted too, so a tab that
+ * acted signed out (every heart outline, `/account` sending the shopper to sign
+ * in) asks the session again and becomes the new shopper without a reload
+ * (storefront #461). `setup.ts` restores the account on the `loggedIn` flip.
+ */
+describe('websocket plugin, the other tabs', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    setTenant({ apiDomain: 'api.test.local' })
+    sockets.length = 0
+    api.routes({ [TICKET]: () => ({ ticket: 't', expiresIn: 60 }) })
+    channel.supported = true
+    channel.post = vi.fn()
+    channel.data = ref(null)
+    session.fetch = vi.fn(async () => {
+      session.loggedIn!.value = true
+    })
+  })
+
+  afterEach(() => {
+    channel.supported = false
+    channel.post = undefined
+    channel.data = undefined
+    session.fetch = undefined
+    vi.useRealTimers()
+  })
+
+  it('tells the other tabs when the shopper signs in here', async () => {
+    session.loggedIn = ref(false)
+    await install()
+
+    session.loggedIn.value = true
+    await nextTick()
+    await flushPromises()
+
+    expect(channel.post).toHaveBeenCalledWith({ type: 'login' })
+  })
+
+  it('says nothing of a session the tab opened with', async () => {
+    session.loggedIn = ref(true)
+
+    await install()
+
+    expect(channel.post).not.toHaveBeenCalled()
+  })
+
+  it('asks the session again when another tab signed in, and does not echo it', async () => {
+    session.loggedIn = ref(false)
+    await install()
+
+    channel.data!.value = { type: 'login' }
+    await nextTick()
+    await flushPromises()
+
+    expect(session.fetch).toHaveBeenCalledOnce()
+    expect(session.loggedIn.value).toBe(true)
+    expect(sockets).toHaveLength(1)
+    expect(channel.post).not.toHaveBeenCalled()
+  })
+
+  it('leaves a signed-in tab alone when another tab signs in', async () => {
+    session.loggedIn = ref(true)
+    await install()
+
+    channel.data!.value = { type: 'login' }
+    await nextTick()
+    await flushPromises()
+
+    expect(session.fetch).not.toHaveBeenCalled()
+  })
+})
+
 describe('websocket plugin heartbeat', () => {
   // A stopped scope runs nothing, so each test gets its own.
   let scope = effectScope()

@@ -72,6 +72,7 @@ describe('PageSectionHeroCarousel', () => {
   beforeEach(() => {
     setTenant()
     media.matches = {}
+    device.mobile.value = false
   })
 
   describe('a slide that names a product', () => {
@@ -137,6 +138,28 @@ describe('PageSectionHeroCarousel', () => {
     expect(text).toContain('Charging')
     expect(text).toContain('Shop charging')
     expect(text).toContain('Buying guides')
+  })
+
+  // The server picks its device class from the user agent, the browser then
+  // measures the viewport: a desktop agent in a phone-wide window (an iPad's
+  // Safari asks as a Mac) drew the desk's buttons first, and the swap to the
+  // phone's shortened the copy panel by 70px after load, moving everything
+  // under the hero up (storefront #467). The buttons are one markup, sized
+  // by the viewport in CSS: a size down and no arrow below `lg`.
+  it('draws the same buttons whatever the device class, sized by the viewport', async () => {
+    const buttons = async (mobile: boolean) => {
+      device.mobile.value = mobile
+      const wrapper = await mountHero({ slides: SLIDES })
+      return wrapper.findAll('a').filter(link => ['Shop charging', 'Buying guides'].includes(link.text())).map(link => link.html())
+    }
+
+    const desk = await buttons(false)
+    const phone = await buttons(true)
+
+    expect(phone).toEqual(desk)
+    expect(desk[0]).toContain('i-heroicons:arrow-right')
+    expect(desk[0]).toMatch(/max-lg:hidden/)
+    expect(desk[0]).toMatch(/lg:px-3/)
   })
 
   it('makes the first slide\'s heading the page\'s h1 and the later ones h2s', async () => {

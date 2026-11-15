@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto'
+import { useStorage } from 'nitropack/runtime'
+
 /** Where the purge looks for keys (`prefix`, relative to the cache mount) and which of them it takes (`accepts`; every one under the prefix when absent). */
 export interface PurgeMatcher {
   prefix: string
@@ -54,14 +57,8 @@ const RECORD_DATA_FUNCTIONS = [
  * theme do not, so a purge of those alone drops no data. Scoped to the store
  * by the caller (`host`), like the pages.
  *
- * What it cannot close: a page render already in flight when the purge
- * lands read the old records, and the page it stores after the purge is an
- * ordinary route-cache entry. It is served as fresh for the route's `swr`
- * lifetime (`SWR_ROUTE_RULES`, `SWR_ROUTE_PATTERN_RULES`,
- * `CUSTOM_PAGE_SWR_TTL` and the brand pages' 3600 s: 300 to 3600 s), then
- * once more while Nitro re-renders it (no `staleMaxAge`), until the next
- * record change purges it or that re-render replaces it. The 60 s data TTL
- * bounds the record-data entries only, not that page.
+ * A page render already in flight when the purge lands read the old records;
+ * the store's builder epoch keeps it from storing its page (`moveBuilderEpoch`).
  */
 export function builderRecordDataMatchers(documents: readonly string[]): PurgeMatcher[] {
   return documents.some(builderPageKind)
@@ -96,4 +93,36 @@ export function builderDocumentMatchers(documents: readonly string[]): PurgeMatc
     matchers.push({ prefix: PAGE_KEY_PREFIX, accepts: key => segments.has(segmentOfKey(key) ?? '') })
   }
   return matchers
+}
+
+/** The first segment of a store's builder epoch key; `builderEpochKey` adds the store. */
+const BUILDER_EPOCH_KEY = 'builder-epoch'
+
+/** Where the store's builder epoch is kept, on the cache mount. */
+export const builderEpochKey = (host: string): string => `${BUILDER_EPOCH_KEY}:${tenantHostOf(host)}`
+
+/**
+ * The store's builder epoch: an opaque value a builder purge replaces, `''`
+ * before the first. Read from the shared storage on every call, never from a
+ * copy in memory: a pod that has not seen the purge must still see it move.
+ */
+export async function readBuilderEpoch(host: string): Promise<string> {
+  return String(await useStorage('cache').getItem(builderEpochKey(host)) ?? '')
+}
+
+/**
+ * Give the store a new builder epoch. A builder purge writes it after it drops
+ * the store's record data and before it drops the pages
+ * (`server/api/admin/cache/purge.post.ts`): a page render already in flight
+ * read the old records, sees the epoch move between its start and its answer,
+ * and answers `no-store`, so its page is not stored after the purge
+ * (`server/plugins/builder-render-epoch.ts`). A render that starts after the
+ * write reads the new records.
+ *
+ * Still open: Nitro shares one in-flight call of a cached function between
+ * its callers, so a render that starts after the purge can join a record read
+ * that began before it, and store what that read returns.
+ */
+export async function moveBuilderEpoch(host: string): Promise<void> {
+  await useStorage('cache').setItem(builderEpochKey(host), randomUUID())
 }
