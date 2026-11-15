@@ -1,5 +1,5 @@
 {
-  "hash": "3978e489a1bc4628",
+  "hash": "256bf15fed51d079",
   "blocks": [
     {
       "type": "about_content",
@@ -9478,6 +9478,25 @@
           }
         },
         {
+          "id": "accent-text-dark",
+          "foreground": {
+            "mix": "/colors/dark/accent",
+            "toward": "#ffffff",
+            "percent": 20
+          },
+          "background": "/colors/dark/neutral/scale/950",
+          "min": 4.5,
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση σε μικρό κείμενο, σκούρο",
+            "en": "Accent as small text, dark"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να διαβάζεται και σε μικρό κείμενο στη σελίδα.",
+            "en": "Changes the accent colour just enough for small text in it to read on the page."
+          }
+        },
+        {
           "id": "accent-text-muted-light",
           "foreground": "/colors/light/accent",
           "background": "#ffffff",
@@ -9486,6 +9505,25 @@
           "label": {
             "el": "Έμφαση σε μικρό κείμενο, σε απαλό φόντο, φωτεινό",
             "en": "Accent as small text on the muted ground, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να διαβάζεται και σε μικρό κείμενο στο απαλό φόντο.",
+            "en": "Changes the accent colour just enough for small text in it to read on the muted ground."
+          }
+        },
+        {
+          "id": "accent-text-muted-dark",
+          "foreground": {
+            "mix": "/colors/dark/accent",
+            "toward": "#ffffff",
+            "percent": 20
+          },
+          "background": "/colors/dark/neutral/scale/900",
+          "min": 4.5,
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση σε μικρό κείμενο, σε απαλό φόντο, σκούρο",
+            "en": "Accent as small text on the muted ground, dark"
           },
           "fix": {
             "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να διαβάζεται και σε μικρό κείμενο στο απαλό φόντο.",

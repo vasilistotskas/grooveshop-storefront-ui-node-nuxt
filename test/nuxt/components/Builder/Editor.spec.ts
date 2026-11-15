@@ -1157,10 +1157,10 @@ describe('editing the structure of a page', () => {
       // The accent on the muted ground (the newsletter band's heading): an
       // accent that clears 3:1 on the page and not there, as in
       // `documentRoots.spec.ts`. The warning counts and names that rule
-      // (in the light scheme with the small-text rules it also misses), and
+      // (with the small-text rules it also misses), and
       // leads to it.
       it.each([
-        ['webside', null, 'dark', '#606060', ['accent-muted-dark']],
+        ['webside', null, 'dark', '#606060', ['accent-muted-dark', 'accent-text-muted-dark']],
         ['demo', 'volt', 'light', '#949494', ['accent-muted-light', 'accent-text-light', 'accent-text-muted-light']],
       ] as const)('names the muted-ground accent rule on %s', async (schemaName, design, scheme, accent, rules) => {
         const rule = rules[0]

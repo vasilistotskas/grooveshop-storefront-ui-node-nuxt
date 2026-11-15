@@ -2,11 +2,14 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
 import { evaluateContrastRules } from '~~/shared/builder/contrastRules'
-import { MUTED_BACKGROUND, VOLT_BACKGROUND, VOLT_MUTED_BACKGROUND, builderDocumentRootsFor, themeContrastRulesFor, themeRootFor } from '~~/shared/builder/documentRoots'
+import { ACCENT_TEXT_DARK, MUTED_BACKGROUND, VOLT_BACKGROUND, VOLT_MUTED_BACKGROUND, builderDocumentRootsFor, themeContrastRulesFor, themeRootFor } from '~~/shared/builder/documentRoots'
 import { CONTAINER_MAP, FONT_ALLOWLIST } from '~~/shared/theme/constants'
 import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { zThemeSettings } from '~~/shared/theme/settings'
+import { themeScaleFrom } from '~~/shared/theme/scale'
 import { TAILWIND_PALETTES } from '~~/shared/theme/tailwindPalettes'
+import { contrastRatio } from '~~/shared/utils/contrast'
+import { gamutMapToSrgb, hexFromSrgb, srgbFromHex, srgbToOklch } from '~~/shared/utils/oklch'
 
 /**
  * The theme's root, per design, held to the stylesheets that draw each
@@ -182,13 +185,77 @@ describe('themeContrastRulesFor', () => {
     expect(failed.map(({ rule }) => [rule.id, rule.severity])).toEqual([['accent-text-light', 'warning'], ['accent-text-muted-light', 'warning']])
   })
 
+  // The dark scheme draws the accent's text mixed toward white in OKLab
+  // (`--ui-secondary-text`), and the small-text rules judge that mix.
+  it.each([
+    [null, base.dark, '/colors/dark/neutral/scale/950', MUTED_BACKGROUND.dark],
+    ['volt' as const, volt.dark, VOLT_BACKGROUND.dark, VOLT_MUTED_BACKGROUND.dark],
+  ])('holds the dark accent as small text as design %s draws it', (design, css, page, muted) => {
+    const rules = Object.fromEntries(themeContrastRulesFor(design).map(rule => [rule.id, rule]))
+
+    expect(css['--ui-secondary-text']).toBe(`color-mix(in oklab, var(--ui-secondary) ${100 - ACCENT_TEXT_DARK.percent}%, white)`)
+    expect(ACCENT_TEXT_DARK).toEqual({ mix: '/colors/dark/accent', toward: '#ffffff', percent: 20 })
+    expect(rules['accent-text-dark']).toMatchObject({ foreground: ACCENT_TEXT_DARK, background: page, min: 4.5, severity: 'warning' })
+    expect(rules['accent-text-muted-dark']).toMatchObject({ foreground: ACCENT_TEXT_DARK, background: muted, min: 4.5, severity: 'warning' })
+  })
+
+  /** Webside's theme with a dark neutral picked in the panel (`themeScaleFrom`) and a dark accent. */
+  const withDarkNeutral = (source: string, accent: string) => {
+    const defaults = themeDefaultsFor(null)
+    return { ...defaults, colors: { ...defaults.colors, dark: { ...defaults.colors.dark, neutral: { source, scale: themeScaleFrom(source) }, accent } } }
+  }
+
+  // A picked neutral moves webside's dark grounds (neutral 950 and 900): an
+  // accent that clears 3:1 there can draw text below 4.5:1, which only the
+  // small-text rules see. Below: neutral 900 and 950 picked themselves.
+  it.each([
+    ['#464646', '#ff3cc3', 'accent-text-muted-dark', 'accent-muted-dark'],
+    ['#282828', '#d200a5', 'accent-text-dark', 'accent-dark'],
+  ])('warns on webside, with the neutral %s picked, on accent %s as small text', (neutral, accent, failing, sameGround) => {
+    const outcomes = Object.fromEntries(evaluateContrastRules(withDarkNeutral(neutral, accent), themeContrastRulesFor(null)).map(outcome => [outcome.rule.id, outcome]))
+
+    expect(outcomes[sameGround]!.pass).toBe(true)
+    expect(outcomes[failing]!.pass).toBe(false)
+    expect(outcomes['body-text-dark']!.pass).toBe(true)
+  })
+
+  // Every accent on a grid of 12 steps a channel, on the dark grounds neutrals
+  // picked across the board make: the small-text rules warn exactly where the
+  // text as the stylesheet draws it (mixed here on its own, mapped into
+  // sRGB) reads below 4.5:1.
+  it('warns on webside wherever the dark accent\'s drawn text reads below 4.5:1, whatever neutral is picked', () => {
+    const white = srgbToOklch([1, 1, 1])
+    const toLab = ({ l, c, h }: { l: number, c: number, h: number }) => [l, Number.isNaN(h) ? 0 : c * Math.cos(h * Math.PI / 180), Number.isNaN(h) ? 0 : c * Math.sin(h * Math.PI / 180)] as const
+    const textOf = (accent: string) => {
+      const [l, a, b] = toLab(srgbToOklch(srgbFromHex(accent)))
+      const [wl, wa, wb] = toLab(white)
+      const [ml, ma, mb] = [l * 0.8 + wl * 0.2, a * 0.8 + wa * 0.2, b * 0.8 + wb * 0.2]
+      return hexFromSrgb(gamutMapToSrgb({ l: ml, c: Math.hypot(ma, mb), h: (Math.atan2(mb, ma) * 180 / Math.PI + 360) % 360 }))
+    }
+    const rules = themeContrastRulesFor(null).filter(rule => rule.id === 'accent-text-dark' || rule.id === 'accent-text-muted-dark')
+    const steps = Array.from({ length: 12 }, (_, step) => Math.min(255, step * 23).toString(16).padStart(2, '0'))
+    const missed: string[] = []
+    for (const neutral of ['#71717a', '#78716c', '#64748b', '#464646', '#282828', '#7c3aed', '#3f6212']) {
+      const scale = themeScaleFrom(neutral)
+      const grounds = [scale['950'], scale['900']]
+      for (const red of steps) for (const green of steps) for (const blue of steps) {
+        const accent = `#${red}${green}${blue}`
+        const warned = evaluateContrastRules(withDarkNeutral(neutral, accent), rules).map(({ pass }) => !pass)
+        const faint = grounds.map(ground => contrastRatio(textOf(accent), ground) < 4.5)
+        if (warned.some((warns, index) => warns !== faint[index])) missed.push(`${accent} with ${neutral}`)
+      }
+    }
+
+    expect(missed).toEqual([])
+  })
+
   // An accent that clears 3:1 on the page and not on the muted ground: of the
-  // 3:1 rules, the muted ground's is the one that catches it (and, in the
-  // light scheme, both small-text rules warn too). Webside's dark muted
+  // 3:1 rules, the muted ground's is the one that catches it (and the
+  // small-text rules where the text drawn misses 4.5:1 too). Webside's dark muted
   // ground (neutral 900) is lighter than its page (950); Volt's light one
   // (#f7f7f5) is darker than its page (white).
   it.each([
-    [null, 'dark', '#606060', ['accent-muted-dark']],
+    [null, 'dark', '#606060', ['accent-muted-dark', 'accent-text-muted-dark']],
     ['volt', 'light', '#949494', ['accent-muted-light', 'accent-text-light', 'accent-text-muted-light']],
   ] as const)('warns, for design %s, on a %s accent the muted ground cannot carry', (design, scheme, accent, failing) => {
     const defaults = themeDefaultsFor(design)
