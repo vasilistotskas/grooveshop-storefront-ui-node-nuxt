@@ -16,7 +16,8 @@ export type BuilderHistoryStatus = 'idle' | 'loading' | 'ready' | 'error'
 export type BuilderRestoreResult = 'restored' | 'unsaved' | 'conflict' | 'unreadable' | 'failed'
 
 /**
- * The version history of the document being edited: the saved and published
+ * The version history of one document the editor works on (the page, one of
+ * its section groups or the theme: `documentsWith`): the saved and published
  * versions Django keeps, newest first, a page at a time. The draft (what the
  * editor is showing) and the live version are the document's own state
  * (`DocumentDetail`), not entries here: the panel draws them from the editor's
@@ -83,12 +84,16 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
 
   /**
    * A version's content as a working copy this build can draw, for the
-   * preview. `undefined` when it is in a format this editor cannot open.
-   * Rejects when Django cannot be asked: the caller says so.
+   * preview. `undefined` when it is in a format this editor cannot open: a
+   * theme whose settings this build cannot read too, since the preview would
+   * otherwise draw it with the theme being edited. Rejects when Django
+   * cannot be asked: the caller says so.
    */
   async function read(key: string, number: number): Promise<BuilderWorkingCopy | undefined> {
     const version = await $api<VersionDetail>(`${versionsUrl(key)}/${number}`)
-    return readBuilderWorkingCopy(key, version.data, version.i18n)
+    const copy = readBuilderWorkingCopy(key, version.data, version.i18n)
+    if (copy && key === BUILDER_THEME_DOCUMENT && !zThemeSettings.safeParse(copy.draft.settings).success) return undefined
+    return copy
   }
 
   /** A named save: the current draft kept as a version, with a note. Rejects when Django refuses. */

@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  /** The page document the version is of. */
+  /** The page being edited, which the preview draws. */
+  pageKey: string
+  /** The document the version is of: that page, one of its section groups or the theme. */
   documentKey: string
   /** What the version is called in the list, e.g. "Published version 4". */
   title: string
@@ -21,6 +23,9 @@ const open = defineModel<boolean>('open', { required: true })
 const { t, locale } = useStoreI18n('components/Builder/VersionPreview')
 const { documentLabel } = useBuilderLabels()
 
+/** What the canvas draws in place of the document the version is of. */
+const preview = computed(() => ({ key: props.documentKey, copy: props.copy }))
+
 /** The body fills the panel edge to edge. */
 const modalUi = { body: 'min-h-0 overflow-hidden p-0 sm:p-0' }
 </script>
@@ -35,8 +40,8 @@ const modalUi = { body: 'min-h-0 overflow-hidden p-0 sm:p-0' }
   >
     <template #body>
       <BuilderCanvas
-        :document-key="props.documentKey"
-        :preview="props.copy"
+        :document-key="props.pageKey"
+        :preview="preview"
       />
     </template>
     <template #footer>
