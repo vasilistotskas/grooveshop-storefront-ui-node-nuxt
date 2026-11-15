@@ -13,6 +13,7 @@
 import { readFileSync } from 'node:fs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/admin/cache/purge.post'
+import { builderEpochKey, readBuilderEpoch } from '~~/server/utils/builderDocumentPurge'
 import { hashedCacheKey, tenantCacheKey } from '~~/server/utils/cacheKey'
 import { clearTenantCache, getTenantConfig, tenantConfigEpoch } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
@@ -516,6 +517,46 @@ describe('POST /api/admin/cache/purge, the record data of purged pages', () => {
     release()
     expect((await response).status).toBe(200)
     expect(await remainingKeys()).not.toContain(HOME)
+  })
+
+  // A render in flight read the data just dropped: the epoch it reads again as
+  // it answers has moved, so it does not store its page (`builder-render-epoch`).
+  // Written after the data goes, so a render that starts after it reads Django,
+  // and before the pages go, so no page a stale render stores outlives the purge.
+  it('moves the store\'s builder epoch after the record data goes and before the pages do', async () => {
+    const epochKey = `cache:${builderEpochKey(WEBSIDE)}`
+    const before = await readBuilderEpoch(WEBSIDE)
+    const root = useStorage()
+    const setItem = root.setItem.bind(root)
+    let seen: { data: string[], homeCached: boolean } | undefined
+    vi.spyOn(root, 'setItem').mockImplementation(async (key, ...rest) => {
+      if (String(key) === epochKey) {
+        const left = await remainingKeys()
+        seen = {
+          data: RECORD_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key)),
+          homeCached: left.includes(HOME),
+        }
+      }
+      return setItem(key, ...rest)
+    })
+
+    await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+
+    expect(seen).toEqual({ data: [], homeCached: true })
+    expect(await readBuilderEpoch(WEBSIDE)).not.toBe(before)
+    expect(await remainingKeys()).not.toContain(HOME)
+  })
+
+  it('moves only the purged store\'s builder epoch, and none on a dry run', async () => {
+    const demo = await readBuilderEpoch(DEMO)
+    const webside = await readBuilderEpoch(WEBSIDE)
+
+    await purge({ builderDocuments: ['template:home'], host: WEBSIDE, dryRun: true })
+    expect(await readBuilderEpoch(WEBSIDE)).toBe(webside)
+
+    await purge({ builderDocuments: ['theme'], host: WEBSIDE })
+    expect(await readBuilderEpoch(WEBSIDE)).not.toBe(webside)
+    expect(await readBuilderEpoch(DEMO)).toBe(demo)
   })
 
   it('never drops another store\'s record data', async () => {
