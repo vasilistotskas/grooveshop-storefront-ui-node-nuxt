@@ -1858,8 +1858,11 @@ describe('editing the structure of a page', () => {
 
         await wrapper.findAll('button').find(item => item.text() === 'Δημοσίευση')!.trigger('click')
         await flushPromises()
-        await vi.waitFor(() => expect(document.body.textContent).toContain(publishTexts.t('themeWarnings.title', { count: 1 }, 1)))
-        expect(document.body.textContent).toContain(labels.contrastRules[rule])
+        // As many warnings as the design's rules find in the restored theme.
+        const warnings = evaluateContrastRules(earlier, themeContrastRulesFor(design)).filter(({ rule: checked, pass }) => checked.severity === 'warning' && !pass)
+        expect(warnings.map(({ rule: checked }) => checked.id)).toContain(rule)
+        await vi.waitFor(() => expect(document.body.textContent).toContain(publishTexts.t('themeWarnings.title', { count: warnings.length }, warnings.length)))
+        expect(document.body.textContent).toContain(themeContrastRulesFor(design).find(({ id }) => id === rule)!.label.el)
         await vi.waitFor(() => expect(dialogButton('Δημοσίευση τώρα')?.disabled).toBe(false))
         dialogButton('Δημοσίευση τώρα')!.click()
         await vi.waitFor(() => expect(api.callsTo('/api/builder/publish')).toHaveLength(1))
