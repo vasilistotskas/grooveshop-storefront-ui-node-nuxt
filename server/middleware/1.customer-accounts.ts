@@ -46,10 +46,15 @@ const isCustomerAccountPath = (pathname: string) =>
  * browser loads (`isPageRequest`): the page's own response is the one the
  * browser keeps a cookie from, while the session the SSR render asks for
  * travels through an internal fetch whose `Set-Cookie` never leaves the
- * server. Only the identity goes (`dropSignedInIdentity`): the cart and
- * anything else in the session stay, so a guest cart built since the
- * switch-off survives, and no API request rewrites the session beside a
- * cart write in flight.
+ * server. The drop (`dropSignedInIdentity`) takes the identity and the
+ * session's cart id and keeps the rest. A page response seals the session as
+ * it read it when the render began, so a cart write from another tab can
+ * land before it. Writing the older cart id back would take that cart away,
+ * so the drop leaves the cart to the `cart-id` cookie every cart write sets.
+ * Every cart write on such a store leaves the identity out too
+ * (`server/utils/cartSession.ts`). Whichever response lands last, the
+ * browser holds no identity and its newest cart, so a guest cart built
+ * since the switch-off survives.
  *
  * After `0.tenant.ts`, which resolves the store for every path here (none
  * is in its bypass list); a request without a store is not decided here.

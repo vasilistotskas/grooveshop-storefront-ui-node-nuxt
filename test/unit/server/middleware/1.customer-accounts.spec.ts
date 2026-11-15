@@ -9,7 +9,7 @@
 import { describe, expect, it } from 'vitest'
 import middleware from '~~/server/middleware/1.customer-accounts'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
-import { backend, callHandler, createTestEvent, testSession } from '~~/test/helpers/nitro'
+import { backend, callHandler, callRoute, createTestEvent, testSession } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
 const withAccounts = (on: boolean) => {
@@ -72,14 +72,26 @@ describe('server/middleware/1.customer-accounts', () => {
       // The page's own request is the one whose response the browser
       // gets: the session the SSR render asks for goes through an internal
       // fetch whose `Set-Cookie` never leaves the server.
-      it('ends the signed-in identity on the page request, keeping the cart', async () => {
+      it('ends the signed-in identity on the page request, keeping the rest', async () => {
         signedIn({ cartId: CART, viewedPosts: ['7'] })
 
         await expect(run(PAGE, false)).resolves.toBeUndefined()
 
-        expect(testSession.data).toEqual({ cartId: CART, viewedPosts: ['7'] })
+        // The session's cart id goes with the identity: the cart is named
+        // by the `cart-id` cookie, which the drop never touches
+        // (`dropSignedInIdentity`'s spec).
+        expect(testSession.data).toEqual({ viewedPosts: ['7'] })
         // Rewritten with the cart's own cookie lifetime, as a cart write is.
         expect(testSession.writeConfig).toMatchObject({ cookie: { maxAge: 60 * 60 * 24 * 30 } })
+      })
+
+      it('writes the session cookie onto the page response itself', async () => {
+        signedIn({ cartId: CART })
+
+        const response = await callRoute(middleware, { ...PAGE, context: { tenant: withAccounts(false) } })
+
+        expect(response.headers.getSetCookie().some(cookie => cookie.startsWith('nuxt-auth-session='))).toBe(true)
+        expect(response.headers.getSetCookie().some(cookie => cookie.startsWith('cart-id='))).toBe(false)
       })
 
       it('ends a session that held nothing but the identity', async () => {
