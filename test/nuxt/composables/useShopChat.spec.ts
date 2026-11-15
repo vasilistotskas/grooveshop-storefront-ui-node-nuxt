@@ -496,8 +496,94 @@ describe('useShopChat', () => {
     useShopChat().open.value = false
   })
 
+  describe('a turn that failed', () => {
+    const CART_ID = '6f1c1f3e-2d6a-4b0f-9a3e-2f6d6c1b9a10'
+    const failed = (members: string) =>
+      `event: error
+data: {"message":"Η συνομιλία διακόπηκε.",${members}}
+
+`
+
+    it('claims the cart the assistant created for a visitor, and keeps the error', async () => {
+      const created = makeCart({ uuid: CART_ID })
+      api.routes({ '/api/cart/claim': created })
+      stubStream(failed(`"cartId":"${CART_ID}","cartMutated":true`))
+
+      const chat = useShopChat()
+      await chat.send('βάλε το στο καλάθι')
+
+      expect(api.callsTo('/api/cart/claim')).toEqual([
+        expect.objectContaining({ options: expect.objectContaining({ method: 'POST', body: { uuid: CART_ID } }) }),
+      ])
+      expect(useCartStore().cart).toEqual(created)
+      expect(chat.cartMutated.value).toBe(true)
+      expect(chat.status.value).toBe('error')
+      expect(chat.errorMessage.value).toBe('Η συνομιλία διακόπηκε.')
+    })
+
+    it('refreshes the cart of a visitor who sent one', async () => {
+      const own = makeCart()
+      useCartStore().cart = own
+      const updated = makeCart({ uuid: own.uuid, items: [{ id: 1 }, { id: 2, product: { id: 2 } }] })
+      api.routes({ '/api/cart': updated })
+      stubStream(failed(`"cartId":"${CART_ID}","cartMutated":true`))
+
+      const chat = useShopChat()
+      await chat.send('βάλε το στο καλάθι')
+
+      expect(api.callsTo('/api/cart/claim')).toEqual([])
+      expect(useCartStore().cart).toEqual(updated)
+      expect(chat.cartMutated.value).toBe(true)
+      expect(chat.status.value).toBe('error')
+    })
+
+    it('adopts the conversation that holds the cart, so the retry continues it', async () => {
+      api.routes({ '/api/cart/claim': makeCart({ uuid: CART_ID }) })
+      const fetchMock = vi.fn((_url: string, _init: RequestInit) =>
+        Promise.resolve(sseResponse(fetchMock.mock.calls.length === 1
+          ? failed(`"conversationId":"c7","cartId":"${CART_ID}","cartMutated":true`)
+          : DONE)))
+      vi.stubGlobal('fetch', fetchMock)
+
+      const chat = useShopChat()
+      await chat.send('βάλε το στο καλάθι')
+      expect(chat.conversationId.value).toBe('c7')
+      await chat.retry()
+
+      const [first, second] = fetchMock.mock.calls.filter(([url]) => url === '/chat').map(bodyOf)
+      expect(second.conversationId).toBe('c7')
+      expect(second.turnId).toBe(first.turnId)
+    })
+
+    it('keeps the error message when the cart cannot be refreshed', async () => {
+      useCartStore().cart = makeCart()
+      api.routes({ '/api/cart': failWith(502) })
+      stubStream(failed('"cartMutated":true'))
+
+      const chat = useShopChat()
+      await chat.send('βάλε το στο καλάθι')
+
+      expect(chat.status.value).toBe('error')
+      expect(chat.errorMessage.value).toBe('Η συνομιλία διακόπηκε.')
+    })
+
+    it('behaves as before without the cart members', async () => {
+      useCartStore().cart = makeCart()
+      stubStream(failed('"code":"turn_failed"'))
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(api.callsTo('/api/cart')).toEqual([])
+      expect(api.callsTo('/api/cart/claim')).toEqual([])
+      expect(chat.cartMutated.value).toBe(false)
+      expect(chat.conversationId.value).toBe('')
+      expect(chat.errorMessage.value).toBe('Η συνομιλία διακόπηκε.')
+    })
+  })
+
   it('reset forgets that the last turn changed the cart', async () => {
-    useCartStore().refreshCart = vi.fn(() => Promise.resolve())
+    vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue()
     stubStream('event: done\ndata: {"conversationId":"c1","cartId":"abc","cartMutated":true}\n\n')
 
     const chat = useShopChat()
@@ -587,6 +673,33 @@ describe('useShopChat', () => {
       const updated = makeCart({ uuid: own.uuid, items: [{ id: 1 }, { id: 2, product: { id: 2 } }] })
       api.routes({ '/api/cart/agent-token': MINTED('pass-1'), '/api/cart': updated })
       stubStream('event: done\ndata: {"conversationId":"c1","cartId":"6f1c1f3e-2d6a-4b0f-9a3e-2f6d6c1b9a10","cartMutated":true}\n\n')
+
+      await useShopChat().send('βάλε το στο καλάθι')
+
+      expect(api.callsTo('/api/cart/claim')).toEqual([])
+      expect(useCartStore().cart).toEqual(updated)
+    })
+
+    it('drops the token a failed turn reports refused', async () => {
+      let minted = 0
+      api.routes({ '/api/cart/agent-token': () => MINTED(`pass-${++minted}`) })
+      const refused = 'event: error\ndata: {"message":"x","cartMutated":false,"cartTokenRefused":true}\n\n'
+      const fetchMock = vi.fn((_url: string, _init: RequestInit) =>
+        Promise.resolve(sseResponse(fetchMock.mock.calls.length === 1 ? refused : DONE)))
+      vi.stubGlobal('fetch', fetchMock)
+
+      const chat = useShopChat()
+      await chat.send('πρώτο')
+      await chat.send('δεύτερο')
+
+      expect(tokensSent(fetchMock)).toEqual(['pass-1', 'pass-2'])
+    })
+
+    it('refreshes the shoppers own cart after a failed turn that changed it', async () => {
+      const own = makeCart()
+      const updated = makeCart({ uuid: own.uuid, items: [{ id: 1 }, { id: 2, product: { id: 2 } }] })
+      api.routes({ '/api/cart/agent-token': MINTED('pass-1'), '/api/cart': updated })
+      stubStream('event: error\ndata: {"message":"x","cartId":"6f1c1f3e-2d6a-4b0f-9a3e-2f6d6c1b9a10","cartMutated":true}\n\n')
 
       await useShopChat().send('βάλε το στο καλάθι')
 
