@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { createError, defineEventHandler, useRuntimeConfig } from 'nuxt/server'
 
-const zBoxNowLabelPath = z.object({
+const zShipmentLabelPath = z.object({
   // Order IDs are unsigned integers — reject negative values that
   // would 404 against Django anyway and just produce noise in logs.
   id: z.union([
@@ -14,16 +14,16 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const headers = await getAllAuthHeaders(event)
   try {
-    const params = await parseRouterParams(event, zBoxNowLabelPath)
+    const params = await parseRouterParams(event, zShipmentLabelPath)
 
-    // Use ``arrayBuffer`` rather than ``blob`` because Nitro's
-    // default response handler JSON-stringifies a returned ``Blob``
-    // (it doesn't know how to serialise the platform Blob type) and
-    // the customer ends up with ``[object Blob]`` instead of a PDF.
-    // Convert the ArrayBuffer to a ``Buffer`` and let Nitro send it
-    // as raw binary with the Content-Type we set explicitly.
+    // Use ``arrayBuffer`` rather than ``blob``: Nitro's default
+    // response handler JSON-stringifies a returned ``Blob`` (it has
+    // no built-in serialiser for the platform Blob type), so the
+    // customer ends up with ``[object Blob]`` instead of a PDF.
+    // Convert to ``Buffer`` and let Nitro send raw binary with the
+    // Content-Type we set explicitly.
     const response = await useBackendFetch(event).raw<ArrayBuffer, 'arrayBuffer'>(
-      `${config.apiBaseUrl}/order/${params.id}/boxnow_label`,
+      `${config.apiBaseUrl}/order/${params.id}/shipment_label`,
       {
         method: 'GET',
         headers,
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     )
 
     event.res.headers.set('Content-Type', 'application/pdf')
-    event.res.headers.set('Content-Disposition', `attachment; filename="boxnow-${params.id}.pdf"`)
+    event.res.headers.set('Content-Disposition', `attachment; filename="shipping-label-${params.id}.pdf"`)
 
     if (!response._data) {
       throw createError({ status: 502, statusText: 'Empty PDF body from upstream' })
