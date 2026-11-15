@@ -1,5 +1,6 @@
 import { deleteCookie, getCookie, getRequestProtocol, setCookie } from 'nuxt/server'
 import type { RequestEvent } from 'nuxt/server'
+import type { UserSession } from '#auth-utils'
 
 interface CartSessionData {
   // Cart UUID — the public identifier on the X-Cart-Id header. Switched
@@ -61,7 +62,7 @@ function writeFallbackCartId(event: RequestEvent, cartId: string | undefined): v
  * accepts the signed-in identity a session from before the switch-off
  * still holds (`server/middleware/1.customer-accounts.ts`).
  */
-function customerAccountsOff(event: RequestEvent): boolean {
+export function customerAccountsOff(event: RequestEvent): boolean {
   const tenant = event.context.tenant
   return Boolean(tenant) && !storeFeatureOn(tenant, 'customerAccounts')
 }
@@ -177,22 +178,28 @@ export async function clearCartSession(event: RequestEvent): Promise<void> {
 /**
  * Take the signed-in shopper (`user`), their tokens (`secure`) and the
  * session's cart id out of the session, keeping the rest (the posts already
- * counted). For a store that switched customer accounts off
- * (`server/middleware/1.customer-accounts.ts`): Django no longer accepts
- * those tokens.
+ * counted) with `updates` over it. For a store that switched customer
+ * accounts off (`server/middleware/1.customer-accounts.ts`): Django no
+ * longer accepts those tokens. Every session write on such a store that is
+ * not a cart write goes through here: the page request that ends the
+ * identity, and the blog's view count.
  *
- * The cart id goes too because this write is a page response sealing the
- * session as it read it when the render began, and a cart write from
- * another tab can reach the browser before it: writing that older id back
- * would take the newer cart away. Nothing is lost: every cart write also
+ * The cart id goes too because such a write seals the session as it read it
+ * when its request began, and a cart write from another tab can reach the
+ * browser before it: writing that older id back would take the newer cart
+ * away, and writing the identity back would undo the drop. Nothing is lost: every cart write also
  * sets the `cart-id` spare cookie, which this leaves alone and
  * `getCartSession` re-attaches on the next request, whether it names a
  * guest cart or a pre-switch user cart (one Django's guest carts never
  * match, so the guest gets a new cart). A session left with nothing is
  * cleared; otherwise it keeps the cart's cookie lifetime.
  */
-export async function dropSignedInIdentity(event: RequestEvent): Promise<void> {
-  const { cartId: _cartId, ...rest } = withoutIdentity(await getUserSession(event))
+export async function dropSignedInIdentity(
+  event: RequestEvent,
+  updates: Partial<Pick<UserSession, 'viewedPosts'>> = {},
+): Promise<void> {
+  const { cartId: _cartId, ...kept } = withoutIdentity(await getUserSession(event))
+  const rest = { ...kept, ...updates }
   if (Object.values(rest).every(value => value === undefined)) {
     await clearUserSession(event)
     return

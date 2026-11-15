@@ -51,8 +51,11 @@ const isCustomerAccountPath = (pathname: string) =>
  * it read it when the render began, so a cart write from another tab can
  * land before it. Writing the older cart id back would take that cart away,
  * so the drop leaves the cart to the `cart-id` cookie every cart write sets.
- * Every cart write on such a store leaves the identity out too
- * (`server/utils/cartSession.ts`). Whichever response lands last, the
+ * Every other session write on such a store leaves the identity out too:
+ * the cart writes, and the blog's view count, which also leaves the cart
+ * id (`server/utils/cartSession.ts`). The remaining writers (sign-in, OAuth,
+ * the account) sit on the paths this middleware answers 404. Whichever
+ * response lands last, the
  * browser holds no identity and its newest cart, so a guest cart built
  * since the switch-off survives.
  *
