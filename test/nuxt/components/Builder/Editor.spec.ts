@@ -19,6 +19,7 @@ import conflictSource from '~/components/Builder/ConflictDialog.vue?raw'
 import canvasSource from '~/components/Builder/Canvas.vue?raw'
 import shareSource from '~/components/Builder/ShareDialog.vue?raw'
 import historySource from '~/components/Builder/VersionHistory.vue?raw'
+import previewSource from '~/components/Builder/VersionPreview.vue?raw'
 import labels from '~/builder/labels/el.json'
 import { componentTexts } from '~~/test/helpers/componentTexts'
 
@@ -1669,6 +1670,7 @@ describe('editing the structure of a page', () => {
     // look can be found, previewed, put back as the draft and published.
     describe('in the version history', () => {
       const historyTexts = componentTexts(historySource, 'VersionHistory.vue')
+      const previewTexts = componentTexts(previewSource, 'VersionPreview.vue')
       const publishTexts = componentTexts(publishSource, 'Publish.vue')
       const THEME_LABEL = labels.documents.theme
       const VERSIONS = (key: string) => `${documentUrl(key)}/versions`
@@ -1864,6 +1866,31 @@ describe('editing the structure of a page', () => {
         expect(colourInput(wrapper, 'Κύριο χρώμα').element.value).toBe(themeDefaultsFor(null).colors.light.primary.source)
         expect(document.querySelector('[role="dialog"]')!.textContent).toContain(historyTexts.t('unreadableRow'))
         expect(labelled(historyTexts.t('restore.of', { title: FIRST }))!.disabled).toBe(true)
+      })
+
+      // Opening another page (Back included) reopens the editor, which closes
+      // the history and a version previewed from it: their Restore can never
+      // act on the history of a document other than the one it names.
+      it('closes a version previewed when another page is opened, and restores nothing', async () => {
+        setTenant({ schemaName: 'webside' })
+        historyRoutes(themeDefaultsFor(null), earlierThan(null), {
+          [documentUrl('page:summer-sale')]: ABOUT,
+          [VERSIONS('page:summer-sale')]: listOf(version(1)),
+        })
+        const wrapper = await open()
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('previewOf', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('previewOf', { title: FIRST }))!.click()
+        await vi.waitFor(() => expect(dialogButton(previewTexts.t('restore'))).toBeDefined())
+        await useRouter().push({ query: { ...useRoute().query, [BUILDER_EDITOR_QUERY.document]: 'page:summer-sale' } })
+        await vi.waitFor(() => expect(useBuilderEditorStore().status).toBe('ready'))
+        await flushPromises()
+
+        expect(dialogButton(previewTexts.t('restore'))).toBeUndefined()
+        expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)).toHaveLength(0)
+        expect(api.callsTo(`${VERSIONS('page:summer-sale')}/1/restore`)).toHaveLength(0)
       })
 
       it('lets STAFF read and preview the theme\'s history, with nothing to restore or save', async () => {
