@@ -322,7 +322,6 @@ el:
     scheduled_title: Ο λογαριασμός σου διαγράφεται
     scheduled_description: Αποσυνδέθηκες — τα δεδομένα σου θα διαγραφούν σε λίγα δευτερόλεπτα.
     error_title: Δεν ήταν δυνατή η διαγραφή
-    error_description: Δοκίμασε ξανά ή επικοινώνησε με την υποστήριξη.
 en:
   title: Privacy & Data
   export:
@@ -365,5 +364,4 @@ en:
     scheduled_title: Your account is being deleted
     scheduled_description: You have been signed out — your data will be gone in a few seconds.
     error_title: The account could not be deleted
-    error_description: Try again, or get in touch with support.
 </i18n>
