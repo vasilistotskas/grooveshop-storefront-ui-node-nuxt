@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
 import { defineBlock } from '~~/shared/builder/defineBlock'
-import { BUILDER_DOCUMENT_NODE_ID } from '~~/shared/constants/builder'
+import { builderField } from '~~/shared/builder/fields'
+import { BUILDER_DOCUMENT_NODE_ID, DATA_LIMITS } from '~~/shared/constants/builder'
 import {
   canDuplicateNode,
   builderNodeSiblings,
@@ -143,6 +144,18 @@ describe('duplicating a node', () => {
     expect(canDuplicateNode(full, 'a', blocks)).toBe(false)
     expect(canDuplicateNode(page(), 'top', blocks)).toBe(false)
     expect(canDuplicateNode(page(), 'list', blocks)).toBe(true)
+  })
+
+  it('refuses a copy whose lists would take the document past the lists it may read', () => {
+    const rail = defineBlock({ type: 'rail', version: 1, kinds: ['section'], schema: z.object({ products: builderField.query('product', { onEmpty: 'hide' }).optional() }) })
+    const railBlocks = new Map<string, BlockDefinition>([[rail.type, rail]])
+    const rails = (count: number): BuilderWorkingCopy => ({
+      draft: { sections: Object.fromEntries(Array.from({ length: count }, (_, index) => [`r${index}`, node('rail@1', { products: { mode: 'filter', ordering: 'newest', limit: 4 } })])), order: Array.from({ length: count }, (_, index) => `r${index}`) },
+      i18n: {},
+    })
+
+    expect(canDuplicateNode(rails(DATA_LIMITS.maxQueriesPerDocument - 1), 'r0', railBlocks)).toBe(true)
+    expect(canDuplicateNode(rails(DATA_LIMITS.maxQueriesPerDocument), 'r0', railBlocks)).toBe(false)
   })
 })
 
@@ -305,6 +318,7 @@ describe('what the library offers', () => {
     defineBlock({ type: 'box', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, limits: { maxBlocks: 2 }, children: { allowed: ['tile'] } }),
     defineBlock({ type: 'shallow', version: 1, kinds: ['section'], schema: z.object({}), presets: preset, children: { allowed: ['tile'], maxDepth: 1 } }),
     defineBlock({ type: 'tile', version: 1, kinds: ['block'], schema: z.object({}), presets: preset, children: { allowed: ['tile'] } }),
+    defineBlock({ type: 'rail', version: 1, kinds: ['section'], schema: z.object({ products: builderField.query('product', { onEmpty: 'hide' }).optional() }), presets: [{ id: 'default', settings: { products: { mode: 'filter', ordering: 'newest', limit: 4 } } }] }),
   ].map(block => [block.type, block]))
   const copyOf = (sections: Record<string, BuilderNode>): BuilderWorkingCopy => ({ draft: { sections, order: Object.keys(sections) }, i18n: {} })
   const offers = (copy: BuilderWorkingCopy, parentId?: string, documentKey = 'template:home', off: readonly string[] = [], design = 'webside') =>
@@ -312,7 +326,7 @@ describe('what the library offers', () => {
       .map(({ definition, refusal }) => refusal ? `${definition.type} (${refusal})` : definition.type)
 
   it('offers the sections that may sit in the document, never a deprecated one or one with nothing to insert', () => {
-    expect(offers(copyOf({}))).toEqual(['banner', 'once', 'loyal', 'ours', 'box', 'shallow'])
+    expect(offers(copyOf({}))).toEqual(['banner', 'once', 'loyal', 'ours', 'box', 'shallow', 'rail'])
     expect(offers(copyOf({}), undefined, 'group:header')).toEqual(['menu'])
   })
 
@@ -328,6 +342,14 @@ describe('what the library offers', () => {
 
   it('refuses a section the document already holds as many of as it may', () => {
     expect(offers(copyOf({ a: node('once@1') }))).toContain('once (perTemplate)')
+  })
+
+  it('refuses a section whose lists would take the document past the lists it may read', () => {
+    const rails = (count: number) => copyOf(Object.fromEntries(Array.from({ length: count }, (_, index) => [`r${index}`, node('rail@1', { products: { mode: 'filter', ordering: 'newest', limit: 4 } })])))
+
+    expect(offers(rails(DATA_LIMITS.maxQueriesPerDocument - 1))).toContain('rail')
+    expect(offers(rails(DATA_LIMITS.maxQueriesPerDocument))).toContain('rail (lists)')
+    expect(offers(rails(DATA_LIMITS.maxQueriesPerDocument))).toContain('banner')
   })
 
   it('offers inside a section only what it takes, and nothing once it is full', () => {

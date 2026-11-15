@@ -98,15 +98,17 @@ export function removeNode(copy: BuilderWorkingCopy, nodeId: string): BuilderWor
 }
 
 /**
- * Whether one more copy of a node fits its document: its parent's `maxBlocks`
- * and the `maxPerTemplate` of every block type in it, as the catalogue states
- * them. Django checks the same limits, and the settings' own on save.
+ * Whether one more copy of a node fits its document: its parent's `maxBlocks`,
+ * the `maxPerTemplate` of every block type in it, as the catalogue states
+ * them, and the lists a document may read (`DATA_LIMITS.maxQueriesPerDocument`).
+ * Django checks the same limits, and the settings' own on save.
  */
 export function canDuplicateNode(copy: BuilderWorkingCopy, nodeId: string, blocks: ReadonlyMap<string, BlockDefinition>): boolean {
   const place = placeOf(copy.draft, nodeId)
   if (!place) return false
   const parentLimit = place.parent ? blocks.get(builderBlockType(place.parent))?.limits.maxBlocks : undefined
   if (parentLimit !== undefined && place.order.length >= parentLimit) return false
+  if (builderListCount(Object.values(copy.draft.sections), blocks) + builderListCount([place.node], blocks) > DATA_LIMITS.maxQueriesPerDocument) return false
   const added = subtree(place.node, nodeId).map(({ node }) => builderBlockType(node))
   const present = allNodes(copy.draft).map(({ node }) => builderBlockType(node))
   return [...new Set(added)].every((type) => {
@@ -277,7 +279,7 @@ export function insertNode(copy: BuilderWorkingCopy, at: BuilderInsertPoint, nod
 }
 
 /** Why the library shows a block it cannot add there now. */
-export type BuilderLibraryRefusal = 'feature' | 'perTemplate' | 'full'
+export type BuilderLibraryRefusal = 'feature' | 'perTemplate' | 'full' | 'lists'
 
 export interface BuilderLibraryOffer {
   definition: BlockDefinition
@@ -295,8 +297,10 @@ export interface BuilderLibraryOffer {
  * other designs only (`designs`; `design` is the store's).
  *
  * Shown but refused: a block whose store feature is off (`featureOn`), one
- * the document already holds as many of as its `maxPerTemplate`, and every
- * block when the parent holds its `maxBlocks`. Django checks all of it again
+ * the document already holds as many of as its `maxPerTemplate`, every
+ * block when the parent holds its `maxBlocks`, and one whose preset's lists
+ * would take the document past `DATA_LIMITS.maxQueriesPerDocument`
+ * (`builderListCount`). Django checks all of it again
  * on save; this is what the merchant is offered.
  */
 export function builderLibraryOffers(
@@ -314,13 +318,19 @@ export function builderLibraryOffers(
     : definition.kinds.includes('section') && builderPlacementAllowed(definition, documentKey)))
   const present = allNodes(copy.draft).map(({ node }) => builderBlockType(node))
   const full = parent?.definition.limits.maxBlocks !== undefined && (parent.node.blockOrder?.length ?? 0) >= parent.definition.limits.maxBlocks
+  const lists = builderListCount(Object.values(copy.draft.sections), blocks)
+  /** The lists a block brings: those its preset fills in (the text and the ids do not change the count). */
+  const listsOf = (definition: BlockDefinition) =>
+    builderListCount([builderPresetNode(definition, BUILDER_DEFAULT_PRESET, blocks, () => undefined, () => '')], blocks)
   return candidates.map((definition) => {
     const limit = definition.limits.maxPerTemplate
     const refusal: BuilderLibraryRefusal | undefined = definition.feature && !featureOn(definition.feature)
       ? 'feature'
       : full
         ? 'full'
-        : limit !== undefined && present.filter(type => type === definition.type).length >= limit ? 'perTemplate' : undefined
+        : limit !== undefined && present.filter(type => type === definition.type).length >= limit
+          ? 'perTemplate'
+          : lists + listsOf(definition) > DATA_LIMITS.maxQueriesPerDocument ? 'lists' : undefined
     return refusal ? { definition, refusal } : { definition }
   })
 }
