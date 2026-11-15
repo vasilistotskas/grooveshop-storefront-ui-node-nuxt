@@ -1893,6 +1893,42 @@ describe('editing the structure of a page', () => {
         expect(api.callsTo(`${VERSIONS('page:summer-sale')}/1/restore`)).toHaveLength(0)
       })
 
+      // The document switch stays usable while a version is read for its
+      // preview: the version previewed is restored to its own document,
+      // whatever the switch shows by the time Restore is pressed.
+      it('restores the version previewed to its own document when the switch moved during its read', async () => {
+        setTenant({ schemaName: 'webside' })
+        const earlier = earlierThan(null)
+        const stored = { ...version(1), data: { settings: earlier, sections: {}, order: [] }, i18n: {}, refs: {} }
+        // The preview's read waits until the switch has moved; the restore's own read answers at once.
+        let arrive: () => void = () => {}
+        let reads = 0
+        historyRoutes(themeDefaultsFor(null), earlier, {
+          [`${THEME_VERSIONS}/1`]: () => reads++ === 0
+            ? new Promise((resolve) => {
+                arrive = () => resolve(stored)
+              })
+            : stored,
+        })
+        const wrapper = await open()
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('previewOf', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('previewOf', { title: FIRST }))!.click()
+        await flushPromises()
+        await showHistoryOf(labels.groups.header)
+        await vi.waitFor(() => expect(api.callsTo(VERSIONS('group:header'))).toHaveLength(1))
+        arrive()
+        await vi.waitFor(() => expect(dialogButton(previewTexts.t('restore'))).toBeDefined())
+        dialogButton(previewTexts.t('restore'))!.click()
+        await flushPromises()
+        dialogButton(historyTexts.t('restore.confirm'))!.click()
+        await vi.waitFor(() => expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)).toHaveLength(1))
+
+        expect(api.callsTo(`${VERSIONS('group:header')}/1/restore`)).toHaveLength(0)
+      })
+
       it('lets STAFF read and preview the theme\'s history, with nothing to restore or save', async () => {
         historyRoutes(themeDefaultsFor('volt'), earlierThan('volt'))
         const wrapper = await open('/_builder', { ...session, staff: { ...session.staff, role: 'staff' } })

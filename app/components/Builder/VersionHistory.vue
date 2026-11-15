@@ -81,8 +81,12 @@ async function preview(row: BuilderHistoryRow): Promise<void> {
   }
 }
 
-/** Putting a version back asks first: it replaces the draft. */
-const restoring = ref<BuilderHistoryRow>()
+/**
+ * Putting a version back asks first: it replaces the draft. The version is
+ * held with the document it is of, so it is put back there whatever the
+ * document switch shows by then (it stays usable while a preview is read).
+ */
+const restoring = ref<{ key: string, row: BuilderHistoryRow }>()
 const confirmOpen = computed({
   get: () => restoring.value !== undefined,
   set: (value: boolean) => {
@@ -92,11 +96,10 @@ const confirmOpen = computed({
 const busy = ref(false)
 
 async function restore(): Promise<void> {
-  const row = restoring.value
-  if (!row || row.number === undefined) return
+  const { key, row } = restoring.value ?? {}
+  if (!key || !row || row.number === undefined) return
   busy.value = true
   try {
-    const key = historyKey.value
     const result = await history.restore(key, row.number, t('beforeRestore', { number: row.number }))
     if (result === 'restored') {
       toast.add({ title: t('restored', { title: rowTitle(row) }), icon: 'i-lucide-undo-2', color: 'success' })
@@ -304,7 +307,7 @@ const panelUi = { body: 'p-0 sm:p-0' }
                     size="sm"
                     :aria-label="t('restore.of', { title: rowTitle(row) })"
                     :disabled="unreadableRow(row)"
-                    @click="() => { restoring = row }"
+                    @click="() => { restoring = { key: historyKey, row } }"
                   />
                 </UTooltip>
               </div>
@@ -338,12 +341,12 @@ const panelUi = { body: 'p-0 sm:p-0' }
     :at="previewing.row.at"
     :copy="previewing.copy"
     :can-restore="store.canEdit"
-    @restore="() => { restoring = previewing?.row }"
+    @restore="() => { restoring = previewing && { key: previewing.key, row: previewing.row } }"
   />
 
   <UModal
     v-model:open="confirmOpen"
-    :title="t('restore.title', { title: restoring ? rowTitle(restoring) : '' })"
+    :title="t('restore.title', { title: restoring ? rowTitle(restoring.row) : '' })"
     :description="t('restore.description')"
   >
     <template #footer>
