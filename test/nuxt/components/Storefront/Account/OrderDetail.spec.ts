@@ -172,7 +172,7 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
     expect(wrapper.text()).toContain('Σημείο παραλαβής')
     expect(wrapper.text()).toContain('BOX NOW · Τσιμισκή 45')
     expect(button(wrapper, 'Παρακολούθηση στο BOX NOW')?.attributes('href')).toBe('https://boxnow.gr/en?track=9812447102')
-    expect(button(wrapper, 'Ετικέτα αποστολής')?.attributes('href')).toBe('/api/orders/3/boxnow-label')
+    expect(button(wrapper, 'Ετικέτα αποστολής')?.attributes('href')).toBe('/api/orders/3/shipment-label')
   })
 
   it.runIf(defaultOnly)('shows the ACS station with its scans and links its tracking', async () => {
