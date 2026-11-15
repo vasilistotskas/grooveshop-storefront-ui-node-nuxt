@@ -29,6 +29,8 @@ export async function usePasswordResetConfirm(options: {
   const toast = useToast()
   const { notify } = useApiError()
   const localePath = useLocalePath()
+  // Links between auth pages keep the destination the shopper came with.
+  const { authLink } = useAuthLinks()
   const router = useRouter()
 
   const key = 'key' in route.params ? route.params.key : undefined
@@ -72,7 +74,7 @@ export async function usePasswordResetConfirm(options: {
         color: 'success',
         icon: options.successIcon,
       })
-      await router.push(localePath('account-login'))
+      await router.push(localePath(authLink('account-login')))
     }
     catch (error) {
       if (isAllAuthClientError(error)) {
@@ -83,7 +85,7 @@ export async function usePasswordResetConfirm(options: {
             title: t('password.reset.success'),
             color: 'success',
           })
-          await navigateTo(localePath('account-login'))
+          await navigateTo(localePath(authLink('account-login')))
           return
         }
         const errors = 'errors' in error.data.data ? error.data.data.errors ?? [] : []
@@ -104,7 +106,7 @@ export async function usePasswordResetConfirm(options: {
   }
 
   if (!key) {
-    navigateTo(localePath('account-password-reset'))
+    navigateTo(localePath(authLink('account-password-reset')))
   }
 
   await useAsyncData('passwordReset', () => getPasswordReset(String(key)))

@@ -5,6 +5,8 @@ const emit = defineEmits(['requestLoginCode'])
 
 const { t } = useStoreI18n('components/variants/webside/Account/Login/Code/Form')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const { schema, loading, hasError, onSubmit } = useLoginCodeRequest({
   sent: () => ({
@@ -57,7 +59,7 @@ const fields: AuthFormField[] = [
       <div class="text-center text-sm text-muted">
         {{ t('footer.text') }}
         <ULink
-          :to="localePath('account-login')"
+          :to="localePath(authLink('account-login'))"
           class="
             font-medium text-primary
             hover:underline

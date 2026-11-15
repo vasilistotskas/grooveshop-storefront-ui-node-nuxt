@@ -35,7 +35,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-async function mount(value: BuilderLinkRef | undefined, kinds: readonly LinkRefKind[] = ['product', 'category']) {
+async function mount(value: BuilderLinkRef | undefined, kinds: readonly LinkRefKind[] = ['product', 'category'], clearable = true) {
   const updates: Array<BuilderLinkRef | undefined> = []
   const wrapper = await mountSuspended(defineComponent({
     render: () => h(UApp, null, {
@@ -43,7 +43,7 @@ async function mount(value: BuilderLinkRef | undefined, kinds: readonly LinkRefK
         kinds,
         value,
         label: 'Προϊόν της διαφάνειας',
-        clearable: true,
+        clearable,
         disabled: false,
         onUpdate: (next: BuilderLinkRef | undefined) => updates.push(next),
       }),
@@ -104,5 +104,25 @@ describe('BuilderRecordPicker', () => {
     await flushPromises()
 
     expect(updates).toEqual([{ kind: 'product', id: 12 }])
+  })
+
+  it('clears the record chosen from a button of its own, which a keyboard reaches and which says what it clears', async () => {
+    const { wrapper, updates } = await mount({ kind: 'product', id: 42 })
+
+    const clear = wrapper.get('button[aria-label="Καθαρισμός: Προϊόν της διαφάνειας"]')
+    expect(clear.attributes('tabindex')).not.toBe('-1')
+    expect(trigger(wrapper).element.contains(clear.element)).toBe(false)
+    await clear.trigger('click')
+
+    expect(updates).toEqual([undefined])
+  })
+
+  it('offers no clearing with nothing chosen, or for a setting that may not be left empty', async () => {
+    const empty = await mount(undefined)
+    const required = await mount({ kind: 'product', id: 42 }, ['product', 'category'], false)
+
+    expect(empty.wrapper.find('button[aria-label^="Καθαρισμός"]').exists()).toBe(false)
+    expect(required.wrapper.find('button[aria-label^="Καθαρισμός"]').exists()).toBe(false)
+    expect(required.wrapper.find('[data-slot="trailingClear"]').exists()).toBe(false)
   })
 })

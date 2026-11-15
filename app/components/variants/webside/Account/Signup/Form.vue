@@ -6,6 +6,8 @@ const { hasProviders } = useSocialProviders()
 
 const { t } = useStoreI18n('components/variants/webside/Account/Signup/Form')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { isMobileOrTablet } = useDevice()
 const tenantStore = useTenantStore()
 const isPlatform = useIsPlatformTenant()
@@ -244,7 +246,7 @@ const onSubmit = (event: { data: Schema }) => signup(event.data)
             >
               <UButton
                 :label="t('passkey_login')"
-                :to="localePath('account-signup-passkey')"
+                :to="localePath(authLink('account-signup-passkey'))"
                 class="p-0 font-semibold"
                 color="secondary"
                 size="md"
@@ -260,7 +262,7 @@ const onSubmit = (event: { data: Schema }) => signup(event.data)
                 <UButton
                   class="p-0 font-semibold underline"
                   :label="t('login')"
-                  :to="localePath('account-login')"
+                  :to="localePath(authLink('account-login'))"
                   size="lg"
                   color="secondary"
                   type="button"

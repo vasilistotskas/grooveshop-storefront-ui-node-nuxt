@@ -33,4 +33,20 @@ describe('webside Footer/Desktop', () => {
 
     expect(useCookieControl().isModalActive.value).toBe(true)
   })
+
+  // The board's last row: the full width of the page, the copyright at the
+  // left end and the ways to pay, the carriers and the cookie settings at the
+  // right (`justify-between`), under its own rule. Not in the half-width row
+  // above with the store's identity and socials.
+  it('ends with the legal row across the whole footer, apart from the identity row', async () => {
+    setTenant({ ...NONE, metaPixelId: '123' })
+
+    const wrapper = await mountFooter()
+
+    const bottom = wrapper.get('[data-slot="bottom"]')
+    expect(bottom.text()).toContain('©')
+    expect(bottom.text()).toContain(COOKIE_SETTINGS)
+    expect(bottom.get('.justify-between').classes()).toContain('border-t')
+    expect(wrapper.get('[data-slot="left"]').text()).not.toContain('©')
+  })
 })

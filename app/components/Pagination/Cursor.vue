@@ -224,7 +224,10 @@ onUnmounted(() => {
       :label="t('load.more')"
       color="neutral"
       :loading="loading"
-      class="mt-4"
+      class="
+        mt-4
+        max-sm:min-h-11
+      "
       @click="loadMore"
     />
   </div>

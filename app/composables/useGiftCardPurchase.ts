@@ -71,12 +71,19 @@ export function useGiftCardPurchase({ form, deliverAt, onPaid, t }: GiftCardPurc
     }
     return GIFT_CARD_PROVIDERS.filter(code => codes.has(code))
   })
-  const selectedProvider = ref<PaymentProviderEnum | undefined>(undefined)
-  watch(availableProviders, (providers) => {
-    if (!selectedProvider.value || !providers.includes(selectedProvider.value)) {
-      selectedProvider.value = providers[0]
-    }
-  }, { immediate: true })
+  // The shopper's pick, kept only while the store still offers it: until then
+  // (and after the processor they chose is switched off) the first is chosen.
+  // Derived, not copied from the list by a watcher, which a server render
+  // never runs once the list has been read.
+  const pickedProvider = ref<PaymentProviderEnum | undefined>(undefined)
+  const selectedProvider = computed<PaymentProviderEnum | undefined>({
+    get: () => pickedProvider.value && availableProviders.value.includes(pickedProvider.value)
+      ? pickedProvider.value
+      : availableProviders.value[0],
+    set: (provider) => {
+      pickedProvider.value = provider
+    },
+  })
 
   const step = ref<'form' | 'payment' | 'success'>('form')
   const submitting = ref(false)

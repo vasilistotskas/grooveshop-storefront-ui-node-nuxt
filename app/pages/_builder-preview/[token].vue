@@ -8,6 +8,8 @@
 // out of indexes and the sitemap.
 definePageMeta({
   layout: 'default',
+  // Its path is a preview's share token: no sign-in page's address carries it back.
+  signInReturn: 'nowhere',
   path: '/_builder/preview/:token',
 })
 defineRouteRules({

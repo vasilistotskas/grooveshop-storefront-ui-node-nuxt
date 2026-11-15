@@ -20,6 +20,8 @@ const { hasProviders } = useSocialProviders()
 
 const { t } = useStoreI18n('components/Account/Signup/Form')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const newsletter = await useSignupNewsletterOptIn({ failureTitle: () => t('newsletter_failed') })
 
@@ -51,7 +53,7 @@ const onSubmit = (event: { data: Schema }) => signup(event.data)
     <template v-if="config?.mfa?.supported_types.includes('webauthn')">
       <UButton
         :label="t('passkey')"
-        :to="localePath('account-signup-passkey')"
+        :to="localePath(authLink('account-signup-passkey'))"
         icon="i-lucide-key-round"
         color="neutral"
         variant="outline"
@@ -150,7 +152,7 @@ const onSubmit = (event: { data: Schema }) => signup(event.data)
     <p class="text-center text-sm text-muted">
       {{ t('have_account') }}
       <ULink
-        :to="localePath('account-login')"
+        :to="localePath(authLink('account-login'))"
         class="font-semibold text-accent"
       >
         {{ t('login') }}

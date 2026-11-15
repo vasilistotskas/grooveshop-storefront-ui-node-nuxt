@@ -73,7 +73,10 @@ function remove(chip: ListingFilterChip) {
         {{ chipLabel(chip) }}
         <button
           type="button"
-          class="flex cursor-pointer rounded-full"
+          class="
+            flex cursor-pointer items-center justify-center rounded-full
+            max-sm:-my-2 max-sm:min-h-11 max-sm:min-w-11
+          "
           :aria-label="t('remove', { filter: chipLabel(chip) })"
           @click="remove(chip)"
         >
@@ -89,6 +92,7 @@ function remove(chip: ListingFilterChip) {
         color="neutral"
         variant="ghost"
         size="xs"
+        class="max-sm:min-h-11"
         :label="t('clear_all')"
         @click="() => updateFilters(CLEARED_FILTERS)"
       />

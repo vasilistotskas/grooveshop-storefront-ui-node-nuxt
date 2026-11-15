@@ -39,7 +39,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  (e: 'favourite-delete', id: number): void
+  (e: 'favourite-delete'): void
 }>()
 
 /**
@@ -94,12 +94,7 @@ const to = computed(() => localePath({ path: productUrl(productId.value, product
 
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 
-const isLowStock = computed(() => {
-  const stock = product.value?.stock ?? 0
-  if (stock <= 0) return false
-  const threshold = product.value?.lowStockThreshold
-  return stock <= (typeof threshold === 'number' && threshold > 0 ? threshold : 10)
-})
+const isLowStock = computed(() => lowStockLeft(product.value) !== null)
 
 const isNew = computed(() => {
   const createdAt = (product.value as { createdAt?: string })?.createdAt
@@ -174,7 +169,7 @@ const startShare = async () => {
 }
 
 const favouriteId = computed(() => getFavouriteIdByProductId(productId.value))
-const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
+const onFavouriteDelete = () => emit('favourite-delete')
 </script>
 
 <template>
@@ -218,6 +213,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <LazyWebsideButtonProductAddToFavourite
             v-if="showAddToFavouriteButton"
             :product-id="productId"
+            :product-name="productName ?? ''"
             :user-id="user?.id"
             :favourite-id="favouriteId"
             size="sm"
@@ -274,7 +270,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
              higher layer and stay clickable. -->
         <h3
           class="
-            line-clamp-2 text-sm font-medium text-pretty
+            line-clamp-2 text-sm font-medium text-pretty wrap-anywhere
             md:text-base
           "
         >
@@ -318,11 +314,12 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </div>
       </div>
 
-      <LazyWebsideAccountAreaButtonProductAddToCart
+      <LazyWebsideButtonProductAddToCart
         v-if="showAddToCartButton"
         :product="product"
         :quantity="1"
         :text="t('add_to_cart')"
+        size="lg"
         class="relative z-10 w-full"
       />
     </div>
@@ -332,7 +329,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 <i18n lang="yaml">
 el:
   share: Κοινοποίηση
-  add_to_cart: Προσθήκη στο καλάθι
+  add_to_cart: Στο καλάθι
   out_of_stock: Εξαντλημένο
   new: Νέο
   only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν

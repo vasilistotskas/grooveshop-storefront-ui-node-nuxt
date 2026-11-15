@@ -13,7 +13,9 @@ export default defineNuxtRouteMiddleware(
       if (!routeName) return
       if (loggedIn.value || !isRouteProtected(String(routeName))) return
       return nuxtApp.runWithContext(() =>
-        navigateTo(localePath({ name: RedirectToURLs.LOGIN_URL, query: { next: to.fullPath } })),
+        // The page's path, its query only where the page marks it view
+        // state (`returnTarget`): a query can hold a token.
+        navigateTo(localePath({ name: RedirectToURLs.LOGIN_URL, query: { next: returnTarget(to) } })),
       )
     }
 

@@ -93,5 +93,8 @@ watchDebounced(
     color="neutral"
     size="sm"
     variant="outline"
+    :increment="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+    :decrement="{ class: 'max-sm:min-h-11 max-sm:min-w-11 max-sm:justify-center' }"
+    :ui="{ base: 'max-sm:min-h-11' }"
   />
 </template>

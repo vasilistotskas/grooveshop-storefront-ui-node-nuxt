@@ -50,7 +50,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="flex items-center justify-between gap-4 py-4">
     <div class="flex min-w-0 flex-col gap-0.5">
-      <h3 class="font-semibold text-highlighted">
+      <h3 class="font-semibold wrap-anywhere text-highlighted">
         {{ name }}
       </h3>
       <p

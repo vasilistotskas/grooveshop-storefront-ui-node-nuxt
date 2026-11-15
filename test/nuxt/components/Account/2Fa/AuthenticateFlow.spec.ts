@@ -26,9 +26,24 @@ const alternatives = (wrapper: VueWrapper) =>
   wrapper.findAll('a[href]').map(link => [link.text(), link.attributes('href')])
 
 describe.each(trees(AuthenticateFlow, WebsideAuthenticateFlow))('$tree Account/2Fa/AuthenticateFlow', ({ tree, C }) => {
-  const mountFlow = () => mountSuspended(C, {
+  const mountFlow = (next = '/account/orders') => mountSuspended(C, {
     props: { authenticatorType: 'totp' },
-    route: '/account/2fa/authenticate/totp?next=/account/orders',
+    route: `/account/2fa/authenticate/totp?next=${encodeURIComponent(next)}`,
+  })
+
+  // The same guard as every reader of `next` (`returnPath`): another site,
+  // or the sign-in form itself, is not carried on to the other factors.
+  it.each([
+    'https://evil.example/',
+    '//evil.example',
+    '/\\evil.example',
+    '/account/login',
+  ])('carries no %s on to the other factors', async (next) => {
+    const wrapper = await mountFlow(next)
+
+    const hrefs = alternatives(wrapper).map(([, href]) => href)
+    expect(hrefs.length).toBeGreaterThan(0)
+    expect(hrefs.filter(href => href?.includes('next='))).toEqual([])
   })
 
   it('offers the other factors, strongest first, each keeping `next`', async () => {

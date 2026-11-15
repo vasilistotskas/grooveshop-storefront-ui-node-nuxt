@@ -90,16 +90,19 @@ function update(path: string, value: unknown): void {
     >
       {{ t('noSettings') }}
     </p>
-    <BuilderSettingField
-      v-for="field in fields"
-      :key="field.path"
-      :field="field"
-      :settings="values"
-      :errors="errors"
-      :disabled="!store.canEdit"
-      :translation="translation"
-      @update="update"
-    />
+    <template v-if="definition">
+      <BuilderSettingField
+        v-for="field in fields"
+        :key="field.path"
+        :block-type="definition.type"
+        :field="field"
+        :settings="values"
+        :errors="errors"
+        :disabled="!store.canEdit"
+        :translation="translation"
+        @update="update"
+      />
+    </template>
   </form>
 </template>
 

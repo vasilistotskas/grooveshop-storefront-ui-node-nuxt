@@ -18,6 +18,11 @@ const {
   productCount,
   guideCount,
   openCount,
+  openResults,
+  noResults,
+  emptyTab,
+  otherTab,
+  emptyPage,
   pending,
   relaxedQuery,
   selectTab,
@@ -26,10 +31,6 @@ const {
   onProductClick,
   onGuideClick,
 } = await useStorefrontSearch({ asideGuides: 0 })
-
-const displayResults = computed<SearchResult[]>(() =>
-  tab.value === 'guides' ? guides.value?.results ?? [] : products.value?.results ?? [],
-)
 
 const totalPages = computed(() => Math.ceil(openCount.value / limit.value))
 
@@ -220,7 +221,7 @@ useHead({
 
     <UContainer class="flex-1 py-8">
       <div
-        v-if="pending && displayResults.length === 0"
+        v-if="pending && openResults.length === 0"
         class="space-y-4"
       >
         <UCard
@@ -297,11 +298,58 @@ useHead({
         </div>
       </div>
 
+      <!-- The open tab has nothing but the other has: say which, and open it. -->
       <div
-        v-else-if="
-          displayResults.length === 0
-            && !pending
+        v-else-if="emptyTab"
+        class="
+          flex flex-col items-center justify-center gap-4 py-16 text-center
         "
+      >
+        <h2
+          class="
+            text-2xl font-semibold text-gray-900
+            dark:text-gray-100
+          "
+        >
+          {{ tab === 'products' ? t('page.open_empty.products') : t('page.open_empty.guides') }}
+        </h2>
+        <UButton
+          color="neutral"
+          trailing-icon="i-heroicons-arrow-right"
+          @click="() => selectTab(otherTab)"
+        >
+          {{ otherTab === 'guides'
+            ? t('page.open_empty.show_guides', { count: guideCount }, guideCount)
+            : t('page.open_empty.show_products', { count: productCount }, productCount) }}
+        </UButton>
+      </div>
+
+      <!-- The open tab has results, none on this page (an old or edited link). -->
+      <div
+        v-else-if="emptyPage"
+        class="
+          flex flex-col items-center justify-center gap-4 py-16 text-center
+        "
+      >
+        <h2
+          class="
+            text-2xl font-semibold text-gray-900
+            dark:text-gray-100
+          "
+        >
+          {{ t('page.empty_page.title') }}
+        </h2>
+        <UButton
+          color="neutral"
+          icon="i-heroicons-arrow-left"
+          :to="pageLink(1)"
+        >
+          {{ t('page.empty_page.first') }}
+        </UButton>
+      </div>
+
+      <div
+        v-else-if="noResults && !pending"
         class="
           flex min-h-[400px] flex-col items-center justify-center py-16
           text-center
@@ -352,7 +400,7 @@ useHead({
       >
         <div class="space-y-4">
           <UCard
-            v-for="(result, index) in displayResults"
+            v-for="(result, index) in openResults"
             :key="`${result.contentType}-${result.id}`"
             class="
               cursor-pointer overflow-hidden transition-all
@@ -435,6 +483,14 @@ el:
       title: "Δεν βρέθηκαν αποτελέσματα"
       description: "Δεν βρέθηκαν αποτελέσματα για \"{query}\". Δοκιμάστε διαφορετικούς όρους αναζήτησης"
       clear_search: "Εκκαθάριση αναζήτησης"
+    open_empty:
+      products: "Δεν βρέθηκαν προϊόντα"
+      guides: "Δεν βρέθηκαν άρθρα"
+      show_guides: "Δείτε το άρθρο | Δείτε τα {count} άρθρα"
+      show_products: "Δείτε το προϊόν | Δείτε τα {count} προϊόντα"
+    empty_page:
+      title: "Δεν υπάρχουν αποτελέσματα σε αυτή τη σελίδα"
+      first: "Στην πρώτη σελίδα"
     shortcuts:
       focus_search: "Εστίαση στην αναζήτηση"
       clear_search: "Εκκαθάριση αναζήτησης"
@@ -460,6 +516,14 @@ en:
       title: "No results found"
       description: "No results were found for \"{query}\". Try different search terms"
       clear_search: "Clear the search"
+    open_empty:
+      products: "No products found"
+      guides: "No articles found"
+      show_guides: "See the article | See the {count} articles"
+      show_products: "See the product | See the {count} products"
+    empty_page:
+      title: "There are no results on this page"
+      first: "To the first page"
     shortcuts:
       focus_search: "Focus the search"
       clear_search: "Clear the search"

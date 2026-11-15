@@ -4,6 +4,8 @@ import type { FormSubmitEvent, AuthFormField } from '#ui/types'
 
 const toast = useToast()
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { t } = useStoreI18n('components/variants/webside/Account/Password/ResetForm')
 
 const { schema, loading, hasError, request } = usePasswordResetRequest()
@@ -62,7 +64,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <div class="text-center text-sm text-muted">
           {{ t('footer.text') }}
           <ULink
-            :to="localePath('account-login')"
+            :to="localePath(authLink('account-login'))"
             class="
               font-medium text-primary
               hover:underline

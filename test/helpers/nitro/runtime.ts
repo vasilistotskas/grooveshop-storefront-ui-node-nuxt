@@ -47,6 +47,7 @@ export function defaultRuntimeConfig() {
     djangoUrl: 'http://backend.test',
     mediaStreamPath: '',
     cacheBase: 'memory',
+    cacheMemoryMaxMb: 128,
     appSecret: TEST_APP_SECRET,
     // What nuxt-auth-utils declares (its module.mjs), so a spec can rename it.
     session: { name: USER_SESSION_COOKIE_NAME },

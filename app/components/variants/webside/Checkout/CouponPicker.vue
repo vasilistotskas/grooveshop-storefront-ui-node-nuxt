@@ -33,9 +33,11 @@ const { open, submitting, rows, triggerLabel, savingLabel, applyCoupon } = await
       size="sm"
       block
       icon="i-heroicons-ticket"
-      :label="triggerLabel"
       @click="() => { open = true }"
-    />
+    >
+      <!-- A sentence the shopper must read: it wraps instead of being cut. -->
+      <span class="min-w-0 text-start">{{ triggerLabel }}</span>
+    </UButton>
 
     <UModal
       v-model:open="open"

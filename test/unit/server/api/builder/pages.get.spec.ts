@@ -4,6 +4,7 @@ import { readPublishedPage } from '~~/server/utils/builderPageDocument'
 import { cacheKeyBelongsToHost } from '~~/server/utils/cacheKey'
 import { backend, cacheOptionsOf, callRoute, jsonResponse, log } from '~~/test/helpers/nitro'
 import { makeProductCard } from '~~/test/fixtures/product'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 const route = '/api/builder/pages/:pageKey'
 const API = 'http://backend.test/api/v1'
@@ -17,10 +18,14 @@ const document = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 })
 
-const get = (key = 'about', locale = 'el') => callRoute(handler, {
+/** The store the request is for, as `0.tenant.ts` leaves it: the catalogue, the blog and the offers on. */
+const BASE = validTenantConfig('shop.test')
+const STORE = validTenantConfig('shop.test', { features: { ...BASE.features, blog: true, promotions: true } })
+
+const get = (key = 'about', locale = 'el', tenant: unknown = STORE) => callRoute(handler, {
   route,
   url: `/api/builder/pages/${key}`,
-  context: { locale },
+  context: { locale, tenant },
   headers: { 'x-forwarded-host': 'evil.example' },
 })
 
@@ -97,6 +102,16 @@ describe('GET /api/builder/pages/[pageKey]', () => {
       if (path.endsWith('/builder/published')) return { release: 3, locale: 'el', theme: null, groups: {}, pages: [{ key: 'about', kind: 'template', updatedAt: '2026-11-01T10:00:00Z' }] }
       if (path.endsWith('/content-page')) return { results: [{ slug: 'faq', translatedLocales: ['el'] }] }
       return page
+    })
+
+    // A link to a page a switched-off feature takes away is a 404: it goes,
+    // and the component's own "no link, no button" rule does the rest.
+    it('takes out a link to the blog, and to a blog post, on a store with the blog off', async () => {
+      store(withLinks({ route: '/blog' }, { ref: { kind: 'blogPost', id: 4 } }, { route: '/contact' }), { blogPost: { 4: 'guide' } })
+
+      const { body } = await get('about', 'el', validTenantConfig('shop.test', { features: { ...STORE.features, blog: false } }))
+
+      expect(itemHrefs(body)).toEqual([undefined, undefined, '/contact'])
     })
 
     it('answers each as the address it has now, in the props its component gets', async () => {
@@ -265,6 +280,17 @@ describe('GET /api/builder/pages/[pageKey]', () => {
       expect(read.headers.get('x-forwarded-host')).toBe('shop.test')
       expect(read.headers.get('x-language')).toBe('en')
       expect(read.query).toMatchObject({ pageSize: '6', ordering: '-announcedDiscountPercent', minAnnouncedDiscountPercent: '1', category: '2_4', languageCode: 'en' })
+    })
+
+    // A block with no store feature of its own (a hero) can still name a
+    // product: a store without a catalogue is not asked for it.
+    it('asks nothing of a store without a catalogue, and leaves out the band its empty list hides', async () => {
+      store(rail({ products: newest, spotlight: 7 }), () => productPage(7))
+
+      const { body } = await get('about', 'el', validTenantConfig('shop.test', { features: { ...STORE.features, catalogue: false } }))
+
+      expect(backend.requests.filter(({ path }) => path.endsWith('/product'))).toEqual([])
+      expect(body.page.sections).toEqual([])
     })
 
     it('reads every product the page names by id in ONE call: a hand-picked list and a spotlight together', async () => {

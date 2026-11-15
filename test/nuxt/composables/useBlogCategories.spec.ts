@@ -41,15 +41,18 @@ describe('useBlogCategories', () => {
 
   it('is asked for once by the list and the names of a band of posts together', async () => {
     let list!: ReturnType<typeof useBlogCategories>
-    let name!: Awaited<ReturnType<typeof useBlogCategoryNames>>
+    let names!: Awaited<ReturnType<typeof useBlogCategoryNames>>
     await mountAll(async () => {
       list = useBlogCategories()
-      name = await useBlogCategoryNames()
+      names = await useBlogCategoryNames()
     })
 
     expect(api.callsTo(CATEGORIES_URL)).toHaveLength(1)
     expect(list.categories.value).toHaveLength(12)
-    expect(name(12)).toBe('Κατηγορία 12')
+    expect(names.name(12)).toBe('Κατηγορία 12')
+    // Its page at the slug the category has now; a category not in the list has none.
+    expect(names.path(12)).toBe('/blog/category/12/c12')
+    expect(names.path(99)).toBeUndefined()
   })
 
   it('starts the index\'s categories while its posts are still on their way', async () => {

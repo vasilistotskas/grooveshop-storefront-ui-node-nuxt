@@ -11,10 +11,11 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 const state = vi.hoisted(() => ({
   unseen: 0,
   route: 'account___el',
+  path: '/account',
 }))
 
 mockNuxtImport('useUnseenNotificationsCount', () => () => ({ count: computed(() => state.unseen), pending: computed(() => false) }))
-mockNuxtImport('useRoute', () => () => ({ name: state.route, path: '/', fullPath: '/', params: {}, query: {}, hash: '', meta: {}, matched: [] }))
+mockNuxtImport('useRoute', () => () => ({ name: state.route, path: state.path, fullPath: state.path, params: {}, query: {}, hash: '', meta: {}, matched: [] }))
 
 function navigation() {
   return useAccountNavigation()
@@ -26,6 +27,7 @@ describe('useAccountNavigation', () => {
   beforeEach(() => {
     state.unseen = 0
     state.route = 'account___el'
+    state.path = '/account'
     setTenant()
     setTenantFeatures({ loyalty: false, giftCards: false, wholesale: false })
   })
@@ -91,6 +93,19 @@ describe('useAccountNavigation', () => {
     const { items } = await navigation()
 
     expect(items.value.filter(item => item.active).map(item => item.key)).toEqual([key])
+  })
+
+  // `page` on the entry's own page, `location` on a page under it.
+  it.each([
+    { route: 'account-orders___el', path: '/account/orders', mark: 'page' },
+    { route: 'account-orders-id___el', path: '/account/orders/42', mark: 'location' },
+  ])('marks Orders as the $mark on $path', async ({ route, path, mark }) => {
+    state.route = route
+    state.path = path
+
+    const { items } = await navigation()
+
+    expect(items.value.filter(item => item.current).map(item => [item.key, item.current])).toEqual([['orders', mark]])
   })
 
   it('knows when the overview itself is on screen', () => {

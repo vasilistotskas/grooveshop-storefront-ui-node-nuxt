@@ -39,8 +39,9 @@ const URGENCY: readonly BuilderSaveState[] = ['conflict', 'signedOut', 'invalid'
  * the document's whole working copy is saved against the revision it was
  * made on (`If-Match`). One save per document is on its way at a time; a
  * change made meanwhile is saved right after. Nothing is lost:
- * - a save that gets no answer or a 5xx (the store unreachable, or Django
- *   unable to check it: 503) is tried again after each of
+ * - a save that gets no answer (none within `BUILDER_SAVE_TIMEOUT_MS`
+ *   included) or a 5xx (the store unreachable, or Django unable to check it:
+ *   503) is tried again after each of
  *   `BUILDER_AUTOSAVE_RETRY_MS`, then waits for `retry` or the next change;
  * - a 409 stops saving that document until the staff member chooses
  *   (`keepMine` / the editor's `takeTheirs`), and a 401 until they sign in;
@@ -125,6 +126,10 @@ export const useBuilderAutosaveStore = defineStore('builderAutosave', () => {
         headers: { 'If-Match': String(document.meta.draftRevision) },
         body: sent,
         keepalive: options.keepalive,
+        // A request that gets no answer would hold the document "saving" for
+        // good, every later change queued behind it: past the timeout it is
+        // an unanswered save, tried again like one.
+        timeout: BUILDER_SAVE_TIMEOUT_MS,
       })
       editor.acceptSaved(key, meta, sent)
       clearBuilderRecovery(host, key)

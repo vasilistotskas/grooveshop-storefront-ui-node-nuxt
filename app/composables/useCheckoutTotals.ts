@@ -8,8 +8,10 @@
  * Every figure mirrors Django's own computation (the order-create
  * response is authoritative):
  * - a promotion granting free shipping waives the delivery price;
- * - the pay way's fee is waived once the discounted items plus delivery
- *   reach its free threshold;
+ * - the pay way's fee is waived once the cart's `freeThresholdValue`
+ *   reaches its free threshold: the items after promotions and coupons,
+ *   never the delivery or the fee (Django's `OrderService.threshold_value`,
+ *   the value free shipping is judged on too);
  * - gift cards are payment, applied last, capped at what is due, and a
  *   partial cover leaves at least 0,50 € for the provider minimum (the
  *   sliver stays on the card).

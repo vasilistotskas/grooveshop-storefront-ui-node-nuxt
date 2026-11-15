@@ -23,6 +23,10 @@ import { defineNitroPlugin } from 'nitropack/runtime'
  * our fault and breaks the page for the shopper, as though the shopper had
  * sent something malformed. `isResponseContractError` is auto-imported
  * from `server/utils/parser`.
+ *
+ * A request its client closed is a 499 by the time this hook reads it, in
+ * every route (`server/early-plugins/client-abort-status.ts`), so it is a
+ * 4xx here like any other.
  */
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('error', (error, { event }) => {

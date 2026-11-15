@@ -16,6 +16,14 @@ export const variants = {
   'page:home@webside': lazy(() => import('~/components/variants/webside/Storefront/Home.vue')),
 }
 
+export const partDefaults = {
+  buy_button: { component: lazy(() => import('~/components/Product/BuyButton.vue')), props: () => ({}) },
+}
+
+export const partVariants = {
+  'part:buy_button@webside': { component: lazy(() => import('~/components/variants/webside/Product/BuyButton.vue')), props: () => ({}) },
+}
+
 export const designLayouts = {
   auth: 'auth-split',
 } as const

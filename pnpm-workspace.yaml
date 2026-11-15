@@ -231,3 +231,10 @@ patchedDependencies:
 permissions:
   '@nuxtjs/seo':
     skills: false
+# Node's options for every script pnpm runs (`pnpm typecheck`, `pnpm build`,
+# ...), the same on a developer's machine, in CI and in the image build.
+# The heap: vue-tsc holds the whole app's program in one V8 heap, and the
+# app outgrew Node's ~4 GB default (`nuxt typecheck` died in Mark-Compact).
+# `${NODE_OPTIONS:- }` keeps what the environment already sets, such as
+# the network-family timeout CI's Build and the Dockerfile give.
+nodeOptions: '${NODE_OPTIONS:- } --max-old-space-size=8192'

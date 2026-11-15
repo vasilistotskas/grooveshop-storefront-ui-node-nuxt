@@ -34,6 +34,15 @@ describe('Blog/Categories/Slider', () => {
     expect(wrapper.text()).toContain('Συνταγές')
     expect(api.callsTo('/api/blog/categories')).toHaveLength(0)
   })
+
+  // A white square behind a transparent icon showed in a dark band and in dark mode.
+  it('asks for a category picture on its own transparent ground', async () => {
+    const pictured = makeBlogCategory({ id: 3, translations: { el: { name: 'Web', description: '' } }, mainImagePath: 'media/test/uploads/blog/web.png' })
+
+    const wrapper = await mountSuspended(BlogCategoriesSlider, { route: false, props: { categories: [pictured] }, global: { stubs } })
+
+    expect(wrapper.get('img').attributes('src')).toMatch(/web\.png.*\/transparent\//)
+  })
 })
 
 describe('webside Blog/Categories/Slider', () => {

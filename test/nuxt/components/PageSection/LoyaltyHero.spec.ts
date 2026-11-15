@@ -87,7 +87,8 @@ describe('PageSection/LoyaltyHero', () => {
     expect(wrapper.text()).toContain('Με την πρώτη σου παραγγελία παίρνεις 100 πόντους καλωσορίσματος.')
     expect(wrapper.text()).toContain('Ανέβαινε βαθμίδες για να κερδίζεις πιο γρήγορα.')
     const links = wrapper.findAll('a').map(a => [a.text(), a.attributes('href')])
-    expect(links).toEqual([['Γίνε μέλος δωρεάν', '/account/signup'], ['Πώς λειτουργεί', '/loyalty-program']])
+    // The sign-up brings the shopper back to the page the band is on (here `/`).
+    expect(links).toEqual([['Γίνε μέλος δωρεάν', '/account/signup?next=/'], ['Πώς λειτουργεί', '/loyalty-program']])
   })
 
   it('uses the eyebrow, wording and routes of the operator where they are set', async () => {
@@ -109,7 +110,7 @@ describe('PageSection/LoyaltyHero', () => {
     const wrapper = await mountBand({ ctaText: 'Μπες στη λέσχη' })
 
     const links = wrapper.findAll('a').map(a => [a.text(), a.attributes('href')])
-    expect(links).toEqual([['Μπες στη λέσχη', '/account/signup'], ['Πώς λειτουργεί', '/loyalty-program']])
+    expect(links).toEqual([['Μπες στη λέσχη', '/account/signup?next=/'], ['Πώς λειτουργεί', '/loyalty-program']])
   })
 
   it.each([

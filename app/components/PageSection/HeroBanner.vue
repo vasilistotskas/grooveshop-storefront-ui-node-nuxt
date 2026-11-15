@@ -5,8 +5,9 @@
  * Two readings, chosen by whether the operator gave it artwork:
  * - with an image, the copy sits over the photograph and `theme` says
  *   which way it reads;
- * - without, the band is typographic on the raised surface, and `decor`
- *   adds the orbs or the gradient wash behind it.
+ * - without, the band is typographic on the raised surface, in the dark
+ *   colour scheme when `theme` is `dark`, and `decor` adds the orbs or the
+ *   gradient wash behind it.
  *
  * A phone crops a hero differently from a desk, so `mobileImage` is
  * a separate artwork rather than the same one squeezed. This is the
@@ -36,26 +37,18 @@ const props = withDefaults(defineProps<{
   theme: 'auto',
 })
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 
-const picture = computed(() => readyImage(props.image))
-const mobilePicture = computed(() => readyImage(props.mobileImage))
-
-const shown = computed(() =>
-  (isMobileOrTablet.value && mobilePicture.value?.path ? mobilePicture.value : undefined) ?? picture.value,
-)
+const shown = computed(() => heroImage(props, isMobileOrTablet.value))
 
 const artwork = computed(() => shown.value?.path)
 
 /** Whether there is an image to draw: the one selected for this device, so a phone with only its own image still has one. */
 const hasImage = computed(() => !!artwork.value)
 
-/** The description of the picture shown, else the desk picture's, else the heading. */
-const alt = computed(() =>
-  props.imageDecorative ? '' : shown.value?.alt || picture.value?.alt || props.heading || '',
-)
+const alt = computed(() => heroImageAlt(props, shown.value, props.heading || ''))
 
 /**
  * Copy over a photograph is light by default, because the overlay
@@ -63,7 +56,17 @@ const alt = computed(() =>
  * means the page's own text colours.
  */
 const inverted = computed(
-  () => props.theme === 'dark' || (props.theme === 'auto' && hasImage.value),
+  () => hasImage.value && props.theme !== 'light',
+)
+
+/**
+ * `dark` with no artwork has no photograph to darken the ground, so the
+ * band is drawn in the dark colour scheme instead: its ground and its
+ * copy switch together (`colorSchemeClass`), never white copy on the
+ * page's light ground.
+ */
+const scheme = computed(() =>
+  !hasImage.value && props.theme === 'dark' ? colorSchemeClass('dark') : undefined,
 )
 
 const centred = computed(() => props.align === 'center')
@@ -84,6 +87,7 @@ const hasContent = computed(
     :class="[
       'relative isolate w-full overflow-hidden',
       hasImage ? 'bg-inverted' : 'bg-muted',
+      scheme,
     ]"
   >
     <template v-if="hasImage">
@@ -185,14 +189,14 @@ const hasContent = computed(
       >
         <UButton
           v-if="ctaText && ctaLink"
-          :to="localePath(pathLocation(ctaLink))"
+          :to="linkTo(ctaLink)"
           :label="ctaText"
           color="secondary"
           size="xl"
         />
         <UButton
           v-if="secondaryCtaText && secondaryCtaLink"
-          :to="localePath(pathLocation(secondaryCtaLink))"
+          :to="linkTo(secondaryCtaLink)"
           :label="secondaryCtaText"
           color="neutral"
           variant="outline"

@@ -34,15 +34,30 @@ const { items } = useBottomNavItems({
   },
 })
 
-/** Per-item classes, last in Nuxt UI's merge, so they win over the variants. */
+/**
+ * Per-item classes, last in Nuxt UI's merge, so they win over the variants.
+ *
+ * The icons keep their 46px; the active pill takes what is left of the bar
+ * and no more (`min-w-0` on its item and its link): it used to keep its
+ * label's width, and with five tabs the dock ran past a 360px screen.
+ *
+ * Where the dock is too narrow for the longest name, the active pill shows
+ * its icon alone (the label `sr-only`, so the link keeps its accessible
+ * name), by the dock's own width rather than the screen's. The dock's
+ * content box must hold four 46px icons (184), the pill's padding, icon
+ * and gap (16 + 16 + 20 + 8 = 60) and the longest label, «Αποθηκευμένα»
+ * at 13px bold (92): 336px, 21rem, which is a 378px screen. Narrower, the
+ * name would be cut; the pill's fill and `aria-current` still mark it.
+ */
 const dockItems = computed<NavigationMenuItem[]>(() =>
   items.value.map(item => ({
     ...item,
     class: item.active
-      ? 'h-11.5 gap-2 rounded-2xl bg-inverted px-4 text-inverted'
+      ? 'h-11.5 min-w-0 gap-2 rounded-2xl bg-inverted px-4 text-inverted'
       : 'size-11.5 justify-center rounded-2xl px-0 text-toned',
     ui: {
-      linkLabel: item.active ? 'text-[0.8125rem] font-bold' : 'sr-only',
+      item: item.active ? 'min-w-0' : 'shrink-0',
+      linkLabel: item.active ? 'text-[0.8125rem] font-bold @max-[21rem]/dock:sr-only' : 'sr-only',
     },
   })),
 )
@@ -79,10 +94,10 @@ onMounted(() => {
         // would otherwise shrink to the icons and bunch them in the
         // middle of the bar.
         root: `
-          fixed inset-x-3 bottom-(--dock-base) z-50 h-(--dock-tabbar-height)
-          rounded-[1.375rem] border border-default bg-default/95 px-2
-          shadow-(--ui-overlay-shadow) backdrop-blur-md transition-transform
-          duration-200
+          @container/dock fixed inset-x-3 bottom-(--dock-base) z-50
+          h-(--dock-tabbar-height) rounded-[1.375rem] border border-default
+          bg-default/95 px-2 shadow-(--ui-overlay-shadow) backdrop-blur-md
+          transition-transform duration-200
           [&>div]:flex-1
           ${keyboardOpen ? 'translate-y-[calc(100%+2rem)]' : 'translate-y-0'}
         `,

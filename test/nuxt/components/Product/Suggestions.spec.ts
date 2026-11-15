@@ -150,6 +150,18 @@ describe('webside Product/Suggestions', () => {
     expect(pot.find('.line-through').text()).toBe(money(POT.finalPrice))
   })
 
+  // The phone's 44px rule: the 36px icon-only buy button and the 28px
+  // favourite get their hit area from an ::after (the class is the
+  // contract: happy-dom lays nothing out).
+  it('gives each card\'s small buttons a 44px hit area', async () => {
+    const wrapper = await mountStrip()
+
+    const buy = wrapper.findAll('button.add-to-cart')[0]!
+    expect(buy.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-top-2', 'after:-left-2', 'after:right-0', 'after:bottom-0']))
+    const favourite = wrapper.findAll('webside-button-product-add-to-favourite-stub')[0]!
+    expect(favourite.classes()).toEqual(expect.arrayContaining(['relative', 'after:absolute', 'after:-inset-2']))
+  })
+
   it('names each image and the add-to-cart control after the product', async () => {
     const wrapper = await mountStrip()
 
@@ -157,7 +169,7 @@ describe('webside Product/Suggestions', () => {
     expect(alts).toEqual(['Γλάστρα', 'Χώμα'])
     const buttons = wrapper.findAll('button.add-to-cart')
     expect(buttons).toHaveLength(2)
-    expect(buttons[0]!.attributes('aria-label')).toBe('Προσθήκη στο καλάθι')
+    expect(buttons[0]!.attributes('aria-label')).toBe('Στο καλάθι')
   })
 
   it('draws no add-to-cart button, nor its corner, on a store without a cart', async () => {

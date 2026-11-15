@@ -123,14 +123,15 @@ describe('Storefront/LoyaltyProgram', () => {
 
     it('offers a guest the way in, and a member the shop and their points', async () => {
       const guest = await mountPage()
-      expect(guest.findAll('a').map(link => link.attributes('href'))).toEqual(expect.arrayContaining(['/account/signup', '/account/login']))
+      // Each brings the shopper back to the page (here `/`).
+      expect(guest.findAll('a').map(link => link.attributes('href'))).toEqual(expect.arrayContaining(['/account/signup?next=/', '/account/login?next=/']))
 
       session.loggedIn.value = true
       const member = await mountPage()
       await flushPromises()
 
       expect(member.findAll('a').map(link => link.attributes('href'))).toEqual(expect.arrayContaining(['/products', '/account/loyalty']))
-      expect(member.findAll('a').map(link => link.attributes('href'))).not.toContain('/account/signup')
+      expect(member.findAll('a').map(link => link.attributes('href')).filter(href => href?.startsWith('/account/signup'))).toEqual([])
     })
   })
 

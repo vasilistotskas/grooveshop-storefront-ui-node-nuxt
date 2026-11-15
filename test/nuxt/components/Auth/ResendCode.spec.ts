@@ -211,7 +211,9 @@ describe('Auth/ResendCode', () => {
     await flushPromises()
 
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: COPY.startOver, color: 'warning' }))
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-login-code'))
+    // With the destination the shopper had (`useAuthLinks().authLink`);
+    // at `/` that is the page itself.
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()({ name: 'account-login-code', query: { next: '/' } }))
     expect(wrapper.emitted('sent')).toBeUndefined()
   })
 
@@ -225,6 +227,6 @@ describe('Auth/ResendCode', () => {
     await button(wrapper).trigger('click')
     await flushPromises()
 
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-signup'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()({ name: 'account-signup', query: { next: '/' } }))
   })
 })

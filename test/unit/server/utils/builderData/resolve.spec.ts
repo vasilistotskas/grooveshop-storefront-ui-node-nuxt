@@ -6,7 +6,7 @@ import { backend, cacheOptionsOf, createRequestEvent, jsonResponse, log } from '
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { makeResolvedAsset } from '~~/test/fixtures/media'
 import { makeProductCard, makeProductCategory } from '~~/test/fixtures/product'
-import { DATA_LIMITS, DATA_MEDIA_MAX_IDS } from '~~/shared/constants/builder'
+import { DATA_FEATURES, DATA_LIMITS, DATA_MEDIA_MAX_IDS, DATA_RECORD_KINDS } from '~~/shared/constants/builder'
 import { makePromotion } from '~~/test/fixtures/promotion'
 import { zListProductResponse } from '~~/shared/openapi/zod.gen'
 import type { DataPlan, DataResolution, QueryAnswer } from '~~/shared/types/builderData'
@@ -23,13 +23,16 @@ const answerOf = (resolution: DataResolution, key: string): QueryAnswer<unknown>
   return answer
 }
 
+/** A store with every feature on: nothing is held back for a feature. */
+const ALL_FEATURES = () => true
+
 const planOf = (overrides: Partial<DataPlan> = {}): DataPlan => ({ ids: emptyIds, queries: new Map(), ...overrides })
 
 describe('readData', () => {
   it('reads every product id of the page in ONE request, as the store, in the page\'s language', async () => {
     backend.reply(() => page([makeProductCard({ id: 2 }), makeProductCard({ id: 7 })]))
 
-    const resolution = await readData(context, planOf({ ids: { ...emptyIds, product: [2, 7, 9] } }))
+    const resolution = await readData(context, planOf({ ids: { ...emptyIds, product: [2, 7, 9] } }), ALL_FEATURES)
 
     expect(backend.requests).toHaveLength(1)
     expect(backend.lastRequest.url.pathname).toBe('/api/v1/product')
@@ -44,7 +47,7 @@ describe('readData', () => {
   })
 
   it('makes no request for a kind the page does not read', async () => {
-    const resolution = await readData(context, planOf())
+    const resolution = await readData(context, planOf(), ALL_FEATURES)
 
     expect(backend.requests).toEqual([])
     expect(resolution.records.product).toEqual(new Map())
@@ -57,7 +60,7 @@ describe('readData', () => {
       ['b', { source: 'blogPost' as const, descriptor: { mode: 'filter', ordering: 'mostViewed', limit: 2 }, key: 'b' }],
     ])
 
-    const resolution = await readData(context, planOf({ queries }))
+    const resolution = await readData(context, planOf({ queries }), ALL_FEATURES)
 
     const asked = backend.requests.map(request => [request.url.pathname, request.url.searchParams.get('ordering'), request.url.searchParams.get('category')])
     expect(asked).toEqual(expect.arrayContaining([
@@ -72,7 +75,7 @@ describe('readData', () => {
   it('keeps the first `limit` offers: the endpoint has no page size', async () => {
     backend.reply(() => [makePromotion({ id: 1 }), makePromotion({ id: 2 }), makePromotion({ id: 3 })])
 
-    const resolution = await readData(context, planOf({ queries: new Map([['o', { source: 'promotion' as const, descriptor: { limit: 2 }, key: 'o' }]]) }))
+    const resolution = await readData(context, planOf({ queries: new Map([['o', { source: 'promotion' as const, descriptor: { limit: 2 }, key: 'o' }]]) }), ALL_FEATURES)
 
     expect((answerOf(resolution, 'o').items as Array<{ id: number }>).map(({ id }) => id)).toEqual([1, 2])
     // The count is of every live offer, not of the two kept.
@@ -87,7 +90,7 @@ describe('readData', () => {
       ['bc', { source: 'blogCategory' as const, descriptor: { limit: 10 }, key: 'bc' }],
     ])
 
-    await readData(context, planOf({ queries }))
+    await readData(context, planOf({ queries }), ALL_FEATURES)
 
     const asked = backend.requests.map(request => [request.url.pathname, request.url.searchParams.get('isRoot'), request.url.searchParams.get('pageSize')])
     expect(asked).toEqual(expect.arrayContaining([
@@ -103,7 +106,7 @@ describe('readData', () => {
     }) as never)
     const queries = new Map([['b', { source: 'blogPost' as const, descriptor: { mode: 'filter', ordering: 'newest', limit: 2 }, key: 'b' }]])
 
-    const reading = readData(context, planOf({ ids: { ...emptyIds, product: [1] }, queries }))
+    const reading = readData(context, planOf({ ids: { ...emptyIds, product: [1] }, queries }), ALL_FEATURES)
     await vi.waitFor(() => expect(backend.requests).toHaveLength(2))
     answers.forEach(answer => answer())
     await reading
@@ -113,7 +116,7 @@ describe('readData', () => {
     backend.reply(() => page([]))
     const lists = Array.from({ length: DATA_LIMITS.maxQueriesPerDocument + 2 }, (_, index) => [`q${index}`, { source: 'product' as const, descriptor: { ...newest, limit: index + 1 }, key: `q${index}` }] as const)
 
-    const resolution = await readData(context, planOf({ queries: new Map(lists) }))
+    const resolution = await readData(context, planOf({ queries: new Map(lists) }), ALL_FEATURES)
 
     expect(backend.requests).toHaveLength(DATA_LIMITS.maxQueriesPerDocument)
     expect([...resolution.queries.values()].filter(answer => answer === 'failed')).toHaveLength(2)
@@ -123,7 +126,7 @@ describe('readData', () => {
   it('counts what matches in all, not only the page it keeps', async () => {
     backend.reply(() => ({ count: 40, results: [makeProductCard({ id: 1 })] }))
 
-    const resolution = await readData(context, planOf({ queries: new Map([['p', { source: 'product' as const, descriptor: newest, key: 'p' }]]) }))
+    const resolution = await readData(context, planOf({ queries: new Map([['p', { source: 'product' as const, descriptor: newest, key: 'p' }]]) }), ALL_FEATURES)
 
     expect(answerOf(resolution, 'p').total).toBe(40)
   })
@@ -136,7 +139,7 @@ describe('readData', () => {
     it('are the roots when the catalogue has several', async () => {
       backend.reply(() => page(1, 2))
 
-      const resolution = await readData(context, planOf({ queries: roots }))
+      const resolution = await readData(context, planOf({ queries: roots }), ALL_FEATURES)
 
       expect(idsOf(resolution)).toEqual([1, 2])
       expect(backend.requests).toHaveLength(1)
@@ -146,7 +149,7 @@ describe('readData', () => {
     it('are the CHILDREN of the root when everything hangs under one: a single root is not a choice', async () => {
       backend.reply(request => request.url.searchParams.get('parent') === '5' ? page(6, 7) : page(5))
 
-      const resolution = await readData(context, planOf({ queries: roots }))
+      const resolution = await readData(context, planOf({ queries: roots }), ALL_FEATURES)
 
       expect(idsOf(resolution)).toEqual([6, 7])
       expect(backend.requests.map(({ url }) => url.searchParams.get('parent'))).toEqual([null, '5'])
@@ -156,14 +159,14 @@ describe('readData', () => {
     it('stay the one root when it has no children to open', async () => {
       backend.reply(request => request.url.searchParams.get('parent') === '5' ? page() : page(5))
 
-      expect(idsOf(await readData(context, planOf({ queries: roots })))).toEqual([5])
+      expect(idsOf(await readData(context, planOf({ queries: roots }), ALL_FEATURES))).toEqual([5])
     })
 
     it('are the children of the category the descriptor names, and are not hoisted again', async () => {
       backend.reply(() => page(9))
       const children = new Map([['c', { source: 'category' as const, descriptor: { mode: 'children', parent: 5, limit: 8 }, key: 'c' }]])
 
-      const resolution = await readData(context, planOf({ queries: children }))
+      const resolution = await readData(context, planOf({ queries: children }), ALL_FEATURES)
 
       expect(idsOf(resolution)).toEqual([9])
       expect(backend.requests).toHaveLength(1)
@@ -178,7 +181,7 @@ describe('readData', () => {
       ['b', { source: 'blogPost' as const, descriptor: { mode: 'filter', ordering: 'newest', limit: 2 }, key: 'b' }],
     ])
 
-    const resolution = await readData(context, planOf({ queries, ids: { ...emptyIds, blogCategory: [1] } }))
+    const resolution = await readData(context, planOf({ queries, ids: { ...emptyIds, blogCategory: [1] } }), ALL_FEATURES)
 
     expect(resolution.queries.get('b')).toBe('failed')
     expect(answerOf(resolution, 'p').items).toHaveLength(1)
@@ -188,7 +191,7 @@ describe('readData', () => {
   it('answers `failed` for a descriptor its source does not know, instead of reading something else', async () => {
     backend.reply(() => page([]))
 
-    const resolution = await readData(context, planOf({ queries: new Map([['p', { source: 'product' as const, descriptor: { mode: 'filter', ordering: 'featured', limit: 4 }, key: 'p' }]]) }))
+    const resolution = await readData(context, planOf({ queries: new Map([['p', { source: 'product' as const, descriptor: { mode: 'filter', ordering: 'featured', limit: 4 }, key: 'p' }]]) }), ALL_FEATURES)
 
     expect(resolution.queries.get('p')).toBe('failed')
     expect(backend.requests).toEqual([])
@@ -197,7 +200,7 @@ describe('readData', () => {
   it('splits more ids than a page holds into several reads', async () => {
     backend.reply(() => page([]))
 
-    await readData(context, planOf({ ids: { ...emptyIds, product: Array.from({ length: 150 }, (_, index) => index + 1) } }))
+    await readData(context, planOf({ ids: { ...emptyIds, product: Array.from({ length: 150 }, (_, index) => index + 1) } }), ALL_FEATURES)
 
     expect(backend.requests.map(request => request.url.searchParams.get('pageSize'))).toEqual(['100', '50'])
   })
@@ -210,7 +213,7 @@ describe('readData, media', () => {
   it('reads the assets of the page in ONE request to the public resolve, as the store, with the alt text in the page\'s language', async () => {
     backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 }), makeResolvedAsset({ id: 9 })] }))
 
-    const resolution = await readData(context, planOf({ ids: { ...emptyIds, media: [9, 3, 14] } }))
+    const resolution = await readData(context, planOf({ ids: { ...emptyIds, media: [9, 3, 14] } }), ALL_FEATURES)
 
     expect(backend.requests).toHaveLength(1)
     expect(backend.lastRequest.url.pathname).toBe('/api/v1/builder/media/resolve')
@@ -226,7 +229,7 @@ describe('readData, media', () => {
   it('splits more ids than Django\'s resolve answers into several reads', async () => {
     backend.reply(() => ({ results: [] }))
 
-    await readData(context, planOf({ ids: { ...emptyIds, media: Array.from({ length: DATA_MEDIA_MAX_IDS + 20 }, (_, index) => index + 1) } }))
+    await readData(context, planOf({ ids: { ...emptyIds, media: Array.from({ length: DATA_MEDIA_MAX_IDS + 20 }, (_, index) => index + 1) } }), ALL_FEATURES)
 
     expect(backend.requests.map(request => request.url.searchParams.get('ids')!.split(',').length).sort((a, b) => b - a)).toEqual([DATA_MEDIA_MAX_IDS, 20])
   })
@@ -234,7 +237,7 @@ describe('readData, media', () => {
   it('answers `failed` for a read that failed, not an absence', async () => {
     backend.reply(() => jsonResponse({ detail: 'down' }, 503))
 
-    const resolution = await readData(context, planOf({ ids: { ...emptyIds, media: [3] } }))
+    const resolution = await readData(context, planOf({ ids: { ...emptyIds, media: [3] } }), ALL_FEATURES)
 
     expect(resolution.records.media).toBe('failed')
   })
@@ -244,8 +247,8 @@ describe('readData, media', () => {
     const plan = planOf({ ids: { ...emptyIds, media: [3] } })
     const shared = { ...context, shareToken: 'link-token' }
 
-    const resolution = await readData(shared, plan)
-    await readData(shared, plan)
+    const resolution = await readData(shared, plan, ALL_FEATURES)
+    await readData(shared, plan, ALL_FEATURES)
 
     expect(backend.requests.map(request => request.url.pathname)).toEqual([
       '/api/v1/builder/preview-media/link-token',
@@ -260,7 +263,7 @@ describe('readData, media', () => {
   it('answers failed when a share link has gone, rather than taking its images for absent', async () => {
     backend.reply(() => jsonResponse({ code: 'preview_link_expired' }, 404))
 
-    const resolution = await readData({ ...context, shareToken: 'gone' }, planOf({ ids: { ...emptyIds, media: [3] } }))
+    const resolution = await readData({ ...context, shareToken: 'gone' }, planOf({ ids: { ...emptyIds, media: [3] } }), ALL_FEATURES)
 
     expect(resolution.records.media).toBe('failed')
   })
@@ -268,7 +271,7 @@ describe('readData, media', () => {
   it('reads any asset of the library for the editor\'s preview: the staff resolve, as the staff member', async () => {
     backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 })] }))
 
-    const resolution = await readData({ ...context, staffHeaders }, planOf({ ids: { ...emptyIds, media: [3] } }))
+    const resolution = await readData({ ...context, staffHeaders }, planOf({ ids: { ...emptyIds, media: [3] } }), ALL_FEATURES)
 
     expect(backend.lastRequest.url.pathname).toBe('/api/v1/builder/media/staff-resolve')
     expect(backend.lastRequest.url.searchParams.get('ids')).toBe('3')
@@ -282,9 +285,9 @@ describe('readData, media', () => {
     backend.reply(() => ({ results: [makeResolvedAsset({ id: 3 })] }))
     const plan = planOf({ ids: { ...emptyIds, media: [3] } })
 
-    await readData({ ...context, staffHeaders }, plan)
-    await readData({ ...context, staffHeaders }, plan)
-    await readData(context, plan)
+    await readData({ ...context, staffHeaders }, plan, ALL_FEATURES)
+    await readData({ ...context, staffHeaders }, plan, ALL_FEATURES)
+    await readData(context, plan, ALL_FEATURES)
 
     expect(backend.requests.map(request => request.url.pathname)).toEqual([
       '/api/v1/builder/media/staff-resolve',
@@ -297,7 +300,7 @@ describe('readData, media', () => {
   it('sends no staff credentials for any other kind of record', async () => {
     backend.reply(() => page([makeProductCard({ id: 2 })]))
 
-    await readData({ ...context, staffHeaders }, planOf({ ids: { ...emptyIds, product: [2] } }))
+    await readData({ ...context, staffHeaders }, planOf({ ids: { ...emptyIds, product: [2] } }), ALL_FEATURES)
 
     expect(backend.lastRequest.url.pathname).toBe('/api/v1/product')
     expect(backend.lastRequest.headers.get('authorization')).toBeNull()
@@ -341,6 +344,45 @@ describe('the cache of a read', () => {
     expect(cacheKeyBelongsToHost(key, 'shop-a.test')).toBe(true)
     expect(cacheKeyBelongsToHost(key, 'shop-b.test')).toBe(false)
     expect(cacheKeyBelongsToHost(key, 'a.test')).toBe(false)
+  })
+})
+
+/**
+ * Django refuses a store's records and lists of a feature it has off
+ * (`IsCatalogueEnabled`, `IsBlogEnabled`, `IsPromotionsEnabled`), and a refused
+ * read is not cached: every render would ask again. So the resolver does not
+ * ask (`DATA_FEATURES`): the records are absent, the lists empty.
+ */
+describe('readData, a store feature that is off', () => {
+  const everything: DataPlan = {
+    ids: { product: [1], blogPost: [2], category: [3], blogCategory: [4], media: [5] },
+    queries: new Map([
+      ['p', { source: 'product' as const, descriptor: newest, key: 'p' }],
+      ['c', { source: 'category' as const, descriptor: { mode: 'roots', limit: 4 }, key: 'c' }],
+      ['b', { source: 'blogPost' as const, descriptor: { mode: 'filter', ordering: 'newest', limit: 2 }, key: 'b' }],
+      ['k', { source: 'blogCategory' as const, descriptor: { limit: 4 }, key: 'k' }],
+      ['o', { source: 'promotion' as const, descriptor: { limit: 2 }, key: 'o' }],
+    ]),
+  }
+  const paths = () => backend.requests.map(({ url }) => url.pathname.replace('/api/v1', '')).sort()
+
+  it.each([
+    ['catalogue', ['/product', '/product/category']],
+    ['blog', ['/blog/category', '/blog/post']],
+    ['promotions', ['/promotion']],
+  ] as const)('reads nothing of %s for a store that has it off, and resolves its records as gone', async (off, refused) => {
+    backend.reply(() => page([]))
+
+    const resolution = await readData(context, everything, feature => feature !== off)
+
+    const kinds = DATA_RECORD_KINDS.filter(kind => DATA_FEATURES[kind] === off)
+    const lists = [...everything.queries.values()].filter(({ source }) => DATA_FEATURES[source] === off)
+
+    expect(paths().filter(path => (refused as readonly string[]).includes(path))).toEqual([])
+    expect(paths()).toContain('/builder/media/resolve')
+    expect(kinds.map(kind => resolution.records[kind])).toEqual(kinds.map(() => new Map()))
+    expect(lists.map(({ key }) => resolution.queries.get(key))).toEqual(lists.map(() => ({ items: [], total: 0 })))
+    expect(lists.length).toBeGreaterThan(0)
   })
 })
 

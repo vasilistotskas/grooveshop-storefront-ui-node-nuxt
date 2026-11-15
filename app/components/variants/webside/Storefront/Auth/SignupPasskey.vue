@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/SignupPasskey')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { isMobileOrTablet } = useDevice()
 
 const items = computed(() => [
@@ -10,12 +12,12 @@ const items = computed(() => [
     icon: t('breadcrumb.items.index.icon'),
   },
   {
-    to: localePath('account-signup'),
+    to: localePath(authLink('account-signup')),
     label: t('breadcrumb.items.account-signup.label'),
     icon: t('breadcrumb.items.account-signup.icon'),
   },
   {
-    to: localePath('account-signup-passkey'),
+    to: localePath(authLink('account-signup-passkey')),
     label: t('breadcrumb.items.account-signup-passkey.label'),
     icon: t('breadcrumb.items.account-signup-passkey.icon'),
     current: true,

@@ -22,11 +22,9 @@ const props = withDefaults(defineProps<{
   arrow: false,
 })
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
-const target = computed(() =>
-  /^https:\/\//.test(props.to) ? props.to : localePath(pathLocation(props.to)),
-)
+const target = computed(() => linkTo(props.to))
 
 const LOOKS = {
   ink: `

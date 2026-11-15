@@ -45,4 +45,12 @@ describe.each(trees(Home, WebsideHome))('the home page h1 ($tree tree)', ({ C: C
 
     expect(await headingsOf(makeBuilderPage({ settings: { heading: 'Τεχνολογία με νόημα' }, sections: [hero] }))).not.toContain('Τεχνολογία με νόημα')
   })
+
+  // A hero draws its h1 only with a heading: one inserted from its preset
+  // (a search and a picture) leaves the page its own.
+  it('keeps its heading under a hero that has none', async () => {
+    const hero = makeBuilderSection({ componentType: 'hero_showcase', props: { showSearch: true } })
+
+    expect(await headingsOf(makeBuilderPage({ settings: { heading: 'Τεχνολογία με νόημα' }, sections: [hero] }))).toContain('Τεχνολογία με νόημα')
+  })
 })

@@ -31,8 +31,11 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
 </script>
 
 <template>
+  <!-- `data-footer-newsletter`: not drawn on a page whose newsletter band
+       already offers the form (`main.css`, "One newsletter form a page"). -->
   <div
     v-if="available"
+    data-footer-newsletter
     class="
       flex flex-col gap-3 rounded-[1.375rem] border border-default bg-muted p-5
       lg:p-7

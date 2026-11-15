@@ -5,6 +5,8 @@ const emit = defineEmits(['signUpByPasskey'])
 
 const { t } = useStoreI18n('components/variants/webside/Account/Signup/PasskeyForm')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const { schema, loading, hasError, onSubmit } = useSignUpByPasskey({
   created: () => ({
@@ -62,7 +64,7 @@ const fields: AuthFormField[] = [
             <div class="text-muted">
               {{ t('already_have_account') }}
               <ULink
-                :to="localePath('account-login')"
+                :to="localePath(authLink('account-login'))"
                 class="
                   font-medium text-primary
                   hover:underline
@@ -75,7 +77,7 @@ const fields: AuthFormField[] = [
             <div class="text-muted">
               {{ t('prefer_password') }}
               <ULink
-                :to="localePath('account-signup')"
+                :to="localePath(authLink('account-signup'))"
                 class="
                   font-medium text-primary
                   hover:underline

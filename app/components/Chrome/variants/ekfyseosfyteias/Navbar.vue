@@ -168,7 +168,7 @@ onKeyStroke('Escape', () => {
                   focus-visible:outline-(--fy-focus)
                 "
                 :class="isActive(item.to) && 'bg-(--fy-chip)'"
-                :aria-current="isActive(item.to) ? 'page' : undefined"
+                :aria-current="currentMark(isActive(item.to), item.to, splitLocale(route.path).route)"
               >
                 <span
                   v-if="isActive(item.to)"
@@ -247,7 +247,7 @@ onKeyStroke('Escape', () => {
           focus-visible:outline-3 focus-visible:outline-offset-2
           focus-visible:outline-(--fy-focus)
         "
-        :aria-current="isActive(item.to) ? 'page' : undefined"
+        :aria-current="currentMark(isActive(item.to), item.to, splitLocale(route.path).route)"
       >
         <span
           v-if="isActive(item.to)"

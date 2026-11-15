@@ -103,6 +103,12 @@ const visibleLabel = computed(() => {
   }
   return props.label ?? text.value
 })
+// A product that cannot be bought looks unavailable wherever the button
+// renders: neutral and subtle, never the store's accent or the ink pill,
+// at the disabled opacity. Its label stays readable: 7.1:1 in light,
+// 8.6:1 in dark, measured on the page.
+const buttonColor = computed<ButtonProps['color']>(() => (disabled.value ? 'neutral' : props.color))
+const buttonVariant = computed<ButtonProps['variant']>(() => (disabled.value ? 'subtle' : 'solid'))
 
 const { addToCart } = useAddToCart({
   t,
@@ -170,8 +176,8 @@ function announceAdded() {
     :size="size"
     square
     loading-auto
-    :color="color"
-    variant="solid"
+    :color="buttonColor"
+    :variant="buttonVariant"
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
     :title="disabled ? t('unavailable') : text"
@@ -180,22 +186,28 @@ function announceAdded() {
   <UButton
     v-else-if="cartEnabled"
     :icon="icon"
-    :label="visibleLabel"
     :size="size"
     :trailing="block"
     loading-auto
-    :color="color"
-    variant="solid"
+    :color="buttonColor"
+    :variant="buttonVariant"
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
     :ui="{ base: block ? 'w-full place-content-center place-items-center' : '' }"
     @click.prevent="addToCart"
-  />
+  >
+    <!-- Not the button's own label, which is one truncated line: the label
+         is a state the shopper must read, so it wraps instead. -->
+    <span
+      data-slot="label"
+      class="min-w-0 text-center text-balance"
+    >{{ visibleLabel }}</span>
+  </UButton>
 </template>
 
 <i18n lang="yaml">
 el:
-  unavailable: Μή Διαθέσιμο
+  unavailable: Μη διαθέσιμο
   toast:
     adding_title: Προσθήκη στο καλάθι…
     added_title: Προστέθηκε στο καλάθι

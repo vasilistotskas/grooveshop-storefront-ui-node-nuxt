@@ -1,5 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+
+const route = vi.hoisted(() => ({ name: 'account___el', path: '/account', fullPath: '/account', params: {}, query: {}, hash: '', meta: {}, matched: [] }))
+mockNuxtImport('useRoute', () => () => route)
 
 /**
  * The account menu offers a page only while the store has the feature
@@ -13,6 +17,24 @@ describe('useAccountMenus', () => {
     // A store with the blog, so favourites lead to the saved posts.
     setTenant()
     setTenantFeatures({ blog: true })
+    Object.assign(route, { name: 'account___el', path: '/account', fullPath: '/account' })
+  })
+
+  // Which entry is current is the platform's account navigation's
+  // answer, so webside marks the same pages as the default design: the
+  // section's own page as the page, a page under it as the location.
+  it.each([
+    { at: { name: 'account-orders___el', path: '/account/orders' }, mark: 'page' },
+    { at: { name: 'account-orders-id___el', path: '/account/orders/70' }, mark: 'location' },
+    { at: { name: 'account-favourites-posts___el', path: '/account/favourites/posts' }, mark: 'page' },
+  ])('marks the entry the shopper is in on $at.path as the $mark, active', ({ at, mark }) => {
+    Object.assign(route, at, { fullPath: at.path })
+
+    const current = useAccountMenus().menus.value
+      .filter(menu => menu.active)
+      .map(menu => [menu.to, menu['aria-current']])
+
+    expect(current).toEqual([[at.path.startsWith('/account/orders') ? '/account/orders' : at.path, mark]])
   })
 
   it('lists the base account pages in order, translated, with settings and security last and reviews after them', () => {

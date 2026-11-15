@@ -23,17 +23,20 @@ export default defineNuxtPlugin({
     const config = useRuntimeConfig()
     const locale = (nuxtApp.$i18n as Composer).locale
     const toast = useToast()
-    const { loggedIn } = useUserSession()
+    const { loggedIn, fetch: fetchSession } = useUserSession()
     const tenantStore = useTenantStore()
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
     const debouncedSetupNotifications = useDebounceFn(setupNotifications, 1000)
     const { presentationFor } = useNotificationPresentation()
 
-    // BroadcastChannel for cross-tab coordination (notifications + logout).
+    // BroadcastChannel for cross-tab coordination (notifications, sign-in and logout).
     // D = incoming data type, P = outgoing post type (both are plain objects).
     const { isSupported: isBroadcastChannelSupported, post, data: broadcastData } = useBroadcastChannel<Record<string, unknown>, Record<string, unknown>>({ name: 'notifications' })
 
+    // Set while this tab takes a sign-in another tab posted, so the sign-in is
+    // not posted back.
+    let adoptingOtherTabSignIn = false
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
     let reconnectAttempt = 0
     let ws: ReturnType<typeof useWebSocket> | null = null
@@ -198,10 +201,23 @@ export default defineNuxtPlugin({
     }
 
     // Cross-tab logout: when another tab logs out, close the WS here too.
-    // Also post a logout signal when this tab's loggedIn flips to false.
+    // Cross-tab sign-in: when another tab signs in, a tab that is signed out
+    // asks the session again; the cookie is shared, so it is the new
+    // shopper's, and `setup.ts` restores the account on the `loggedIn` flip.
+    // Without it a tab acted signed out until it was reloaded (#461).
+    // This tab posts each when its own loggedIn flips.
     if (isBroadcastChannelSupported.value) {
       watch(broadcastData, async (msg) => {
-        if (msg?.type === 'logout') {
+        if (msg?.type === 'login' && !loggedIn.value) {
+          adoptingOtherTabSignIn = true
+          try {
+            await fetchSession()
+          }
+          finally {
+            adoptingOtherTabSignIn = false
+          }
+        }
+        else if (msg?.type === 'logout') {
           closeWebSocket()
           // Same as the WS-ticket 401 case — go through auth:change so the
           // other tab's logout fully tears down state here. Setting
@@ -219,6 +235,11 @@ export default defineNuxtPlugin({
         if (!previous && isLoggedIn) {
           reconnectAttempt = 0
           initializeWebSocket()
+          // A sign-in in this tab, not the session it opened with
+          // (`previous` is undefined on the first run).
+          if (previous === false && !adoptingOtherTabSignIn && isBroadcastChannelSupported.value) {
+            post({ type: 'login' })
+          }
         }
         else if (previous && !isLoggedIn) {
           closeWebSocket()

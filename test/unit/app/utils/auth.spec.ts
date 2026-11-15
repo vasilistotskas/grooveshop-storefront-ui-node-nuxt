@@ -5,6 +5,8 @@ import {
   determineAuthChangeEvent,
   isAllAuthResponseSuccess,
   safeRelativePath,
+  returnPath,
+  returnTarget,
   getPendingFlows,
   getPendingFlow,
   extractAllAuthError,
@@ -266,6 +268,54 @@ describe('Utils - Auth', () => {
       ['undefined', undefined],
     ])('rejects %s', (_case, value) => {
       expect(safeRelativePath(value)).toBeUndefined()
+    })
+  })
+
+  // Every reader of `next`: the site guard, and no way back to the form.
+  describe('returnPath', () => {
+    it.each([
+      ['/cart', '/cart'],
+      ['/en/products?sort=-createdAt', '/en/products?sort=-createdAt'],
+      ['/account/orders/70', '/account/orders/70'],
+    ])('brings the shopper back to %j', (value, path) => {
+      expect(returnPath(value)).toBe(path)
+    })
+
+    it.each([
+      ['another site', 'https://evil.example/'],
+      ['another site, protocol-relative', '//evil.example'],
+      ['another site, with a backslash', '/\\evil.example'],
+      ['the sign-in page', '/account/login'],
+      ['the sign-in page with a query', '/account/login?next=/cart'],
+      ['the code sign-in in English', '/en/account/login/code'],
+      ['the sign-up page', '/account/signup'],
+      ['the passkey sign-up', '/account/signup/passkey/create'],
+      ['a password reset key', '/account/password/reset/key/abc-123'],
+      ['an email verification key', '/account/verify-email/abc-123'],
+      ['a provider callback', '/account/provider/callback'],
+      ['a two-step sign-in', '/account/2fa/authenticate/totp'],
+      ['re-authentication', '/account/reauthenticate'],
+      ['a value that is not one string', ['/cart', '/checkout']],
+    ])('drops %s', (_case, value) => {
+      expect(returnPath(value)).toBeUndefined()
+    })
+  })
+
+  // Every writer of `next`: the page's path, its query only where the page
+  // marks it view state.
+  describe('returnTarget', () => {
+    const at = (fullPath: string, meta: { signInReturn?: 'path-and-query' | 'nowhere' } = {}) => ({ path: fullPath.split('?')[0]!, fullPath, meta })
+
+    it('carries the page\'s path alone by default, whatever its query holds', () => {
+      expect(returnTarget(at('/checkout/success/0b7c?session_id=cs_live_secret&s=123&placed=1'))).toBe('/checkout/success/0b7c')
+    })
+
+    it('carries nothing from a page whose path is a one-time token', () => {
+      expect(returnTarget(at('/email/unsubscribe/tok3n', { signInReturn: 'nowhere' }))).toBeUndefined()
+    })
+
+    it('keeps the query of a page that marks it view state, without its hash', () => {
+      expect(returnTarget(at('/products?sort=-createdAt&inStock=true&page=2#top', { signInReturn: 'path-and-query' }))).toBe('/products?sort=-createdAt&inStock=true&page=2')
     })
   })
 

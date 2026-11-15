@@ -1,22 +1,28 @@
 <script lang="ts" setup>
-const siteConfig = useSiteConfig()
-const localePath = useLocalePath()
-const { t } = useStoreI18n('components/variants/webside/Footer/Desktop')
+/**
+ * webside's desk footer as its design board draws it: the store's logo and
+ * line about itself, then the link columns; under them one row with the
+ * copyright on the left and the ways to pay, the carriers and the cookie
+ * settings on the right (`Footer/Legal`). The seller identity stays, the law
+ * wants it on every page; the social links and the opening hours stay too
+ * (not on the board: the owner's call). The build version is gone.
+ */
 const { columns, merchantIdentityColumnIndex } = useFooterLinks()
-const { isModalActive } = useCookieControl()
 const tenantStore = useTenantStore()
-const runtimeConfig = useRuntimeConfig()
-
-const packageVersion = runtimeConfig.public.version
-const currentYear = new Date().getFullYear()
-
-const openCookieModal = () => {
-  isModalActive.value = true
-}
+const { locale } = useI18n({ useScope: 'global' })
+// The store's line about itself in the page's language (as the platform's
+// footer reads it).
+const storeDescription = computed(() =>
+  tenantStore.config ? localizedStoreDescription(tenantStore.config, locale.value) : '',
+)
 </script>
 
 <template>
   <UFooter
+    :ui="{ bottom: `
+      pt-0 pb-7
+      lg:pt-0 lg:pb-7
+    ` }"
     class="
       mt-6 hidden border-t-2 border-primary-500 bg-primary-50
       md:block
@@ -27,8 +33,29 @@ const openCookieModal = () => {
       <UContainer>
         <UFooterColumns
           :columns="columns"
-          :ui="{ center: 'xl:col-span-3' }"
+          :ui="{
+            root: `
+              grid gap-8
+              lg:grid-cols-5
+            `,
+            left: 'mb-0',
+            center: 'lg:col-span-4',
+          }"
         >
+          <template #left>
+            <div class="flex flex-col items-start gap-3">
+              <TenantLogo
+                :width="120"
+                :height="28"
+              />
+              <p
+                v-if="storeDescription"
+                class="text-sm/relaxed text-muted"
+              >
+                {{ storeDescription }}
+              </p>
+            </div>
+          </template>
           <!-- UFooterColumns draws only links under a column, so the columns
                are drawn here, with its classes: the seller identity sits
                under the column the operator marked for them. -->
@@ -85,71 +112,36 @@ const openCookieModal = () => {
     </template>
 
     <template #left>
-      <div class="flex flex-col gap-1">
+      <div class="flex w-full flex-col gap-1">
         <!-- A footer with no marked column keeps the seller identity here:
              the law wants it on every page whichever way the footer is laid
              out. -->
         <WebsideMerchantIdentity v-if="merchantIdentityColumnIndex === -1" />
         <WebsideFooterHoursBadge />
-        <div
-          class="
-            flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950
-            dark:text-primary-100
-          "
-        >
-          <span>
-            &copy; {{ currentYear }}&nbsp;
-            <UButton
-              :label="`${siteConfig.name}™.`"
-              :to="localePath('index')"
-              class="
-                p-0 text-primary-950
-                dark:text-primary-50
-              "
-              color="neutral"
-              size="lg"
-              type="button"
-              variant="link"
-            /> {{ t('all_rights_reserved') }}.
-          </span>
-          <template v-if="tenantStore.hasOptionalServices">
-            <span aria-hidden="true" class="text-primary-400">·</span>
-            <UButton
-              :label="t('cookie_settings')"
-              icon="i-unjs:cookie-es"
-              color="neutral"
-              variant="link"
-              size="sm"
-              class="p-0"
-              @click="openCookieModal"
-            />
-          </template>
-        </div>
       </div>
     </template>
 
+    <!-- Not on the board, kept: the newsletter sits above the store's social
+         links on every footer (`webside-footer-newsletter.spec.ts`). -->
     <template #right>
-      <div class="flex items-center gap-6">
-        <WebsideSocials
-          :button-size="'sm'"
-          :icon-class="'text-xl'"
-        />
-        <span
+      <WebsideSocials
+        :button-size="'sm'"
+        :icon-class="'text-xl'"
+      />
+    </template>
+
+    <!-- The footer's last row, the full width of the page: the copyright at
+         the left end, the ways to pay, the carriers and the cookie settings
+         at the right (read from the store's data). -->
+    <template #bottom>
+      <UContainer>
+        <WebsideFooterLegal
           class="
-            text-xs text-primary-950
-            dark:text-primary-300
+            border-t border-primary-200 pt-5
+            dark:border-primary-700
           "
-        >Version: {{ packageVersion }}</span>
-      </div>
+        />
+      </UContainer>
     </template>
   </UFooter>
 </template>
-
-<i18n lang="yaml">
-el:
-  all_rights_reserved: Με επιφύλαξη παντός δικαιώματος
-  cookie_settings: Ρυθμίσεις cookies
-en:
-  all_rights_reserved: All rights reserved
-  cookie_settings: Cookie settings
-</i18n>

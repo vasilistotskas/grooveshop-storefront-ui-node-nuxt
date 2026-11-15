@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto'
+import { useStorage } from 'nitropack/runtime'
+
 /** Where the purge looks for keys (`prefix`, relative to the cache mount) and which of them it takes (`accepts`; every one under the prefix when absent). */
 export interface PurgeMatcher {
   prefix: string
@@ -20,6 +23,48 @@ function pageSegment(path: string): string {
 
 /** The segment a stored page key starts with, without its hash. */
 const segmentOfKey = (key: string): string | undefined => key.split(':')[3]?.split('.')[0]
+
+/**
+ * The cached reads of a page's RECORDS (`server/utils/builderData/loaders.ts`,
+ * `builderLinks.ts`), by the name Nitro stores each cached function under:
+ * - `builderDataProduct`, `builderDataCategory`, `builderDataBlogPost`,
+ *   `builderDataBlogCategory`, `builderDataPromotion`: the records and lists
+ *   a page shows, which are what changed;
+ * - `builderDataSlug`: the slugs a page's links are answered at, which a
+ *   renamed record changes.
+ * Left out: `builderDataMedia` (an image changes through the media library,
+ * whose purge is the `builder` surface's, never through a record) and
+ * `builderDataTargets` (the published pages, which only a release changes).
+ */
+const RECORD_DATA_FUNCTIONS = [
+  'builderDataProduct',
+  'builderDataCategory',
+  'builderDataBlogPost',
+  'builderDataBlogCategory',
+  'builderDataPromotion',
+  'builderDataSlug',
+] as const
+
+/**
+ * The record data to drop BEFORE the pages of `documents` are purged. Django
+ * names a page or template document in a purge because a record it shows
+ * changed (`builder.data_purge`), so the data caches the page reads are as
+ * stale as the page: purging only the page let the next render read the old
+ * list from a 60s data cache and store it again for the page's 5 minutes.
+ * Dropped first, in the same request, a render after the purge reads Django.
+ *
+ * Only a page or template document reads records: a section group and the
+ * theme do not, so a purge of those alone drops no data. Scoped to the store
+ * by the caller (`host`), like the pages.
+ *
+ * A page render already in flight when the purge lands read the old records;
+ * the store's builder epoch keeps it from storing its page (`moveBuilderEpoch`).
+ */
+export function builderRecordDataMatchers(documents: readonly string[]): PurgeMatcher[] {
+  return documents.some(builderPageKind)
+    ? RECORD_DATA_FUNCTIONS.map(name => ({ prefix: `nitro:functions:${name}:` }))
+    : []
+}
 
 /**
  * What a change to builder documents must purge: the rendered pages that
@@ -48,4 +93,36 @@ export function builderDocumentMatchers(documents: readonly string[]): PurgeMatc
     matchers.push({ prefix: PAGE_KEY_PREFIX, accepts: key => segments.has(segmentOfKey(key) ?? '') })
   }
   return matchers
+}
+
+/** The first segment of a store's builder epoch key; `builderEpochKey` adds the store. */
+const BUILDER_EPOCH_KEY = 'builder-epoch'
+
+/** Where the store's builder epoch is kept, on the cache mount. */
+export const builderEpochKey = (host: string): string => `${BUILDER_EPOCH_KEY}:${tenantHostOf(host)}`
+
+/**
+ * The store's builder epoch: an opaque value a builder purge replaces, `''`
+ * before the first. Read from the shared storage on every call, never from a
+ * copy in memory: a pod that has not seen the purge must still see it move.
+ */
+export async function readBuilderEpoch(host: string): Promise<string> {
+  return String(await useStorage('cache').getItem(builderEpochKey(host)) ?? '')
+}
+
+/**
+ * Give the store a new builder epoch. A builder purge writes it after it drops
+ * the store's record data and before it drops the pages
+ * (`server/api/admin/cache/purge.post.ts`): a page render already in flight
+ * read the old records, sees the epoch move between its start and its answer,
+ * and answers `no-store`, so its page is not stored after the purge
+ * (`server/plugins/builder-render-epoch.ts`). A render that starts after the
+ * write reads the new records.
+ *
+ * Still open: Nitro shares one in-flight call of a cached function between
+ * its callers, so a render that starts after the purge can join a record read
+ * that began before it, and store what that read returns.
+ */
+export async function moveBuilderEpoch(host: string): Promise<void> {
+  await useStorage('cache').setItem(builderEpochKey(host), randomUUID())
 }

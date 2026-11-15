@@ -13,11 +13,17 @@ const props = withDefaults(defineProps<{
   count?: number | null
   /** Names the count ("12 reviews") instead of the bare "12". */
   verbose?: boolean
+  /**
+   * One star before the figure and the count in brackets ("★ 5,0 (1 review)"),
+   * where five stars crowd a short line (a bold hero's product card).
+   */
+  single?: boolean
   href?: string
 }>(), {
   average: null,
   count: null,
   verbose: false,
+  single: false,
   href: undefined,
 })
 
@@ -31,7 +37,11 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
 <template>
   <!-- Quoted, it is one image named whole. As the link to the reviews it
        is named by its text, so the name holds what is on screen (WCAG
-       2.5.3) and "out of 5" follows as text only a screen reader gets. -->
+       2.5.3) and "out of 5" follows as text only a screen reader gets.
+       The link is as wide as what it shows (`w-fit`), never the width of
+       its column, and leaves its row's alignment to the row: `self-start`
+       held it to the top of a row whose 44px price-trend button sat
+       centred, 12px lower. -->
   <component
     :is="href ? 'a' : 'div'"
     v-if="reviews > 0"
@@ -39,14 +49,29 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
     :role="href ? undefined : 'img'"
     :aria-label="href ? undefined : label"
     class="flex items-center gap-1.5"
-    :class="href ? 'self-start' : undefined"
+    :class="href ? 'w-fit' : undefined"
   >
+    <UIcon
+      v-if="single"
+      name="i-heroicons-star-solid"
+      aria-hidden="true"
+      class="size-3.5 shrink-0 text-(--ui-rating)"
+    />
     <ProductReviewsStars
+      v-else
       :rate="average ?? 0"
       size="card"
       aria-hidden="true"
     />
     <span
+      v-if="single"
+      :aria-hidden="href ? undefined : 'true'"
+      class="text-[0.8125rem] text-muted"
+    >
+      <span class="font-semibold text-highlighted">{{ figure }}</span> {{ t('n_reviews_bracketed', { count: reviews }, reviews) }}
+    </span>
+    <span
+      v-else
       :aria-hidden="href ? undefined : 'true'"
       class="text-[0.8125rem] font-semibold text-muted"
       :class="href ? `
@@ -67,9 +92,11 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
 el:
   rated_by: "Βαθμολογία {n} στα 5, από {count} αξιολόγηση | Βαθμολογία {n} στα 5, από {count} αξιολογήσεις"
   n_reviews: "{count} αξιολόγηση | {count} αξιολογήσεις"
+  n_reviews_bracketed: "({count} αξιολόγηση) | ({count} αξιολογήσεις)"
   out_of_five: βαθμολογία στα 5
 en:
   rated_by: "Rated {n} out of 5, from {count} review | Rated {n} out of 5, from {count} reviews"
   n_reviews: "{count} review | {count} reviews"
+  n_reviews_bracketed: "({count} review) | ({count} reviews)"
   out_of_five: rated out of 5
 </i18n>

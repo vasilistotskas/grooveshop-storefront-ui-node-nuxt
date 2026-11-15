@@ -12,6 +12,8 @@ export interface AccountNavItem {
   to: string
   /** This item's page, or one of the pages under it, is on screen. */
   active: boolean
+  /** Its `aria-current`: `page` on its own page, `location` under it (`currentMark`). */
+  current?: 'page' | 'location'
   /** A count to show beside the label (unseen notifications). */
   badge?: number
 }
@@ -92,16 +94,21 @@ export function useAccountNavigation() {
     return typeof name === 'string' ? name : ''
   })
 
-  const items = computed<AccountNavItem[]>(() => entries.value.map(entry => ({
-    key: entry.key,
-    label: t(`account_nav.${entry.key}`),
-    icon: entry.icon,
-    to: localePath(entry.route),
-    active: routeName.value === entry.route || Boolean(entry.owns?.(routeName.value)),
-    ...(entry.key === 'notifications' && unseenNotifications.value > 0
-      ? { badge: unseenNotifications.value }
-      : {}),
-  })))
+  const items = computed<AccountNavItem[]>(() => entries.value.map((entry) => {
+    const to = localePath(entry.route)
+    const active = routeName.value === entry.route || Boolean(entry.owns?.(routeName.value))
+    return {
+      key: entry.key,
+      label: t(`account_nav.${entry.key}`),
+      icon: entry.icon,
+      to,
+      active,
+      current: currentMark(active, to, route.path),
+      ...(entry.key === 'notifications' && unseenNotifications.value > 0
+        ? { badge: unseenNotifications.value }
+        : {}),
+    }
+  }))
 
   /** The overview itself is on screen (a phone shows the tiles there). */
   const onOverview = computed(() => routeName.value === 'account')

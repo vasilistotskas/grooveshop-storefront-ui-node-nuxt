@@ -135,9 +135,11 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
     expect(submit().attributes('disabled')).toBeUndefined()
   })
 
+  // With the destination the shopper had (`useAuthLinks().authLink`); at
+  // `/` that is the page itself.
   it('links back to sign in', async () => {
     const wrapper = await mountForm()
 
-    expect(wrapper.find(`a[href="${useLocalePath()('account-login')}"]`).exists()).toBe(true)
+    expect(wrapper.find(`a[href="${useLocalePath()({ name: 'account-login', query: { next: '/' } })}"]`).exists()).toBe(true)
   })
 })

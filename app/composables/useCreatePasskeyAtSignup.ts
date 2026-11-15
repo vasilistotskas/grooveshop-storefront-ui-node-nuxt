@@ -22,6 +22,8 @@ export function useCreatePasskeyAtSignup(options: {
   const { getWebAuthnCreateOptionsAtSignup, signupWebAuthnCredential } = useAllAuthAuthentication()
   const toast = useToast()
   const localePath = useLocalePath()
+  // Links between auth pages keep the destination the shopper came with.
+  const { authLink } = useAuthLinks()
   const authInfo = useAuthInfo()
   const router = useRouter()
 
@@ -57,7 +59,7 @@ export function useCreatePasskeyAtSignup(options: {
     catch (error) {
       if (isAllAuthClientError(error)) {
         if (error.data.data.status === 409 || authInfo.pendingFlow?.id !== Flows.MFA_WEBAUTHN_SIGNUP) {
-          await router.push(localePath('account-signup-passkey'))
+          await router.push(localePath(authLink('account-signup-passkey')))
           return
         }
       }

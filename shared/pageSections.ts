@@ -20,14 +20,21 @@
  * supplies one — otherwise the two compete, which is the duplicate-h1
  * defect the navbar logo used to cause site-wide.
  *
- * Together with `heroCarouselHeading` it is the one place that records which
- * components own the document heading.
+ * Together with `HEADING_FROM_PROPS` and `heroCarouselHeading` it is the one
+ * place that records which components own the document heading.
  */
 export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'hero_banner',
-  // Owns the whole contact page, heading included.
-  'contact_panel',
+  // Its `heading` and `headingAccent` are the two lines of one h1.
+  'hero_showcase',
 ])
+
+/**
+ * The heading sections that draw their h1 only when they have a heading
+ * (`v-if` on the h1 in every design): an artwork-only hero, or one a merchant
+ * just inserted, renders none, so it does not stand the page's own h1 down.
+ */
+const HEADING_FROM_PROPS: ReadonlySet<string> = new Set(['hero_banner', 'hero_showcase'])
 
 interface SectionLike {
   componentType: string
@@ -55,9 +62,17 @@ export function heroCarouselHeading(props: unknown): string {
   return trimmedText((slides[0] as { heading?: unknown } | undefined)?.heading)
 }
 
-const ownsHeading = (section: SectionLike): boolean =>
-  HEADING_SECTION_TYPES.has(section.componentType)
-  || (section.componentType === 'hero_carousel' && heroCarouselHeading(section.props) !== '')
+/** The heading a section draws from its props: `heading`, then `headingAccent`, its second line (one h1). */
+function propsHeading(props: unknown): string {
+  const { heading, headingAccent } = (props ?? {}) as { heading?: unknown, headingAccent?: unknown }
+  return [trimmedText(heading), trimmedText(headingAccent)].filter(Boolean).join(' ')
+}
+
+const ownsHeading = (section: SectionLike): boolean => {
+  if (section.componentType === 'hero_carousel') return heroCarouselHeading(section.props) !== ''
+  if (!HEADING_SECTION_TYPES.has(section.componentType)) return false
+  return !HEADING_FROM_PROPS.has(section.componentType) || propsHeading(section.props) !== ''
+}
 
 /** Whether a rendered section list already provides the page's h1. */
 export function sectionsProvideHeading(
@@ -82,31 +97,9 @@ export function sectionsHeadingText(
 ): string | undefined {
   const owner = (sections ?? []).find(ownsHeading)
   if (!owner) return undefined
-  const heading = owner.componentType === 'hero_carousel'
-    ? heroCarouselHeading(owner.props)
-    : trimmedText((owner.props as { heading?: unknown } | undefined)?.heading)
-  return heading || undefined
-}
-
-/**
- * Section types that render a page's PRIMARY form.
- *
- * Same rule as the heading, one layer out: a page that ships a form of
- * its own has to stand down when the tenant's layout already carries
- * one, or the visitor is offered the same enquiry twice. `/contact` is
- * the only page this applies to today.
- */
-export const FORM_SECTION_TYPES: ReadonlySet<string> = new Set([
-  'contact_panel',
-])
-
-/** Whether a rendered section list already provides the page's form. */
-export function sectionsProvideForm(
-  sections: readonly { componentType: string }[] | undefined,
-): boolean {
-  return (sections ?? []).some(section =>
-    FORM_SECTION_TYPES.has(section.componentType),
-  )
+  if (owner.componentType === 'hero_carousel') return heroCarouselHeading(owner.props) || undefined
+  // A heading drawn on two lines (`hero_showcase`'s accent line) is one h1, so one title.
+  return propsHeading(owner.props) || undefined
 }
 
 /**
@@ -118,4 +111,50 @@ export function sectionsProvideHours(
   sections: readonly { componentType: string }[] | undefined,
 ): boolean {
   return (sections ?? []).some(section => section.componentType === 'business_hours')
+}
+
+/**
+ * Whether a section draws its own full-width band in a look that lays it edge
+ * to edge, its own container inside: the bold look (`look: 'bold'`) of the
+ * hero, the product grid, the posts, the tiles and the newsletter, the
+ * promises as a card (`layout: 'card'`) and the posts as a feature card
+ * (`layout: 'feature'`). A design whose shell holds its sections in a
+ * container with a gap between them (webside's) lays these out of it, edge
+ * to edge and with no gap, so a band is not framed twice; every other section,
+ * and these in the look they always had, stays framed as before.
+ */
+export function sectionDrawsBand(section: SectionLike): boolean {
+  const props = (section.props ?? {}) as { look?: unknown, layout?: unknown }
+  switch (section.componentType) {
+    case 'hero_showcase':
+    case 'products_grid':
+    case 'newsletter_signup':
+      return props.look === 'bold'
+    case 'blog_posts_grid':
+      return props.look === 'bold' || props.layout === 'feature'
+    case 'blog_categories':
+      return props.look === 'bold' && props.layout === 'tiles'
+    case 'store_assurances':
+      return props.layout === 'card'
+    default:
+      return false
+  }
+}
+
+/**
+ * A section list cut into runs of neighbours that draw their own band and
+ * runs that do not, in order, each keyed by its first section's id: what a
+ * shell that frames only the second kind lays out.
+ */
+export function sectionRuns<T extends SectionLike & { id: string }>(
+  sections: readonly T[],
+): Array<{ key: string, bands: boolean, sections: T[] }> {
+  const runs: Array<{ key: string, bands: boolean, sections: T[] }> = []
+  for (const section of sections) {
+    const bands = sectionDrawsBand(section)
+    const last = runs.at(-1)
+    if (last && last.bands === bands) last.sections.push(section)
+    else runs.push({ key: section.id, bands, sections: [section] })
+  }
+  return runs
 }

@@ -20,3 +20,14 @@ export const PRODUCT_LISTING_SORT: Partial<Record<ProductRailKind, string>> = {
   newest: '-createdAt',
   mostLiked: '-likesCount',
 }
+
+/**
+ * The listing's filter that matches a rule which hides sold-out products
+ * (`stock: 'inStockOnly'`): the listing's own in-stock filter, `?inStock=true`
+ * (`app/utils/productFilters.ts`), so "see all" opens what the band promised.
+ * In-stock-first has no listing twin (the listing orders by its sort alone),
+ * and a hand-picked list carries no stock rule.
+ */
+export function productRailStockQuery(descriptor: DataDescriptor<'product'>): { inStock?: 'true' } {
+  return descriptor.mode === 'filter' && descriptor.stock === 'inStockOnly' ? { inStock: 'true' } : {}
+}

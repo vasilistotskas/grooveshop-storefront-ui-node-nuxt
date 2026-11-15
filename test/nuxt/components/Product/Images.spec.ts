@@ -5,6 +5,7 @@ import ProductImages from '~/components/Product/Images.vue'
 import WebsideProductImages from '~/components/variants/webside/Product/Images.vue'
 import { makeProduct } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
+import { inlineT } from '~~/test/helpers/inlineCopy'
 
 /**
  * The gallery's corner badge: sold out, else the percentage of an
@@ -105,5 +106,95 @@ describe.each(trees(ProductImages, WebsideProductImages))('$tree Product/Images 
       'Μαύρο power bank κουμπωμένο σε κινητό',
       useNuxtApp().$i18n.t('product_image.alt', { name: 'Mini Power Bank', number: 2 }),
     ]))
+  })
+})
+
+/**
+ * The default gallery's position on a phone: plain marks, not buttons. Nuxt
+ * UI's carousel dots are 6px buttons 6px apart, which no finger can hit
+ * (`product-page-targets.spec.ts` keeps them out). The marks are hidden from
+ * assistive technology, which reads the position as words in each
+ * photograph; swiping, the thumbnails and the zoom viewer move between them.
+ */
+describe('Product/Images position', () => {
+  beforeEach(() => {
+    clearNuxtData()
+    api.routes({
+      '/api/products/5/images': [1, 2, 3].map(id => ({ id, isMain: id === 1, mainImagePath: `media/uploads/products/${id}.png` })),
+    })
+  })
+
+  it('marks the photograph shown without buttons, and says it as words', async () => {
+    const wrapper = await mountSuspended(ProductImages, {
+      props: { product: { ...makeProduct({ id: 5 }), priceDropAlertsEnabled: false }, productName: 'Προϊόν 5' },
+      global: { stubs: { ImgWithFallback: true } },
+      route: false,
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[role="tab"]').exists()).toBe(false)
+    const marks = wrapper.get('[data-slot="position"]')
+    expect(marks.attributes('aria-hidden')).toBe('true')
+    expect(marks.findAll('button, [tabindex]')).toHaveLength(0)
+    expect(marks.findAll('span').map(mark => mark.attributes('data-current'))).toEqual(['true', undefined, undefined])
+    const t = inlineT('app/components/Product/Images.vue')
+    expect(wrapper.findAll('.sr-only').map(words => words.text())).toEqual(
+      [1, 2, 3].map(current => t('position', { current, total: 3 })),
+    )
+  })
+})
+
+/**
+ * The zoom viewer shows the gallery's own photograph (`v-model:index`): it
+ * opens on the one the gallery shows, and a shopper who moves to another
+ * in it and closes it finds the gallery on that one, not the earlier.
+ * Embla cannot measure slides in happy-dom, so the carousels are plain
+ * lists here: what is held is the index the two share, which the carousels
+ * follow in a browser.
+ */
+const PLAIN_CAROUSEL = { props: ['items'], template: '<div><template v-for="(item, index) in items" :key="index"><slot :item="item" :index="index" /></template></div>' }
+
+describe.each(trees(ProductImages, WebsideProductImages))('$tree Product/Images zoom viewer', ({ tree, C }) => {
+  const VIEWER = {
+    default: { path: 'app/components/Product/ImageModal.vue', open: 'zoom', show: 'show_image', close: 'close' },
+    webside: { path: 'app/components/variants/webside/Product/ImageModal.vue', open: 'viewFullscreen', show: 'viewImage', close: 'close' },
+  }[tree]
+  const GALLERY = { default: 'app/components/Product/Images.vue', webside: 'app/components/variants/webside/Product/Images.vue' }[tree]
+
+  beforeEach(() => {
+    clearNuxtData()
+    api.routes({
+      '/api/products/5/images': [1, 2, 3].map(id => ({ id, isMain: id === 1, mainImagePath: `media/uploads/products/${id}.png` })),
+    })
+  })
+
+  it('leaves the gallery on the photograph the viewer was closed on', async () => {
+    const wrapper = await mountSuspended(C, {
+      props: { product: { ...makeProduct({ id: 5 }), priceDropAlertsEnabled: false }, productName: 'Προϊόν 5' },
+      global: { stubs: { ImgWithFallback: true, UCarousel: PLAIN_CAROUSEL } },
+      route: false,
+      attachTo: document.body,
+    })
+    await flushPromises()
+    const galleryT = inlineT(GALLERY)
+    const viewerT = inlineT(VIEWER.path)
+    const shown = () => wrapper.findAll('button')
+      .filter(button => /\d/.test(button.attributes('aria-label') ?? ''))
+      .map(button => (button.attributes('aria-current') ?? button.attributes('aria-pressed')) === 'true')
+
+    const opener = wrapper.findAll('button').find(button => button.attributes('aria-label') === galleryT(VIEWER.open) || button.text().includes(galleryT(VIEWER.open)))
+    await opener!.trigger('click')
+    const thumb = await vi.waitFor(() => {
+      const found = document.body.querySelector<HTMLButtonElement>(`[role="dialog"] [aria-label="${viewerT(VIEWER.show, { number: 3 })}"]`)
+      if (!found) throw new Error('the viewer has not opened')
+      return found
+    })
+    thumb.click()
+    await vi.waitFor(() => expect(document.body.querySelector('[role="dialog"]')!.textContent).toMatch(/3 ?\/ ?3/))
+    document.body.querySelector<HTMLButtonElement>(`[role="dialog"] [aria-label="${viewerT(VIEWER.close)}"]`)!.click()
+    await flushPromises()
+
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
+    expect(shown()).toEqual([false, false, true])
   })
 })

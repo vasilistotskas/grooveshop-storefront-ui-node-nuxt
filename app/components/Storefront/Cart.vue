@@ -224,7 +224,7 @@ useSeoMeta({
       <div
         v-else
         class="
-          grid gap-6
+          grid grid-cols-[minmax(0,1fr)] gap-6
           lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10
         "
       >

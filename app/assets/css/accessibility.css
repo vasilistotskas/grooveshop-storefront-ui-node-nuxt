@@ -21,8 +21,12 @@
   overflow-wrap: anywhere;
 }
 
-/* High contrast: white on black, yellow for the accent, no greys. */
-:root.a11y-contrast {
+/* High contrast: white on black, yellow for the accent, no greys. Also on
+   a part of the page forced light or dark (`.light` / `.dark`, which
+   redeclare the scheme there): `:where()` keeps it at (0,2,0), above the
+   store's `html .dark` (0,1,1). */
+:root.a11y-contrast,
+:root.a11y-contrast :where(.light, .dark) {
   color-scheme: dark;
 
   --ui-bg: #000000;
@@ -76,8 +80,11 @@
   text-underline-offset: 0.2em;
 }
 
-/* A plain, open sans-serif for all text, headings included. */
-:root.a11y-font {
+/* A plain, open sans-serif for all text, headings included. Also on a part
+   of the page forced light or dark, which redeclares the store's faces
+   there (the theme writes them per scheme), as high contrast does. */
+:root.a11y-font,
+:root.a11y-font :where(.light, .dark) {
   --font-sans: Verdana, Tahoma, "Segoe UI", system-ui, sans-serif;
   --font-display: var(--font-sans);
 }

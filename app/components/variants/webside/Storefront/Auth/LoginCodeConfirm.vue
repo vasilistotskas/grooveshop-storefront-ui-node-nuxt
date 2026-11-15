@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/LoginCodeConfirm')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { isMobileOrTablet } = useDevice()
 
 const items = computed(() => [
@@ -10,17 +12,17 @@ const items = computed(() => [
     icon: t('breadcrumb.items.index.icon'),
   },
   {
-    to: localePath('account-login'),
+    to: localePath(authLink('account-login')),
     label: t('breadcrumb.items.account-login.label'),
     icon: t('breadcrumb.items.account-login.icon'),
   },
   {
-    to: localePath('account-login-code'),
+    to: localePath(authLink('account-login-code')),
     label: t('breadcrumb.items.account-login-code.label'),
     icon: t('breadcrumb.items.account-login-code.icon'),
   },
   {
-    to: localePath('account-login-code-confirm'),
+    to: localePath(authLink('account-login-code-confirm')),
     label: t('breadcrumb.items.account-login-code-confirm.label'),
     icon: t('breadcrumb.items.account-login-code-confirm.icon'),
     current: true,

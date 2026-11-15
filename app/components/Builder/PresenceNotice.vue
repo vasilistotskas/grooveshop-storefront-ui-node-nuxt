@@ -5,8 +5,8 @@ const presence = useBuilderPresenceStore()
 const { documentKey } = useBuilderEditorView()
 const { documentLabel } = useBuilderLabels()
 
-/** What this editor has open: the page and the section groups around it. */
-const documents = computed(() => [documentKey.value, ...store.groups.map(({ key }) => key)])
+/** What this editor has open: the page, the section groups around it and the theme (`documentsWith`). */
+const documents = computed(() => store.documentsWith(documentKey.value))
 
 // A beat now, and another every `BUILDER_PRESENCE_HEARTBEAT_MS`; a beat of its
 // own when the documents change, so a page opened is seen at once.

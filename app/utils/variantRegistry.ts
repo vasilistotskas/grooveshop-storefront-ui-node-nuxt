@@ -318,6 +318,98 @@ const variants: Record<string, Component> = {
 }
 
 /**
+ * PARTS: the pieces of a SHARED component that a design draws its own way.
+ *
+ * A shared section (the `hero_showcase` product card, `Product/Spotlight`)
+ * is the same in every design, but the controls a shopper buys with are the
+ * store's own: webside's add-to-cart button and restock alert behave
+ * differently from the platform's. A part names such a control, and each
+ * design registers the component it draws it with, plus how that
+ * component's props are spelt from what the shared component knows
+ * (`DesignPartInput`): the two designs' restock alerts take different props,
+ * and an attribute one does not declare would fall through onto its root.
+ * A design with no entry gets the platform's part.
+ *
+ * `search_field` is the store's search field inside a shared section (the
+ * hero's, the search band's): each design's own field and the palette it
+ * opens, so a page has one search whichever field a shopper uses, the
+ * header's included.
+ */
+/** What a shared component knows when it asks for a product's part. */
+export interface DesignPartInput {
+  product: ProductCard
+  /** The product's name in the page's language. */
+  name: string
+  /** The add-to-cart button's visible label ("Add to cart"). */
+  addToCartLabel: string
+  /** The add-to-cart button's accessible name, which contains the label (WCAG 2.5.3: "Add to cart: «name»"). */
+  addToCartName: string
+  /** The button's icon before its label rather than after, where the design's control can (a bold card). */
+  leadingIcon?: boolean
+}
+
+/** What a shared section knows when it asks for the store's search field. */
+export interface SearchFieldPartInput {
+  /** The field's own wording, a section's setting, in place of the design's. */
+  placeholder?: string
+  /** `lg`: a hero's field (`Search/Input` says what it draws). */
+  size?: 'md' | 'lg'
+}
+
+/** What each part is asked with. */
+interface DesignPartInputs {
+  product_add_to_cart: DesignPartInput
+  product_restock_alert: DesignPartInput
+  search_field: SearchFieldPartInput
+}
+
+export type DesignPartKey = keyof DesignPartInputs
+
+export interface DesignPart<K extends DesignPartKey = DesignPartKey> {
+  component: Component
+  /** The props this design's component takes for what the shared component knows. */
+  props: (input: DesignPartInputs[K]) => Record<string, unknown>
+}
+
+type DesignParts = { [K in DesignPartKey]: DesignPart<K> }
+
+/** `part:<key>@<schema>`: a design's own component for a part. */
+type PartVariants = { [K in DesignPartKey as `part:${K}@${string}`]?: DesignPart<K> }
+
+const partDefaults: DesignParts = {
+  product_add_to_cart: {
+    component: lazy(() => import('~/components/Button/Product/AddToCart.vue')),
+    props: ({ product, addToCartLabel, addToCartName }) => ({ product, text: addToCartName, label: addToCartLabel }),
+  },
+  product_restock_alert: {
+    component: lazy(() => import('~/components/Product/RestockAlert.vue')),
+    props: ({ product, name }) => ({ productId: product.id, productName: name, productImage: product.mainImagePath }),
+  },
+  search_field: {
+    component: lazy(() => import('~/components/Search/Input.vue')),
+    props: ({ placeholder, size }) => ({ placeholder, size }),
+  },
+}
+
+/** A design's own parts, keyed `part:<key>@<schema>`. */
+const partVariants: PartVariants = {
+  // webside's button names itself by its visible text.
+  'part:product_add_to_cart@webside': {
+    component: lazy(() => import('~/components/variants/webside/Button/Product/AddToCart.vue')),
+    props: ({ product, addToCartLabel, leadingIcon }) => ({ product, text: addToCartLabel, leadingIcon }),
+  },
+  'part:product_restock_alert@webside': {
+    component: lazy(() => import('~/components/variants/webside/Product/NotifyMe.vue')),
+    props: ({ product }) => ({ productId: product.id, kind: 'restock' }),
+  },
+  // webside's own field and the palette it opens, the header's: one search on the page.
+  'part:search_field@webside': {
+    component: lazy(() => import('~/components/variants/webside/Search/Input.vue')),
+    props: ({ placeholder, size }) => ({ placeholder, size }),
+  },
+}
+
+/**
  * Layouts chosen by the tenant's design rather than by the page.
  *
  * A page file fixes its layout at build time (`definePageMeta`), so a
@@ -346,4 +438,10 @@ export function resolveChrome(key: ChromeKey, tenantSchema?: string | null): Com
 /** The tenant's page body for `key`, or the platform's. Always a component. */
 export function resolvePage(key: PageKey, tenantSchema?: string | null): Component {
   return (tenantSchema && variants[`page:${key}@${tenantSchema}`]) || pageDefaults[key]
+}
+
+/** The tenant's design part for `key`, or the platform's. */
+export function resolvePart<K extends DesignPartKey>(key: K, tenantSchema?: string | null): DesignPart<K>
+export function resolvePart(key: DesignPartKey, tenantSchema?: string | null): DesignParts[DesignPartKey] {
+  return (tenantSchema ? partVariants[`part:${key}@${tenantSchema}`] : undefined) ?? partDefaults[key]
 }

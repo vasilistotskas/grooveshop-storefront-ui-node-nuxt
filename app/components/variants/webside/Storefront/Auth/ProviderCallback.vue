@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/ProviderCallback')
 const localePath = useLocalePath()
-
-const url = ref<typeof RedirectToURLs[keyof typeof RedirectToURLs]>(RedirectToURLs.LOGIN_URL)
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const { error, loading } = useProviderCallback({
   outcome: outcome => t(`connect.${outcome}`),
@@ -69,7 +69,7 @@ const title = computed(() => {
       </p>
       <UButton
         :label="t('continue')"
-        :to="localePath(url)"
+        :to="localePath(authLink(RedirectToURLs.LOGIN_URL))"
         class="justify-center"
         color="neutral"
         size="xl"

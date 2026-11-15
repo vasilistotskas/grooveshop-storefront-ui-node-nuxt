@@ -12,7 +12,8 @@ import { componentName } from './componentName.ts'
  * the app.
  *
  * The registries pick what a store draws (`app/utils/variantRegistry.ts`:
- * `page:<key>@<schema>`, `chrome:<slot>@<schema>`, the design layouts;
+ * `page:<key>@<schema>`, `chrome:<slot>@<schema>`, `part:<key>@<schema>`
+ * (a design's own piece of a shared component), the design layouts;
  * `app/utils/componentRegistry.ts`: page-builder sections
  * `<type>@<schema>`). Their ROOTS are read from the registries' source,
  * so a registered variant is a root of its schema and of no other, and
@@ -194,10 +195,12 @@ function resolveVue(specifier: string, from: string, appDir: string): string {
 
 interface Registries {
   chromeDefaults: Map<string, string>
+  partDefaults: Map<string, string>
   pageDefaults: Map<string, string>
   /** `schema` → `key` → file, per kind. */
   chromeVariants: Map<string, Map<string, string>>
   pageVariants: Map<string, Map<string, string>>
+  partVariants: Map<string, Map<string, string>>
   sectionBase: Map<string, string>
   sectionVariants: Map<string, Map<string, string>>
   designLayouts: string[]
@@ -226,6 +229,8 @@ function readRegistries(appDir: string): Registries {
   const chromeDefaults = files(registryImports(variantDeclared, 'chromeDefaults', VARIANT_REGISTRY, variantConsumed), variantFile)
   const pageDefaults = files(registryImports(variantDeclared, 'pageDefaults', VARIANT_REGISTRY, variantConsumed), variantFile)
   const variants = files(registryImports(variantDeclared, 'variants', VARIANT_REGISTRY, variantConsumed), variantFile)
+  const partDefaults = files(registryImports(variantDeclared, 'partDefaults', VARIANT_REGISTRY, variantConsumed), variantFile)
+  const parts = files(registryImports(variantDeclared, 'partVariants', VARIANT_REGISTRY, variantConsumed), variantFile)
   const sections = files(registryImports(componentDeclared, 'componentRegistry', COMPONENT_REGISTRY, componentConsumed), componentFile)
 
   for (const [program, consumed, file] of [
@@ -247,6 +252,14 @@ function readRegistries(appDir: string): Registries {
     if (!defaults.has(name)) throw new Error(`${VARIANT_REGISTRY}: '${key}' overrides a ${kind} with no default`)
     addVariant(kind === 'chrome' ? chromeVariants : pageVariants, schema, name, file)
   }
+  const partVariants = new Map<string, Map<string, string>>()
+  for (const [key, file] of parts) {
+    const match = /^part:([\w-]+)@(\w+)$/.exec(key)
+    if (!match) throw new Error(`${VARIANT_REGISTRY}: part key '${key}' is not part:<key>@<schema>`)
+    const [, name, schema] = match as unknown as [string, string, string]
+    if (!partDefaults.has(name)) throw new Error(`${VARIANT_REGISTRY}: '${key}' overrides a part with no default`)
+    addVariant(partVariants, schema, name, file)
+  }
 
   const sectionBase = new Map<string, string>()
   const sectionVariants = new Map<string, Map<string, string>>()
@@ -266,7 +279,7 @@ function readRegistries(appDir: string): Registries {
       return layout
     })
 
-  return { chromeDefaults, pageDefaults, chromeVariants, pageVariants, sectionBase, sectionVariants, designLayouts: layouts }
+  return { chromeDefaults, pageDefaults, partDefaults, chromeVariants, pageVariants, partVariants, sectionBase, sectionVariants, designLayouts: layouts }
 }
 
 function* vueFilesUnder(dir: string): Generator<string> {
@@ -385,6 +398,7 @@ export function reachableFiles(source: ReachabilitySource): Map<string, Readonly
   const schemas = new Set([
     ...registries.chromeVariants.keys(),
     ...registries.pageVariants.keys(),
+    ...registries.partVariants.keys(),
     ...registries.sectionVariants.keys(),
   ])
 
@@ -425,12 +439,14 @@ export function reachableFiles(source: ReachabilitySource): Map<string, Readonly
     const designed = schema === null || resolveDesign(schema) !== null
     const chrome = schema ? registries.chromeVariants.get(schema) : undefined
     const pages = schema ? registries.pageVariants.get(schema) : undefined
+    const parts = schema ? registries.partVariants.get(schema) : undefined
     const sections = schema ? registries.sectionVariants.get(schema) : undefined
     return [
       ...shellFiles,
       ...layoutFiles(designed),
       ...[...registries.chromeDefaults].map(([key, file]) => chrome?.get(key) ?? file),
       ...[...registries.pageDefaults].map(([key, file]) => pages?.get(key) ?? file),
+      ...[...registries.partDefaults].map(([key, file]) => parts?.get(key) ?? file),
       ...[...new Set([...registries.sectionBase.keys(), ...(sections?.keys() ?? [])])]
         .map(type => sections?.get(type) ?? registries.sectionBase.get(type)!),
     ]

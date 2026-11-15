@@ -10,9 +10,11 @@
  * the `cache:<buildId>:` mount prefix the storage hides) and pin what a
  * scoped purge must and must not touch.
  */
+import { readFileSync } from 'node:fs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/admin/cache/purge.post'
-import { tenantCacheKey } from '~~/server/utils/cacheKey'
+import { builderEpochKey, readBuilderEpoch } from '~~/server/utils/builderDocumentPurge'
+import { hashedCacheKey, tenantCacheKey } from '~~/server/utils/cacheKey'
 import { clearTenantCache, getTenantConfig, tenantConfigEpoch } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callRoute, createTestEvent, log, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
@@ -439,6 +441,14 @@ describe('POST /api/admin/cache/purge, builderDocuments', () => {
     expect(left).toContain(DEMO_CHROME())
   })
 
+  it('refuses documents without the store they belong to, and purges nothing', async () => {
+    const before = await remainingKeys()
+    const response = await purge({ builderDocuments: ['template:home'] })
+
+    expect(response.status).toBe(400)
+    expect(await remainingKeys()).toEqual(before)
+  })
+
   it('takes patterns and documents together', async () => {
     const response = await purge({ patterns: ['cache:nitro:routes:_:*about*'], builderDocuments: ['page:summer-sale'], host: WEBSIDE })
 
@@ -447,5 +457,139 @@ describe('POST /api/admin/cache/purge, builderDocuments', () => {
 
   it('rejects a body that names neither', async () => {
     expect((await purge({ host: WEBSIDE })).status).toBe(400)
+  })
+})
+
+/**
+ * A page purged because a record it shows changed (`builderDocuments`) is
+ * rebuilt from fresh records: the store's cached record data goes first, in
+ * the same request, then the page. Purging only the page let the next render
+ * read the old list from the 60s data cache and store it for the page's 5
+ * minutes (a product that sold out stayed first on the home).
+ */
+describe('POST /api/admin/cache/purge, the record data of purged pages', () => {
+  const RECORD_DATA = ['builderDataProduct', 'builderDataCategory', 'builderDataBlogPost', 'builderDataBlogCategory', 'builderDataPromotion', 'builderDataSlug']
+  const OTHER_DATA = ['builderDataMedia', 'builderDataTargets']
+  /** A data key as Nitro stores a cached read: the function's name, then `dataCacheKey` (store, language, epoch, the question). */
+  const dataKey = (name: string, host: string) => `nitro:functions:${name}:${hashedCacheKey(`${host}:el:e0:{"pageSize":8}`)}.json`
+  const HOME = 'nitro:routes:_:index.l5vdxKjKr9:host.L7PoZKHFRT:xdeviceclass.aGk9AqtPuy.json'
+
+  beforeEach(async () => {
+    setRuntimeConfig({ cachePurgeToken: TOKEN })
+    const cache = useStorage('cache')
+    for (const name of [...RECORD_DATA, ...OTHER_DATA]) {
+      await cache.setItem(dataKey(name, WEBSIDE), { value: 1 })
+      await cache.setItem(dataKey(name, DEMO), { value: 1 })
+    }
+    await cache.setItem(HOME, { value: 1 })
+  })
+
+  it('drops the store\'s record data with the pages of a page or template, and keeps its media and published pages', async () => {
+    const response = await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+    const left = await remainingKeys()
+
+    expect(response.status).toBe(200)
+    expect(RECORD_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key))).toEqual([])
+    expect(OTHER_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key))).toHaveLength(OTHER_DATA.length)
+    expect(left).not.toContain(HOME)
+  })
+
+  // Completion, not the order of the calls: while one record-data removal is
+  // still running, the page is still cached and the purge has not answered.
+  it('drops the record data BEFORE the pages, so a render after the purge cannot store old data again', async () => {
+    const held = dataKey(RECORD_DATA.at(-1)!, WEBSIDE)
+    let release!: () => void
+    const pending = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    let reached = false
+    // Every mount's removal reaches the root storage, with its mount prefix.
+    const root = useStorage()
+    const removeItem = root.removeItem.bind(root)
+    vi.spyOn(root, 'removeItem').mockImplementation(async (key, ...rest) => {
+      if (String(key) === `cache:${held}`) {
+        reached = true
+        await pending
+      }
+      return removeItem(key, ...rest)
+    })
+    let answered = false
+
+    const response = purge({ builderDocuments: ['template:home'], host: WEBSIDE }).finally(() => {
+      answered = true
+    })
+    await vi.waitFor(() => expect(reached).toBe(true))
+    expect(await useStorage('cache').hasItem(HOME)).toBe(true)
+    expect(answered).toBe(false)
+
+    release()
+    expect((await response).status).toBe(200)
+    expect(await remainingKeys()).not.toContain(HOME)
+  })
+
+  // A render in flight read the data just dropped: the epoch it reads again as
+  // it answers has moved, so it does not store its page (`builder-render-epoch`).
+  // Written after the data goes, so a render that starts after it reads Django,
+  // and before the pages go, so no page a stale render stores outlives the purge.
+  it('moves the store\'s builder epoch after the record data goes and before the pages do', async () => {
+    const epochKey = `cache:${builderEpochKey(WEBSIDE)}`
+    const before = await readBuilderEpoch(WEBSIDE)
+    const root = useStorage()
+    const setItem = root.setItem.bind(root)
+    let seen: { data: string[], homeCached: boolean } | undefined
+    vi.spyOn(root, 'setItem').mockImplementation(async (key, ...rest) => {
+      if (String(key) === epochKey) {
+        const left = await remainingKeys()
+        seen = {
+          data: RECORD_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key)),
+          homeCached: left.includes(HOME),
+        }
+      }
+      return setItem(key, ...rest)
+    })
+
+    await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+
+    expect(seen).toEqual({ data: [], homeCached: true })
+    expect(await readBuilderEpoch(WEBSIDE)).not.toBe(before)
+    expect(await remainingKeys()).not.toContain(HOME)
+  })
+
+  it('moves only the purged store\'s builder epoch, and none on a dry run', async () => {
+    const demo = await readBuilderEpoch(DEMO)
+    const webside = await readBuilderEpoch(WEBSIDE)
+
+    await purge({ builderDocuments: ['template:home'], host: WEBSIDE, dryRun: true })
+    expect(await readBuilderEpoch(WEBSIDE)).toBe(webside)
+
+    await purge({ builderDocuments: ['theme'], host: WEBSIDE })
+    expect(await readBuilderEpoch(WEBSIDE)).not.toBe(webside)
+    expect(await readBuilderEpoch(DEMO)).toBe(demo)
+  })
+
+  it('never drops another store\'s record data', async () => {
+    await purge({ builderDocuments: ['template:home'], host: WEBSIDE })
+    const left = await remainingKeys()
+
+    expect(RECORD_DATA.map(name => dataKey(name, DEMO)).filter(key => left.includes(key))).toHaveLength(RECORD_DATA.length)
+  })
+
+  it.each([
+    ['patterns alone (a text or theme surface)', { patterns: ['cache:nitro:handlers:textOverrides*'] }],
+    ['the theme document', { builderDocuments: ['theme'] }],
+    ['a section group', { builderDocuments: ['group:header'] }],
+  ])('leaves the record data alone for %s, which reads no record', async (_, body) => {
+    await purge({ ...body, host: WEBSIDE })
+    const left = await remainingKeys()
+
+    expect(RECORD_DATA.map(name => dataKey(name, WEBSIDE)).filter(key => left.includes(key))).toHaveLength(RECORD_DATA.length)
+  })
+
+  // The names are a contract with the cached reads: a read renamed without
+  // this list would leave its data cached through every purge.
+  it('names the cached reads of the page data as they are named', () => {
+    const sources = ['server/utils/builderData/loaders.ts', 'server/utils/builderLinks.ts'].map(path => readFileSync(new URL(`../../../../../../${path}`, import.meta.url), 'utf8')).join('\n')
+
+    for (const name of [...RECORD_DATA, ...OTHER_DATA]) expect(sources).toContain(`'${name}'`)
   })
 })

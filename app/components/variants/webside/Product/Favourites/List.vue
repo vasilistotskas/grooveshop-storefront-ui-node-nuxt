@@ -53,7 +53,7 @@ const { t } = useStoreI18n('components/variants/webside/Product/Favourites/List'
           :img-width="260"
           :product="favourite.product"
           :show-add-to-cart-button="false"
-          @favourite-delete="(_id: number) => emit('refresh-favourites')"
+          @favourite-delete="() => emit('refresh-favourites')"
         />
       </template>
     </ul>

@@ -3,6 +3,8 @@ const emit = defineEmits(['getWebAuthnCreateOptionsAtSignup', 'signupWebAuthnCre
 
 const { t } = useStoreI18n('components/Account/Signup/CreatePasskeyForm')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const { schema, deviceName, hasError, isSubmitting, onSubmit } = useCreatePasskeyAtSignup({
   t,
@@ -64,7 +66,7 @@ const { schema, deviceName, hasError, isSubmitting, onSubmit } = useCreatePasske
     <p class="text-center text-sm text-muted">
       {{ t('prefer_password') }}
       <ULink
-        :to="localePath('account-signup')"
+        :to="localePath(authLink('account-signup'))"
         class="font-semibold text-accent"
       >
         {{ t('using_password') }}

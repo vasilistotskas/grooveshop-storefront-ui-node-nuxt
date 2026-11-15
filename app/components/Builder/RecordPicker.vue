@@ -16,6 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useStoreI18n('components/Builder/RecordPicker')
+const appConfig = useAppConfig()
 
 /** One record among the choices, as `USelectMenu` takes it. */
 interface RecordItem {
@@ -69,29 +70,50 @@ const items = computed(() => builderRecordGroups(found.value?.results ?? []).map
 function choose(item: RecordItem | null | undefined): void {
   emit('update', item ? builderLinkRefOf(item.ref.kind, item.ref.id) : undefined)
 }
+
+/**
+ * Whether the choice can be cleared now. The clearing is a button beside the
+ * menu, not the menu's own `clear`: that one sits inside the menu's trigger,
+ * a button itself, so Nuxt UI keeps it out of the tab order (`tabindex="-1"`)
+ * and unnamed, and a keyboard could never clear a choice.
+ */
+const canClear = computed(() => props.clearable && !props.disabled && props.value !== undefined)
 </script>
 
 <template>
   <div class="flex flex-col gap-1">
-    <USelectMenu
-      v-model:search-term="searchTerm"
-      :model-value="selected"
-      :items="items"
-      by="value"
-      ignore-filter
-      :clear="clearable"
-      :loading="searchStatus === 'pending' || labelStatus === 'pending'"
-      :placeholder="t('placeholder')"
-      :search-input="{ placeholder: t('search') }"
-      :aria-label="label"
-      :disabled="disabled"
-      class="w-full"
-      @update:model-value="choose"
-    >
-      <template #empty="{ searchTerm: term }">
-        {{ term.trim() === '' ? t('typeToSearch') : t('noResults') }}
-      </template>
-    </USelectMenu>
+    <div class="flex items-center gap-1">
+      <USelectMenu
+        v-model:search-term="searchTerm"
+        :model-value="selected"
+        :items="items"
+        by="value"
+        ignore-filter
+        :loading="searchStatus === 'pending' || labelStatus === 'pending'"
+        :placeholder="t('placeholder')"
+        :search-input="{ placeholder: t('search') }"
+        :aria-label="label"
+        :disabled="disabled"
+        class="w-full min-w-0"
+        @update:model-value="choose"
+      >
+        <template #empty="{ searchTerm: term }">
+          {{ term.trim() === '' ? t('typeToSearch') : t('noResults') }}
+        </template>
+      </USelectMenu>
+      <UTooltip
+        v-if="canClear"
+        :text="t('clear', { label })"
+      >
+        <UButton
+          :icon="appConfig.ui.icons.close"
+          color="neutral"
+          variant="ghost"
+          :aria-label="t('clear', { label })"
+          @click="() => choose(null)"
+        />
+      </UTooltip>
+    </div>
     <p
       v-if="unavailable"
       class="flex items-center gap-1 text-xs text-warning"
@@ -112,6 +134,7 @@ el:
   typeToSearch: Πληκτρολογήστε για αναζήτηση.
   noResults: Δεν βρέθηκε τίποτα.
   unavailable: Δεν είναι πια διαθέσιμο· θα παραλειφθεί στη δημοσίευση.
+  clear: "Καθαρισμός: {label}"
   kinds:
     product: Προϊόντα
     category: Κατηγορίες
@@ -132,6 +155,7 @@ en:
   typeToSearch: Type to search.
   noResults: Nothing found.
   unavailable: No longer available; it is left out when published.
+  clear: "Clear: {label}"
   kinds:
     product: Products
     category: Categories

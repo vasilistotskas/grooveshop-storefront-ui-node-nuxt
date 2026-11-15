@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ref, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import { flushPromises } from '@vue/test-utils'
@@ -70,6 +70,27 @@ describe('NewsletterSignup', () => {
     setTenant()
     setTenantFeatures({ newsletter: true })
     flags.available = true
+  })
+
+  // The class is the contract, the browser the real check: a store's heading
+  // word wider than a 320px phone breaks instead of widening the page.
+  it('breaks a heading word wider than the screen', async () => {
+    const wrapper = await mountBand({ heading: 'Μείνε ενημερωμένος' })
+
+    expect(wrapper.get('h2').classes()).toContain('wrap-break-word')
+  })
+
+  // The class is the contract: the theme's heading colour, or its accent
+  // (the token the hero's accent line paints with), which is AA on both
+  // grounds in both designs.
+  it.each([
+    [undefined, 'text-highlighted', 'text-accent'],
+    ['accent', 'text-accent', 'text-highlighted'],
+  ] as const)('paints the heading in the colour the block sets: %s', async (headingColor, painted, not) => {
+    const classes = (await mountBand({ heading: 'Μάθε τα νέα μας', headingColor })).get('h2').classes()
+
+    expect(classes).toContain(painted)
+    expect(classes).not.toContain(not)
   })
 
   it('renders the form with an UNTICKED consent box labelled by the shared sentence', async () => {
@@ -147,6 +168,9 @@ describe('NewsletterSignup', () => {
 
     const input = wrapper.find('input[type="email"]')
     expect(wrapper.find(`label[for="${input.attributes('id')}"]`).text()).toBe(COPY.emailLabel)
+    // Its name is its state key, by which an address typed before the
+    // band hydrated is kept (`useKeepTypedBeforeHydration`).
+    expect(input.attributes('name')).toBe('email')
   })
 
   it('posts email + consent through $api, then shows "check your inbox"', async () => {
@@ -250,5 +274,43 @@ describe('NewsletterSignup', () => {
 
     expect(wrapper.find('[role="alert"]').text()).toBe(COPY.failed)
     expect(wrapper.find('form').exists()).toBe(true)
+  })
+
+  // The classes are the contract: a phone's tap target is at least 44px
+  // (WCAG 2.5.5), measured in the real layout at 390px, while from `sm` up
+  // the control keeps the size it had. happy-dom lays nothing out.
+  it('makes the field and the button 44px targets on a phone', async () => {
+    const wrapper = await mountBand()
+
+    expect(wrapper.get('input[type="email"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
+    expect(wrapper.get('button[type="submit"]').classes()).toEqual(expect.arrayContaining(['min-h-11', 'sm:min-h-0']))
+  })
+})
+
+/**
+ * A store's edited wording is the band's, whatever its look: the bold look
+ * draws the same component's texts (`useStoreI18n('components/PageSection/NewsletterSignup')`),
+ * so switching to it keeps what the store wrote.
+ */
+describe('NewsletterSignup, a store\u2019s edited texts in either look', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ newsletter: true })
+    flags.available = true
+    useTextOverrides().value = { el: { 'components/PageSection/NewsletterSignup': { submit: 'Γράψου τώρα', heading: 'Τα νέα μας' } } }
+  })
+
+  afterEach(() => {
+    useTextOverrides().value = undefined
+  })
+
+  it.each([
+    ['the band as it was', {}],
+    ['the bold look', { look: 'bold' }],
+  ])('shows them in %s', async (_case, props) => {
+    const wrapper = await mountBand(props)
+
+    expect(wrapper.get('button[type="submit"]').text()).toBe('Γράψου τώρα')
+    expect(wrapper.get('h2').text()).toBe('Τα νέα μας')
   })
 })

@@ -1,5 +1,5 @@
 /** One page of this size holds a store's whole category list. */
-const BLOG_CATEGORIES_LIMIT = 100
+export const BLOG_CATEGORIES_LIMIT = 100
 
 /**
  * The blog's categories, ONE entry for every reader: the index's filter

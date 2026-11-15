@@ -49,14 +49,15 @@ const STUBS = {
 const PRODUCTS = '/api/products/search'
 const GUIDES = '/api/search/blog-posts'
 
-function answer({ productTotal = 2, guideTotal = 1 } = {}) {
+/** What the two searches find; the products' total defaults to the hits on the page. */
+function answer({ products = 2, productTotal, guides = 1, guideTotal = 1 }: { products?: number, productTotal?: number, guides?: number, guideTotal?: number } = {}) {
   api.routes({
     [PRODUCTS]: makeProductSearchResponse({
-      results: [1, 2].map(i => makeProductSearchHit({ id: i, master: i, name: `Προϊόν ${i}` })),
-      estimatedTotalHits: productTotal,
+      results: Array.from({ length: products }, (_, i) => makeProductSearchHit({ id: i + 1, master: i + 1, name: `Προϊόν ${i + 1}` })),
+      estimatedTotalHits: productTotal ?? products,
     }),
     [GUIDES]: makeBlogPostSearchResponse({
-      results: [makeBlogPostSearchHit({ id: 1, master: 1, title: 'Άρθρο 1' })],
+      results: Array.from({ length: guides }, (_, i) => makeBlogPostSearchHit({ id: i + 1, master: i + 1, title: `Άρθρο ${i + 1}` })),
       estimatedTotalHits: guideTotal,
     }),
     '/api/search/click': {},
@@ -92,8 +93,8 @@ describe('webside Storefront/Search', () => {
     expect(wrapper.text()).toContain(own(wrapper, 'page.empty.title'))
   })
 
-  it('lists products a page at a time and counts the articles without fetching them', async () => {
-    const wrapper = await render({ query: 'καλώδιο', page: '2' })
+  it('lists products a page at a time and, on their named tab, counts the articles without fetching them', async () => {
+    const wrapper = await render({ query: 'καλώδιο', tab: 'products', page: '2' })
 
     expect(lastQuery(PRODUCTS)).toMatchObject({ query: 'καλώδιο', limit: 12, offset: 12 })
     expect(lastQuery(GUIDES)).toMatchObject({ query: 'καλώδιο', limit: 0, offset: 0 })
@@ -144,7 +145,87 @@ describe('webside Storefront/Search', () => {
     const wrapper = await render({ query: 'καλώδιο' })
 
     const hrefs = wrapper.findAll('a').map(a => a.attributes('href')).filter(href => href?.includes('page='))
-    expect(hrefs).toContain(`/search?query=${encodeURIComponent('καλώδιο')}&page=2`)
+    expect(hrefs).toContain(`/search?query=${encodeURIComponent('καλώδιο')}&tab=products&page=2`)
+  })
+
+  // 2026-11-13, webside.gr/search?query=security: 0 products, 4 articles,
+  // and the page said «no results».
+  it('opens the articles when only they have results', async () => {
+    answer({ products: 0, guideTotal: 4 })
+
+    const wrapper = await render({ query: 'security' })
+
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toContain(own(wrapper, 'page.tabs.blog_posts_label'))
+    expect(wrapper.findAll('[data-test="result"]').map(result => result.text())).toEqual(['Άρθρο 1'])
+    expect(lastQuery(GUIDES)).toMatchObject({ limit: 12, offset: 0 })
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.no_results.title'))
+  })
+
+  it('on a named products tab with no products, says so and offers the articles rather than «no results»', async () => {
+    answer({ products: 0, guideTotal: 4 })
+
+    const wrapper = await render({ query: 'security', tab: 'products' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.open_empty.products'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.no_results.title'))
+    const toArticles = wrapper.findAll('button:not([role="tab"])').find(button => button.text().includes('4'))
+    expect(toArticles?.text()).toMatch(/4/)
+    await toArticles?.trigger('click')
+
+    expect(navigateToMock).toHaveBeenCalledWith({ query: { query: 'security', tab: 'guides' } })
+  })
+
+  it('says «no results» only when neither list has any', async () => {
+    answer({ products: 0, guideTotal: 0 })
+
+    const wrapper = await render({ query: 'xyzzy' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.no_results.title'))
+  })
+
+  // A page past the end of a list that has results (an old or edited link)
+  // is not an empty tab: it offers that list's first page, never the other
+  // tab (here there are no articles, or no blog at all) and never «no products».
+  it.each([
+    ['with no articles', true],
+    ['without the blog', false],
+  ])('on a products page past the end %s, offers the first page of products', async (_case, blog) => {
+    setTenantFeatures({ blog })
+    answer({ products: 0, productTotal: 5, guides: 0, guideTotal: 0 })
+
+    const wrapper = await render({ query: 'καλώδιο', tab: 'products', page: '3' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.empty_page.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.open_empty.products'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.no_results.title'))
+    expect(wrapper.findAll('button:not([role="tab"])').map(button => button.text()).join(' ')).not.toMatch(/0/)
+    const first = wrapper.findAll('a').find(a => a.text() === own(wrapper, 'page.empty_page.first'))
+    expect(first?.attributes('href')).toBe(`/search?query=${encodeURIComponent('καλώδιο')}&tab=products`)
+  })
+
+  it('on an articles page past the end, offers the first page of articles', async () => {
+    answer({ products: 2, guides: 0, guideTotal: 5 })
+
+    const wrapper = await render({ query: 'καλώδιο', tab: 'guides', page: '3' })
+
+    expect(wrapper.text()).toContain(own(wrapper, 'page.empty_page.title'))
+    expect(wrapper.text()).not.toContain(own(wrapper, 'page.open_empty.guides'))
+    const first = wrapper.findAll('a').find(a => a.text() === own(wrapper, 'page.empty_page.first'))
+    expect(first?.attributes('href')).toBe(`/search?query=${encodeURIComponent('καλώδιο')}&tab=guides`)
+  })
+
+  // A link with a page but no tab (from before the tabs) that opens the
+  // articles by their results shows their first page, which is what was
+  // fetched: the pagination agrees, and its next page is the second.
+  it('shows the first page of articles a tabless link opened, with its pagination on that page', async () => {
+    answer({ products: 0, guides: 12, guideTotal: 30 })
+
+    const wrapper = await render({ query: 'security', page: '2' })
+
+    expect(lastQuery(GUIDES)).toMatchObject({ limit: 12, offset: 0 })
+    expect(api.callsTo(GUIDES)).toHaveLength(1)
+    expect(wrapper.get('a[aria-current="page"]').attributes('href')).toBe('/search?query=security&tab=guides')
+    expect(wrapper.get('a[data-slot="next"]').attributes('href')).toBe('/search?query=security&tab=guides&page=2')
   })
 
   it('reports which result was opened, at its place in the whole result set', async () => {

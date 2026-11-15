@@ -1,5 +1,5 @@
 {
-  "hash": "2230382a4038a1f5",
+  "hash": "39e64e5e739a8434",
   "blocks": [
     {
       "type": "about_content",
@@ -42,9 +42,199 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
           "title": {
             "type": "string",
             "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "pattern": "^https:\\/\\/"
+                  }
+                },
+                "required": [
+                  "href"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "/",
+                      "/products",
+                      "/blog",
+                      "/contact",
+                      "/offers",
+                      "/gift-cards",
+                      "/loyalty-program",
+                      "/feedback",
+                      "/account/login",
+                      "/account/signup"
+                    ]
+                  }
+                },
+                "required": [
+                  "route"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "product"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "category"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogCategory"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogPost"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "page"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "contentPage"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[-a-zA-Z0-9_]+$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-link": true
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "slider",
+              "tiles"
+            ]
           },
           "categories": {
             "type": "object",
@@ -65,6 +255,12 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -73,10 +269,15 @@
         "additionalProperties": false
       },
       "translatable": [
-        "/title"
+        "/eyebrow",
+        "/title",
+        "/subheading",
+        "/ctaText"
       ],
       "refs": {},
-      "linkRefs": [],
+      "linkRefs": [
+        "/ctaLink"
+      ],
       "data": {
         "/categories": {
           "field": "query",
@@ -119,6 +320,13 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
             ]
           },
           "heading": {
@@ -419,9 +627,9 @@
     },
     {
       "type": "blog_posts_grid",
-      "version": 2,
+      "version": 3,
       "accepts": [
-        2
+        3
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -432,6 +640,13 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
             ]
           },
           "heading": {
@@ -685,6 +900,76 @@
               "onEmpty": "hide",
               "maxLimit": 24
             }
+          },
+          "phoneLayout": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phoneLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "feature"
+            ]
+          },
+          "icon": {
+            "type": "string",
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
           }
         },
         "required": [
@@ -693,6 +978,7 @@
         "additionalProperties": false
       },
       "translatable": [
+        "/eyebrow",
         "/heading",
         "/subheading",
         "/ctaText"
@@ -745,6 +1031,13 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
             ]
           },
           "heading": {
@@ -1559,9 +1852,9 @@
     },
     {
       "type": "feature_item",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1578,8 +1871,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 100,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           }
         },
         "required": [
@@ -1621,6 +1952,13 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
             ]
           },
           "heading": {
@@ -1862,6 +2200,14 @@
                       "discounted",
                       "priceAsc",
                       "priceDesc"
+                    ]
+                  },
+                  "stock": {
+                    "type": "string",
+                    "enum": [
+                      "any",
+                      "inStockFirst",
+                      "inStockOnly"
                     ]
                   },
                   "limit": {
@@ -2382,9 +2728,9 @@
     },
     {
       "type": "footer_column",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2397,8 +2743,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 64,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           },
           "showsMerchantIdentity": {
             "type": "boolean"
@@ -3365,6 +3749,660 @@
       "presets": [
         {
           "id": "default"
+        }
+      ]
+    },
+    {
+      "type": "hero_showcase",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "headingAccent": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "image": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "mobileImage": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "media",
+              "onMissing": "empty"
+            }
+          },
+          "imageDecorative": {
+            "type": "boolean"
+          },
+          "imageLink": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "pattern": "^https:\\/\\/"
+                  }
+                },
+                "required": [
+                  "href"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "/",
+                      "/products",
+                      "/blog",
+                      "/contact",
+                      "/offers",
+                      "/gift-cards",
+                      "/loyalty-program",
+                      "/feedback",
+                      "/account/login",
+                      "/account/signup"
+                    ]
+                  }
+                },
+                "required": [
+                  "route"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "product"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "category"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogCategory"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogPost"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "page"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "contentPage"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[-a-zA-Z0-9_]+$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-link": true
+          },
+          "showSearch": {
+            "type": "boolean"
+          },
+          "searchPlaceholder": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "pattern": "^https:\\/\\/"
+                  }
+                },
+                "required": [
+                  "href"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "/",
+                      "/products",
+                      "/blog",
+                      "/contact",
+                      "/offers",
+                      "/gift-cards",
+                      "/loyalty-program",
+                      "/feedback",
+                      "/account/login",
+                      "/account/signup"
+                    ]
+                  }
+                },
+                "required": [
+                  "route"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "product"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "category"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogCategory"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogPost"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "page"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "contentPage"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[-a-zA-Z0-9_]+$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-link": true
+          },
+          "secondaryCtaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "secondaryCtaLink": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "pattern": "^https:\\/\\/"
+                  }
+                },
+                "required": [
+                  "href"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "/",
+                      "/products",
+                      "/blog",
+                      "/contact",
+                      "/offers",
+                      "/gift-cards",
+                      "/loyalty-program",
+                      "/feedback",
+                      "/account/login",
+                      "/account/signup"
+                    ]
+                  }
+                },
+                "required": [
+                  "route"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "product"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "category"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogCategory"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogPost"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "page"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "contentPage"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[-a-zA-Z0-9_]+$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-link": true
+          },
+          "product": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "x-builder-data": {
+              "field": "ref",
+              "kind": "product",
+              "onMissing": "empty"
+            }
+          },
+          "showAddToCart": {
+            "type": "boolean"
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/eyebrow",
+        "/heading",
+        "/headingAccent",
+        "/subheading",
+        "/searchPlaceholder",
+        "/ctaText",
+        "/secondaryCtaText"
+      ],
+      "refs": {},
+      "linkRefs": [
+        "/imageLink",
+        "/ctaLink",
+        "/secondaryCtaLink"
+      ],
+      "data": {
+        "/image": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        },
+        "/mobileImage": {
+          "field": "ref",
+          "kind": "media",
+          "onMissing": "empty"
+        },
+        "/product": {
+          "field": "ref",
+          "kind": "product",
+          "onMissing": "empty"
+        }
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ],
+      "presets": [
+        {
+          "id": "default",
+          "settings": {
+            "showSearch": true
+          }
         }
       ]
     },
@@ -4682,9 +5720,9 @@
     },
     {
       "type": "nav_link",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4697,8 +5735,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 64,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           },
           "page": {
             "type": "string",
@@ -4812,6 +5888,18 @@
             "enum": [
               "default",
               "muted"
+            ]
+          },
+          "headingColor": {
+            "type": "string",
+            "enum": [
+              "accent"
+            ]
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
             ]
           }
         },
@@ -5520,327 +6608,11 @@
               "muted"
             ]
           },
-          "heading": {
-            "type": "string",
-            "maxLength": 200
-          },
-          "subheading": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "ctaText": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "ctaLink": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "href": {
-                    "type": "string",
-                    "maxLength": 1000,
-                    "pattern": "^https:\\/\\/"
-                  }
-                },
-                "required": [
-                  "href"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "route": {
-                    "type": "string",
-                    "enum": [
-                      "/",
-                      "/products",
-                      "/blog",
-                      "/contact",
-                      "/offers",
-                      "/gift-cards",
-                      "/loyalty-program",
-                      "/feedback",
-                      "/account/login",
-                      "/account/signup"
-                    ]
-                  }
-                },
-                "required": [
-                  "route"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "ref": {
-                    "oneOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "product"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "category"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogCategory"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "blogPost"
-                          },
-                          "id": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 2147483647
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "page"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "contentPage"
-                          },
-                          "id": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 64,
-                            "pattern": "^[-a-zA-Z0-9_]+$"
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "id"
-                        ],
-                        "additionalProperties": false
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "ref"
-                ],
-                "additionalProperties": false
-              }
-            ],
-            "x-builder-link": true
-          },
-          "showAddToCart": {
-            "type": "boolean"
-          },
-          "products": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "mode": {
-                    "type": "string",
-                    "const": "picked"
-                  },
-                  "ids": {
-                    "minItems": 1,
-                    "maxItems": 24,
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "minimum": 1,
-                      "maximum": 2147483647
-                    }
-                  }
-                },
-                "required": [
-                  "mode",
-                  "ids"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "mode": {
-                    "type": "string",
-                    "const": "filter"
-                  },
-                  "categories": {
-                    "minItems": 1,
-                    "maxItems": 5,
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "minimum": 1,
-                      "maximum": 2147483647
-                    }
-                  },
-                  "ordering": {
-                    "type": "string",
-                    "enum": [
-                      "newest",
-                      "mostViewed",
-                      "mostLiked",
-                      "topRated",
-                      "discounted",
-                      "priceAsc",
-                      "priceDesc"
-                    ]
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 24
-                  }
-                },
-                "required": [
-                  "mode",
-                  "ordering",
-                  "limit"
-                ],
-                "additionalProperties": false
-              }
-            ],
-            "x-builder-data": {
-              "field": "query",
-              "source": "product",
-              "onEmpty": "hide",
-              "maxLimit": 24
-            }
-          }
-        },
-        "required": [
-          "products"
-        ],
-        "additionalProperties": false
-      },
-      "translatable": [
-        "/heading",
-        "/subheading",
-        "/ctaText"
-      ],
-      "refs": {},
-      "linkRefs": [
-        "/ctaLink"
-      ],
-      "data": {
-        "/products": {
-          "field": "query",
-          "source": "product",
-          "onEmpty": "hide",
-          "maxLimit": 24
-        }
-      },
-      "limits": {},
-      "children": {
-        "allowed": []
-      },
-      "kinds": [
-        "section"
-      ],
-      "feature": "catalogue",
-      "presets": [
-        {
-          "id": "default",
-          "settings": {
-            "products": {
-              "mode": "filter",
-              "ordering": "mostViewed",
-              "limit": 8
-            }
-          }
-        }
-      ]
-    },
-    {
-      "type": "products_slider",
-      "version": 3,
-      "accepts": [
-        3
-      ],
-      "schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "surface": {
+          "colorScheme": {
             "type": "string",
             "enum": [
-              "default",
-              "muted"
+              "light",
+              "dark"
             ]
           },
           "heading": {
@@ -6082,6 +6854,428 @@
                       "discounted",
                       "priceAsc",
                       "priceDesc"
+                    ]
+                  },
+                  "stock": {
+                    "type": "string",
+                    "enum": [
+                      "any",
+                      "inStockFirst",
+                      "inStockOnly"
+                    ]
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 24
+                  }
+                },
+                "required": [
+                  "mode",
+                  "ordering",
+                  "limit"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-data": {
+              "field": "query",
+              "source": "product",
+              "onEmpty": "hide",
+              "maxLimit": 24
+            }
+          },
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phoneLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "categoryTile": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "roots"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  }
+                },
+                "required": [
+                  "mode",
+                  "limit"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "children"
+                  },
+                  "parent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  }
+                },
+                "required": [
+                  "mode",
+                  "parent",
+                  "limit"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-data": {
+              "field": "query",
+              "source": "category",
+              "onEmpty": "empty",
+              "maxLimit": 12
+            }
+          },
+          "look": {
+            "type": "string",
+            "enum": [
+              "bold"
+            ]
+          }
+        },
+        "required": [
+          "products"
+        ],
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/eyebrow",
+        "/heading",
+        "/subheading",
+        "/ctaText"
+      ],
+      "refs": {},
+      "linkRefs": [
+        "/ctaLink"
+      ],
+      "data": {
+        "/products": {
+          "field": "query",
+          "source": "product",
+          "onEmpty": "hide",
+          "maxLimit": 24
+        },
+        "/categoryTile": {
+          "field": "query",
+          "source": "category",
+          "onEmpty": "empty",
+          "maxLimit": 12
+        }
+      },
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ],
+      "feature": "catalogue",
+      "presets": [
+        {
+          "id": "default",
+          "settings": {
+            "products": {
+              "mode": "filter",
+              "ordering": "mostViewed",
+              "limit": 8
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "products_slider",
+      "version": 3,
+      "accepts": [
+        3
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "colorScheme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subheading": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ctaLink": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "href": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "pattern": "^https:\\/\\/"
+                  }
+                },
+                "required": [
+                  "href"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "/",
+                      "/products",
+                      "/blog",
+                      "/contact",
+                      "/offers",
+                      "/gift-cards",
+                      "/loyalty-program",
+                      "/feedback",
+                      "/account/login",
+                      "/account/signup"
+                    ]
+                  }
+                },
+                "required": [
+                  "route"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "product"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "category"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogCategory"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "blogPost"
+                          },
+                          "id": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "page"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "contentPage"
+                          },
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[-a-zA-Z0-9_]+$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "x-builder-link": true
+          },
+          "showAddToCart": {
+            "type": "boolean"
+          },
+          "products": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "picked"
+                  },
+                  "ids": {
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2147483647
+                    }
+                  }
+                },
+                "required": [
+                  "mode",
+                  "ids"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "filter"
+                  },
+                  "categories": {
+                    "minItems": 1,
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "ordering": {
+                    "type": "string",
+                    "enum": [
+                      "newest",
+                      "mostViewed",
+                      "mostLiked",
+                      "topRated",
+                      "discounted",
+                      "priceAsc",
+                      "priceDesc"
+                    ]
+                  },
+                  "stock": {
+                    "type": "string",
+                    "enum": [
+                      "any",
+                      "inStockFirst",
+                      "inStockOnly"
                     ]
                   },
                   "limit": {
@@ -6555,6 +7749,55 @@
       ]
     },
     {
+      "type": "store_assurances",
+      "version": 1,
+      "accepts": [
+        1
+      ],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "default",
+              "muted"
+            ]
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "card"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "translatable": [
+        "/heading"
+      ],
+      "refs": {},
+      "linkRefs": [],
+      "limits": {},
+      "children": {
+        "allowed": []
+      },
+      "kinds": [
+        "section"
+      ],
+      "feature": "cart",
+      "presets": [
+        {
+          "id": "default"
+        }
+      ]
+    },
+    {
       "type": "story_timeline",
       "version": 2,
       "accepts": [
@@ -6748,9 +7991,9 @@
     },
     {
       "type": "timeline_entry",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -6771,8 +8014,46 @@
           },
           "icon": {
             "type": "string",
-            "maxLength": 100,
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           }
         },
         "required": [
@@ -6802,9 +8083,9 @@
     },
     {
       "type": "trust_badge",
-      "version": 1,
+      "version": 2,
       "accepts": [
-        1
+        2
       ],
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -6840,7 +8121,46 @@
           },
           "icon": {
             "type": "string",
-            "pattern": "^i-[a-z0-9:-]+$"
+            "enum": [
+              "i-fa6-solid-desktop",
+              "i-fa6-solid-globe",
+              "i-fa6-solid-microchip",
+              "i-fa6-solid-mobile",
+              "i-fa6-solid-network-wired",
+              "i-fa6-solid-robot",
+              "i-fa6-solid-shield",
+              "i-fa6-solid-shuffle",
+              "i-heroicons-arrow-uturn-left",
+              "i-heroicons-briefcase",
+              "i-heroicons-building-storefront",
+              "i-heroicons-chat-bubble-left-right",
+              "i-heroicons-globe-europe-africa",
+              "i-heroicons-hand-raised",
+              "i-heroicons-information-circle",
+              "i-heroicons-lifebuoy",
+              "i-heroicons-light-bulb",
+              "i-heroicons-lock-closed",
+              "i-heroicons-rectangle-group",
+              "i-heroicons-shield-check",
+              "i-heroicons-shopping-bag",
+              "i-heroicons-sparkles",
+              "i-heroicons-sun",
+              "i-heroicons-truck",
+              "i-lucide-battery-charging",
+              "i-lucide-code",
+              "i-lucide-cpu",
+              "i-lucide-drafting-compass",
+              "i-lucide-gauge",
+              "i-lucide-graduation-cap",
+              "i-lucide-hard-hat",
+              "i-lucide-radio",
+              "i-lucide-shield",
+              "i-lucide-shield-check",
+              "i-lucide-sliders-horizontal",
+              "i-lucide-traffic-cone",
+              "i-lucide-wrench",
+              "i-lucide-zap"
+            ]
           },
           "href": {
             "anyOf": [
@@ -8045,6 +9365,20 @@
           "id": "accent-dark",
           "foreground": "/colors/dark/accent",
           "background": "/colors/dark/neutral/scale/950",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "accent-muted-light",
+          "foreground": "/colors/light/accent",
+          "background": "#ffffff",
+          "min": 3,
+          "severity": "warning"
+        },
+        {
+          "id": "accent-muted-dark",
+          "foreground": "/colors/dark/accent",
+          "background": "/colors/dark/neutral/scale/900",
           "min": 3,
           "severity": "warning"
         }

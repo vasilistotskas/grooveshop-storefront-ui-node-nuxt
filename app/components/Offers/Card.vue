@@ -66,7 +66,7 @@ const isCode = computed(() => props.offer.trigger === 'CODE')
     </div>
 
     <div class="flex flex-col gap-1">
-      <h2 class="text-lg/tight font-bold text-highlighted">
+      <h2 class="text-lg/tight font-bold wrap-anywhere text-highlighted">
         {{ offer.name }}
       </h2>
       <p

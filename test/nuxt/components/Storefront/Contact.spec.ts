@@ -7,9 +7,9 @@ import WebsideContact from '~/components/variants/webside/Storefront/Contact.vue
 
 /**
  * The contact page: the enquiry form beside the ways to reach the store
- * and its hours. A tenant's own page can already carry the form (a
- * `contact_panel`), the hours (`business_hours`) or the page's heading
- * (a hero); the page stands down for each rather than say it twice.
+ * and its hours. A tenant's own page can already carry the hours
+ * (`business_hours`) or the page's heading (a hero); the page stands down
+ * for each rather than say it twice.
  * The pieces are stubbed (each has its own spec), so what is asserted
  * here is which of them the page decides to draw.
  */
@@ -30,7 +30,7 @@ const STUBS = {
   PageBreadcrumb: { template: '<nav data-stub="breadcrumb" />' },
 }
 
-const section = (componentType: string): BuilderSection => ({ id: `id-${componentType}`, componentType, props: {} })
+const section = (componentType: string, props: BuilderSection['props'] = {}): BuilderSection => ({ id: `id-${componentType}`, componentType, props })
 
 beforeEach(() => {
   layout.sections = []
@@ -55,14 +55,15 @@ describe('Storefront/Contact', () => {
     expect(drawn(wrapper)).toEqual(['breadcrumb', 'form', 'methods', 'hours'])
   })
 
-  it('stands down for a layout that carries its own enquiry form', async () => {
-    layout.sections = [section('contact_panel')]
+  // The contact band (fyteia's `contact_panel`) is the phone, the email and
+  // a link to this page under an h2: no form, and not the page's heading.
+  it('keeps its heading, crumb and form under a contact band', async () => {
+    layout.sections = [section('contact_panel', { heading: 'Πάρτε μας ένα τηλέφωνο.' })]
 
     const wrapper = await mount()
 
-    // `contact_panel` owns the heading too, so there is no crumb above it.
-    expect(drawn(wrapper)).toEqual(['section'])
-    expect(wrapper.find('h1').exists()).toBe(false)
+    expect(wrapper.findAll('h1').map(h1 => h1.text())).toEqual(['Μίλα με έναν άνθρωπο'])
+    expect(drawn(wrapper)).toEqual(['breadcrumb', 'section', 'form', 'methods', 'hours'])
   })
 
   it('leaves the hours to a layout that already shows them', async () => {
@@ -74,7 +75,7 @@ describe('Storefront/Contact', () => {
   })
 
   it('leaves the heading and the breadcrumb to a layout that opens with its own hero', async () => {
-    layout.sections = [section('hero_banner')]
+    layout.sections = [section('hero_banner', { heading: 'Μίλα μαζί μας' })]
 
     const wrapper = await mount()
 
@@ -129,10 +130,10 @@ describe('webside Storefront/Contact', () => {
     expect(drawn(await mountWebside())).toEqual(['breadcrumb', 'section', 'form', 'methods'])
   })
 
-  it('stands down for a layout that carries its own enquiry form', async () => {
-    layout.sections = [section('contact_panel')]
+  it('keeps its form under any section of the layout', async () => {
+    layout.sections = [section('rich_text')]
 
-    expect(drawn(await mountWebside())).toEqual(['breadcrumb', 'section'])
+    expect(drawn(await mountWebside())).toEqual(['breadcrumb', 'section', 'form', 'methods', 'hours'])
   })
 
   it('shows no side column when the only card is hidden by the layout', async () => {

@@ -3,6 +3,8 @@ import type * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { t } = useStoreI18n('components/Account/Password/ResetForm')
 
 const { schema, loading, hasError, request } = usePasswordResetRequest()
@@ -70,7 +72,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     <p class="text-center text-sm">
       <ULink
-        :to="localePath('account-login')"
+        :to="localePath(authLink('account-login'))"
         class="font-semibold text-accent"
       >
         {{ t('back') }}

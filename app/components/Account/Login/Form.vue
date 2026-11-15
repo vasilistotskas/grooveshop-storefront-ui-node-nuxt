@@ -9,6 +9,8 @@
  */
 const { t } = useStoreI18n('components/Account/Login/Form')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const authStore = useAuthStore()
 const { config, status } = storeToRefs(authStore)
@@ -60,7 +62,7 @@ defineExpose({ performLogin, isSubmitting })
       >
         <template #hint>
           <ULink
-            :to="localePath('account-password-reset')"
+            :to="localePath(authLink('account-password-reset'))"
             class="text-[0.8125rem] font-semibold text-accent"
           >
             {{ t('forgot') }}
@@ -81,7 +83,7 @@ defineExpose({ performLogin, isSubmitting })
       />
       <UButton
         :label="t('use_code')"
-        :to="localePath('account-login-code')"
+        :to="localePath(authLink('account-login-code'))"
         icon="i-lucide-mail"
         color="neutral"
         variant="ghost"
@@ -97,7 +99,7 @@ defineExpose({ performLogin, isSubmitting })
     <p class="text-center text-sm text-muted">
       {{ t('new_here') }}
       <ULink
-        :to="localePath('account-signup')"
+        :to="localePath(authLink('account-signup'))"
         class="font-semibold text-accent"
       >
         {{ t('create_account') }}

@@ -54,7 +54,11 @@ const lowStockCount = computed(() => lowStockLeft(product.value))
       "
       @click="emit('navigate')"
     >
-      <h4 class="line-clamp-2 text-xs/[1.35] font-semibold text-pretty">
+      <h4
+        class="
+          line-clamp-2 text-xs/[1.35] font-semibold text-pretty wrap-anywhere
+        "
+      >
         {{ name }}
       </h4>
     </NuxtLink>

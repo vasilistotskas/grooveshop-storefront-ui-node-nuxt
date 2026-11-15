@@ -126,6 +126,51 @@
     "deps": []
   },
   {
+    "name": "a product rule that asks for stock \"any\"",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest", "stock": "any", "limit": 8 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryProduct", "*"]]
+  },
+  {
+    "name": "a product rule that asks for stock \"inStockFirst\"",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest", "stock": "inStockFirst", "limit": 8 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryProduct", "*"]]
+  },
+  {
+    "name": "a product rule that asks for stock \"inStockOnly\"",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest", "stock": "inStockOnly", "limit": 8 },
+    "valid": true,
+    "issues": [],
+    "refs": [],
+    "deps": [["queryProduct", "*"]]
+  },
+  {
+    "name": "a stock choice the product list does not have",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "filter", "ordering": "newest", "stock": "lowStock", "limit": 8 },
+    "valid": false,
+    "issues": [{ "path": "/stock", "code": "invalid_data_value" }],
+    "refs": [],
+    "deps": []
+  },
+  {
+    "name": "a stock choice on a hand-picked list",
+    "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
+    "value": { "mode": "picked", "ids": [1], "stock": "inStockOnly" },
+    "valid": false,
+    "issues": [{ "path": "/stock", "code": "unknown_filter" }],
+    "refs": [],
+    "deps": []
+  },
+  {
     "name": "no limit",
     "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
     "value": { "mode": "filter", "ordering": "newest" },

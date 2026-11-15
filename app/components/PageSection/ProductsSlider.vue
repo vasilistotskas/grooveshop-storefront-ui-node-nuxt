@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<{
   ctaLink?: string
   showAddToCart?: boolean
   surface?: 'default' | 'muted'
+  colorScheme?: SectionColorScheme
   /** What the band lists: the products, and the rule or hand-picked list they came from. */
   products: ResolvedQuery<ProductCard, DataDescriptor<'product'>>
 }>(), {
@@ -33,6 +34,7 @@ const slots = defineSlots<{
 
 const { t } = useStoreI18n('components/PageSection/ProductsSlider')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 const kind = computed(() => productRailKind(props.products.descriptor))
 
@@ -42,25 +44,22 @@ const label = computed(
 )
 
 /**
- * Where "see all" goes when the operator has not said: the listing sorted as
- * the rail is (`PRODUCT_LISTING_SORT`), and its link says so, which is what
- * tells three rails on one page apart. The orders with no listing sort open
- * the listing as it is, under the generic label.
+ * "See all". Only the operator's own link replaces where it goes; otherwise it
+ * is the listing sorted as the rail is (`PRODUCT_LISTING_SORT`), filtered to
+ * what is in stock when the rule hides sold-out products
+ * (`productRailStockQuery`), whatever words the operator gave it. Without
+ * their words it says which listing (what tells three rails on one page
+ * apart), and the generic label where there is no listing sort or the link is
+ * the operator's.
  */
 const cta = computed(() => {
-  if (props.ctaText || props.ctaLink) {
-    return {
-      text: props.ctaText || t('all_products'),
-      link: props.ctaLink ? localePath(pathLocation(props.ctaLink)) : localePath('products'),
-    }
-  }
   const sort = PRODUCT_LISTING_SORT[kind.value]
-  return sort
-    ? {
-        text: t(`all.${kind.value}`),
-        link: localePath({ path: '/products', query: { sort } }),
-      }
-    : { text: t('all_products'), link: localePath('products') }
+  const query = { ...(sort && { sort }), ...productRailStockQuery(props.products.descriptor) }
+  const listing = Object.keys(query).length ? localePath({ path: '/products', query }) : localePath('products')
+  return {
+    text: props.ctaText || (sort && !props.ctaLink ? t(`all.${kind.value}`) : t('all_products')),
+    link: props.ctaLink ? linkTo(props.ctaLink) : listing,
+  }
 })
 </script>
 
@@ -72,6 +71,7 @@ const cta = computed(() => {
     :cta-text="cta.text"
     :cta-link="cta.link"
     :surface="surface"
+    :color-scheme="colorScheme"
   >
     <ProductsRail
       :products="[...products.items]"

@@ -104,6 +104,29 @@ export function dataSites(document: BuilderDocument, registry: ReadonlyMap<strin
 }
 
 /**
+ * How many lists the nodes ask for, counted as Django holds a document to
+ * `DATA_LIMITS.maxQueriesPerDocument` on save: every list setting with a
+ * value, in every node and the blocks under it, a hidden node, a repeated
+ * list and a hand-picked one included. `planData` reads fewer (each distinct
+ * list once, a hand-picked one by its ids), but the save is refused past
+ * this count.
+ */
+export function builderListCount(nodes: Iterable<BuilderNode>, registry: ReadonlyMap<string, BlockDefinition>): number {
+  let count = 0
+  for (const node of nodes) {
+    const definition = definitionOf(node, registry)
+    for (const [pointer, declaration] of Object.entries(definition?.data ?? {})) {
+      if (declaration.field !== 'query') continue
+      for (const [, value] of expand(node.settings, segmentsOf(pointer), '')) {
+        if (value !== null && value !== undefined) count += 1
+      }
+    }
+    count += builderListCount(Object.values(node.blocks ?? {}), registry)
+  }
+  return count
+}
+
+/**
  * What reading the sites takes: every id of a kind in ONE set (a `ref`, and a
  * hand-picked list of that kind's source), and each distinct list once. A
  * `ref` of a kind the page cannot read by id is left to `applyData`, which

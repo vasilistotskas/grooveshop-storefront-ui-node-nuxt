@@ -32,6 +32,7 @@ const emit = defineEmits<{
 const { t } = useStoreI18n('components/Product/Reviews/Section')
 const route = useRoute()
 const localePath = useLocalePath()
+const { authLink } = useAuthLinks()
 const { user, loggedIn, ready } = useUserSession()
 const reviewsEnabled = useStoreFeature('productReviews')
 
@@ -72,9 +73,8 @@ async function onReviewChanged() {
   emit('changed')
 }
 
-/** Sign in, then come back to this page at `hash`. */
-const signInThenTo = (hash: string) =>
-  localePath({ name: RedirectToURLs.LOGIN_URL, query: { next: `${route.fullPath.split('#')[0]}${hash}` } })
+/** Sign in, then come back to this page at `hash` (`useAuthLinks().authLink`). */
+const signInThenTo = (hash: string) => localePath(authLink(RedirectToURLs.LOGIN_URL, { hash }))
 
 /** A guest is sent to sign in, and brought back to the reviews. */
 const signInToReview = computed(() => signInThenTo('#reviews'))

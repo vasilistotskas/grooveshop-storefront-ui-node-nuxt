@@ -3,6 +3,8 @@ const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authent
 
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/TwoFactorWebauthn')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const items = computed(() => [
   {
@@ -11,12 +13,12 @@ const items = computed(() => [
     icon: t('breadcrumb.items.index.icon'),
   },
   {
-    to: localePath('account-login'),
+    to: localePath(authLink('account-login')),
     label: t('breadcrumb.items.account-login.label'),
     icon: t('breadcrumb.items.account-login.icon'),
   },
   {
-    to: localePath('account-2fa-authenticate-webauthn'),
+    to: localePath(authLink('account-2fa-authenticate-webauthn')),
     label: t('breadcrumb.items.account-2fa-authenticate-webauthn.label'),
     icon: t('breadcrumb.items.account-2fa-authenticate-webauthn.icon'),
     current: true,

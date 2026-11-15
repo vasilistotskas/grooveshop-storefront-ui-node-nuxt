@@ -26,8 +26,9 @@ const RailStub = defineComponent({
     posts: { type: Array as () => { id: number, category: number }[], default: () => [] },
     categoryName: { type: Function, default: undefined },
     stacked: { type: Boolean, default: false },
+    phoneLayout: { type: String, default: undefined },
   },
-  setup: props => () => h('ol', { 'data-stacked': props.stacked }, props.posts.map(p =>
+  setup: props => () => h('ol', { 'data-stacked': props.stacked, 'data-phone-layout': props.phoneLayout }, props.posts.map(p =>
     h('li', { 'data-post': p.id, 'data-category': props.categoryName?.(p.category) }))),
 })
 
@@ -68,6 +69,25 @@ describe('PageSection/BlogPosts', () => {
     expect([link.text(), link.attributes('href')]).toEqual([COPY.allPosts, '/blog'])
   })
 
+  // A band of ONE category's posts sends "see all" to that category, at the
+  // slug it has now, as a products band keeps its in-stock rule.
+  it('sends "see all" of a one-category band to that category, and to the blog when the category is gone', async () => {
+    const ofCategory = (category: number) => ({ ...posts([makeBlogPost({ id: 1, category })]), descriptor: { mode: 'filter' as const, ordering: 'newest' as const, limit: 2, category } })
+
+    const wrapper = await mountPosts({ posts: ofCategory(2), ctaText: 'Όλα τα άρθρα του θέματος' })
+    const gone = await mountPosts({ posts: ofCategory(99) })
+
+    expect(wrapper.get('a').attributes('href')).toBe('/blog/category/2/category-2')
+    expect(wrapper.get('a').text()).toBe('Όλα τα άρθρα του θέματος')
+    expect(gone.get('a').attributes('href')).toBe('/blog')
+  })
+
+  it('keeps an operator link over the category', async () => {
+    const wrapper = await mountPosts({ posts: { ...posts([makeBlogPost({ id: 1, category: 2 })]), descriptor: { mode: 'filter' as const, ordering: 'newest' as const, limit: 2, category: 2 } }, ctaLink: '/offers' })
+
+    expect(wrapper.get('a').attributes('href')).toBe('/offers')
+  })
+
   it('names each post\'s category from the store\'s categories, in the page\'s language', async () => {
     const wrapper = await mountPosts()
 
@@ -88,6 +108,17 @@ describe('PageSection/BlogPosts', () => {
     expect(wrapper.find('h2').text()).toBe('Νέα')
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual(['Περισσότερα', '/blog/category/5/news'])
+  })
+
+  // `blog_posts_grid`'s phone layout reaches the rail, which draws it
+  // (`Blog/Rail.spec.ts`); unset, the rail keeps its row to swipe.
+  it.each([
+    [undefined, undefined],
+    ['list', 'list'],
+  ] as const)('hands the phone layout %s to the rail', async (phoneLayout, handed) => {
+    const wrapper = await mountPosts({ phoneLayout })
+
+    expect(wrapper.get('ol').attributes('data-phone-layout')).toBe(handed)
   })
 
   describe('with `loadMore` on', () => {
@@ -140,5 +171,40 @@ describe('PageSection/BlogPosts', () => {
 
       expect(wrapper.find('button').exists()).toBe(false)
     })
+  })
+
+  // The colour scheme reaches the band, which draws it as Nuxt UI's subtree
+  // switch (`Band.spec.ts`).
+  it.each(['dark', 'light'] as const)('draws the band in the %s colour scheme the block sets', async (colorScheme) => {
+    const wrapper = await mountPosts({ colorScheme })
+
+    expect(wrapper.get('section').classes()).toContain(colorScheme)
+  })
+})
+
+describe('PageSection/BlogPosts as a feature card', () => {
+  beforeEach(() => {
+    setTenant()
+    setTenantFeatures({ blog: true })
+  })
+
+  it('draws one card in the section\'s scheme: the copy, the posts, then its button', async () => {
+    const wrapper = await mountPosts({ layout: 'feature', eyebrow: 'Ψηφιακή ασφάλεια', heading: 'Προστάτεψε τους λογαριασμούς σου', icon: 'i-lucide-shield', ctaText: 'Ξεκίνα από την Ασφάλεια', ctaLink: '/blog', colorScheme: 'dark' })
+
+    expect(wrapper.find('ol[data-stacked]').exists()).toBe(false)
+    const card = wrapper.get('section > div > div')
+    expect(card.classes()).toEqual(expect.arrayContaining(['dark', 'rounded-xl']))
+    expect(card.get('h2').text()).toBe('Προστάτεψε τους λογαριασμούς σου')
+    // The button closes the card on a phone: after the posts in the markup.
+    const order = [...card.element.children].map(child => child.tagName.toLowerCase())
+    expect(order.at(-1)).toBe('a')
+    expect(order.indexOf('ul')).toBeLessThan(order.length - 1)
+    expect(card.findAll('li')).toHaveLength(2)
+  })
+
+  it('marks the posts past the phone limit, which a phone does not show', async () => {
+    const wrapper = await mountPosts({ layout: 'feature', phoneLimit: 1 })
+
+    expect(wrapper.findAll('li').map(row => row.attributes('data-phone-hidden') !== undefined)).toEqual([false, true])
   })
 })

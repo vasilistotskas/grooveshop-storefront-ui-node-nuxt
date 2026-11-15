@@ -15,6 +15,8 @@ import { makeTier } from '~~/test/fixtures/loyalty'
 const state = vi.hoisted(() => ({
   keys: [] as string[],
   onOverview: true,
+  // What the navigation marks Orders: its own page, or a page under it.
+  ordersMark: 'page' as 'page' | 'location',
   summary: {} as Record<string, unknown>,
 }))
 const { signOut } = vi.hoisted(() => ({ signOut: vi.fn() }))
@@ -26,6 +28,7 @@ mockNuxtImport('useAccountNavigation', () => () => ({
     icon: 'i-lucide-house',
     to: `/account/${key}`,
     active: key === 'orders',
+    current: key === 'orders' ? state.ordersMark : undefined,
     ...(key === 'notifications' ? { badge: 3 } : {}),
   }))),
   onOverview: computed(() => state.onOverview),
@@ -43,6 +46,7 @@ mockNuxtImport('useUserSession', () => () => ({
 const SILVER = makeTier({ id: 2 })
 
 beforeEach(() => {
+  state.ordersMark = 'page'
   state.keys = ['overview', 'orders', 'notifications', 'rewards', 'gift_cards', 'business']
   state.onOverview = true
   state.summary = { ordersCount: 14, loyalty: { pointsBalance: 2340, tier: SILVER }, giftCardBalance: 42, businessStatus: 'APPROVED' }
@@ -105,6 +109,16 @@ describe('Chrome/AccountShell', () => {
     expect(links.map(link => link.attributes('href'))).toEqual(state.keys.map(key => `/account/${key}`))
     expect(links.filter(link => link.attributes('aria-current') === 'page').map(link => link.text())).toEqual(['label:orders'])
     expect(links.find(link => link.text().startsWith('label:notifications'))!.text()).toBe('label:notifications3')
+  })
+
+  // An order is under Orders, not Orders' page: the sidebar says so as
+  // the navigation decides it (`currentMark`).
+  it('marks the entry the visitor is under as their location', async () => {
+    state.ordersMark = 'location'
+
+    const links = (await mountShell()).findAll('nav ul a')
+
+    expect(links.filter(link => link.attributes('aria-current')).map(link => [link.text(), link.attributes('aria-current')])).toEqual([['label:orders', 'location']])
   })
 
   it('signs out from the sidebar', async () => {

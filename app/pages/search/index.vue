@@ -7,6 +7,8 @@ defineRouteRules({
   robots: false,
 })
 definePageMeta({
+  // Its query (sort, filters, page, search) is the view a sign-in brings back to.
+  signInReturn: 'path-and-query',
   middleware: ['catalogue-enabled'],
   layout: 'default',
 })

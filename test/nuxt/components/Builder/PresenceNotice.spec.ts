@@ -2,9 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { createPinia, setActivePinia } from 'pinia'
+import type { Pinia } from 'pinia'
 import BuilderPresenceNotice from '~/components/Builder/PresenceNotice.vue'
 import { useBuilderPresenceStore } from '~/stores/builderPresence'
+import presenceSource from '~/components/Builder/PresenceNotice.vue?raw'
+import labels from '~/builder/labels/el.json'
 import { failWith } from '~~/test/helpers/api'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import { makeBuilderDocumentRow } from '~~/test/fixtures/builderDocument'
 
 /**
  * The soft "Maria is editing" notice: the editor tells Django which documents
@@ -76,6 +81,46 @@ describe('the presence notice', () => {
 
     expect(wrapper.find('[role="status"]').exists()).toBe(false)
     expect(useBuilderPresenceStore().others).toEqual({})
+  })
+
+  // The store has a header, a footer and a theme: the editor opens all three
+  // with the page (`documentsWith`), so the heartbeat names them, and the
+  // notice names each as the outline and the Publish dialog do.
+  describe('with the documents the page is edited with', () => {
+    // The component reads the app's Pinia, not the one the file's beforeEach makes active.
+    const editorStore = () => useBuilderEditorStore(useNuxtApp().$pinia as Pinia)
+
+    beforeEach(() => {
+      editorStore().documents = ['template:home', 'group:header', 'group:footer', BUILDER_THEME_DOCUMENT].map(key => makeBuilderDocumentRow({ key }))
+    })
+
+    afterEach(() => {
+      editorStore().documents = []
+    })
+
+    it('beats with the page, its groups and the theme', async () => {
+      api.routes({ '/api/builder/presence': { documents: {} } })
+
+      await mountSuspended(BuilderPresenceNotice, { route: false })
+      await flushPromises()
+
+      expect(api.callsTo('/api/builder/presence')[0]!.options).toMatchObject({ body: { documents: ['template:home', 'group:header', 'group:footer', BUILDER_THEME_DOCUMENT] } })
+    })
+
+    it('names the theme and a section group by what they are, not by an address', async () => {
+      api.routes({ '/api/builder/presence': { documents: { [BUILDER_THEME_DOCUMENT]: [entry(9, 'Nikos')], 'group:footer': [entry(11, 'Eleni')] } } })
+
+      const wrapper = await mountSuspended(BuilderPresenceNotice, { route: false })
+      await flushPromises()
+
+      // Each line is the component's own `line` text naming the document as the editor labels do.
+      const texts = componentTexts(presenceSource, 'PresenceNotice.vue')
+      const lines = wrapper.findAll('[role="status"] li').map(line => line.text())
+      expect(lines).toEqual([
+        texts.t('line', { names: 'Eleni', document: labels.groups.footer }, 1),
+        texts.t('line', { names: 'Nikos', document: labels.documents.theme }, 1),
+      ])
+    })
   })
 
   it('lets go of the documents when the editor is left', async () => {

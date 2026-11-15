@@ -5,6 +5,8 @@ const props = defineProps<{
 
 const { t } = useStoreI18n('components/variants/webside/Product/GuestLoyaltyCTA')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 
 const enabled = useStoreFeature('loyalty')
 
@@ -14,7 +16,7 @@ const shouldShow = computed(() => enabled.value && props.potentialPoints > 0)
 <template>
   <div v-if="shouldShow">
     <NuxtLink
-      :to="localePath('account-signup')"
+      :to="localePath(authLink('account-signup'))"
       class="
         group flex items-center gap-2.5 rounded-lg bg-linear-to-r
         from-secondary-50 to-primary-50 px-3 py-2 ring-1 ring-secondary-200

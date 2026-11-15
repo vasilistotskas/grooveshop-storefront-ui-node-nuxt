@@ -54,7 +54,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  (e: 'favourite-delete', id: number): void
+  (e: 'favourite-delete'): void
 }>()
 
 /**
@@ -142,10 +142,7 @@ const addToCartName = computed(() => t('add_named', { name: productName.value ??
 
 const favouriteId = computed(() => getFavouriteIdByProductId(productId.value))
 
-// A listing payload carries no price-alert flag, so a card offers the
-// restock alert only; the product page offers both.
-const notify = reactive({ mounted: false, open: false, kind: 'restock' as ProductAlertKindEnum })
-const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
+const onFavouriteDelete = () => emit('favourite-delete')
 </script>
 
 <template>
@@ -197,11 +194,13 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         <LazyButtonProductAddToFavourite
           v-if="showAddToFavouriteButton"
           :product-id="productId"
+          :product-name="productName ?? ''"
           :user-id="user?.id"
           :favourite-id="favouriteId"
           size="sm"
           class="
             absolute inset-e-2 top-2 z-10 bg-default/90 ring-0
+            after:absolute after:-inset-2
             hover:bg-default
           "
           @favourite-delete="onFavouriteDelete"
@@ -249,7 +248,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
              higher layer and stay clickable. -->
         <h3
           class="
-            line-clamp-2 text-sm/[1.35] font-semibold text-pretty
+            line-clamp-2 text-sm/[1.35] font-semibold text-pretty wrap-anywhere
             sm:text-[0.9375rem]
           "
         >
@@ -264,7 +263,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       />
 
       <div class="mt-0.5 flex items-center justify-between gap-2">
-        <div class="flex flex-wrap items-baseline gap-x-2">
+        <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
           <span
             class="
               font-mono text-base font-bold text-highlighted tabular-nums
@@ -295,7 +294,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           size="sm"
           icon-only
           class="
-            relative z-10
+            relative z-10 min-h-11 min-w-11 shrink-0
             sm:hidden
           "
         />
@@ -308,31 +307,15 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
       </p>
       <!-- Opens the restock alert in place, above the card's stretched
-           link. The dialog mounts on the first open. -->
-      <UButton
+           link. -->
+      <ProductRestockAlert
         v-if="outOfStock && productAlertsEnabled"
-        :label="t('notify_back')"
-        color="neutral"
-        variant="link"
-        size="sm"
-        class="
-          relative z-10 self-start p-0 text-[0.8125rem] font-semibold
-          text-accent
-        "
-        @click="() => { notify.mounted = true; notify.open = true }"
+        :product-id="productId"
+        :product-name="productName ?? ''"
+        :product-image="product.mainImagePath"
+        class="relative z-10 self-start"
       />
     </div>
-
-    <LazyProductNotifyMe
-      v-if="notify.mounted"
-      v-model:open="notify.open"
-      v-model:kind="notify.kind"
-      :product-id="productId"
-      :product-name="productName ?? ''"
-      :product-image="product.mainImagePath"
-      sold-out
-      :price-drop="false"
-    />
   </component>
 </template>
 
@@ -343,7 +326,6 @@ el:
   sold_out: Εξαντλήθηκε
   new: Νέο
   only_n_left: 'Μόνο {count} απέμεινε | Μόνο {count} απέμειναν'
-  notify_back: Ειδοποίησέ με όταν ξαναέρθει
   view_product: Προβολή προϊόντος
 en:
   add: Add
@@ -351,6 +333,5 @@ en:
   sold_out: Sold out
   new: New
   only_n_left: 'Only {count} left | Only {count} left'
-  notify_back: Notify me when it's back
   view_product: View product
 </i18n>

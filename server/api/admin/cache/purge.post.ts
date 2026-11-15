@@ -14,7 +14,9 @@ import { defineEventHandler, readValidatedBody } from 'nuxt/server'
  *     patterns: string[]  // glob patterns; trailing `*` is implicit when stripped
  *     builderDocuments?: string[] // page builder documents that changed (`template:home`,
  *                         // `page:summer-sale`, `group:header`, `theme`): the pages that
- *                         // draw them are purged, see `builderDocumentMatchers`
+ *                         // draw them are purged, see `builderDocumentMatchers`; for a
+ *                         // page or template, the store's cached record data first
+ *                         // (`builderRecordDataMatchers`)
  *     dryRun?: boolean    // default false
  *     host?: string       // scope to one tenant's keys (see bodySchema)
  *     tenantConfig?: boolean // default false: the purge follows a change to the
@@ -74,6 +76,14 @@ const bodySchema = z.object({
   .refine(body => body.patterns.length > 0 || body.builderDocuments.length > 0, {
     message: 'A purge names patterns or builder documents',
   })
+  // Builder documents belong to one store: its epoch moves between the data
+  // and the pages (`moveBuilderEpoch`), so a render in flight does not store
+  // a page of the old records. Without the store there is no epoch to move,
+  // and the pages of every store would go unprotected.
+  .refine(body => body.builderDocuments.length === 0 || body.host !== undefined, {
+    message: 'Builder documents are purged for one store host',
+    path: ['host'],
+  })
 
 function isProtected(key: string): boolean {
   return PROTECTED_FRAGMENTS.some(f => key.includes(f))
@@ -120,51 +130,64 @@ export default defineEventHandler(async (event) => {
   let skippedForeignTenant = 0
   const visited = new Set<string>()
 
-  const matchers = [...body.patterns.map(patternToMatcher), ...builderDocumentMatchers(body.builderDocuments)]
-  for (const { prefix, accepts } of matchers) {
-    let keys: string[]
-    try {
-      keys = await storage.getKeys(prefix)
-    }
-    catch (error) {
-      log.warn({
-        tag: 'cache-purge',
-        message: 'getKeys failed',
-        prefix,
-        error: error instanceof Error ? error.message : String(error),
-      })
-      continue
-    }
+  // In order, each finished before the next: the record data a purged page
+  // reads goes BEFORE the page, so a render after this purge cannot store
+  // the old data again; between the two the store's builder epoch moves, so
+  // a render in flight, which read the old data, does not store its page
+  // either (`moveBuilderEpoch`). The answer waits for all of them.
+  await purgeMatching([
+    ...body.patterns.map(patternToMatcher),
+    ...builderRecordDataMatchers(body.builderDocuments),
+  ])
+  if (!body.dryRun && host && body.builderDocuments.length > 0) await moveBuilderEpoch(host)
+  await purgeMatching(builderDocumentMatchers(body.builderDocuments))
 
-    for (const key of keys) {
-      if (visited.has(key)) continue
-      if (accepts && !accepts(key)) continue
-      // Only a key this matcher actually claims is "seen": matchers
-      // sharing a prefix (`routes:_:*index*`, `routes:_:*about*`) each
-      // list the whole family, and marking a rejected key here would let
-      // the first pattern hide it from every later one.
-      visited.add(key)
-      if (host && !cacheKeyBelongsToHost(key, host)) {
-        skippedForeignTenant += 1
+  async function purgeMatching(matchers: PurgeMatcher[]): Promise<void> {
+    for (const { prefix, accepts } of matchers) {
+      let keys: string[]
+      try {
+        keys = await storage.getKeys(prefix)
+      }
+      catch (error) {
+        log.warn({
+          tag: 'cache-purge',
+          message: 'getKeys failed',
+          prefix,
+          error: error instanceof Error ? error.message : String(error),
+        })
         continue
       }
-      if (isProtected(key)) {
-        blocked += 1
-        continue
-      }
-      matched += 1
-      if (!body.dryRun) {
-        try {
-          await storage.removeItem(key)
-          deleted += 1
+
+      for (const key of keys) {
+        if (visited.has(key)) continue
+        if (accepts && !accepts(key)) continue
+        // Only a key this matcher actually claims is "seen": matchers
+        // sharing a prefix (`routes:_:*index*`, `routes:_:*about*`) each
+        // list the whole family, and marking a rejected key here would let
+        // the first pattern hide it from every later one.
+        visited.add(key)
+        if (host && !cacheKeyBelongsToHost(key, host)) {
+          skippedForeignTenant += 1
+          continue
         }
-        catch (error) {
-          log.warn({
-            tag: 'cache-purge',
-            message: 'removeItem failed',
-            key,
-            error: error instanceof Error ? error.message : String(error),
-          })
+        if (isProtected(key)) {
+          blocked += 1
+          continue
+        }
+        matched += 1
+        if (!body.dryRun) {
+          try {
+            await storage.removeItem(key)
+            deleted += 1
+          }
+          catch (error) {
+            log.warn({
+              tag: 'cache-purge',
+              message: 'removeItem failed',
+              key,
+              error: error instanceof Error ? error.message : String(error),
+            })
+          }
         }
       }
     }

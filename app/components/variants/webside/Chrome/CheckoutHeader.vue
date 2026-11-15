@@ -38,6 +38,7 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
         square
         class="
           justify-self-start rounded-full
+          max-sm:min-h-11 max-sm:min-w-11
           lg:hidden
         "
       />
@@ -62,11 +63,13 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
         <span class="sr-only">{{ appTitle }}</span>
       </Anchor>
 
-      <!-- Spacer matches the back-button square so the middle
-           column stays geometrically centered. -->
+      <!-- Spacer matches the back-button square (44px below sm, where the
+           button is a 44px target) so the middle column stays geometrically
+           centered. -->
       <div
         class="
           size-9 justify-self-end
+          max-sm:size-11
           lg:hidden
         "
         aria-hidden="true"

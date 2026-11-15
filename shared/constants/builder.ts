@@ -1,3 +1,5 @@
+import type { StoreFeatureName } from '../utils/storeFeature'
+
 /** What a catalogue entry can be: a section of a page, or a block inside a section or another block. */
 export const BLOCK_KINDS = ['section', 'block'] as const
 
@@ -54,6 +56,15 @@ export const NAVIGATION_ROUTES = ['/', '/products', '/blog', '/contact', '/offer
  */
 export const LINK_ROUTES = [...NAVIGATION_ROUTES, '/account/login', '/account/signup'] as const
 
+/**
+ * The colour scheme a band can be held in: `light` or `dark` in both of the
+ * page's colour modes (Nuxt UI's `.light` / `.dark` class on the band, which
+ * the stylesheets and the store's theme write for a part of the page). A band
+ * with none follows the page: that is the setting left empty, so there is no
+ * third value saying the same thing.
+ */
+export const SECTION_COLOR_SCHEMES = ['light', 'dark'] as const
+
 /** The record kinds a link names by id, whose address needs the record's current slug (`GET builder/link-targets`). */
 export const LINK_SLUG_KINDS = ['product', 'category', 'blogPost', 'blogCategory'] as const
 
@@ -72,6 +83,26 @@ export const DATA_SCHEMA_MARKER = 'x-builder-data'
 
 /** What a `query` data setting reads: the record lists the storefront can resolve for a page. */
 export const DATA_SOURCES = ['product', 'blogPost', 'category', 'blogCategory', 'promotion'] as const
+
+/**
+ * The store feature without which Django serves no record or list of a kind:
+ * `IsCatalogueEnabled` on products and categories, `IsBlogEnabled` on posts
+ * and blog categories, `IsPromotionsEnabled` on the offers. A page of a store
+ * with the feature off does not ask (Django would refuse, and a refused read is
+ * never cached, so every render would ask again): the setting resolves as a
+ * record that is gone or a list that matches nothing. A block that IS that
+ * feature is left out of the document before (`defineBlock`'s `feature`); this
+ * is for the settings of a block that is not (a hero's product). Media is the
+ * page builder's own and needs none.
+ */
+export const DATA_FEATURES = {
+  product: 'catalogue',
+  category: 'catalogue',
+  blogPost: 'blog',
+  blogCategory: 'blog',
+  promotion: 'promotions',
+  media: null,
+} as const satisfies Record<(typeof DATA_RECORD_KINDS)[number] | (typeof DATA_SOURCES)[number], StoreFeatureName | null>
 
 /** The records a page can resolve by id: a `ref` of one of these, or a hand-picked list of its source, is read from the list endpoint of the same name (a `media` ref, from the media library's resolve endpoint). */
 export const DATA_RECORD_KINDS = ['product', 'blogPost', 'category', 'blogCategory', 'media'] as const
@@ -93,6 +124,14 @@ export const DATA_LIMITS = {
 
 /** How a list of products may be ordered: each is a field the product list's `ordering_fields` declares. */
 export const PRODUCT_ORDERINGS = ['newest', 'mostViewed', 'mostLiked', 'topRated', 'discounted', 'priceAsc', 'priceDesc'] as const
+
+/**
+ * How a list of products treats stock: `any` is the list as ordered, `inStockFirst`
+ * puts the products that can be bought ahead of the rest (the API's
+ * `availabilityPriority`), `inStockOnly` leaves the rest out (the API's `inStock`).
+ * A descriptor without the key is `any`.
+ */
+export const PRODUCT_STOCK_MODES = ['any', 'inStockFirst', 'inStockOnly'] as const
 
 /** How a list of blog posts may be ordered. */
 export const BLOG_POST_ORDERINGS = ['newest', 'mostViewed'] as const

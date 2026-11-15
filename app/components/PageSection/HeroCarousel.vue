@@ -72,6 +72,7 @@ const { isMobileOrTablet } = useDevice()
 const leadsPage = useLeadsPage()
 const { t, locale } = useStoreI18n('components/PageSection/HeroCarousel')
 const localePath = useLocalePath()
+const linkTo = useLinkTo()
 const { productUrl } = useUrls()
 const { formatPrice } = usePriceFormat()
 
@@ -113,14 +114,12 @@ const chips = computed(() => items.value.map((slide) => {
 }))
 
 /** The image a slide draws on this device: its phone image on a phone, else its own. */
-const drawnImage = (slide: Pick<HeroSlide, 'image' | 'mobileImage'>) =>
-  (isMobileOrTablet.value && readyImage(slide.mobileImage)?.path ? readyImage(slide.mobileImage) : undefined) ?? readyImage(slide.image)
+const drawnImage = (slide: Pick<HeroSlide, 'image' | 'mobileImage'>) => heroImage(slide, isMobileOrTablet.value)
 
 const artwork = (slide: HeroSlide) => drawnImage(slide)?.path
 
 /** The description of the image drawn, else the desk image's, else the slide's heading, else the store's name. */
-const altOf = (slide: HeroSlide) =>
-  slide.imageDecorative ? '' : drawnImage(slide)?.alt || readyImage(slide.image)?.alt || slide.heading || appTitle.value
+const altOf = (slide: HeroSlide) => heroImageAlt(slide, drawnImage(slide), slide.heading || appTitle.value)
 
 const hasCopy = (slide: HeroSlide) =>
   !!(slide.eyebrow || slide.heading?.trim() || slide.subheading || slide.ctaText)
@@ -175,13 +174,22 @@ const imageSizes = (slide: HeroSlide) =>
   hasCopy(slide) ? 'xs:100vw lg:56vw xl:710px' : 'xs:100vw xl:1216px'
 
 /**
- * The buttons are a size down on a phone, and the main one drops its
- * arrow, as the design draws them;
- * a device-class choice like the crop, so the server renders the size
- * the visitor sees.
+ * The buttons are a size down below `lg`, and the main one drops its arrow
+ * there, as the design draws them. A viewport choice made in CSS, not a
+ * device-class one: the server picks the device class from the user agent
+ * and the browser then measures the viewport, so a desktop agent in a
+ * phone-wide window (an iPad's Safari asks as a Mac) was sent the desk's
+ * buttons, which wrap to two rows there, and the swap to the phone's after
+ * load shortened the copy panel by 70px and moved everything under the hero
+ * up (storefront #467). One markup for both, `md` with `lg`'s padding and
+ * gap from `lg` up.
  */
-const ctaSize = computed(() => (isMobileOrTablet.value ? 'md' : 'lg'))
-const ctaIcon = computed(() => (isMobileOrTablet.value ? undefined : 'i-heroicons-arrow-right'))
+const CTA_UI = {
+  base: `
+    lg:gap-2 lg:px-3 lg:py-2
+  `,
+  trailingIcon: 'max-lg:hidden',
+}
 
 /**
  * Autorotation is opt-in, refused under reduced motion, and only ever
@@ -310,7 +318,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                    because there is no copy to put a button in. -->
               <NuxtLink
                 v-if="!hasCopy(item) && item.ctaLink"
-                :to="localePath(pathLocation(item.ctaLink))"
+                :to="linkTo(item.ctaLink)"
                 :aria-label="t('carousel.bannerLink')"
                 class="absolute inset-0"
               />
@@ -433,11 +441,12 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                 >
                   <UButton
                     v-if="item.ctaText && item.ctaLink"
-                    :to="localePath(pathLocation(item.ctaLink))"
+                    :to="linkTo(item.ctaLink)"
                     :label="item.ctaText"
-                    :size="ctaSize"
+                    size="md"
                     color="neutral"
-                    :trailing-icon="ctaIcon"
+                    trailing-icon="i-heroicons-arrow-right"
+                    :ui="CTA_UI"
                     class="
                       bg-volt text-on-volt
                       hover:bg-volt/90
@@ -446,11 +455,12 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                   />
                   <UButton
                     v-if="item.secondaryCtaText && item.secondaryCtaLink"
-                    :to="localePath(pathLocation(item.secondaryCtaLink))"
+                    :to="linkTo(item.secondaryCtaLink)"
                     :label="item.secondaryCtaText"
-                    :size="ctaSize"
+                    size="md"
                     color="neutral"
                     variant="outline"
+                    :ui="CTA_UI"
                     :class="ON_CARD_OUTLINE"
                   />
                 </div>

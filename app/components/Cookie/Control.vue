@@ -176,9 +176,10 @@ defineExpose({
       <div
         v-if="tenantStore.hasOptionalServices && !isConsentGiven && !moduleOptions.isModalForced"
         class="
-          fixed inset-x-0 bottom-2 z-50 mx-auto max-h-[calc(100dvh-1rem)]
-          max-w-sm overflow-y-auto rounded-md border border-primary-200
-          bg-primary-50 p-4 text-primary-600 shadow-xl
+          fixed inset-x-0 bottom-(--dock-stack) z-50 mx-auto
+          max-h-[calc(100dvh-var(--dock-stack)-var(--dock-gap))] max-w-sm
+          overflow-y-auto rounded-md border border-primary-200 bg-primary-50 p-4
+          text-primary-600 shadow-xl
           sm:max-w-xl
           md:px-6
           lg:max-w-4xl
@@ -248,35 +249,6 @@ defineExpose({
           </div>
         </div>
       </div>
-      <button
-        v-if="moduleOptions.isControlButtonEnabled && isConsentGiven"
-        :title="t('title')"
-        :aria-label="t('aria.region')"
-        data-testid="nuxt-cookie-control-control-button"
-        type="button"
-        class="
-          fixed bottom-[160px] left-[20px] size-[36px] cursor-pointer
-          rounded-full border border-primary-200 bg-primary-50 text-primary-900
-          transition duration-200
-          hover:bg-white hover:text-primary-700
-          focus:ring-primary-200
-          dark:border-primary-600 dark:bg-primary-800 dark:text-primary-100
-          dark:hover:bg-primary-700 dark:hover:text-white
-          dark:focus:ring-primary-700
-        "
-        @click="isModalActive = true"
-      >
-        <UIcon
-          name="i-unjs:cookie-es"
-          mode="svg"
-          class="
-            absolute top-1/2 left-1/2 max-h-[24px] min-h-[24px] max-w-[24px]
-            min-w-[24px] -translate-1/2 transform text-primary-600 transition
-            duration-200
-            dark:text-primary-100
-          "
-        />
-      </button>
     </ClientOnly>
     <LazyCookieModal v-if="isModalActive" />
   </aside>
@@ -284,20 +256,14 @@ defineExpose({
 
 <i18n lang="yaml">
 el:
-  title: Cookies
   accept: Αποδοχή
-  aria:
-    region: Ρυθμίσεις cookies
   banner:
     description: "Χρησιμοποιούμε cookies και παρόμοιες τεχνολογίες για να εξατομικεύσουμε το περιεχόμενο και να προσφέρουμε καλύτερη εμπειρία. Μπορείς να επιλέξεις την προσαρμογή τους κάνοντας κλικ στο κουμπί προσαρμογής. Υπηρεσίες που χρησιμοποιούμε με τη συγκατάθεσή σας: {services}."
     title: "\U0001F36A Γεια. Αυτός ο ιστότοπος χρησιμοποιεί Cookies \U0001F36A"
   decline: Απόρριψη
   manage_cookies: Ρυθμίσεις cookies
 en:
-  title: Cookies
   accept: Accept
-  aria:
-    region: Cookie settings
   banner:
     description: "We use cookies and similar technologies to personalise content and offer a better experience. You can customise them by clicking the customise button. Services we use with your consent: {services}."
     title: "\U0001F36A Hi. This site uses cookies \U0001F36A"

@@ -1,3 +1,95 @@
+## [3.341.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.4...v3.341.5) (2026-11-15)
+
+
+### Bug Fixes
+
+* **storefront:** contact h1, in-flight renders during a builder purge, Redis fallback, cross-tab sign-in, home CLS, fee-waiver docstring ([#479](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/479)) ([cdbb5dc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cdbb5dc5b5f14761dce4545308dc033c9919d25a)), closes [#446](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/446) [#453](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/453) [#419](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/419) [#454](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/454) [#461](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/461) [#467](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/467)
+
+## [3.341.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.3...v3.341.4) (2026-11-15)
+
+
+### Bug Fixes
+
+* **blog:** a comment by a deleted account parses and is signed as one ([#480](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/480)) ([9cc8828](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9cc8828724b29b0020fa698579ecf64e343e9287)), closes [vasilistotskas/grooveshop-django-api#709](https://github.com/vasilistotskas/grooveshop-django-api/issues/709) [vasilistotskas/grooveshop-django-api#682](https://github.com/vasilistotskas/grooveshop-django-api/issues/682)
+* **builder:** editor save feedback, list limit, clear control, share dialog and dark hero ([#478](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/478)) ([4a0dded](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a0ddedfb5f5b5092298c60fd5a32bae9c4af4ab)), closes [#448](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/448) [#450](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/450) [#451](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/451) [#468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/468) [#473](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/473)
+
+## [3.341.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.2...v3.341.3) (2026-11-14)
+
+
+### Bug Fixes
+
+* **blog:** a reply's parent and ancestors are parsed as the public author ([#477](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/477)) ([592b61d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/592b61d1a3c45bba6b93cd33c3998b60611fa191)), closes [grooveshop-django-api#680](https://github.com/grooveshop-django-api/issues/680)
+
+## [3.341.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.1...v3.341.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* **search:** one search per design, the results tab that has results, and a closed request answered 499 ([#476](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/476)) ([c221b0a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c221b0a9d6889b07a053e234511aac23687c1a64))
+
+## [3.341.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.0...v3.341.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* **builder:** editor icons in the server render, block-specific help, a computed accent heading, phone footer bars as drawn ([#475](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/475)) ([3a1f941](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3a1f94125ee673ced170fc2ef704c6c3d267d56e))
+
+# [3.341.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.1...v3.341.0) (2026-11-13)
+
+
+### Features
+
+* **builder:** the home blocks draw the design board's look, and webside's chrome and card follow it ([#474](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/474)) ([2e6775f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2e6775f41d0aa8d9c5b89766bdc3dbc310e59f9b))
+
+## [3.340.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.340.0...v3.340.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* **builder:** a changed theme can be published from the editor ([#471](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/471)) ([3c63c0b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3c63c0b5948cc9d76c6d04b682a681a6f18b9c28)), closes [#470](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/470) [#470](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/470)
+
+# [3.340.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.2...v3.340.0) (2026-11-13)
+
+
+### Features
+
+* **builder:** a newsletter heading colour, a phone list for articles, one newsletter form a page, gallery and form fixes ([#464](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/464)) ([1d58be0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1d58be0a00b1e8f6765b492afa38faa1da2aac39))
+
+## [3.339.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.1...v3.339.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* **favourites:** every heart shows the shopper's favourite, in both designs ([#459](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/459)) ([0fc5512](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0fc5512d5bf2e630deeb100764f82504e79f1284)), closes [#457](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/457) [#457](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/457)
+
+## [3.339.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.339.0...v3.339.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **blog:** an article's comments are in the server HTML, and what else the checks found ([#458](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/458)) ([889598a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/889598aee7ed8c18eb522bfeff0a3ec8ebf9c317)), closes [#452](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/452) [#452](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/452) [#456](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/456)
+
+# [3.339.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.338.0...v3.339.0) (2026-11-12)
+
+
+### Features
+
+* **webside:** one buy button from the theme, live category menus, two phone columns and a tab bar ([#455](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/455)) ([c6ac50d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c6ac50dc20659ef5bb743aad47a3aba699ece2f4)), closes [#447](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/447)
+
+# [3.338.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.2...v3.338.0) (2026-11-12)
+
+
+### Features
+
+* **builder:** a hero with picture and search, shopping promises, topic tiles, and sections forced light or dark ([#449](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/449)) ([d6ae5d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d6ae5d4888c6b365f9fc04f8495a70a661e1dab7)), closes [#447](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/447)
+
+## [3.337.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.1...v3.337.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* **product:** no low-stock hint when a product's threshold is 0 ([#444](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/444)) ([4a41552](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a41552f0185c47321fb651bf84c4e4d587a7396)), closes [#443](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/443)
+
 ## [3.337.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.337.0...v3.337.1) (2026-11-10)
 
 

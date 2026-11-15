@@ -98,6 +98,11 @@ watch(
     :size="size"
     :show-edges="isMobileOrTablet ? false : true"
     color="neutral"
-    :ui="{ list: 'flex-wrap justify-center' }"
+    :ui="{ list: 'flex-wrap justify-center',
+           item: `max-sm:min-h-11 max-sm:min-w-11`,
+           prev: `max-sm:min-h-11 max-sm:min-w-11`,
+           next: `max-sm:min-h-11 max-sm:min-w-11`,
+           first: `max-sm:min-h-11 max-sm:min-w-11`,
+           last: `max-sm:min-h-11 max-sm:min-w-11` }"
   />
 </template>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import * as z from 'zod'
-import { applyData, canonicalQuery, dataSites, planData } from '~~/shared/builder/data'
+import { applyData, canonicalQuery, dataSites, builderListCount, planData } from '~~/shared/builder/data'
 import { defineBlock } from '~~/shared/builder/defineBlock'
 import { builderField } from '~~/shared/builder/fields'
 import type { BuilderDocument, BuilderNode } from '~~/shared/types/builder'
@@ -96,6 +96,27 @@ describe('planData', () => {
 
     expect(plan.ids).toEqual({ product: [2, 4, 7], blogPost: [9], category: [5], blogCategory: [], media: [] })
     expect([...plan.queries.keys()]).toEqual([canonicalQuery('product', newest)])
+  })
+})
+
+describe('builderListCount', () => {
+  it('counts every list setting with a value, as Django holds a document to its limit: a hidden node, a repeat and a hand-picked list included', () => {
+    const document = documentOf({
+      a: node('rail@1', { products: newest, posts: { mode: 'picked', ids: [9] } }),
+      b: node('rail@1', { products: newest }, { disabled: true }),
+      c: node('rail@1', { products: { mode: 'picked', ids: [1] }, top: 5 }, { blocks: { s: node('slide@1', { product: 7 }) }, blockOrder: ['s'] }),
+      d: node('slide@1', {}),
+    })
+
+    expect(builderListCount(Object.values(document.sections), registry)).toBe(4)
+  })
+
+  it('counts the lists of the blocks inside a node', () => {
+    const inner = defineBlock({ type: 'inner', version: 1, kinds: ['block'], schema: z.object({ products: builderField.query('product', { onEmpty: 'hide' }) }) })
+    const outer = defineBlock({ type: 'outer', version: 1, kinds: ['section'], schema: z.object({}), children: { allowed: ['inner'] } })
+    const nested = new Map([inner, outer].map(block => [block.type, block]))
+
+    expect(builderListCount([node('outer@1', {}, { blocks: { x: node('inner@1', { products: newest }), y: node('inner@1', { products: newest }) }, blockOrder: ['x', 'y'] })], nested)).toBe(2)
   })
 })
 

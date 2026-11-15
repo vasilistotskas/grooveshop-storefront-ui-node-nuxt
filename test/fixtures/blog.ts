@@ -1,4 +1,4 @@
-import type { BlogAuthorDetail, BlogCategory, BlogComment, BlogPost, BlogTag } from '~~/shared/openapi/types.gen'
+import type { BlogAuthorDetail, BlogCategory, BlogComment, BlogCommentDetail, BlogPost, BlogTag } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -29,6 +29,34 @@ export function makeBlogComment(overrides: Partial<BlogComment> = {}): BlogComme
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(22, id),
+    ...overrides,
+  }
+}
+
+/**
+ * A `BlogCommentDetail` as Django answers a create, a read or a like toggle
+ * of one comment, valid against `zBlogCommentDetail` (proved by
+ * `test/unit/fixtures/blog.spec.ts`).
+ *
+ * Defaults: a reply (comment `id`, by user 1) to comment 1, which has
+ * the public author `makeBlogComment` has, and is itself a root: the
+ * `parentComment` and every `ancestorsPath` entry carry the PUBLIC author
+ * (`id`, `username`, `firstName`, `lastName`, `mainImagePath`), never the
+ * account's email or role flags (Django's `comment_response_contract` test).
+ * An explicit override wins.
+ */
+export function makeBlogCommentDetail(overrides: Partial<BlogCommentDetail> = {}): BlogCommentDetail {
+  const { user, ...comment } = makeBlogComment({ isReply: true, parent: 1, ...overrides })
+  // Comment 1's author: the public author makeBlogComment gives a comment.
+  const author = makeBlogComment({ id: 1 }).user
+  return {
+    ...comment,
+    user,
+    post: makeBlogPost(),
+    parentComment: { id: 1, contentPreview: 'Σχόλιο 1', user: author, createdAt: FIXTURE_TIMESTAMP },
+    childrenComments: [],
+    ancestorsPath: [{ id: 1, contentPreview: 'Σχόλιο 1', user: author }],
+    treePosition: { level: 1, treeId: 1, approvedDescendantsCount: 0, siblingsCount: 0 },
     ...overrides,
   }
 }

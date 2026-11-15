@@ -6,6 +6,8 @@ defineRouteRules({
 })
 definePageMeta({
   layout: 'default',
+  // Its path is a confirmation token: no sign-in page's address carries it back.
+  signInReturn: 'nowhere',
 })
 const tenantStore = useTenantStore()
 const body = computed(() => resolvePage('newsletter-confirm', tenantStore.schemaName))

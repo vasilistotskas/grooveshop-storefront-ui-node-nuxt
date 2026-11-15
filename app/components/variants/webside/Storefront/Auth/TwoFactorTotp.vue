@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/TwoFactorTotp')
 
 const items = computed(() => [
@@ -10,12 +12,12 @@ const items = computed(() => [
     icon: t('breadcrumb.items.index.icon'),
   },
   {
-    to: localePath('account-login'),
+    to: localePath(authLink('account-login')),
     label: t('breadcrumb.items.account-login.label'),
     icon: t('breadcrumb.items.account-login.icon'),
   },
   {
-    to: localePath('account-2fa-authenticate-totp'),
+    to: localePath(authLink('account-2fa-authenticate-totp')),
     label: t('breadcrumb.items.account-2fa-authenticate-totp.label'),
     icon: t('breadcrumb.items.account-2fa-authenticate-totp.icon'),
     current: true,

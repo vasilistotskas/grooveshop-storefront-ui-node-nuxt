@@ -49,10 +49,12 @@ describe('store features and preferences are read from the tenant payload alone'
     expect(offenders.map(label)).toEqual([])
   })
 
+  // A menu link reads its feature through the gated-routes table
+  // (`useGatedRoute`), which reads the tenant payload too.
   it('covers the webside tree (a canary, so the rule cannot skip it)', () => {
     const reads = files
       .filter(file => file.startsWith(WEBSIDE_DESIGN))
-      .reduce((sum, file) => sum + (text(file).match(/\b(useStoreFeature|useStorePreference)\(/g)?.length ?? 0), 0)
+      .reduce((sum, file) => sum + (text(file).match(/\b(useStoreFeature|useStorePreference|useGatedRoute)\(/g)?.length ?? 0), 0)
 
     expect(reads).toBeGreaterThan(25)
   })

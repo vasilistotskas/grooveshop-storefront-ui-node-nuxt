@@ -44,11 +44,10 @@ const routeName = computed(() => $routeBaseName(route))
 
 // Account pages get the user-area chrome (account info banner + sidebar
 // on lg+). Single layout, route-aware — replaces the old user.vue.
-const isAccountRoute = computed(() => {
-  const name = routeName.value
-  if (typeof name !== 'string') return false
-  return name === 'account' || name.startsWith('account-')
-})
+const isAccountRoute = computed(() => isAccountRouteName(routeName.value))
+// Whether the tab bar draws the Cart tab here: the one answer a design's
+// header reads too, so it draws its own cart button when the tab bar does not.
+const tabBarCart = useTabBarCart()
 
 // Auth-flow pages (login, signup, OAuth callback, password reset, MFA
 // challenge) live under /account/* but must NOT render the user chrome
@@ -69,17 +68,16 @@ const showUserChrome = computed(
   () => isAccountRoute.value && !onAuthFlowRoute.value && loggedIn.value && user.value,
 )
 
-// The webside design's tab bar is `fixed bottom-0` and nothing used to
-// reserve room for it, so it covered the end of the footer (merchant
-// identity + opening hours). Reserve its height — min-h-12 plus its
-// safe-area padding — only while it is rendered, and only below `lg`,
-// which is the breakpoint `MobileOrTabletOnly` (max-width: 1023px)
-// shows it at. A designed storefront's footer keeps its own last line
+// The webside design's tab bar and sticky add-to-cart bar are strips
+// along the screen's bottom edge, so they would cover the end of the
+// footer (merchant identity + opening hours). The footer keeps clear of
+// whatever the dock holds there (`--dock-*` in app/assets/css/main.css):
+// the bottom inset, plus each bar's height while it is on screen. A designed storefront's footer keeps its own last line
 // clear of its floating dock, so it gets no strip of ground under it.
 const footerClass = computed(() =>
-  mobileBottomNavEnabled.value && !resolveDesign(tenantStore.schemaName)
-    ? 'pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0'
-    : '',
+  resolveDesign(tenantStore.schemaName)
+    ? ''
+    : 'pb-[calc(var(--dock-inset)+var(--dock-tabbar)+var(--dock-bar))]',
 )
 </script>
 
@@ -142,7 +140,7 @@ const footerClass = computed(() =>
     <component
       :is="mobileNav"
       v-if="mobileBottomNavEnabled"
-      :include-cart="!isAccountRoute"
+      :include-cart="tabBarCart"
     />
     <ClientOnly>
       <component :is="assistant" />

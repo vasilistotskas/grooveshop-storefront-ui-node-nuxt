@@ -34,7 +34,7 @@ const props = defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
-const localePath = useLocalePath()
+const linkTo = useLinkTo()
 
 const imageFirst = computed(() => props.imagePosition !== 'right')
 
@@ -227,7 +227,7 @@ const bodyParts = computed(() => {
 
         <UButton
           v-if="ctaText && ctaLink"
-          :to="localePath(pathLocation(ctaLink))"
+          :to="linkTo(ctaLink)"
           :label="ctaText"
           color="secondary"
           size="lg"

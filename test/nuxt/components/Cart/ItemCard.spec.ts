@@ -102,6 +102,30 @@ describe('Cart/ItemCard (default)', () => {
     expect(removeButton(await mount(LINE, true)).text()).toBe('')
   })
 
+  // happy-dom lays nothing out: the classes are the contract. The page's phone column
+  // is 192px at 320 (its thumbnail, gaps and padding take the rest), so the 128px
+  // stepper and the 44px icon (184px with the gap) fit, and the word does not.
+  it('shows the word remove only from sm up, and gives the phone a 128px stepper beside a 44px icon', async () => {
+    const wrapper = await mount()
+
+    const word = removeButton(wrapper).findAll('span').find(span => span.text() === 'Αφαίρεση')!
+
+    expect(word.classes()).toContain('max-sm:hidden')
+    expect(removeButton(wrapper).classes()).toEqual(expect.arrayContaining(['max-sm:min-h-11', 'max-sm:min-w-11']))
+    expect(wrapper.findAll('div').some(div => div.classes().includes('max-sm:w-32'))).toBe(true)
+  })
+
+  it('keeps the compact remove button a square icon at every width, and the word of the page row visible from sm up', async () => {
+    const compact = removeButton(await mount(LINE, true)).classes()
+    const page = removeButton(await mount())
+
+    // A square button pads evenly (`p-1.5`); a labelled one pads along the row (`px-2.5`).
+    expect(compact).toContain('p-1.5')
+    expect(compact).not.toContain('px-2.5')
+    // Only the phone hides the word: no other class does.
+    expect(page.findAll('span').find(span => span.text() === 'Αφαίρεση')!.classes()).toEqual(['max-sm:hidden'])
+  })
+
   it('caps the quantity stepper at the product stock', async () => {
     const wrapper = await mount()
 

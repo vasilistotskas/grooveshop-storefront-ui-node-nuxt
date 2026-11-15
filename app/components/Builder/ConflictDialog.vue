@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { t, locale } = useStoreI18n('components/Builder/ConflictDialog')
-const { nodeLabel } = useBuilderLabels()
+const { nodeLabel, documentLabel } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
 
@@ -39,6 +39,8 @@ const changed = computed(() => {
 })
 
 const who = computed(() => conflict.value?.updatedBy?.name ?? t('someone'))
+/** The document saved in between, as the editor names it everywhere: the page, a section group or the theme. */
+const documentName = computed(() => conflict.value ? documentLabel(conflict.value.key) : '')
 
 async function keepMine(): Promise<void> {
   const key = conflict.value?.key
@@ -69,7 +71,7 @@ function loadTheirs(): void {
     :open="conflict !== undefined"
     :dismissible="false"
     :close="false"
-    :title="t('title', { name: who })"
+    :title="t('title', { name: who, document: documentName })"
     :description="t('description')"
   >
     <template #body>
@@ -127,7 +129,7 @@ function loadTheirs(): void {
 <i18n lang="yaml">
 el:
   someone: Κάποιος άλλος
-  title: "Η σελίδα αποθηκεύτηκε στο μεταξύ από: {name}"
+  title: "{document}: αποθηκεύτηκε στο μεταξύ από: {name}"
   description: Οι τελευταίες σας αλλαγές δεν αποθηκεύτηκαν. Διαλέξτε ποια εκδοχή θα κρατήσετε.
   savedAt: "Αποθηκεύτηκε:"
   changed: "Οι δύο εκδοχές διαφέρουν σε:"
@@ -136,7 +138,7 @@ el:
   loadTheirs: Φόρτωσε την αποθηκευμένη
 en:
   someone: Someone else
-  title: "{name} saved this page in the meantime"
+  title: "{name} saved {document} in the meantime"
   description: Your latest changes were not saved. Choose which version to keep.
   savedAt: "Saved:"
   changed: "The two versions differ in:"

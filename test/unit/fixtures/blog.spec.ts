@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zBlogAuthorDetail, zBlogCategory, zBlogComment, zBlogPost, zBlogTag } from '~~/shared/openapi/zod.gen'
-import { makeBlogAuthor, makeBlogCategory, makeBlogComment, makeBlogPost, makeBlogTag } from '~~/test/fixtures/blog'
+import { zBlogAuthorDetail, zBlogCategory, zBlogComment, zBlogCommentDetail, zBlogPost, zBlogTag } from '~~/shared/openapi/zod.gen'
+import { makeBlogAuthor, makeBlogCategory, makeBlogComment, makeBlogCommentDetail, makeBlogPost, makeBlogTag } from '~~/test/fixtures/blog'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -21,6 +21,40 @@ describe('makeBlogComment', () => {
     expect(problems(zBlogComment, reply)).toEqual([])
     expect(reply).toMatchObject({ id: 4, parent: 1, translations: { el: { content: 'Σχόλιο 4' } } })
     expect(reply.uuid).not.toBe(makeBlogComment().uuid)
+  })
+})
+
+describe('makeBlogCommentDetail', () => {
+  it('builds a reply whose parent and ancestors carry the public author, and parses through zBlogCommentDetail', () => {
+    const reply = makeBlogCommentDetail({ id: 5 })
+
+    expect(problems(zBlogCommentDetail, reply)).toEqual([])
+    expect(Object.keys(reply.parentComment!.user!).sort()).toEqual(['firstName', 'id', 'lastName', 'mainImagePath', 'username'])
+    expect(Object.keys(reply.ancestorsPath[0]!.user!).sort()).toEqual(['firstName', 'id', 'lastName', 'mainImagePath', 'username'])
+  })
+})
+
+/**
+ * A comment outlives its author's account (Django's `user` is SET_NULL):
+ * Django then sends `user: null` for the comment, and for a reply whose
+ * parent or ancestor that author wrote, `null` as that entry's `user`.
+ * Before the schema declared it, one such comment answered the whole
+ * page of comments with a 422.
+ */
+describe('a comment by a deleted account', () => {
+  it('parses through zBlogComment with no author', () => {
+    expect(problems(zBlogComment, makeBlogComment({ user: null }))).toEqual([])
+  })
+
+  it('parses through zBlogCommentDetail as a reply whose parent and ancestor have no author', () => {
+    const reply = makeBlogCommentDetail({
+      id: 5,
+      user: null,
+      parentComment: { id: 1, contentPreview: 'Σχόλιο 1', user: null, createdAt: makeBlogComment().createdAt },
+      ancestorsPath: [{ id: 1, contentPreview: 'Σχόλιο 1', user: null }],
+    })
+
+    expect(problems(zBlogCommentDetail, reply)).toEqual([])
   })
 })
 

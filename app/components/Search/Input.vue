@@ -12,11 +12,26 @@
  * The visible field's accessible name is its own text plus the key
  * hint; only the icon-only button needs an `aria-label` (WCAG 2.5.3
  * Label in Name — Lighthouse `label-content-name-mismatch`).
+ *
+ * The keyboard shortcuts belong to ONE field of the page
+ * (`useSearchShortcut`): the header's (`compact`) when there is one, else
+ * the first section field. Only that field shows the key hint and states
+ * `aria-keyshortcuts`.
  */
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   compact?: boolean
+  /** The field's own wording, in place of "Search the shop" (a hero's question). */
+  placeholder?: string
+  /**
+   * `lg` is a hero's field: 50px tall on a phone and 52px from `sm` up, in
+   * body-size type, with a «Search» button beside it from `sm` up that opens
+   * the same palette. Not for the header (`compact`).
+   */
+  size?: 'md' | 'lg'
 }>(), {
   compact: false,
+  placeholder: undefined,
+  size: 'md',
 })
 
 const { t } = useStoreI18n('components/Search/Input')
@@ -35,19 +50,12 @@ function openSearchModal() {
   isModalOpen.value = true
 }
 
-defineShortcuts({
-  'meta_k': {
-    handler: () => {
-      openSearchModal()
-    },
-  },
-  '/': {
-    usingInput: false,
-    handler: () => {
-      openSearchModal()
-    },
-  },
-})
+const { owner } = useSearchShortcut(props.compact, openSearchModal)
+
+const KEY_SHORTCUTS = 'Control+K Meta+K /'
+
+const label = computed(() => props.placeholder || t('search.placeholder'))
+const large = computed(() => !props.compact && props.size === 'lg')
 </script>
 
 <template>
@@ -55,6 +63,7 @@ defineShortcuts({
     :class="[
       'flex items-center',
       compact ? 'min-w-0' : 'w-full',
+      large && 'gap-2',
     ]"
   >
     <UButton
@@ -63,23 +72,70 @@ defineShortcuts({
       color="neutral"
       variant="ghost"
       square
-      class="lg:hidden"
-      :aria-label="t('search.placeholder')"
-      aria-keyshortcuts="Control+K Meta+K /"
+      class="
+        max-sm:min-h-11 max-sm:min-w-11
+        lg:hidden
+      "
+      :aria-label="label"
+      :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     />
 
+    <!-- A hero's field: white on any band, body-size type, and its own
+         button beside it that opens the same palette (a phone has no room
+         for it beside a 50px field). The field is the one control a keyboard
+         or a screen reader meets: the button repeats it for a pointer, so it
+         takes no tab stop and is hidden from assistive tech. -->
+    <template v-if="large">
+      <UButton
+        color="neutral"
+        variant="solid"
+        class="
+          h-12.5 min-w-0 flex-1 justify-start gap-2.5 bg-default ps-3.5
+          text-base font-normal text-muted
+          hover:bg-default
+          sm:h-13 sm:ps-4
+        "
+        :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
+        @click="openSearchModal"
+      >
+        <UIcon
+          name="i-lucide-search"
+          class="size-5 shrink-0"
+        />
+        <span class="flex-1 truncate text-start">
+          {{ label }}
+        </span>
+      </UButton>
+      <UButton
+        :label="t('search.submit')"
+        color="secondary"
+        size="xl"
+        tabindex="-1"
+        aria-hidden="true"
+        class="
+          h-13 shrink-0 px-5.5 text-base font-semibold
+          max-sm:hidden
+        "
+        @click="openSearchModal"
+      />
+    </template>
     <UButton
+      v-else
       color="neutral"
       variant="outline"
       :class="[
-        'h-10.5 justify-start gap-2 px-3.5 text-sm font-medium text-muted',
+        'justify-start gap-2 px-3.5 text-sm font-medium text-muted',
+        // A section's field is a target of at least 44px on a phone.
         compact ? `
-          hidden w-75 min-w-36
+          hidden h-10.5 w-75 min-w-36
           lg:flex
-        ` : 'w-full',
+        ` : `
+          h-11 w-full
+          sm:h-10.5
+        `,
       ]"
-      aria-keyshortcuts="Control+K Meta+K /"
+      :aria-keyshortcuts="owner ? KEY_SHORTCUTS : undefined"
       @click="openSearchModal"
     >
       <UIcon
@@ -87,9 +143,12 @@ defineShortcuts({
         class="size-4 shrink-0"
       />
       <span class="flex-1 truncate text-start">
-        {{ t('search.placeholder') }}
+        {{ label }}
       </span>
-      <span class="flex shrink-0 items-center gap-0.5">
+      <span
+        v-if="owner"
+        class="flex shrink-0 items-center gap-0.5"
+      >
         <UKbd value="meta" />
         <UKbd value="K" />
       </span>
@@ -107,7 +166,9 @@ defineShortcuts({
 el:
   search:
     placeholder: Αναζήτηση στο κατάστημα
+    submit: Αναζήτηση
 en:
   search:
     placeholder: Search the shop
+    submit: Search
 </i18n>

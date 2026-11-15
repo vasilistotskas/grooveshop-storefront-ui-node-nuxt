@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
-import { getQuery } from 'h3'
 
 export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
@@ -32,18 +31,5 @@ export default defineCachedRoute(async (event) => {
   maxAge: 60 * 5, // 5 minutes
   staleMaxAge: 60 * 30, // serve stale up to 30 min while revalidating
   swr: true,
-  getKey: (event) => {
-    const query = getQuery(event)
-    const keyParts = [
-      query.pageSize || '250',
-      query.languageCode || 'el',
-      // Distinct cache entry for the shippable-only list (checkout,
-      // address book) vs. the full list (account profile) — same
-      // query params otherwise, different response bodies.
-      query.shippable ?? 'all',
-      query.hasPhoneCode ?? 'any',
-      query.pagination ?? 'true',
-    ]
-    return tenantCacheKey(event, `countries:${keyParts.join(':')}`)
-  },
+  getKey: event => tenantCacheKey(event, `countries:${queryCacheKey(event, zListCountryQuery)}`),
 })

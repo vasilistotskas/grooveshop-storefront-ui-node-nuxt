@@ -20,8 +20,7 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
   // useBlogPostPage), and a hook has no component instance to belong to.
   const tenantStore = useTenantStore()
   const productReviewsEnabled = useStoreFeature('productReviews')
-  const { user, loggedIn } = useUserSession()
-  const { getFavouriteIdByProductId, updateFavouriteProducts } = useUserStore()
+  const { getFavouriteIdByProductId } = useUserStore()
   const { transformImages } = useHtmlContent()
   const img = useMediaStreamImage()
   const localePath = useLocalePath()
@@ -160,37 +159,6 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
     })
   })
 
-  // User-specific data: client-side only. The trigger is deferred to
-  // ``onMounted`` — not called during setup — because Nuxt's payload
-  // cache can resolve this synchronously during hydration (same key from
-  // a prior navigation), which would populate the store before the heart
-  // button hydrates and produce a ``Hydration mismatch`` that Vue **does
-  // not rectify in production**. Triggering after mount keeps SSR and the
-  // initial client render identical, so the subsequent store update
-  // flows through the normal reactive patch path.
-  const { execute: fetchFavourites } = useLazyApi('/api/products/favourites/favourites-by-products', {
-    key: `favouritesByProducts${user.value?.id}`,
-    method: 'POST',
-    body: {
-      productIds: [Number(productId)],
-    },
-    // `watch: false` for the same reason as Products/List.vue: nothing
-    // here is reactive today, but that is one edit away from refetching
-    // an auth-required endpoint for anonymous visitors.
-    watch: false,
-    server: false,
-    immediate: false,
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const favourites = response._data
-      if (favourites) {
-        updateFavouriteProducts(favourites)
-      }
-    },
-  })
-
   // Meta/TikTok/OpenAI pixels and GA4 report the view once per page
   // mount, on the client only, so the prerender pass never produces a
   // phantom event (no server-side leg for any of them).
@@ -248,10 +216,6 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
   }
 
   onMounted(() => {
-    watchEffect(() => {
-      if (loggedIn.value) fetchFavourites()
-    })
-
     reportView()
 
     // The recently-viewed history lives in localStorage, so it is written

@@ -14,7 +14,7 @@ export default defineNuxtPlugin({
       return
     }
 
-    const { fetch, clear } = useUserSession()
+    const { fetch, clear, user } = useUserSession()
     const authStore = useAuthStore()
     const userStore = useUserStore()
     const userNotificationStore = useUserNotificationStore()
@@ -30,6 +30,18 @@ export default defineNuxtPlugin({
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
       authState.value,
     )
+
+    // The account state (favourites, likes, the account) belongs to the user
+    // it was built for. A sign-out resets it (`handleLoggedOut`), here or,
+    // through the logout broadcast (`websocket.client.ts`), in another tab.
+    // A tab that missed that broadcast (no BroadcastChannel, or asleep) can
+    // still take another user's session from an allauth answer: `fetch()`
+    // below swaps the user with no sign-out event, so the swap itself resets
+    // the state. Not on a sign-in from a guest or on a sign-out: those have
+    // their own handlers.
+    watch(() => user.value?.id, (id, previous) => {
+      if (id !== undefined && previous !== undefined && id !== previous) clearAccountState()
+    })
 
     nuxtApp.hook('auth:change', async ({ detail: newAuthState, explicit }) => {
       authState.value = newAuthState
@@ -141,15 +153,10 @@ export default defineNuxtPlugin({
     async function handleLoggedIn() {
       try {
         const router = useRouter()
-        const route = router.currentRoute.value
-        const localePath = useLocalePath()
-        const returnToPath = safeRelativePath(route.query.next?.toString())
-        const loginPath = localePath(RedirectToURLs.LOGIN_URL)
-        const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
-        const redirectTo = isRedirectingToLogin || !returnToPath
-          ? RedirectToURLs.LOGIN_REDIRECT_URL
-          : returnToPath as keyof RouteMapI18n
-        return await navigateToUrl({ path: redirectTo })
+        // `returnPath` drops a destination off the store and one that is
+        // an auth page itself (no return to the sign-in form).
+        const returnToPath = returnPath(router.currentRoute.value.query.next) as keyof RouteMapI18n | undefined
+        return await navigateToUrl({ path: returnToPath ?? RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
         log.error({ action: 'auth:loggedIn', error })
@@ -159,7 +166,7 @@ export default defineNuxtPlugin({
     async function handleReauthenticated() {
       try {
         const router = useRouter()
-        const safeNext = safeRelativePath(router.currentRoute.value.query.next?.toString()) as keyof RouteMapI18n | undefined
+        const safeNext = returnPath(router.currentRoute.value.query.next) as keyof RouteMapI18n | undefined
         return await navigateToUrl({ path: safeNext || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
@@ -169,11 +176,11 @@ export default defineNuxtPlugin({
 
     async function handleReauthenticationRequired() {
       try {
-        const next = useRouter().currentRoute.value.fullPath
+        const next = returnTarget(useRouter().currentRoute.value)
         const flowPath = getReauthenticationFlowPath(authState.value)
         if (flowPath) {
           log.info('auth', 'Navigating to reauthentication flow')
-          return await navigateToUrl({ path: flowPath, query: { next } })
+          return await navigateToUrl({ path: flowPath, query: next ? { next } : undefined })
         }
         else {
           log.warn('auth', 'No reauthentication flow found')

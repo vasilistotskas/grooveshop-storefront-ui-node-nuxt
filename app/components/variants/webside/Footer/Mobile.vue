@@ -4,11 +4,10 @@ import type { AccordionItem } from '#ui/types'
 const localePath = useLocalePath()
 const { columns } = useFooterLinks()
 
+// The label alone, as the board draws the bars: no leading icon. The
+// columns keep their icons for whoever else reads them.
 const items = computed<AccordionItem[]>(() =>
-  columns.value.map(column => ({
-    label: column.label,
-    icon: column.icon,
-  })),
+  columns.value.map(column => ({ label: column.label })),
 )
 </script>
 
@@ -48,11 +47,14 @@ const items = computed<AccordionItem[]>(() =>
     <UAccordion
       :items="items"
       :unmount-on-hide="false"
+      class="flex flex-col gap-2 px-4 pt-6"
       :ui="{
-        trigger: 'gap-3 bg-(--ui-secondary) px-3 py-2.5',
-        leadingIcon: 'size-5 text-(--ui-on-secondary)',
-        label: 'truncate text-base font-medium text-(--ui-on-secondary)',
-        trailingIcon: 'size-4 text-(--ui-on-secondary)',
+        item: 'border-0',
+        trigger: 'min-h-12 gap-3 rounded-md bg-(--ui-secondary) px-4 py-2.5',
+        label: `
+          truncate text-[0.9375rem] font-semibold text-(--ui-on-secondary)
+        `,
+        trailingIcon: 'size-4.5 text-(--ui-on-secondary)',
       }"
     >
       <template #body="{ index }">
@@ -91,9 +93,13 @@ const items = computed<AccordionItem[]>(() =>
          flush against the last accordion bar and ran off the bottom
          edge of the page (no bottom padding, and the fixed mobile
          bottom nav overlapped them when enabled). -->
-    <div class="flex flex-col items-center gap-2 px-4 text-center">
+    <div class="flex flex-col items-center gap-2 px-4 pt-3 text-center">
       <WebsideMerchantIdentity />
       <WebsideFooterHoursBadge />
     </div>
+    <WebsideFooterLegal
+      stacked
+      class="px-4 pt-3 pb-6"
+    />
   </footer>
 </template>

@@ -181,7 +181,7 @@ const CHIP = 'bg-(--ui-text-inverted)/10 text-inverted ring-0'
           >
             <ULink
               :to="item.to"
-              :aria-current="item.active ? 'page' : undefined"
+              :aria-current="item.current"
               raw
               class="
                 flex items-center gap-3 rounded-[0.875rem] px-3.5 py-3

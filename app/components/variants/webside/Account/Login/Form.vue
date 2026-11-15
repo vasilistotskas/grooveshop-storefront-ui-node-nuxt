@@ -2,6 +2,8 @@
 const config = useRuntimeConfig()
 const { t } = useStoreI18n('components/variants/webside/Account/Login/Form')
 const localePath = useLocalePath()
+// Links between auth pages keep the destination the shopper came with.
+const { authLink } = useAuthLinks()
 const { isMobileOrTablet } = useDevice()
 const tenantStore = useTenantStore()
 const isPlatform = useIsPlatformTenant()
@@ -154,7 +156,7 @@ const { schema, state, isSubmitting, onSubmit } = useLogin()
               >
                 <UButton
                   :label="t('use.code')"
-                  :to="localePath('account-login-code')"
+                  :to="localePath(authLink('account-login-code'))"
                   class="p-0 font-semibold"
                   color="secondary"
                   size="md"
@@ -164,7 +166,7 @@ const { schema, state, isSubmitting, onSubmit } = useLogin()
                 <UButton
                   class="p-0 font-semibold"
                   :label="t('forgot.password.reset')"
-                  :to="localePath('account-password-reset')"
+                  :to="localePath(authLink('account-password-reset'))"
                   size="md"
                   color="secondary"
                   type="button"
@@ -182,7 +184,7 @@ const { schema, state, isSubmitting, onSubmit } = useLogin()
                   <UButton
                     class="p-0 font-semibold underline"
                     :label="t('register')"
-                    :to="localePath('account-signup')"
+                    :to="localePath(authLink('account-signup'))"
                     size="lg"
                     color="secondary"
                     type="button"

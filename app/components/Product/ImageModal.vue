@@ -9,20 +9,24 @@
  * pointer and the pointer then pans it; a second click lets go. While it
  * is magnified the carousel stops taking drags, so panning does not
  * swipe to the next photograph.
+ *
+ * The photograph shown is the gallery's own (`v-model:index`): the viewer
+ * opens on it, and the gallery is on whichever one the viewer closes on.
  */
 const props = defineProps<{
   images: ProductImage[]
-  initialIndex: number
   productName: string
 }>()
 
 const open = defineModel<boolean>({ required: true })
+const active = defineModel<number>('index', { required: true })
 
 const { t } = useStoreI18n('components/Product/ImageModal')
 const altOf = useProductImageAlt(() => props.images, () => props.productName)
 
 const carousel = useTemplateRef('carousel')
-const active = ref(props.initialIndex)
+/** Where the carousel opens. Embla reads it once; bound to `active`, every move would re-initialise it. */
+const startIndex = active.value
 const zoomed = ref(false)
 
 // The active photograph fills the carousel's viewport, so the pointer's
@@ -38,15 +42,23 @@ const zoomOrigin = computed(() => {
 
 const hasMany = computed(() => props.images.length > 1)
 
+// `active` is the one place the photograph shown is decided: the arrows,
+// the keys and the thumbnails set it, a swipe sets it through `select`,
+// and the carousel follows it.
 function go(index: number) {
   if (index < 0 || index >= props.images.length) return
-  carousel.value?.emblaApi?.scrollTo(index)
+  active.value = index
 }
 
 function onSelect(index: number) {
   active.value = index
-  zoomed.value = false
 }
+
+watch(active, (index) => {
+  zoomed.value = false
+  const embla = carousel.value?.emblaApi
+  if (embla && embla.selectedScrollSnap() !== index) embla.scrollTo(index)
+})
 
 defineShortcuts({
   arrowleft: { usingInput: false, handler: () => go(active.value - 1) },
@@ -112,7 +124,7 @@ const ARROW = 'bg-transparent text-white ring-white/20 hover:bg-white/10 disable
           ref="carousel"
           v-slot="{ item }"
           :items="images"
-          :start-index="initialIndex"
+          :start-index="startIndex"
           :watch-drag="!zoomed"
           :class="FRAME"
           :ui="{ container: 'ms-0', item: 'ps-0' }"

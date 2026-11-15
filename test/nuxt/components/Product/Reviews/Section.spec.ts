@@ -146,7 +146,8 @@ describe('Product/Reviews/Section', () => {
 
       await vi.waitFor(() => expect(navigateToMock).toHaveBeenCalledOnce())
       const next = new URL(navigateToMock.mock.calls[0]![0] as string, 'http://shop.test').searchParams.get('next')
-      expect(next).toBe('/products/42/pot?variant=3#write-review')
+      // The page's path and the place: the product page keeps no query (`returnTarget`).
+      expect(next).toBe('/products/42/pot#write-review')
     })
 
     it('waits for the session before choosing, since a cached page knows no shopper', async () => {
@@ -191,7 +192,7 @@ describe('Product/Reviews/Section', () => {
       expect(link.element.tagName).toBe('A')
       const next = new URL(link.attributes('href')!, 'http://shop.test').searchParams.get('next')
       // The page's own fragment is replaced, its query is kept.
-      expect(next).toBe('/products/42/pot?variant=3#reviews')
+      expect(next).toBe('/products/42/pot#reviews')
     })
 
     it('has no review of their own to fetch', async () => {

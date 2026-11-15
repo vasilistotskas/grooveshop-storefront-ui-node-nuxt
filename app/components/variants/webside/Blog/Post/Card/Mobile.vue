@@ -113,7 +113,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         <h2
           class="
             absolute right-0 bottom-12 grid w-full justify-center
-            justify-items-start
+            justify-items-start wrap-anywhere
           "
         >
           <span

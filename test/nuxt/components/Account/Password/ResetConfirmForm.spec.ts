@@ -70,10 +70,12 @@ describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/P
     expect(navigateToMock).not.toHaveBeenCalled()
   })
 
+  // With the destination the shopper had (`useAuthLinks().authLink`); at
+  // `/` that is the page itself.
   it('sends a visitor without a key back to request a new link', async () => {
     await mountForm('/')
 
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-password-reset'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()({ name: 'account-password-reset', query: { next: '/' } }))
   })
 
   it('resets the password with the key, then sends the shopper to sign in', async () => {

@@ -1,6 +1,6 @@
 import type { ZodObject } from 'zod'
 
-import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING, DATA_RECORD_KINDS, DATA_SOURCES, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS } from '../constants/builder'
+import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING, DATA_RECORD_KINDS, DATA_SOURCES, LINK_REF_KINDS, LINK_ROUTES, LINK_SLUG_KINDS, SECTION_COLOR_SCHEMES } from '../constants/builder'
 import type { BlockUpgradeFailure } from '../builder/upgrade'
 import type { StoreFeatureName } from '../utils/storeFeature'
 import type { BUILDER_BLOCK_CATEGORIES } from '../constants/builderEditor'
@@ -12,6 +12,7 @@ export type LinkRefKind = (typeof LINK_REF_KINDS)[number]
 export type DataSource = (typeof DATA_SOURCES)[number]
 export type DataRecordKind = (typeof DATA_RECORD_KINDS)[number]
 export type DataMissing = (typeof DATA_MISSING)[number]
+export type SectionColorScheme = (typeof SECTION_COLOR_SCHEMES)[number]
 
 /**
  * What a data setting is and what the page does without its data: a record
@@ -312,6 +313,8 @@ export interface LinkTargets {
   /** Current slug of each product, category, blog post and blog category the page names. */
   slugs: Readonly<Record<LinkSlugKind, ReadonlyMap<number, string>>>
   published: PublishedTargets
+  /** The paths the store's switched-off features take away (`blockedFeaturePaths`): a link that lands on one leads to a 404. */
+  blocked: ReadonlySet<string>
 }
 
 // ── The rendered page ──────────────────────────────────────────────

@@ -4,13 +4,29 @@
       "label": "About us"
     },
     "blog_categories": {
-      "label": "Blog categories"
+      "label": "Blog categories",
+      "settings": {
+        "look": {
+          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. A slider of categories keeps its usual look."
+        }
+      }
     },
     "blog_posts_carousel": {
       "label": "Blog post carousel"
     },
     "blog_posts_grid": {
-      "label": "Blog post grid"
+      "label": "Blog post grid",
+      "settings": {
+        "icon": {
+          "help": "Shown by the Card with posts layout only."
+        },
+        "layout": {
+          "help": "Card with posts: the heading, the Icon and the posts in one tinted card; Background, Style, Layout on a phone and Load more button do not apply."
+        },
+        "look": {
+          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. With the Load more button the band keeps its usual look."
+        }
+      }
     },
     "blog_posts_list": {
       "label": "Blog post list"
@@ -62,6 +78,9 @@
     },
     "hero_carousel": {
       "label": "Hero carousel"
+    },
+    "hero_showcase": {
+      "label": "Hero with picture and search"
     },
     "hero_slide": {
       "label": "Slide"
@@ -132,6 +151,14 @@
     "stats_strip": {
       "label": "Figures"
     },
+    "store_assurances": {
+      "label": "Shopping promises",
+      "settings": {
+        "layout": {
+          "help": "Card: the promises on one raised card, which rises over a bold band right above it; its heading is read out to screen readers only, and Background does not apply."
+        }
+      }
+    },
     "story_timeline": {
       "label": "Our story"
     },
@@ -159,6 +186,21 @@
     "why_microlearning": {
       "label": "Why microlearning"
     }
+  },
+  "contrastRules": {
+    "body-text-light": "Text, light",
+    "body-text-dark": "Text, dark",
+    "muted-text-light": "Secondary text, light",
+    "muted-text-dark": "Secondary text, dark",
+    "action-light": "Buttons, light",
+    "action-dark": "Buttons, dark",
+    "accent-light": "Accent, light",
+    "accent-dark": "Accent, dark",
+    "accent-muted-light": "Accent on the muted ground, light",
+    "accent-muted-dark": "Accent on the muted ground, dark"
+  },
+  "documents": {
+    "theme": "Theme: colours, corners, fonts"
   },
   "groups": {
     "header": "Header, on every page",
@@ -221,6 +263,14 @@
     "categories": {
       "label": "What it lists"
     },
+    "categoryTile": {
+      "label": "Category tile",
+      "help": "A last tile in the grid listing the shop's categories and how many products each holds, on a computer. Empty: no tile."
+    },
+    "colorScheme": {
+      "label": "Colour scheme",
+      "help": "Light or dark in both of the page's colour modes. Default: as the page."
+    },
     "columns": {
       "label": "Columns"
     },
@@ -258,6 +308,14 @@
     "heading": {
       "label": "Heading"
     },
+    "headingAccent": {
+      "label": "Heading, second line",
+      "help": "Drawn in the accent colour, as part of the same heading."
+    },
+    "headingColor": {
+      "label": "Heading colour",
+      "help": "Accent: the theme's accent colour, as the second line of the hero section. Default: the heading colour."
+    },
     "height": {
       "label": "Height"
     },
@@ -277,6 +335,9 @@
       "label": "Decorative image",
       "help": "Turn on when the image adds nothing a screen reader user needs. Leaving the description empty does not do this: choose it here."
     },
+    "imageLink": {
+      "label": "Picture link"
+    },
     "imagePosition": {
       "label": "Image position"
     },
@@ -295,6 +356,10 @@
     "loadMore": {
       "label": "Load more button",
       "help": "Shows a button that adds the next posts of the same list, when it has more than the band shows."
+    },
+    "look": {
+      "label": "Style",
+      "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had."
     },
     "marquee": {
       "label": "Scrolling row"
@@ -323,6 +388,14 @@
     "page": {
       "label": "Page"
     },
+    "phoneLayout": {
+      "label": "Layout on a phone",
+      "help": "List: on a phone, rows with a small picture, the category, the reading time and the title. Default: a row to swipe. Larger screens are the same either way."
+    },
+    "phoneLimit": {
+      "label": "How many on a phone",
+      "help": "A phone shows only the first ones. Empty: all of them. Larger screens are unchanged."
+    },
     "placeholder": {
       "label": "Placeholder"
     },
@@ -331,7 +404,7 @@
     },
     "product": {
       "label": "Product",
-      "help": "The product the slide shows, with its price."
+      "help": "One product shown with its price, linked to its page."
     },
     "products": {
       "label": "What it lists"
@@ -366,6 +439,10 @@
     "route": {
       "label": "Store page"
     },
+    "searchPlaceholder": {
+      "label": "Search field text",
+      "help": "The question inside the field. Empty: “Search the shop”."
+    },
     "secondaryCtaLink": {
       "label": "Second button link"
     },
@@ -374,6 +451,10 @@
     },
     "showAddToCart": {
       "label": "Add to cart button"
+    },
+    "showSearch": {
+      "label": "Search field",
+      "help": "Shown only when the store has a product catalogue."
     },
     "showsMerchantIdentity": {
       "label": "Business details"
@@ -427,6 +508,10 @@
       "muted": "Muted",
       "ink": "Dark"
     },
+    "colorScheme": {
+      "light": "Light",
+      "dark": "Dark"
+    },
     "variant": {
       "line": "Line",
       "thread": "Woven strip"
@@ -459,7 +544,9 @@
     "layout": {
       "slider": "Slider",
       "grid": "Grid",
-      "tiles": "Tiles"
+      "tiles": "Tiles",
+      "card": "Card",
+      "feature": "Card with posts"
     },
     "height": {
       "sm": "Small",
@@ -472,6 +559,55 @@
       "shipping": "Shipping",
       "ai": "AI assistants",
       "custom": "Your own"
+    },
+    "headingColor": {
+      "accent": "Accent"
+    },
+    "phoneLayout": {
+      "list": "List"
+    },
+    "look": {
+      "bold": "Bold"
+    },
+    "icon": {
+      "i-fa6-solid-desktop": "Desktop computer",
+      "i-fa6-solid-globe": "Globe",
+      "i-fa6-solid-microchip": "Microchip",
+      "i-fa6-solid-mobile": "Mobile phone",
+      "i-fa6-solid-network-wired": "Wired network",
+      "i-fa6-solid-robot": "Robot",
+      "i-fa6-solid-shield": "Shield, solid",
+      "i-fa6-solid-shuffle": "Shuffle",
+      "i-heroicons-arrow-uturn-left": "Return arrow",
+      "i-heroicons-briefcase": "Briefcase",
+      "i-heroicons-building-storefront": "Storefront",
+      "i-heroicons-chat-bubble-left-right": "Conversation",
+      "i-heroicons-globe-europe-africa": "Globe, Europe",
+      "i-heroicons-hand-raised": "Raised hand",
+      "i-heroicons-information-circle": "Information",
+      "i-heroicons-lifebuoy": "Lifebuoy",
+      "i-heroicons-light-bulb": "Light bulb",
+      "i-heroicons-lock-closed": "Padlock",
+      "i-heroicons-rectangle-group": "Sections",
+      "i-heroicons-shield-check": "Shield with check, rounded",
+      "i-heroicons-shopping-bag": "Shopping bag",
+      "i-heroicons-sparkles": "Sparkles",
+      "i-heroicons-sun": "Sun",
+      "i-heroicons-truck": "Truck",
+      "i-lucide-battery-charging": "Battery charging",
+      "i-lucide-code": "Code",
+      "i-lucide-cpu": "Processor",
+      "i-lucide-drafting-compass": "Drafting compass",
+      "i-lucide-gauge": "Gauge",
+      "i-lucide-graduation-cap": "Graduation cap",
+      "i-lucide-hard-hat": "Hard hat",
+      "i-lucide-radio": "Radio",
+      "i-lucide-shield": "Shield",
+      "i-lucide-shield-check": "Shield with check",
+      "i-lucide-sliders-horizontal": "Sliders",
+      "i-lucide-traffic-cone": "Traffic cone",
+      "i-lucide-wrench": "Wrench",
+      "i-lucide-zap": "Lightning"
     }
   },
   "routes": {
@@ -561,6 +697,7 @@
     "promotions": "promotions",
     "blog": "the blog",
     "newsletter": "the newsletter",
-    "catalogue": "the product catalogue"
+    "catalogue": "the product catalogue",
+    "cart": "the cart"
   }
 }

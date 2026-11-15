@@ -163,13 +163,19 @@ const storeName = computed(() => tenantStore.storeName || '')
               {{ storeDescription }}
             </p>
             <FooterHoursBadge />
-            <div class="flex flex-wrap gap-5 text-sm">
+            <div
+              class="
+                flex flex-wrap gap-5 text-sm
+                max-sm:gap-y-0
+              "
+            >
               <a
                 v-if="identity?.phone"
                 :href="`tel:${identity.phone}`"
                 class="
                   flex items-center gap-2
                   hover:underline
+                  max-sm:min-h-11
                 "
               >
                 <UIcon
@@ -183,6 +189,7 @@ const storeName = computed(() => tenantStore.storeName || '')
                 class="
                   flex items-center gap-2
                   hover:underline
+                  max-sm:min-h-11
                 "
               >
                 <UIcon
@@ -219,10 +226,14 @@ const storeName = computed(() => tenantStore.storeName || '')
               lg:grid
             `,
             label: 'text-xs font-bold tracking-wider text-muted uppercase',
-            list: 'mt-3 space-y-3',
+            list: `
+              mt-3 space-y-3
+              max-sm:space-y-0
+            `,
             link: `
               text-[0.9375rem] font-semibold text-default
               hover:text-highlighted
+              max-sm:flex max-sm:min-h-11 max-sm:items-center
               lg:font-medium
             `,
           }"
@@ -274,14 +285,17 @@ const storeName = computed(() => tenantStore.storeName || '')
               ` }"
             />
             <template #content>
-              <ul class="flex flex-col gap-3 pb-1">
+              <ul class="flex flex-col pb-1">
                 <li
                   v-for="(link, index) in secondary"
                   :key="index"
                 >
                   <ULink
                     :to="link.to"
-                    class="text-[0.9375rem] font-semibold"
+                    class="
+                      inline-flex min-h-11 items-center text-[0.9375rem]
+                      font-semibold
+                    "
                   >
                     {{ link.label }}
                   </ULink>
@@ -290,7 +304,7 @@ const storeName = computed(() => tenantStore.storeName || '')
                   <ClientOnly>
                     <button
                       type="button"
-                      class="text-[0.9375rem] font-semibold"
+                      class="min-h-11 text-[0.9375rem] font-semibold"
                       @click="() => { isModalActive = true }"
                     >
                       {{ t('cookie_settings') }}
@@ -313,7 +327,10 @@ const storeName = computed(() => tenantStore.storeName || '')
               color="neutral"
               variant="outline"
               size="sm"
-              class="flex-1 justify-center"
+              class="
+                flex-1 justify-center
+                max-sm:min-h-11
+              "
             />
             <UButton
               v-if="identity?.email"
@@ -323,7 +340,10 @@ const storeName = computed(() => tenantStore.storeName || '')
               color="neutral"
               variant="outline"
               size="sm"
-              class="flex-1 justify-center"
+              class="
+                flex-1 justify-center
+                max-sm:min-h-11
+              "
             />
           </div>
 
@@ -426,7 +446,10 @@ const storeName = computed(() => tenantStore.storeName || '')
       <UColorModeSelect
         color="neutral"
         size="sm"
-        :ui="{ base: 'w-auto rounded-full font-semibold' }"
+        :ui="{ base: `
+          w-auto rounded-full font-semibold
+          max-sm:min-h-11
+        ` }"
       />
     </template>
   </UFooter>

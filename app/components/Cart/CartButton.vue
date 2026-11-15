@@ -46,6 +46,7 @@ const button: ButtonProps = {
   color: 'neutral',
   variant: 'ghost',
   square: true,
+  class: 'max-sm:min-h-11 max-sm:min-w-11',
 }
 </script>
 

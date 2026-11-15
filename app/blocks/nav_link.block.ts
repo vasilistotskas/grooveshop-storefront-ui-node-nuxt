@@ -9,11 +9,11 @@ import * as z from 'zod'
  */
 export default defineBlock({
   type: 'nav_link',
-  version: 1,
+  version: 2,
   kinds: ['block'],
   schema: z.object({
     label: builderField.requiredText(100),
-    icon: builderField.icon(64).optional(),
+    icon: builderField.icon().optional(),
     page: z.string().min(1).max(50).optional(),
     contentPage: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
     route: z.enum(NAVIGATION_ROUTES).optional(),
@@ -22,6 +22,7 @@ export default defineBlock({
     .refine(link => [link.page, link.contentPage, link.route, link.href].filter(target => target !== undefined).length === 1, { message: 'needs exactly one target' })
     // Stated in the catalogue too, so Django refuses a link with none or two targets on save.
     .meta({ oneOf: [{ required: ['page'] }, { required: ['contentPage'] }, { required: ['route'] }, { required: ['href'] }] }),
+  upgrade: { 1: upgradeIconSetting },
   translatable: ['/label'],
   refs: { '/page': 'page', '/contentPage': 'contentPage' },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { route: '/' } }],
