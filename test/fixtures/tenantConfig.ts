@@ -85,6 +85,7 @@ export function validTenantConfig(
       b2bInvoicing: true,
       contactAttachments: true,
       chatWidget: true,
+      staffAiAccess: false,
       priceHistory: true,
       catalogue: true,
       cart: true,

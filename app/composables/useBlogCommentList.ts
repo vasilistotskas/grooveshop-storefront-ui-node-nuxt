@@ -13,8 +13,9 @@
 export function useBlogCommentList(comments: MaybeRefOrGetter<BlogComment[] | null>) {
   const { loggedIn, user } = useSessionAfterHydration()
 
+  // A comment whose author deleted the account has no `user`: no reader's.
   const userHasCommented = (comment: BlogComment) =>
-    loggedIn.value && !!user.value && comment.user.id === user.value.id
+    loggedIn.value && !!user.value && comment.user?.id === user.value.id
 
   // Own comments first, every other comment (and the reader's own among
   // themselves) in the order it came: a partition, which is stable by

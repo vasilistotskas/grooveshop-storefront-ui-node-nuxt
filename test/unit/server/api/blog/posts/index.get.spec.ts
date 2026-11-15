@@ -96,7 +96,6 @@ describe('GET /api/blog/posts', () => {
       pageSize: '6',
       ordering: '-viewCount',
       // The schema's own defaults.
-      pagination: 'true',
       paginationType: 'pageNumber',
       languageCode: 'el',
     })
