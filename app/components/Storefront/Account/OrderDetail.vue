@@ -118,7 +118,7 @@ const tracking = computed(() => {
     return {
       label: t('track', { carrier: 'BOX NOW' }),
       url: `https://boxnow.gr/en?track=${parcelId}`,
-      labelUrl: `/api/orders/${value.id}/boxnow-label`,
+      labelUrl: `/api/orders/${value.id}/shipment-label`,
     }
   }
   const voucher = value.acsShipment?.voucherNo
@@ -126,7 +126,7 @@ const tracking = computed(() => {
     return {
       label: t('track', { carrier: 'ACS' }),
       url: `https://webapp.acscourier.net/track-shipment/${voucher}`,
-      labelUrl: `/api/orders/${value.id}/acs-label`,
+      labelUrl: `/api/orders/${value.id}/shipment-label`,
     }
   }
   const url = value.trackingDetails?.trackingUrl
