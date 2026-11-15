@@ -319,9 +319,15 @@ export function builderLibraryOffers(
   const present = allNodes(copy.draft).map(({ node }) => builderBlockType(node))
   const full = parent?.definition.limits.maxBlocks !== undefined && (parent.node.blockOrder?.length ?? 0) >= parent.definition.limits.maxBlocks
   const lists = builderListCount(Object.values(copy.draft.sections), blocks)
-  /** The lists a block brings: those its preset fills in (the text and the ids do not change the count). */
-  const listsOf = (definition: BlockDefinition) =>
-    builderListCount([builderPresetNode(definition, BUILDER_DEFAULT_PRESET, blocks, () => undefined, () => '')], blocks)
+  /**
+   * The lists a block brings: those its preset fills in. The text does not
+   * change the count; each child needs an id of its own, or siblings keyed
+   * by the same id would overwrite one another and go uncounted.
+   */
+  const listsOf = (definition: BlockDefinition) => {
+    let sample = 0
+    return builderListCount([builderPresetNode(definition, BUILDER_DEFAULT_PRESET, blocks, () => undefined, () => String(++sample))], blocks)
+  }
   return candidates.map((definition) => {
     const limit = definition.limits.maxPerTemplate
     const refusal: BuilderLibraryRefusal | undefined = definition.feature && !featureOn(definition.feature)

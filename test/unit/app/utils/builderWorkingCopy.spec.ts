@@ -352,6 +352,20 @@ describe('what the library offers', () => {
     expect(offers(rails(DATA_LIMITS.maxQueriesPerDocument))).toContain('banner')
   })
 
+  it('counts every list-bearing child a section\'s preset brings, not one of them', () => {
+    const listSettings = { products: { mode: 'filter', ordering: 'newest', limit: 4 } }
+    const withPair = new Map<string, BlockDefinition>([
+      ...library,
+      defineBlock({ type: 'list_tile', version: 1, kinds: ['block'], schema: z.object({ products: builderField.query('product', { onEmpty: 'hide' }).optional() }), presets: [{ id: 'default', settings: listSettings }] }),
+      defineBlock({ type: 'pair', version: 1, kinds: ['section'], schema: z.object({}), presets: [{ id: 'default', blocks: [{ type: 'list_tile' }, { type: 'list_tile' }] }], children: { allowed: ['list_tile'] } }),
+    ].map(block => Array.isArray(block) ? block : [block.type, block]))
+    const nearlyFull = copyOf(Object.fromEntries(Array.from({ length: DATA_LIMITS.maxQueriesPerDocument - 1 }, (_, index) => [`r${index}`, node('rail@1', listSettings)])))
+
+    const pair = builderLibraryOffers(nearlyFull, 'template:home', {}, withPair, () => true, 'webside').find(({ definition }) => definition.type === 'pair')
+
+    expect(pair?.refusal).toBe('lists')
+  })
+
   it('offers inside a section only what it takes, and nothing once it is full', () => {
     expect(offers(copyOf({ a: node('box@1') }), 'a')).toEqual(['tile'])
     expect(offers(copyOf({ a: node('box@1', {}, { t1: node('tile@1'), t2: node('tile@1') }) }), 'a')).toEqual(['tile (full)'])
