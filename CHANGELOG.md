@@ -1,3 +1,10 @@
+## [3.341.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.4...v3.341.5) (2026-11-15)
+
+
+### Bug Fixes
+
+* **storefront:** contact h1, in-flight renders during a builder purge, Redis fallback, cross-tab sign-in, home CLS, fee-waiver docstring ([#479](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/479)) ([cdbb5dc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cdbb5dc5b5f14761dce4545308dc033c9919d25a)), closes [#446](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/446) [#453](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/453) [#419](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/419) [#454](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/454) [#461](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/461) [#467](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/467)
+
 ## [3.341.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.3...v3.341.4) (2026-11-15)
 
 
