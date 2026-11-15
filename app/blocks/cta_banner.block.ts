@@ -16,5 +16,11 @@ export default defineBlock({
   translatable: ['/heading', '/description', '/buttonText'],
   upgrade: { 1: upgradeTitleIntoHeading },
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
-  editor: { title: ['heading'], category: 'store' },
+  editor: {
+    title: ['heading'],
+    category: 'store',
+    designSettings: {
+      ekfyseosfyteias: ['heading', 'description', 'buttonText', 'buttonLink'],
+    },
+  },
 })

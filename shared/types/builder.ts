@@ -170,6 +170,19 @@ export interface BlockEditorConfig {
   title?: readonly string[]
   /** The tab of the add-section library a section is listed under (`BUILDER_BLOCK_CATEGORIES`); a block that only sits inside another has none. */
   category?: (typeof BUILDER_BLOCK_CATEGORIES)[number]
+  /**
+   * The settings a design's own component draws, by design: the tenant
+   * schema the component registry keys that component by (`<type>@<design>`,
+   * `app/utils/componentRegistry.ts`). The settings form of a store of that
+   * design offers these alone, since a setting its component does not read
+   * changes nothing there (`builderSettingsFields`). A design not named here
+   * draws every setting, as the platform's component does.
+   *
+   * Top-level settings of the schema, every required one among them
+   * (`defineBlock` checks). `test/unit/source-rules/block-design-settings.spec.ts`
+   * holds each list to what its component reads.
+   */
+  designSettings?: Readonly<Record<string, readonly string[]>>
 }
 
 /** What `defineBlock` returns: `BlockConfig` with every default filled in. */

@@ -88,6 +88,11 @@ export function upgradeNodeTranslations(
  * How many settings of a document still need a translation into `locale`:
  * every translatable setting of every node that has text in the draft and
  * none in that language. A block this build does not define counts nothing.
+ *
+ * Every setting it counts is one the settings form offers in any design: a
+ * setting the store's design does not draw (`editor.designSettings`) is in
+ * the form, in its own group, exactly while it holds a value in the draft,
+ * and one that holds none is not counted here either.
  */
 export function builderMissingTranslations(copy: BuilderWorkingCopy, locale: string, blocks: ReadonlyMap<string, BlockDefinition>): number {
   const count = (order: readonly string[], map: Readonly<Record<string, BuilderNode>>): number => order.reduce((total, id) => {
