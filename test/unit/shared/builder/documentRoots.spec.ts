@@ -149,25 +149,54 @@ describe('themeContrastRulesFor', () => {
 
     for (const [design, muted] of [[null, MUTED_BACKGROUND], ['volt', VOLT_MUTED_BACKGROUND]] as const) {
       const rules = Object.fromEntries(themeContrastRulesFor(design).map(rule => [rule.id, rule]))
-      expect(rules['accent-muted-light']).toEqual({ id: 'accent-muted-light', foreground: '/colors/light/accent', background: muted.light, min: 3, severity: 'warning' })
-      expect(rules['accent-muted-dark']).toEqual({ id: 'accent-muted-dark', foreground: '/colors/dark/accent', background: muted.dark, min: 3, severity: 'warning' })
+      expect(rules['accent-muted-light']).toMatchObject({ foreground: '/colors/light/accent', background: muted.light, min: 3, severity: 'warning' })
+      expect(rules['accent-muted-dark']).toMatchObject({ foreground: '/colors/dark/accent', background: muted.dark, min: 3, severity: 'warning' })
     }
   })
 
-  // An accent that clears 3:1 on the page and not on the muted ground: the
-  // ground the new rules add is the one that catches it. Webside's dark muted
+  // The accent drawn as body-size text in the light scheme (the showcase
+  // hero's eyebrow, rich-text links, the blog rail's category): 4.5:1 on the
+  // page and on the muted ground, beside the 3:1 rules, and only ever a
+  // warning. The text there is the accent itself (webside) or darker (Volt).
+  it.each([
+    [null, '/colors/light/neutral/scale/50', MUTED_BACKGROUND.light, 'var(--ui-secondary)'],
+    ['volt', VOLT_BACKGROUND.light, VOLT_MUTED_BACKGROUND.light, 'color-mix(in srgb, var(--ui-secondary) 85%, black)'],
+  ] as const)('holds the light accent as small text to 4.5:1 on both grounds of design %s, as a warning', (design, page, muted, text) => {
+    const rules = Object.fromEntries(themeContrastRulesFor(design).map(rule => [rule.id, rule]))
+
+    expect((design === 'volt' ? volt : base).light['--ui-secondary-text']).toBe(text)
+    expect(rules['accent-text-light']).toMatchObject({ foreground: '/colors/light/accent', background: page, min: 4.5, severity: 'warning' })
+    expect(rules['accent-text-muted-light']).toMatchObject({ foreground: '/colors/light/accent', background: muted, min: 4.5, severity: 'warning' })
+    expect(rules['accent-light']).toMatchObject({ min: 3 })
+    expect(rules['accent-muted-light']).toMatchObject({ min: 3 })
+  })
+
+  // An accent fine for buttons and large text (3:1 on both grounds) and too
+  // faint for body-size text: only the small-text rules warn.
+  it.each([[null], ['volt' as const]])('warns, for design %s, on a light accent too faint only as small text', (design) => {
+    const defaults = themeDefaultsFor(design)
+    const theme = { ...defaults, colors: { ...defaults.colors, light: { ...defaults.colors.light, accent: '#808080' } } }
+
+    const failed = evaluateContrastRules(theme, themeContrastRulesFor(design)).filter(({ pass }) => !pass)
+
+    expect(failed.map(({ rule }) => [rule.id, rule.severity])).toEqual([['accent-text-light', 'warning'], ['accent-text-muted-light', 'warning']])
+  })
+
+  // An accent that clears 3:1 on the page and not on the muted ground: of the
+  // 3:1 rules, the muted ground's is the one that catches it (and, in the
+  // light scheme, both small-text rules warn too). Webside's dark muted
   // ground (neutral 900) is lighter than its page (950); Volt's light one
   // (#f7f7f5) is darker than its page (white).
   it.each([
-    [null, 'dark', '#606060', 'accent-muted-dark'],
-    ['volt', 'light', '#949494', 'accent-muted-light'],
+    [null, 'dark', '#606060', ['accent-muted-dark']],
+    ['volt', 'light', '#949494', ['accent-muted-light', 'accent-text-light', 'accent-text-muted-light']],
   ] as const)('warns, for design %s, on a %s accent the muted ground cannot carry', (design, scheme, accent, failing) => {
     const defaults = themeDefaultsFor(design)
     const theme = { ...defaults, colors: { ...defaults.colors, [scheme]: { ...defaults.colors[scheme], accent } } }
 
     const failed = evaluateContrastRules(theme, themeContrastRulesFor(design)).filter(({ pass }) => !pass)
 
-    expect(failed.map(({ rule }) => [rule.id, rule.severity])).toEqual([[failing, 'warning']])
+    expect(failed.map(({ rule }) => [rule.id, rule.severity])).toEqual(failing.map(id => [id, 'warning']))
   })
 })
 

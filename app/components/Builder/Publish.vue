@@ -407,7 +407,7 @@ async function show(problem: Pick<PublishProblem, 'document' | 'path' | 'params'
                   :key="warning.rule.id"
                   class="flex items-start justify-between gap-2"
                 >
-                  <span class="font-medium">{{ contrastRuleLabel(warning.rule.id) }}</span>
+                  <span class="font-medium">{{ contrastRuleLabel(warning.rule) }}</span>
                   <UButton
                     color="warning"
                     variant="link"

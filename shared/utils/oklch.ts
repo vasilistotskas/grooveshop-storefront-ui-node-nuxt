@@ -159,6 +159,19 @@ export function gamutMapToSrgb(origin: Oklch): Vector {
   return clipped
 }
 
+/**
+ * `color-mix(in oklab, <first>, <second> <percent>%)` of two `#RRGGBB`
+ * colours, as `#rrggbb`: interpolated in OKLab, clipped to sRGB and rounded
+ * to 8 bits. Django's `builder.contrast.mix_oklab` is the same function.
+ */
+export function mixOklab(first: string, second: string, percent: number): string {
+  const share = percent / 100
+  const one = oklabOfSrgb(srgbFromHex(first))
+  const two = oklabOfSrgb(srgbFromHex(second))
+  const between = (index: 0 | 1 | 2) => one[index] * (1 - share) + two[index] * share
+  return hexFromSrgb(each(multiply(XYZ_TO_LINEAR_SRGB, oklabToXyz([between(0), between(1), between(2)])), gammaSrgb))
+}
+
 /** `#RRGGBB` to gamma-encoded sRGB channels, 0 to 1. */
 export function srgbFromHex(hex: string): Vector {
   const channel = (start: number) => Number.parseInt(hex.slice(start, start + 2), 16) / 255

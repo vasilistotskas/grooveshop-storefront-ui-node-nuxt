@@ -5,7 +5,7 @@ import { themeDefaultsFor } from '../theme/defaults'
 import { zThemeSettings } from '../theme/settings'
 import { resolveDesign } from '../theme/design'
 import type { StorefrontDesign } from '../theme/design'
-import type { BuilderDocumentKind, ContrastRule, ContrastSide, DocumentRoot } from '../types/builder'
+import type { BuilderDocumentKind, ContrastRule, ContrastSide, DocumentRoot, LocaleText } from '../types/builder'
 
 /**
  * A page's own copy, written per language: its search-engine title,
@@ -54,11 +54,26 @@ type ThemeDesign = StorefrontDesign | null
  *   one), never closer to it. A rule names a colour and cannot mix one, so it
  *   checks the accent, and the text it holds is at least as far from the
  *   ground.
+ * - **Both, light scheme**: `accent` as small text (`accent-text-light`,
+ *   `accent-text-muted-light`), 4.5:1 on the page and on the muted ground, a
+ *   warning (SC 1.4.3): the showcase hero's eyebrow, rich-text links, the
+ *   blog rail's category and most other `text-accent`. The 3:1 rules above
+ *   stay, for the accent as a colour and as large text, so an accent fine for
+ *   buttons warns only as small text. The text is the accent itself on
+ *   webside and darker on Volt, so the accent is what the rule can judge.
+ * - **Dark scheme, no small-text rule yet**: the text there is the accent
+ *   mixed toward white in OKLab (`--ui-secondary-text`), which a rule names
+ *   as a mixed side (`ContrastMix`); Django reads a mixed side only from the
+ *   release that follows this catalogue's, so the rule comes after it.
  * - **No rule** for the bold look's accent heading (`--ds-accent-heading`)
  *   on a store with its own design: the theme computes it per scheme at
  *   4.5:1 or more on the page and the muted ground, the grounds below
  *   (`accentHeadingOn`, `shared/theme/compile.ts`, held to them by
  *   `compile.spec.ts`), so a rule on it could never warn.
+ *
+ * Each rule carries its name and what its Fix does in every language
+ * (`RULE_TEXTS`): the catalogue is their one source, read by the theme panel,
+ * the Publish dialog and Django, which names a refused publish with it.
  *
  * `test/unit/shared/builder/documentRoots.spec.ts` holds every token a rule
  * names to the stylesheet of its design, so a design that changes its
@@ -66,23 +81,80 @@ type ThemeDesign = StorefrontDesign | null
  */
 export function themeContrastRulesFor(design: ThemeDesign): readonly ContrastRule[] {
   const brand = (light: ContrastSide, dark: ContrastSide, muted: { light: ContrastSide, dark: ContrastSide }): ContrastRule[] => [
-    { id: 'action-light', foreground: '/colors/light/action', background: light, min: 3, severity: 'warning' },
-    { id: 'action-dark', foreground: '/colors/dark/action', background: dark, min: 3, severity: 'warning' },
-    { id: 'accent-light', foreground: '/colors/light/accent', background: light, min: 3, severity: 'warning' },
-    { id: 'accent-dark', foreground: '/colors/dark/accent', background: dark, min: 3, severity: 'warning' },
-    { id: 'accent-muted-light', foreground: '/colors/light/accent', background: muted.light, min: 3, severity: 'warning' },
-    { id: 'accent-muted-dark', foreground: '/colors/dark/accent', background: muted.dark, min: 3, severity: 'warning' },
+    rule('action', 'light', '/colors/light/action', light, 3, 'warning'),
+    rule('action', 'dark', '/colors/dark/action', dark, 3, 'warning'),
+    rule('accent', 'light', '/colors/light/accent', light, 3, 'warning'),
+    rule('accent', 'dark', '/colors/dark/accent', dark, 3, 'warning'),
+    rule('accent-muted', 'light', '/colors/light/accent', muted.light, 3, 'warning'),
+    rule('accent-muted', 'dark', '/colors/dark/accent', muted.dark, 3, 'warning'),
+    rule('accent-text', 'light', '/colors/light/accent', light, 4.5, 'warning'),
+    rule('accent-text-muted', 'light', '/colors/light/accent', muted.light, 4.5, 'warning'),
   ]
   if (design === 'volt') return brand(VOLT_BACKGROUND.light, VOLT_BACKGROUND.dark, VOLT_MUTED_BACKGROUND)
   const light = '/colors/light/neutral/scale/50'
   const dark = '/colors/dark/neutral/scale/950'
   return [
-    { id: 'body-text-light', foreground: '/colors/light/neutral/scale/700', background: light, min: 4.5, severity: 'error' },
-    { id: 'body-text-dark', foreground: '/colors/dark/neutral/scale/200', background: dark, min: 4.5, severity: 'error' },
-    { id: 'muted-text-light', foreground: '/colors/light/neutral/scale/500', background: light, min: 4.5, severity: 'warning' },
-    { id: 'muted-text-dark', foreground: '/colors/dark/neutral/scale/400', background: dark, min: 4.5, severity: 'warning' },
+    rule('body-text', 'light', '/colors/light/neutral/scale/700', light, 4.5, 'error'),
+    rule('body-text', 'dark', '/colors/dark/neutral/scale/200', dark, 4.5, 'error'),
+    rule('muted-text', 'light', '/colors/light/neutral/scale/500', light, 4.5, 'warning'),
+    rule('muted-text', 'dark', '/colors/dark/neutral/scale/400', dark, 4.5, 'warning'),
     ...brand(light, dark, MUTED_BACKGROUND),
   ]
+}
+
+/** The scheme a rule judges, as its id ends and its name says it. */
+type RuleScheme = 'light' | 'dark'
+
+/** What the rules of each pair are called and what their Fix does; the scheme is added to the name (`rule`). */
+const RULE_TEXTS = {
+  'body-text': {
+    label: { el: 'Κείμενο', en: 'Text' },
+    fix: { el: 'Αλλάζει το χρώμα του κειμένου όσο χρειάζεται για να διαβάζεται στη σελίδα.', en: 'Changes the text colour just enough to read on the page.' },
+  },
+  'muted-text': {
+    label: { el: 'Δευτερεύον κείμενο', en: 'Secondary text' },
+    fix: { el: 'Αλλάζει το χρώμα του δευτερεύοντος κειμένου όσο χρειάζεται για να διαβάζεται στη σελίδα.', en: 'Changes the secondary text colour just enough to read on the page.' },
+  },
+  'action': {
+    label: { el: 'Κουμπιά', en: 'Buttons' },
+    fix: { el: 'Αλλάζει το χρώμα των κουμπιών όσο χρειάζεται για να ξεχωρίζουν από τη σελίδα.', en: 'Changes the button colour just enough to stand out from the page.' },
+  },
+  'accent': {
+    label: { el: 'Έμφαση', en: 'Accent' },
+    fix: { el: 'Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να ξεχωρίζει από τη σελίδα.', en: 'Changes the accent colour just enough to stand out from the page.' },
+  },
+  'accent-muted': {
+    label: { el: 'Έμφαση σε απαλό φόντο', en: 'Accent on the muted ground' },
+    fix: { el: 'Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να ξεχωρίζει από το απαλό φόντο.', en: 'Changes the accent colour just enough to stand out from the muted ground.' },
+  },
+  'accent-text': {
+    label: { el: 'Έμφαση σε μικρό κείμενο', en: 'Accent as small text' },
+    fix: { el: 'Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να διαβάζεται και σε μικρό κείμενο στη σελίδα.', en: 'Changes the accent colour just enough for small text in it to read on the page.' },
+  },
+  'accent-text-muted': {
+    label: { el: 'Έμφαση σε μικρό κείμενο, σε απαλό φόντο', en: 'Accent as small text on the muted ground' },
+    fix: { el: 'Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να διαβάζεται και σε μικρό κείμενο στο απαλό φόντο.', en: 'Changes the accent colour just enough for small text in it to read on the muted ground.' },
+  },
+} as const satisfies Record<string, Pick<ContrastRule, 'label' | 'fix'>>
+
+/** What each scheme is called after a rule's name. */
+const SCHEME_TEXTS: Record<RuleScheme, LocaleText> = {
+  light: { el: 'φωτεινό', en: 'light' },
+  dark: { el: 'σκούρο', en: 'dark' },
+}
+
+/** The rule `<pair>-<scheme>`, named in every language. */
+function rule(pair: keyof typeof RULE_TEXTS, scheme: RuleScheme, foreground: ContrastSide, background: ContrastSide, min: number, severity: ContrastRule['severity']): ContrastRule {
+  const { label, fix } = RULE_TEXTS[pair]
+  return {
+    id: `${pair}-${scheme}`,
+    foreground,
+    background,
+    min,
+    severity,
+    label: { el: `${label.el}, ${SCHEME_TEXTS[scheme].el}`, en: `${label.en}, ${SCHEME_TEXTS[scheme].en}` },
+    fix,
+  }
 }
 
 /** Groove Volt's page background, light and dark: `--ui-bg` of `[data-design="volt"]`, a design token the theme does not hold. */

@@ -3,6 +3,7 @@ import contrast from '~~/test/fixtures/builder/contrast-cases.json'
 import { contrastRulePath, contrastSideColor, evaluateContrastRules } from '~~/shared/builder/contrastRules'
 import { zThemeSettings } from '~~/shared/theme/settings'
 import { contrastRatio } from '~~/shared/utils/contrast'
+import { mixOklab } from '~~/shared/utils/oklch'
 import type { ContrastRule } from '~~/shared/types/builder'
 
 /**
@@ -19,6 +20,27 @@ describe('contrastRatio', () => {
   })
 })
 
+// A side the page draws mixed: `color-mix(in oklab, ...)`, which Django
+// computes too and is held to the same vectors.
+describe('mixOklab', () => {
+  it.each(contrast.mixes.map(entry => [entry.why, entry] as const))('gives the shared colour and ratio for %s', (_why, { mix, toward, percent, mixed, against, ratio }) => {
+    expect(mixOklab(mix, toward, percent)).toBe(mixed)
+    expect(contrastRatio(mixed, against).toFixed(2)).toBe(ratio)
+  })
+})
+
+describe('a mixed side', () => {
+  const side = { mix: '/colors/dark/accent', toward: '#ffffff', percent: 20 } as const
+
+  it('is the colour it mixes, mixed as the page draws it', () => {
+    expect(contrastSideColor({ colors: { dark: { accent: '#ff3cc3' } } }, side)).toBe(mixOklab('#ff3cc3', '#ffffff', 20))
+  })
+
+  it('is reported at the pointer it mixes', () => {
+    expect(contrastRulePath({ ...rules[0]!, foreground: side, background: '#000000' })).toBe('/colors/dark/accent')
+  })
+})
+
 describe('evaluateContrastRules', () => {
   it.each(contrast.themes.map(entry => [entry.why, entry] as const))('agrees with the shared outcome for %s', (_why, { settings, outcomes }) => {
     const evaluated = evaluateContrastRules(settings, rules).map(({ rule, ratio, pass }) => ({ id: rule.id, ratio: ratio.toFixed(2), pass, path: contrastRulePath(rule) }))
@@ -27,7 +49,7 @@ describe('evaluateContrastRules', () => {
   })
 
   it.each(contrast.boundaries.map(entry => [entry.why, entry] as const))('compares the unrounded ratio: %s', (_why, { foreground, background, min, pass }) => {
-    const rule: ContrastRule = { id: 'boundary', foreground: foreground as ContrastRule['foreground'], background: background as ContrastRule['background'], min, severity: 'error' }
+    const rule: ContrastRule = { ...rules[0]!, id: 'boundary', foreground: foreground as ContrastRule['foreground'], background: background as ContrastRule['background'], min, severity: 'error' }
 
     expect(evaluateContrastRules({}, [rule])[0]!.pass).toBe(pass)
   })

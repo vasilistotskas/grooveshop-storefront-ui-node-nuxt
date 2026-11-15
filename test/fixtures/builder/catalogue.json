@@ -1,5 +1,5 @@
 {
-  "hash": "39e64e5e739a8434",
+  "hash": "3978e489a1bc4628",
   "blocks": [
     {
       "type": "about_content",
@@ -9317,70 +9317,180 @@
           "foreground": "/colors/light/neutral/scale/700",
           "background": "/colors/light/neutral/scale/50",
           "min": 4.5,
-          "severity": "error"
+          "severity": "error",
+          "label": {
+            "el": "Κείμενο, φωτεινό",
+            "en": "Text, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα του κειμένου όσο χρειάζεται για να διαβάζεται στη σελίδα.",
+            "en": "Changes the text colour just enough to read on the page."
+          }
         },
         {
           "id": "body-text-dark",
           "foreground": "/colors/dark/neutral/scale/200",
           "background": "/colors/dark/neutral/scale/950",
           "min": 4.5,
-          "severity": "error"
+          "severity": "error",
+          "label": {
+            "el": "Κείμενο, σκούρο",
+            "en": "Text, dark"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα του κειμένου όσο χρειάζεται για να διαβάζεται στη σελίδα.",
+            "en": "Changes the text colour just enough to read on the page."
+          }
         },
         {
           "id": "muted-text-light",
           "foreground": "/colors/light/neutral/scale/500",
           "background": "/colors/light/neutral/scale/50",
           "min": 4.5,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Δευτερεύον κείμενο, φωτεινό",
+            "en": "Secondary text, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα του δευτερεύοντος κειμένου όσο χρειάζεται για να διαβάζεται στη σελίδα.",
+            "en": "Changes the secondary text colour just enough to read on the page."
+          }
         },
         {
           "id": "muted-text-dark",
           "foreground": "/colors/dark/neutral/scale/400",
           "background": "/colors/dark/neutral/scale/950",
           "min": 4.5,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Δευτερεύον κείμενο, σκούρο",
+            "en": "Secondary text, dark"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα του δευτερεύοντος κειμένου όσο χρειάζεται για να διαβάζεται στη σελίδα.",
+            "en": "Changes the secondary text colour just enough to read on the page."
+          }
         },
         {
           "id": "action-light",
           "foreground": "/colors/light/action",
           "background": "/colors/light/neutral/scale/50",
           "min": 3,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Κουμπιά, φωτεινό",
+            "en": "Buttons, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα των κουμπιών όσο χρειάζεται για να ξεχωρίζουν από τη σελίδα.",
+            "en": "Changes the button colour just enough to stand out from the page."
+          }
         },
         {
           "id": "action-dark",
           "foreground": "/colors/dark/action",
           "background": "/colors/dark/neutral/scale/950",
           "min": 3,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Κουμπιά, σκούρο",
+            "en": "Buttons, dark"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα των κουμπιών όσο χρειάζεται για να ξεχωρίζουν από τη σελίδα.",
+            "en": "Changes the button colour just enough to stand out from the page."
+          }
         },
         {
           "id": "accent-light",
           "foreground": "/colors/light/accent",
           "background": "/colors/light/neutral/scale/50",
           "min": 3,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση, φωτεινό",
+            "en": "Accent, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να ξεχωρίζει από τη σελίδα.",
+            "en": "Changes the accent colour just enough to stand out from the page."
+          }
         },
         {
           "id": "accent-dark",
           "foreground": "/colors/dark/accent",
           "background": "/colors/dark/neutral/scale/950",
           "min": 3,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση, σκούρο",
+            "en": "Accent, dark"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να ξεχωρίζει από τη σελίδα.",
+            "en": "Changes the accent colour just enough to stand out from the page."
+          }
         },
         {
           "id": "accent-muted-light",
           "foreground": "/colors/light/accent",
           "background": "#ffffff",
           "min": 3,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση σε απαλό φόντο, φωτεινό",
+            "en": "Accent on the muted ground, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να ξεχωρίζει από το απαλό φόντο.",
+            "en": "Changes the accent colour just enough to stand out from the muted ground."
+          }
         },
         {
           "id": "accent-muted-dark",
           "foreground": "/colors/dark/accent",
           "background": "/colors/dark/neutral/scale/900",
           "min": 3,
-          "severity": "warning"
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση σε απαλό φόντο, σκούρο",
+            "en": "Accent on the muted ground, dark"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να ξεχωρίζει από το απαλό φόντο.",
+            "en": "Changes the accent colour just enough to stand out from the muted ground."
+          }
+        },
+        {
+          "id": "accent-text-light",
+          "foreground": "/colors/light/accent",
+          "background": "/colors/light/neutral/scale/50",
+          "min": 4.5,
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση σε μικρό κείμενο, φωτεινό",
+            "en": "Accent as small text, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να διαβάζεται και σε μικρό κείμενο στη σελίδα.",
+            "en": "Changes the accent colour just enough for small text in it to read on the page."
+          }
+        },
+        {
+          "id": "accent-text-muted-light",
+          "foreground": "/colors/light/accent",
+          "background": "#ffffff",
+          "min": 4.5,
+          "severity": "warning",
+          "label": {
+            "el": "Έμφαση σε μικρό κείμενο, σε απαλό φόντο, φωτεινό",
+            "en": "Accent as small text on the muted ground, light"
+          },
+          "fix": {
+            "el": "Αλλάζει το χρώμα έμφασης όσο χρειάζεται για να διαβάζεται και σε μικρό κείμενο στο απαλό φόντο.",
+            "en": "Changes the accent colour just enough for small text in it to read on the muted ground."
+          }
         }
       ],
       "defaults": {

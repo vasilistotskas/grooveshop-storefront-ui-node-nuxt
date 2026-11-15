@@ -8,12 +8,14 @@
  * while `actionLinked` is on. Every change goes through the editor store, so it
  * is undone, saved and drawn in the preview like any other.
  *
- * The rules and the labels are the design's (`themeContrastRulesFor`): on
+ * The rules, their names and what each Fix does are the design's
+ * catalogue (`themeContrastRulesFor`), the names Django refuses a publish
+ * with; each Fix says what it changes in its tooltip. On
  * Groove Volt the neutral colour paints borders and badges, not text, and
  * only the action and accent colours have rules.
  */
 const { t } = useStoreI18n('components/Builder/ThemePanel')
-const { contrastRuleLabel } = useBuilderLabels()
+const { contrastRuleLabel, contrastRuleFix } = useBuilderLabels()
 const store = useBuilderEditorStore()
 const tenantStore = useTenantStore()
 
@@ -221,7 +223,7 @@ function fix(rule: ContrastRule): void {
             class="flex items-center justify-between gap-2 py-2 text-sm"
           >
             <span class="min-w-0">
-              {{ contrastRuleLabel(outcome.rule.id) }}
+              {{ contrastRuleLabel(outcome.rule) }}
               <span class="text-muted">{{ t('contrast.ratio', { ratio: outcome.ratio.toFixed(2), min: outcome.rule.min }) }}</span>
             </span>
             <span class="flex shrink-0 items-center gap-2">
@@ -231,15 +233,19 @@ function fix(rule: ContrastRule): void {
                 size="sm"
                 :label="outcome.pass ? t('contrast.pass') : outcome.rule.severity === 'error' ? t('contrast.blocks') : t('contrast.warns')"
               />
-              <UButton
+              <UTooltip
                 v-if="!outcome.pass"
-                size="xs"
-                color="neutral"
-                variant="outline"
-                :label="t('contrast.fix')"
-                :disabled="disabled"
-                @click="() => fix(outcome.rule)"
-              />
+                :text="contrastRuleFix(outcome.rule)"
+              >
+                <UButton
+                  size="xs"
+                  color="neutral"
+                  variant="outline"
+                  :label="t('contrast.fix')"
+                  :disabled="disabled"
+                  @click="() => fix(outcome.rule)"
+                />
+              </UTooltip>
             </span>
           </li>
         </ul>

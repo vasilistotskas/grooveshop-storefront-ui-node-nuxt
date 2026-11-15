@@ -79,9 +79,25 @@ describe('fixContrast', () => {
     expect(relativeLuminance(dark)).toBeGreaterThan(relativeLuminance('#1a2a6c'))
   })
 
+  // A side drawn mixed (the dark accent as text, toward white): the accent
+  // moves until the text as drawn passes, the rule's own colour judged.
+  it('fixes a mixed side by moving the colour it mixes until the colour drawn passes', () => {
+    const theme = themeDefaultsFor(null)
+    theme.colors.dark.neutral = { source: '#464646', scale: themeScaleFrom('#464646') }
+    theme.colors.dark.accent = '#ff3cc3'
+    const rule: ContrastRule = { ...rules['accent-muted-dark']!, id: 'mixed', foreground: { mix: '/colors/dark/accent', toward: '#ffffff', percent: 20 }, min: 4.5 }
+    expect(evaluateContrastRules(theme, [rule])[0]!.pass).toBe(false)
+
+    const fixed = fixContrast(theme, rule)
+
+    expect(evaluateContrastRules(fixed, [rule])[0]!.pass).toBe(true)
+    expect(relativeLuminance(fixed.colors.dark.accent)).toBeGreaterThan(relativeLuminance('#ff3cc3'))
+    expect(fixed.colors.dark.neutral).toEqual(theme.colors.dark.neutral)
+  })
+
   it('leaves a theme whose rule passes, or a rule of two literals, as it is', () => {
     const theme = themeDefaultsFor(null)
-    const literal: ContrastRule = { id: 'literal', foreground: '#777777', background: '#ffffff', min: 4.5, severity: 'error' }
+    const literal: ContrastRule = { ...rules['body-text-light']!, id: 'literal', foreground: '#777777', background: '#ffffff', min: 4.5, severity: 'error' }
 
     expect(fixContrast(theme, rules['body-text-light']!)).toBe(theme)
     expect(fixContrast(theme, literal)).toBe(theme)
@@ -89,7 +105,7 @@ describe('fixContrast', () => {
 
   it('goes as far as black when nothing lighter passes', () => {
     const theme = themeDefaultsFor(null)
-    const impossible: ContrastRule = { id: 'impossible', foreground: '/colors/light/accent', background: '#000000', min: 21, severity: 'warning' }
+    const impossible: ContrastRule = { ...rules['body-text-light']!, id: 'impossible', foreground: '/colors/light/accent', background: '#000000', min: 21, severity: 'warning' }
 
     const fixed = fixContrast(theme, impossible)
 

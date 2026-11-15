@@ -998,6 +998,8 @@ describe('editing the structure of a page', () => {
       const publishTexts = componentTexts(publishSource, 'Publish.vue')
       /** The warning's title for `count` failing warning rules, as the dialog words it. */
       const warningTitle = (count: number) => publishTexts.t('themeWarnings.title', { count }, count)
+      /** What a contrast rule of a design is called in Greek: the catalogue's name. */
+      const ruleName = (design: 'volt' | null, id: string) => themeContrastRulesFor(design).find(rule => rule.id === id)!.label.el
       const themeDocument = (settings: ThemeSettings, changed = true) => ({ ...detail(BUILDER_THEME_DOCUMENT, 'theme', { settings, sections: {}, order: [] }), hasUnpublishedChanges: changed })
       const THEME_CHECK = { ok: true, changed: [BUILDER_THEME_DOCUMENT], problems: [] }
 
@@ -1113,9 +1115,8 @@ describe('editing the structure of a page', () => {
         const wrapper = await open()
 
         await openPublish(wrapper)
-        expect(document.body.textContent).toContain(warningTitle(2))
-        expect(document.body.textContent).toContain(labels.contrastRules['accent-light'])
-        expect(document.body.textContent).toContain(labels.contrastRules['accent-muted-light'])
+        expect(document.body.textContent).toContain(warningTitle(4))
+        for (const id of ['accent-light', 'accent-muted-light', 'accent-text-light', 'accent-text-muted-light']) expect(document.body.textContent).toContain(ruleName('volt', id))
         await vi.waitFor(() => expect(dialogButton('Δημοσίευση τώρα').disabled).toBe(false))
         dialogButton('Δημοσίευση τώρα').click()
         await vi.waitFor(() => expect(api.callsTo(PUBLISH_URL)).toHaveLength(1))
@@ -1148,7 +1149,7 @@ describe('editing the structure of a page', () => {
 
         await openPublish(wrapper)
         const shows = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] li button')]
-        await vi.waitFor(() => expect(shows()).toHaveLength(2))
+        await vi.waitFor(() => expect(shows()).toHaveLength(4))
         shows()[1]!.click()
 
         await vi.waitFor(() => expect(useRoute().query.panel).toBe('theme'))
@@ -1158,12 +1159,14 @@ describe('editing the structure of a page', () => {
       // The accent on the muted ground (the newsletter band's heading): an
       // accent that clears 3:1 on the page and not there, as in
       // `documentRoots.spec.ts`. The warning counts and names that rule
-      // alone, and leads to it.
+      // (in the light scheme with the small-text rules it also misses), and
+      // leads to it.
       it.each([
-        ['webside', null, 'dark', '#606060', 'accent-muted-dark'],
-        ['demo', 'volt', 'light', '#949494', 'accent-muted-light'],
-      ] as const)('names the muted-ground accent rule on %s', async (schemaName, design, scheme, accent, rule) => {
-        const name = labels.contrastRules[rule]
+        ['webside', null, 'dark', '#606060', ['accent-muted-dark']],
+        ['demo', 'volt', 'light', '#949494', ['accent-muted-light', 'accent-text-light', 'accent-text-muted-light']],
+      ] as const)('names the muted-ground accent rule on %s', async (schemaName, design, scheme, accent, rules) => {
+        const rule = rules[0]
+        const name = ruleName(design, rule)
         setTenant({ schemaName })
         const theme = themeDefaultsFor(design)
         theme.colors[scheme].accent = accent
@@ -1171,9 +1174,9 @@ describe('editing the structure of a page', () => {
         const wrapper = await openInPage()
 
         await openPublish(wrapper)
-        const warning = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"] [data-slot="root"]')].find(alert => alert.querySelector('[data-slot="title"]')?.textContent === warningTitle(1))
+        const warning = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"] [data-slot="root"]')].find(alert => alert.querySelector('[data-slot="title"]')?.textContent === warningTitle(rules.length))
         await vi.waitFor(() => expect(warning()).toBeDefined())
-        expect([...warning()!.querySelectorAll('li')].map(row => row.querySelector('span')?.textContent)).toEqual([name])
+        expect([...warning()!.querySelectorAll('li')].map(row => row.querySelector('span')?.textContent)).toEqual(rules.map(id => ruleName(design, id)))
         warning()!.querySelector<HTMLButtonElement>('li button')!.click()
 
         await vi.waitFor(() => expect(document.activeElement?.id).toBe(`theme-rule-${rule}`))
@@ -1610,6 +1613,28 @@ describe('editing the structure of a page', () => {
 
       expect(wrapper.text()).not.toContain('Εμποδίζει τη δημοσίευση')
       expect(evaluateContrastRules(savedTheme(), themeContrastRulesFor(null)).filter(({ rule, pass }) => rule.severity === 'error' && !pass)).toEqual([])
+    })
+
+    // The names and what each Fix does come from the catalogue
+    // (`themeContrastRulesFor`), the one source Django names a refused
+    // publish with: an accent fine for buttons and too faint as small text.
+    it('names a failing rule by the catalogue\'s name and says what its Fix changes', async () => {
+      setTenant({ schemaName: 'webside' })
+      const theme = themeDefaultsFor(null)
+      theme.colors.light.accent = '#808080'
+      routes(theme)
+      const wrapper = await open('/_builder?panel=theme')
+      const rule = themeContrastRulesFor(null).find(({ id }) => id === 'accent-text-light')!
+
+      const row = wrapper.get('#theme-rule-accent-text-light')
+      expect(row.text()).toContain(rule.label.el)
+      expect(row.text()).toContain('Χαμηλή')
+      await row.get('button').trigger('pointermove', { pointerType: 'mouse' })
+
+      await vi.waitFor(() => expect(document.body.textContent).toContain(rule.fix.el))
+      await row.get('button').trigger('click')
+      await saveNow()
+      expect(evaluateContrastRules(savedTheme(), [rule])[0]!.pass).toBe(true)
     })
 
     it('copies the light colours into the dark scheme, as one step that is undone', async () => {
