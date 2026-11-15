@@ -6,6 +6,7 @@ import LoginCodeForm from '~/components/Account/Login/Code/Form.vue'
 import WebsideLoginCodeForm from '~/components/variants/webside/Account/Login/Code/Form.vue'
 import { trees } from '~~/test/helpers/trees'
 import { asProxiedError, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Asking allauth to email a one-time sign-in code. Mocked at
@@ -43,6 +44,8 @@ const CODE_PAGE = () => useLocalePath()('account-login-code')
 const CONFIRM_PAGE = () => useLocalePath()('account-login-code-confirm')
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   requestLoginCode.mockResolvedValue({ status: 200 })
 })
 

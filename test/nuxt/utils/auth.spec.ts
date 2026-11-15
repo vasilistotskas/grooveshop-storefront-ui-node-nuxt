@@ -9,6 +9,7 @@ import {
   tryAdvanceToPendingFlow,
 } from '~/utils/auth'
 import { asProxiedError, makePendingFlowResponse } from '~~/test/fixtures/allauth'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The half of `app/utils/auth.ts` that talks to the Nuxt app: it fires
@@ -28,6 +29,8 @@ const response = (status: number, data: unknown) =>
 let callHook: ReturnType<typeof vi.spyOn>
 
 beforeEach(async () => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   callHook = vi.spyOn(useNuxtApp(), 'callHook').mockResolvedValue(undefined as never)
   await useRouter().push('/')
 })

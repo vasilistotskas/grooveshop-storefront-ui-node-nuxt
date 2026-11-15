@@ -6,6 +6,7 @@ import VerifyEmailKey from '~/components/Storefront/Auth/VerifyEmailKey.vue'
 import WebsideVerifyEmailKey from '~/components/variants/webside/Storefront/Auth/VerifyEmailKey.vue'
 import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Confirming the email from the emailed link (`useVerifyEmailKey`, shared
@@ -35,6 +36,8 @@ const COPY = {
 }
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   clearNuxtData('verifyEmail')
 })
 

@@ -3,7 +3,7 @@ import { defineComponent, h, ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { injectHead } from '#imports'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
 /**
@@ -76,6 +76,7 @@ describe('setupSocialLogin', () => {
     const config = useRuntimeConfig().public
     gsiEnabled = config.googleGsiEnable
     config.googleGsiEnable = true
+    setTenant()
     useAuthStore().config = makeAllAuthConfig().data
     gsi.callback = undefined
   })
@@ -92,6 +93,16 @@ describe('setupSocialLogin', () => {
     await flushPromises()
     return settled
   }
+
+  // One Tap is a sign-in prompt: a store without customer accounts has no
+  // sign-in, so Google's script is not even loaded.
+  it('offers no One Tap on a store without customer accounts', async () => {
+    setTenantFeatures({ customerAccounts: false })
+
+    await mountSuspended(Harness, { route: false })
+
+    expect(gsi.callback).toBeUndefined()
+  })
 
   it('signs the visitor in with the Google credential', async () => {
     providerToken.mockResolvedValue({})

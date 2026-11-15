@@ -7,6 +7,7 @@ import WebsideReauthenticateFlow from '~/components/variants/webside/Account/2Fa
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
 import { makeSessionResponse } from '~~/test/fixtures/allauth'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The frame of a re-authentication step (a sensitive account change):
@@ -42,6 +43,8 @@ const REAUTH_REQUIRED = {
 }
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('auth-state').value = REAUTH_REQUIRED
 })
 

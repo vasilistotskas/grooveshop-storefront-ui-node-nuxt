@@ -7,6 +7,7 @@ import b2bEnabled from '~/middleware/b2b-enabled'
 import blogEnabled from '~/middleware/blog-enabled'
 import cartEnabled from '~/middleware/cart-enabled'
 import catalogueEnabled from '~/middleware/catalogue-enabled'
+import customerAccountsEnabled from '~/middleware/customer-accounts-enabled'
 import favouritesEnabled from '~/middleware/favourites-enabled'
 import feedbackEnabled from '~/middleware/feedback-enabled'
 import giftCardsEnabled from '~/middleware/gift-cards-enabled'
@@ -40,6 +41,7 @@ const MIDDLEWARE: Record<string, RouteMiddleware> = {
   'blog-enabled': blogEnabled,
   'cart-enabled': cartEnabled,
   'catalogue-enabled': catalogueEnabled,
+  'customer-accounts-enabled': customerAccountsEnabled,
   'favourites-enabled': favouritesEnabled,
   'feedback-enabled': feedbackEnabled,
   'gift-cards-enabled': giftCardsEnabled,
@@ -157,5 +159,36 @@ describe('the pages that need the cart', () => {
 
     expect(first).toBe('cart-enabled')
     await expect(Promise.resolve().then(() => cartEnabled(to, to))).rejects.toMatchObject({ statusCode: 404 })
+  })
+})
+
+describe('the account area', () => {
+  /** Every account page once, in the default language, its params filled in. */
+  const accountPages = () => useRouter().getRoutes()
+    .filter(record => record.path === '/account' || record.path.startsWith('/account/'))
+    .map(record => record.path.replace(/:[^/()]+(\([^)]*\))?\??/g, '1'))
+
+  it('finds the account pages', () => {
+    // Sign-in, sign-up, 2FA, orders, addresses, settings, …: a walk that
+    // found none would pass for the wrong reason.
+    expect(accountPages().length).toBeGreaterThanOrEqual(40)
+  })
+
+  // A store without customer accounts has no sign-in, no sign-up and no
+  // account: every page under /account 404s before any other gate runs,
+  // so none of them asks Django for an account it refuses.
+  it('gates every account page on customer accounts first', () => {
+    const ungated = accountPages().filter((path) => {
+      const [first] = [useRouter().resolve(path).meta.middleware ?? []].flat()
+      return first !== 'customer-accounts-enabled'
+    })
+    expect(ungated).toEqual([])
+  })
+
+  it.each(['/account', '/account/login', '/account/signup', '/account/orders/1'])('%s 404s with customer accounts off', async (path) => {
+    setTenant({ features: { ...featuresWith(true), customerAccounts: false } })
+    const to = useRouter().resolve(path) as unknown as RouteLocationNormalized
+
+    await expect(Promise.resolve().then(() => customerAccountsEnabled(to, to))).rejects.toMatchObject({ statusCode: 404 })
   })
 })

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
-  middleware: ['loyalty-enabled'],
+  middleware: ['customer-accounts-enabled', 'loyalty-enabled'],
 })
 defineRouteRules({
   robots: false,

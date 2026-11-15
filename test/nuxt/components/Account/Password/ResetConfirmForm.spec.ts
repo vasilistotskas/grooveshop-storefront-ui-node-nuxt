@@ -6,6 +6,7 @@ import ResetConfirmForm from '~/components/Account/Password/ResetConfirmForm.vue
 import WebsideResetConfirmForm from '~/components/variants/webside/Account/Password/ResetConfirmForm.vue'
 import { trees } from '~~/test/helpers/trees'
 import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Setting a new password from the emailed reset link. Mocked at
@@ -29,6 +30,8 @@ const RESET_BUT_SIGNED_OUT = { data: { statusCode: 401, data: { status: 401, dat
 const TOO_COMMON = asProxiedError(makeBadResponse({ code: 'password_too_common', param: 'password', message: 'Αυτός ο κωδικός είναι πολύ συνηθισμένος.' }))
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   clearNuxtData('passwordReset')
 })
 

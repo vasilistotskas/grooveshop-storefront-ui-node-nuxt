@@ -9803,6 +9803,7 @@ export type StaffSessionTicketRequest = {
  * Every ``TenantConfig.features`` name, with its state.
  */
 export type StoreFeatureStates = {
+  customerAccounts: FeatureState
   blog: FeatureState
   blogComments: FeatureState
   productReviews: FeatureState
@@ -9831,6 +9832,7 @@ export type StoreFeatureStates = {
  * one answer instead of combining the two tiers and copying defaults.
  */
 export type StoreFeatures = {
+  readonly customerAccounts: boolean
   readonly blog: boolean
   readonly blogComments: boolean
   readonly productReviews: boolean
@@ -14726,6 +14728,10 @@ export type ListBlogCategoryData = {
          * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
+    /**
+         * Δείκτης (cursor) για σελιδοποίηση
+         */
+    cursor?: string
     /**
          * Φίλτρο κατηγοριών που είναι απόγονοι της δεδομένης κατηγορίας
          */

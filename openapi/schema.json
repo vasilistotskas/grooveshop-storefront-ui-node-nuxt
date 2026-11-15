@@ -2899,6 +2899,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Δείκτης (cursor) για σελιδοποίηση"
+                    },
+                    {
+                        "in": "query",
                         "name": "descendantOf",
                         "schema": {
                             "oneOf": [
@@ -5611,7 +5619,7 @@
         "/api/v1/blog/category/tree": {
             "get": {
                 "operationId": "getBlogCategoryTree",
-                "description": "Λήψη της πλήρους δενδρικής δομής κατηγοριών με ένθετες σχέσεις. Είναι πιο αποδοτικό από τη χρήση list?tree=true για την εμφάνιση μενού πλοήγησης ή ιεραρχιών κατηγοριών.",
+                "description": "Λήψη της πλήρους δενδρικής δομής κατηγοριών με ένθετες σχέσεις, για την εμφάνιση μενού πλοήγησης ή ιεραρχιών κατηγοριών.",
                 "summary": "Λήψη πλήρους δέντρου κατηγοριών",
                 "parameters": [
                     {
@@ -80536,6 +80544,14 @@
                 "type": "object",
                 "description": "Every ``TenantConfig.features`` name, with its state.",
                 "properties": {
+                    "customerAccounts": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FeatureState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
                     "blog": {
                         "allOf": [
                             {
@@ -80706,6 +80722,7 @@
                     "catalogue",
                     "chatWidget",
                     "contactAttachments",
+                    "customerAccounts",
                     "favourites",
                     "feedback",
                     "giftCards",
@@ -80724,6 +80741,10 @@
                 "type": "object",
                 "description": "Each optional feature's effective state for the store: its plan\nflag AND its store settings (``tenant/features.py``), so a client reads\none answer instead of combining the two tiers and copying defaults.",
                 "properties": {
+                    "customerAccounts": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
                     "blog": {
                         "type": "boolean",
                         "readOnly": true
@@ -80814,6 +80835,7 @@
                     "catalogue",
                     "chatWidget",
                     "contactAttachments",
+                    "customerAccounts",
                     "favourites",
                     "feedback",
                     "giftCards",

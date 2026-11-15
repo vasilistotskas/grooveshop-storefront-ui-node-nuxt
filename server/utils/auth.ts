@@ -129,6 +129,29 @@ export async function readUserSession(event: RequestEvent): Promise<Partial<User
   return requestHasSession(event) ? await getUserSession(event) : {}
 }
 
+/**
+ * End the shopper's session on this browser: their cart, then the signed-in
+ * user and tokens. One after the other, user last: the cart id lives in the
+ * same `nuxt-auth-session` cookie, and clearing the cart rewrites that
+ * session. Run side by side, the cart clear read the session before the user
+ * clear emptied it and wrote it back with the old session token, so the
+ * sign-out undid itself and the next sign-in was refused (410). Each runs
+ * even if the other throws (e.g. a seal failure during a NUXT_APP_SECRET
+ * rotation), so no stale cookie stays behind. Sign-out ends a session this
+ * way, and so does a store that switched customer accounts off
+ * (`server/middleware/1.customer-accounts.ts`).
+ */
+export async function clearShopperSession(event: RequestEvent): Promise<void> {
+  for (const clear of [clearCartSession, clearUserSession]) {
+    try {
+      await clear(event)
+    }
+    catch (error) {
+      log.warn({ tag: 'auth', message: 'Clearing a session failed', error })
+    }
+  }
+}
+
 export async function getAllAuthHeaders(event: RequestEvent) {
   const session = await readUserSession(event)
   const sessionToken = session.secure?.sessionToken

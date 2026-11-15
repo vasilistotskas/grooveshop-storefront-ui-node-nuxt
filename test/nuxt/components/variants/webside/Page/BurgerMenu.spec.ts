@@ -172,6 +172,19 @@ describe('webside Page/BurgerMenu', () => {
       expect(signOut).toBe(false)
     })
 
+    it('greets nobody with sign-in or sign-up on a store without customer accounts', async () => {
+      setTenantFeatures({ customerAccounts: false })
+
+      const wrapper = await openMenu()
+
+      const text = dialog().text()
+      const hrefs = dialog().findAll('a').map(link => link.attributes('href') ?? '')
+      wrapper.unmount()
+
+      expect(text).not.toContain(COPY.greeting)
+      expect(hrefs.filter(href => href.startsWith('/account'))).toEqual([])
+    })
+
     it('shows a member their account and the way to sign out instead', async () => {
       session.loggedIn.value = true
       session.user.value = makeUserDetails({ email: 'maria@example.com' })

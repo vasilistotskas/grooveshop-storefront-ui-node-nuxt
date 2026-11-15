@@ -3,7 +3,7 @@ definePageMeta({
   // Its query is its view (the page and the order of the reviews), and holds nothing else:
   // a sign-in brings the shopper back to it.
   signInReturn: 'path-and-query',
-  middleware: ['account-reviews-enabled'],
+  middleware: ['customer-accounts-enabled', 'account-reviews-enabled'],
 })
 defineRouteRules({
   robots: false,

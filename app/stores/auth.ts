@@ -45,6 +45,11 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const setupConfig = async () => {
+    // A store without customer accounts has no sign-in to configure, and
+    // Django answers 404 on allauth there (`feature_gate:refused`). Read
+    // from the `tenant` state: the setup plugin calls this before the
+    // tenant store is filled (`app:created`).
+    if (!storeFeatureOn(useTenant().value, 'customerAccounts')) return
     try {
       status.value.config = 'pending'
       const data = await $api<GetAllauthAppV1ConfigResponse>(

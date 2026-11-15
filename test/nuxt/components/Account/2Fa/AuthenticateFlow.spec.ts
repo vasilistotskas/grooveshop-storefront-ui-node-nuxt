@@ -6,6 +6,7 @@ import WebsideAuthenticateFlow from '~/components/variants/webside/Account/2Fa/A
 import { trees } from '~~/test/helpers/trees'
 import { makePendingFlowResponse } from '~~/test/fixtures/allauth'
 import type { AllAuthFlow } from '~~/shared/openapi-allauth/types.gen'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The frame of every second-factor sign-in step: it offers the shopper's
@@ -18,6 +19,8 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 const pendingMfa = (types: AllAuthFlow['types']) => makePendingFlowResponse('mfa_authenticate', { types })
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('auth-state').value = pendingMfa(['recovery_codes', 'totp', 'webauthn'])
 })
 

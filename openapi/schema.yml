@@ -1723,6 +1723,11 @@ paths:
             format: date-time
           description: Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
         - in: query
+          name: cursor
+          schema:
+            type: string
+          description: Δείκτης (cursor) για σελιδοποίηση
+        - in: query
           name: descendantOf
           schema:
             oneOf:
@@ -3266,7 +3271,7 @@ paths:
   /api/v1/blog/category/tree:
     get:
       operationId: getBlogCategoryTree
-      description: Λήψη της πλήρους δενδρικής δομής κατηγοριών με ένθετες σχέσεις. Είναι πιο αποδοτικό από τη χρήση list?tree=true για την εμφάνιση μενού πλοήγησης ή ιεραρχιών κατηγοριών.
+      description: Λήψη της πλήρους δενδρικής δομής κατηγοριών με ένθετες σχέσεις, για την εμφάνιση μενού πλοήγησης ή ιεραρχιών κατηγοριών.
       summary: Λήψη πλήρους δέντρου κατηγοριών
       parameters:
         - in: query
@@ -51233,6 +51238,10 @@ components:
       type: object
       description: Every ``TenantConfig.features`` name, with its state.
       properties:
+        customerAccounts:
+          allOf:
+            - $ref: '#/components/schemas/FeatureState'
+          readOnly: true
         blog:
           allOf:
             - $ref: '#/components/schemas/FeatureState'
@@ -51322,6 +51331,7 @@ components:
         - catalogue
         - chatWidget
         - contactAttachments
+        - customerAccounts
         - favourites
         - feedback
         - giftCards
@@ -51341,6 +51351,9 @@ components:
         flag AND its store settings (``tenant/features.py``), so a client reads
         one answer instead of combining the two tiers and copying defaults.
       properties:
+        customerAccounts:
+          type: boolean
+          readOnly: true
         blog:
           type: boolean
           readOnly: true
@@ -51410,6 +51423,7 @@ components:
         - catalogue
         - chatWidget
         - contactAttachments
+        - customerAccounts
         - favourites
         - feedback
         - giftCards

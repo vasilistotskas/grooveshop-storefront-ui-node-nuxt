@@ -34,6 +34,8 @@ const shopServing = useGatedRoute('/products')
 const blogServing = useGatedRoute('/blog')
 const searchServing = useGatedRoute('/search')
 const { signIn, signUp } = useAuthLinks()
+// No customer accounts, no sign-in and sign-up card.
+const accountServing = useGatedRoute('/account')
 const { categories } = useCategoryMenu()
 const { blogCategories } = useBlogCategoryMenu()
 const { mobileLinks } = useNavigation()
@@ -285,7 +287,7 @@ const onClickCookieSettings = () => {
           </div>
 
           <div
-            v-else
+            v-else-if="accountServing"
             class="
               flex flex-col gap-2.5 rounded-lg border border-primary-200
               bg-primary-50 p-3.5

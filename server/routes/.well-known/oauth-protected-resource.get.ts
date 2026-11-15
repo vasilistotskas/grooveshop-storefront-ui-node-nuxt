@@ -5,6 +5,8 @@ import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/serve
 // protected resource; the Django API is the OAuth authorization server
 // (allauth.idp — discovery at {issuer}/.well-known/openid-configuration
 // and /.well-known/oauth-authorization-server).
+// A store without customer accounts has no authorization server to name:
+// `server/middleware/1.customer-accounts.ts` answers 404 here for it.
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig()
   const tenant = event.context.tenant

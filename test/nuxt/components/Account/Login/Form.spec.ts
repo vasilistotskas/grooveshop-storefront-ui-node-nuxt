@@ -10,6 +10,7 @@ import WebsideSignupForm from '~/components/variants/webside/Account/Signup/Form
 import { trees } from '~~/test/helpers/trees'
 import type { AllAuthProvider } from '~~/shared/openapi-allauth/types.gen'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse, makeSessionResponse, makeSocialProvider } from '~~/test/fixtures/allauth'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The email + password sign-in. Mocked at `useAllAuthAuthentication`
@@ -47,6 +48,8 @@ const SIGNED_IN = makeSessionResponse()
 let refreshCart: MockInstance<() => Promise<void>>
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   login.mockResolvedValue(SIGNED_IN)
   refreshCart = vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue()
   useAuthStore().session = undefined

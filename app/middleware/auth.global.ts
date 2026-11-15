@@ -5,13 +5,16 @@ export default defineNuxtRouteMiddleware(
     const nuxtApp = useNuxtApp()
     const { loggedIn } = useUserSession()
     const localePath = useLocalePath()
+    // A store without customer accounts has no sign-in page to send a guest
+    // to: an account page answers 404 itself (`customer-accounts-enabled`).
+    const customerAccounts = useStoreFeature('customerAccounts')
 
     const verifyAuthenticatedRoutes = async (
       to: RouteLocationNormalized,
     ) => {
       const routeName = nuxtApp.$routeBaseName(to)
       if (!routeName) return
-      if (loggedIn.value || !isRouteProtected(String(routeName))) return
+      if (loggedIn.value || !customerAccounts.value || !isRouteProtected(String(routeName))) return
       return nuxtApp.runWithContext(() =>
         // The page's path, its query only where the page marks it view
         // state (`returnTarget`): a query can hold a token.
