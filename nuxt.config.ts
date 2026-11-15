@@ -165,6 +165,12 @@ export default defineNuxtConfig({
     apiBaseUrl: process.env.NUXT_API_BASE_URL,
     mediaStreamPath: process.env.NUXT_MEDIA_STREAM_PATH,
     cacheBase: process.env.NUXT_CACHE_BASE,
+    // The budget of the `cache` mount while it is not on Redis (memory mode,
+    // or a pod waiting for Redis): least recently used entries go past it
+    // (`createMemoryDriver` in `server/plugins/storage.ts`). A cached page is
+    // about 100 KB, so the default holds over a thousand, well inside the
+    // frontend pod's memory limit.
+    cacheMemoryMaxMb: Number(process.env.NUXT_CACHE_MEMORY_MAX_MB || 128),
     djangoUrl: process.env.NUXT_DJANGO_URL,
     cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN,
     // Upper bound on ONE contact-attachment upload streamed through

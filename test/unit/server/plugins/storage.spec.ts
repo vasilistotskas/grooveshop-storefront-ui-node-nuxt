@@ -6,11 +6,14 @@
  * client) and `unstorage/drivers/redis` are replaced by fakes; the mount
  * itself is the real unstorage the Nitro shim provides.
  */
+import { createStorage } from 'unstorage'
 import type { Driver } from 'unstorage'
 import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import plugin, {
+  createMemoryDriver,
   isSupersededBuildKey,
+  redisProbeDelay,
   redisReconnectDelay,
   sweepSupersededBuildCaches,
   withCompressedValues,
@@ -70,6 +73,69 @@ describe('redisReconnectDelay', () => {
   it('caps the wait so a recovered Redis is picked up within seconds', () => {
     expect(redisReconnectDelay(10)).toBe(2000)
     expect(redisReconnectDelay(10_000)).toBe(2000)
+  })
+})
+
+describe('redisProbeDelay', () => {
+  it('probes again sooner after the first failures than after many', () => {
+    expect(redisProbeDelay(1)).toBe(5_000)
+    expect(redisProbeDelay(2)).toBe(10_000)
+  })
+
+  it('never stops probing, at most a minute apart', () => {
+    expect(redisProbeDelay(12)).toBe(60_000)
+    expect(redisProbeDelay(10_000)).toBe(60_000)
+  })
+})
+
+/**
+ * The cache mount while it is not on Redis (a pod that booted while Redis was
+ * away, or `NUXT_CACHE_BASE=memory`): bounded, and a write's ttl holds, as
+ * Redis would keep them (storefront #419). unstorage's own memory driver keeps
+ * every write in a Map, without its ttl, until the process exits.
+ */
+describe('createMemoryDriver', () => {
+  const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+  it('forgets a write once its own ttl is over', async () => {
+    const storage = createStorage({ driver: createMemoryDriver({ maxBytes: 1_000_000, ttlSeconds: 3600 }) })
+
+    await storage.setItem('rate:ingest', { window: 1, count: 2 }, { ttl: 0.02 })
+    expect(await storage.getItem('rate:ingest')).toEqual({ window: 1, count: 2 })
+
+    await pause(60)
+    expect(await storage.getItem('rate:ingest')).toBeNull()
+  })
+
+  it('forgets a write without a ttl after the default one', async () => {
+    const storage = createStorage({ driver: createMemoryDriver({ maxBytes: 1_000_000, ttlSeconds: 0.02 }) })
+
+    await storage.setItem('nitro:routes:page', '<p>Groove</p>')
+    await pause(60)
+
+    expect(await storage.getItem('nitro:routes:page')).toBeNull()
+  })
+
+  it('keeps within its byte budget by dropping what was read least recently', async () => {
+    const storage = createStorage({ driver: createMemoryDriver({ maxBytes: 2_500, ttlSeconds: 3600 }) })
+    const page = 'x'.repeat(1_000)
+
+    await storage.setItem('a', page)
+    await storage.setItem('b', page)
+    await storage.getItem('a')
+    await storage.setItem('c', page)
+
+    expect(await storage.hasItem('a')).toBe(true)
+    expect(await storage.hasItem('b')).toBe(false)
+    expect(await storage.hasItem('c')).toBe(true)
+  })
+
+  it('stores nothing for a non-positive ttl, which means "do not cache"', async () => {
+    const storage = createStorage({ driver: createMemoryDriver({ maxBytes: 1_000_000, ttlSeconds: 3600 }) })
+
+    await storage.setItem('i18n:messages', 'x', { ttl: -1 })
+
+    expect(await storage.hasItem('i18n:messages')).toBe(false)
   })
 })
 
@@ -367,20 +433,21 @@ describe('the storage plugin', () => {
   beforeEach(() => {
     redis.clients.length = 0
     redis.next = {}
-    setRuntimeConfig({ redis: { host: 'redis.test', port: 6379, ttl: 86400, db: 3 }, app: { buildId: BUILD_ID } })
+    setRuntimeConfig({ redis: { host: 'redis.test', port: 6379, ttl: 86400, db: 3 }, cacheMemoryMaxMb: 64, app: { buildId: BUILD_ID } })
   })
 
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  it('mounts a working memory cache and never probes Redis in memory mode', async () => {
+  it('mounts a bounded memory cache and never probes Redis in memory mode', async () => {
     setRuntimeConfig({ cacheBase: 'memory' })
 
     await runNitroPlugin(plugin)
     await useStorage('cache').setItem('k', 'v')
 
-    expect(cacheDriver()?.name).toBe('memory')
+    expect(cacheDriver()?.name).toBe('lru-cache')
+    expect(cacheDriver()?.options).toMatchObject({ maxSize: 64 * 1024 * 1024, ttl: 86400 * 1000 })
     expect(await useStorage('cache').getItem('k')).toBe('v')
     expect(redis.clients).toEqual([])
   })
@@ -391,7 +458,7 @@ describe('the storage plugin', () => {
 
     await runNitroPlugin(plugin)
 
-    expect(cacheDriver()?.name).toBe('memory')
+    expect(cacheDriver()?.name).toBe('lru-cache')
     expect(redis.clients).toHaveLength(1)
   })
 
@@ -454,7 +521,7 @@ describe('the storage plugin', () => {
     await vi.waitFor(() => expect(cacheDriver()?.options?.base).toBe('cache'))
   })
 
-  it('keeps the memory driver and says so when Redis does not answer', async () => {
+  it('keeps the memory driver and says so while Redis does not answer', async () => {
     setRuntimeConfig({ cacheBase: 'redis' })
     redis.next = {
       ping: async () => {
@@ -465,7 +532,50 @@ describe('the storage plugin', () => {
     await runNitroPlugin(plugin)
 
     await vi.waitFor(() => expect(log.warn).toHaveBeenCalledWith('cache', expect.stringContaining('Redis unavailable')))
-    expect(cacheDriver()?.name).toBe('memory')
+    expect(cacheDriver()?.name).toBe('lru-cache')
+  })
+
+  // A pod that boots during a Redis outage must not keep a cache of its own
+  // for life: a purge from Django would reach it only by chance (#419).
+  it('probes Redis again after a failed probe and moves to it once it answers', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    setRuntimeConfig({ cacheBase: 'redis' })
+    let refusals = 2
+    redis.next = {
+      ping: async () => {
+        if (refusals-- > 0) throw new Error('ECONNREFUSED')
+        return 'PONG'
+      },
+    }
+
+    await runNitroPlugin(plugin)
+    await vi.waitFor(() => expect(log.warn).toHaveBeenCalledTimes(1))
+    await vi.advanceTimersByTimeAsync(redisProbeDelay(1))
+    await vi.waitFor(() => expect(log.warn).toHaveBeenCalledTimes(2))
+    expect(redis.clients).toHaveLength(2)
+    expect(cacheDriver()?.name).toBe('lru-cache')
+
+    await vi.advanceTimersByTimeAsync(redisProbeDelay(2))
+
+    await vi.waitFor(() => expect(cacheDriver()?.name).toBe('redis'))
+    expect(redis.clients).toHaveLength(3)
+  })
+
+  it('stops probing once the server closes', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    setRuntimeConfig({ cacheBase: 'redis' })
+    redis.next = {
+      ping: async () => {
+        throw new Error('ECONNREFUSED')
+      },
+    }
+
+    const nitroApp = await runNitroPlugin(plugin)
+    await vi.waitFor(() => expect(log.warn).toHaveBeenCalled())
+    await nitroApp.hooks.callHook('close')
+    await vi.advanceTimersByTimeAsync(redisProbeDelay(1) * 10)
+
+    expect(redis.clients).toHaveLength(1)
   })
 
   it('unmounts the cache on close so the Redis connection cannot hold the process open', async () => {

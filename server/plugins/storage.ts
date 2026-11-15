@@ -1,7 +1,7 @@
 import { brotliCompressSync, brotliDecompressSync, constants as zlibConstants } from 'node:zlib'
 import { createClient } from 'redis'
 import redisDriver from 'unstorage/drivers/redis'
-import memoryDriver from 'unstorage/drivers/memory'
+import lruCacheDriver from 'unstorage/drivers/lru-cache'
 import type { Driver } from 'unstorage'
 import { defineNitroPlugin, useStorage } from 'nitropack/runtime'
 import { useRuntimeConfig } from 'nuxt/server'
@@ -19,6 +19,7 @@ import { useRuntimeConfig } from 'nuxt/server'
  * Configuration:
  * - NUXT_CACHE_BASE='redis' → Use Redis driver
  * - NUXT_CACHE_BASE='memory' → Use memory driver (default)
+ * - NUXT_CACHE_MEMORY_MAX_MB → the memory driver's budget (`createMemoryDriver`)
  */
 
 const CACHE_MOUNT_POINT = 'cache' // Nitro's default, do not change
@@ -273,6 +274,56 @@ export function withCompressedValues(driver: Driver): Driver {
   }
 }
 
+/** One megabyte, for `cacheMemoryMaxMb`. */
+const BYTES_PER_MB = 1024 * 1024
+
+/**
+ * The cache mount whenever it is not on Redis: `NUXT_CACHE_BASE=memory`, a
+ * pod's first seconds while the Redis probe runs, and a pod that booted while
+ * Redis was unreachable, until a later probe reaches it (`redisProbeDelay`).
+ *
+ * Bounded and expiring, as Redis is (`maxmemory` with `allkeys-lru`, and a
+ * ttl on every key): at most `maxBytes` of serialized values, the least
+ * recently used dropped first, and each write gone after its own `ttl`, or
+ * after `ttlSeconds` (`NUXT_REDIS_TTL`, the Redis driver's default) without
+ * one. unstorage's `memory` driver is a plain Map that ignores the `ttl`
+ * option and never drops anything, so a pod that booted during a Redis outage
+ * grew it for life (storefront #419). Its `lru-cache` driver bounds the
+ * entries but sets every one with the cache-wide ttl, so the write's own ttl
+ * is applied here, on the driver's LRUCache.
+ */
+export function createMemoryDriver({ maxBytes, ttlSeconds }: { maxBytes: number, ttlSeconds: number }): Driver {
+  // `max: 0` lifts the driver's default cap of 1000 entries: the bound is the
+  // bytes, so a thousand rate-limit counters do not evict a page.
+  const driver = lruCacheDriver({ max: 0, maxSize: maxBytes, ttl: ttlSeconds * 1000 })
+  const cache = driver.getInstance!()
+  return withoutNonPositiveTtlWrites({
+    ...driver,
+    setItem(key, value, opts) {
+      const ttl = (opts as { ttl?: number } | undefined)?.ttl
+      cache.set(key, value, typeof ttl === 'number' ? { ttl: ttl * 1000 } : undefined)
+    },
+  })
+}
+
+/** The first wait before probing Redis again, and the step it grows by. */
+const REDIS_PROBE_STEP_MS = 5_000
+
+/** Longest wait between two Redis probes. */
+const REDIS_PROBE_MAX_DELAY_MS = 60_000
+
+/**
+ * The wait before Redis probe `attempt + 1`, after probe `attempt` failed.
+ *
+ * The probing never stops: a pod that booted while Redis was unreachable kept
+ * its own memory cache for life, out of reach of a purge from Django, which
+ * lands on one pod, and of the tenant epochs the other pods write (storefront
+ * #419). Once Redis answers, the pod moves to it within a minute.
+ */
+export function redisProbeDelay(attempt: number): number {
+  return Math.min(attempt * REDIS_PROBE_STEP_MS, REDIS_PROBE_MAX_DELAY_MS)
+}
+
 /** Longest wait between reconnect attempts, in milliseconds. */
 const RECONNECT_MAX_DELAY_MS = 2000
 
@@ -451,43 +502,61 @@ export default defineNitroPlugin(async (nitroApp) => {
   // ~5s connectTimeout here delayed every scale-up pod's readiness —
   // the prod audit (2026-07-02) caught fresh replicas failing startup
   // probes with "context deadline exceeded" during HPA churn.
-  storage.mount(CACHE_MOUNT_POINT, memoryDriver())
+  storage.mount(CACHE_MOUNT_POINT, createMemoryDriver({
+    maxBytes: Number(config.cacheMemoryMaxMb) * BYTES_PER_MB,
+    ttlSeconds: redisTTL,
+  }))
 
   if (!useRedis) {
     log.info('cache', `Using memory driver (NUXT_CACHE_BASE=${config.cacheBase})`)
     return
   }
 
+  let closed = false
+  let nextProbe: ReturnType<typeof setTimeout> | undefined
+
   // Unmount the cache driver on shutdown so ioredis connections are closed and
   // the process can exit cleanly after prerender (or normal server shutdown).
   nitroApp.hooks.hookOnce('close', async () => {
+    closed = true
+    clearTimeout(nextProbe)
     await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
   })
 
   log.info('cache', `Testing Redis connection at ${redisHost}:${redisPort} (db: ${redisDB})...`)
 
   // Deliberately NOT awaited: the probe runs in the background and
-  // swaps Redis in when it succeeds. Cache entries written to memory
-  // during that window are simply lost on swap — an acceptable cost;
-  // Nitro's cached handlers already tolerate cache-layer errors.
-  void testRedisConnection(redisHost, redisPort, redisDB, redisPassword).then(async (isConnected) => {
-    if (isConnected) {
-      const base = cacheNamespace(config.app?.buildId)
-      const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, base, db: redisDB, password: redisPassword })
-      await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
-      storage.mount(CACHE_MOUNT_POINT, driver)
-      log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s, keyspace: ${base})`)
+  // swaps Redis in when it succeeds, or probes again later when it fails.
+  // Cache entries written to memory before the swap are simply lost on
+  // it — an acceptable cost; Nitro's cached handlers already tolerate
+  // cache-layer errors.
+  const probe = async (attempt: number): Promise<void> => {
+    const isConnected = await testRedisConnection(redisHost, redisPort, redisDB, redisPassword)
+    if (closed) {
+      return
+    }
+    if (!isConnected) {
+      const delay = redisProbeDelay(attempt)
+      log.warn('cache', `Redis unavailable, keeping memory driver (not shared across pods!), probing again in ${delay / 1000}s`)
+      nextProbe = setTimeout(() => void probe(attempt + 1), delay)
+      // Do not hold the event loop open on shutdown just to probe.
+      nextProbe.unref?.()
+      return
+    }
 
-      scheduleBuildCacheSweep({
-        buildId: config.app?.buildId,
-        host: redisHost,
-        port: redisPort,
-        db: redisDB,
-        password: redisPassword,
-      })
-    }
-    else {
-      log.warn('cache', `Redis unavailable, keeping memory driver (not shared across pods!)`)
-    }
-  })
+    const base = cacheNamespace(config.app?.buildId)
+    const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, base, db: redisDB, password: redisPassword })
+    await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
+    storage.mount(CACHE_MOUNT_POINT, driver)
+    log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s, keyspace: ${base})`)
+
+    scheduleBuildCacheSweep({
+      buildId: config.app?.buildId,
+      host: redisHost,
+      port: redisPort,
+      db: redisDB,
+      password: redisPassword,
+    })
+  }
+  void probe(1)
 })
