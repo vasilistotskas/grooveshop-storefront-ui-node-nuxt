@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeAll } from 'vitest'
 import YAML from 'yaml'
 import { SUPPORTED_LOCALES } from '~~/i18n/locales'
+import { shapeMismatch } from '../../helpers/messageParity'
 import { APP, appLabel, parseSfc, vueFiles } from '../../helpers/sourceText'
 
 /**
@@ -14,7 +15,9 @@ import { APP, appLabel, parseSfc, vueFiles } from '../../helpers/sourceText'
  * the default one and no empty values. A half-translated block is worse
  * than an absent translation: the missing keys fall back per-key, so one
  * component renders in two languages at once — and an empty string
- * renders nothing at all.
+ * renders nothing at all. Each translation also keeps the placeholders and
+ * plural forms of the default one: dropping `{amount}` or a plural form
+ * drops the amount or the count it was meant to show.
  *
  * The `webside` design is NOT translatable.
  * `app/components/variants/webside/**` is webside's own set of templates.
@@ -24,6 +27,14 @@ import { APP, appLabel, parseSfc, vueFiles } from '../../helpers/sourceText'
  */
 const DEFAULT_BLOCK_LOCALE = 'el'
 const WEBSIDE_DESIGN_DIR = 'components/variants/webside/'
+
+/**
+ * Messages whose translation names a parameter the default leaves out, on
+ * purpose. `Products/CategoryChips` `all_in`: the English chip reads "All
+ * {name}"; the Greek one does not name the category, which it would have to
+ * decline ("Όλη η κατηγορία"). The call passes `name` either way.
+ */
+const DIFFERENT_BY_DESIGN = new Set(['components/Products/CategoryChips.vue all_in'])
 
 /** Every leaf of a message tree as `path` → value. */
 function leaves(value: unknown, prefix = ''): Array<[string, unknown]> {
@@ -88,5 +99,24 @@ describe('inline <i18n> blocks', () => {
     )
 
     expect(empty, 'an empty message renders nothing').toEqual([])
+  })
+
+  it('give every message the placeholders and plural forms of the default locale', () => {
+    const differing: string[] = []
+    for (const { file, messages } of blocks) {
+      const expected = new Map(leaves(messages[DEFAULT_BLOCK_LOCALE]))
+      for (const locale of SUPPORTED_LOCALES) {
+        if (locale === DEFAULT_BLOCK_LOCALE) continue
+        for (const [path, value] of leaves(messages[locale])) {
+          const original = expected.get(path)
+          if (typeof original !== 'string' || typeof value !== 'string') continue
+          if (DIFFERENT_BY_DESIGN.has(`${file} ${path}`)) continue
+          const mismatch = shapeMismatch(original, value)
+          if (mismatch) differing.push(`${file} [${locale}] ${path}: ${mismatch}`)
+        }
+      }
+    }
+
+    expect(differing).toEqual([])
   })
 })
