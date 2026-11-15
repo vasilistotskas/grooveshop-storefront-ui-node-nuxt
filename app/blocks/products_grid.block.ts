@@ -21,11 +21,5 @@ export default defineBlock({
   translatable: ['/eyebrow', '/heading', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeProductRail({ ordering: 'featured', limit: 8 }, 24), 2: upgradeTitleIntoHeading },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { products: { mode: 'filter', ordering: 'mostViewed', limit: 8 } } }],
-  editor: {
-    title: ['heading'],
-    category: 'products',
-    designSettings: {
-      webside: ['products'],
-    },
-  },
+  editor: { title: ['heading'], category: 'products' },
 })

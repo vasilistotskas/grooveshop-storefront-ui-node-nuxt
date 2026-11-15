@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { compileScript } from 'vue/compiler-sfc'
 import { builderSettingsFields } from '~/utils/builderSettingsFields'
 import type { BlockDefinition } from '~~/shared/types/builder'
-import { APP, parseScript, parseSfc, propertyOf, readSource, walkAst } from '../../helpers/sourceText'
-import type { AstNode } from '../../helpers/sourceText'
+import { APP, COMPONENTS, callsIn, componentsByName, isElement, parseScript, parseSfc, propertyOf, readSource, sfcTemplate, vueFiles, walkAst } from '../../helpers/sourceText'
+import type { AstNode, ElementNode } from '../../helpers/sourceText'
 
 /**
  * The settings form a store is offered for a section is what the component
@@ -33,6 +33,13 @@ import type { AstNode } from '../../helpers/sourceText'
  * query and a breakpoint per phone-only setting, and a setting it failed to
  * vary would pass as "drawn"; the compiler's view needs none of that and covers
  * every registry entry, the base ones included.
+ *
+ * A setting the component does not declare is an attribute, and Vue hands
+ * the attributes to the component's root (`inheritAttrs`, on unless
+ * `defineOptions({ inheritAttrs: false })`). When that root is another
+ * component, what it draws of them is drawn too (webside's product bands
+ * wrap the platform's band): the rule follows the root, recursively, less
+ * what the wrapper binds on it itself.
  *
  * Settings only: a child block's form, drawn by its parent's component through
  * a list prop (`childList`), is not checked here.
@@ -103,10 +110,52 @@ function propsOf(file: string): { declared: string[], read: Set<string> | 'every
   return { declared, read: whole ? 'every' : read, attrs }
 }
 
-/** The settings of the block the component draws: declared and read. */
+const components = componentsByName(vueFiles(COMPONENTS))
+const camel = (name: string) => name.replace(/-(w)/g, (_match, letter: string) => letter.toUpperCase())
+const pascal = (tag: string) => camel(tag).replace(/^w/, letter => letter.toUpperCase())
+
+/** Whether the component hands what it does not declare to its root (`inheritAttrs`, on by default). */
+function inheritsAttrs(file: string): boolean {
+  return !callsIn(file, /^defineOptions$/).some(({ call }) => propertyOf(call.arguments[0], 'inheritAttrs')?.value === false)
+}
+
+/**
+ * The template's root elements that take the attributes: the one root, or
+ * each branch of a `v-if` chain at the root. None when there are several roots.
+ */
+function rootsOf(file: string): ElementNode[] {
+  const roots = (sfcTemplate(file)?.children ?? []).filter(isElement)
+  const chained = roots.slice(1).every(root => root.props.some(prop => prop.type === 7 && (prop.name === 'else' || prop.name === 'else-if')))
+  return roots.length === 1 || chained ? roots : []
+}
+
+/** The props an element binds itself, by name: `foo="…"` and `:foo="…"`. */
+function boundOn(element: ElementNode): Set<string> {
+  return new Set(element.props.flatMap((prop) => {
+    if (prop.type === 6) return [camel(prop.name)]
+    if (prop.type === 7 && prop.name === 'bind' && prop.arg?.type === 4 && prop.arg.isStatic) return [camel(prop.arg.content)]
+    return []
+  }))
+}
+
+/**
+ * The settings of the block the component draws: its own props that it
+ * reads, and of the rest, which fall through to its root, what that root
+ * component draws.
+ */
 function drawnBy(file: string, offered: readonly string[]): string[] {
   const { declared, read } = propsOf(file)
-  return offered.filter(setting => declared.includes(setting) && (read === 'every' || read.has(setting)))
+  const own = offered.filter(setting => declared.includes(setting) && (read === 'every' || read.has(setting)))
+  if (!inheritsAttrs(file)) return own
+  const passed = new Set<string>()
+  for (const root of rootsOf(file)) {
+    const target = root.tagType === 1 ? components.get(pascal(root.tag).replace(/^Lazy/, '')) : undefined
+    if (!target) continue
+    const bound = boundOn(root)
+    const attrs = offered.filter(setting => !declared.includes(setting) && !bound.has(setting))
+    for (const setting of drawnBy(target, attrs)) passed.add(setting)
+  }
+  return offered.filter(setting => own.includes(setting) || passed.has(setting))
 }
 
 describe('the settings form of each design', () => {
@@ -116,6 +165,8 @@ describe('the settings form of each design', () => {
     expect(entries.filter(entry => entry.design).length).toBeGreaterThanOrEqual(20)
     expect(entries.filter(entry => !byType.has(entry.type)).map(entry => entry.key)).toEqual([])
     expect(propsOf(resolve(APP, 'components/PageSection/BlogPosts.vue')).declared).toContain('colorScheme')
+    // webside's slider band declares only `products`; the rest reach the platform's band it wraps.
+    expect(drawnBy(resolve(APP, 'components/variants/webside/PageSection/ProductsSliderBand.vue'), ['products', 'heading', 'colorScheme'])).toEqual(['products', 'heading', 'colorScheme'])
   })
 
   // A design's list is in `editor.designSettings` of the block; the platform's component draws every setting.
