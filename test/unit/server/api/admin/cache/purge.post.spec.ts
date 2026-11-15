@@ -441,6 +441,14 @@ describe('POST /api/admin/cache/purge, builderDocuments', () => {
     expect(left).toContain(DEMO_CHROME())
   })
 
+  it('refuses documents without the store they belong to, and purges nothing', async () => {
+    const before = await remainingKeys()
+    const response = await purge({ builderDocuments: ['template:home'] })
+
+    expect(response.status).toBe(400)
+    expect(await remainingKeys()).toEqual(before)
+  })
+
   it('takes patterns and documents together', async () => {
     const response = await purge({ patterns: ['cache:nitro:routes:_:*about*'], builderDocuments: ['page:summer-sale'], host: WEBSIDE })
 

@@ -76,6 +76,14 @@ const bodySchema = z.object({
   .refine(body => body.patterns.length > 0 || body.builderDocuments.length > 0, {
     message: 'A purge names patterns or builder documents',
   })
+  // Builder documents belong to one store: its epoch moves between the data
+  // and the pages (`moveBuilderEpoch`), so a render in flight does not store
+  // a page of the old records. Without the store there is no epoch to move,
+  // and the pages of every store would go unprotected.
+  .refine(body => body.builderDocuments.length === 0 || body.host !== undefined, {
+    message: 'Builder documents are purged for one store host',
+    path: ['host'],
+  })
 
 function isProtected(key: string): boolean {
   return PROTECTED_FRAGMENTS.some(f => key.includes(f))
