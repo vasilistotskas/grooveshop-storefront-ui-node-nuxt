@@ -1842,6 +1842,30 @@ describe('editing the structure of a page', () => {
         expect(api.callsTo(THEME_DRAFT_URL)).toHaveLength(0)
       })
 
+      // An earlier theme in a shape this build cannot read: it is not put
+      // back (Django would take it, the panel and the canvas could not), the
+      // toast says why, and the row says it before Restore is tried again.
+      it('refuses to restore a theme this build cannot read, and marks its row', async () => {
+        setTenant({ schemaName: 'webside' })
+        historyRoutes(themeDefaultsFor(null), earlierThan(null), {
+          [`${THEME_VERSIONS}/1`]: { ...version(1), data: { settings: { colors: 'old' }, sections: {}, order: [] }, i18n: {}, refs: {} },
+        })
+        const wrapper = await open('/_builder?panel=theme')
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('restore.of', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('restore.of', { title: FIRST }))!.click()
+        await flushPromises()
+        dialogButton(historyTexts.t('restore.confirm'))!.click()
+        await vi.waitFor(() => expect(document.body.textContent).toContain(historyTexts.t('restoreFailed.unreadable.title', { document: THEME_LABEL })))
+
+        expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)).toHaveLength(0)
+        expect(colourInput(wrapper, 'Κύριο χρώμα').element.value).toBe(themeDefaultsFor(null).colors.light.primary.source)
+        expect(document.querySelector('[role="dialog"]')!.textContent).toContain(historyTexts.t('unreadableRow'))
+        expect(labelled(historyTexts.t('restore.of', { title: FIRST }))!.disabled).toBe(true)
+      })
+
       it('lets STAFF read and preview the theme\'s history, with nothing to restore or save', async () => {
         historyRoutes(themeDefaultsFor('volt'), earlierThan('volt'))
         const wrapper = await open('/_builder', { ...session, staff: { ...session.staff, role: 'staff' } })

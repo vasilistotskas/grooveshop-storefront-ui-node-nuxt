@@ -141,6 +141,7 @@ describe('restoring a version', () => {
     const body = { code: 'revision_conflict', detail: 'Someone else changed this document.', currentRevision: 5, updatedBy: { id: 9, name: 'Nikos' }, updatedAt: '2026-11-03T10:05:00+02:00' }
     api.routes({
       [url]: envelope(3, DRAFT, false),
+      [`${url}/versions/2`]: { ...version(2), data: OLD_DRAFT, i18n: {}, refs: {} },
       [`${url}/versions/2/restore`]: failWith(409, body),
     })
 
@@ -155,6 +156,7 @@ describe('restoring a version', () => {
     await openEditor(false)
     api.routes({
       [url]: envelope(3, DRAFT, false),
+      [`${url}/versions/2`]: { ...version(2), data: OLD_DRAFT, i18n: {}, refs: {} },
       [`${url}/versions/2/restore`]: failWith(409, { code: 'revision_conflict' }),
     })
 
@@ -231,6 +233,24 @@ describe('the theme', () => {
 
     expect(api.callsTo(`${THEME_URL}/draft`)[0]!.options.headers).toEqual({ 'If-Match': '6' })
     expect(autosave.stateOf(BUILDER_THEME_DOCUMENT)).toBe('saved')
+  })
+
+  // Django puts back whatever a version holds, and the envelope of a theme
+  // takes any settings: an earlier theme this build cannot read would land as
+  // a draft the panel cannot edit, the canvas cannot draw and Django will not
+  // publish. It is refused before Django is asked, and remembered.
+  it('refuses to put back a theme whose settings this build cannot read, before asking Django', async () => {
+    const editor = await openWithTheme({ [`${THEME_URL}/versions/3`]: { ...version(3), data: { settings: { colors: 'old' }, sections: {}, order: [] }, i18n: {}, refs: {} } })
+    const history = useBuilderHistoryStore()
+    await history.load(BUILDER_THEME_DOCUMENT)
+
+    const result = await history.restore(BUILDER_THEME_DOCUMENT, 3, 'x')
+
+    expect(result).toBe('unreadable')
+    expect(api.callsTo(`${THEME_URL}/versions/3/restore`)).toHaveLength(0)
+    expect(api.callsTo(`${THEME_URL}/checkpoint`)).toHaveLength(0)
+    expect(accentOf(editor.theme?.copy)).toBe('#111111')
+    expect(history.unreadable.has(3)).toBe(true)
   })
 
   it('leaves the theme the editor holds as it is when the restored one cannot be opened', async () => {

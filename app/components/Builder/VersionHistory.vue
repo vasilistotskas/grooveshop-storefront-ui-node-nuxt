@@ -40,6 +40,9 @@ watch([open, historyKey], ([isOpen, key]) => {
   if (isOpen) void history.load(key)
 })
 
+/** Whether a version was found to be in a format this editor cannot open: it is not offered to put back. */
+const unreadableRow = (row: BuilderHistoryRow) => row.number !== undefined && history.unreadable.has(row.number)
+
 function rowTitle(row: BuilderHistoryRow): string {
   if (row.kind === 'draft') return t('draft')
   // A restore says which version it put back.
@@ -250,6 +253,13 @@ const panelUi = { body: 'p-0 sm:p-0' }
                     size="sm"
                     :label="t('current')"
                   />
+                  <UBadge
+                    v-if="unreadableRow(row)"
+                    color="warning"
+                    variant="subtle"
+                    size="sm"
+                    :label="t('unreadableRow')"
+                  />
                 </p>
                 <p
                   v-if="row.note"
@@ -293,6 +303,7 @@ const panelUi = { body: 'p-0 sm:p-0' }
                     variant="ghost"
                     size="sm"
                     :aria-label="t('restore.of', { title: rowTitle(row) })"
+                    :disabled="unreadableRow(row)"
                     @click="() => { restoring = row }"
                   />
                 </UTooltip>
@@ -391,6 +402,7 @@ el:
   draft: Πρόχειρο
   current: Τρέχον
   live: Ζωντανή
+  unreadableRow: Δεν ανοίγει εδώ
   kind:
     checkpoint: "Αποθηκευμένη έκδοση {number}"
     publish: "Δημοσιευμένη έκδοση {number}"
@@ -436,7 +448,7 @@ el:
       title: Οι αλλαγές σας δεν έχουν αποθηκευτεί ακόμη
       description: Περιμένετε να ολοκληρωθεί η αποθήκευση και δοκιμάστε ξανά.
     unreadable:
-      title: "Η έκδοση επαναφέρθηκε, αλλά δεν ανοίγει εδώ: {document}"
+      title: "Αυτή η έκδοση δεν ανοίγει εδώ: {document}"
       description: Γράφτηκε σε μορφή που αυτή η έκδοση του επεξεργαστή δεν διαβάζει.
     failed:
       title: Η επαναφορά απέτυχε
@@ -448,6 +460,7 @@ en:
   draft: Draft
   current: Current
   live: Live
+  unreadableRow: Can't be opened here
   kind:
     checkpoint: "Saved version {number}"
     publish: "Published version {number}"
@@ -493,7 +506,7 @@ en:
       title: Your changes aren't saved yet
       description: Wait for saving to finish and try again.
     unreadable:
-      title: "Restored, but it can't be opened here: {document}"
+      title: "This version can't be opened here: {document}"
       description: It was written in a format this version of the editor can't read.
     failed:
       title: Restoring failed
