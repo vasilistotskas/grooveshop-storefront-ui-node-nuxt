@@ -7,7 +7,7 @@ import * as z from 'zod'
  */
 export default defineBlock({
   type: 'store_assurances',
-  version: 1,
+  version: 2,
   kinds: ['section'],
   feature: 'cart',
   schema: z.object({
@@ -20,6 +20,7 @@ export default defineBlock({
      */
     layout: z.enum(['card']).optional(),
   }),
+  upgrade: { 1: upgradeLeavingOutDefaults({ '/surface': 'default' }) },
   translatable: ['/heading'],
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
   editor: { title: ['heading'], category: 'trust' },

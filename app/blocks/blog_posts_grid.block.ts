@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** The latest blog posts as a grid. */
 export default defineBlock({
   type: 'blog_posts_grid',
-  version: 3,
+  version: 4,
   kinds: ['section'],
   feature: 'blog',
   schema: z.object({
@@ -26,7 +26,7 @@ export default defineBlock({
     look: z.enum(['bold']).optional(),
   }),
   translatable: ['/eyebrow', '/heading', '/subheading', '/ctaText'],
-  upgrade: { 1: upgradeBlogRail(3, 24), 2: upgradeIconSetting },
+  upgrade: { 1: upgradeBlogRail(3, 24), 2: upgradeIconSetting, 3: upgradeLeavingOutDefaults({ '/surface': 'default' }) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { posts: { mode: 'filter', ordering: 'newest', limit: 3 } } }],
   editor: {
     category: 'blog',

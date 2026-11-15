@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** The store's story as a timeline. */
 export default defineBlock({
   type: 'story_timeline',
-  version: 2,
+  version: 3,
   kinds: ['section'],
   schema: z.object({
     heading: builderField.text(200).optional(),
@@ -11,7 +11,7 @@ export default defineBlock({
     surface: builderField.surface().optional(),
   }),
   translatable: ['/heading', '/subheading'],
-  upgrade: { 1: upgradeTitleIntoHeading },
+  upgrade: { 1: upgradeTitleIntoHeading, 2: upgradeLeavingOutDefaults({ '/surface': 'default' }) },
   limits: { maxBlocks: 20 },
   children: { allowed: ['timeline_entry'], maxDepth: 1 },
   childList: { timeline_entry: 'items' },

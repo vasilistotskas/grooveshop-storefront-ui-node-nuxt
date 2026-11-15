@@ -89,7 +89,7 @@ function query(source: DataSource, { onEmpty, maxLimit = DATA_LIMITS.maxQueryLim
  */
 function productRail(maxLimit: number) {
   return {
-    surface: z.enum(['default', 'muted']).optional(),
+    surface: surface().optional(),
     colorScheme: z.enum(SECTION_COLOR_SCHEMES).optional(),
     heading: text(200).optional(),
     subheading: text(500).optional(),
@@ -103,7 +103,7 @@ function productRail(maxLimit: number) {
 /** The settings of a band of blog posts: what it lists is its `posts`, a rule (a category, featured or not, how many) or a hand-picked list. */
 function blogRail(maxLimit: number) {
   return {
-    surface: z.enum(['default', 'muted']).optional(),
+    surface: surface().optional(),
     colorScheme: z.enum(SECTION_COLOR_SCHEMES).optional(),
     heading: text(200).optional(),
     subheading: text(500).optional(),
@@ -111,6 +111,17 @@ function blogRail(maxLimit: number) {
     ctaLink: link().optional(),
     posts: query('blogPost', { onEmpty: 'hide', maxLimit }),
   }
+}
+
+/**
+ * The ground of a band whose component paints the raised one (`default`)
+ * when it is left out, so the warm ground (`muted`) is the only choice. A
+ * choice never holds what its section draws without it, the editor's
+ * "Default" (`test/unit/server/utils/builderOptionalChoices.spec.ts`), so
+ * each surface below is named by the look its band falls back to.
+ */
+function surface() {
+  return z.enum(['muted'])
 }
 
 export const builderField = {
@@ -130,10 +141,13 @@ export const builderField = {
   hexColor: () => z.string().regex(BUILDER_FIELD_PATTERNS.hexColor),
   /** An id of a record in the store: a positive integer. */
   id: recordId,
-  /** Which of the two page grounds a band paints. */
-  surface: () => z.enum(['default', 'muted']),
-  /** A band that may also be drawn dark. */
-  inkSurface: () => z.enum(['default', 'muted', 'ink']),
+  surface,
+  /** The ground of a band whose component paints the warm ground (`muted`) when it is left out: the raised one is the choice. */
+  mutedSurface: () => z.enum(['default']),
+  /** The ground of a band whose component draws it dark (ink) when it is left out: either page ground is the choice. */
+  inkSurface: () => z.enum(['default', 'muted']),
+  /** Either page ground, for a band that paints none of its own when it is left out. */
+  groundSurface: () => z.enum(['default', 'muted']),
   /** The colour scheme a band is held in, light or dark in both of the page's modes (`SECTION_COLOR_SCHEMES`); empty, it follows the page. */
   colorScheme: () => z.enum(SECTION_COLOR_SCHEMES),
   boolean: () => z.boolean(),

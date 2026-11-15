@@ -493,40 +493,33 @@
   "options": {
     "surface": {
       "default": "Βασικό",
-      "muted": "Απαλό",
-      "ink": "Σκούρο"
+      "muted": "Απαλό"
     },
     "colorScheme": {
       "light": "Ανοιχτό",
       "dark": "Σκούρο"
     },
     "variant": {
-      "line": "Γραμμή",
       "thread": "Υφαντή λωρίδα"
     },
     "decor": {
-      "none": "Καμία",
       "gradient_tiles": "Πλακίδια με διαβάθμιση",
       "framed": "Με πλαίσιο",
       "orbs": "Σφαίρες",
       "gradient": "Διαβάθμιση"
     },
     "align": {
-      "left": "Αριστερά",
-      "center": "Κέντρο"
+      "left": "Αριστερά"
     },
     "theme": {
       "light": "Ανοιχτά",
-      "dark": "Σκούρα",
-      "auto": "Αυτόματα"
+      "dark": "Σκούρα"
     },
     "aspect": {
-      "wide": "Φαρδιά",
       "banner": "Λωρίδα",
       "square": "Τετράγωνη"
     },
     "imagePosition": {
-      "left": "Αριστερά",
       "right": "Δεξιά"
     },
     "layout": {
@@ -538,7 +531,6 @@
     },
     "height": {
       "sm": "Μικρό",
-      "md": "Μεσαίο",
       "lg": "Μεγάλο",
       "xl": "Πολύ μεγάλο"
     },

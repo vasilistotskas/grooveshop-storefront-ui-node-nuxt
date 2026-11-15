@@ -22,7 +22,7 @@ describe.each(['products_slider', 'products_grid', 'featured_products'])('%s, fr
   it('turns the ordering, category and size of a rail into the descriptor of what it lists', () => {
     const { node, parsed } = upgraded(type, { ordering: 'popular', categoryId: 4, pageSize: 6, heading: 'Για σένα', showAddToCart: false })
 
-    expect(node.type).toBe(`${type}@3`)
+    expect(node.type).toBe(`${type}@4`)
     expect(node.settings).toEqual({
       heading: 'Για σένα',
       showAddToCart: false,

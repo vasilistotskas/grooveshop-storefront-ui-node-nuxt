@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** Live promotions on a page that is not the offers page; draws nothing between campaigns. */
 export default defineBlock({
   type: 'offers_preview',
-  version: 3,
+  version: 4,
   kinds: ['section'],
   feature: 'promotions',
   schema: z.object({
@@ -16,7 +16,7 @@ export default defineBlock({
     ctaLink: builderField.link().optional(),
   }),
   translatable: ['/eyebrow', '/heading', '/subheading', '/ctaText'],
-  upgrade: { 1: upgradeOffers(3), 2: upgradeTitleIntoHeading },
+  upgrade: { 1: upgradeOffers(3), 2: upgradeTitleIntoHeading, 3: upgradeLeavingOutDefaults({ '/surface': 'ink' }) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { offers: { limit: 3 } } }],
   editor: { title: ['heading'], category: 'products' },
 })

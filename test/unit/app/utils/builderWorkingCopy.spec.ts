@@ -248,7 +248,7 @@ describe('readBuilderWorkingCopy', () => {
 
     const copy = readBuilderWorkingCopy('template:home', draft, { en: { s: { '/title': 'New', '/pageSize': 12 } } })
 
-    expect(copy?.draft.sections.s?.type).toBe('products_grid@3')
+    expect(copy?.draft.sections.s?.type).toBe('products_grid@4')
     expect(copy?.i18n).toEqual({ en: { s: { '/heading': 'New' } } })
   })
 })

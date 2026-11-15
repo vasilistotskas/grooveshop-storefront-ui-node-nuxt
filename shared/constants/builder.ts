@@ -126,12 +126,13 @@ export const DATA_LIMITS = {
 export const PRODUCT_ORDERINGS = ['newest', 'mostViewed', 'mostLiked', 'topRated', 'discounted', 'priceAsc', 'priceDesc'] as const
 
 /**
- * How a list of products treats stock: `any` is the list as ordered, `inStockFirst`
- * puts the products that can be bought ahead of the rest (the API's
- * `availabilityPriority`), `inStockOnly` leaves the rest out (the API's `inStock`).
- * A descriptor without the key is `any`.
+ * How a list of products treats stock: `inStockFirst` puts the products that
+ * can be bought ahead of the rest (the API's `availabilityPriority`),
+ * `inStockOnly` leaves the rest out (the API's `inStock`). A descriptor
+ * without the key is the list as ordered, which no value names: a choice never
+ * holds what leaving it out draws.
  */
-export const PRODUCT_STOCK_MODES = ['any', 'inStockFirst', 'inStockOnly'] as const
+export const PRODUCT_STOCK_MODES = ['inStockFirst', 'inStockOnly'] as const
 
 /** How a list of blog posts may be ordered. */
 export const BLOG_POST_ORDERINGS = ['newest', 'mostViewed'] as const

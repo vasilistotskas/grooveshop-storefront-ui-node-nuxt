@@ -9,17 +9,18 @@ import * as z from 'zod'
  */
 export default defineBlock({
   type: 'hero_carousel',
-  version: 1,
+  version: 2,
   kinds: ['section'],
   schema: z.object({
     autoplayMs: z.union([z.literal(0), builderField.integer(3000, 15000)]).optional(),
-    aspect: z.enum(['wide', 'banner', 'square']).optional(),
+    aspect: z.enum(['banner', 'square']).optional(),
     images: z.array(builderField.text(1000)).max(10).optional(),
     mobileImages: z.array(builderField.text(1000)).max(10).optional(),
     artworks: z.array(builderField.ref('media', { onMissing: 'empty' })).max(10).optional(),
     mobileArtworks: z.array(builderField.ref('media', { onMissing: 'empty' })).max(10).optional(),
     link: builderField.link().optional(),
   }),
+  upgrade: { 1: upgradeLeavingOutDefaults({ '/aspect': 'wide' }) },
   legacyImages: [
     { from: '/images/*', to: '/artworks/*' },
     { from: '/mobileImages/*', to: '/mobileArtworks/*' },

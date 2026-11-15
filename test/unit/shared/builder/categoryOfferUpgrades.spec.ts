@@ -20,7 +20,7 @@ describe('product_categories, version 1 to 2', () => {
   it('lists the main categories, as many as the band drew when it named none', () => {
     const { node, parsed } = upgraded('product_categories', { heading: 'Κατηγορίες', layout: 'grid' })
 
-    expect(node.type).toBe('product_categories@2')
+    expect(node.type).toBe('product_categories@3')
     expect(node.settings).toEqual({ heading: 'Κατηγορίες', layout: 'grid', categories: { mode: 'roots', limit: 8 } })
     expect(parsed.success).toBe(true)
   })
@@ -37,7 +37,7 @@ describe('offers_preview, from version 1', () => {
   it('keeps the words of the band, which a store may translate, and lists three when it named no size', () => {
     const { node, parsed } = upgraded('offers_preview', { title: 'Τίτλος', eyebrow: 'Προσφορές', surface: 'muted' })
 
-    expect(node.type).toBe('offers_preview@3')
+    expect(node.type).toBe('offers_preview@4')
     expect(node.settings).toEqual({ heading: 'Τίτλος', eyebrow: 'Προσφορές', surface: 'muted', offers: { limit: 3 } })
     expect(parsed.success).toBe(true)
   })

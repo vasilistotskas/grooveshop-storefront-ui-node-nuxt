@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** A grid of products. */
 export default defineBlock({
   type: 'products_grid',
-  version: 3,
+  version: 4,
   kinds: ['section'],
   feature: 'catalogue',
   schema: z.object({
@@ -19,7 +19,7 @@ export default defineBlock({
     look: z.enum(['bold']).optional(),
   }),
   translatable: ['/eyebrow', '/heading', '/subheading', '/ctaText'],
-  upgrade: { 1: upgradeProductRail({ ordering: 'featured', limit: 8 }, 24), 2: upgradeTitleIntoHeading },
+  upgrade: { 1: upgradeProductRail({ ordering: 'featured', limit: 8 }, 24), 2: upgradeTitleIntoHeading, 3: upgradeLeavingOutDefaults({ '/surface': 'default', '/products/stock': 'any' }) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { products: { mode: 'filter', ordering: 'mostViewed', limit: 8 } } }],
   editor: { title: ['heading'], category: 'products' },
 })

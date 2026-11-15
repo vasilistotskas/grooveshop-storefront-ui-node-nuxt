@@ -126,13 +126,13 @@
     "deps": []
   },
   {
-    "name": "a product rule that asks for stock \"any\"",
+    "name": "stock \"any\" is not a choice: a rule without the key is the list as ordered",
     "declaration": { "field": "query", "source": "product", "onEmpty": "hide", "maxLimit": 24 },
     "value": { "mode": "filter", "ordering": "newest", "stock": "any", "limit": 8 },
-    "valid": true,
-    "issues": [],
+    "valid": false,
+    "issues": [{ "path": "/stock", "code": "invalid_data_value" }],
     "refs": [],
-    "deps": [["queryProduct", "*"]]
+    "deps": []
   },
   {
     "name": "a product rule that asks for stock \"inStockFirst\"",

@@ -3,20 +3,16 @@
   "document": {
     "sections": {
       "00000000-0000-4000-8000-5eed00000001": {
-        "type": "hero_carousel@1",
+        "type": "hero_carousel@2",
         "settings": {}
       },
       "00000000-0000-4000-8000-5eed00000002": {
-        "type": "trust_badges@2",
-        "settings": {
-          "surface": "default"
-        }
+        "type": "trust_badges@3",
+        "settings": {}
       },
       "00000000-0000-4000-8000-5eed00000003": {
-        "type": "product_categories@2",
+        "type": "product_categories@3",
         "settings": {
-          "surface": "default",
-          "layout": "tiles",
           "categories": {
             "mode": "roots",
             "limit": 8
@@ -24,7 +20,7 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000004": {
-        "type": "products_grid@3",
+        "type": "products_grid@4",
         "settings": {
           "surface": "muted",
           "products": {
@@ -35,18 +31,16 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000005": {
-        "type": "offers_preview@3",
+        "type": "offers_preview@4",
         "settings": {
-          "surface": "ink",
           "offers": {
             "limit": 3
           }
         }
       },
       "00000000-0000-4000-8000-5eed00000006": {
-        "type": "featured_products@3",
+        "type": "featured_products@4",
         "settings": {
-          "surface": "default",
           "products": {
             "mode": "filter",
             "ordering": "mostLiked",
@@ -61,13 +55,13 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000008": {
-        "type": "stats_strip@1",
+        "type": "stats_strip@2",
         "settings": {
           "surface": "default"
         }
       },
       "00000000-0000-4000-8000-5eed00000009": {
-        "type": "blog_posts_grid@3",
+        "type": "blog_posts_grid@4",
         "settings": {
           "surface": "muted",
           "posts": {
@@ -78,13 +72,11 @@
         }
       },
       "00000000-0000-4000-8000-5eed00000010": {
-        "type": "testimonials@2",
-        "settings": {
-          "surface": "default"
-        }
+        "type": "testimonials@3",
+        "settings": {}
       },
       "00000000-0000-4000-8000-5eed00000011": {
-        "type": "faq@1",
+        "type": "faq@2",
         "settings": {
           "surface": "muted"
         }
