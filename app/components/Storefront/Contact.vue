@@ -52,12 +52,7 @@ const layoutHasHours = computed(() => sectionsProvideHours(brandSections.value))
       </UContainer>
     </template>
     <template #after>
-      <!-- Skipped entirely when the tenant's layout carries its own
-           enquiry form (`contact_panel`): the visitor would otherwise
-           be offered the same form twice, the second time without the
-           subject and the offices the design asks for. -->
       <PageSectionBand
-        v-if="!sectionsProvideForm(brandSections)"
         :surface="surface"
         padding="sm"
       >
