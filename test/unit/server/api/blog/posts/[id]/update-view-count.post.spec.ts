@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/blog/posts/[id]/update-view-count.post'
 import { zBlogPostDetail } from '~~/shared/openapi/zod.gen'
-import { backend, callRoute, jsonResponse, testSession, useStorage } from '~~/test/helpers/nitro'
+import { getCartSession } from '~~/server/utils/cartSession'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { backend, callRoute, createRequestEvent, jsonResponse, testSession, useStorage } from '~~/test/helpers/nitro'
 
 /**
  * POST /api/blog/posts/[id]/update-view-count: counts a post view once
@@ -89,6 +91,33 @@ describe('POST /api/blog/posts/[id]/update-view-count', () => {
     expect(backend.lastRequest.method).toBe('POST')
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/blog/post/3/update_view_count')
     expect(testSession.data.viewedPosts).toEqual(['3'])
+  })
+
+  // On a store without customer accounts a session from before the
+  // switch-off still holds an identity Django refuses and a stale cart id.
+  // This write seals the session as it read it at the start of the request,
+  // so it can reach the browser AFTER the page that dropped the identity and
+  // a newer cart write: it must carry neither back.
+  it('carries no stale identity or cart id back on a store without customer accounts', async () => {
+    const CART_A = '11111111-1111-4111-8111-111111111111'
+    const CART_B = '22222222-2222-4222-8222-222222222222'
+    const tenant = validTenantConfig('shop.test')
+    const accountsOff = { tenant: { ...tenant, features: { ...tenant.features, customerAccounts: false } } }
+    testSession.set({ user: { id: 7 }, secure: { sessionToken: 'st', accessToken: 'at' }, cartId: CART_A })
+    backend.reply(postDetail)
+
+    await callRoute(handler, {
+      route,
+      url: '/api/blog/posts/3/update-view-count',
+      method: 'POST',
+      context: accountsOff,
+    })
+
+    expect(testSession.data).toEqual({ viewedPosts: ['3'] })
+    // The cart write that landed before it set `cart-id=B`: the next
+    // request names B, not the stale A.
+    const next = createRequestEvent({ context: accountsOff, headers: { cookie: `cart-id=${CART_B}` } })
+    expect((await getCartSession(next)).cartId).toBe(CART_B)
   })
 
   it('counts a reader without a session and gives them none', async () => {

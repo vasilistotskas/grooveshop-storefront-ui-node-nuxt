@@ -30,6 +30,7 @@ registerEndpoint('/api/builder/navigation', () => failing
             mobile: [
               { label: 'Αρχική', to: '/' },
               { label: 'Loyalty', to: '/en/loyalty-program' },
+              { label: 'Σύνδεση', to: '/account/login' },
             ],
           }
         : {}),
@@ -122,16 +123,26 @@ describe('useNavigation — feature gate on operator links', () => {
 
     expect(texts('#header')).toEqual(['/products', '/contact'])
     // The locale prefix is looked through, like the sitemap does.
-    expect(texts('#phone')).toEqual(['/'])
+    expect(texts('#phone')).toEqual(['/', '/account/login'])
   })
 
   it('lists the Mobile menu on a phone, and the Header menu when the store set none', async () => {
     const withSlot = await render()
-    expect(withSlot.texts('#phone')).toEqual(['/'])
+    expect(withSlot.texts('#phone')).toEqual(['/', '/account/login'])
 
     withMobileSlot = false
     const without = await render()
     expect(without.texts('#phone')).toEqual(['/products', '/contact'])
+  })
+
+  // A store without customer accounts (ekfyseosfyteias draws its chrome
+  // from these menus alone) links no sign-in, whatever its menus hold.
+  it('drops a link into the account area on a store without customer accounts', async () => {
+    setTenantFeatures({ customerAccounts: false })
+
+    const { texts } = await render()
+
+    expect(texts('#phone')).toEqual(['/'])
   })
 
   it('drops a column left with nothing to link', async () => {

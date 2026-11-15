@@ -61,6 +61,18 @@ describe('server/plugins/edge-cache', () => {
     })
   })
 
+  // A session cookie is one visitor's: no edge rule may store it with the
+  // page, or strip it from the page it stores.
+  it('never marks a page that sets a cookie for the edge', async () => {
+    const headers = { 'cache-control': NITRO_SWR, 'content-type': 'text/html;charset=utf-8', 'set-cookie': 'nuxt-auth-session=sealed; Path=/; HttpOnly' }
+
+    expect(await respond('/products/12/phone', { headers })).toEqual({
+      'cache-control': 'private, no-store',
+      'cloudflare-cdn-cache-control': undefined,
+      'cache-tag': undefined,
+    })
+  })
+
   it('marks the page payload a client navigation fetches', async () => {
     const headers = { 'cache-control': NITRO_SWR, 'content-type': 'application/json' }
 

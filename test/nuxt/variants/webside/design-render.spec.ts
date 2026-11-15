@@ -295,7 +295,7 @@ async function atViewportWidth(width: number, run: () => Promise<void>) {
 }
 
 describe('webside design render', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // `useApi` caches by key on the shared app: without this a section
     // would render whatever an earlier test's mount left behind.
     clearNuxtData()
@@ -310,7 +310,8 @@ describe('webside design render', () => {
       session.loggedIn.value = false
       session.user.value = null
     }
-    useTenantStore().setConfig(validTenantConfig('webside.gr', {
+    const tenant = useTenantStore()
+    tenant.setConfig(validTenantConfig('webside.gr', {
       schemaName: 'webside',
       name: 'Webside',
       storeName: 'Webside',
@@ -329,6 +330,11 @@ describe('webside design render', () => {
       // check), so the feature is off.
       features: { ...validTenantConfig('webside.gr').features, blog: true, loyalty: false },
     }) as TenantConfig)
+    // What the setup plugin does on every page of a store with customer
+    // accounts: it reads the `tenant` state, then loads the sign-in config
+    // the auth forms wait for.
+    useTenant().value = tenant.config
+    await useAuthStore().setupConfig()
   })
 
   it('header shell', async () => {

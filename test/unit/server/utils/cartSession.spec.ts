@@ -2,6 +2,7 @@ import type { RequestEvent } from 'nuxt/server'
 import { describe, expect, it } from 'vitest'
 import {
   clearCartSession,
+  dropSignedInIdentity,
   getCartHeaders,
   getCartSession,
   handleCartResponse,
@@ -9,6 +10,7 @@ import {
   useCartSession,
 } from '~~/server/utils/cartSession'
 import { createRequestEvent, testSession } from '~~/test/helpers/nitro'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
 /**
@@ -125,6 +127,89 @@ describe('cart session', () => {
       await handleCartResponse(withCart, response)
 
       expect((await getCartSession(nextRequest(withCart))).cartId).toBe(CART_A)
+    })
+  })
+
+  // On a store without customer accounts the identity a session still holds
+  // is one Django refuses. Every cart write leaves it out, so whichever
+  // response reaches the browser last carries the newest cart and no
+  // identity: a page response that dropped the identity from an older read
+  // cannot be the only write without it.
+  describe('on a store without customer accounts', () => {
+    const tenantWith = (customerAccounts: boolean) => {
+      const tenant = validTenantConfig('shop.test')
+      return { tenant: { ...tenant, features: { ...tenant.features, customerAccounts } } }
+    }
+    const IDENTITY = { user: { id: 7 }, secure: { sessionToken: 'st', accessToken: 'at' } }
+
+    it('adopts a new cart and drops the identity in the same write', async () => {
+      testSession.set({ ...IDENTITY, cartId: CART_A, viewedPosts: ['3'] })
+
+      await handleCartResponse(createRequestEvent({ context: tenantWith(false) }), { uuid: CART_B })
+
+      expect(testSession.data).toEqual({ cartId: CART_B, viewedPosts: ['3'] })
+      expect(testSession.writeConfig).toMatchObject({ cookie: { maxAge: THIRTY_DAYS } })
+    })
+
+    it('drops the identity when it re-attaches the spare cart id', async () => {
+      testSession.set({ ...IDENTITY })
+
+      const session = await getCartSession(createRequestEvent({ context: tenantWith(false), headers: { cookie: `cart-id=${CART_A}` } }))
+
+      expect(session.cartId).toBe(CART_A)
+      expect(testSession.data).toEqual({ cartId: CART_A })
+    })
+
+    it('drops the identity when it clears the cart', async () => {
+      testSession.set({ ...IDENTITY, cartId: CART_A })
+
+      await clearCartSession(createRequestEvent({ context: tenantWith(false) }))
+
+      expect(testSession.data).toEqual({})
+    })
+
+    describe('dropSignedInIdentity', () => {
+      it('takes the identity and the session’s cart id out, keeping the rest and the spare cookie', async () => {
+        testSession.set({ ...IDENTITY, cartId: CART_A, viewedPosts: ['3'] })
+        const page = createRequestEvent({ context: tenantWith(false), headers: { cookie: `cart-id=${CART_A}` } })
+
+        await dropSignedInIdentity(page)
+
+        expect(testSession.data).toEqual({ viewedPosts: ['3'] })
+        expect(spareCookie(page)).toBeUndefined()
+      })
+
+      // Tab A's page read the session before tab B's cart write landed, and
+      // its response reaches the browser last. It carries no cart id, so the
+      // browser's next request names B's cart through the spare cookie B's
+      // response set, instead of A's stale one.
+      it('never takes back a newer cart when the page response lands last', async () => {
+        testSession.set({ ...IDENTITY, cartId: CART_A })
+        const tabB = createRequestEvent({ context: tenantWith(false), headers: { cookie: `cart-id=${CART_A}` } })
+        await handleCartResponse(tabB, { uuid: CART_B })
+        testSession.set({ ...IDENTITY, cartId: CART_A })
+        await dropSignedInIdentity(createRequestEvent({ context: tenantWith(false), headers: { cookie: `cart-id=${CART_A}` } }))
+
+        const next = nextRequest(tabB, { context: tenantWith(false) })
+
+        expect((await getCartSession(next)).cartId).toBe(CART_B)
+      })
+
+      it('ends a session left with nothing', async () => {
+        testSession.set({ ...IDENTITY, cartId: CART_A })
+
+        await dropSignedInIdentity(createRequestEvent({ context: tenantWith(false) }))
+
+        expect(testSession.data).toEqual({})
+      })
+    })
+
+    it('keeps the signed-in shopper on a store with accounts', async () => {
+      testSession.set({ ...IDENTITY, cartId: CART_A })
+
+      await handleCartResponse(createRequestEvent({ context: tenantWith(true) }), { uuid: CART_B })
+
+      expect(testSession.data).toMatchObject({ ...IDENTITY, cartId: CART_B })
     })
   })
 

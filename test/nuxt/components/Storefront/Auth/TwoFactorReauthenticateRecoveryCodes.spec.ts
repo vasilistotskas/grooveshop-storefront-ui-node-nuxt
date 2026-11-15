@@ -6,6 +6,7 @@ import ReauthenticateRecoveryCodes from '~/components/Storefront/Auth/TwoFactorR
 import WebsideReauthenticateRecoveryCodes from '~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateRecoveryCodes.vue'
 import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Confirming a security change with a recovery code (eight digits, allauth's
@@ -29,6 +30,8 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 const WRONG_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }))
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('authEvent').value = AuthChangeEvent.REAUTHENTICATION_REQUIRED
   twoFaReauthenticate.mockResolvedValue({ status: 200 })
 })

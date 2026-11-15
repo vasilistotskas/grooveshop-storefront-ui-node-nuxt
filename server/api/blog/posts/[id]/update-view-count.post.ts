@@ -23,12 +23,16 @@ export default defineEventHandler(async (event) => {
     return null
   }
 
-  // Record in session (fire-and-forget; view dedup is best-effort)
+  // Record in session (fire-and-forget; view dedup is best-effort). On a
+  // store without customer accounts the session read above may still hold
+  // a refused identity and a stale cart id, and this response can reach the
+  // browser after newer writes: it carries neither back.
   if (requestHasSession(event)) {
-    replaceUserSession(event, {
-      ...session,
-      viewedPosts: [...viewedPosts, postId],
-    }).catch(() => {})
+    const update = { viewedPosts: [...viewedPosts, postId] }
+    const write = customerAccountsOff(event)
+      ? dropSignedInIdentity(event, update)
+      : replaceUserSession(event, { ...session, ...update })
+    write.catch(() => {})
   }
 
   try {

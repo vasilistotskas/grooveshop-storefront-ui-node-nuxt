@@ -50,6 +50,24 @@ describe('featureRouteAllowed', () => {
     expect(featureRouteAllowed(route('/products'), undefined)).toBe(false)
   })
 
+  describe('customer accounts', () => {
+    it('takes the whole account area away when the store has no accounts', () => {
+      const blocked = blockedFeaturePaths(tenant({ customerAccounts: false }))
+
+      for (const path of ['/account', '/account/login', '/account/signup', '/account/orders/5', '/en/account/login']) {
+        expect(isFeaturePathBlocked(path, blocked), path).toBe(true)
+      }
+      // Guests still order and follow their order by its uuid.
+      for (const path of ['/checkout', '/checkout/success/0b6e', '/cart', '/products']) {
+        expect(isFeaturePathBlocked(path, blocked), path).toBe(false)
+      }
+    })
+
+    it('serves the account area when the store has accounts', () => {
+      expect(featureRouteAllowed(route('/account'), tenant())).toBe(true)
+    })
+  })
+
   describe('the catalogue', () => {
     it('does not depend on any other feature', () => {
       expect(featureRouteAllowed(route('/products'), tenant({ blog: false, productReviews: false }))).toBe(true)

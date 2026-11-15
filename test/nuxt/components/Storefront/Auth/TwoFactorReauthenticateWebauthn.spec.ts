@@ -6,6 +6,7 @@ import TwoFactorReauthenticateWebauthn from '~/components/Storefront/Auth/TwoFac
 import WebsideTwoFactorReauthenticateWebauthn from '~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateWebauthn.vue'
 import { asProxiedError, makeBadResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Confirming a security change with a security key
@@ -32,6 +33,8 @@ const CREDENTIAL_JSON = { id: 'cred-1', type: 'public-key' }
 const SIGNED_IN = makeSessionResponse()
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('authEvent').value = AuthChangeEvent.REAUTHENTICATION_REQUIRED
   useAuthStore().session = undefined
   getWebAuthnRequestOptionsForReauthentication.mockResolvedValue({ status: 200, data: { request_options: { publicKey: REQUEST_OPTIONS } } })

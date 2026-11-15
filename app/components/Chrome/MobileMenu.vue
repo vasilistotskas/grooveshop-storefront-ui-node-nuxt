@@ -26,6 +26,8 @@ const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 const { loggedIn } = useUserSession()
 const { signIn } = useAuthLinks()
+// No customer accounts, no sign-in.
+const accountServing = useGatedRoute('/account')
 const { categories, hasCategories } = useCategoryMenu()
 const { blogCategories, hasBlogCategories } = useBlogCategoryMenu()
 const premount = useOverlayPremount()
@@ -118,7 +120,7 @@ watch(() => route.fullPath, () => {
           <ChromeMobileMenuAccount v-if="opened" />
         </template>
         <UButton
-          v-else
+          v-else-if="accountServing"
           :to="localePath(signIn)"
           :label="t('login')"
           block

@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import CreatePasskeyForm from '~/components/Account/Signup/CreatePasskeyForm.vue'
 import WebsideCreatePasskeyForm from '~/components/variants/webside/Account/Signup/CreatePasskeyForm.vue'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The second step of a passkey sign-up: create the credential for the
@@ -30,6 +31,8 @@ const allauthError = (status: number) => ({
 })
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('auth-state').value = pending('mfa_signup_webauthn')
   getWebAuthnCreateOptionsAtSignup.mockResolvedValue({ status: 200, data: { creation_options: { publicKey: CREATION_OPTIONS } } })
   signupWebAuthnCredential.mockResolvedValue({ status: 200 })

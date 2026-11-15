@@ -736,6 +736,8 @@ export function setupSocialLogin() {
   // paid for the script). The onLoaded prompt below re-checks
   // loggedIn for sessions that hydrate late.
   if (!config.public.googleGsiEnable || loggedIn.value) return
+  // No customer accounts, nothing to sign in to.
+  if (!useStoreFeature('customerAccounts').value) return
 
   // SSR guard: ``useScript`` (from @nuxt/scripts >= 1.2) eagerly
   // invokes the ``use()`` callback below at registration, which

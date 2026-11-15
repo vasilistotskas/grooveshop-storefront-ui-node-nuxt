@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
+  middleware: ['customer-accounts-enabled'],
   // Its query is its view (the page and the order of the orders), and holds nothing else:
   // a sign-in brings the shopper back to it.
   signInReturn: 'path-and-query',

@@ -80,6 +80,14 @@ describe('useBottomNavItems', () => {
     expect(labels(items())).not.toContain(t('saved'))
   })
 
+  // No customer accounts, no sign-in and no account; and no saved
+  // products, which live in the account (Django turns favourites off too).
+  it('drops Account and Saved for a store without customer accounts', () => {
+    setTenantFeatures({ customerAccounts: false })
+
+    expect(labels(items())).toEqual([t('home'), t('search.title'), t('cart.title')])
+  })
+
   it('drops the cart when the cart feature is off', () => {
     setTenantFeatures({ cart: false })
 
@@ -196,6 +204,7 @@ describe('useBottomNavItems', () => {
       { feature: 'catalogue', tab: 'shop' },
       { feature: 'blog', tab: 'blog' },
       { feature: 'cart', tab: 'cart.title' },
+      { feature: 'customerAccounts', tab: 'account' },
     ])('drops $tab when the store has the $feature off', ({ feature, tab }) => {
       setTenantFeatures({ catalogue: true, blog: true, cart: true, [feature]: false })
 

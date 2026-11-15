@@ -2,7 +2,7 @@
 definePageMeta({
   // Gift cards are bought from the catalogue: Django refuses them for a
   // store without one, so the page is gone with it.
-  middleware: ['gift-cards-enabled', 'catalogue-enabled'],
+  middleware: ['customer-accounts-enabled', 'gift-cards-enabled', 'catalogue-enabled'],
 })
 defineRouteRules({
   robots: false,

@@ -29,6 +29,9 @@ export const FEATURE_GATED_ROUTES: readonly FeatureGatedRoute[] = [
   { path: '/offers', features: ['promotions'] },
   // Gift cards are bought from the catalogue (`app/pages/gift-cards`).
   { path: '/gift-cards', features: ['giftCards', 'catalogue'] },
+  // No customer accounts, no account area: sign-in, sign-up and every
+  // signed-in page under it (`customer-accounts-enabled`).
+  { path: '/account', features: ['customerAccounts'] },
   { path: '/account/gift-cards', features: ['giftCards', 'catalogue'] },
   { path: '/products', features: ['catalogue'] },
   { path: '/feedback', features: ['feedback'] },

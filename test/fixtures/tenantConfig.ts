@@ -69,6 +69,7 @@ export function validTenantConfig(
     // follow the flags above (blog, loyalty, promotions, gift cards and
     // wholesale are off).
     features: {
+      customerAccounts: true,
       blog: false,
       blogComments: false,
       productReviews: true,

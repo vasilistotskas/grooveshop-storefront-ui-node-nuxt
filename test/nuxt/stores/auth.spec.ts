@@ -3,6 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
 import { makeAllAuthConfig, makeAuthenticator, makeSessionResponse } from '~~/test/fixtures/allauth'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 /**
@@ -62,6 +63,7 @@ describe('useAuthStore', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    setTenant()
     store = useAuthStore()
     session.loggedIn.value = false
   })
@@ -117,6 +119,20 @@ describe('useAuthStore', () => {
   })
 
   describe('setupConfig', () => {
+    // Django answers 404 on allauth for a store without customer accounts:
+    // there is no config to load, and asking for it on every page would log
+    // a refusal per page view.
+    it('asks for nothing on a store without customer accounts', async () => {
+      setTenantFeatures({ customerAccounts: false })
+      api.routes({ '/api/_allauth/app/v1/config': CONFIG })
+
+      await store.setupConfig()
+
+      expect(api.callsTo('/api/_allauth/app/v1/config')).toEqual([])
+      expect(store.config).toBeUndefined()
+      expect(store.status.config).toBe('idle')
+    })
+
     it('fetches the allauth config and marks it loaded', async () => {
       api.routes({ '/api/_allauth/app/v1/config': CONFIG })
 

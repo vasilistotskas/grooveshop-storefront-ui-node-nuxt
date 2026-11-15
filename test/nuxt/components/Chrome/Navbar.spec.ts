@@ -319,6 +319,17 @@ describe('Chrome/Navbar', () => {
     expect(wrapper.find(`a[aria-label="${t('favourites')}"]`).attributes('href')).toBe(href)
   })
 
+  it('draws no account control and links nothing in the account on a store without customer accounts', async () => {
+    const shown = await mountNavbar()
+    expect(shown.find('chrome-account-menu-stub').exists()).toBe(true)
+
+    setTenantFeatures({ customerAccounts: false })
+    const hidden = await mountNavbar()
+
+    expect(hidden.find('chrome-account-menu-stub').exists()).toBe(false)
+    expect(hidden.find('a[href^="/account"]').exists()).toBe(false)
+  })
+
   it('offers favourites whether or not the store runs a blog', async () => {
     // Favourites are products; the button used to hide with the blog.
     setTenantFeatures({ blog: false })

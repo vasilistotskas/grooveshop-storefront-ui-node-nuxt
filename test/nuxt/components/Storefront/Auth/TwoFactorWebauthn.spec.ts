@@ -6,6 +6,7 @@ import TwoFactorWebauthn from '~/components/Storefront/Auth/TwoFactorWebauthn.vu
 import WebsideTwoFactorWebauthn from '~/components/variants/webside/Storefront/Auth/TwoFactorWebauthn.vue'
 import { asProxiedError, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Answering the second-factor challenge of a sign-in with a security key
@@ -33,6 +34,8 @@ const CREDENTIAL_JSON = { id: 'cred-1', type: 'public-key' }
 const SIGNED_IN = makeSessionResponse()
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('authEvent').value = AuthChangeEvent.FLOW_UPDATED
   useState('auth-state').value = makePendingFlowResponse('mfa_authenticate', { types: ['webauthn', 'totp'] })
   useAuthStore().session = undefined

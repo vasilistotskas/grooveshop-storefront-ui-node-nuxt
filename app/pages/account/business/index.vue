@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
-  middleware: ['b2b-enabled'],
+  middleware: ['customer-accounts-enabled', 'b2b-enabled'],
 })
 defineRouteRules({
   robots: false,

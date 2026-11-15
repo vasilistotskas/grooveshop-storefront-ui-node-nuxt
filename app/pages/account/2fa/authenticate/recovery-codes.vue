@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 definePageMeta({
   layout: 'default',
-  middleware: 'guest',
+  middleware: ['customer-accounts-enabled', 'guest'],
 })
 const tenantStore = useTenantStore()
 const body = computed(() => resolvePage('2fa-authenticate-recovery-codes', tenantStore.schemaName))

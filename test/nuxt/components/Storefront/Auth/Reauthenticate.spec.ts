@@ -6,6 +6,7 @@ import Reauthenticate from '~/components/Storefront/Auth/Reauthenticate.vue'
 import WebsideReauthenticate from '~/components/variants/webside/Storefront/Auth/Reauthenticate.vue'
 import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Confirming a security change with the account password
@@ -26,6 +27,8 @@ mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('authEvent').value = AuthChangeEvent.REAUTHENTICATION_REQUIRED
   reauthenticate.mockResolvedValue({ status: 200 })
 })

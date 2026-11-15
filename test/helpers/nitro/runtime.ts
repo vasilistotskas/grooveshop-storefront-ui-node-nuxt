@@ -412,14 +412,16 @@ export async function getUserSession(event: AnyEvent): Promise<Record<string, an
 }
 
 export async function setUserSession(event: AnyEvent, data: Record<string, unknown>, config?: Record<string, unknown>) {
-  sealOnResponse(event)
+  // A write seals the updated session onto the response, as
+  // `nuxt/server`'s `updateSession` does, whether or not the request had one.
+  setSessionCookie(event, 'sealed')
   sessionWriteConfig = config
   sessionData = defu(structuredClone(data), sessionData)
   return sessionData
 }
 
 export async function replaceUserSession(event: AnyEvent, data: Record<string, unknown>, config?: Record<string, unknown>) {
-  sealOnResponse(event)
+  setSessionCookie(event, 'sealed')
   sessionWriteConfig = config
   const { id: _id, ...rest } = data
   sessionData = structuredClone(rest)

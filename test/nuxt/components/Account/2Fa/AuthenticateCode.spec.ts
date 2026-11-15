@@ -7,6 +7,7 @@ import WebsideAuthenticateCode from '~/components/variants/webside/Account/2Fa/A
 import { trees } from '~~/test/helpers/trees'
 import { asProxiedError, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
 import type { AllAuthFlow } from '~~/shared/openapi-allauth/types.gen'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The second-factor code step of sign-in (TOTP or a recovery code). It
@@ -28,6 +29,8 @@ const SIGNED_IN = makeSessionResponse()
 const WRONG_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }))
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   useState('auth-state').value = pendingMfa(['totp', 'recovery_codes'])
   useAuthStore().session = undefined
   twoFaAuthenticate.mockResolvedValue(SIGNED_IN)

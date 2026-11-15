@@ -3,6 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import type { RouteLocationNormalized } from 'vue-router'
 import authMiddleware from '~/middleware/auth.global'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The guard in front of every account route: a guest asking for a
@@ -47,6 +48,7 @@ function redirectedTo() {
 describe('auth.global middleware', () => {
   beforeEach(() => {
     loggedIn.value = false
+    setTenant()
   })
 
   it.each([
@@ -99,6 +101,19 @@ describe('auth.global middleware', () => {
   it.each([['/'], ['/products'], ['/account/login'], ['/checkout']])(
     'lets a guest through to the public page %s',
     async (path) => {
+      await expect(run(path)).resolves.toBeUndefined()
+      expect(navigateToMock).not.toHaveBeenCalled()
+    },
+  )
+
+  // A store without customer accounts has no sign-in page to send anyone
+  // to: the account page's own gate answers 404 (`customer-accounts-enabled`),
+  // and the abandoned-cart link falls through to the cart.
+  it.each([['/account'], ['/account/orders'], ['/account/reauthenticate'], ['/cart/recover/0b7c5c6e-1c1a-4c1f-9d4a-6f0f3c7a2b10']])(
+    'sends nobody from %s to sign in on a store without customer accounts',
+    async (path) => {
+      setTenantFeatures({ customerAccounts: false })
+
       await expect(run(path)).resolves.toBeUndefined()
       expect(navigateToMock).not.toHaveBeenCalled()
     },

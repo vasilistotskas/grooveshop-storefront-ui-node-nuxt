@@ -6,7 +6,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
 import type { BlogCategoryMenuEntry } from '~/composables/useBlogCategoryMenu'
 import ChromeMobileMenu from '~/components/Chrome/MobileMenu.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The phone menu: the shopper's way into their account, the catalogue
@@ -91,6 +91,15 @@ describe('Chrome/MobileMenu', () => {
   it('sends a guest to sign in, and shows a member their account', async () => {
     await openMenu()
     expect(body().find('a[href="/account/login?next=/"]').exists()).toBe(true)
+    expect(body().find('[data-test="account"]').exists()).toBe(false)
+  })
+
+  it('offers no sign-in on a store without customer accounts', async () => {
+    setTenantFeatures({ customerAccounts: false })
+
+    await openMenu()
+
+    expect(body().find('a[href^="/account"]').exists()).toBe(false)
     expect(body().find('[data-test="account"]').exists()).toBe(false)
   })
 

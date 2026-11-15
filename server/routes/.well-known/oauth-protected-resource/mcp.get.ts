@@ -5,6 +5,8 @@ import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/serve
 // /.well-known/oauth-protected-resource/mcp) and use it to discover the
 // authorization server for account linking. The agent gateway's 401
 // challenge also points here via WWW-Authenticate resource_metadata.
+// A store without customer accounts has no authorization server to name:
+// `server/middleware/1.customer-accounts.ts` answers 404 here for it.
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig()
   const tenant = event.context.tenant
