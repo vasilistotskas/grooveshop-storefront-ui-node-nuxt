@@ -84,7 +84,7 @@ const { t, locale } = useI18n()
         </UButton>
         <UButton
           v-if="shipment.voucherNo"
-          :to="`/api/orders/${orderId}/acs-label`"
+          :to="`/api/orders/${orderId}/shipment-label`"
           target="_blank"
           icon="i-lucide-download"
         >
