@@ -93,6 +93,34 @@ describe('reading the history', () => {
     expect(history.status).toBe('error')
   })
 
+  // The panel switches documents while older versions of the last one are
+  // still being read: that read, failing late, is not the new one's error,
+  // and does not hold the new one's "Older versions" busy.
+  it('leaves the document switched to alone when an older page of the last one fails', async () => {
+    await openEditor(false)
+    let fail: (error: unknown) => void = () => {}
+    api.routes({
+      [`${url}/versions`]: (_url: string, options?: { query?: { page?: number } }) => options?.query?.page === 2
+        ? new Promise((_resolve, reject) => {
+            fail = reject
+          })
+        : { count: 31, totalPages: 2, results: [version(3), version(2)] },
+      [`/api/builder/documents/${BUILDER_THEME_DOCUMENT}/versions`]: { count: 1, totalPages: 1, results: [version(1)] },
+    })
+    const history = useBuilderHistoryStore()
+    await history.load(HOME)
+
+    const older = history.more()
+    await history.load(BUILDER_THEME_DOCUMENT)
+    expect(history.loadingMore).toBe(false)
+    fail(new Error('Bad Gateway'))
+    await older
+
+    expect(history.status).toBe('ready')
+    expect(history.loadingMore).toBe(false)
+    expect(history.versions.map(({ number }) => number)).toEqual([1])
+  })
+
   it('reads a version as a working copy the canvas can draw', async () => {
     await openEditor(false)
 

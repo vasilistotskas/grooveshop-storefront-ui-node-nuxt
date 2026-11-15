@@ -49,6 +49,7 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
       page.value = 0
       pages.value = 0
       unreadable.value = new Set()
+      loadingMore.value = false
     }
     status.value = versions.value.length ? status.value : 'loading'
     try {
@@ -66,7 +67,7 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
     }
   }
 
-  /** Reads the next page, older versions, below the ones shown. */
+  /** Reads the next page, older versions, below the ones shown. A read overtaken by another document's is dropped, failing or not. */
   async function more(): Promise<void> {
     const key = documentKey.value
     if (!key || !hasMore.value || loadingMore.value) return
@@ -78,11 +79,12 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
       page.value += 1
     }
     catch (error) {
+      if (documentKey.value !== key) return
       log.error({ action: 'builder:history_more', document: key, error })
       status.value = 'error'
     }
     finally {
-      loadingMore.value = false
+      if (documentKey.value === key) loadingMore.value = false
     }
   }
 
