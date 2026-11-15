@@ -9,14 +9,16 @@ export type BuilderHistoryStatus = 'idle' | 'loading' | 'ready' | 'error'
  *   changes nobody has stored;
  * - `conflict`: someone else saved the document since this editor opened it;
  *   the editor's conflict dialog (`Builder/ConflictDialog`) is open on it;
- * - `unreadable`: the restored draft is in a format this editor cannot open;
- *   the document is restored at Django's, and opens again with the page;
+ * - `unreadable`: the version is in a format this editor cannot open (for
+ *   the theme, settings it cannot read), so it is not put back: Django would
+ *   take it, and the editor could neither edit, draw nor publish it;
  * - `failed`: Django could not be asked, or refused.
  */
 export type BuilderRestoreResult = 'restored' | 'unsaved' | 'conflict' | 'unreadable' | 'failed'
 
 /**
- * The version history of the document being edited: the saved and published
+ * The version history of one document the editor works on (the page, one of
+ * its section groups or the theme: `documentsWith`): the saved and published
  * versions Django keeps, newest first, a page at a time. The draft (what the
  * editor is showing) and the live version are the document's own state
  * (`DocumentDetail`), not entries here: the panel draws them from the editor's
@@ -34,6 +36,8 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
   const pages = ref(0)
   const loadingMore = ref(false)
   const hasMore = computed(() => page.value < pages.value)
+  /** The versions of this document found to be in a format this editor cannot open: not offered to put back. */
+  const unreadable = shallowRef<ReadonlySet<number>>(new Set())
 
   const versionsUrl = (key: string) => `/api/builder/documents/${encodeURIComponent(key)}/versions`
 
@@ -44,6 +48,8 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
       versions.value = []
       page.value = 0
       pages.value = 0
+      unreadable.value = new Set()
+      loadingMore.value = false
     }
     status.value = versions.value.length ? status.value : 'loading'
     try {
@@ -61,7 +67,7 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
     }
   }
 
-  /** Reads the next page, older versions, below the ones shown. */
+  /** Reads the next page, older versions, below the ones shown. A read overtaken by another document's is dropped, failing or not. */
   async function more(): Promise<void> {
     const key = documentKey.value
     if (!key || !hasMore.value || loadingMore.value) return
@@ -73,22 +79,29 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
       page.value += 1
     }
     catch (error) {
+      if (documentKey.value !== key) return
       log.error({ action: 'builder:history_more', document: key, error })
       status.value = 'error'
     }
     finally {
-      loadingMore.value = false
+      if (documentKey.value === key) loadingMore.value = false
     }
   }
 
   /**
    * A version's content as a working copy this build can draw, for the
-   * preview. `undefined` when it is in a format this editor cannot open.
-   * Rejects when Django cannot be asked: the caller says so.
+   * preview. `undefined` when it is in a format this editor cannot open: a
+   * theme whose settings this build cannot read too, since the preview would
+   * otherwise draw it with the theme being edited. Rejects when Django
+   * cannot be asked: the caller says so.
    */
   async function read(key: string, number: number): Promise<BuilderWorkingCopy | undefined> {
     const version = await $api<VersionDetail>(`${versionsUrl(key)}/${number}`)
-    return readBuilderWorkingCopy(key, version.data, version.i18n)
+    const copy = readBuilderWorkingCopy(key, version.data, version.i18n)
+    const readable = copy && (key !== BUILDER_THEME_DOCUMENT || zThemeSettings.safeParse(copy.draft.settings).success)
+    if (readable) return copy
+    if (documentKey.value === key) unreadable.value = new Set([...unreadable.value, number])
+    return undefined
   }
 
   /** A named save: the current draft kept as a version, with a note. Rejects when Django refuses. */
@@ -99,15 +112,18 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
 
   /**
    * Puts a version back as the draft of the document. Always the draft,
-   * never the live page: publishing is its own step. What is in the draft
-   * now is saved first, and kept as a version of its own when it differs
-   * from what is live (`beforeRestore` is its note), so a restore never
-   * costs work: the draft it replaces stays one click away in this list.
+   * never the live page: publishing is its own step. The version is read
+   * first, and one this editor cannot open is not put back (`read`). What
+   * is in the draft now is saved first, and kept as a version of its own
+   * when it differs from what is live (`beforeRestore` is its note), so a
+   * restore never costs work: the draft it replaces stays one click away in
+   * this list.
    */
   async function restore(key: string, number: number, beforeRestore: string): Promise<BuilderRestoreResult> {
     const editor = useBuilderEditorStore()
     const autosave = useBuilderAutosaveStore()
     try {
+      if (!await read(key, number)) return 'unreadable'
       await autosave.save(key)
       const document = editor.opened[key]
       if (!document || autosave.stateOf(key) !== 'saved') return 'unsaved'
@@ -132,5 +148,5 @@ export const useBuilderHistoryStore = defineStore('builderHistory', () => {
     }
   }
 
-  return { documentKey, versions, status, hasMore, loadingMore, load, more, read, save, restore }
+  return { documentKey, versions, status, hasMore, loadingMore, unreadable, load, more, read, save, restore }
 })

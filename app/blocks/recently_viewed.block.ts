@@ -12,5 +12,11 @@ export default defineBlock({
   translatable: ['/heading'],
   upgrade: { 1: upgradeTitleIntoHeading },
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
-  editor: { title: ['heading'], category: 'products' },
+  editor: {
+    title: ['heading'],
+    category: 'products',
+    designSettings: {
+      webside: [],
+    },
+  },
 })

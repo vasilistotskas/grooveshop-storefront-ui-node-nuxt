@@ -123,14 +123,18 @@ function fieldOf(
 
 /**
  * The fields of a block's settings form, in the order its schema declares them.
+ * In a store of `design` (its tenant schema), only the settings that design's
+ * own component draws, when it declares them (`editor.designSettings`); with
+ * no design, or one that declares none, every setting.
  * TRANSITIONAL (P15 stage 2): the old image settings a block still accepts
  * (`legacyImages`: the URL and its alt text) are not in the form, since their
  * media-reference successors are.
  */
-export function builderSettingsFields(definition: BlockDefinition): BuilderSettingField[] {
+export function builderSettingsFields(definition: BlockDefinition, design?: string | null): BuilderSettingField[] {
   const root = fieldOf(blockSettingsJsonSchema(definition.schema), [], true, definition)
   const legacy = new Set((definition.legacyImages ?? []).flatMap(({ from, alt }) => [from, alt].flatMap(pointer => pointer === undefined ? [] : [`/${pointer.split('/')[1]}`])))
-  return root.kind === 'group' ? root.fields.filter(field => !legacy.has(field.pointer)) : []
+  const drawn = design ? definition.editor.designSettings?.[design] : undefined
+  return root.kind === 'group' ? root.fields.filter(field => !legacy.has(field.pointer) && (drawn === undefined || drawn.includes(field.path))) : []
 }
 
 /**

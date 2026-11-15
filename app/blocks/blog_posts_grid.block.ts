@@ -28,5 +28,10 @@ export default defineBlock({
   translatable: ['/eyebrow', '/heading', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeBlogRail(3, 24), 2: upgradeIconSetting },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { posts: { mode: 'filter', ordering: 'newest', limit: 3 } } }],
-  editor: { category: 'blog' },
+  editor: {
+    category: 'blog',
+    designSettings: {
+      ekfyseosfyteias: ['heading', 'subheading', 'ctaText', 'ctaLink', 'posts'],
+    },
+  },
 })
