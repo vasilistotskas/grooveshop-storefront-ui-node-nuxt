@@ -1,4 +1,4 @@
-import { contrastSideColor } from '../builder/contrastRules'
+import { contrastSideColor, contrastSidePointer } from '../builder/contrastRules'
 import type { ContrastRule } from '../types/builder'
 import { contrastRatio, relativeLuminance } from '../utils/contrast'
 import { gamutMapToSrgb, hexFromSrgb, srgbFromHex, srgbToOklch } from '../utils/oklch'
@@ -39,24 +39,26 @@ const FIX_MARGIN = 0.05
 
 /**
  * `settings` with the colour a failing contrast rule names moved just far
- * enough to pass: the side that is a pointer (the foreground when both are),
- * in OKLCH lightness only, so its hue and chroma stay the store's, away from
- * the other side (darker on a light background, lighter on a dark one). It
- * moves as little as it can: a binary search for the lightness nearest the
- * colour's own that reaches the rule's `min`. A rule that passes, or that
- * names two literals, comes back unchanged.
+ * enough to pass: the colour the foreground reads (the background's when the
+ * foreground reads none; a mixed side moves the colour it mixes, judged as
+ * drawn), in OKLCH lightness only, so its hue and chroma stay the store's,
+ * away from the other side (darker on a light background, lighter on a dark
+ * one). It moves as little as it can: a binary search for the lightness
+ * nearest the colour's own that reaches the rule's `min`. A rule that passes,
+ * or that reads no pointer, comes back unchanged.
  */
 export function fixContrast(settings: ThemeSettings, rule: ContrastRule): ThemeSettings {
-  const pointer = !rule.foreground.startsWith('#') ? rule.foreground : !rule.background.startsWith('#') ? rule.background : undefined
-  const other = pointer === rule.foreground ? rule.background : rule.foreground
+  const fromForeground = contrastSidePointer(rule.foreground)
+  const pointer = fromForeground ?? contrastSidePointer(rule.background)
   if (pointer === undefined) return settings
-  const current = contrastSideColor(settings, pointer)
+  const [moved, other] = fromForeground ? [rule.foreground, rule.background] : [rule.background, rule.foreground]
   const against = contrastSideColor(settings, other)
-  if (contrastRatio(current, against) >= rule.min) return settings
+  const drawnWith = (hex: string) => contrastSideColor(setAt(settings, pointer, hex), moved)
+  if (contrastRatio(drawnWith(contrastSideColor(settings, pointer)), against) >= rule.min) return settings
 
-  const colour = srgbToOklch(srgbFromHex(current))
+  const colour = srgbToOklch(srgbFromHex(contrastSideColor(settings, pointer)))
   const at = (l: number) => hexFromSrgb(gamutMapToSrgb({ ...colour, l }))
-  const passes = (hex: string) => contrastRatio(hex, against) >= rule.min + FIX_MARGIN
+  const passes = (hex: string) => contrastRatio(drawnWith(hex), against) >= rule.min + FIX_MARGIN
   const darker = relativeLuminance(against) > 0.18
   let near = colour.l
   let far = darker ? 0 : 1

@@ -1,6 +1,7 @@
-import type { ContrastRule, ContrastSide } from '../types/builder'
+import type { ContrastColour, ContrastRule, ContrastSide } from '../types/builder'
 import { HEX_COLOR_RE } from '../theme/constants'
 import { contrastRatio } from '../utils/contrast'
+import { mixOklab } from '../utils/oklch'
 
 /** How a contrast rule came out on a document's root settings. */
 export interface ContrastOutcome {
@@ -23,17 +24,25 @@ function valueAt(settings: unknown, pointer: string): unknown {
 }
 
 /**
- * The colour one side of a rule names: a literal `#RRGGBB`, or the
- * `#RRGGBB` at its pointer. Throws for a pointer that holds no colour:
- * the theme's schema requires every colour a rule names, so that is a
- * catalogue that contradicts itself, never a theme to pass.
+ * The colour one side of a rule names: a literal `#RRGGBB`, the `#RRGGBB`
+ * at its pointer, or a mix of two of those as the page draws it
+ * (`mixOklab`). Throws for a pointer that holds no colour: the theme's
+ * schema requires every colour a rule names, so that is a catalogue that
+ * contradicts itself, never a theme to pass.
  */
 export function contrastSideColor(settings: unknown, side: ContrastSide): string {
+  if (typeof side !== 'string') return mixOklab(contrastSideColor(settings, side.mix), contrastSideColor(settings, side.toward), side.percent)
   const value = side.startsWith('#') ? side : valueAt(settings, side)
   if (typeof value !== 'string' || !HEX_COLOR_RE.test(value)) {
     throw new Error(`The contrast side "${side}" is not a #RRGGBB colour`)
   }
   return value
+}
+
+/** The pointer a side reads, if it reads one: its own, else its mix's colour's, else what it mixes toward. */
+export function contrastSidePointer(side: ContrastSide): ContrastColour | undefined {
+  const own = (colour: ContrastColour) => colour.startsWith('#') ? undefined : colour
+  return typeof side === 'string' ? own(side) : own(side.mix) ?? own(side.toward)
 }
 
 /**
@@ -51,12 +60,10 @@ export function evaluateContrastRules(settings: unknown, rules: readonly Contras
 }
 
 /**
- * The pointer a failed rule is reported at: the side that is a pointer, the
- * foreground when both are, `/settings` when neither is (as Django reports
- * `insufficient_contrast`).
+ * The pointer a failed rule is reported at: the pointer its foreground reads
+ * (a mix reads the colour it mixes), else its background's, `/settings` when
+ * neither reads one (as Django reports `insufficient_contrast`).
  */
 export function contrastRulePath(rule: ContrastRule): string {
-  if (!rule.foreground.startsWith('#')) return rule.foreground
-  if (!rule.background.startsWith('#')) return rule.background
-  return '/settings'
+  return contrastSidePointer(rule.foreground) ?? contrastSidePointer(rule.background) ?? '/settings'
 }

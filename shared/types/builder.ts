@@ -250,8 +250,23 @@ export interface BlockCatalogue {
   templates: string[]
 }
 
-/** One side of a contrast rule: a pointer into the document's root settings, or a literal `#RRGGBB`. */
-export type ContrastSide = SettingsPointer | `#${string}`
+/** A colour a contrast rule names: a pointer into the document's root settings, or a literal `#RRGGBB`. */
+export type ContrastColour = SettingsPointer | `#${string}`
+
+/**
+ * A colour as a stylesheet draws it mixed: `color-mix(in oklab, <mix>,
+ * <toward> <percent>%)`, the result clipped to sRGB and rounded to 8 bits
+ * (`mixOklab`). Django computes the same (`builder.contrast`), held to the
+ * same vectors (`test/fixtures/builder/contrast-cases.json`, `mixes`).
+ */
+export interface ContrastMix {
+  mix: ContrastColour
+  toward: ContrastColour
+  percent: number
+}
+
+/** One side of a contrast rule: a colour, or a colour mixed as the page draws it. */
+export type ContrastSide = ContrastColour | ContrastMix
 
 /** A text written in every language the storefront serves. */
 export type LocaleText = Readonly<Record<SupportedLocale, string>>

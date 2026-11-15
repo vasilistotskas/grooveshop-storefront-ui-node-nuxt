@@ -1,5 +1,5 @@
 {
-  "_comment": "WCAG 2.2 contrast, shared by the storefront (shared/utils/contrast.ts, shared/builder/contrastRules.ts) and Django, which vendors this file. ratio: the unrounded ratio to 2 decimals; pass compares the unrounded ratio with min (boundaries: where rounding would flip it); path: where a failed rule is reported (the pointer side, the foreground when both are, /settings when neither is); label: what a rule is called in every language, which Django names a refused publish with (fix: what its Fix does, the editor's).",
+  "_comment": "WCAG 2.2 contrast, shared by the storefront (shared/utils/contrast.ts, shared/builder/contrastRules.ts) and Django, which vendors this file. ratio: the unrounded ratio to 2 decimals; pass compares the unrounded ratio with min (boundaries: where rounding would flip it); path: where a failed rule is reported (the pointer side, the foreground when both are, /settings when neither is); label: what a rule is called in every language, which Django names a refused publish with (fix: what its Fix does, the editor's). mixes: a side drawn as color-mix(in oklab, mix, toward percent%), interpolated in OKLab (CSS Color 4 matrices), clipped to sRGB and rounded to 8 bits: the colour both sides compute (mixOklab, builder.contrast.mix_oklab), and its ratio against a ground.",
   "cases": [
     {
       "why": "black on white: the maximum",
@@ -66,6 +66,107 @@
       "foreground": "#e4e4e7",
       "background": "#18181b",
       "ratio": "13.96"
+    }
+  ],
+  "mixes": [
+    {
+      "why": "webside default dark accent toward white",
+      "mix": "#3364ff",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#5988ff",
+      "against": "#09090b",
+      "ratio": "6.05"
+    },
+    {
+      "why": "Volt default dark accent toward white",
+      "mix": "#4d73ff",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#6d92ff",
+      "against": "#17171a",
+      "ratio": "6.14"
+    },
+    {
+      "why": "an accent that clears 3:1 on a picked neutral 900 and not as text",
+      "mix": "#ff3cc3",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#ff70cf",
+      "against": "#464646",
+      "ratio": "3.81"
+    },
+    {
+      "why": "an accent that clears 3:1 on a picked neutral 950 and not as text",
+      "mix": "#d200a5",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#e056b7",
+      "against": "#282828",
+      "ratio": "4.34"
+    },
+    {
+      "why": "pure blue, the corner of the gamut",
+      "mix": "#0000ff",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#2260ff",
+      "against": "#000000",
+      "ratio": "4.19"
+    },
+    {
+      "why": "pure green",
+      "mix": "#00ff00",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#6cff64",
+      "against": "#000000",
+      "ratio": "16.13"
+    },
+    {
+      "why": "black toward white",
+      "mix": "#000000",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#161616",
+      "against": "#000000",
+      "ratio": "1.16"
+    },
+    {
+      "why": "white toward white stays white",
+      "mix": "#ffffff",
+      "toward": "#ffffff",
+      "percent": 20,
+      "mixed": "#ffffff",
+      "against": "#000000",
+      "ratio": "21.00"
+    },
+    {
+      "why": "nothing mixed is the colour itself",
+      "mix": "#7c3aed",
+      "toward": "#ffffff",
+      "percent": 0,
+      "mixed": "#7c3aed",
+      "against": "#ffffff",
+      "ratio": "5.70"
+    },
+    {
+      "why": "all mixed is the other colour",
+      "mix": "#7c3aed",
+      "toward": "#000000",
+      "percent": 100,
+      "mixed": "#000000",
+      "against": "#ffffff",
+      "ratio": "21.00"
+    },
+    {
+      "why": "half way, toward black",
+      "mix": "#d97706",
+      "toward": "#000000",
+      "percent": 50,
+      "mixed": "#532a01",
+      "against": "#ffffff",
+      "ratio": "12.36"
     }
   ],
   "rules": [

@@ -1,14 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
-import { contrastSideColor, evaluateContrastRules } from '~~/shared/builder/contrastRules'
+import { evaluateContrastRules } from '~~/shared/builder/contrastRules'
 import { MUTED_BACKGROUND, VOLT_BACKGROUND, VOLT_MUTED_BACKGROUND, builderDocumentRootsFor, themeContrastRulesFor, themeRootFor } from '~~/shared/builder/documentRoots'
 import { CONTAINER_MAP, FONT_ALLOWLIST } from '~~/shared/theme/constants'
 import { themeDefaultsFor } from '~~/shared/theme/defaults'
 import { zThemeSettings } from '~~/shared/theme/settings'
 import { TAILWIND_PALETTES } from '~~/shared/theme/tailwindPalettes'
-import { contrastRatio } from '~~/shared/utils/contrast'
-import { gamutMapToSrgb, hexFromSrgb, srgbFromHex, srgbToOklch } from '~~/shared/utils/oklch'
 
 /**
  * The theme's root, per design, held to the stylesheets that draw each
@@ -171,7 +169,6 @@ describe('themeContrastRulesFor', () => {
     expect(rules['accent-text-muted-light']).toMatchObject({ foreground: '/colors/light/accent', background: muted, min: 4.5, severity: 'warning' })
     expect(rules['accent-light']).toMatchObject({ min: 3 })
     expect(rules['accent-muted-light']).toMatchObject({ min: 3 })
-    expect(Object.keys(rules).filter(id => id.startsWith('accent-text-') && id.endsWith('-dark'))).toEqual([])
   })
 
   // An accent fine for buttons and large text (3:1 on both grounds) and too
@@ -183,40 +180,6 @@ describe('themeContrastRulesFor', () => {
     const failed = evaluateContrastRules(theme, themeContrastRulesFor(design)).filter(({ pass }) => !pass)
 
     expect(failed.map(({ rule }) => [rule.id, rule.severity])).toEqual([['accent-text-light', 'warning'], ['accent-text-muted-light', 'warning']])
-  })
-
-  // The dark scheme paints the accent's text 20% toward white, in OKLab:
-  // every accent that clears the 3:1 rules on a design's dark grounds then
-  // reads at 4.5:1 or more as small text, so a small-text rule on the raw
-  // accent there could only warn wrongly (both designs' own dark accents
-  // would). Every sRGB colour on a grid of 18 steps a channel is tried.
-  it.each([
-    [null, base.dark, MUTED_BACKGROUND.dark],
-    ['volt' as const, volt.dark, VOLT_MUTED_BACKGROUND.dark],
-  ])('lets the 3:1 rules hold the dark accent as small text, for design %s', (design, css, muted) => {
-    expect(css['--ui-secondary-text']).toBe('color-mix(in oklab, var(--ui-secondary) 80%, white)')
-    const defaults = themeDefaultsFor(design)
-    const page = themeContrastRulesFor(design).find(rule => rule.id === 'accent-dark')!.background
-    const grounds = [page, muted].map(side => contrastSideColor(defaults, side))
-    const white = srgbToOklch([1, 1, 1])
-    const toLab = ({ l, c, h }: { l: number, c: number, h: number }) => [l, Number.isNaN(h) ? 0 : c * Math.cos(h * Math.PI / 180), Number.isNaN(h) ? 0 : c * Math.sin(h * Math.PI / 180)] as const
-    const textOf = (accent: string) => {
-      const [l, a, b] = toLab(srgbToOklch(srgbFromHex(accent)))
-      const [wl, wa, wb] = toLab(white)
-      const [ml, ma, mb] = [l * 0.8 + wl * 0.2, a * 0.8 + wa * 0.2, b * 0.8 + wb * 0.2]
-      return hexFromSrgb(gamutMapToSrgb({ l: ml, c: Math.hypot(ma, mb), h: (Math.atan2(mb, ma) * 180 / Math.PI + 360) % 360 }))
-    }
-    const steps = Array.from({ length: 18 }, (_, step) => Math.min(255, step * 15).toString(16).padStart(2, '0'))
-    const faint: string[] = []
-    for (const red of steps) for (const green of steps) for (const blue of steps) {
-      const accent = `#${red}${green}${blue}`
-      for (const ground of grounds) {
-        if (contrastRatio(accent, ground) >= 3 && contrastRatio(textOf(accent), ground) < 4.5) faint.push(`${accent} on ${ground}`)
-      }
-    }
-
-    expect(faint).toEqual([])
-    expect(evaluateContrastRules(defaults, themeContrastRulesFor(design)).every(({ pass }) => pass)).toBe(true)
   })
 
   // An accent that clears 3:1 on the page and not on the muted ground: of the

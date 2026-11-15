@@ -61,12 +61,10 @@ type ThemeDesign = StorefrontDesign | null
  *   stay, for the accent as a colour and as large text, so an accent fine for
  *   buttons warns only as small text. The text is the accent itself on
  *   webside and darker on Volt, so the accent is what the rule can judge.
- * - **No small-text rule in the dark scheme**: there the text is the accent
- *   mixed 20% toward white (`color-mix(in oklab, ...)`), and an accent that
- *   clears the 3:1 rules on the dark grounds above paints text of 4.5:1 or
- *   more on them (`documentRoots.spec.ts` holds this). The raw accent at
- *   4.5:1 would warn on both designs' own default dark accents, whose text
- *   reads at 6:1 and more.
+ * - **Dark scheme, no small-text rule yet**: the text there is the accent
+ *   mixed toward white in OKLab (`--ui-secondary-text`), which a rule names
+ *   as a mixed side (`ContrastMix`); Django reads a mixed side only from the
+ *   release that follows this catalogue's, so the rule comes after it.
  * - **No rule** for the bold look's accent heading (`--ds-accent-heading`)
  *   on a store with its own design: the theme computes it per scheme at
  *   4.5:1 or more on the page and the muted ground, the grounds below
