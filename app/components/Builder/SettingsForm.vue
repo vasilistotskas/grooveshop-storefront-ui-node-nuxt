@@ -11,12 +11,15 @@ const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
 const tenantStore = useTenantStore()
 const { locale } = useBuilderEditorView()
+const { settingLabel } = useBuilderLabels()
 
 const node = computed(() => {
   const document = store.opened[props.documentKey]
   return document ? findBuilderNode(document.copy.draft, props.nodeId) : undefined
 })
 const definition = computed(() => node.value ? builderEditorBlocks.get(builderBlockType(node.value)) : undefined)
+/** Every setting of the block, whichever the store's design draws. */
+const allFields = computed(() => definition.value ? builderSettingsFields(definition.value) : [])
 /** The settings the store's design draws: a control that changes nothing on its pages is not offered. */
 const fields = computed(() => definition.value ? builderSettingsFields(definition.value, tenantStore.schemaName) : [])
 
@@ -42,7 +45,7 @@ const values = computed(() => translations.value ? builderTranslatedSettings({},
 const errors = computed(() => {
   const byField = new Map<string, string>()
   const add = (path: string, message: string) => {
-    const field = fieldForSettingPath(fields.value, path)
+    const field = fieldForSettingPath(allFields.value, path)
     if (field && !byField.has(field.path)) byField.set(field.path, message)
   }
   // A language is checked as it reads: the draft with its translations in place.
@@ -55,6 +58,22 @@ const errors = computed(() => {
   }
   return byField
 })
+
+/**
+ * The settings the store's design does not draw that still hold a value, or
+ * have a problem: one written before the design took the block over, or in
+ * another design. Django checks every setting (a link's target must exist to
+ * publish), so each stays reachable, apart from the rest, to be cleared. One
+ * that holds nothing stays out of the form.
+ */
+const undrawn = computed(() => {
+  const drawn = new Set(fields.value.map(field => field.path))
+  const settings = node.value?.settings ?? {}
+  return allFields.value.filter(field => !drawn.has(field.path)
+    && (settingAt(settings, field.path) !== undefined || settingAt(values.value, field.path) !== undefined || errors.value.has(field.path)))
+})
+/** Whether a setting the design does not draw has a problem, which opens their group. */
+const undrawnProblem = computed(() => undrawn.value.some(field => errors.value.has(field.path)))
 
 /** The kinds of schema issue the form names; anything else reads as "not valid". */
 function issueKind(code: string): 'tooLong' | 'tooShort' | 'missing' | 'invalid' {
@@ -87,7 +106,7 @@ function update(path: string, value: unknown): void {
     @submit.prevent
   >
     <p
-      v-if="fields.length === 0"
+      v-if="fields.length === 0 && undrawn.length === 0"
       class="text-sm text-muted"
     >
       {{ t('noSettings') }}
@@ -104,6 +123,47 @@ function update(path: string, value: unknown): void {
         :translation="translation"
         @update="update"
       />
+      <details
+        v-if="undrawn.length"
+        :open="undrawnProblem"
+        class="rounded-md border border-default"
+      >
+        <summary class="cursor-pointer px-3 py-2 text-sm font-medium">
+          {{ t('undrawn.title') }}
+        </summary>
+        <div class="flex flex-col gap-4 px-3 pb-3">
+          <p class="text-sm text-muted">
+            {{ t('undrawn.help') }}
+          </p>
+          <div
+            v-for="field in undrawn"
+            :key="field.path"
+            class="flex flex-col items-start gap-2"
+          >
+            <BuilderSettingField
+              class="w-full"
+              :block-type="definition.type"
+              :field="field"
+              :settings="values"
+              :errors="errors"
+              :disabled="!store.canEdit"
+              :translation="translation"
+              @update="update"
+            />
+            <UButton
+              v-if="store.canEdit && !translation"
+              type="button"
+              size="xs"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide-eraser"
+              :label="t('undrawn.clear')"
+              :aria-label="t('undrawn.clearNamed', { name: settingLabel(field.path) })"
+              @click="() => update(field.path, undefined)"
+            />
+          </div>
+        </div>
+      </details>
     </template>
   </form>
 </template>
@@ -111,6 +171,11 @@ function update(path: string, value: unknown): void {
 <i18n lang="yaml">
 el:
   noSettings: Αυτή η ενότητα δεν έχει ρυθμίσεις.
+  undrawn:
+    title: Δεν εμφανίζονται στο σχέδιο του καταστήματος
+    help: Το σχέδιο αυτού του καταστήματος δεν δείχνει αυτές τις ρυθμίσεις, αλλά έχουν ακόμη τιμή, που ελέγχεται κατά τη δημοσίευση. Διαγράψτε όσες δεν χρειάζεστε.
+    clear: Διαγραφή
+    clearNamed: Διαγραφή της ρύθμισης {name}
   issue:
     tooLong: Είναι πολύ μεγάλο.
     tooShort: Είναι πολύ μικρό ή κενό.
@@ -118,6 +183,11 @@ el:
     invalid: Δεν είναι έγκυρο.
 en:
   noSettings: This section has no settings.
+  undrawn:
+    title: Not drawn by this store's design
+    help: This store's design does not show these settings, but they still hold a value, which is checked when you publish. Clear the ones you do not need.
+    clear: Clear
+    clearNamed: Clear the setting {name}
   issue:
     tooLong: It's too long.
     tooShort: It's too short, or empty.
