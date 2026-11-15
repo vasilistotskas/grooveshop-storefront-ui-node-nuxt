@@ -25,9 +25,10 @@ import type { AstNode } from '../../helpers/sourceText'
  * - of those, the ones its code or template reads (`__props.x`, or `x` of the
  *   local `props`): a declared prop nobody reads is a control that does
  *   nothing all the same.
- * A component that hands its props on whole (`heroImage(props)`,
- * `v-bind="props"`) is taken to read every prop it declares: where they go
- * from there is the receiver's business. A render test could not do better
+ * `toRef(props, 'x')` reads `x`. A component that hands its props on whole
+ * (`heroImage(props)`, `v-bind="props"`, `toRefs(props)`) is taken to read
+ * every prop it declares: where they go from there is the receiver's
+ * business, and a prop that receiver ignores passes here unseen. A render test could not do better
  * without a valid value of every kind of setting per block, live data for each
  * query and a breakpoint per phone-only setting, and a setting it failed to
  * vary would pass as "drawn"; the compiler's view needs none of that and covers
@@ -78,6 +79,12 @@ function propsOf(file: string): { declared: string[], read: Set<string> | 'every
     if (node.type !== 'Identifier' || !names.has(node.name)) return
     if (isPropsRead(node, parent)) {
       read.add(parent!.property.name)
+      return
+    }
+    // `toRef(props, 'x')` reads `x` alone.
+    const key = parent?.arguments?.[1]
+    if (parent?.type === 'CallExpression' && parent.callee.type === 'Identifier' && parent.callee.name === 'toRef' && parent.arguments[0] === node && key?.type === 'StringLiteral') {
+      read.add(key.value)
       return
     }
     const declaresAlias = parent?.type === 'VariableDeclarator' && (parent.id === node || parent.init === node)
