@@ -124,6 +124,20 @@ export function defineBlock<Schema extends ZodObject>(config: BlockConfig<Schema
     }
   }
 
+  const required = [...settings].filter(setting => !config.schema.shape[setting]!.safeParse(undefined).success)
+  for (const [design, drawn] of Object.entries(config.editor?.designSettings ?? {})) {
+    if (!BUILDER_DESIGN_PATTERN.test(design) || (config.designs !== undefined && !config.designs.includes(design))) {
+      fail(`editor.designSettings names "${design}", which is not a design that draws the block`)
+    }
+    if (new Set(drawn).size !== drawn.length || drawn.some(setting => !settings.has(setting))) {
+      fail(`editor.designSettings.${design} must list distinct settings of the schema`)
+    }
+    const hidden = required.filter(setting => !drawn.includes(setting))
+    if (hidden.length > 0) {
+      fail(`editor.designSettings.${design} leaves out the required ${hidden.join(', ')}, which the form must offer`)
+    }
+  }
+
   return {
     ...config,
     translatable: config.translatable ?? [],

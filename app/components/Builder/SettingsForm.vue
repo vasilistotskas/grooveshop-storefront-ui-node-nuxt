@@ -9,6 +9,7 @@ const props = defineProps<{
 const { t } = useStoreI18n('components/Builder/SettingsForm')
 const store = useBuilderEditorStore()
 const autosave = useBuilderAutosaveStore()
+const tenantStore = useTenantStore()
 const { locale } = useBuilderEditorView()
 
 const node = computed(() => {
@@ -16,7 +17,8 @@ const node = computed(() => {
   return document ? findBuilderNode(document.copy.draft, props.nodeId) : undefined
 })
 const definition = computed(() => node.value ? builderEditorBlocks.get(builderBlockType(node.value)) : undefined)
-const fields = computed(() => definition.value ? builderSettingsFields(definition.value) : [])
+/** The settings the store's design draws: a control that changes nothing on its pages is not offered. */
+const fields = computed(() => definition.value ? builderSettingsFields(definition.value, tenantStore.schemaName) : [])
 
 /** The node's translations into the language being edited, when it is not the draft's. */
 const translations = computed(() => {

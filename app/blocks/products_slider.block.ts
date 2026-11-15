@@ -12,5 +12,11 @@ export default defineBlock({
   translatable: ['/heading', '/subheading', '/ctaText'],
   upgrade: { 1: upgradeProductRail({ ordering: 'newest', limit: 8 }, 24), 2: upgradeTitleIntoHeading },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } }],
-  editor: { title: ['heading'], category: 'products' },
+  editor: {
+    title: ['heading'],
+    category: 'products',
+    designSettings: {
+      webside: ['products'],
+    },
+  },
 })
