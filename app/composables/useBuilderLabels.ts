@@ -65,8 +65,10 @@ export function useBuilderLabels() {
     categoryLabel: (category: (typeof BUILDER_BLOCK_CATEGORIES)[number]) => read(`categories.${category}`),
     /** What a store feature a block needs is called, as it reads after "needs". */
     featureLabel: (feature: StoreFeatureName) => read(`features.${feature}`),
-    /** What a contrast rule of the theme is called, by its id (`themeContrastRulesFor`): the theme panel's rows and the Publish dialog's warning. */
-    contrastRuleLabel: (id: string) => read(`contrastRules.${id}`),
+    /** What a contrast rule of the theme is called: its catalogue name (`themeContrastRulesFor`), the one Django names a refused publish with. The theme panel's rows and the Publish dialog's warning. */
+    contrastRuleLabel: (rule: ContrastRule) => rule.label[locale.value],
+    /** What a contrast rule's Fix does, from the catalogue as its name. */
+    contrastRuleFix: (rule: ContrastRule) => rule.fix[locale.value],
     /**
      * What a document is called, wherever one is named (the publish dialog
      * and its schedules, presence, share links, media in use): the theme and

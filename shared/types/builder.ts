@@ -4,6 +4,7 @@ import type { BLOCK_KINDS, BLOCK_REF_KINDS, BUILDER_DOCUMENT_KINDS, DATA_MISSING
 import type { BlockUpgradeFailure } from '../builder/upgrade'
 import type { StoreFeatureName } from '../utils/storeFeature'
 import type { BUILDER_BLOCK_CATEGORIES } from '../constants/builderEditor'
+import type { SupportedLocale } from '../../i18n/locales'
 
 export type BlockKind = (typeof BLOCK_KINDS)[number]
 export type BlockRefKind = (typeof BLOCK_REF_KINDS)[number]
@@ -252,11 +253,17 @@ export interface BlockCatalogue {
 /** One side of a contrast rule: a pointer into the document's root settings, or a literal `#RRGGBB`. */
 export type ContrastSide = SettingsPointer | `#${string}`
 
+/** A text written in every language the storefront serves. */
+export type LocaleText = Readonly<Record<SupportedLocale, string>>
+
 /**
  * A pair of colours that must stand apart, in WCAG 2.2 contrast: at least
  * `min`. An `error` stops a publish (Django, `insufficient_contrast`); a
  * `warning` is the editor's, with a Fix. Catalogue data, so Django needs
  * no theme knowledge beyond comparing two colours.
+ *
+ * `label` is what the rule is called, the one name the theme panel, the
+ * Publish dialog and Django's refusal use; `fix` says what its Fix does.
  */
 export interface ContrastRule {
   id: string
@@ -264,6 +271,8 @@ export interface ContrastRule {
   background: ContrastSide
   min: number
   severity: 'error' | 'warning'
+  label: LocaleText
+  fix: LocaleText
 }
 
 /** What a kind of document may carry at its root: a Zod object, which of its settings are translatable, and the contrast its colours must keep. */

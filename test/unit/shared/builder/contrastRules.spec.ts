@@ -27,7 +27,7 @@ describe('evaluateContrastRules', () => {
   })
 
   it.each(contrast.boundaries.map(entry => [entry.why, entry] as const))('compares the unrounded ratio: %s', (_why, { foreground, background, min, pass }) => {
-    const rule: ContrastRule = { id: 'boundary', foreground: foreground as ContrastRule['foreground'], background: background as ContrastRule['background'], min, severity: 'error' }
+    const rule: ContrastRule = { ...rules[0]!, id: 'boundary', foreground: foreground as ContrastRule['foreground'], background: background as ContrastRule['background'], min, severity: 'error' }
 
     expect(evaluateContrastRules({}, [rule])[0]!.pass).toBe(pass)
   })

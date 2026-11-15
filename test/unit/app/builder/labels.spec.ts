@@ -157,9 +157,18 @@ describe.each(SUPPORTED_LOCALES)('the editor labels in %s', (locale) => {
     expect(leaks).toEqual([])
   })
 
-  // The theme panel's rows and the Publish dialog's warning name a rule by its id.
-  it('name every contrast rule of every design, and only those', () => {
-    const ids = ([null, 'volt'] as const).flatMap(design => themeContrastRulesFor(design).map(({ id }) => id))
-    expect(Object.keys(labels.contrastRules).sort()).toEqual([...new Set(ids)].sort())
+  // A contrast rule's name and what its Fix does are the catalogue's
+  // (`themeContrastRulesFor`), the one source the theme panel, the Publish
+  // dialog and Django's refusal read: every rule of every design has both in
+  // this language, and no two rules of a design share a name.
+  it.each([[null], ['volt' as const]])('come, for the contrast rules of design %s, from the catalogue: a name and a Fix each', (design) => {
+    const rules = themeContrastRulesFor(design)
+
+    expect(rules.filter(rule => !rule.label[locale].trim() || !rule.fix[locale].trim()).map(({ id }) => id)).toEqual([])
+    expect(new Set(rules.map(rule => rule.label[locale])).size).toBe(rules.length)
+  })
+
+  it('name no contrast rule here: the catalogue does', () => {
+    expect(labels).not.toHaveProperty('contrastRules')
   })
 })

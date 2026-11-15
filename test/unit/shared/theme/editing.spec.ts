@@ -81,7 +81,7 @@ describe('fixContrast', () => {
 
   it('leaves a theme whose rule passes, or a rule of two literals, as it is', () => {
     const theme = themeDefaultsFor(null)
-    const literal: ContrastRule = { id: 'literal', foreground: '#777777', background: '#ffffff', min: 4.5, severity: 'error' }
+    const literal: ContrastRule = { ...rules['body-text-light']!, id: 'literal', foreground: '#777777', background: '#ffffff', min: 4.5, severity: 'error' }
 
     expect(fixContrast(theme, rules['body-text-light']!)).toBe(theme)
     expect(fixContrast(theme, literal)).toBe(theme)
@@ -89,7 +89,7 @@ describe('fixContrast', () => {
 
   it('goes as far as black when nothing lighter passes', () => {
     const theme = themeDefaultsFor(null)
-    const impossible: ContrastRule = { id: 'impossible', foreground: '/colors/light/accent', background: '#000000', min: 21, severity: 'warning' }
+    const impossible: ContrastRule = { ...rules['body-text-light']!, id: 'impossible', foreground: '/colors/light/accent', background: '#000000', min: 21, severity: 'warning' }
 
     const fixed = fixContrast(theme, impossible)
 

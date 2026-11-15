@@ -1,5 +1,5 @@
 {
-  "_comment": "WCAG 2.2 contrast, shared by the storefront (shared/utils/contrast.ts, shared/builder/contrastRules.ts) and Django, which vendors this file. ratio: the unrounded ratio to 2 decimals; pass compares the unrounded ratio with min (boundaries: where rounding would flip it); path: where a failed rule is reported (the pointer side, the foreground when both are, /settings when neither is).",
+  "_comment": "WCAG 2.2 contrast, shared by the storefront (shared/utils/contrast.ts, shared/builder/contrastRules.ts) and Django, which vendors this file. ratio: the unrounded ratio to 2 decimals; pass compares the unrounded ratio with min (boundaries: where rounding would flip it); path: where a failed rule is reported (the pointer side, the foreground when both are, /settings when neither is); label: what a rule is called in every language, which Django names a refused publish with (fix: what its Fix does, the editor's).",
   "cases": [
     {
       "why": "black on white: the maximum",
@@ -74,35 +74,75 @@
       "foreground": "/colors/light/neutral/scale/700",
       "background": "#ffffff",
       "min": 4.5,
-      "severity": "error"
+      "severity": "error",
+      "label": {
+        "el": "Κείμενο, φωτεινό",
+        "en": "Text, light"
+      },
+      "fix": {
+        "el": "Αλλάζει το χρώμα του κειμένου.",
+        "en": "Changes the text colour."
+      }
     },
     {
       "id": "body-text-dark",
       "foreground": "/colors/dark/neutral/scale/200",
       "background": "/colors/dark/neutral/scale/900",
       "min": 4.5,
-      "severity": "error"
+      "severity": "error",
+      "label": {
+        "el": "Κείμενο, σκούρο",
+        "en": "Text, dark"
+      },
+      "fix": {
+        "el": "Αλλάζει το χρώμα του κειμένου.",
+        "en": "Changes the text colour."
+      }
     },
     {
       "id": "primary-light",
       "foreground": "/colors/light/primary/scale/500",
       "background": "#ffffff",
       "min": 3,
-      "severity": "warning"
+      "severity": "warning",
+      "label": {
+        "el": "Κύριο χρώμα, φωτεινό",
+        "en": "Primary colour, light"
+      },
+      "fix": {
+        "el": "Αλλάζει το κύριο χρώμα.",
+        "en": "Changes the primary colour."
+      }
     },
     {
       "id": "both-literal",
       "foreground": "#767676",
       "background": "#ffffff",
       "min": 4.5,
-      "severity": "error"
+      "severity": "error",
+      "label": {
+        "el": "Δύο σταθερά χρώματα",
+        "en": "Two fixed colours"
+      },
+      "fix": {
+        "el": "Δεν αλλάζει τίποτα.",
+        "en": "Changes nothing."
+      }
     },
     {
       "id": "background-pointer",
       "foreground": "#ffffff",
       "background": "/colors/light/primary/scale/700",
       "min": 4.5,
-      "severity": "error"
+      "severity": "error",
+      "label": {
+        "el": "Λευκό σε κύριο χρώμα",
+        "en": "White on the primary colour"
+      },
+      "fix": {
+        "el": "Αλλάζει το κύριο χρώμα.",
+        "en": "Changes the primary colour."
+      }
     }
   ],
   "themes": [
