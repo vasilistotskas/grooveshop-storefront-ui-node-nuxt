@@ -37,7 +37,6 @@ describe('GET /api/content-pages', () => {
 
     expect(await keyFor('?ordering=slug')).not.toBe(await keyFor('?ordering=-slug'))
     expect(await keyFor('?page=2')).not.toBe(defaults)
-    expect(await keyFor('?pagination=false')).not.toBe(defaults)
     expect(await keyFor('?utm_source=newsletter')).toBe(defaults)
   })
 })

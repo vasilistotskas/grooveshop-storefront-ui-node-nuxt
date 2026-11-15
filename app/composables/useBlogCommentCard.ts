@@ -23,8 +23,13 @@ export function useBlogCommentCard(options: {
   const { user, loggedIn } = useUserSession()
   const { loadLikedComments } = useUserStore()
 
-  // The person, not the generated handle — see ``displayUserName``.
-  const commenterName = computed(() => displayUserName(comment.value?.user))
+  // The person, not the generated handle — see ``displayUserName``. A
+  // comment outlives its author's account (Django's `user` is SET_NULL):
+  // it then has no `user`, and is signed as a deleted account.
+  const commenterName = computed(() => {
+    const author = comment.value.user
+    return author ? displayUserName(author) : t('author.deleted')
+  })
 
   const showReplyForm = ref(false)
   const replies = ref<Pagination<BlogComment> | null>(null)

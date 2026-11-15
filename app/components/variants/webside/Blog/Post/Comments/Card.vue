@@ -81,22 +81,21 @@ const {
   >
     <summary class="flex w-full cursor-pointer items-center">
       <span class="flex items-center gap-2">
-        <template v-if="comment.user">
-          <LazyUserAvatar
-            :img-height="32"
-            :img-width="32"
-            :show-name="false"
-            :user-account="comment.user"
-          />
-          <span
-            class="
-              font-bold text-primary-950
-              dark:text-primary-50
-            "
-          >
-            {{ commenterName }}
-          </span>
-        </template>
+        <LazyUserAvatar
+          v-if="comment.user"
+          :img-height="32"
+          :img-width="32"
+          :show-name="false"
+          :user-account="comment.user"
+        />
+        <span
+          class="
+            font-bold text-primary-950
+            dark:text-primary-50
+          "
+        >
+          {{ commenterName }}
+        </span>
         <span class="flex items-center">
           <span
             class="
@@ -367,6 +366,8 @@ const {
 
 <i18n lang="yaml">
 el:
+  author:
+    deleted: Διαγραμμένος λογαριασμός
   add:
     success: Το σχόλιο δημιουργήθηκε με επιτυχία και θα εμφανιστεί μόλις εγκριθεί
     error: Σφάλμα δημιουργίας σχολίου
@@ -380,6 +381,8 @@ el:
   load:
     error: Σφάλμα φόρτωσης απαντήσεων
 en:
+  author:
+    deleted: Deleted account
   add:
     success: Your comment was created and will appear once approved
     error: The comment could not be created

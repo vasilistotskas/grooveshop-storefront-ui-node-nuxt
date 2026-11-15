@@ -30,4 +30,21 @@ describe('POST /api/blog/comments', () => {
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/blog/comment')
     expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer knox-1')
   })
+
+  // The parent's author deleted the account (Django's `user` is SET_NULL).
+  it('answers a reply whose parent and ancestor were written by a deleted account', async () => {
+    testSession.set({ user: { id: 9 }, secure: { accessToken: 'knox-1' } })
+    const created = makeBlogCommentDetail({
+      id: 5,
+      parentComment: { id: 1, contentPreview: 'Σχόλιο 1', user: null, createdAt: '2026-01-01T00:00:00Z' },
+      ancestorsPath: [{ id: 1, contentPreview: 'Σχόλιο 1', user: null }],
+    })
+    backend.reply(created)
+
+    const response = await create()
+
+    expect(response.status).toBe(200)
+    expect(response.body.parentComment.user).toBeNull()
+    expect(response.body.ancestorsPath[0].user).toBeNull()
+  })
 })

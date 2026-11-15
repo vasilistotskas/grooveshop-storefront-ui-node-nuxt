@@ -70,9 +70,9 @@ describe.each(trees(BlogPostCommentsCard, WebsideBlogPostCommentsCard))('$tree B
     useUserStore().blogLikedComments = []
   })
 
-  const mount = () => mountSuspended(C, {
+  const mount = (comment = COMMENT) => mountSuspended(C, {
     route: false,
-    props: { comment: COMMENT, displayImageOf: 'user' },
+    props: { comment, displayImageOf: 'user' },
     global: {
       stubs: {
         [own('BlogPostCommentsCard')]: { props: ['comment'], template: '<div data-reply />' },
@@ -86,6 +86,21 @@ describe.each(trees(BlogPostCommentsCard, WebsideBlogPostCommentsCard))('$tree B
     await wrapper.findAll('button').find(b => b.text() === '2 Απαντήσεις')!.trigger('click')
     await flushPromises()
   }
+
+  it('signs the comment with its author\'s name', async () => {
+    const wrapper = await mount()
+
+    expect(wrapper.get('summary').text()).toContain('Μαρία Παπαδοπούλου')
+  })
+
+  // A comment outlives its author's account (Django's `user` is SET_NULL),
+  // and Django then sends `user: null`.
+  it('says the account was deleted where a deleted author\'s name would be', async () => {
+    const wrapper = await mount(makeBlogComment({ id: 1, user: null }))
+
+    expect(wrapper.get('summary').text()).toContain('Διαγραμμένος λογαριασμός')
+    expect(wrapper.text()).toContain('Σχόλιο 1')
+  })
 
   it('shows the replies and the reader\'s like state for them', async () => {
     api.routes({ [REPLIES]: replyPage, '/api/blog/comments/liked-comments': { likedCommentIds: [5] } })
