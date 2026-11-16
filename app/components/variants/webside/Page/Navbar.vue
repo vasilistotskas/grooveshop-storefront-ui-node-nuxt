@@ -30,6 +30,8 @@ const blogServing = useGatedRoute('/blog')
 const searchServing = useGatedRoute('/search')
 const savedPostsServing = useGatedRoute('/account/favourites/posts')
 const { signIn } = useAuthLinks()
+// No customer accounts, no sign-in icon.
+const accountServing = useGatedRoute('/account')
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -577,7 +579,7 @@ const items = computed(() => [
             </UDropdownMenu>
           </li>
           <li
-            v-else
+            v-else-if="accountServing"
             class="
               relative grid items-center justify-center justify-items-center
             "

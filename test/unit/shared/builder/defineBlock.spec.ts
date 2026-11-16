@@ -144,6 +144,27 @@ describe('defineBlock', () => {
     })
   })
 
+  describe('editor.designSettings', () => {
+    const designSchema = z.object({ title: z.string(), subtitle: z.string().optional(), items: z.array(z.string()).optional() })
+
+    it('keeps the settings each design draws', () => {
+      expect(define({ schema: designSchema, editor: { designSettings: { webside: ['title', 'items'] } } }).editor.designSettings).toEqual({ webside: ['title', 'items'] })
+    })
+
+    it.each([
+      ['a setting the schema does not have', { webside: ['title', 'heading'] }, /designSettings.webside must list distinct settings/],
+      ['a repeated setting', { webside: ['title', 'title'] }, /designSettings.webside must list distinct settings/],
+      ['a name that is no tenant schema', { 'web-side': ['title'] }, /names "web-side", which is not a design/],
+      ['a design that leaves out a required setting', { webside: ['subtitle'] }, /leaves out the required title/],
+    ])('refuses %s', (_case, designSettings, message) => {
+      expect(() => define({ schema: designSchema, editor: { designSettings } })).toThrow(message)
+    })
+
+    it('refuses a design the block is not drawn in', () => {
+      expect(() => define({ schema: designSchema, designs: ['webside'], editor: { designSettings: { other: ['title'] } } })).toThrow(/names "other", which is not a design that draws the block/)
+    })
+  })
+
   it('refuses an editor title that names no setting', () => {
     expect(() => define({ editor: { title: ['title', 'heading'] } })).toThrow(/editor.title names "heading"/)
   })

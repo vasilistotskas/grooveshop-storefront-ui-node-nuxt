@@ -35,5 +35,11 @@ export default defineBlock({
   children: { allowed: ['stat'], maxDepth: 1 },
   childList: { stat: 'stats' },
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
-  editor: { title: ['heading'], category: 'hero' },
+  editor: {
+    title: ['heading'],
+    category: 'hero',
+    designSettings: {
+      ekfyseosfyteias: ['heading', 'subheading', 'eyebrow', 'image', 'imageDecorative', 'ctaText', 'ctaLink', 'secondaryCtaText', 'secondaryCtaLink', 'decor', 'theme'],
+    },
+  },
 })

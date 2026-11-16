@@ -1,3 +1,18 @@
+# [3.342.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.6...v3.342.0) (2026-11-15)
+
+
+### Bug Fixes
+
+* **chat:** a turn that failed after a cart change still claims or refreshes the cart ([#485](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/485)) ([70f7719](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/70f771929f86e77308dc5ba4836337bc46482c6b))
+
+
+### Features
+
+* **accounts:** a store without customer accounts shows no sign-in, account or identity surface ([#484](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/484)) ([8b3dc77](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b3dc77dd452942a21db2d8525837220dc22ae2c)), closes [grooveshop-django-api#709](https://github.com/grooveshop-django-api/issues/709) [vasilistotskas/grooveshop-django-api#198](https://github.com/vasilistotskas/grooveshop-django-api/issues/198)
+* **builder:** contrast rules carry their names and a small-text accent rule ([#483](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/483)) ([da030f4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/da030f4d1e632b2424fe52ca4ec3fdb63b0d2c42)), closes [#714](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/714) [#487](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/487) [#466](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/466)
+* **builder:** the settings form offers only what the store's design draws ([#482](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/482)) ([87e3141](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/87e3141fa4a0f4875aeed8719d383a07a1589239)), closes [#465](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/465)
+* **builder:** the version history covers the theme and the section groups ([#481](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/481)) ([23b767f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/23b767f40a7154e315643fcb763620a91dabdfa2)), closes [#472](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/472)
+
 ## [3.341.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.5...v3.341.6) (2026-11-15)
 
 

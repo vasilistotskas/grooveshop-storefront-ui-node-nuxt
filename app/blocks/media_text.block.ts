@@ -28,5 +28,11 @@ export default defineBlock({
   children: { allowed: ['bullet', 'spec_card'], maxDepth: 2 },
   childList: { bullet: 'bullets', spec_card: 'specs' },
   presets: [{ id: BUILDER_DEFAULT_PRESET }],
-  editor: { title: ['heading'], category: 'content' },
+  editor: {
+    title: ['heading'],
+    category: 'content',
+    designSettings: {
+      ekfyseosfyteias: ['surface', 'heading', 'body', 'eyebrow', 'note', 'emphasis', 'image', 'imageDecorative', 'imagePosition', 'ctaText', 'ctaLink'],
+    },
+  },
 })

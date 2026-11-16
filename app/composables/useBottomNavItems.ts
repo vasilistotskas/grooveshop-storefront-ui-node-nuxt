@@ -39,7 +39,7 @@ interface BottomNavOptions {
  *
  * Each tab is there while the page it opens is serving, as the gated-routes
  * table says (Search and Shop need the catalogue, Saved the favourites,
- * Blog the blog, Cart the cart). Saved is
+ * Blog the blog, Cart the cart, Account the store's customer accounts). Saved is
  * the shopper's favourite PRODUCTS, the same place the header's heart
  * leads. The cart carries its item count. Signed out, Saved and Account
  * lead to the sign-in page with a way back to this one; signed in,
@@ -71,6 +71,8 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
   const shopServing = useGatedRoute('/products')
   const blogServing = useGatedRoute('/blog')
   const cartServing = useGatedRoute('/cart')
+  // Sign-in and the account are one area: no customer accounts, no tab.
+  const accountServing = useGatedRoute('/account')
   const { signIn } = useAuthLinks()
 
   const routeName = computed(() => String($routeBaseName(route) ?? ''))
@@ -131,6 +133,7 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
             : undefined,
         }
       case 'account': {
+        if (!accountServing.value) return undefined
         const active = loggedIn.value && isActive('account') && !isActive('account-favourites')
         const look = avatarSrc.value ? { avatar: { src: avatarSrc.value, alt: '' } } : { icon: icon(tab) }
         if (loggedIn.value && onAccount) {

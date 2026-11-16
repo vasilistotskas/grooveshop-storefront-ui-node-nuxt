@@ -72,6 +72,37 @@ describe('webside Page/Navbar gift-card link', () => {
 })
 
 /**
+ * A store without customer accounts has no sign-in and no account: the
+ * header draws neither the sign-in icon nor the saved-posts heart.
+ */
+describe('webside Page/Navbar account control', () => {
+  const accountLinks = async () => {
+    const wrapper = await mountSuspended(Navbar, { route: false })
+    const hrefs = wrapper.findAll('a').map(a => a.attributes('href') ?? '').filter(href => href.startsWith('/account'))
+    wrapper.unmount()
+    return hrefs
+  }
+
+  beforeEach(() => {
+    state.header = null
+    categories.value = []
+    topics.value = []
+    setTenant({ availableLocales: ['el'] })
+    setTenantFeatures({ blog: true, favourites: true })
+  })
+
+  it('sends a guest to sign in on a store with customer accounts', async () => {
+    expect(await accountLinks()).toContain('/account/login?next=/')
+  })
+
+  it('links nothing in the account on a store without them', async () => {
+    setTenantFeatures({ customerAccounts: false })
+
+    expect(await accountLinks()).toEqual([])
+  })
+})
+
+/**
  * Whether the language switcher is offered follows the TENANT's locales
  * (`Tenant.available_locales`, through `tenantStore.isMultilingual`), not the
  * platform's list: a one-language store loads and draws nothing, and the

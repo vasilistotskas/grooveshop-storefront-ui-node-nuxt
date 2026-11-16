@@ -55,6 +55,19 @@ describe('webside MobileBottomNav', () => {
     ])
   })
 
+  it('has no Account tab on a store without customer accounts', async () => {
+    setTenantFeatures({ customerAccounts: false })
+
+    const wrapper = await mountNav()
+
+    expect(tabs(wrapper)).toEqual([
+      [t('home'), '/'],
+      [t('shop'), '/products'],
+      [t('blog'), '/blog'],
+      [t('cart.title'), '/cart'],
+    ])
+  })
+
   it('draws the cart with the cart icon of the header and the buy button, and its count', async () => {
     useCartStore().cart = makeCart({ totalItems: 2 })
 

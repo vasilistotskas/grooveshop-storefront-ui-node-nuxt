@@ -7,6 +7,23 @@ const history = useBuilderHistoryStore()
 const { documentKey } = useBuilderEditorView()
 const { documentLabel } = useBuilderLabels()
 
+/**
+ * Whose history is shown: the page being edited, one of its section groups
+ * or the theme (`documentsWith`), the page unless another is picked. Opening
+ * another page shows that page's again.
+ */
+const subjects = computed(() => store.documentsWith(documentKey.value).map(key => ({ label: documentLabel(key), value: key })))
+const picked = ref<string>()
+const historyKey = computed({
+  get: () => subjects.value.find(({ value }) => value === picked.value)?.value ?? documentKey.value,
+  set: (key: string) => {
+    picked.value = key
+  },
+})
+watch(documentKey, () => {
+  picked.value = undefined
+})
+
 const ICONS = {
   draft: 'i-lucide-pencil-line',
   checkpoint: 'i-lucide-bookmark',
@@ -16,12 +33,15 @@ const ICONS = {
 
 const open = ref(false)
 
-const rows = computed(() => builderHistoryRows(store.opened[documentKey.value]?.meta, history.versions))
+const rows = computed(() => builderHistoryRows(store.opened[historyKey.value]?.meta, history.versions))
 const days = computed(() => groupBuilderHistoryByDay(rows.value))
 
-watch([open, documentKey], ([isOpen, key]) => {
+watch([open, historyKey], ([isOpen, key]) => {
   if (isOpen) void history.load(key)
 })
+
+/** Whether a version was found to be in a format this editor cannot open: it is not offered to put back. */
+const unreadableRow = (row: BuilderHistoryRow) => row.number !== undefined && history.unreadable.has(row.number)
 
 function rowTitle(row: BuilderHistoryRow): string {
   if (row.kind === 'draft') return t('draft')
@@ -30,25 +50,30 @@ function rowTitle(row: BuilderHistoryRow): string {
   return t(`kind.${row.kind}`, { number: row.number })
 }
 
-/** Looking at a version: what it holds is read when it is asked for, and drawn in a canvas of its own. */
-const previewing = ref<{ row: BuilderHistoryRow, copy: BuilderWorkingCopy }>()
+/**
+ * Looking at a version: what it holds is read when it is asked for, and drawn
+ * in a canvas of its own, on the page being edited: a group's version around
+ * it, the theme's as its look.
+ */
+const previewing = ref<{ key: string, row: BuilderHistoryRow, copy: BuilderWorkingCopy }>()
 const previewOpen = ref(false)
 const reading = ref<number>()
 
 async function preview(row: BuilderHistoryRow): Promise<void> {
   if (row.number === undefined) return
+  const key = historyKey.value
   reading.value = row.number
   try {
-    const copy = await history.read(documentKey.value, row.number)
+    const copy = await history.read(key, row.number)
     if (!copy) {
       toast.add({ title: t('unreadable.title'), description: t('unreadable.description'), color: 'warning', icon: 'i-lucide-file-warning' })
       return
     }
-    previewing.value = { row, copy }
+    previewing.value = { key, row, copy }
     previewOpen.value = true
   }
   catch (error) {
-    log.error({ action: 'builder:version_read', document: documentKey.value, version: row.number, error })
+    log.error({ action: 'builder:version_read', document: key, version: row.number, error })
     notify('builder:version-read', error, { title: t('readFailed') })
   }
   finally {
@@ -56,8 +81,12 @@ async function preview(row: BuilderHistoryRow): Promise<void> {
   }
 }
 
-/** Putting a version back asks first: it replaces the draft. */
-const restoring = ref<BuilderHistoryRow>()
+/**
+ * Putting a version back asks first: it replaces the draft. The version is
+ * held with the document it is of, so it is put back there whatever the
+ * document switch shows by then (it stays usable while a preview is read).
+ */
+const restoring = ref<{ key: string, row: BuilderHistoryRow }>()
 const confirmOpen = computed({
   get: () => restoring.value !== undefined,
   set: (value: boolean) => {
@@ -67,11 +96,11 @@ const confirmOpen = computed({
 const busy = ref(false)
 
 async function restore(): Promise<void> {
-  const row = restoring.value
-  if (!row || row.number === undefined) return
+  const { key, row } = restoring.value ?? {}
+  if (!key || !row || row.number === undefined) return
   busy.value = true
   try {
-    const result = await history.restore(documentKey.value, row.number, t('beforeRestore', { number: row.number }))
+    const result = await history.restore(key, row.number, t('beforeRestore', { number: row.number }))
     if (result === 'restored') {
       toast.add({ title: t('restored', { title: rowTitle(row) }), icon: 'i-lucide-undo-2', color: 'success' })
       restoring.value = undefined
@@ -84,7 +113,7 @@ async function restore(): Promise<void> {
       open.value = false
     }
     else {
-      toast.add({ title: t(`restoreFailed.${result}.title`), description: t(`restoreFailed.${result}.description`), color: 'error', icon: 'i-lucide-circle-alert' })
+      toast.add({ title: t(`restoreFailed.${result}.title`, { document: documentLabel(key) }), description: t(`restoreFailed.${result}.description`), color: 'error', icon: 'i-lucide-circle-alert' })
     }
   }
   finally {
@@ -99,13 +128,13 @@ const note = ref('')
 async function save(): Promise<void> {
   busy.value = true
   try {
-    await history.save(documentKey.value, note.value.trim())
+    await history.save(historyKey.value, note.value.trim())
     toast.add({ title: t('saved'), icon: 'i-lucide-bookmark', color: 'success' })
     saveOpen.value = false
     note.value = ''
   }
   catch (error) {
-    log.error({ action: 'builder:checkpoint', document: documentKey.value, error })
+    log.error({ action: 'builder:checkpoint', document: historyKey.value, error })
     notify('builder:checkpoint', error, { title: t('saveFailed.title'), fallback: t('saveFailed.description') })
   }
   finally {
@@ -121,7 +150,7 @@ const panelUi = { body: 'p-0 sm:p-0' }
   <USlideover
     v-model:open="open"
     :title="t('title')"
-    :description="t('description', { page: documentLabel(documentKey) })"
+    :description="t('description', { document: documentLabel(historyKey) })"
     :ui="panelUi"
   >
     <UTooltip :text="t('title')">
@@ -135,10 +164,19 @@ const panelUi = { body: 'p-0 sm:p-0' }
 
     <template #body>
       <div
-        v-if="store.canEdit"
-        class="border-b border-default p-4"
+        v-if="subjects.length > 1 || store.canEdit"
+        class="flex flex-col gap-3 border-b border-default p-4"
       >
+        <USelect
+          v-if="subjects.length > 1"
+          v-model="historyKey"
+          :items="subjects"
+          icon="i-lucide-files"
+          :aria-label="t('subject')"
+          class="w-full"
+        />
         <UButton
+          v-if="store.canEdit"
           icon="i-lucide-bookmark-plus"
           color="neutral"
           variant="outline"
@@ -160,7 +198,7 @@ const panelUi = { body: 'p-0 sm:p-0' }
         variant="naked"
         :title="t('error.title')"
         :description="t('error.description')"
-        :actions="[{ label: t('error.retry'), color: 'neutral', variant: 'outline', onClick: () => history.load(documentKey) }]"
+        :actions="[{ label: t('error.retry'), color: 'neutral', variant: 'outline', onClick: () => history.load(historyKey) }]"
       />
       <UEmpty
         v-else-if="!rows.length"
@@ -218,6 +256,13 @@ const panelUi = { body: 'p-0 sm:p-0' }
                     size="sm"
                     :label="t('current')"
                   />
+                  <UBadge
+                    v-if="unreadableRow(row)"
+                    color="warning"
+                    variant="subtle"
+                    size="sm"
+                    :label="t('unreadableRow')"
+                  />
                 </p>
                 <p
                   v-if="row.note"
@@ -261,7 +306,8 @@ const panelUi = { body: 'p-0 sm:p-0' }
                     variant="ghost"
                     size="sm"
                     :aria-label="t('restore.of', { title: rowTitle(row) })"
-                    @click="() => { restoring = row }"
+                    :disabled="unreadableRow(row)"
+                    @click="() => { restoring = { key: historyKey, row } }"
                   />
                 </UTooltip>
               </div>
@@ -289,17 +335,18 @@ const panelUi = { body: 'p-0 sm:p-0' }
   <BuilderVersionPreview
     v-if="previewing"
     v-model:open="previewOpen"
-    :document-key="documentKey"
+    :page-key="documentKey"
+    :document-key="previewing.key"
     :title="rowTitle(previewing.row)"
     :at="previewing.row.at"
     :copy="previewing.copy"
     :can-restore="store.canEdit"
-    @restore="() => { restoring = previewing?.row }"
+    @restore="() => { restoring = previewing && { key: previewing.key, row: previewing.row } }"
   />
 
   <UModal
     v-model:open="confirmOpen"
-    :title="t('restore.title', { title: restoring ? rowTitle(restoring) : '' })"
+    :title="t('restore.title', { title: restoring ? rowTitle(restoring.row) : '' })"
     :description="t('restore.description')"
   >
     <template #footer>
@@ -353,10 +400,12 @@ const panelUi = { body: 'p-0 sm:p-0' }
 <i18n lang="yaml">
 el:
   title: Ιστορικό εκδόσεων
-  description: "Αποθηκευμένες και δημοσιευμένες εκδόσεις: {page}"
+  description: "Αποθηκευμένες και δημοσιευμένες εκδόσεις: {document}"
+  subject: Ιστορικό για
   draft: Πρόχειρο
   current: Τρέχον
   live: Ζωντανή
+  unreadableRow: Δεν ανοίγει εδώ
   kind:
     checkpoint: "Αποθηκευμένη έκδοση {number}"
     publish: "Δημοσιευμένη έκδοση {number}"
@@ -394,7 +443,7 @@ el:
     action: Επαναφορά ως πρόχειρο
     of: "Επαναφορά ως πρόχειρο: {title}"
     title: "Επαναφορά: {title}"
-    description: Το πρόχειρο αντικαθίσταται από αυτή την έκδοση. Η ζωντανή σελίδα δεν αλλάζει μέχρι να δημοσιεύσετε. Το τρέχον πρόχειρο κρατιέται ως έκδοση, αν έχει αλλαγές.
+    description: Το πρόχειρο αντικαθίσταται από αυτή την έκδοση. Οι πελάτες δεν βλέπουν την αλλαγή μέχρι να δημοσιεύσετε. Το τρέχον πρόχειρο κρατιέται ως έκδοση, αν έχει αλλαγές.
     confirm: Επαναφορά
   restored: "Επαναφέρθηκε: {title}"
   restoreFailed:
@@ -402,17 +451,19 @@ el:
       title: Οι αλλαγές σας δεν έχουν αποθηκευτεί ακόμη
       description: Περιμένετε να ολοκληρωθεί η αποθήκευση και δοκιμάστε ξανά.
     unreadable:
-      title: Η έκδοση επαναφέρθηκε, αλλά η σελίδα δεν ανοίγει
+      title: "Αυτή η έκδοση δεν ανοίγει εδώ: {document}"
       description: Γράφτηκε σε μορφή που αυτή η έκδοση του επεξεργαστή δεν διαβάζει.
     failed:
       title: Η επαναφορά απέτυχε
       description: Δεν άλλαξε τίποτα. Δοκιμάστε ξανά σε λίγο.
 en:
   title: Version history
-  description: "Saved and published versions: {page}"
+  description: "Saved and published versions: {document}"
+  subject: History of
   draft: Draft
   current: Current
   live: Live
+  unreadableRow: Can't be opened here
   kind:
     checkpoint: "Saved version {number}"
     publish: "Published version {number}"
@@ -450,7 +501,7 @@ en:
     action: Restore as draft
     of: "Restore as draft: {title}"
     title: "Restore: {title}"
-    description: The draft is replaced by this version. The live page doesn't change until you publish. The current draft is kept as a version if it has changes.
+    description: The draft is replaced by this version. Shoppers don't see the change until you publish. The current draft is kept as a version if it has changes.
     confirm: Restore
   restored: "Restored: {title}"
   restoreFailed:
@@ -458,7 +509,7 @@ en:
       title: Your changes aren't saved yet
       description: Wait for saving to finish and try again.
     unreadable:
-      title: Restored, but the page can't be opened
+      title: "This version can't be opened here: {document}"
       description: It was written in a format this version of the editor can't read.
     failed:
       title: Restoring failed

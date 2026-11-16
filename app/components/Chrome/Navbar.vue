@@ -59,6 +59,8 @@ const shopServing = useGatedRoute('/products')
 const blogServing = useGatedRoute('/blog')
 const searchServing = useGatedRoute('/search')
 const { signIn } = useAuthLinks()
+// Sign-in and the account menu: a store without customer accounts has neither.
+const accountServing = useGatedRoute('/account')
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -409,6 +411,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
           <LazyCartDrawer v-if="cartEnabled && cartDrawerRequested" />
 
           <ChromeAccountMenu
+            v-if="accountServing"
             class="
               hidden
               lg:ms-2 lg:flex

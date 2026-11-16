@@ -3,10 +3,12 @@ const props = defineProps<{
   /** The page document the preview draws. */
   documentKey: string
   /**
-   * A copy that stands in for the page: a stored version looked at. The canvas
-   * is then a picture only, nothing in it selects, adds or moves anything.
+   * A stored version looked at, standing in for the document it is of: the
+   * page, one of its section groups, or the theme the page is drawn with.
+   * The canvas is then a picture only, nothing in it selects, adds or moves
+   * anything.
    */
-  preview?: BuilderWorkingCopy
+  preview?: { key: string, copy: BuilderWorkingCopy }
 }>()
 
 const { t } = useStoreI18n('components/Builder/Canvas')
@@ -40,7 +42,7 @@ watch(src, () => {
 /** The copies the preview draws: this page, and the section groups around it. */
 const documents = computed<BuilderCanvasDocuments>(() => Object.fromEntries(
   [props.documentKey, ...store.groups.map(({ key }) => key)].flatMap((key) => {
-    const copy = key === props.documentKey && props.preview ? props.preview : store.opened[key]?.copy
+    const copy = props.preview?.key === key ? props.preview.copy : store.opened[key]?.copy
     return copy ? [[key, copy]] : []
   }),
 ))
@@ -69,9 +71,10 @@ function send(): void {
 }
 watch(documents, send, { deep: true })
 
-/** The theme being edited, when the store has one: the canvas draws the page with it. */
+/** The theme being edited (or the version of it looked at), when the store has one: the canvas draws the page with it. */
 const theme = computed(() => {
-  const parsed = zThemeSettings.safeParse(store.theme?.copy.draft.settings)
+  const copy = props.preview?.key === BUILDER_THEME_DOCUMENT ? props.preview.copy : store.theme?.copy
+  const parsed = zThemeSettings.safeParse(copy?.draft.settings)
   return parsed.success ? parsed.data : undefined
 })
 

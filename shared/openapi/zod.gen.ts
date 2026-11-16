@@ -5356,6 +5356,7 @@ export const zStaffSessionTicketRequest = z.object({
  * Every ``TenantConfig.features`` name, with its state.
  */
 export const zStoreFeatureStates = z.object({
+  customerAccounts: zFeatureState,
   blog: zFeatureState,
   blogComments: zFeatureState,
   productReviews: zFeatureState,
@@ -5388,6 +5389,7 @@ export const zBuilderFeatures = z.object({
  * one answer instead of combining the two tiers and copying defaults.
  */
 export const zStoreFeatures = z.object({
+  customerAccounts: z.boolean().readonly(),
   blog: z.boolean().readonly(),
   blogComments: z.boolean().readonly(),
   productReviews: z.boolean().readonly(),
@@ -9350,6 +9352,7 @@ export const zListBlogCategoryQuery = z.object({
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).optional(),
+  cursor: z.string().optional(),
   descendantOf: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),

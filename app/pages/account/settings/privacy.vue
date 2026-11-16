@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+definePageMeta({
+  middleware: ['customer-accounts-enabled'],
+})
 defineRouteRules({
   robots: false,
 })

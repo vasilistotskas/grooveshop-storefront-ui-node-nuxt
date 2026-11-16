@@ -207,3 +207,31 @@ describe('builderSettingsFields of a block with legacy image settings', () => {
     expect(builderSettingsFields(banner).map(field => field.path)).toEqual(['image', 'caption'])
   })
 })
+
+describe('builderSettingsFields in a store whose design draws the block its own way', () => {
+  const band = defineBlock({
+    type: 'band',
+    version: 1,
+    kinds: ['section'],
+    schema: z.object({
+      heading: builderField.requiredText(100),
+      surface: builderField.surface().optional(),
+      colorScheme: builderField.colorScheme().optional(),
+      ctaText: builderField.text(100).optional(),
+    }),
+    editor: { designSettings: { own: ['heading', 'ctaText'], bare: ['heading'] } },
+  })
+
+  it('offers only the settings that design\'s component draws, in the schema\'s order', () => {
+    expect(builderSettingsFields(band, 'own').map(field => field.path)).toEqual(['heading', 'ctaText'])
+    expect(builderSettingsFields(band, 'bare').map(field => field.path)).toEqual(['heading'])
+  })
+
+  it('offers every setting in a design that declares none, and with no design', () => {
+    const every = ['heading', 'surface', 'colorScheme', 'ctaText']
+
+    expect(builderSettingsFields(band, 'other').map(field => field.path)).toEqual(every)
+    expect(builderSettingsFields(band, null).map(field => field.path)).toEqual(every)
+    expect(builderSettingsFields(band).map(field => field.path)).toEqual(every)
+  })
+})

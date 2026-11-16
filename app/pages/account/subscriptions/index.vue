@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
-  middleware: ['newsletter-enabled'],
+  middleware: ['customer-accounts-enabled', 'newsletter-enabled'],
 })
 defineRouteRules({
   robots: false,

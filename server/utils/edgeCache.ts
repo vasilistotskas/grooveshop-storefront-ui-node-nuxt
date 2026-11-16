@@ -107,6 +107,10 @@ export function isEdgeCacheableResponse(event: H3Event): boolean {
   const status = getResponseStatus(event)
   if (status !== 200 && status !== 304) return false
   if (!event.context.tenant) return false
+  // A cookie is one visitor's (a session ended on this page, a cart id): an
+  // edge rule that ignores origin headers would store it with the page, or
+  // strip it from the page it stores.
+  if (getResponseHeader(event, 'set-cookie') !== undefined) return false
   if (!/(?:^|[\s,])s-maxage=\d+/.test(String(getResponseHeader(event, 'cache-control') ?? ''))) return false
   if (!isCachedSsrRoute(requestPath(event).replace(PAYLOAD_SUFFIX, '') || '/')) return false
   if (status === 304) return true

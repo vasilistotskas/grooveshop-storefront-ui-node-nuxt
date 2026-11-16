@@ -18,6 +18,8 @@ import publishSource from '~/components/Builder/Publish.vue?raw'
 import conflictSource from '~/components/Builder/ConflictDialog.vue?raw'
 import canvasSource from '~/components/Builder/Canvas.vue?raw'
 import shareSource from '~/components/Builder/ShareDialog.vue?raw'
+import historySource from '~/components/Builder/VersionHistory.vue?raw'
+import previewSource from '~/components/Builder/VersionPreview.vue?raw'
 import labels from '~/builder/labels/el.json'
 import { componentTexts } from '~~/test/helpers/componentTexts'
 
@@ -1532,7 +1534,7 @@ describe('editing the structure of a page', () => {
     const THEME_DRAFT_URL = `${THEME_URL}/draft`
     const themeDocument = (settings: ThemeSettings) => detail(BUILDER_THEME_DOCUMENT, 'theme', { settings, sections: {}, order: [] })
 
-    function routes(settings: ThemeSettings) {
+    function routes(settings: ThemeSettings, extra: Record<string, unknown> = {}) {
       api.routes({
         '/api/builder/documents': [...LIST, row(BUILDER_THEME_DOCUMENT, 'theme')],
         '/api/builder/presence': NOBODY_ELSE,
@@ -1541,6 +1543,7 @@ describe('editing the structure of a page', () => {
         [documentUrl('group:footer')]: FOOTER,
         [THEME_URL]: themeDocument(settings),
         [THEME_DRAFT_URL]: (_url: string, options: { body: { draft: unknown, i18n: unknown } }) => ({ ...themeDocument(settings), draftRevision: 3, draft: options.body.draft, i18n: options.body.i18n }),
+        ...extra,
       })
     }
 
@@ -1685,6 +1688,286 @@ describe('editing the structure of a page', () => {
 
       expect(colourInput(wrapper, 'Κύριο χρώμα').element.value).toBe('#7c3aed')
       expect(useBuilderAutosaveStore().stateOf(BUILDER_THEME_DOCUMENT)).toBe('saved')
+    })
+
+    // The history dialog switches between the documents the page is edited
+    // with (#472): the page, its section groups and the theme, so an earlier
+    // look can be found, previewed, put back as the draft and published.
+    describe('in the version history', () => {
+      const historyTexts = componentTexts(historySource, 'VersionHistory.vue')
+      const previewTexts = componentTexts(previewSource, 'VersionPreview.vue')
+      const publishTexts = componentTexts(publishSource, 'Publish.vue')
+      const THEME_LABEL = labels.documents.theme
+      const VERSIONS = (key: string) => `${documentUrl(key)}/versions`
+      const THEME_VERSIONS = VERSIONS(BUILDER_THEME_DOCUMENT)
+      const MARIA = { id: 7, name: 'Maria Papadopoulou' }
+      const version = (number: number, createdBy: typeof MARIA | null = null) => ({ id: number, number, kind: 'publish', note: '', createdAt: '2026-11-02T10:00:00+02:00', createdBy, sizeBytes: 10, blockTypes: [], catalogueHash: 'h', restoredFrom: null })
+      const listOf = (...results: ReturnType<typeof version>[]) => ({ count: results.length, totalPages: 1, results })
+      const FIRST = historyTexts.t('kind.publish', { number: 1 })
+      const EMPTY_HEADER = { sections: {}, order: [] }
+
+      /** The theme `current`, published as version 2 by Maria after version 1, `earlier`, which is read and restored. */
+      function historyRoutes(current: ThemeSettings, earlier: ThemeSettings, extra: Record<string, unknown> = {}) {
+        routes(current, {
+          [THEME_URL]: { ...themeDocument(current), publishedVersion: 2 },
+          [VERSIONS('template:home')]: listOf(version(1)),
+          [VERSIONS('group:header')]: listOf(version(1)),
+          [`${VERSIONS('group:header')}/1`]: { ...version(1), data: EMPTY_HEADER, i18n: {}, refs: {} },
+          [THEME_VERSIONS]: listOf(version(2, MARIA), version(1)),
+          [`${THEME_VERSIONS}/1`]: { ...version(1), data: { settings: earlier, sections: {}, order: [] }, i18n: {}, refs: {} },
+          [`${THEME_VERSIONS}/1/restore`]: { ...themeDocument(earlier), draftRevision: 3, publishedVersion: 2, hasUnpublishedChanges: true },
+          ...extra,
+        })
+      }
+
+      /** An earlier look: another primary colour. */
+      function earlierThan(design: StorefrontDesign | null) {
+        const earlier = themeDefaultsFor(design)
+        earlier.colors.light.primary = { source: '#7c3aed', scale: themeScaleFrom('#7c3aed') }
+        return earlier
+      }
+
+      const dialogButton = (name: string) => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(item => item.textContent?.trim() === name)
+      const labelled = (label: string) => document.querySelector<HTMLButtonElement>(`[role="dialog"] button[aria-label="${label}"]`)
+      const enter = (element: Element) => element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+      const options = () => [...document.querySelectorAll<HTMLElement>('[role="option"]')]
+
+      async function openHistory(wrapper: Wrapper) {
+        await wrapper.get(`button[aria-label="${historyTexts.t('title')}"]`).trigger('click')
+        await vi.waitFor(() => expect(api.callsTo(VERSIONS('template:home'))).toHaveLength(1))
+        await flushPromises()
+      }
+
+      /** Opens the document switch, answering what it offers, and shows the history of `label`. */
+      async function showHistoryOf(label: string) {
+        enter(document.querySelector(`[aria-label="${historyTexts.t('subject')}"]`)!)
+        await flushPromises()
+        const offered = options().map(option => option.textContent?.trim())
+        enter(options().find(option => option.textContent?.trim() === label)!)
+        await flushPromises()
+        return offered
+      }
+
+      /** A canvas's window, as a message port: what the editor sends it, and a way to answer as it. */
+      function stubCanvas(frame: Element) {
+        const port = new MessageChannel().port1
+        const sent = vi.fn<MessagePort['postMessage']>()
+        vi.spyOn(port, 'postMessage').mockImplementation(sent)
+        Object.defineProperty(frame, 'contentWindow', { value: port, configurable: true })
+        return {
+          ready: () => window.dispatchEvent(new MessageEvent('message', { data: { channel: BUILDER_CANVAS_CHANNEL, type: 'ready' }, source: port, origin: window.location.origin })),
+          commands: (type: string) => sent.mock.calls.map(([command]) => command).filter(command => command.type === type),
+        }
+      }
+
+      it('offers the page, its section groups and the theme, and lists the theme\'s releases with who and when', async () => {
+        setTenant({ schemaName: 'webside' })
+        historyRoutes(themeDefaultsFor(null), earlierThan(null))
+        const wrapper = await open()
+
+        await openHistory(wrapper)
+        expect(await showHistoryOf(THEME_LABEL)).toEqual(['Αρχική σελίδα', labels.groups.header, labels.groups.footer, THEME_LABEL])
+        await vi.waitFor(() => expect(api.callsTo(THEME_VERSIONS)).toHaveLength(1))
+        await flushPromises()
+
+        const panel = document.querySelector('[role="dialog"]')!.textContent
+        expect(panel).toContain(historyTexts.t('description', { document: THEME_LABEL }))
+        expect(panel).toContain(`${historyTexts.t('kind.publish', { number: 2 })} ${historyTexts.t('live')}`)
+        expect(panel).toContain(historyTexts.t('by', { name: MARIA.name }))
+        expect(panel).toContain(FIRST)
+      })
+
+      it.each([
+        ['webside', null],
+        ['demo', 'volt'],
+      ] as const)('on %s, previews an earlier theme on the page being edited, leaving the draft as it is', async (schemaName, design) => {
+        setTenant({ schemaName })
+        const earlier = earlierThan(design)
+        historyRoutes(themeDefaultsFor(design), earlier)
+        const wrapper = await open()
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('previewOf', { title: FIRST })), 'the preview button').not.toBeNull())
+        labelled(historyTexts.t('previewOf', { title: FIRST }))!.click()
+        const previewFrame = () => [...document.querySelectorAll('iframe')].find(frame => !wrapper.element.contains(frame))
+        await vi.waitFor(() => expect(previewFrame()).toBeDefined())
+        const canvas = stubCanvas(previewFrame()!)
+        canvas.ready()
+
+        expect(previewFrame()!.getAttribute('src')).toBe('/?builder-canvas')
+        expect(canvas.commands('theme').at(-1).settings).toEqual(earlier)
+        expect(Object.keys(canvas.commands('documents').at(-1).documents)).toEqual(['template:home', 'group:header', 'group:footer'])
+        expect(useBuilderEditorStore().theme!.copy.draft.settings).toEqual(themeDefaultsFor(design))
+      })
+
+      it('previews an earlier header around the page being edited', async () => {
+        setTenant({ schemaName: 'webside' })
+        historyRoutes(themeDefaultsFor(null), earlierThan(null))
+        const wrapper = await open()
+
+        await openHistory(wrapper)
+        await showHistoryOf(labels.groups.header)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('previewOf', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('previewOf', { title: FIRST }))!.click()
+        const previewFrame = () => [...document.querySelectorAll('iframe')].find(frame => !wrapper.element.contains(frame))
+        await vi.waitFor(() => expect(previewFrame()).toBeDefined())
+        const canvas = stubCanvas(previewFrame()!)
+        canvas.ready()
+
+        const { documents } = canvas.commands('documents').at(-1)
+        expect(documents['group:header'].draft).toEqual(EMPTY_HEADER)
+        // The page as the editor holds it, around the header looked at.
+        expect(documents['template:home'].draft).toEqual(useBuilderEditorStore().opened['template:home']!.copy.draft)
+      })
+
+      // Restored, the earlier theme is the draft: the panel edits it, the
+      // canvas draws it, and it is published like any theme change, its
+      // contrast rules (the design's) checked on the way.
+      it.each([
+        ['webside', null, 'dark', '#606060', 'accent-muted-dark'],
+        ['demo', 'volt', 'light', '#949494', 'accent-muted-light'],
+      ] as const)('on %s, restores an earlier theme as the draft the panel and the preview show, and publishes it with its contrast rules', async (schemaName, design, scheme, accent, rule) => {
+        setTenant({ schemaName })
+        const earlier = earlierThan(design)
+        earlier.colors[scheme].accent = accent
+        historyRoutes(themeDefaultsFor(design), earlier, {
+          '/api/builder/publish/check': { ok: true, changed: [BUILDER_THEME_DOCUMENT], problems: [] },
+          '/api/builder/schedules': { count: 0, results: [] },
+          '/api/builder/publish': { id: 9, number: 7, publishedAt: '2026-11-03T10:00:00+02:00', publishedBy: null, note: '', rolledBackFrom: null, versions: {}, documents: [{ key: BUILDER_THEME_DOCUMENT, versionNumber: 3, changed: true }] },
+        })
+        const wrapper = await open('/_builder?panel=theme')
+        const canvas = stubCanvas(wrapper.get('iframe').element)
+        canvas.ready()
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('restore.of', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('restore.of', { title: FIRST }))!.click()
+        await flushPromises()
+        dialogButton(historyTexts.t('restore.confirm'))!.click()
+        await vi.waitFor(() => expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)).toHaveLength(1))
+        await flushPromises()
+
+        expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)[0]!.options.headers).toEqual({ 'If-Match': '2' })
+        // The theme had nothing unpublished: no version is kept of it first.
+        expect(api.callsTo(`${documentUrl(BUILDER_THEME_DOCUMENT)}/checkpoint`)).toHaveLength(0)
+        expect(colourInput(wrapper, 'Κύριο χρώμα').element.value).toBe('#7c3aed')
+        expect(canvas.commands('theme').at(-1).settings).toEqual(earlier)
+        expect(useBuilderAutosaveStore().stateOf(BUILDER_THEME_DOCUMENT)).toBe('saved')
+
+        await wrapper.findAll('button').find(item => item.text() === 'Δημοσίευση')!.trigger('click')
+        await flushPromises()
+        // As many warnings as the design's rules find in the restored theme.
+        const warnings = evaluateContrastRules(earlier, themeContrastRulesFor(design)).filter(({ rule: checked, pass }) => checked.severity === 'warning' && !pass)
+        expect(warnings.map(({ rule: checked }) => checked.id)).toContain(rule)
+        await vi.waitFor(() => expect(document.body.textContent).toContain(publishTexts.t('themeWarnings.title', { count: warnings.length }, warnings.length)))
+        expect(document.body.textContent).toContain(themeContrastRulesFor(design).find(({ id }) => id === rule)!.label.el)
+        await vi.waitFor(() => expect(dialogButton('Δημοσίευση τώρα')?.disabled).toBe(false))
+        dialogButton('Δημοσίευση τώρα')!.click()
+        await vi.waitFor(() => expect(api.callsTo('/api/builder/publish')).toHaveLength(1))
+
+        expect(api.callsTo('/api/builder/publish')[0]!.options).toMatchObject({ method: 'POST', body: { documents: [BUILDER_THEME_DOCUMENT] } })
+        // Nothing of the restored theme was left to save before the publish.
+        expect(api.callsTo(THEME_DRAFT_URL)).toHaveLength(0)
+      })
+
+      // An earlier theme in a shape this build cannot read: it is not put
+      // back (Django would take it, the panel and the canvas could not), the
+      // toast says why, and the row says it before Restore is tried again.
+      it('refuses to restore a theme this build cannot read, and marks its row', async () => {
+        setTenant({ schemaName: 'webside' })
+        historyRoutes(themeDefaultsFor(null), earlierThan(null), {
+          [`${THEME_VERSIONS}/1`]: { ...version(1), data: { settings: { colors: 'old' }, sections: {}, order: [] }, i18n: {}, refs: {} },
+        })
+        const wrapper = await open('/_builder?panel=theme')
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('restore.of', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('restore.of', { title: FIRST }))!.click()
+        await flushPromises()
+        dialogButton(historyTexts.t('restore.confirm'))!.click()
+        await vi.waitFor(() => expect(document.body.textContent).toContain(historyTexts.t('restoreFailed.unreadable.title', { document: THEME_LABEL })))
+
+        expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)).toHaveLength(0)
+        expect(colourInput(wrapper, 'Κύριο χρώμα').element.value).toBe(themeDefaultsFor(null).colors.light.primary.source)
+        expect(document.querySelector('[role="dialog"]')!.textContent).toContain(historyTexts.t('unreadableRow'))
+        expect(labelled(historyTexts.t('restore.of', { title: FIRST }))!.disabled).toBe(true)
+      })
+
+      // Opening another page (Back included) reopens the editor, which closes
+      // the history and a version previewed from it: their Restore can never
+      // act on the history of a document other than the one it names.
+      it('closes a version previewed when another page is opened, and restores nothing', async () => {
+        setTenant({ schemaName: 'webside' })
+        historyRoutes(themeDefaultsFor(null), earlierThan(null), {
+          [documentUrl('page:summer-sale')]: ABOUT,
+          [VERSIONS('page:summer-sale')]: listOf(version(1)),
+        })
+        const wrapper = await open()
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('previewOf', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('previewOf', { title: FIRST }))!.click()
+        await vi.waitFor(() => expect(dialogButton(previewTexts.t('restore'))).toBeDefined())
+        await useRouter().push({ query: { ...useRoute().query, [BUILDER_EDITOR_QUERY.document]: 'page:summer-sale' } })
+        await vi.waitFor(() => expect(useBuilderEditorStore().status).toBe('ready'))
+        await flushPromises()
+
+        expect(dialogButton(previewTexts.t('restore'))).toBeUndefined()
+        expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)).toHaveLength(0)
+        expect(api.callsTo(`${VERSIONS('page:summer-sale')}/1/restore`)).toHaveLength(0)
+      })
+
+      // The document switch stays usable while a version is read for its
+      // preview: the version previewed is restored to its own document,
+      // whatever the switch shows by the time Restore is pressed.
+      it('restores the version previewed to its own document when the switch moved during its read', async () => {
+        setTenant({ schemaName: 'webside' })
+        const earlier = earlierThan(null)
+        const stored = { ...version(1), data: { settings: earlier, sections: {}, order: [] }, i18n: {}, refs: {} }
+        // The preview's read waits until the switch has moved; the restore's own read answers at once.
+        let arrive: () => void = () => {}
+        let reads = 0
+        historyRoutes(themeDefaultsFor(null), earlier, {
+          [`${THEME_VERSIONS}/1`]: () => reads++ === 0
+            ? new Promise((resolve) => {
+                arrive = () => resolve(stored)
+              })
+            : stored,
+        })
+        const wrapper = await open()
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('previewOf', { title: FIRST }))).not.toBeNull())
+        labelled(historyTexts.t('previewOf', { title: FIRST }))!.click()
+        await flushPromises()
+        await showHistoryOf(labels.groups.header)
+        await vi.waitFor(() => expect(api.callsTo(VERSIONS('group:header'))).toHaveLength(1))
+        arrive()
+        await vi.waitFor(() => expect(dialogButton(previewTexts.t('restore'))).toBeDefined())
+        dialogButton(previewTexts.t('restore'))!.click()
+        await flushPromises()
+        dialogButton(historyTexts.t('restore.confirm'))!.click()
+        await vi.waitFor(() => expect(api.callsTo(`${THEME_VERSIONS}/1/restore`)).toHaveLength(1))
+
+        expect(api.callsTo(`${VERSIONS('group:header')}/1/restore`)).toHaveLength(0)
+      })
+
+      it('lets STAFF read and preview the theme\'s history, with nothing to restore or save', async () => {
+        historyRoutes(themeDefaultsFor('volt'), earlierThan('volt'))
+        const wrapper = await open('/_builder', { ...session, staff: { ...session.staff, role: 'staff' } })
+
+        await openHistory(wrapper)
+        await showHistoryOf(THEME_LABEL)
+        await vi.waitFor(() => expect(labelled(historyTexts.t('previewOf', { title: FIRST }))).not.toBeNull())
+
+        expect(labelled(historyTexts.t('restore.of', { title: FIRST }))).toBeNull()
+        expect(dialogButton(historyTexts.t('save.open'))).toBeUndefined()
+      })
     })
   })
 })

@@ -16,5 +16,11 @@ export default defineBlock({
   children: { allowed: ['timeline_entry'], maxDepth: 1 },
   childList: { timeline_entry: 'items' },
   presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'timeline_entry' })) }],
-  editor: { title: ['heading'], category: 'content' },
+  editor: {
+    title: ['heading'],
+    category: 'content',
+    designSettings: {
+      ekfyseosfyteias: ['heading', 'subheading'],
+    },
+  },
 })

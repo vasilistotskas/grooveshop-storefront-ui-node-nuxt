@@ -25,5 +25,11 @@ export default defineBlock({
   children: { allowed: ['feature_item'], maxDepth: 1 },
   childList: { feature_item: 'items' },
   presets: [{ id: BUILDER_DEFAULT_PRESET, blocks: Array.from({ length: 3 }, () => ({ type: 'feature_item' })) }],
-  editor: { title: ['heading'], category: 'content' },
+  editor: {
+    title: ['heading'],
+    category: 'content',
+    designSettings: {
+      ekfyseosfyteias: ['heading', 'body', 'decor', 'ctaText', 'ctaLink', 'prompt'],
+    },
+  },
 })

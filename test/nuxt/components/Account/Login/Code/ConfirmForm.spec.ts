@@ -50,6 +50,8 @@ const CONFIRM_PAGE = () => useLocalePath()('account-login-code-confirm')
 const TOTP_PAGE = () => useLocalePath()('account-2fa-authenticate-totp')
 
 beforeEach(() => {
+  // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+  setTenant()
   confirmLoginCode.mockResolvedValue({ status: 200 })
 })
 

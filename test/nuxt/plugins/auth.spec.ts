@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import authPlugin from '~/plugins/auth'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The auth plugin turns every allauth response into ONE navigation:
@@ -96,6 +97,8 @@ async function visit(path: string) {
 
 describe('auth plugin', () => {
   beforeEach(async () => {
+    // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
+    setTenant()
     sessionUser.value = null
     useState('auth-state').value = undefined
     useState('auth:userInitiatedLogout').value = false
