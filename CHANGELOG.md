@@ -1,3 +1,10 @@
+## [3.344.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.0...v3.344.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* **account:** the favourites lists render each card as the list item ([#495](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/495)) ([50a3379](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/50a3379802331579bbaad17f014888b4a993846e)), closes [#462](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/462) [#460](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/460)
+
 # [3.344.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.343.0...v3.344.0) (2026-11-16)
 
 
