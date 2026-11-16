@@ -5,7 +5,7 @@ import { themeDefaultsFor } from '../theme/defaults'
 import { zThemeSettings } from '../theme/settings'
 import { resolveDesign } from '../theme/design'
 import type { StorefrontDesign } from '../theme/design'
-import type { BuilderDocumentKind, ContrastRule, ContrastSide, DocumentRoot, LocaleText } from '../types/builder'
+import type { BuilderDocumentKind, ContrastMix, ContrastRule, ContrastSide, DocumentRoot, LocaleText } from '../types/builder'
 
 /**
  * A page's own copy, written per language: its search-engine title,
@@ -54,17 +54,17 @@ type ThemeDesign = StorefrontDesign | null
  *   one), never closer to it. A rule names a colour and cannot mix one, so it
  *   checks the accent, and the text it holds is at least as far from the
  *   ground.
- * - **Both, light scheme**: `accent` as small text (`accent-text-light`,
- *   `accent-text-muted-light`), 4.5:1 on the page and on the muted ground, a
- *   warning (SC 1.4.3): the showcase hero's eyebrow, rich-text links, the
- *   blog rail's category and most other `text-accent`. The 3:1 rules above
- *   stay, for the accent as a colour and as large text, so an accent fine for
- *   buttons warns only as small text. The text is the accent itself on
- *   webside and darker on Volt, so the accent is what the rule can judge.
- * - **Dark scheme, no small-text rule yet**: the text there is the accent
- *   mixed toward white in OKLab (`--ui-secondary-text`), which a rule names
- *   as a mixed side (`ContrastMix`); Django reads a mixed side only from the
- *   release that follows this catalogue's, so the rule comes after it.
+ * - **Both**: `accent` as small text (`accent-text-*`), 4.5:1 on the page
+ *   and on the muted ground, a warning (SC 1.4.3): the showcase hero's
+ *   eyebrow, rich-text links, the blog rail's category and most other
+ *   `text-accent`. The 3:1 rules above stay, for the accent as a colour and
+ *   as large text, so an accent fine for buttons warns only as small text.
+ *   Each judges the text as `--ui-secondary-text` draws it: in the light
+ *   scheme the accent itself on webside and darker on Volt (so the accent);
+ *   in the dark scheme the accent mixed toward white in OKLab
+ *   (`ACCENT_TEXT_DARK`), on webside the store's own neutral 950 and 900,
+ *   which a picked neutral moves. The raw accent there would warn on both
+ *   designs' default dark accents, whose text reads at 6:1 and more.
  * - **No rule** for the bold look's accent heading (`--ds-accent-heading`)
  *   on a store with its own design: the theme computes it per scheme at
  *   4.5:1 or more on the page and the muted ground, the grounds below
@@ -88,7 +88,9 @@ export function themeContrastRulesFor(design: ThemeDesign): readonly ContrastRul
     rule('accent-muted', 'light', '/colors/light/accent', muted.light, 3, 'warning'),
     rule('accent-muted', 'dark', '/colors/dark/accent', muted.dark, 3, 'warning'),
     rule('accent-text', 'light', '/colors/light/accent', light, 4.5, 'warning'),
+    rule('accent-text', 'dark', ACCENT_TEXT_DARK, dark, 4.5, 'warning'),
     rule('accent-text-muted', 'light', '/colors/light/accent', muted.light, 4.5, 'warning'),
+    rule('accent-text-muted', 'dark', ACCENT_TEXT_DARK, muted.dark, 4.5, 'warning'),
   ]
   if (design === 'volt') return brand(VOLT_BACKGROUND.light, VOLT_BACKGROUND.dark, VOLT_MUTED_BACKGROUND)
   const light = '/colors/light/neutral/scale/50'
@@ -156,6 +158,14 @@ function rule(pair: keyof typeof RULE_TEXTS, scheme: RuleScheme, foreground: Con
     fix,
   }
 }
+
+/**
+ * The accent as text in the dark scheme of both designs: `--ui-secondary-text`
+ * is `color-mix(in oklab, var(--ui-secondary) 80%, white)` (`main.css`,
+ * `.dark` and `[data-design="volt"]:where(.dark)`), held to it by
+ * `documentRoots.spec.ts`.
+ */
+export const ACCENT_TEXT_DARK: ContrastMix = { mix: '/colors/dark/accent', toward: '#ffffff', percent: 20 }
 
 /** Groove Volt's page background, light and dark: `--ui-bg` of `[data-design="volt"]`, a design token the theme does not hold. */
 export const VOLT_BACKGROUND = { light: '#ffffff', dark: '#17171a' } as const
