@@ -72044,7 +72044,8 @@
                                 "type": "object",
                                 "properties": {
                                     "comment": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "maxLength": 1000
                                     }
                                 }
                             },
@@ -72052,7 +72053,8 @@
                                 "type": "object",
                                 "properties": {
                                     "comment": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "maxLength": 1000
                                     }
                                 }
                             }
@@ -77008,7 +77010,8 @@
                                 "type": "object",
                                 "properties": {
                                     "comment": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "maxLength": 1000
                                     }
                                 }
                             },
@@ -77016,7 +77019,8 @@
                                 "type": "object",
                                 "properties": {
                                     "comment": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "maxLength": 1000
                                     }
                                 }
                             }

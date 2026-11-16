@@ -3437,10 +3437,10 @@ export const zPatchedProductReviewWriteRequest = z.object({
   rate: zRateEnum.optional(),
   translations: z.object({
     el: z.object({
-      comment: z.string().optional(),
+      comment: z.string().max(1000).optional(),
     }).optional(),
     en: z.object({
-      comment: z.string().optional(),
+      comment: z.string().max(1000).optional(),
     }).optional(),
   }).optional(),
 })
@@ -3453,10 +3453,10 @@ export const zProductReviewWriteRequest = z.object({
   rate: zRateEnum,
   translations: z.object({
     el: z.object({
-      comment: z.string().optional(),
+      comment: z.string().max(1000).optional(),
     }).optional(),
     en: z.object({
-      comment: z.string().optional(),
+      comment: z.string().max(1000).optional(),
     }).optional(),
   }),
 })
