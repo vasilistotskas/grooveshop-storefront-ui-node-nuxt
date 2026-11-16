@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { BlockDefinition } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * TRANSITIONAL (P15 stage 2; deleted with `legacyImages` at stage 4).
@@ -16,8 +16,7 @@ import type { BlockDefinition } from '~~/shared/types/builder'
  * `pnpm vitest run --project=unit test/unit/server/utils/legacyImageFields.spec.ts -u`
  * and reviewed in the diff.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 
 const fields = definitions
   .flatMap(({ type, legacyImages = [] }) => legacyImages.map(({ from, to, alt }) => ({

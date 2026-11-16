@@ -5,12 +5,12 @@ import { sectionProps } from '~~/shared/builder/props'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { legacyImageRefs } from '~~/server/utils/builderData/legacyImages'
 import { makeResolvedAsset } from '~~/test/fixtures/media'
-import type { BlockDefinition, BuilderDocument, BuilderNode } from '~~/shared/types/builder'
+import type { BuilderDocument, BuilderNode } from '~~/shared/types/builder'
 import type { DataResolution } from '~~/shared/types/builderData'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /** The REAL blocks of `app/blocks`: the adapter is held to what each declares. */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 const registry = new Map(definitions.map(block => [block.type, block]))
 
 const node = (type: string, settings: Record<string, unknown>, extra: Partial<BuilderNode> = {}): BuilderNode => ({ type, settings, ...extra })

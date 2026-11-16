@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { parseDocument } from '~~/shared/builder/document'
 import { navigationItems } from '~~/shared/builder/navigation'
-import type { BlockDefinition, BuilderDocument, PublishedTargets } from '~~/shared/types/builder'
+import type { BuilderDocument, PublishedTargets } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * The menus a group document gives the chrome. The shape is what `useNavigation`
@@ -10,8 +11,7 @@ import type { BlockDefinition, BuilderDocument, PublishedTargets } from '~~/shar
  * menu renders (the document keeps it), and a footer column left with no
  * visible link goes too.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 const registry = new Map(definitions.map(block => [block.type, block]))
 
 const everything: PublishedTargets = { pages: new Set(['about']), contentPages: new Set(['terms', 'privacy', 'faq']) }

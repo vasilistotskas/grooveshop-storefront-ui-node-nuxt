@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import el from '~/builder/labels/el.json'
 import { builderPresetNode } from '~/utils/builderLibrary'
 import { BUILDER_DEFAULT_PRESET } from '~~/shared/constants/builderEditor'
-import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
+import type { BuilderNode } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * What the add-section library inserts: every block it can offer has a
@@ -11,8 +12,7 @@ import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
  * settings parse with the block's schema, and its children are of types the
  * block allows, no more than it holds, and themselves valid.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
-const blocks = new Map(Object.values(modules).map(module => [module.default.type, module.default]))
+const blocks = new Map(realBlocks.map(block => [block.type, block]))
 /**
  * The blocks the library cannot offer yet: each needs an image, which is no
  * text a preset can hold, until the media picker. Every other block is offered.

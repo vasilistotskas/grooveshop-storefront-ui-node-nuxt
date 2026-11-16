@@ -2,9 +2,9 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { compileScript } from 'vue/compiler-sfc'
 import { builderSettingsFields } from '~/utils/builderSettingsFields'
-import type { BlockDefinition } from '~~/shared/types/builder'
 import { APP, COMPONENTS, callsIn, componentsByName, isElement, parseScript, parseSfc, propertyOf, readSource, sfcTemplate, vueFiles, walkAst } from '../../helpers/sourceText'
 import type { AstNode, ElementNode } from '../../helpers/sourceText'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * The settings form a store is offered for a section is what the component
@@ -44,8 +44,7 @@ import type { AstNode, ElementNode } from '../../helpers/sourceText'
  * Settings only: a child block's form, drawn by its parent's component through
  * a list prop (`childList`), is not checked here.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 const byType = new Map(definitions.map(block => [block.type, block]))
 
 const registry = readSource(resolve(APP, 'utils/componentRegistry.ts'))

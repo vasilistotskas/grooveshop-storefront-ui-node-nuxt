@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/builder/navigation.get'
-import type { BlockDefinition } from '~~/shared/types/builder'
 import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse, log } from '~~/test/helpers/nitro'
 
 /**
@@ -9,8 +8,7 @@ import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse, log 
  * (the way `builderSeeds.spec.ts` reads them).
  */
 vi.mock('#builder-blocks', async () => ({
-  default: (await Promise.all(Object.values(import.meta.glob<{ default: BlockDefinition }>('../../../../../app/blocks/*.block.ts')).map(load => load())))
-    .map(({ default: block }) => block),
+  default: (await import('~~/test/helpers/realBlocks')).realBlocks,
 }))
 
 const route = '/api/builder/navigation'

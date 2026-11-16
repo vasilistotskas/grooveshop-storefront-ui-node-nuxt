@@ -4,10 +4,10 @@ import { describe, expect, it } from 'vitest'
 import { buildDesignCatalogue, definitionsForDesign } from '~~/server/utils/builderCatalogue'
 import { parseDocument } from '~~/shared/builder/document'
 import { OWN_DESIGN_SCHEMAS } from '~~/shared/theme/design'
-import type { BlockDefinition } from '~~/shared/types/builder'
 import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
 import type { StaticLayoutRoute } from '~~/shared/utils/staticLayoutRoutes'
 import home from '~~/test/fixtures/builder/seeds/home.json'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * What Django's seeds are tested against, committed so it cannot rot.
@@ -40,12 +40,11 @@ import home from '~~/test/fixtures/builder/seeds/home.json'
  * and reviewed in the diff. A design that no longer exists leaves its file
  * behind, which the spec names: delete it by hand.
  *
- * Reads the REAL blocks of `app/blocks`. Vitest caches this file's transform,
- * globs included: after ADDING a block file locally, edit this comment once or
- * it is not seen (CI starts clean).
+ * Reads the REAL blocks as the build finds them (`test/helpers/realBlocks.ts`:
+ * `modules/builder-blocks`' own discovery, sub-folders included), so a block
+ * the server bundles cannot be missing from a snapshot.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 
 /**
  * The schema `default.json` is built for: one no design names, so it stands

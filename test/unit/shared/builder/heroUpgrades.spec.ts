@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { upgradeNode } from '~~/shared/builder/upgrade'
-import type { BlockDefinition } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * Version 1 of a hero slide named its product `productId`; version 2 states
  * it as the `product` the component receives. A slide that named none still
  * names none.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('/app/blocks/**/*.block.ts', { eager: true })
-const slide = Object.values(modules).map(module => module.default).find(definition => definition.type === 'hero_slide')!
+const slide = realBlocks.find(definition => definition.type === 'hero_slide')!
 
 const upgraded = (settings: Record<string, unknown>) => {
   const node = upgradeNode({ type: 'hero_slide@1', settings }, slide)

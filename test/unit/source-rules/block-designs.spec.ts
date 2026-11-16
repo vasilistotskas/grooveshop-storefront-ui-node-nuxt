@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import type { BlockDefinition } from '~~/shared/types/builder'
 import { APP } from '../../helpers/sourceText'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * A block that has a presentation in one design only is declared so (`designs`),
@@ -20,8 +20,7 @@ import { APP } from '../../helpers/sourceText'
  * A child of a design-only section exists for the designs of its parent, or
  * the parent's catalogue would allow a block it does not list.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 const byType = new Map(definitions.map(block => [block.type, block]))
 
 const registry = readFileSync(resolve(APP, 'utils/componentRegistry.ts'), 'utf-8')
