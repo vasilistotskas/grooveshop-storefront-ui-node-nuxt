@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { BUILDER_SCHEMATICS, BUILDER_SCHEMATIC_VIEW } from '~/utils/builderSchematics'
-import type { BlockDefinition } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * Every card of the add-section library has its picture: each block with a
  * preset to insert has a schematic, there is none for a block that does not
  * exist, and every shape stays inside the canvas.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
-const offered = Object.values(modules).map(module => module.default).filter(block => !block.deprecated && block.presets?.length).map(block => block.type).sort()
+const offered = realBlocks.filter(block => !block.deprecated && block.presets?.length).map(block => block.type).sort()
 
 describe('the library\'s schematics', () => {
   it('draw every block the library offers, and only those', () => {

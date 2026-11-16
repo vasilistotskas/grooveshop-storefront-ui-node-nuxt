@@ -8,7 +8,7 @@ import { BUILDER_DOCUMENT_ROOTS, themeContrastRulesFor } from '~~/shared/builder
 import { builderRouteLabelKey, builderSettingsFields, flattenSettingsFields } from '~/utils/builderSettingsFields'
 import { SUPPORTED_LOCALES } from '~~/i18n/locales'
 import type { SupportedLocale } from '~~/i18n/locales'
-import type { BlockDefinition } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * The editor names every block of this build, every section group and every
@@ -20,14 +20,13 @@ import type { BlockDefinition } from '~~/shared/types/builder'
  * removed with them left behind, fails here rather than showing a merchant
  * a type name or keeping dead text.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('/app/blocks/**/*.block.ts', { eager: true })
-const blockTypes = Object.values(modules).map(module => module.default.type).sort()
+const blockTypes = realBlocks.map(block => block.type).sort()
 
 /** Every settings field of every block, depth first. */
-const fields = Object.values(modules).flatMap(module => flattenSettingsFields(builderSettingsFields(module.default)))
+const fields = realBlocks.flatMap(block => flattenSettingsFields(builderSettingsFields(block)))
 const settingPaths = [...new Set(fields.map(field => field.path))].sort()
 /** Each block's settings fields, depth first, by block type. */
-const fieldsOf = new Map(Object.values(modules).map(module => [module.default.type, flattenSettingsFields(builderSettingsFields(module.default))]))
+const fieldsOf = new Map(realBlocks.map(block => [block.type, flattenSettingsFields(builderSettingsFields(block))]))
 /** The blocks that have a setting at `path`. */
 const blocksWith = (path: string) => [...fieldsOf].filter(([, own]) => own.some(field => field.path === path)).map(([type]) => type)
 /** Whether a block's setting at `path` offers `value` among its choices. */
@@ -107,7 +106,7 @@ describe.each(SUPPORTED_LOCALES)('the editor labels in %s', (locale) => {
   })
 
   it('name every store feature a block needs, and only those', () => {
-    const needed = [...new Set(Object.values(modules).flatMap(module => module.default.feature ?? []))].sort()
+    const needed = [...new Set(realBlocks.flatMap(block => block.feature ?? []))].sort()
 
     expect(Object.keys(labels.features).sort()).toEqual(needed)
   })

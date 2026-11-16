@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/builder/shared/[token].get'
-import type { BlockDefinition } from '~~/shared/types/builder'
 import { makeResolvedAsset } from '~~/test/fixtures/media'
 import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 
@@ -23,8 +22,7 @@ vi.mock('#builder-blocks', async () => {
   })
   return {
     default: [
-      ...(await Promise.all(Object.values(import.meta.glob<{ default: BlockDefinition }>('../../../../../../app/blocks/*.block.ts')).map(load => load())))
-        .map(({ default: block }) => block),
+      ...(await import('~~/test/helpers/realBlocks')).realBlocks,
       photoBand,
     ],
   }

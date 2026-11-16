@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { upgradeNode } from '~~/shared/builder/upgrade'
-import type { BlockDefinition } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * Version 1 of the blog's bands kept what they list in `categoryId` and a
  * size spelled `count` or `pageSize`; version 2 keeps one descriptor. The
  * pages already written must draw what they drew.
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('/app/blocks/**/*.block.ts', { eager: true })
-const block = (type: string) => Object.values(modules).map(module => module.default).find(definition => definition.type === type)!
+const block = (type: string) => realBlocks.find(definition => definition.type === type)!
 
 const upgraded = (type: string, settings: Record<string, unknown>) => {
   const definition = block(type)

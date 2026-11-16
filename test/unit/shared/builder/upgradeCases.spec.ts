@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { parseVersionedType, upgradeNode } from '~~/shared/builder/upgrade'
 import { builderTranslatedSettings, upgradeNodeTranslations } from '~/utils/builderTranslation'
 import { settingAt } from '~/utils/builderWorkingCopy'
-import type { BlockDefinition, BuilderNode } from '~~/shared/types/builder'
+import type { BuilderNode } from '~~/shared/types/builder'
 import cases from '~~/test/fixtures/builder/upgrade-cases.json'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * The shared vectors of the block upgrades: `test/fixtures/builder/upgrade-cases.json`
@@ -24,8 +25,7 @@ interface UpgradeCase {
 
 const upgradeCases = cases as UpgradeCase[]
 
-const modules = import.meta.glob<{ default: BlockDefinition }>('/app/blocks/**/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(module => module.default)
+const definitions = realBlocks
 const definitionOf = (node: BuilderNode) => definitions.find(({ type }) => type === parseVersionedType(node.type)?.type)!
 
 describe('upgrade-cases.json', () => {

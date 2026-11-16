@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
-import type { BlockDefinition } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * An optional choice never holds its own default.
@@ -21,12 +21,9 @@ import type { BlockDefinition } from '~~/shared/types/builder'
  * follows the page; an icon left out draws none). A choice added to a block
  * fails here until it says what its Default draws.
  *
- * Reads the REAL blocks of `app/blocks`. Vitest caches this file's
- * transform, globs included: after ADDING a block file locally, edit this
- * comment once or it is not seen (CI starts clean).
+ * Reads the REAL blocks of `app/blocks` (`test/helpers/realBlocks.ts`).
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 
 const LEFT_OUT: Record<string, Record<string, string | readonly string[] | null>> = {
   blog_categories: { '/layout': 'slider', '/look': null },

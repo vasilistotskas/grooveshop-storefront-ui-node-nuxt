@@ -3,17 +3,14 @@ import { buildBlockCatalogue, definitionsForDesign } from '~~/server/utils/build
 import { parseDocument } from '~~/shared/builder/document'
 import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
 import { linkPointers } from '~~/shared/builder/linkPointers'
-import type { BlockDefinition } from '~~/shared/types/builder'
+import { realBlocks } from '~~/test/helpers/realBlocks'
 
 /**
  * Rules every REAL block of `app/blocks` keeps, whatever it is. The unit
  * project's `#builder-blocks` is a fixture set, so these read the files
- * themselves. Vitest caches this file's transform, globs included: after
- * ADDING a block file locally, edit this comment once or it is not seen (CI
- * starts clean).
+ * themselves (`test/helpers/realBlocks.ts`).
  */
-const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
-const definitions = Object.values(modules).map(({ default: block }) => block)
+const definitions = realBlocks
 const registry = new Map(definitions.map(block => [block.type, block]))
 
 /** `link` is `pointer`, or lies under it (`*` matches one segment either way). */

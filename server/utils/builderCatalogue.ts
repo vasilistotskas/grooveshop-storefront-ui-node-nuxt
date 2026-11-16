@@ -111,8 +111,19 @@ export function definitionsForDesign(definitions: readonly BlockDefinition[], de
  */
 export const builderBlocks: ReadonlyMap<string, BlockDefinition> = new Map(blockList.map(definition => [definition.type, definition]))
 
+/**
+ * The catalogue of `definitions` as the store whose design is `design` (its
+ * tenant schema, `?schema=`) is served it: the definitions it draws, its
+ * design's document roots and its page types. Without a design, the whole
+ * build's. The one build of a design's catalogue: the route's, and the
+ * committed snapshots' (`builderSeeds.spec.ts`), which pass the real blocks.
+ */
+export function buildDesignCatalogue(definitions: readonly BlockDefinition[], design?: string): BlockCatalogue {
+  return buildBlockCatalogue(definitionsForDesign(definitions, design), builderDocumentRootsFor(design), staticLayoutPageTypesFor(design))
+}
+
 function catalogueDocument(design?: string): BuilderCatalogueDocument {
-  const { hash, blocks, dataLimits, documentKinds, templates } = buildBlockCatalogue(definitionsForDesign(blockList, design), builderDocumentRootsFor(design), staticLayoutPageTypesFor(design))
+  const { hash, blocks, dataLimits, documentKinds, templates } = buildDesignCatalogue(blockList, design)
   return { hash, json: JSON.stringify({ hash, blocks, dataLimits, documentKinds, templates }) }
 }
 
