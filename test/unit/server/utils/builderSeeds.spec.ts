@@ -25,10 +25,6 @@ import { realBlocks } from '~~/test/helpers/realBlocks'
  *   the build names (a block's or a page type's `designs`, a store with its own
  *   design: `OWN_DESIGN_SCHEMAS`), and `default.json` for every other store,
  *   which all get the platform default design's. A new store is one of those.
- * - `catalogue.json`: TRANSITIONAL, the whole build's catalogue (the route
- *   without a schema, which no store is served). Django's pin and the promote
- *   gate read it until they read `catalogue/` (storefront #491); it is deleted
- *   then.
  * - `seeds/*.json`: the documents a new store starts with, as `{key, document,
  *   i18n}`. They are data, edited by hand and reviewed in the diff; a new store
  *   gets them as its first release. Django seeds them without a catalogue, so
@@ -63,7 +59,7 @@ const DESIGNS = [...NAMED_DESIGNS, OTHER_STORE]
 
 const SNAPSHOTS = fileURLToPath(new URL('../../../fixtures/builder/catalogue/', import.meta.url))
 
-const snapshot = (design?: string) => `${JSON.stringify(buildDesignCatalogue(definitions, design), null, 2)}\n`
+const snapshot = (design: string) => `${JSON.stringify(buildDesignCatalogue(definitions, design), null, 2)}\n`
 
 /**
  * The section ids of the home seed: fixed, so a store's first release names
@@ -85,10 +81,6 @@ describe('the catalogue snapshots', () => {
 
   it('are one per design, and no file is left of a design that is gone', () => {
     expect(readdirSync(SNAPSHOTS).sort()).toEqual(DESIGNS.map(design => `${design}.json`).sort())
-  })
-
-  it('include the whole build\'s, while Django and the promote gate still read it', async () => {
-    await expect(snapshot()).toMatchFileSnapshot('../../../fixtures/builder/catalogue.json')
   })
 })
 
