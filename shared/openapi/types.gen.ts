@@ -22172,50 +22172,6 @@ export type UpdateOrderResponses = {
 
 export type UpdateOrderResponse = UpdateOrderResponses[keyof UpdateOrderResponses]
 
-export type CancelAcsShipmentForOrderData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/order/{id}/acs_cancel'
-}
-
-export type CancelAcsShipmentForOrderErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CancelAcsShipmentForOrderError = CancelAcsShipmentForOrderErrors[keyof CancelAcsShipmentForOrderErrors]
-
-export type GetAcsLabelForOrderData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/order/{id}/acs_label'
-}
-
-export type GetAcsLabelForOrderErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type GetAcsLabelForOrderError = GetAcsLabelForOrderErrors[keyof GetAcsLabelForOrderErrors]
-
-export type GetAcsLabelForOrderResponses = {
-  200: Blob | File
-}
-
-export type GetAcsLabelForOrderResponse = GetAcsLabelForOrderResponses[keyof GetAcsLabelForOrderResponses]
-
 export type AddOrderTrackingData = {
   body: AddTrackingRequest
   path: {
@@ -22240,50 +22196,6 @@ export type AddOrderTrackingResponses = {
 }
 
 export type AddOrderTrackingResponse = AddOrderTrackingResponses[keyof AddOrderTrackingResponses]
-
-export type CancelBoxNowShipmentForOrderData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/order/{id}/boxnow_cancel'
-}
-
-export type CancelBoxNowShipmentForOrderErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CancelBoxNowShipmentForOrderError = CancelBoxNowShipmentForOrderErrors[keyof CancelBoxNowShipmentForOrderErrors]
-
-export type GetBoxNowLabelForOrderData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/order/{id}/boxnow_label'
-}
-
-export type GetBoxNowLabelForOrderErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type GetBoxNowLabelForOrderError = GetBoxNowLabelForOrderErrors[keyof GetBoxNowLabelForOrderErrors]
-
-export type GetBoxNowLabelForOrderResponses = {
-  200: Blob | File
-}
-
-export type GetBoxNowLabelForOrderResponse = GetBoxNowLabelForOrderResponses[keyof GetBoxNowLabelForOrderResponses]
 
 export type CancelOrderData = {
   body?: CancelOrderRequestRequest
@@ -22570,7 +22482,9 @@ export type CancelShipmentForOrderErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  409: ErrorResponse
   500: ErrorResponse
+  503: ErrorResponse
 }
 
 export type CancelShipmentForOrderError = CancelShipmentForOrderErrors[keyof CancelShipmentForOrderErrors]
@@ -27256,6 +27170,10 @@ export type ValidateAcsAddressErrors = {
      * No response body
      */
   502: unknown
+  /**
+     * No response body
+     */
+  503: unknown
 }
 
 export type ValidateAcsAddressResponses = {
@@ -27332,6 +27250,14 @@ export type CancelAcsShipmentErrors = {
      * No response body
      */
   404: unknown
+  /**
+     * No response body
+     */
+  409: unknown
+  /**
+     * No response body
+     */
+  503: unknown
 }
 
 export type CancelAcsShipmentResponses = {
@@ -27564,6 +27490,7 @@ export type NearestBoxNowLockerErrors = {
   403: ErrorResponse
   404: ErrorResponse
   500: ErrorResponse
+  503: ErrorResponse
 }
 
 export type NearestBoxNowLockerError = NearestBoxNowLockerErrors[keyof NearestBoxNowLockerErrors]
@@ -27596,6 +27523,14 @@ export type CancelBoxNowShipmentErrors = {
      * No response body
      */
   404: unknown
+  /**
+     * No response body
+     */
+  409: unknown
+  /**
+     * No response body
+     */
+  503: unknown
 }
 
 export type CancelBoxNowShipmentResponses = {
