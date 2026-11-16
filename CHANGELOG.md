@@ -1,3 +1,10 @@
+# [3.343.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.342.0...v3.343.0) (2026-11-16)
+
+
+### Features
+
+* **builder:** warn on the dark accent too faint as small text ([#487](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/487)) ([62c4e8e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/62c4e8e7630f1adff0b7247bc0d082ad78f31ab2)), closes [grooveshop-django-api#686](https://github.com/grooveshop-django-api/issues/686) [#466](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/466) [#ff3cc3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/ff3cc3) [#464646](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/464646) [grooveshop-django-api#714](https://github.com/grooveshop-django-api/issues/714) [#466](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/466) [#ff3cc3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/ff3cc3) [#d200a5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/d200a5) [grooveshop-django-api#714](https://github.com/grooveshop-django-api/issues/714)
+
 # [3.342.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.341.6...v3.342.0) (2026-11-15)
 
 
