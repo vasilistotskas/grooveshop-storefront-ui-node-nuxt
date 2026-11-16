@@ -1,3 +1,10 @@
+# [3.344.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.343.0...v3.344.0) (2026-11-16)
+
+
+### Features
+
+* **builder:** an optional choice never holds the look its Default draws ([#489](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/489)) ([0276a7e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0276a7ee2299958f622b56bcf53ee8c2da023690)), closes [vasilistotskas/grooveshop-storefront-ui-node-nuxt#469](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/469)
+
 # [3.343.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.342.0...v3.343.0) (2026-11-16)
 
 
