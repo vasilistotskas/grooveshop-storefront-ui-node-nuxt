@@ -1,25 +1,44 @@
+import { readdirSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
+import { buildDesignCatalogue, definitionsForDesign } from '~~/server/utils/builderCatalogue'
 import { parseDocument } from '~~/shared/builder/document'
+import { OWN_DESIGN_SCHEMAS } from '~~/shared/theme/design'
 import type { BlockDefinition } from '~~/shared/types/builder'
+import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
+import type { StaticLayoutRoute } from '~~/shared/utils/staticLayoutRoutes'
 import home from '~~/test/fixtures/builder/seeds/home.json'
 
 /**
  * What Django's seeds are tested against, committed so it cannot rot.
  *
- * Two things under `test/fixtures/builder/`, both copied into Django, pinned
- * (its `sync_storefront_sources.py`):
+ * Under `test/fixtures/builder/`, copied into Django, pinned (its
+ * `.github/scripts/sync_upstream_sources.py`), and read by the
+ * infrastructure's promote gate at each storefront tag
+ * (`scripts/check-api-contract.py`):
  *
- * - `catalogue.json`: the catalogue payload of this build for the default
- *   schema (`GET /api/builder/catalogue`, which is the same for every store
- *   today), pretty-printed. A block or a document-root change fails the spec
- *   until the file is regenerated with
- *   `pnpm vitest run --project=unit test/unit/server/utils/builderSeeds.spec.ts -u`
- *   and reviewed in the diff.
+ * - `catalogue/<design>.json`: the catalogue payload `GET
+ *   /api/builder/catalogue?schema=<design>` serves, pretty-printed, one file
+ *   per catalogue the route answers with. A store is served the catalogue of
+ *   its design (`buildDesignCatalogue`: its blocks, its theme's contrast rules
+ *   and defaults, its page types), so there is one file for each tenant schema
+ *   the build names (a block's or a page type's `designs`, a store with its own
+ *   design: `OWN_DESIGN_SCHEMAS`), and `default.json` for every other store,
+ *   which all get the platform default design's. A new store is one of those.
+ * - `catalogue.json`: TRANSITIONAL, the whole build's catalogue (the route
+ *   without a schema, which no store is served). Django's pin and the promote
+ *   gate read it until they read `catalogue/` (storefront #491); it is deleted
+ *   then.
  * - `seeds/*.json`: the documents a new store starts with, as `{key, document,
  *   i18n}`. They are data, edited by hand and reviewed in the diff; a new store
  *   gets them as its first release. Django seeds them without a catalogue, so
  *   this is where they are held to the real blocks.
+ *
+ * A block, document-root or page-type change fails the spec until the files
+ * are regenerated with
+ * `pnpm vitest run --project=unit test/unit/server/utils/builderSeeds.spec.ts -u`
+ * and reviewed in the diff. A design that no longer exists leaves its file
+ * behind, which the spec names: delete it by hand.
  *
  * Reads the REAL blocks of `app/blocks`. Vitest caches this file's transform,
  * globs included: after ADDING a block file locally, edit this comment once or
@@ -27,7 +46,25 @@ import home from '~~/test/fixtures/builder/seeds/home.json'
  */
 const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
 const definitions = Object.values(modules).map(({ default: block }) => block)
-const registry = new Map(definitions.map(block => [block.type, block]))
+
+/**
+ * The schema `default.json` is built for: one no design names, so it stands
+ * for every store whose design is the platform default.
+ */
+const OTHER_STORE = 'default'
+
+/** Every tenant schema the build serves a catalogue of its own. */
+const NAMED_DESIGNS = [...new Set([
+  ...definitions.flatMap(definition => definition.designs ?? []),
+  ...Object.values(STATIC_LAYOUT_ROUTES).flatMap((route: StaticLayoutRoute) => route.designs ?? []),
+  ...OWN_DESIGN_SCHEMAS,
+])].sort()
+
+const DESIGNS = [...NAMED_DESIGNS, OTHER_STORE]
+
+const SNAPSHOTS = fileURLToPath(new URL('../../../fixtures/builder/catalogue/', import.meta.url))
+
+const snapshot = (design?: string) => `${JSON.stringify(buildDesignCatalogue(definitions, design), null, 2)}\n`
 
 /**
  * The section ids of the home seed: fixed, so a store's first release names
@@ -36,19 +73,27 @@ const registry = new Map(definitions.map(block => [block.type, block]))
  */
 const SEED_ID = /^00000000-0000-4000-8000-5eed\d{8}$/
 
-describe('the catalogue snapshot', () => {
-  it('is what this build generates', async () => {
-    await expect(`${JSON.stringify(buildBlockCatalogue(definitions), null, 2)}\n`)
-      .toMatchFileSnapshot('../../../fixtures/builder/catalogue.json')
+describe('the catalogue snapshots', () => {
+  it('name a schema for the other stores that no design names', () => {
+    expect(NAMED_DESIGNS).not.toContain(OTHER_STORE)
+    // A canary: no named design would leave one snapshot for every store.
+    expect(NAMED_DESIGNS).toContain('webside')
+  })
+
+  it.each(DESIGNS)('%s is what this build serves that design', async (design) => {
+    await expect(snapshot(design)).toMatchFileSnapshot(`../../../fixtures/builder/catalogue/${design}.json`)
+  })
+
+  it('are one per design, and no file is left of a design that is gone', () => {
+    expect(readdirSync(SNAPSHOTS).sort()).toEqual(DESIGNS.map(design => `${design}.json`).sort())
+  })
+
+  it('include the whole build\'s, while Django and the promote gate still read it', async () => {
+    await expect(snapshot()).toMatchFileSnapshot('../../../fixtures/builder/catalogue.json')
   })
 })
 
 describe('the home seed', () => {
-  it('is the home template, which the catalogue lists', () => {
-    expect(home.key).toBe('template:home')
-    expect(buildBlockCatalogue(definitions).templates).toContain('home')
-  })
-
   it('names its sections by fixed seed ids, in page order', () => {
     expect(home.document.order).toHaveLength(Object.keys(home.document.sections).length)
     home.document.order.forEach((id, index) => {
@@ -57,10 +102,18 @@ describe('the home seed', () => {
     })
   })
 
-  it('is valid against the catalogue it is snapshotted beside: every section survives the parse unchanged', () => {
-    const parsed = parseDocument(home.document, 'template', registry, { featureOn: () => true })
+  describe.each(DESIGNS)('on a store of %s', (design) => {
+    it('is the home template, which its catalogue lists', () => {
+      expect(home.key).toBe('template:home')
+      expect(buildDesignCatalogue(definitions, design).templates).toContain('home')
+    })
 
-    expect(parsed.order).toEqual(home.document.order)
-    expect(parsed.sections).toEqual(home.document.sections)
+    it('is valid against its blocks: every section survives the parse unchanged', () => {
+      const registry = new Map(definitionsForDesign(definitions, design).map(block => [block.type, block]))
+      const parsed = parseDocument(home.document, 'template', registry, { featureOn: () => true })
+
+      expect(parsed.order).toEqual(home.document.order)
+      expect(parsed.sections).toEqual(home.document.sections)
+    })
   })
 })

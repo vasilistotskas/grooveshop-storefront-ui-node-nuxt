@@ -19,7 +19,7 @@ export type StorefrontDesign = 'volt'
  * Tenants whose own design (`app/components/variants/<schema>/`) keeps the
  * stylesheet and app config as they were before the Volt design existed.
  */
-const OWN_DESIGN_SCHEMAS = new Set(['webside'])
+export const OWN_DESIGN_SCHEMAS: ReadonlySet<string> = new Set(['webside'])
 
 /**
  * The design for `tenantSchema`, or `null` to leave the base stylesheet
