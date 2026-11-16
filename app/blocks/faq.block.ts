@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** Questions and answers, as an accordion. */
 export default defineBlock({
   type: 'faq',
-  version: 1,
+  version: 2,
   kinds: ['section'],
   schema: z.object({
     surface: builderField.surface().optional(),
@@ -11,6 +11,7 @@ export default defineBlock({
     subheading: builderField.text(500).optional(),
     multiple: builderField.boolean().optional(),
   }),
+  upgrade: { 1: upgradeLeavingOutDefaults({ '/surface': 'default' }) },
   translatable: ['/heading', '/subheading'],
   limits: { maxBlocks: 30 },
   children: { allowed: ['faq_item'], maxDepth: 1 },

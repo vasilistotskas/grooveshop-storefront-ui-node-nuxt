@@ -54,7 +54,7 @@ describe('builderSettingsFields', () => {
 
     expect(fields.get('heading')).toMatchObject({ kind: 'text', pointer: '/heading', required: true, minLength: 1, maxLength: 200 })
     expect(fields.get('body')).toMatchObject({ kind: 'textarea', required: false })
-    expect(fields.get('surface')).toMatchObject({ kind: 'choice', options: ['default', 'muted'] })
+    expect(fields.get('surface')).toMatchObject({ kind: 'choice', options: ['muted'] })
     expect(fields.get('route')).toMatchObject({ kind: 'route', options: [...NAVIGATION_ROUTES] })
     expect(fields.get('columns')).toMatchObject({ kind: 'number', integer: true, min: 1, max: 6 })
     expect(fields.get('shade')).toMatchObject({ kind: 'number', integer: false, min: 0, max: 1 })

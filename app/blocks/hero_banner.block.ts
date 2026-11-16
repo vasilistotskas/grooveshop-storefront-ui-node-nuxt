@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** The top of a page: one picture, one promise, one ask, with an optional proof row. */
 export default defineBlock({
   type: 'hero_banner',
-  version: 2,
+  version: 3,
   kinds: ['section'],
   schema: z.object({
     heading: builderField.text(200).optional(),
@@ -21,12 +21,12 @@ export default defineBlock({
     secondaryCtaText: builderField.text(100).optional(),
     secondaryCtaLink: builderField.link().optional(),
     overlayOpacity: builderField.number(0, 1).optional(),
-    decor: z.enum(['none', 'orbs', 'gradient']).optional(),
-    align: z.enum(['left', 'center']).optional(),
-    theme: z.enum(['light', 'dark', 'auto']).optional(),
+    decor: z.enum(['orbs', 'gradient']).optional(),
+    align: z.enum(['left']).optional(),
+    theme: z.enum(['light', 'dark']).optional(),
   }),
   translatable: ['/heading', '/subheading', '/eyebrow', '/imageAlt', '/ctaText', '/secondaryCtaText'],
-  upgrade: { 1: upgradeTitleIntoHeading },
+  upgrade: { 1: upgradeTitleIntoHeading, 2: upgradeLeavingOutDefaults({ '/decor': 'none', '/align': 'center', '/theme': 'auto' }) },
   legacyImages: [
     { from: '/imageUrl', to: '/image', alt: '/imageAlt' },
     { from: '/mobileImageUrl', to: '/mobileImage' },

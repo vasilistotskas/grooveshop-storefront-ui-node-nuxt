@@ -58,7 +58,7 @@ describe('PageSection/ProductsSlider', () => {
   it.each([
     ['inStockOnly', '/products?sort=-createdAt&inStock=true'],
     ['inStockFirst', '/products?sort=-createdAt'],
-    ['any', '/products?sort=-createdAt'],
+    [undefined, '/products?sort=-createdAt'],
   ] as const)('sends "see all" of a rule with stock %s to the matching listing', async (stock, href) => {
     const wrapper = await mountSlider({ products: products([7, 8], rule('newest', stock)) })
 

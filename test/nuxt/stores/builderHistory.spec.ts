@@ -17,8 +17,8 @@ mockNuxtImport('$api', () => api)
 
 const HOME = 'template:home'
 const url = `/api/builder/documents/${encodeURIComponent(HOME)}`
-const DRAFT = { sections: { a: { type: 'hero_banner@2', settings: {} } }, order: ['a'] }
-const OLD_DRAFT = { sections: { b: { type: 'products_grid@3', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } } }, order: ['b'] }
+const DRAFT = { sections: { a: { type: 'hero_banner@3', settings: {} } }, order: ['a'] }
+const OLD_DRAFT = { sections: { b: { type: 'products_grid@4', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } } }, order: ['b'] }
 
 const envelope = (draftRevision: number, draft: unknown, hasUnpublishedChanges: boolean): DocumentDetail => ({
   key: HOME,

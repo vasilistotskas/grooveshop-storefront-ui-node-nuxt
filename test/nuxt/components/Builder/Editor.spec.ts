@@ -600,7 +600,7 @@ describe('editing the structure of a page', () => {
       const sent = api.callsTo(DRAFT_URL).at(-1)!.options.body.draft
       const added = sent.order.at(-1)
       expect(sent.order.slice(0, 3)).toEqual(['hero', 'grid', 'news'])
-      expect(sent.sections[added]).toMatchObject({ type: 'faq@1', settings: {} })
+      expect(sent.sections[added]).toMatchObject({ type: 'faq@2', settings: {} })
       expect(sent.sections[added].blockOrder).toHaveLength(3)
       expect(Object.values(sent.sections[added].blocks)[0]).toEqual({ type: 'faq_item@1', settings: { question: 'Η ερώτηση του πελάτη', answer: 'Η απάντησή σας.' } })
       await vi.waitFor(() => expect(useRoute().query.node).toBe(`template:home/${added}`))
@@ -1231,7 +1231,7 @@ describe('editing the structure of a page', () => {
 
       expect(surface.textContent).toContain('Ίδιο σε κάθε γλώσσα')
       const radios = [...surface.querySelectorAll('[role="radio"]')]
-      expect(radios).toHaveLength(3)
+      expect(radios).toHaveLength(2)
       expect(radios.every(radio => radio.hasAttribute('disabled') || radio.getAttribute('data-disabled') === '')).toBe(true)
     })
 
@@ -1397,10 +1397,10 @@ describe('editing the structure of a page', () => {
       const wrapper = await open(HERO)
       const settings = () => useBuilderEditorStore().opened['template:home']!.copy.draft.sections.hero!.settings
 
-      await option(wrapper, 'Κέντρο').trigger('click')
-      expect(settings()).toMatchObject({ align: 'center' })
+      await option(wrapper, 'Αριστερά').trigger('click')
+      expect(settings()).toMatchObject({ align: 'left' })
 
-      await option(wrapper, 'Προεπιλογή', 'Κέντρο').trigger('click')
+      await option(wrapper, 'Προεπιλογή', 'Αριστερά').trigger('click')
       expect(settings()).not.toHaveProperty('align')
     })
 

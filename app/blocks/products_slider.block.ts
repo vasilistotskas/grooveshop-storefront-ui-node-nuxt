@@ -3,14 +3,14 @@ import * as z from 'zod'
 /** A swipeable rail of products. */
 export default defineBlock({
   type: 'products_slider',
-  version: 3,
+  version: 4,
   kinds: ['section'],
   feature: 'catalogue',
   schema: z.object({
     ...builderField.productRail(24),
   }),
   translatable: ['/heading', '/subheading', '/ctaText'],
-  upgrade: { 1: upgradeProductRail({ ordering: 'newest', limit: 8 }, 24), 2: upgradeTitleIntoHeading },
+  upgrade: { 1: upgradeProductRail({ ordering: 'newest', limit: 8 }, 24), 2: upgradeTitleIntoHeading, 3: upgradeLeavingOutDefaults({ '/surface': 'default', '/products/stock': 'any' }) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } }],
   editor: { title: ['heading'], category: 'products' },
 })

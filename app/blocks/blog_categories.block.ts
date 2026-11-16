@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** The blog's categories, as a rail (`slider`, the default) or as tiles with each category's post count. */
 export default defineBlock({
   type: 'blog_categories',
-  version: 2,
+  version: 3,
   kinds: ['section'],
   feature: 'blog',
   schema: z.object({
@@ -13,13 +13,13 @@ export default defineBlock({
     subheading: builderField.text(500).optional(),
     ctaText: builderField.text(100).optional(),
     ctaLink: builderField.link().optional(),
-    layout: z.enum(['slider', 'tiles']).optional(),
+    layout: z.enum(['tiles']).optional(),
     categories: builderField.query('blogCategory', { onEmpty: 'hide' }),
     /** `bold`: the heavier look of the home board (bigger, bolder headings, an accent eyebrow, text links). Left out, the look it always had. */
     look: z.enum(['bold']).optional(),
   }),
   translatable: ['/eyebrow', '/title', '/subheading', '/ctaText'],
-  upgrade: { 1: upgradeBlogCategories(10) },
+  upgrade: { 1: upgradeBlogCategories(10), 2: upgradeLeavingOutDefaults({ '/layout': 'slider' }) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { categories: { limit: 10 } } }],
   editor: { title: ['title'], category: 'blog' },
 })

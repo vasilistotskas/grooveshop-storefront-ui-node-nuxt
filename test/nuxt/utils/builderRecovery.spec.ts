@@ -22,7 +22,7 @@ function memoryStorage(): Storage {
 
 const recovery = {
   revision: 4,
-  copy: { draft: { sections: { hero: { type: 'hero_banner@2', settings: { heading: 'Γεια' } } }, order: ['hero'] }, i18n: {} },
+  copy: { draft: { sections: { hero: { type: 'hero_banner@3', settings: { heading: 'Γεια' } } }, order: ['hero'] }, i18n: {} },
   keptAt: '2026-11-02T15:00:00.000Z',
 }
 
@@ -49,7 +49,7 @@ describe('the recovery copy', () => {
     })
 
     expect(readBuilderRecovery('shop.test', 'template:home')?.copy).toEqual({
-      draft: { sections: { hero: { type: 'hero_banner@2', settings: { heading: 'Γεια' } } }, order: ['hero'] },
+      draft: { sections: { hero: { type: 'hero_banner@3', settings: { heading: 'Γεια' } } }, order: ['hero'] },
       i18n: { en: { hero: { '/heading': 'Hello' } } },
     })
   })

@@ -8,7 +8,7 @@ export default defineBlock({
   feature: 'loyalty',
   schema: z.object({
     title: builderField.text(200).optional(),
-    surface: builderField.surface().optional(),
+    surface: builderField.groundSurface().optional(),
     eyebrow: builderField.text(100).optional(),
     ctaText: builderField.text(100).optional(),
     ctaLink: builderField.link().optional(),

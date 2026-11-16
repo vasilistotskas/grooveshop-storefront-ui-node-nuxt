@@ -32,7 +32,7 @@ const envelope = (key: string, draft: unknown, i18n: unknown = {}): DocumentDeta
 const row = (key: string) => makeBuilderDocumentRow({ key })
 
 const HOME_DRAFT = {
-  sections: { a: { type: 'hero_banner@2', settings: {} }, b: { type: 'products_grid@3', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } } },
+  sections: { a: { type: 'hero_banner@3', settings: {} }, b: { type: 'products_grid@4', settings: { products: { mode: 'filter', ordering: 'newest', limit: 8 } } } },
   order: ['a', 'b'],
 }
 const HEADER_DRAFT = { sections: { menu: { type: 'header_menu@1', settings: {} } }, order: ['menu'] }
@@ -201,7 +201,7 @@ describe('changes and their history', () => {
     const store = await open()
     store.change(HOME, moveNode(store.opened[HOME]!.copy, 'b', 0))
     store.change(HEADER, setNodeHidden(store.opened[HEADER]!.copy, 'menu', true))
-    const theirs = { ...envelope(HOME, { sections: { c: { type: 'hero_banner@2', settings: {} } }, order: ['c'] }), draftRevision: 9 }
+    const theirs = { ...envelope(HOME, { sections: { c: { type: 'hero_banner@3', settings: {} } }, order: ['c'] }), draftRevision: 9 }
 
     expect(store.takeTheirs(HOME, theirs)).toBe(true)
 

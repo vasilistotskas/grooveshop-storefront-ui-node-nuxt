@@ -493,52 +493,43 @@
   "options": {
     "surface": {
       "default": "Basic",
-      "muted": "Muted",
-      "ink": "Dark"
+      "muted": "Muted"
     },
     "colorScheme": {
       "light": "Light",
       "dark": "Dark"
     },
     "variant": {
-      "line": "Line",
       "thread": "Woven strip"
     },
     "decor": {
-      "none": "None",
       "gradient_tiles": "Gradient tiles",
       "framed": "Framed",
       "orbs": "Orbs",
       "gradient": "Gradient"
     },
     "align": {
-      "left": "Left",
-      "center": "Centre"
+      "left": "Left"
     },
     "theme": {
       "light": "Light",
-      "dark": "Dark",
-      "auto": "Automatic"
+      "dark": "Dark"
     },
     "aspect": {
-      "wide": "Wide",
       "banner": "Banner",
       "square": "Square"
     },
     "imagePosition": {
-      "left": "Left",
       "right": "Right"
     },
     "layout": {
       "slider": "Slider",
-      "grid": "Grid",
       "tiles": "Tiles",
       "card": "Card",
       "feature": "Card with posts"
     },
     "height": {
       "sm": "Small",
-      "md": "Medium",
       "lg": "Large",
       "xl": "Extra large"
     },

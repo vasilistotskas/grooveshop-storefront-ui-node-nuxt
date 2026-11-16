@@ -32,8 +32,11 @@ const orderingItems = computed<SelectItem[]>(() =>
   (props.field.source === 'product' ? PRODUCT_ORDERINGS : BLOG_POST_ORDERINGS).map(value => ({ value, label: t(`ordering.${value}`) })))
 
 /** The stock choices; "as they come" is the absence of the key, so an untouched list and a reset one are the same document. */
-const stockItems = computed(() => PRODUCT_STOCK_MODES.map(value => ({ value, label: t(`stock.${value}`) })))
-const stock = computed(() => PRODUCT_STOCK_MODES.find(mode => mode === descriptor.value?.stock) ?? 'any')
+const stockItems = computed(() => [
+  { label: t('stock.any'), value: UNSET },
+  ...PRODUCT_STOCK_MODES.map(value => ({ value, label: t(`stock.${value}`) })),
+])
+const stock = computed(() => PRODUCT_STOCK_MODES.find(mode => mode === descriptor.value?.stock) ?? UNSET)
 
 const limit = computed(() => typeof descriptor.value?.limit === 'number' ? descriptor.value.limit : undefined)
 const ordering = computed(() => typeof descriptor.value?.ordering === 'string' ? descriptor.value.ordering : undefined)
@@ -66,7 +69,7 @@ function setOrdering(next: unknown): void {
 }
 
 function setStock(next: unknown): void {
-  if (typeof next === 'string') patch({ stock: next === 'any' ? undefined : next })
+  if (typeof next === 'string') patch({ stock: next === UNSET ? undefined : next })
 }
 
 function setLimit(next: number | null | undefined): void {

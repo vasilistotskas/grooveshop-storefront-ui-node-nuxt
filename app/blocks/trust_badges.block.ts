@@ -3,7 +3,7 @@ import * as z from 'zod'
 /** How you pay, who delivers and, for a store that answers agents, that it is agent-readable. */
 export default defineBlock({
   type: 'trust_badges',
-  version: 2,
+  version: 3,
   kinds: ['section'],
   schema: z.object({
     surface: builderField.surface().optional(),
@@ -11,7 +11,7 @@ export default defineBlock({
     marquee: builderField.boolean().optional(),
   }),
   translatable: ['/heading'],
-  upgrade: { 1: upgradeTitleIntoHeading },
+  upgrade: { 1: upgradeTitleIntoHeading, 2: upgradeLeavingOutDefaults({ '/surface': 'default' }) },
   limits: { maxBlocks: 12 },
   children: { allowed: ['trust_badge'], maxDepth: 1 },
   childList: { trust_badge: 'items' },

@@ -75,9 +75,8 @@ describe('productQuery', () => {
     })
   })
 
-  it('asks the same question for `any` as for no stock choice', () => {
-    expect(productQuery({ mode: 'filter', ordering: 'newest', stock: 'any', limit: 6 }))
-      .toEqual(productQuery({ mode: 'filter', ordering: 'newest', limit: 6 }))
+  it('refuses `any`, which is a rule with no stock choice', () => {
+    expect(() => productQuery({ mode: 'filter', ordering: 'newest', stock: 'any', limit: 6 })).toThrow()
   })
 
   it('joins the categories with an underscore, as one sorted set, which the endpoint widens to their descendants', () => {

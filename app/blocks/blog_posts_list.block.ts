@@ -10,7 +10,7 @@ import * as z from 'zod'
  */
 export default defineBlock({
   type: 'blog_posts_list',
-  version: 2,
+  version: 3,
   kinds: ['section'],
   feature: 'blog',
   schema: z.object({
@@ -18,7 +18,7 @@ export default defineBlock({
     loadMore: builderField.boolean().optional(),
   }),
   translatable: ['/heading', '/subheading', '/ctaText'],
-  upgrade: { 1: upgradeBlogRail(3, 24) },
+  upgrade: { 1: upgradeBlogRail(3, 24), 2: upgradeLeavingOutDefaults({ '/surface': 'default' }) },
   presets: [{ id: BUILDER_DEFAULT_PRESET, settings: { posts: { mode: 'filter', ordering: 'newest', limit: 6 } } }],
   editor: {
     category: 'blog',

@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 /**
  * The way into the catalogue: the store's categories as square photo
- * tiles in a grid (`tiles` and `grid` draw the same one — the design
- * has one) or a swipeable rail.
+ * tiles in a grid (with `layout` left out) or a swipeable rail.
  *
  * The categories arrive read (`categories`, a data setting the page
  * route resolved: the main categories, or the children of one the
@@ -14,15 +13,13 @@
  * homepage must be absent, not an empty card — which is what the previous
  * default did, and why a brand-new store opened on a row of placeholders.
  */
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   heading?: string
-  layout?: 'slider' | 'grid' | 'tiles'
+  layout?: 'slider'
   surface?: 'default' | 'muted'
   /** What the band lists: the categories, and the rule they came from. */
   categories: ResolvedQuery<ProductCategory, DataDescriptor<'category'>>
-}>(), {
-  layout: 'tiles',
-})
+}>()
 
 const { t, locale } = useStoreI18n('components/PageSection/ProductCategories')
 const localePath = useLocalePath()

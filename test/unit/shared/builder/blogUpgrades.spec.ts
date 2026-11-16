@@ -17,11 +17,13 @@ const upgraded = (type: string, settings: Record<string, unknown>) => {
 }
 
 // The version a version 1 node reaches: the grid went on to 3 when its icon
-// took the builder's list (`upgradeIconSetting`), which leaves these alone.
+// took the builder's list (`upgradeIconSetting`), and each band one further
+// when its choice of ground lost the one it draws by default
+// (`upgradeLeavingOutDefaults`), which leave these alone.
 describe.each([
-  ['blog_posts_grid', 'count', 3, 3],
-  ['blog_posts_list', 'pageSize', 3, 2],
-  ['blog_posts_carousel', 'count', 6, 2],
+  ['blog_posts_grid', 'count', 3, 4],
+  ['blog_posts_list', 'pageSize', 3, 3],
+  ['blog_posts_carousel', 'count', 6, 3],
 ] as const)('%s, version 1 to 2', (type, sizeKey, defaultSize, current) => {
   it('turns the category and the size into the descriptor of what it lists, newest first', () => {
     const { node, parsed } = upgraded(type, { categoryId: 5, [sizeKey]: 4, heading: 'Νέα', surface: 'muted' })
@@ -61,7 +63,7 @@ describe('blog_categories, version 1 to 2', () => {
   it('lists the first ten, as its component drew, and keeps the title', () => {
     const { node, parsed } = upgraded('blog_categories', { title: 'Κατηγορίες' })
 
-    expect(node.type).toBe('blog_categories@2')
+    expect(node.type).toBe('blog_categories@3')
     expect(node.settings).toEqual({ title: 'Κατηγορίες', categories: { limit: 10 } })
     expect(parsed.success).toBe(true)
   })
@@ -70,10 +72,9 @@ describe('blog_categories, version 1 to 2', () => {
 describe('blog_posts_list, loadMore', () => {
   const settingsOf = (extra: Record<string, unknown>) => ({ posts: { mode: 'filter', ordering: 'newest', limit: 9 }, ...extra })
 
-  it('is an optional setting, so a version 2 node written without it is valid as it is and no version moved', () => {
+  it('is an optional setting, so a node written without it is valid as it is', () => {
     const definition = block('blog_posts_list')
 
-    expect(definition.version).toBe(2)
     expect(definition.schema.safeParse(settingsOf({})).success).toBe(true)
     expect(definition.schema.safeParse(settingsOf({ loadMore: true })).success).toBe(true)
   })
