@@ -45,12 +45,14 @@ const { posts, status, refresh, page } = await useFavouritePostsPage({ pageSize:
         sm:grid-cols-2
       "
     >
-      <li
+      <!-- The card is the list item itself (`BlogPostCard` renders as
+           an `<li>`): a second `<li>` around it is closed by the HTML
+           parser and the page fails to hydrate (#462). -->
+      <BlogPostCard
         v-for="post in posts.results"
         :key="post.id"
-      >
-        <BlogPostCard :post="post" />
-      </li>
+        :post="post"
+      />
     </ul>
 
     <div

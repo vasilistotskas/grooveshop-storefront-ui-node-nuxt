@@ -52,15 +52,15 @@ const { favourites, status, refresh, page, onRemoved } = await useFavouriteProdu
         lg:grid-cols-3
       "
     >
-      <li
+      <!-- The card is the list item itself (`ProductCard` renders as
+           an `<li>`): a second `<li>` around it is closed by the HTML
+           parser and the page fails to hydrate (#462). -->
+      <ProductCard
         v-for="favourite in favourites.results"
         :key="favourite.id"
-      >
-        <ProductCard
-          :product="favourite.product"
-          @favourite-delete="onRemoved"
-        />
-      </li>
+        :product="favourite.product"
+        @favourite-delete="onRemoved"
+      />
     </ul>
 
     <div
