@@ -42,13 +42,25 @@ function hasBoundProp(node: ElementNode, name: string): boolean {
   return node.props.some(prop => prop.type === 7 && prop.name === 'bind' && prop.arg !== undefined && 'content' in prop.arg && prop.arg.content === name)
 }
 
+/**
+ * The component a template tag names, as `componentsByName` keys it: a
+ * kebab-case tag (`product-card`) and Nuxt's lazy form (`LazyProductCard`,
+ * `lazy-product-card`) are the same component.
+ */
+function componentName(tag: string): string {
+  const pascal = tag.includes('-')
+    ? tag.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')
+    : tag
+  return pascal.startsWith('Lazy') && pascal.length > 4 ? pascal.slice(4) : pascal
+}
+
 /** The element a node renders as, when the template states it; `undefined` when it cannot be told. */
 function renderedTag(node: ElementNode): string | undefined {
   if (node.tagType === 0) return node.tag
   if (node.tag === 'TransitionGroup') return staticProp(node, 'tag')
   const as = staticProp(node, 'as')
   if (as) return as
-  if (LIST_ITEM_BY_DEFAULT.has(node.tag) && !hasBoundProp(node, 'as')) return 'li'
+  if (LIST_ITEM_BY_DEFAULT.has(componentName(node.tag)) && !hasBoundProp(node, 'as')) return 'li'
   return undefined
 }
 
@@ -79,5 +91,11 @@ describe('list items are not nested in list items', () => {
 
   it('renders every list item as an item of a list', () => {
     expect(nested).toEqual([])
+  })
+
+  it('knows a card by every name a template can give it', () => {
+    for (const tag of ['ProductCard', 'product-card', 'LazyProductCard', 'lazy-product-card']) {
+      expect(LIST_ITEM_BY_DEFAULT.has(componentName(tag))).toBe(true)
+    }
   })
 })
