@@ -17417,115 +17417,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
-  /api/v1/order/{id}/acs_cancel:
-    post:
-      operationId: cancelAcsShipmentForOrder
-      description: Μόνο για διαχειριστές. Καλεί το ACS_Delete_Voucher. Έγκυρο μόνο πριν το voucher οριστικοποιηθεί σε λίστα παραλαβής.
-      summary: Ακύρωση της αποστολής ACS για παραγγελία
-      parameters:
-        - in: path
-          name: id
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+$
-              - type: integer
-          required: true
-      tags:
-        - Orders
-      security:
-        - cookieAuth: []
-      responses:
-        '400':
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: '#/components/schemas/ApiValidationError'
-                  - $ref: '#/components/schemas/ApiError'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '500':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-  /api/v1/order/{id}/acs_label:
-    get:
-      operationId: getAcsLabelForOrder
-      description: Μεταδίδει το PDF ετικέτας ACS μέσω ταυτοποίησης Django. Προσβάσιμο από τον ιδιοκτήτη της παραγγελίας ή το προσωπικό του καταστήματος· οι παραγγελίες επισκεπτών δεν μπορούν να κατεβάσουν ετικέτες. Επιστρέφει 404 όταν δεν υπάρχει αποστολή ACS για την παραγγελία ή δεν έχει εκδοθεί ακόμα το voucher.
-      summary: Λήψη του PDF ετικέτας voucher ACS για παραγγελία
-      parameters:
-        - in: path
-          name: id
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+$
-              - type: integer
-          required: true
-      tags:
-        - Orders
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: '#/components/schemas/ApiValidationError'
-                  - $ref: '#/components/schemas/ApiError'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '500':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
   /api/v1/order/{id}/add_tracking:
     post:
       operationId: addOrderTracking
@@ -17562,115 +17453,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderDetail'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: '#/components/schemas/ApiValidationError'
-                  - $ref: '#/components/schemas/ApiError'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '500':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-  /api/v1/order/{id}/boxnow_cancel:
-    post:
-      operationId: cancelBoxNowShipmentForOrder
-      description: Μόνο για διαχειριστές. Ζητά ακύρωση δέματος μέσω του API του BoxNow. Έγκυρο μόνο όταν η κατάσταση δέματος είναι NEW (διαφορετικά σφάλμα BoxNow P420). Δέχεται προαιρετικό πεδίο ``reason`` στο σώμα του αιτήματος.
-      summary: Ακύρωση της αποστολής BoxNow για παραγγελία
-      parameters:
-        - in: path
-          name: id
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+$
-              - type: integer
-          required: true
-      tags:
-        - Orders
-      security:
-        - cookieAuth: []
-      responses:
-        '400':
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: '#/components/schemas/ApiValidationError'
-                  - $ref: '#/components/schemas/ApiError'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-        '500':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: ''
-  /api/v1/order/{id}/boxnow_label:
-    get:
-      operationId: getBoxNowLabelForOrder
-      description: Μεταδίδει το PDF ετικέτας BoxNow μέσω ταυτοποίησης Django. Προσβάσιμο από τον ιδιοκτήτη της παραγγελίας ή το προσωπικό του καταστήματος· οι παραγγελίες επισκεπτών δεν μπορούν να κατεβάσουν ετικέτες. Επιστρέφει 404 όταν δεν υπάρχει αποστολή BoxNow για την παραγγελία ή δεν έχει ακόμα ανατεθεί ID δέματος.
-      summary: Λήψη του PDF ετικέτας δέματος BoxNow για παραγγελία
-      parameters:
-        - in: path
-          name: id
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+$
-              - type: integer
-          required: true
-      tags:
-        - Orders
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
           description: ''
         '400':
           content:
@@ -18394,7 +18176,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -28412,6 +28206,8 @@ paths:
           description: No response body
         '502':
           description: No response body
+        '503':
+          description: No response body
   /api/v1/shipping/acs/pickup-lists/{pickup_list_no}/manifest.pdf:
     get:
       operationId: getAcsPickupListManifest
@@ -28480,6 +28276,10 @@ paths:
         '403':
           description: No response body
         '404':
+          description: No response body
+        '409':
+          description: No response body
+        '503':
           description: No response body
   /api/v1/shipping/acs/shipments/{voucher_no}/label.pdf:
     get:
@@ -28877,6 +28677,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/shipping/boxnow/parcels/{parcel_id}/cancel:
     post:
       operationId: cancelBoxNowShipment
@@ -28900,6 +28706,10 @@ paths:
         '403':
           description: No response body
         '404':
+          description: No response body
+        '409':
+          description: No response body
+        '503':
           description: No response body
   /api/v1/shipping/boxnow/parcels/{parcel_id}/label.pdf:
     get:

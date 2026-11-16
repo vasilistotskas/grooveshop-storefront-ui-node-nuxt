@@ -13703,22 +13703,6 @@ export const zUpdateOrderQuery = z.object({
 
 export const zUpdateOrderResponse = zOrderDetail
 
-export const zCancelAcsShipmentForOrderPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zGetAcsLabelForOrderPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zGetAcsLabelForOrderResponse = z.string()
-
 export const zAddOrderTrackingBody = zAddTrackingRequest
 
 export const zAddOrderTrackingPath = z.object({
@@ -13729,22 +13713,6 @@ export const zAddOrderTrackingPath = z.object({
 })
 
 export const zAddOrderTrackingResponse = zOrderDetail
-
-export const zCancelBoxNowShipmentForOrderPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zGetBoxNowLabelForOrderPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zGetBoxNowLabelForOrderResponse = z.string()
 
 export const zCancelOrderBody = zCancelOrderRequestRequest
 
