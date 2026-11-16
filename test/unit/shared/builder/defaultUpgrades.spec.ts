@@ -36,4 +36,12 @@ describe('upgradeLeavingOutDefaults', () => {
     expect(after).toEqual({ settings: { products: {} }, blocks: body.blocks, blockOrder: ['a'] })
     expect(body).toEqual(before)
   })
+
+  it('leaves out every value that draws the default', () => {
+    const several = upgradeLeavingOutDefaults({ '/layout': ['tiles', 'grid'] })
+
+    expect(several({ settings: { layout: 'tiles' } })).toEqual({ settings: {} })
+    expect(several({ settings: { layout: 'grid' } })).toEqual({ settings: {} })
+    expect(several({ settings: { layout: 'slider' } })).toEqual({ settings: { layout: 'slider' } })
+  })
 })

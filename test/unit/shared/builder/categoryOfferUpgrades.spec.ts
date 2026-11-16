@@ -18,10 +18,10 @@ const upgraded = (type: string, settings: Record<string, unknown>) => {
 
 describe('product_categories, version 1 to 2', () => {
   it('lists the main categories, as many as the band drew when it named none', () => {
-    const { node, parsed } = upgraded('product_categories', { heading: 'Κατηγορίες', layout: 'grid' })
+    const { node, parsed } = upgraded('product_categories', { heading: 'Κατηγορίες', layout: 'slider' })
 
     expect(node.type).toBe('product_categories@3')
-    expect(node.settings).toEqual({ heading: 'Κατηγορίες', layout: 'grid', categories: { mode: 'roots', limit: 8 } })
+    expect(node.settings).toEqual({ heading: 'Κατηγορίες', layout: 'slider', categories: { mode: 'roots', limit: 8 } })
     expect(parsed.success).toBe(true)
   })
 

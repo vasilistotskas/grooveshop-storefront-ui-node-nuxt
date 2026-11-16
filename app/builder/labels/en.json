@@ -524,7 +524,6 @@
     },
     "layout": {
       "slider": "Slider",
-      "grid": "Grid",
       "tiles": "Tiles",
       "card": "Card",
       "feature": "Card with posts"

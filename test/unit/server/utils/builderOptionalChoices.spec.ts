@@ -16,7 +16,8 @@ import type { BlockDefinition } from '~~/shared/types/builder'
  * What a component draws with the key left out cannot be read off the
  * catalogue, so `LEFT_OUT` states it, per block and setting pointer, for
  * every optional choice the catalogue serves Django: the value that draws
- * it, or `null` where no value names that look (a colour scheme left out
+ * it (or the values, where several draw the same look), or `null` where no
+ * value names that look (a colour scheme left out
  * follows the page; an icon left out draws none). A choice added to a block
  * fails here until it says what its Default draws.
  *
@@ -27,7 +28,7 @@ import type { BlockDefinition } from '~~/shared/types/builder'
 const modules = import.meta.glob<{ default: BlockDefinition }>('../../../../app/blocks/*.block.ts', { eager: true })
 const definitions = Object.values(modules).map(({ default: block }) => block)
 
-const LEFT_OUT: Record<string, Record<string, string | null>> = {
+const LEFT_OUT: Record<string, Record<string, string | readonly string[] | null>> = {
   blog_categories: { '/layout': 'slider', '/look': null },
   blog_posts_carousel: { '/surface': 'default', '/colorScheme': null },
   blog_posts_grid: { '/surface': 'default', '/colorScheme': null, '/phoneLayout': 'row', '/layout': null, '/icon': null, '/look': null },
@@ -49,9 +50,9 @@ const LEFT_OUT: Record<string, Record<string, string | null>> = {
   loyalty_hero: { '/surface': null },
   media_text: { '/surface': 'default', '/imagePosition': 'left', '/decor': 'none' },
   nav_link: { '/icon': null, '/route': null },
-  newsletter_signup: { '/surface': 'muted', '/headingColor': 'default', '/look': null },
+  newsletter_signup: { '/surface': 'muted', '/headingColor': null, '/look': null },
   offers_preview: { '/surface': 'ink' },
-  product_categories: { '/surface': 'default', '/layout': 'tiles' },
+  product_categories: { '/surface': 'default', '/layout': ['tiles', 'grid'] },
   products_grid: { '/surface': 'default', '/colorScheme': null, '/products/stock': 'any', '/look': null },
   products_slider: { '/surface': 'default', '/colorScheme': null, '/products/stock': 'any' },
   spacer: { '/height': 'md' },
@@ -100,8 +101,9 @@ describe('the optional choices of the real blocks', () => {
 
   it('never offer the value that draws what Default draws', () => {
     const offered = Object.entries(LEFT_OUT).flatMap(([type, pointers]) => Object.entries(pointers)
-      .filter(([pointer, value]) => value !== null && choices[type]?.[pointer]?.includes(value))
-      .map(([pointer, value]) => `${type} ${pointer}: ${value}`))
+      .flatMap(([pointer, value]) => (value === null ? [] : typeof value === 'string' ? [value] : value)
+        .filter(drawn => choices[type]?.[pointer]?.includes(drawn))
+        .map(drawn => `${type} ${pointer}: ${drawn}`)))
 
     expect(offered).toEqual([])
   })

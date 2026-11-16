@@ -3,14 +3,14 @@ import type { BlockUpgrade, SettingsPointer } from '../types/builder'
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
-/** `settings` without the key at `path` when it holds `value`; the same object when nothing goes. */
-function without(settings: Record<string, unknown>, [key, ...rest]: string[], value: string): Record<string, unknown> {
+/** `settings` without the key at `path` when it holds one of `values`; the same object when nothing goes. */
+function without(settings: Record<string, unknown>, [key, ...rest]: string[], values: readonly string[]): Record<string, unknown> {
   if (key === undefined || !(key in settings)) return settings
   const held = settings[key]
   if (rest.length > 0) {
-    return isRecord(held) ? { ...settings, [key]: without(held, rest, value) } : settings
+    return isRecord(held) ? { ...settings, [key]: without(held, rest, values) } : settings
   }
-  if (held !== value) return settings
+  if (typeof held !== 'string' || !values.includes(held)) return settings
   const { [key]: _, ...kept } = settings
   return kept
 }
@@ -25,11 +25,11 @@ function without(settings: Record<string, unknown>, [key, ...rest]: string[], va
  * `/products/stock` inside a data setting) and the value its component
  * draws without it; any other value stays.
  */
-export function upgradeLeavingOutDefaults(defaults: Readonly<Partial<Record<SettingsPointer, string>>>): BlockUpgrade {
+export function upgradeLeavingOutDefaults(defaults: Readonly<Partial<Record<SettingsPointer, string | readonly string[]>>>): BlockUpgrade {
   return ({ settings, ...body }) => ({
     ...body,
     settings: Object.entries(defaults).reduce(
-      (kept, [pointer, value]) => (value === undefined ? kept : without(kept, pointer.slice(1).split('/'), value)),
+      (kept, [pointer, value]) => (value === undefined ? kept : without(kept, pointer.slice(1).split('/'), typeof value === 'string' ? [value] : value)),
       settings,
     ),
   })

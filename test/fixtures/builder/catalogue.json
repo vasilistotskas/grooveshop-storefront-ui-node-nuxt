@@ -1,5 +1,5 @@
 {
-  "hash": "1208cc9696cd2da0",
+  "hash": "3c76c636ada1e290",
   "blocks": [
     {
       "type": "about_content",
@@ -6469,8 +6469,7 @@
           "layout": {
             "type": "string",
             "enum": [
-              "slider",
-              "grid"
+              "slider"
             ]
           },
           "categories": {
