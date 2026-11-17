@@ -1,3 +1,10 @@
+## [3.344.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.1...v3.344.2) (2026-11-17)
+
+
+### Bug Fixes
+
+* **builder:** the blog post grid's help no longer names a Load more button ([#496](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/496)) ([5d94f15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5d94f15c7704e4e35df80aa957af6f5694956ae3))
+
 ## [3.344.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.0...v3.344.1) (2026-11-16)
 
 
