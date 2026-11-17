@@ -21,10 +21,10 @@
           "help": "Shown by the Card with posts layout only."
         },
         "layout": {
-          "help": "Card with posts: the heading, the Icon and the posts in one tinted card; Background, Style, Layout on a phone and Load more button do not apply."
+          "help": "Card with posts: the heading, the Icon and the posts in one tinted card; Background, Style and Layout on a phone do not apply."
         },
         "look": {
-          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had. With the Load more button the band keeps its usual look."
+          "help": "Bold: larger, heavier headings, an eyebrow in the accent and links as text. Empty: the look it always had."
         }
       }
     },
