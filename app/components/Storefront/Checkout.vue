@@ -72,8 +72,10 @@ const {
   currentStep,
   addressStepErrors,
   quote,
+  quotedFor,
   quotePending,
   quoteRefusal,
+  retryQuote,
   createdOrder,
   isSubmitting,
   loyaltyDiscount,
@@ -116,6 +118,12 @@ const handleStockRetry = () => {
 // StepPayment): it validates the step and moves on. The page's primary
 // button calls it, so the per-step Zod schema gates every forward move.
 const stepRef = ref<{ submit: () => void | Promise<void> } | null>(null)
+
+// An order is only placed at a total the shopper sees: on the payment
+// step the button waits for one, and says why while there is none (the
+// quote is refused, or never answered).
+const quoteAccepted = computed(() => Boolean(quote.value?.expectedTotal))
+const quoteMissing = computed(() => currentStep.value === 2 && !quotePending.value && !quoteAccepted.value)
 
 // "Pay …" names the quote's amount due, the summary's total and the one
 // the order is placed at.
@@ -328,21 +336,31 @@ useSeoMeta({
               :trailing-icon="currentStep === 2 ? undefined : 'i-lucide-arrow-right'"
               :color="currentStep === 2 ? 'secondary' : 'neutral'"
               :loading="isSubmitting || (currentStep === 2 && quotePending)"
-              :disabled="currentStep === 2 && !formState.payWay"
+              :disabled="currentStep === 2 && (!formState.payWay || !quoteAccepted)"
               size="xl"
               data-testid="checkout-cta"
               class="max-sm:flex-1 max-sm:justify-center"
               @click="onCta"
             />
           </div>
+          <!-- The order waits for a total to accept: why there is none. -->
+          <p
+            v-if="showNavigation && quoteMissing"
+            role="status"
+            data-testid="checkout-cta-reason"
+            class="text-end text-sm text-warning"
+          >
+            {{ quoteRefusal ?? t('form.submit.error.quote_unavailable_cta') }}
+          </p>
         </div>
 
         <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+1.5rem)]">
           <CheckoutSidebar
             :quote="quote"
+            :quoted-for="quotedFor"
             :quote-refusal="quoteRefusal"
             :include-shipping="currentStep >= 1 && Boolean(formState.shippingMethod)"
-            :loyalty="loyaltyDiscount"
+            @retry-quote="retryQuote"
           >
             <template #items>
               <CheckoutItems />

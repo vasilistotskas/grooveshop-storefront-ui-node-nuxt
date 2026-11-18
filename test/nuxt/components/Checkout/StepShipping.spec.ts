@@ -335,7 +335,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     expect(wrapper.findAll('button').filter(button => button.text() === 'Πίσω')).toHaveLength(0)
   })
 
-  describe.runIf(tree === 'default')('what each card costs', () => {
+  describe('what each card costs', () => {
     // The cart store outlives a test.
     beforeEach(() => {
       useCartStore().cart = makeCart()
@@ -396,7 +396,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       expect(price(wrapper, 'home_delivery')).toContain('2,99 €')
     })
 
-    it('shows the free-delivery banner only when the chosen method costs nothing', async () => {
+    it.runIf(tree === 'default')('shows the free-delivery banner only when the chosen method costs nothing', async () => {
       const boxNow = boxNowLockerOption()
       const home = acsHomeDeliveryOption()
       const formState = makeFormState({ shippingMethod: 'home_delivery' })
@@ -598,6 +598,25 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
 
       submitStep(wrapper)
 
+      expect(wrapper.emitted('next')).toBeUndefined()
+    })
+
+    // Django places home delivery with the first carrier the cart's weight
+    // fits; its parcels refusing the cart refuse the order, whatever a
+    // later carrier could carry. The card follows that one carrier.
+    it('disables home delivery whose carrier cannot take the cart, though a later carrier could', async () => {
+      const wrapper = await mount({
+        apiOptions: [
+          acsHomeDeliveryOption({ exceedsParcelSize: true }),
+          makeShippingOption({ providerCode: 'elta', providerName: 'ELTA', priority: 20 }),
+          boxNowLockerOption(),
+        ],
+        formState: makeFormState({ shippingMethod: 'home_delivery' }),
+      })
+
+      expect(radio(wrapper, 'home_delivery').attributes()).toHaveProperty('data-disabled')
+      expect(card(wrapper, 'home_delivery').text()).toContain(t('shipping.method.exceeds_parcel_size'))
+      submitStep(wrapper)
       expect(wrapper.emitted('next')).toBeUndefined()
     })
   })

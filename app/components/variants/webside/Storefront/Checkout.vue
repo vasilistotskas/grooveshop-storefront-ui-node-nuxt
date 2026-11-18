@@ -71,8 +71,10 @@ const {
   currentStep,
   addressStepErrors,
   quote,
+  quotedFor,
   quotePending,
   quoteRefusal,
+  retryQuote,
   createdOrder,
   isSubmitting,
   giftCards,
@@ -190,8 +192,13 @@ const sidebarCtaLabel = computed(() =>
 const sidebarCtaIcon = computed(() =>
   currentStep.value === 2 ? undefined : 'i-heroicons-arrow-right',
 )
+// An order is only placed at a total the shopper sees: on the payment
+// step Place order waits for one, and says why while there is none (the
+// quote is refused, or never answered).
+const quoteAccepted = computed(() => Boolean(quote.value?.expectedTotal))
+const quoteMissing = computed(() => currentStep.value === 2 && !quotePending.value && !quoteAccepted.value)
 const sidebarCtaDisabled = computed(() =>
-  currentStep.value === 2 && !formState.payWay,
+  currentStep.value === 2 && (!formState.payWay || !quoteAccepted.value),
 )
 // Hide the sidebar CTA while the online-payment view owns the main
 // column — that view ships its own Pay / Back controls.
@@ -395,8 +402,10 @@ useSeoMeta({
         <div class="lg:sticky lg:top-4">
           <WebsideCheckoutSidebar
             :quote="quote"
+            :quoted-for="quotedFor"
             :quote-refusal="quoteRefusal"
             :shipping-summary="shippingSummary"
+            @retry-quote="retryQuote"
           >
             <template #items>
               <WebsideCheckoutItems />
@@ -457,6 +466,16 @@ useSeoMeta({
               >
                 {{ sidebarCtaLabel }}
               </UButton>
+              <!-- Why Place order waits; a refusal is said beside the
+                   total above. -->
+              <p
+                v-if="showSidebarCta && quoteMissing && !quoteRefusal"
+                role="status"
+                data-testid="checkout-sidebar-cta-reason"
+                class="text-sm text-warning"
+              >
+                {{ t('form.submit.error.quote_unavailable_cta') }}
+              </p>
             </template>
           </WebsideCheckoutSidebar>
         </div>

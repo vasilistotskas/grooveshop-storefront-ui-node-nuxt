@@ -79,18 +79,6 @@ const PROVIDER_FORM_KEYS: Record<string, string[]> = {
   box_now_locker: ['boxnowLockerId', 'boxnowLocker'],
 }
 
-/**
- * The carrier a card stands for: the same pick ``useCheckoutForm`` makes
- * for the selected method. Home delivery collapses several carriers; the
- * server routes the cart to the first one it fits.
- */
-function pricedOption(key: ShippingMethodKey, sameMethod: ShippingOption[], first: ShippingOption): ShippingOption {
-  if (key === 'home_delivery') {
-    return sameMethod.find(o => !o.exceedsMaxWeight) ?? first
-  }
-  return first
-}
-
 export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   const { formState } = inputs
   const { t, n } = useI18n({ useScope: 'global' })
@@ -239,11 +227,15 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
       const sameMethod = apiOptions.value.filter(
         o => methodKeyForOption(o) === key,
       )
-      const priced = pricedOption(key, sameMethod, option)
-      const overCap = sameMethod.every(o => o.exceedsMaxWeight)
-      // The same rule for the parcels: too large only when no carrier
-      // behind the card fits the cart, and not for its weight alone.
-      const tooLarge = !overCap && !sameMethod.some(optionFitsCart)
+      // The carrier the order would be placed with (``methodCarrier``,
+      // Django's rule): it alone prices the card, decides whether it can
+      // be picked, and is what submit checks (``refetchShippingOptions``).
+      // It is over the weight cap only when every carrier behind the card
+      // is; too large when its parcels cannot take the cart, whatever a
+      // later carrier could carry, because Django would refuse the order.
+      const priced = methodCarrier(sameMethod, key) ?? option
+      const overCap = Boolean(priced.exceedsMaxWeight)
+      const tooLarge = !overCap && !optionFitsCart(priced)
       const boxNowCountryUnsupported = key === 'box_now_locker'
         && isBoxNowConfigured.value
         && !isBoxNowCountrySupported.value

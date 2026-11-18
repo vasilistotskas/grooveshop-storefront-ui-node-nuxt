@@ -33,7 +33,7 @@ const emit = defineEmits<{
   'retry-options': []
 }>()
 
-const { t } = useStoreI18n('components/variants/webside/Checkout/StepShipping')
+const { t, n } = useStoreI18n('components/variants/webside/Checkout/StepShipping')
 const localePath = useLocalePath()
 
 const formRef = useTemplateRef<{
@@ -214,6 +214,20 @@ defineExpose({ submit })
                 {{ item.disabledReason }}
               </span>
             </div>
+            <!-- The price is the quote's: "Free" only when it is 0, a dash
+                 while the quote has none for this card. -->
+            <span
+              v-if="item.price === 0"
+              class="shrink-0 font-semibold text-success"
+            >
+              {{ t('free') }}
+            </span>
+            <span
+              v-else
+              class="shrink-0 font-semibold"
+            >
+              {{ item.price === null ? '—' : n(item.price, 'currency') }}
+            </span>
           </div>
         </template>
       </URadioGroup>
@@ -279,4 +293,10 @@ el:
   subtitle: Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας
   back: Πίσω
   retry: Δοκιμάστε ξανά
+  free: Δωρεάν
+en:
+  subtitle: Choose how you want to receive your order
+  back: Back
+  retry: Try again
+  free: Free
 </i18n>

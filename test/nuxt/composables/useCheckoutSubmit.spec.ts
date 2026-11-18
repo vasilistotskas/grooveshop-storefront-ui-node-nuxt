@@ -74,6 +74,7 @@ const q = await vi.hoisted(async () => {
     shown: null as CheckoutQuote | null,
     priced: null as CheckoutQuote | null,
     error: null as unknown,
+    pending: false,
     request: null as null | (() => CartQuoteRequestRequest),
     refresh: vi.fn(() => Promise.resolve()),
   })
@@ -82,7 +83,8 @@ mockNuxtImport('useCheckoutQuote', () => ({ request }: { request: () => CartQuot
   q.request = request
   return {
     quote: computed(() => q.shown),
-    pending: computed(() => false),
+    quotedFor: computed(() => null),
+    pending: computed(() => q.pending),
     refusal: computed(() => null),
     current: () => Promise.resolve({ quote: q.priced, error: q.error }),
     refresh: q.refresh,
@@ -173,6 +175,7 @@ beforeEach(() => {
   q.shown = makeCartQuote()
   q.priced = makeCartQuote()
   q.error = null
+  q.pending = false
   window.sessionStorage.clear()
   vi.spyOn(crypto, 'randomUUID').mockReturnValue('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
 })
@@ -937,18 +940,47 @@ describe('useCheckoutSubmit', () => {
       expect(m.releaseReservations).toHaveBeenCalledWith([42])
     })
 
-    // The delivery step's quote prices no pay way, and a click can land
-    // while the payment step's is still on its way: no total was shown,
-    // so none changed.
-    it('orders at the quote when the page had shown no total yet, without calling it a change', async () => {
+    // A click that lands while the page showed no total (the delivery
+    // step's quote prices no pay way; the button waits for one, so only a
+    // race gets here) accepted nothing: the total is shown, not ordered at.
+    it('orders nothing at a total the page had not shown, and shows it to confirm', async () => {
       q.shown = unpricedQuote()
       api.routes({ '/api/orders': orderCreated() })
-      const { onSubmit, submitError } = setup(COD)
+      const { onSubmit } = setup(COD)
 
       await onSubmit()
 
-      expect(submitError.value).toBeNull()
-      expect(orderBodies().map(body => body.expectedTotal)).toEqual([{ amount: 6300, currency: 'EUR' }])
+      expect(api.callsTo('/api/orders')).toEqual([])
+      expect(lastFailure()).toMatchObject({
+        title: t('form.submit.error.total_confirm'),
+        description: useNuxtApp().$i18n.t('form.submit.error.total_confirm_description', { total: money(63) }),
+      })
+    })
+
+    // The outcome of a request that got no answer is unknown: Django may
+    // have made the order. Its retry must reuse the key, so Django answers
+    // with that order, even when the quote moved meanwhile.
+    it('reuses the key of an order whose outcome is unknown, though the quote changed since', async () => {
+      let orders = 0
+      api.routes({
+        '/api/orders': () => {
+          if (orders++ === 0) throw new TypeError('fetch failed')
+          return { uuid: 'order-uuid' }
+        },
+      })
+      vi.mocked(crypto.randomUUID)
+        .mockReturnValueOnce('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
+        .mockReturnValue('1111-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
+      const { onSubmit } = setup(COD)
+      await onSubmit()
+
+      q.shown = NEW_TOTAL
+      q.priced = NEW_TOTAL
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders').map(call => call.options.headers['Idempotency-Key']))
+        .toEqual(['0000-idem-key', '0000-idem-key'])
+      expect(orderBodies().map(body => body.expectedTotal.amount)).toEqual([6300, 7000])
     })
 
     it('orders at the new total once the shopper submits again with it on the page', async () => {
@@ -1004,13 +1036,32 @@ describe('useCheckoutSubmit', () => {
 
       // Not after the cart reload: the quote is pending from the refusal
       // on, so the page's button waits instead of offering the old total.
-      it('asks for the quote again at once, while the cart still reloads', async () => {
-        api.routes({ '/api/orders': totalChanged, '/api/cart': () => new Promise(() => {}) })
-        const { onSubmit } = setup(COD)
+      it('asks for the quote again at once, so the order button waits while the cart still reloads', async () => {
+        let reloadCart: (cart: unknown) => void = () => {}
+        let answerQuote: () => void = () => {}
+        api.routes({
+          '/api/orders': totalChanged,
+          '/api/cart': () => new Promise((resolve) => {
+            reloadCart = resolve
+          }),
+        })
+        q.refresh.mockImplementation(() => {
+          q.pending = true
+          return new Promise<void>((resolve) => {
+            answerQuote = () => {
+              q.pending = false
+              resolve()
+            }
+          })
+        })
+        const { onSubmit, quotePending } = setup(COD)
 
         await onSubmit()
 
-        expect(q.refresh).toHaveBeenCalledTimes(1)
+        expect(quotePending.value).toBe(true)
+        reloadCart(makeCart())
+        answerQuote()
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
       })
 
       it('drops the intent priced at the old total, so the next submit prices a fresh one', async () => {
@@ -1265,6 +1316,35 @@ describe('useCheckoutSubmit', () => {
       expect(api.callsTo('/api/orders').map(call => call.options.headers['Idempotency-Key']))
         .toEqual(['0000-idem-key', '1111-idem-key'])
       expect(lastToast().title).toBe(t('order_created_payment_required'))
+    })
+
+    // The retry has no click of its own: it may only order at the total
+    // the click that started it accepted.
+    it('never retries at a total the quote reached since without a click', async () => {
+      rejectFirst(1)
+      const { onSubmit, isSubmitting } = setup(COD)
+
+      await onSubmit()
+      const moved = makeCartQuote({ amountDue: 70, expectedTotal: { amount: 7000, currency: 'EUR' } })
+      q.shown = moved
+      q.priced = moved
+      await vi.advanceTimersByTimeAsync(500)
+      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
+
+      expect(api.callsTo('/api/orders')).toHaveLength(1)
+      expect(lastFailure().title).toBe(t('form.submit.error.total_changed'))
+    })
+
+    it('retries at the accepted total while the quote still has it', async () => {
+      rejectFirst(1)
+      const { onSubmit, createdOrder, isSubmitting } = setup(COD)
+
+      await onSubmit()
+      await vi.advanceTimersByTimeAsync(500)
+      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
+
+      expect(orderBodies().map(body => body.expectedTotal.amount)).toEqual([6300, 6300])
+      expect(createdOrder.value).toEqual({ uuid: 'order-after-retry' })
     })
 
     it('gives up after three retries, says so, and leaves the CTA usable', async () => {

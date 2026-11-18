@@ -6,9 +6,9 @@ interface Props {
   /**
    * The most the points may take off: the goods after the offers (the
    * checkout quote's `freeThresholdValue`), the cap Django redeems under.
-   * `null` while there is no quote (not answered yet, or refused): only
-   * the balance caps the field then, rather than a cap of 0 that would
-   * disable it.
+   * `null` while there is no quote (not answered yet, or refused): no new
+   * points are taken then, since Django may not accept them, and the
+   * component says so; an applied redemption can still be dismissed.
    */
   maxDiscountAmount: number | null
 }
@@ -70,7 +70,7 @@ const availableBalance = computed(() => summary.value?.pointsBalance || 0)
 // Max redeemable points: capped by both balance and products total
 const maxRedeemablePoints = computed(() => {
   if (redemptionRatio.value === null) return 0
-  if (props.maxDiscountAmount === null) return availableBalance.value
+  if (props.maxDiscountAmount === null) return 0
   const maxFromProductsTotal = Math.floor(props.maxDiscountAmount * redemptionRatio.value)
   return Math.min(availableBalance.value, maxFromProductsTotal)
 })
@@ -362,14 +362,15 @@ const clearRedemption = () => {
             {{ t('redeem_button', { amount: calculateDiscount(formState.pointsToRedeem || 0) }) }}
           </UButton>
 
-          <!-- Info text -->
+          <!-- Info text: why nothing can be redeemed while the order
+               total is not worked out. -->
           <p
             class="
               text-center text-xs text-primary-600
               dark:text-primary-400
             "
           >
-            {{ t('redemption_info') }}
+            {{ maxDiscountAmount === null ? t('awaiting_quote') : t('redemption_info') }}
           </p>
         </div>
       </UForm>
@@ -385,6 +386,7 @@ el:
   enter_points: "Πόντοι"
   redeem_all: "Εξαργύρωση όλων"
   redemption_info: "Οι πόντοι θα μετατραπούν σε έκπτωση στην παραγγελία σας"
+  awaiting_quote: "Μπορείτε να εξαργυρώσετε πόντους μόλις υπολογιστεί το σύνολο της παραγγελίας"
   redemption_success_description: "Εξαργυρώσατε {points} πόντους για έκπτωση {amount} {currency}"
   discount_applied: "Η έκπτωση εφαρμόστηκε"
   discount_amount: "Ποσό έκπτωσης"
@@ -401,6 +403,7 @@ en:
   enter_points: "Points"
   redeem_all: "Redeem all"
   redemption_info: "Your points become a discount on this order"
+  awaiting_quote: "You can redeem points once the order total is worked out"
   redemption_success_description: "You redeemed {points} points for {amount} {currency} off"
   discount_applied: "Discount applied"
   discount_amount: "Discount"

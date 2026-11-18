@@ -60,6 +60,7 @@ mockNuxtImport('useGA4', () => () => ({ trackBeginCheckout: vi.fn(), trackAddPay
 const QUOTE = await vi.hoisted(async () => (await import('~~/test/fixtures/checkoutQuote')).makeCartQuote())
 mockNuxtImport('useCheckoutQuote', () => () => ({
   quote: computed(() => QUOTE),
+  quotedFor: computed(() => null),
   pending: computed(() => false),
   refusal: computed(() => null),
   current: () => Promise.resolve({ quote: QUOTE, error: null }),

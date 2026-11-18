@@ -40,6 +40,16 @@ describe('POST /api/cart/quote', () => {
     expect(sent.body).toEqual(quoteBody)
   })
 
+  // Every choice is optional on Django's side, the body itself too.
+  it('quotes the cart alone for a request without a body', async () => {
+    backend.reply(makeCartQuote())
+
+    const response = await callRoute(handler, { route, method: 'POST', headers: { cookie: `cart-id=${CART_UUID}` } })
+
+    expect(response.status).toBe(200)
+    expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/cart/quote')
+  })
+
   it('never names the cart by a cart token the browser sent', async () => {
     backend.reply(makeCartQuote())
 

@@ -19,7 +19,9 @@ export default defineEventHandler(async (event) => {
   const cartSession = useCartSession(event)
 
   try {
-    const body = await readValidatedBody(event, zQuoteCartBody)
+    // Every choice is optional, the body itself too (Django's contract):
+    // an empty request quotes the cart alone.
+    const body = await readValidatedBody(event, zQuoteCartBody.optional())
     const cartHeaders = await cartSession.getCartHeaders()
 
     const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/quote`, {

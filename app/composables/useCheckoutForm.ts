@@ -711,28 +711,10 @@ export async function useCheckoutForm() {
    *  ``undefined`` while the live fetch hasn't populated, or when the
    *  method is not offered for this country: the method cannot be
    *  submitted then (``refetchShippingOptions``). */
-  const matchedShippingOption = computed<ShippingOption | undefined>(() => {
-    const method = formState.shippingMethod
-    if (!shippingOptions.value.length) return undefined
-    if (method === 'box_now_locker') {
-      return shippingOptions.value.find(
-        o => o.providerCode === 'boxnow' && o.kind === 'pickup_point',
-      )
-    }
-    if (method === 'acs_smartpoint') {
-      return shippingOptions.value.find(
-        o => o.providerCode === 'acs' && o.kind === 'pickup_point',
-      )
-    }
-    // Home delivery collapses every home-delivery carrier into one
-    // choice. The options arrive in priority order, and the server
-    // routes a cart to the first carrier whose weight cap it fits
-    // (``resolve_home_delivery_provider``), so price the same one.
-    const homeDelivery = shippingOptions.value.filter(
-      o => o.kind === 'home_delivery',
-    )
-    return homeDelivery.find(o => !o.exceedsMaxWeight) ?? homeDelivery[0]
-  })
+  // The carrier the order is placed with (``methodCarrier``), the same
+  // one the delivery card is priced and enabled by.
+  const matchedShippingOption = computed<ShippingOption | undefined>(() =>
+    methodCarrier(shippingOptions.value, formState.shippingMethod))
 
   // Set when the cart is over the weight cap of every method offered:
   // StepShipping explains it and cannot advance, and submit says so

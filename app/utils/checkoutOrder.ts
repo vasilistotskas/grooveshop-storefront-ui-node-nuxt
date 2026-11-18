@@ -80,6 +80,20 @@ export interface OrderErrorInfo {
 }
 
 /**
+ * What to tell the shopper when the order was about to be placed at a
+ * total the page had not shown: the total, which the summary now shows,
+ * and that placing the order again accepts it.
+ */
+export function describeTotalToConfirm(amountDue: number | null, t: Translate, n: FormatNumber): { title: string, description: string } {
+  return {
+    title: t('form.submit.error.total_confirm'),
+    description: amountDue === null
+      ? t('form.submit.error.total_changed_review')
+      : t('form.submit.error.total_confirm_description', { total: n(amountDue, 'currency') }),
+  }
+}
+
+/**
  * What to tell the shopper when the total changed before the order was
  * placed: the new amount due, which the summary now shows, and that
  * placing the order again accepts it. `null` when no total came with it.

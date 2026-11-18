@@ -12,6 +12,8 @@ import { makeCartQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import type { PayWay } from '~~/shared/openapi/types.gen'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import websideSidebarSource from '~/components/variants/webside/Checkout/Sidebar.vue?raw'
 
 /**
  * The checkout's order summary is the only place the shopper sees what
@@ -33,6 +35,8 @@ function setPayWay(payWay: PayWay | null) {
 }
 
 /** A quote of every row: 100 of products, an offer, delivery, a fee, points and a gift card. */
+/** The choices FULL_QUOTE priced: cash on delivery (pay way 1) and 700 points. */
+const PRICED_FOR = { payWayId: 1, loyaltyPointsToRedeem: 700 }
 const FULL_QUOTE = makeCartQuote({
   itemsSubtotal: 100,
   discountTotal: 10,
@@ -43,8 +47,11 @@ const FULL_QUOTE = makeCartQuote({
   loyaltyDiscount: 7,
   giftCardAmount: 20,
   grandTotal: 97,
-  amountDue: 70,
-  expectedTotal: { amount: 7000, currency: 'EUR' },
+  // Display-only: not the sum of the rows (that would be 70), so a summary
+  // that added them up instead of printing Django's amount due fails.
+  amountDue: 68.5,
+  expectedTotal: { amount: 6850, currency: 'EUR' },
+  payWays: [{ id: 1, key: 'PAY_ON_DELIVERY', fee: 2, waived: false }],
 })
 
 describe('Checkout/Sidebar (default)', () => {
@@ -58,7 +65,7 @@ describe('Checkout/Sidebar (default)', () => {
       props: {
         quote: unpricedQuote(),
         includeShipping: false,
-        loyalty: null,
+        quotedFor: null,
         ...props,
       },
       slots,
@@ -81,7 +88,7 @@ describe('Checkout/Sidebar (default)', () => {
   it('prints every row of the quote and its amount due as the total', async () => {
     setPayWay(makePayWay({ cost: 2 }))
 
-    const wrapper = await mount({ quote: FULL_QUOTE, includeShipping: true, loyalty: { points: 700 } })
+    const wrapper = await mount({ quote: FULL_QUOTE, includeShipping: true, quotedFor: PRICED_FOR })
 
     expect(charge(wrapper, messages.subtotal)).toBe(money(100))
     expect(charge(wrapper, 'Φθινόπωρο')).toBe(`−${money(10)}`)
@@ -90,7 +97,7 @@ describe('Checkout/Sidebar (default)', () => {
     expect(charge(wrapper, messages.shipping)).toBe(money(5))
     expect(charge(wrapper, 'Αντικαταβολή')).toBe(money(2))
     // Django's amount due, not a sum of the rows above.
-    expect(total(wrapper)).toBe(money(70))
+    expect(total(wrapper)).toBe(money(68.5))
   })
 
   it('names a coupon by its code and an unnamed offer generically', async () => {
@@ -114,9 +121,11 @@ describe('Checkout/Sidebar (default)', () => {
     expect(total(wrapper)).toBe(messages.calculated_at_payment)
   })
 
-  it('says why, where the total would be, when Django refuses the quote', async () => {
+  it('says why, where the total would be, when Django refuses the quote, and asks again on request', async () => {
     const wrapper = await mount({ quote: null, quoteRefusal: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.' })
 
+    await wrapper.findAll('button').find(button => button.text() === messages.retry_quote)!.trigger('click')
+    expect(wrapper.emitted('retry-quote')).toHaveLength(1)
     expect(total(wrapper)).toBe('—')
     expect(wrapper.get('[role="status"]').text())
       .toBe(messages.quote_refused.replace('{reason}', 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.'))
@@ -162,11 +171,29 @@ describe('Checkout/Sidebar (default)', () => {
     // the schema leaves the key optional; the row then says what it
     // is generically, in the page's language.
     it('labels the fee generically for a pay way with no key', async () => {
-      setPayWay(makePayWay({ cost: 2.5, key: undefined }))
-
-      const wrapper = await mount({ quote: makeCartQuote({ paymentMethodFee: { amount: 2.5, waived: false } }) })
+      const wrapper = await mount({
+        quote: makeCartQuote({ paymentMethodFee: { amount: 2.5, waived: false }, payWays: [{ id: 5, key: '', fee: 2.5, waived: false }] }),
+        quotedFor: { payWayId: 5 },
+      })
 
       expect(charge(wrapper, messages.pay_way_fee)).toBe(money(2.5))
+    })
+
+    // The selection moves at once; the quote that prices it comes after.
+    // Its fee is named after the pay way it priced, never the new one.
+    it('names the fee after the pay way the quote priced, not a selection made since', async () => {
+      setPayWay(makePayWay({ id: 2, key: 'CREDIT_CARD', cost: 0 }))
+
+      const wrapper = await mount({ quote: FULL_QUOTE, quotedFor: PRICED_FOR })
+
+      expect(charge(wrapper, 'Αντικαταβολή')).toBe(money(2))
+      expect(charge(wrapper, useNuxtApp().$i18n.t('payment_methods.CREDIT_CARD'))).toBeNull()
+    })
+
+    it('counts the points the quote priced, not a redemption cleared since', async () => {
+      const wrapper = await mount({ quote: FULL_QUOTE, quotedFor: { payWayId: 1, loyaltyPointsToRedeem: 500 } })
+
+      expect(charge(wrapper, messages.loyalty_discount.replace('{points}', useNuxtApp().$i18n.n(500)))).toBe(`−${money(7)}`)
     })
   })
 
@@ -241,11 +268,17 @@ describe('Checkout/Sidebar (default)', () => {
   it('warns of no coupon while the quote blocks none', async () => {
     const wrapper = await mount({ quote: makeCartQuote() })
 
-    expect(wrapper.text()).not.toContain(messages.coupon_blocked.replace('{code}', ''))
+    // Whatever the code: the title's own words around it.
+    const [before, after] = messages.coupon_blocked.split('{code}')
+    const titles = wrapper.findAll('[data-slot="title"]').map(el => el.text())
+    expect(titles.some(text => text.startsWith(before) && text.endsWith(after))).toBe(false)
   })
 })
 
 describe('Checkout/Sidebar (webside)', () => {
+  // The webside summary's own texts, as it formats them.
+  const texts = componentTexts(websideSidebarSource, 'Sidebar.vue')
+
   const HOME = { method: 'home_delivery' as const }
 
   const mount = (props: Record<string, unknown> = {}) =>
@@ -266,9 +299,9 @@ describe('Checkout/Sidebar (webside)', () => {
   it('prints every row of the quote and its amount due as the total', async () => {
     setPayWay(makePayWay({ cost: 2 }))
 
-    const wrapper = await mount({ quote: FULL_QUOTE, shippingSummary: HOME })
+    const wrapper = await mount({ quote: FULL_QUOTE, quotedFor: PRICED_FOR, shippingSummary: HOME })
 
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(70))
+    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(68.5))
     expect(amountBeside(wrapper, 'Μεταφορικά')).toBe(money(5))
     expect(amountBeside(wrapper, 'Αντικαταβολή')).toBe(money(2))
     expect(amountBeside(wrapper, 'Φθινόπωρο')).toBe(`-${money(10)}`)
@@ -285,14 +318,16 @@ describe('Checkout/Sidebar (webside)', () => {
   it('leaves the total to the payment step until the quote prices the delivery and the pay way', async () => {
     const wrapper = await mount()
 
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe('Υπολογίζεται στην πληρωμή')
+    expect(amountBeside(wrapper, texts.t('total'))).toBe(texts.t('calculated_at_payment'))
   })
 
-  it('says why, where the total would be, when Django refuses the quote', async () => {
+  it('says why, where the total would be, when Django refuses the quote, and asks again on request', async () => {
     const wrapper = await mount({ quote: null, quoteRefusal: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.' })
 
+    await wrapper.findAll('button').find(button => button.text() === texts.t('retry_quote'))!.trigger('click')
+    expect(wrapper.emitted('retry-quote')).toHaveLength(1)
     expect(amountBeside(wrapper, 'Σύνολο')).toBe('—')
-    expect(wrapper.get('[role="status"]').text()).toBe('Δεν υπολογίστηκε το σύνολο: Ο τρόπος πληρωμής δεν είναι διαθέσιμος.')
+    expect(wrapper.get('[role="status"]').text()).toBe(texts.t('quote_refused', { reason: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.' }))
   })
 
   it('shows a dash while the chosen method is not priced', async () => {
@@ -308,11 +343,20 @@ describe('Checkout/Sidebar (webside)', () => {
   })
 
   it('labels the fee generically for a pay way with no key', async () => {
-    setPayWay(makePayWay({ cost: 2.5, key: undefined }))
-
-    const wrapper = await mount({ quote: makeCartQuote({ paymentMethodFee: { amount: 2.5, waived: false } }) })
+    const wrapper = await mount({
+      quote: makeCartQuote({ paymentMethodFee: { amount: 2.5, waived: false }, payWays: [{ id: 5, key: '', fee: 2.5, waived: false }] }),
+      quotedFor: { payWayId: 5 },
+    })
 
     expect(amountBeside(wrapper, 'Προμήθεια Τρόπου πληρωμής')).toBe(money(2.5))
+  })
+
+  it('names the fee after the pay way the quote priced, not a selection made since', async () => {
+    setPayWay(makePayWay({ id: 2, key: 'CREDIT_CARD', cost: 0 }))
+
+    const wrapper = await mount({ quote: FULL_QUOTE, quotedFor: PRICED_FOR, shippingSummary: HOME })
+
+    expect(amountBeside(wrapper, 'Αντικαταβολή')).toBe(money(2))
   })
 
   it('shows no fee or gift-card row the quote did not price', async () => {
@@ -351,7 +395,7 @@ describe('Checkout/Sidebar (webside)', () => {
     const wrapper = await mount({ quote: makeCartQuote({ blockingCoupon: { code: 'AUTUMN', reason: 'discount_code_usage_limit_reached' } }) })
 
     const text = wrapper.text()
-    expect(text).toContain('Το κουπόνι AUTUMN δεν ισχύει για αυτή την παραγγελία')
+    expect(text).toContain(texts.t('coupon_blocked', { code: 'AUTUMN' }))
     expect(text).toContain(useNuxtApp().$i18n.t('promotion.rejection.discount_code_usage_limit_reached'))
   })
 

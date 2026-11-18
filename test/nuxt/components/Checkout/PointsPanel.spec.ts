@@ -9,6 +9,11 @@ import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
 import type { Cart, LoyaltySummary } from '~~/shared/openapi/types.gen'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import pointsPanelSource from '~/components/Checkout/PointsPanel.vue?raw'
+
+/** The panel's own texts, as it formats them. */
+const texts = componentTexts(pointsPanelSource, 'PointsPanel.vue')
 
 /**
  * Points redemption on the checkout's payment page. Nothing is spent
@@ -61,16 +66,23 @@ describe('Checkout/PointsPanel', () => {
     expect(wrapper.text()).toContain(`100 πόντοι = 1 €. Έως ${n(12.4, 'currency')} έκπτωση σε αυτή την παραγγελία.`)
   })
 
-  // No quote yet, or Django refused it: the goods' value is unknown, so
-  // the balance alone caps the field, and no cap of 0 disables it.
-  it('names no cap and stays usable while there is no quote', async () => {
+  // No quote yet, or Django refused it: what the goods are worth after
+  // the offers is unknown, so no new points are taken (Django might not
+  // accept them) and the panel says why, with no cap of 0 named.
+  it('takes no new points while there is no quote, and says why', async () => {
     const wrapper = await mount({ maxDiscountAmount: null })
 
-    expect(wrapper.text()).toContain('100 πόντοι = 1 €.')
-    expect(wrapper.text()).not.toContain('Έως')
-    expect(wrapper.findComponent({ name: 'UInputNumber' }).props('disabled')).toBe(false)
-    await redeem(wrapper, 500)
-    expect(wrapper.emitted('redeemed')).toEqual([[{ amount: 5, currency: 'EUR', points: 500 }]])
+    expect(wrapper.text()).toContain(texts.t('awaiting_quote', { ratio: n(100) }))
+    expect(wrapper.text()).not.toContain(texts.t('worth', { ratio: n(100), max: n(0, 'currency') }))
+    expect(wrapper.findComponent({ name: 'UInputNumber' }).props('disabled')).toBe(true)
+  })
+
+  it('still lets the shopper remove a redemption it holds while there is no quote', async () => {
+    const wrapper = await mount({ maxDiscountAmount: null, redemption: { amount: 5, currency: 'EUR', points: 500 } })
+
+    await wrapper.findAll('button').find(button => button.text() === texts.t('remove'))!.trigger('click')
+
+    expect(wrapper.emitted('cleared')).toHaveLength(1)
   })
 
   it('records the intent to redeem, priced at the store\'s ratio', async () => {

@@ -29,6 +29,7 @@ const { state, submit, prevStep } = vi.hoisted(() => ({
     redemption: null as { amount: number, currency: string, points: number } | null,
     quote: null as CheckoutQuote | null,
     quotePending: false,
+    quoteRefusal: null as string | null,
   },
   submit: vi.fn(() => Promise.resolve()),
   prevStep: vi.fn(),
@@ -83,7 +84,9 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
     addressStepErrors: ref({}),
     quote: ref(state.quote),
     quotePending: ref(state.quotePending),
-    quoteRefusal: ref(null),
+    quoteRefusal: ref(state.quoteRefusal),
+    quotedFor: ref(null),
+    retryQuote: vi.fn(),
     createdOrder: ref(state.orderCreated ? { id: 7 } : null),
     isSubmitting: ref(state.submitting),
     loyaltyDiscount: ref(state.redemption),
@@ -128,7 +131,7 @@ const PARTS = ['CheckoutItems', 'CheckoutCouponInput', 'CheckoutGiftCardInput', 
 const shownStep = (wrapper: VueWrapper) => wrapper.find('[data-step]').attributes('data-step')
 
 beforeEach(() => {
-  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null, quote: null, quotePending: false })
+  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null, quote: makeCartQuote(), quotePending: false, quoteRefusal: null })
 })
 
 describe('Checkout page (default)', () => {
@@ -241,6 +244,23 @@ describe('Checkout page (default)', () => {
       await cta(wrapper).trigger('click')
       await flushPromises()
       expect(submit).not.toHaveBeenCalled()
+    })
+
+    // No order without a total to accept: a refused or missing quote
+    // leaves the button off, saying why beside it.
+    it('waits for a total to accept, saying why there is none', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, quote: null, quoteRefusal: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.' })
+
+      expect(cta(wrapper).attributes('disabled')).toBeDefined()
+      expect(wrapper.get('[data-testid="checkout-cta-reason"]').text()).toBe('Ο τρόπος πληρωμής δεν είναι διαθέσιμος.')
+      await cta(wrapper).trigger('click')
+      expect(submit).not.toHaveBeenCalled()
+    })
+
+    it('says the total is still to come when no quote answered and none was refused', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, quote: null })
+
+      expect(wrapper.get('[data-testid="checkout-cta-reason"]').text()).toBe(t('form.submit.error.quote_unavailable_cta'))
     })
 
     it('names no amount while the quote has none to charge', async () => {
@@ -428,6 +448,14 @@ describe('Place order (webside)', () => {
     const wrapper = await mountOnStep(2)
 
     expect(cta(wrapper).attributes('disabled')).toBeDefined()
+  })
+
+  it('waits for a total to accept, saying why when no quote answered', async () => {
+    state.quote = null
+    const wrapper = await mountOnStep(2)
+
+    expect(cta(wrapper).attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-testid="checkout-sidebar-cta-reason"]').text()).toBe(useNuxtApp().$i18n.t('form.submit.error.quote_unavailable_cta'))
   })
 
   it.each([0, 1])('asks for no consent before the payment step (step %i)', async (index) => {

@@ -231,8 +231,10 @@ defineExpose({ submit })
                     class="font-semibold"
                   />
                 </span>
+                <!-- The quoted fee shows for a card provider too, beside its
+                     brands. -->
                 <span
-                  v-else-if="item.hasCost"
+                  v-if="item.hasCost"
                   class="shrink-0 font-mono font-semibold text-highlighted"
                 >
                   +{{ n(item.cost!, 'currency') }}

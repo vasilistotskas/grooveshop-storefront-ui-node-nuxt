@@ -16,13 +16,23 @@
  */
 const props = defineProps<{
   /** The checkout's quote, `null` until Django answered one. */
-  quote: CheckoutQuote | null
+  quote: CartQuote | null
   /** Whether a delivery method is chosen, so its price counts. */
   includeShipping: boolean
-  /** The points redemption the page holds, for the points it names, or `null`. */
-  loyalty: { points: number } | null
+  /**
+   * The choices the quote priced (`useCheckoutQuote`'s `quotedFor`): the
+   * fee row is named after its pay way and the points row counts its
+   * points, so a selection the next quote has not priced yet never labels
+   * this quote's figure.
+   */
+  quotedFor?: CartQuoteRequestRequest | null
   /** Why Django refused the quote, said where the total would be; `null` while it answers. */
   quoteRefusal?: string | null
+}>()
+
+const emit = defineEmits<{
+  /** Ask for the quote again with the same choices. */
+  'retry-quote': []
 }>()
 
 defineSlots<{
@@ -36,7 +46,6 @@ defineSlots<{
 const { t, n } = useStoreI18n('components/Checkout/Sidebar')
 const localePath = useLocalePath()
 const { cart } = storeToRefs(useCartStore())
-const payWay = useState<PayWay | null>('selectedPayWay')
 const { getPaymentMethodName } = usePaymentMethod()
 const { rejectionMessage } = usePromotionOffer()
 
@@ -45,10 +54,10 @@ const paymentFee = computed(() => props.quote?.paymentMethodFee?.amount ?? 0)
 const loyaltyDiscount = computed(() => props.quote?.loyaltyDiscount ?? 0)
 const giftCardAmount = computed(() => props.quote?.giftCardAmount ?? 0)
 
-// A pay way may carry no key (the field is optional in the schema):
-// the row then says what it is, generically.
+// The pay way the quote priced. One without a key in this language
+// (parler allows a blank one) is named generically.
 const payWayName = computed(() => {
-  const key = payWay.value?.key
+  const key = props.quote?.payWays?.find(row => row.id === props.quotedFor?.payWayId)?.key
   return key ? getPaymentMethodName(key) : t('pay_way_fee')
 })
 
@@ -142,7 +151,7 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
         v-if="loyaltyDiscount > 0"
         class="flex justify-between gap-3 text-success"
       >
-        <dt>{{ t('loyalty_discount', { points: n(loyalty?.points ?? 0) }) }}</dt>
+        <dt>{{ t('loyalty_discount', { points: n(quotedFor?.loyaltyPointsToRedeem ?? 0) }) }}</dt>
         <dd class="font-mono">
           {{ minus(loyaltyDiscount) }}
         </dd>
@@ -205,13 +214,25 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
           class="text-sm text-toned"
         >{{ t('calculated_at_payment') }}</span>
       </div>
-      <p
+      <div
         v-if="quote?.amountDue == null && quoteRefusal"
-        role="status"
-        class="text-sm text-warning"
+        class="flex items-start justify-between gap-3"
       >
-        {{ t('quote_refused', { reason: quoteRefusal }) }}
-      </p>
+        <p
+          role="status"
+          class="text-sm text-warning"
+        >
+          {{ t('quote_refused', { reason: quoteRefusal }) }}
+        </p>
+        <UButton
+          :label="t('retry_quote')"
+          color="neutral"
+          variant="link"
+          size="sm"
+          class="shrink-0 p-0"
+          @click="() => emit('retry-quote')"
+        />
+      </div>
       <p
         v-if="cart?.totalVatValue"
         class="text-xs text-toned"
@@ -234,6 +255,7 @@ el:
   calculated_next: Στο επόμενο βήμα
   calculated_at_payment: Υπολογίζεται στην πληρωμή
   quote_refused: "Δεν υπολογίστηκε το σύνολο: {reason}"
+  retry_quote: Δοκίμασε ξανά
   coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
   coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   free: Δωρεάν
@@ -255,6 +277,7 @@ en:
   calculated_next: Calculated next
   calculated_at_payment: Calculated at payment
   quote_refused: "The total could not be worked out: {reason}"
+  retry_quote: Try again
   coupon_blocked: Coupon {code} cannot be used with this order
   coupon_blocked_hint: Remove it from your cart to place the order.
   free: Free

@@ -80,6 +80,42 @@ describe('useCheckoutQuote', () => {
     expect(quoteCalls()).toHaveLength(2)
   })
 
+  it('names the choices the quote on the page priced, not a selection made since', async () => {
+    const { request, quotedFor } = setup({ countryId: 'GR', payWayId: 1 })
+    await flushPromises()
+    expect(quotedFor.value).toEqual({ countryId: 'GR', payWayId: 1 })
+    api.routes({ '/api/cart/quote': () => new Promise(() => {}) })
+
+    request.value = { countryId: 'GR', payWayId: 2 }
+    await flushPromises()
+
+    // The new quote has not answered: the page still shows pay way 1's.
+    expect(quotedFor.value).toEqual({ countryId: 'GR', payWayId: 1 })
+  })
+
+  it('shows no quote once the cart has no lines left', async () => {
+    const { quote, current } = setup()
+    await flushPromises()
+    expect(quote.value).toEqual(QUOTE)
+
+    useCartStore().cart = makeCart({ items: [] })
+    await flushPromises()
+
+    expect(quote.value).toBeNull()
+    expect((await current()).quote).toBeNull()
+  })
+
+  it('asks again with the same choices after a refusal, for a service that recovered', async () => {
+    api.routes({ '/api/cart/quote': failWith(503) })
+    const { current } = setup()
+    await flushPromises()
+    api.routes({ '/api/cart/quote': QUOTE })
+
+    expect((await current()).quote).toEqual(QUOTE)
+    expect(quoteCalls()).toHaveLength(2)
+    expect(quoteCalls()[1]!.options.body).toEqual(quoteCalls()[0]!.options.body)
+  })
+
   it('asks nothing for a cart without lines, which Django would refuse', async () => {
     useCartStore().cart = makeCart({ items: [] })
 

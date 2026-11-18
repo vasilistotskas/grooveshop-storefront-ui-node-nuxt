@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildOrderCreateBody, classifyOrderError, describeTotalChange, failedStatusOf, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
+import { buildOrderCreateBody, classifyOrderError, describeTotalChange, describeTotalToConfirm, failedStatusOf, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
 import { makeCheckoutQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
@@ -366,6 +366,15 @@ describe('sameExpectedTotal', () => {
     [null, null, false],
   ])('%j and %j are the same: %s', (a, b, same) => {
     expect(sameExpectedTotal(a, b)).toBe(same)
+  })
+})
+
+describe('describeTotalToConfirm', () => {
+  it('names the total the page had not shown, for the shopper to accept', () => {
+    expect(describeTotalToConfirm(12.5, t, n)).toEqual({
+      title: 'form.submit.error.total_confirm',
+      description: 'form.submit.error.total_confirm_description {"total":"currency:12.50"}',
+    })
   })
 })
 

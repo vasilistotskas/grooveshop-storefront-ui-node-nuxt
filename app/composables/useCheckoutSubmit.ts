@@ -64,6 +64,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // The quote's `expectedTotal` the submit in progress places its order
   // at: the total the shopper was shown (`onSubmit`, step 2b).
   let pricedTotal: ExpectedTotal | null = null
+  // The total the shopper's click accepted, carried into the automatic
+  // retry of an expired stock hold: the retry may only place the order
+  // at it, never at a total the quote reached since without a click.
+  let retryAcceptedTotal: ExpectedTotal | null = null
 
   // Meta Pixel event_ids for browser↔server deduplication. Minted at
   // the moment the customer enters checkout (InitiateCheckout) and
@@ -288,6 +292,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         return
       }
       retryCount.value++
+      retryAcceptedTotal = pricedTotal
       // Keep isSubmitting true during the retry window to block double-submit,
       // then release it right before re-entering onSubmit — otherwise the
       // re-entrant call hits the `if (isSubmitting.value) return` guard and the
@@ -332,12 +337,18 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   /**
    * What an order submit is made of: the order body and the cart it is
-   * priced from. The Meta ``meta`` ids are left out — a fresh Purchase
-   * id is minted per submit, and a retry must still count as the same
-   * attempt.
+   * priced from. Left out: the Meta ``meta`` ids (a fresh Purchase id is
+   * minted per submit) and the ``expectedTotal``, which guards the order
+   * rather than making it. While an attempt's outcome is unknown (no
+   * answer, a 5xx, the same key still in flight) its retry must reuse its
+   * key, so Django answers with the order if the first request made one:
+   * a quote refreshed meanwhile must not mint a new key and place a second
+   * order. A refusal settles the attempt (``rejectionSettlesAttempt``),
+   * so a ``total_changed`` 409 still sends the revised total under a new
+   * key.
    */
   const orderFingerprint = (orderValues: OrderCreateFromCartRequestWritable) => JSON.stringify({
-    order: { ...orderValues, meta: undefined },
+    order: { ...orderValues, meta: undefined, expectedTotal: undefined },
     ...cartPricedFrom(),
   })
 
@@ -643,9 +654,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     isRetryReentry.value = false
     // A new attempt starts clean: the last failure no longer applies.
     submitError.value = null
-    // The total on the page as the shopper clicked: the one they accept.
-    const shownTotal = checkoutQuote.quote.value?.expectedTotal ?? null
+    // The total the shopper accepts: the one on the page as they clicked,
+    // or, for the automatic retry of an expired hold, the one the click
+    // that started it accepted.
+    const shownTotal = wasRetry
+      ? retryAcceptedTotal
+      : checkoutQuote.quote.value?.expectedTotal ?? null
     pricedTotal = null
+    retryAcceptedTotal = null
 
     // Cancel any pending retry before checking isSubmitting — this
     // manual submit supersedes the scheduled automatic one. The retry
@@ -755,11 +771,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         })
         return
       }
-      // A total the page never showed is not a change: the delivery
-      // step's quote prices no pay way, and a first answer may still be
-      // on its way. The shopper can only accept what was shown.
-      if (shownTotal !== null && !sameExpectedTotal(priced.expectedTotal, shownTotal)) {
-        failCheckout(describeTotalChange(priced.amountDue, t, n))
+      // No order without a total the shopper saw and accepted. One the
+      // page never showed is shown now (the order button waits while a
+      // quote is asked for and has no total to accept, so a click lands
+      // here only through a race); a different one is shown as changed.
+      // Either way the next click accepts it.
+      if (!sameExpectedTotal(priced.expectedTotal, shownTotal)) {
+        failCheckout(shownTotal === null
+          ? describeTotalToConfirm(priced.amountDue, t, n)
+          : describeTotalChange(priced.amountDue, t, n))
         return
       }
       pricedTotal = priced.expectedTotal
@@ -1032,6 +1052,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     currentStep,
     addressStepErrors,
     quote: checkoutQuote.quote,
+    // The choices the quote on the page priced: the summary names its fee
+    // and its points after them, never after a newer selection.
+    quotedFor: checkoutQuote.quotedFor,
+    // Asks for the quote again with the same choices, after a refusal.
+    retryQuote: checkoutQuote.refresh,
     // The page's order button waits while the quote is being asked for,
     // and the summary says why when Django refuses one.
     quotePending: checkoutQuote.pending,

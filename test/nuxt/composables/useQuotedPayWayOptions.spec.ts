@@ -54,6 +54,7 @@ describe('useQuotedPayWayOptions', () => {
   it('follows the quote as it changes', () => {
     const quote = ref(makeCartQuote({ payWays: [{ id: 3, key: 'PAY_ON_DELIVERY', fee: 2.5, waived: false }] }))
     const options = useQuotedPayWayOptions([option()], quote)
+    expect(options.value[0]!.cost).toBe(2.5)
 
     quote.value = makeCartQuote({ payWays: [{ id: 3, key: 'PAY_ON_DELIVERY', fee: 0, waived: true }] })
 

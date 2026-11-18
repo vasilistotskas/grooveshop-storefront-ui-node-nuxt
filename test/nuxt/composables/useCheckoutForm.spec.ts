@@ -389,13 +389,15 @@ describe('useCheckoutForm', () => {
       expect(await refetchShippingOptions()).toBe(false)
     })
 
-    it('offers no option (no stale price) when the live options fetch fails, and sets shippingOptionsError', async () => {
+    it('drops the options it had (no stale price) when a later fetch fails, and sets shippingOptionsError', async () => {
+      const { shippingOptions, shippingOptionsError, retryShippingOptions } = await setup()
+      expect(shippingOptions.value.length).toBeGreaterThan(0)
       api.routes({
         ...defaultRoutes(),
         '/api/shipping/options': () => { throw new Error('network') },
       })
 
-      const { shippingOptions, shippingOptionsError } = await setup()
+      await retryShippingOptions()
 
       expect(shippingOptionsError.value).toBe(true)
       expect(shippingOptions.value).toEqual([])
@@ -543,7 +545,7 @@ describe('useCheckoutForm', () => {
       const { payWayOptions } = await setup()
 
       expect(payWayOptions.value[0]).toMatchObject({
-        name: 'Αντικαταβολή',
+        name: useNuxtApp().$i18n.t('payment_methods.PAY_ON_DELIVERY'),
         value: 3,
         freeThreshold: 50,
         providerCode: 'cash_on_delivery',

@@ -4,10 +4,14 @@ const props = defineProps({
   // answered one. Every figure below is its own: the rows, and the
   // total the order is placed at, which reads "at payment" until the
   // quote prices the delivery and the pay way.
-  quote: { type: Object as PropType<CheckoutQuote | null>, default: null },
+  quote: { type: Object as PropType<CartQuote | null>, default: null },
   // Why Django refused the quote, said where the total would be; ``null``
   // while it answers.
   quoteRefusal: { type: String as PropType<string | null>, default: null },
+  // The choices the quote priced (``useCheckoutQuote``'s ``quotedFor``):
+  // the fee row is named after its pay way, never after a selection the
+  // next quote has not priced yet.
+  quotedFor: { type: Object as PropType<CartQuoteRequestRequest | null>, default: null },
   // Selected shipping method context — surfaced as a "selected"
   // callout on the payment step so the shopper can verify what
   // they picked at step 2 without scrolling back. Pass ``null`` (or
@@ -33,7 +37,6 @@ const props = defineProps({
 const { $i18n } = useNuxtApp()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
-const payWay = useState<PayWay | null>('selectedPayWay')
 const localePath = useLocalePath()
 const { t } = useStoreI18n('components/variants/webside/Checkout/Sidebar')
 const { getPaymentMethodName } = usePaymentMethod()
@@ -64,10 +67,15 @@ const loyaltyDiscount = computed(() => props.quote?.loyaltyDiscount ?? 0)
 const giftCardAmount = computed(() => props.quote?.giftCardAmount ?? 0)
 const checkoutTotal = computed(() => props.quote?.amountDue ?? null)
 
-// A pay way may have no name in this language (parler allows a blank
-// one per locale): the row then says what it is, generically.
+const emit = defineEmits<{
+  /** Ask for the quote again with the same choices. */
+  'retry-quote': []
+}>()
+
+// The pay way the quote priced. One without a key in this language
+// (parler allows a blank one) is named generically.
 const payWayName = computed(() => {
-  const key = payWay.value?.key
+  const key = props.quote?.payWays?.find(row => row.id === props.quotedFor?.payWayId)?.key
   return key ? getPaymentMethodName(key) : t('pay_way_fee')
 })
 
@@ -379,13 +387,26 @@ defineSlots<{
             "
           >{{ t('calculated_at_payment') }}</span>
         </div>
-        <p
+        <div
           v-if="checkoutTotal === null && quoteRefusal"
-          role="status"
-          class="text-sm text-warning"
+          class="flex items-start justify-between gap-3"
         >
-          {{ t('quote_refused', { reason: quoteRefusal }) }}
-        </p>
+          <p
+            role="status"
+            class="text-sm text-warning"
+          >
+            {{ t('quote_refused', { reason: quoteRefusal }) }}
+          </p>
+          <UButton
+            color="neutral"
+            variant="link"
+            size="sm"
+            class="shrink-0 p-0"
+            @click="() => emit('retry-quote')"
+          >
+            {{ t('retry_quote') }}
+          </UButton>
+        </div>
       </div>
 
       <template #footer>
@@ -418,6 +439,7 @@ el:
   total: Σύνολο
   calculated_at_payment: Υπολογίζεται στην πληρωμή
   quote_refused: "Δεν υπολογίστηκε το σύνολο: {reason}"
+  retry_quote: Δοκίμασε ξανά
   coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
   coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
@@ -441,6 +463,7 @@ en:
   total: Total
   calculated_at_payment: Calculated at payment
   quote_refused: "The total could not be worked out: {reason}"
+  retry_quote: Try again
   coupon_blocked: Coupon {code} cannot be used with this order
   coupon_blocked_hint: Remove it from your cart to place the order.
   pay_way_fee: Payment method fee

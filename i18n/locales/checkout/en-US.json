@@ -219,7 +219,10 @@
         "total_changed_description": "The new total is {total}. Check your order summary and place the order again to complete it at this amount.",
         "total_changed_review": "Check your order summary and place the order again.",
         "total_unavailable": "We could not work out your total",
-        "total_unavailable_description": "We could not work out your order total. Please try again."
+        "total_unavailable_description": "We could not work out your order total. Please try again.",
+        "total_confirm": "Confirm your order total",
+        "total_confirm_description": "Your order total is {total}. Place the order again to complete it at this amount.",
+        "quote_unavailable_cta": "You can place the order once the total is worked out."
       }
     }
   },
