@@ -53,10 +53,9 @@ const IDEMPOTENCY_IN_FLIGHT = 'idempotency_in_flight'
 /**
  * The `code` of the 409 Django answers when the order's `expectedTotal`
  * is not the amount due it computes under the cart lock; `error.quote`
- * is the quote the order would have been created at. Told by `code`:
- * its `error.type` stays `invalid_order_data` until every client lists
- * the new `OrderCreateErrorType` value (`docs/order/creation.md` §3.0
- * in the Django repo).
+ * is the quote the order would have been created at. Told by `code`
+ * alone: its `error.type` is `invalid_order_data`, and
+ * `OrderCreateErrorType` has no value of its own for it.
  */
 const TOTAL_CHANGED = 'total_changed'
 

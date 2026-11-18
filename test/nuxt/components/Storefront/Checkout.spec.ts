@@ -132,8 +132,12 @@ describe('Checkout page (default)', () => {
   /** The points panel, showing the redemption the page hands it. */
   const PointsPanelStub = defineComponent({
     name: 'CheckoutPointsPanel',
-    props: { redemption: { type: Object, default: null } },
-    setup: props => () => h('div', { 'data-part': 'CheckoutPointsPanel', 'data-points': props.redemption?.points ?? '' }),
+    props: { redemption: { type: Object, default: null }, maxDiscountAmount: { type: Number, default: null } },
+    setup: props => () => h('div', {
+      'data-part': 'CheckoutPointsPanel',
+      'data-points': props.redemption?.points ?? '',
+      'data-max-discount': props.maxDiscountAmount ?? '',
+    }),
   })
 
   /** The summary renders its slots, so the page's choice of fields shows. */
@@ -292,6 +296,16 @@ describe('Checkout page (default)', () => {
     expect(parts(wrapper)).toEqual(['CheckoutItems', 'CheckoutPointsEarned', 'CheckoutPointsPanel'])
     expect(wrapper.get('[data-part="CheckoutPointsPanel"]').attributes('data-points')).toBe('500')
   })
+
+  // Django caps a redemption at the goods after promotions (the quote's
+  // freeThresholdValue), not at the cart's gross total.
+  it('caps the points at what the quote says the goods cost after the offers', async () => {
+    useCartStore().cart = makeCart({ totalPrice: 100 })
+
+    const wrapper = await mountOnStep(2, { loggedIn: true, quote: makeCartQuote({ itemsSubtotal: 100, discountTotal: 20, freeThresholdValue: 80 }) })
+
+    expect(wrapper.get('[data-part="CheckoutPointsPanel"]').attributes('data-max-discount')).toBe('80')
+  })
 })
 
 describe('Checkout stepper headers (webside)', () => {
@@ -422,5 +436,41 @@ describe('Place order (webside)', () => {
 
     expect(form.termsAccepted).toBe(true)
     expect(submit).toHaveBeenCalledTimes(1)
+  })
+})
+
+/**
+ * Django caps a points redemption at the goods after promotions (the
+ * quote's freeThresholdValue): the webside redemption field is capped
+ * there too, not at the cart's gross total.
+ */
+describe('Points cap (webside)', () => {
+  it('caps the points at what the quote says the goods cost after the offers', async () => {
+    Object.assign(state, { step: 2, loggedIn: true, quote: makeCartQuote({ itemsSubtotal: 100, discountTotal: 20, freeThresholdValue: 80 }) })
+    useCartStore().cart = makeCart({ totalPrice: 100 })
+    const SidebarStub = defineComponent({
+      name: 'WebsideCheckoutSidebar',
+      setup: (_props, { slots }) => () => h('div', slots.loyalty?.()),
+    })
+    const RedemptionStub = defineComponent({
+      name: 'LoyaltyRedemption',
+      props: { maxDiscountAmount: { type: Number, default: null } },
+      setup: props => () => h('div', { 'data-max-discount': props.maxDiscountAmount ?? '' }),
+    })
+
+    const wrapper = await mountSuspended(WebsideCheckout, {
+      route: false,
+      global: {
+        stubs: {
+          ...Object.fromEntries(STEPS.map(name => [`Webside${name}`, StepStub(name)])),
+          ...Object.fromEntries(PARTS.flatMap(name => [[name, true], [`Webside${name}`, true]])),
+          WebsideCheckoutSidebar: SidebarStub,
+          LoyaltyRedemption: RedemptionStub,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.get('[data-max-discount]').attributes('data-max-discount')).toBe('80')
   })
 })

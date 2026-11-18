@@ -20,7 +20,7 @@ export function useCheckoutQuote({ request, cartVersion }: {
 
   const requestKey = computed(() => JSON.stringify(toValue(request)))
 
-  const { data, status, error, refresh } = useLazyApi<QuoteCartResponse>('/api/cart/quote', {
+  const { data, status, error, refresh } = useLazyApi<CartQuote>('/api/cart/quote', {
     key: 'checkout-quote',
     method: 'POST',
     body: computed(() => toValue(request)),
@@ -34,8 +34,12 @@ export function useCheckoutQuote({ request, cartVersion }: {
     void refresh()
   })
 
-  /** The quote on the page, `null` before the first answer and while Django refuses one. */
-  const quote = computed<CheckoutQuote | null>(() =>
+  /**
+   * The quote on the page, `null` before the first answer and while
+   * Django refuses one: the rows, and the priced lists the delivery and
+   * pay-way cards read (`shippingOptions`, `payWays`).
+   */
+  const quote = computed<CartQuote | null>(() =>
     status.value === 'error' ? null : data.value ?? null)
 
   /**
@@ -43,7 +47,7 @@ export function useCheckoutQuote({ request, cartVersion }: {
    * a request in flight is waited for. Without one, Django's refusal
    * (`error`, `null` when nothing could be asked).
    */
-  async function current(): Promise<{ quote: CheckoutQuote | null, error: unknown }> {
+  async function current(): Promise<{ quote: CartQuote | null, error: unknown }> {
     // A change made just now has queued its watcher; let it ask first.
     await nextTick()
     if (status.value === 'pending') await refresh({ dedupe: 'defer' })

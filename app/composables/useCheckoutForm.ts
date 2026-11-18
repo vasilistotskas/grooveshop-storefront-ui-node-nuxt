@@ -760,43 +760,21 @@ export async function useCheckoutForm() {
     })) || []
   })
 
+  // The pay ways as the payment step lists them. What each costs is the
+  // checkout quote's (`useQuotedPayWayOptions`), never worked out here.
   const payWayOptions = computed(() => {
     return payWays.value?.results?.map((payWay) => {
       const name = payWay.key ? getPaymentMethodName(payWay.key) : undefined
 
-      // Django waives the fee on the cart's `freeThresholdValue`, the same
-      // value it judges free shipping on.
-      // With no cart there is no value to judge it on, so no surcharge.
-      const { cost: displayCost, freeAbove } = cart.value
-        ? payWayDisplayCost(payWay, cart.value.freeThresholdValue)
-        : { cost: 0, freeAbove: null }
-      // Only show the surcharge suffix when it's a real charge — a
-      // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
-      // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer
-      // doesn't pay.
-      const costSuffix = displayCost > 0 ? ` (+${n(displayCost, 'currency')})` : ''
-
-      // Only while the fee is actually being charged. Once the
-      // threshold is met the suffix disappears, and a line explaining
-      // how to remove a charge that is no longer there is noise.
-      // Answers the question the surcharge provokes — "why 2,99 €, and
-      // can I avoid it?" — next to the charge itself, rather than in a
-      // separate notice the shopper has to go find.
-      const freeThresholdHint = freeAbove !== null
-        ? t('pay_way_free_above', { amount: n(freeAbove, 'currency') })
-        : ''
-
       return {
-        label: `${name ?? ''}${costSuffix}`,
-        // The redesigned payment step draws the name and the surcharge
-        // apart; the webside step reads only `label`.
         name: name ?? '',
-        cost: displayCost,
+        // The threshold the pay way's configuration waives its fee at,
+        // named next to a fee the quote charges.
+        freeThreshold: payWay.freeThreshold ?? 0,
         providerCode: payWay.providerCode,
         settlement: payWay.settlement,
         value: payWay.id,
         mainImagePath: payWay.mainImagePath,
-        freeThresholdHint,
         // Operator-authored in Django admin (PayWay → Περιγραφή /
         // Οδηγίες Πληρωμής). Both are TinyMCE HTML, so they are
         // sanitised at the render site like every other WYSIWYG field.

@@ -9,6 +9,11 @@ const props = defineProps<{
   // (``useCheckoutShippingStep``).
   apiOptions: ShippingOption[]
   /**
+   * The checkout quote's ``shippingOptions``: what each delivery costs
+   * this cart, the only price a card states (``useCheckoutShippingStep``).
+   */
+  quotedOptions: readonly QuoteShippingOption[] | null
+  /**
    * Set when the live ``/api/v1/shipping/options`` fetch failed.
    * There is no local flat-rate fallback price anymore, so the whole
    * step renders a retry prompt instead of a picker with no prices.
@@ -48,6 +53,7 @@ const {
 } = useCheckoutShippingStep({
   formState,
   apiOptions: () => props.apiOptions,
+  quotedOptions: () => props.quotedOptions,
   partnerId: () => props.partnerId,
   optionsError: () => props.optionsError,
   form: formRef,
@@ -219,7 +225,8 @@ defineExpose({ submit })
                 {{ item.disabledReason }}
               </span>
             </div>
-            <!-- The price is the API's: "Free" only when it is 0. -->
+            <!-- The price is the quote's: "Free" only when it is 0, a dash
+                 while the quote has none for this card. -->
             <UBadge
               v-if="item.price === 0"
               color="success"
@@ -231,7 +238,7 @@ defineExpose({ submit })
               v-else
               class="shrink-0 font-mono font-semibold text-highlighted"
             >
-              {{ n(item.price, 'currency') }}
+              {{ item.price === null ? '—' : n(item.price, 'currency') }}
             </span>
           </div>
         </template>

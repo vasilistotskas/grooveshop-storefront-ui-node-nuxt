@@ -4,7 +4,7 @@ import type { DOMWrapper, VueWrapper } from '@vue/test-utils'
 import { nextTick, reactive } from 'vue'
 import StepShipping from '~/components/Checkout/StepShipping.vue'
 import WebsideStepShipping from '~/components/variants/webside/Checkout/StepShipping.vue'
-import type { ShippingOption } from '~~/shared/openapi/types.gen'
+import type { QuoteShippingOption, ShippingOption } from '~~/shared/openapi/types.gen'
 import { makeBoxNowSelectedLocker } from '~~/test/fixtures/boxnow'
 import { makeCart } from '~~/test/fixtures/cart'
 import {
@@ -46,6 +46,7 @@ function makeProps(overrides: Record<string, unknown> = {}) {
     schema: null,
     partnerId: '10391',
     apiOptions: GREEK_ROWS(),
+    quotedOptions: null,
     ...overrides,
   }
 }
@@ -342,37 +343,64 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
 
     const price = (wrapper: VueWrapper, value: string) => card(wrapper, value).text().replace(/\u00A0/g, ' ')
 
-    it('states the API price on each card, and "Free" only when it is 0', async () => {
-      const wrapper = await mount({ apiOptions: [boxNowLockerOption({ price: 0 }), acsHomeDeliveryOption({ price: 2.99 })] })
+    /** The quote's row for a carrier's delivery, at `price`. */
+    const quoted = (option: ShippingOption, rowPrice: number, waivedBy: QuoteShippingOption['waivedBy'] = null): QuoteShippingOption => ({
+      providerCode: option.providerCode,
+      providerName: option.providerName,
+      kind: option.kind,
+      price: rowPrice,
+      waivedBy,
+      exceedsMaxWeight: option.exceedsMaxWeight,
+      exceedsParcelSize: option.exceedsParcelSize,
+    })
+
+    it('states the quote\'s price on each card, never the options list\'s, and "Free" only when it is 0', async () => {
+      const boxNow = boxNowLockerOption({ price: 3.5 })
+      const home = acsHomeDeliveryOption({ price: 9.99 })
+      const wrapper = await mount({
+        apiOptions: [boxNow, home],
+        quotedOptions: [quoted(boxNow, 0, 'threshold'), quoted(home, 2.99)],
+      })
 
       expect(price(wrapper, 'box_now_locker')).toContain('Δωρεάν')
       expect(price(wrapper, 'home_delivery')).toContain('2,99 €')
+      expect(price(wrapper, 'home_delivery')).not.toContain('9,99 €')
+    })
+
+    it('shows a dash, not a price, while the quote has no row for a card', async () => {
+      const wrapper = await mount({ quotedOptions: null })
+
+      expect(price(wrapper, 'home_delivery')).toContain('—')
       expect(price(wrapper, 'home_delivery')).not.toContain('Δωρεάν')
     })
 
     it('prices a card standing for several home-delivery carriers by the one that fits the cart', async () => {
+      const heavy = acsHomeDeliveryOption({ exceedsMaxWeight: true, maxWeightGrams: 1000 })
+      const elta = makeShippingOption({ providerCode: 'elta', providerName: 'ELTA', priority: 20 })
       const wrapper = await mount({
-        apiOptions: [
-          acsHomeDeliveryOption({ price: 2.99, exceedsMaxWeight: true, maxWeightGrams: 1000 }),
-          makeShippingOption({ providerCode: 'elta', providerName: 'ELTA', priority: 20, price: 4.2 }),
-        ],
+        apiOptions: [heavy, elta],
+        quotedOptions: [quoted(heavy, 2.99), quoted(elta, 4.2)],
       })
 
       expect(price(wrapper, 'home_delivery')).toContain('4,20 €')
     })
 
-    it('says Free on every card when a promotion gives free shipping', async () => {
+    // A free-shipping promotion is the quote's to apply (`waivedBy`), not
+    // the card's: a cart flag alone frees nothing.
+    it('says Free only where the quote waives the delivery', async () => {
       useCartStore().cart = makeCart({ promotionFreeShipping: true })
-      const wrapper = await mount()
+      const [boxNow, home] = GREEK_ROWS()
+      const wrapper = await mount({ quotedOptions: [quoted(boxNow!, 0, 'promotion'), quoted(home!, 2.99)] })
 
       expect(price(wrapper, 'box_now_locker')).toContain('Δωρεάν')
-      expect(price(wrapper, 'home_delivery')).toContain('Δωρεάν')
+      expect(price(wrapper, 'home_delivery')).toContain('2,99 €')
     })
 
     it('shows the free-delivery banner only when the chosen method costs nothing', async () => {
-      const apiOptions = [boxNowLockerOption({ price: 0 }), acsHomeDeliveryOption({ price: 2.99 })]
+      const boxNow = boxNowLockerOption()
+      const home = acsHomeDeliveryOption()
       const formState = makeFormState({ shippingMethod: 'home_delivery' })
-      const wrapper = await mount({ formState, apiOptions })
+      const wrapper = await mount({ formState, apiOptions: [boxNow, home], quotedOptions: [quoted(boxNow, 0), quoted(home, 2.99)] })
       expect(wrapper.find('[data-testid="step-shipping-free-delivery"]').exists()).toBe(false)
 
       await radio(wrapper, 'box_now_locker').trigger('click')

@@ -114,8 +114,8 @@ describe('classifyOrderError', () => {
   })
 
   // Django's 409 when the order's expectedTotal is not what it priced:
-  // its error.type stays invalid_order_data until every client knows
-  // the new one, so the code is what tells it apart.
+  // its error.type is invalid_order_data, so the code is what tells it
+  // apart.
   it('tells the shopper the new total a changed-total refusal carries', () => {
     const info = classifyOrderError({
       detail: 'The order total changed.',

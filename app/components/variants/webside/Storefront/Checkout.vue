@@ -93,6 +93,9 @@ const {
   fireInitiateCheckout,
 } = useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions, shippingOverWeight })
 
+// The pay ways at the fee the quote charges for each.
+const quotedPayWayOptions = useQuotedPayWayOptions(payWayOptions, quote)
+
 // Meta Pixel: InitiateCheckout fires once when the customer lands on
 // the checkout page. The eventID is stashed inside useCheckoutSubmit
 // so the order POST body forwards it to Django for server-side dedup.
@@ -340,6 +343,7 @@ useSeoMeta({
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
             :api-options="shippingOptions"
+            :quoted-options="quote?.shippingOptions ?? null"
             :options-error="shippingOptionsError"
             :over-weight="shippingOverWeight"
             @next="nextStep"
@@ -353,7 +357,7 @@ useSeoMeta({
             ref="paymentStep"
             v-model:form-state="formState"
             :schema="step3Schema"
-            :pay-way-options="payWayOptions"
+            :pay-way-options="quotedPayWayOptions"
             @submit="onSubmit"
             @back="prevStep"
           />
@@ -412,7 +416,7 @@ useSeoMeta({
               <LoyaltyRedemption
                 v-if="loggedIn"
                 :currency="cart?.currency ?? 'EUR'"
-                :max-discount-amount="cart?.totalPrice ?? 0"
+                :max-discount-amount="quote?.freeThresholdValue ?? 0"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"
               />

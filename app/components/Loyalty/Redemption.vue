@@ -3,6 +3,10 @@ import * as z from 'zod'
 
 interface Props {
   currency: string
+  /**
+   * The most the points may take off: the goods after the offers (the
+   * checkout quote's `freeThresholdValue`), the cap Django redeems under.
+   */
   maxDiscountAmount: number
 }
 

@@ -34,6 +34,7 @@ const payWay = useState<PayWay | null>('selectedPayWay')
 const localePath = useLocalePath()
 const { t } = useStoreI18n('components/variants/webside/Checkout/Sidebar')
 const { getPaymentMethodName } = usePaymentMethod()
+const { rejectionMessage } = usePromotionOffer()
 
 const shippingSummaryView = computed(() => {
   const summary = props.shippingSummary
@@ -201,6 +202,17 @@ defineSlots<{
             ? t('b2b_pricing_applied', { group: cart.b2bPricing.groupName })
             : t('b2b_pricing_applied_generic') }}
         </UBadge>
+        <!-- A coupon attached to the cart that order creation would
+             refuse (the quote's ``blockingCoupon``): said before Place
+             order, with Django's reason, so the order is not refused. -->
+        <UAlert
+          v-if="quote?.blockingCoupon"
+          color="warning"
+          variant="subtle"
+          icon="i-heroicons-ticket"
+          :title="t('coupon_blocked', { code: quote.blockingCoupon.code })"
+          :description="`${rejectionMessage(quote.blockingCoupon.reason)}. ${t('coupon_blocked_hint')}`"
+        />
         <UAlert
           v-if="cart?.b2bPricing?.belowMinimum"
           color="warning"
@@ -388,6 +400,8 @@ el:
   free: Δωρεάν
   total: Σύνολο
   calculated_at_payment: Υπολογίζεται στην πληρωμή
+  coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
+  coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   loyalty_discount: Έκπτωση πόντων
   promotion_discount: Έκπτωση προσφοράς
@@ -398,6 +412,28 @@ el:
   need_help: Χρειάζεσαι βοήθεια;
   shipping_method_label:
     home_delivery: Παράδοση στη διεύθυνσή σας
+    box_now_locker: BOX NOW Locker
+    acs_smartpoint: ACS Smartpoint
+  locker_id_short: 'ID {id}'
+en:
+  title: Checkout
+  items_unique: Products
+  shipping: Shipping
+  free: Free
+  total: Total
+  calculated_at_payment: Calculated at payment
+  coupon_blocked: Coupon {code} cannot be used with this order
+  coupon_blocked_hint: Remove it from your cart to place the order.
+  pay_way_fee: Payment method fee
+  loyalty_discount: Points discount
+  promotion_discount: Offer discount
+  gift_card: Gift card
+  b2b_pricing_applied: 'Wholesale prices: {group}'
+  b2b_pricing_applied_generic: Wholesale prices
+  b2b_below_minimum: The minimum wholesale order value is {minimum}. Add more items to place the order.
+  need_help: Need help?
+  shipping_method_label:
+    home_delivery: Delivery to your address
     box_now_locker: BOX NOW Locker
     acs_smartpoint: ACS Smartpoint
   locker_id_short: 'ID {id}'

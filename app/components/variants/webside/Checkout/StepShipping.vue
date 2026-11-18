@@ -9,6 +9,11 @@ const props = defineProps<{
   // (``useCheckoutShippingStep``).
   apiOptions: ShippingOption[]
   /**
+   * The checkout quote's ``shippingOptions``: what each delivery costs
+   * this cart, the only price a card states (``useCheckoutShippingStep``).
+   */
+  quotedOptions: readonly QuoteShippingOption[] | null
+  /**
    * Set when the live ``/api/v1/shipping/options`` fetch failed.
    * There is no local flat-rate fallback price anymore, so the whole
    * step renders a retry prompt instead of a picker with no prices.
@@ -46,6 +51,7 @@ const {
 } = useCheckoutShippingStep({
   formState,
   apiOptions: () => props.apiOptions,
+  quotedOptions: () => props.quotedOptions,
   partnerId: () => props.partnerId,
   optionsError: () => props.optionsError,
   form: formRef,

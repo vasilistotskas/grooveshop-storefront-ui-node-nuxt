@@ -24,7 +24,10 @@ interface Redemption {
 
 const props = defineProps<{
   currency: string
-  /** The most the points may take off: the items' total. */
+  /**
+   * The most the points may take off: the goods after the offers (the
+   * checkout quote's `freeThresholdValue`), the cap Django redeems under.
+   */
   maxDiscountAmount: number
   /** The redemption the page holds, or `null`. */
   redemption: Redemption | null

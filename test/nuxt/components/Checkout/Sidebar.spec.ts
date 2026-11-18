@@ -219,6 +219,22 @@ describe('Checkout/Sidebar (default)', () => {
 
     expect(wrapper.text()).toContain(`Η ελάχιστη αξία παραγγελίας χονδρικής είναι ${money(150)}`)
   })
+
+  it('names a coupon order creation would refuse, with Django\'s reason, before the order is placed', async () => {
+    const wrapper = await mount({ quote: makeCartQuote({ blockingCoupon: { code: 'AUTUMN', reason: 'discount_code_expired' } }) })
+
+    const title = wrapper.findAll('[data-slot="title"]').find(el => el.text() === messages.coupon_blocked.replace('{code}', 'AUTUMN'))
+    expect(title).toBeDefined()
+    const description = title!.element.nextElementSibling!.textContent!
+    expect(description).toContain(useNuxtApp().$i18n.t('promotion.rejection.discount_code_expired'))
+    expect(description).toContain(messages.coupon_blocked_hint)
+  })
+
+  it('warns of no coupon while the quote blocks none', async () => {
+    const wrapper = await mount({ quote: makeCartQuote() })
+
+    expect(wrapper.text()).not.toContain(messages.coupon_blocked.replace('{code}', ''))
+  })
 })
 
 describe('Checkout/Sidebar (webside)', () => {
@@ -314,6 +330,14 @@ describe('Checkout/Sidebar (webside)', () => {
     const wrapper = await mount()
 
     expect(wrapper.text()).toContain(`Η ελάχιστη αξία παραγγελίας χονδρικής είναι ${money(150)}`)
+  })
+
+  it('names a coupon order creation would refuse, with Django\'s reason', async () => {
+    const wrapper = await mount({ quote: makeCartQuote({ blockingCoupon: { code: 'AUTUMN', reason: 'discount_code_usage_limit_reached' } }) })
+
+    const text = wrapper.text()
+    expect(text).toContain('Το κουπόνι AUTUMN δεν ισχύει για αυτή την παραγγελία')
+    expect(text).toContain(useNuxtApp().$i18n.t('promotion.rejection.discount_code_usage_limit_reached'))
   })
 
   it('recaps the chosen locker on the payment step', async () => {

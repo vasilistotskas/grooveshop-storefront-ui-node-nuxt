@@ -16,6 +16,13 @@ export interface CheckoutShippingStepInputs {
    * order: admins reorder the picker by editing the provider rows' priority.
    */
   apiOptions: MaybeRefOrGetter<ShippingOption[]>
+  /**
+   * The checkout quote's `shippingOptions`: each delivery at the price
+   * this cart would be charged for it (a free-shipping threshold or
+   * promotion already applied, `waivedBy` saying which). The ONLY source
+   * of a card's price; `null` until the quote has an answer.
+   */
+  quotedOptions: MaybeRefOrGetter<readonly QuoteShippingOption[] | null | undefined>
   /** The tenant's BoxNow partner id; empty when BoxNow is not set up. */
   partnerId: MaybeRefOrGetter<string>
   /** The options fetch failed: the step shows a retry prompt, not the cards. */
@@ -48,11 +55,11 @@ export type ShippingOptionItem = ShippingOptionItemBase & {
   /** ``ShippingOption.logoPath`` (operator upload), else the bundled default. */
   logo: string
   /**
-   * What this card costs, from the API option the checkout prices the
-   * method with (``useCheckoutForm``'s ``matchedShippingOption``). 0 is a
-   * real answer: it is "Free".
+   * What this card costs, from the quote's row for the carrier the card
+   * stands for. 0 is a real answer: it is "Free". ``null`` while the
+   * quote has no row for it (not answered yet, or refused).
    */
-  price: number
+  price: number | null
   /** Business days after dispatch, from the same option; null = none advertised. */
   estimate: { min: number, max: number } | null
   /** Payment methods reachable ONLY by choosing this card. */
@@ -73,9 +80,8 @@ const PROVIDER_FORM_KEYS: Record<string, string[]> = {
 }
 
 /**
- * The API option a card is priced by — the same pick ``useCheckoutForm``
- * makes for the selected method, so a card never states a price the order
- * summary then contradicts. Home delivery collapses several carriers; the
+ * The carrier a card stands for: the same pick ``useCheckoutForm`` makes
+ * for the selected method. Home delivery collapses several carriers; the
  * server routes the cart to the first one it fits.
  */
 function pricedOption(key: ShippingMethodKey, sameMethod: ShippingOption[], first: ShippingOption): ShippingOption {
@@ -89,9 +95,15 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   const { formState } = inputs
   const { t, n } = useI18n({ useScope: 'global' })
   const { getPaymentMethodName } = usePaymentMethod()
-  const { cart } = storeToRefs(useCartStore())
 
   const apiOptions = computed(() => toValue(inputs.apiOptions))
+
+  /** The quote's price for a carrier's delivery, `null` without a row for it. */
+  function quotedPrice(option: ShippingOption): number | null {
+    const row = toValue(inputs.quotedOptions)?.find(quoted =>
+      quoted.providerCode === option.providerCode && quoted.kind === option.kind)
+    return row ? row.price : null
+  }
 
   // Without a partner id (the tenant has not set one; there is no platform
   // fallback) the BoxNow card is disabled, so the shopper never reaches a
@@ -209,10 +221,6 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     return result
   })
 
-  // A promotion's free shipping zeroes every method's cost (the order
-  // summary does the same), so the cards say Free too.
-  const promotionFreeShipping = computed(() => Boolean(cart.value?.promotionFreeShipping))
-
   // One card per method, in the priority order Django sent; the first
   // option of a method gives the card its identity and its logo.
   const shippingOptions = computed(() => {
@@ -242,7 +250,7 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
       ordered.push({
         ...baseItem,
         logo: resolveShippingLogo(option.logoPath),
-        price: promotionFreeShipping.value ? 0 : priced.price,
+        price: quotedPrice(priced),
         estimate: deliveryEstimate(priced),
         // Named through the label map the payment step uses, so the two
         // never disagree on what a method is called.
@@ -274,8 +282,8 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     shippingOptions.value.find(item => item.value === formState.value.shippingMethod),
   )
 
-  // Free for the chosen method: Django answers 0 only when a rate's
-  // free-shipping threshold is met, and a promotion says so on the cart.
+  // Free for the chosen method: the quote prices it 0 only when a rate's
+  // free-shipping threshold is met or a promotion waives it.
   const freeDeliveryApplied = computed(() => selectedOption.value?.price === 0)
 
   const isBoxNow = computed(

@@ -36,6 +36,7 @@ const localePath = useLocalePath()
 const { cart } = storeToRefs(useCartStore())
 const payWay = useState<PayWay | null>('selectedPayWay')
 const { getPaymentMethodName } = usePaymentMethod()
+const { rejectionMessage } = usePromotionOffer()
 
 const shipping = computed(() => props.quote?.shipping?.price ?? null)
 const paymentFee = computed(() => props.quote?.paymentMethodFee?.amount ?? 0)
@@ -89,6 +90,17 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
       color="info"
       variant="soft"
       class="w-full justify-center"
+    />
+    <!-- A coupon attached to the cart that order creation would refuse
+         (the quote's `blockingCoupon`): said before «Place order», with
+         Django's reason, so the order is not refused for it. -->
+    <UAlert
+      v-if="quote?.blockingCoupon"
+      :title="t('coupon_blocked', { code: quote.blockingCoupon.code })"
+      :description="`${rejectionMessage(quote.blockingCoupon.reason)}. ${t('coupon_blocked_hint')}`"
+      icon="i-lucide-ticket-x"
+      color="warning"
+      variant="soft"
     />
     <UAlert
       v-if="cart?.b2bPricing?.belowMinimum"
@@ -208,6 +220,8 @@ el:
   shipping: Αποστολή
   calculated_next: Στο επόμενο βήμα
   calculated_at_payment: Υπολογίζεται στην πληρωμή
+  coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
+  coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   free: Δωρεάν
   total: Σύνολο
   vat_items: Περιλαμβάνεται ΦΠΑ προϊόντων {amount}
@@ -226,6 +240,8 @@ en:
   shipping: Delivery
   calculated_next: Calculated next
   calculated_at_payment: Calculated at payment
+  coupon_blocked: Coupon {code} cannot be used with this order
+  coupon_blocked_hint: Remove it from your cart to place the order.
   free: Free
   total: Total
   vat_items: Includes {amount} VAT on the items
