@@ -71,6 +71,8 @@ const {
   currentStep,
   addressStepErrors,
   quote,
+  quotePending,
+  quoteRefusal,
   createdOrder,
   isSubmitting,
   giftCards,
@@ -393,6 +395,7 @@ useSeoMeta({
         <div class="lg:sticky lg:top-4">
           <WebsideCheckoutSidebar
             :quote="quote"
+            :quote-refusal="quoteRefusal"
             :shipping-summary="shippingSummary"
           >
             <template #items>
@@ -416,7 +419,7 @@ useSeoMeta({
               <LoyaltyRedemption
                 v-if="loggedIn"
                 :currency="cart?.currency ?? 'EUR'"
-                :max-discount-amount="quote?.freeThresholdValue ?? 0"
+                :max-discount-amount="quote?.freeThresholdValue ?? null"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"
               />
@@ -446,7 +449,7 @@ useSeoMeta({
                 block
                 trailing
                 :icon="sidebarCtaIcon"
-                :loading="isSubmitting"
+                :loading="isSubmitting || (currentStep === 2 && quotePending)"
                 :disabled="sidebarCtaDisabled"
                 data-testid="checkout-sidebar-cta"
                 :ui="{ trailingIcon: 'ms-0' }"

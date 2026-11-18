@@ -19,7 +19,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { computed, defineComponent, nextTick } from 'vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
-import { makeCartQuote, makeCheckoutQuote } from '~~/test/fixtures/checkoutQuote'
+import { makeCartQuote, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import { setTenant } from '~~/test/helpers/tenant'
@@ -82,6 +82,8 @@ mockNuxtImport('useCheckoutQuote', () => ({ request }: { request: () => CartQuot
   q.request = request
   return {
     quote: computed(() => q.shown),
+    pending: computed(() => false),
+    refusal: computed(() => null),
     current: () => Promise.resolve({ quote: q.priced, error: q.error }),
     refresh: q.refresh,
   }
@@ -935,6 +937,20 @@ describe('useCheckoutSubmit', () => {
       expect(m.releaseReservations).toHaveBeenCalledWith([42])
     })
 
+    // The delivery step's quote prices no pay way, and a click can land
+    // while the payment step's is still on its way: no total was shown,
+    // so none changed.
+    it('orders at the quote when the page had shown no total yet, without calling it a change', async () => {
+      q.shown = unpricedQuote()
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit, submitError } = setup(COD)
+
+      await onSubmit()
+
+      expect(submitError.value).toBeNull()
+      expect(orderBodies().map(body => body.expectedTotal)).toEqual([{ amount: 6300, currency: 'EUR' }])
+    })
+
     it('orders at the new total once the shopper submits again with it on the page', async () => {
       q.priced = NEW_TOTAL
       api.routes({ '/api/orders': orderCreated() })
@@ -984,6 +1000,17 @@ describe('useCheckoutSubmit', () => {
           code: 'total_changed',
         })
         expect(api.callsTo('/api/cart')).toHaveLength(1)
+      })
+
+      // Not after the cart reload: the quote is pending from the refusal
+      // on, so the page's button waits instead of offering the old total.
+      it('asks for the quote again at once, while the cart still reloads', async () => {
+        api.routes({ '/api/orders': totalChanged, '/api/cart': () => new Promise(() => {}) })
+        const { onSubmit } = setup(COD)
+
+        await onSubmit()
+
+        expect(q.refresh).toHaveBeenCalledTimes(1)
       })
 
       it('drops the intent priced at the old total, so the next submit prices a fresh one', async () => {

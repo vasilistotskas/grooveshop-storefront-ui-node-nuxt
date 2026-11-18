@@ -114,6 +114,14 @@ describe('Checkout/Sidebar (default)', () => {
     expect(total(wrapper)).toBe(messages.calculated_at_payment)
   })
 
+  it('says why, where the total would be, when Django refuses the quote', async () => {
+    const wrapper = await mount({ quote: null, quoteRefusal: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.' })
+
+    expect(total(wrapper)).toBe('—')
+    expect(wrapper.get('[role="status"]').text())
+      .toBe(messages.quote_refused.replace('{reason}', 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.'))
+  })
+
   it('shows dashes, not zeros, before the first quote arrives', async () => {
     const wrapper = await mount({ quote: null, includeShipping: true })
 
@@ -278,6 +286,13 @@ describe('Checkout/Sidebar (webside)', () => {
     const wrapper = await mount()
 
     expect(amountBeside(wrapper, 'Σύνολο')).toBe('Υπολογίζεται στην πληρωμή')
+  })
+
+  it('says why, where the total would be, when Django refuses the quote', async () => {
+    const wrapper = await mount({ quote: null, quoteRefusal: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.' })
+
+    expect(amountBeside(wrapper, 'Σύνολο')).toBe('—')
+    expect(wrapper.get('[role="status"]').text()).toBe('Δεν υπολογίστηκε το σύνολο: Ο τρόπος πληρωμής δεν είναι διαθέσιμος.')
   })
 
   it('shows a dash while the chosen method is not priced', async () => {

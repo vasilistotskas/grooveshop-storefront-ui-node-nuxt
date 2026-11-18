@@ -189,8 +189,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     if (errorInfo.shouldRetry) reservationIds.value = []
     // Django priced the order at another total: show the cart's lines at
     // their prices now and the quote the shopper's next submit sends.
+    // Both are asked at once, so the quote is pending (and the page's
+    // order button with it) from the refusal on, never showing the old
+    // total as current while the cart reloads.
     if (errorInfo.totalChanged) {
-      void cartStore.refreshCart().then(() => checkoutQuote.refresh())
+      void Promise.all([cartStore.refreshCart(), checkoutQuote.refresh()])
     }
     // A field the address step owns: go back there and show each
     // message under its own input, not only in the toast.
@@ -752,7 +755,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         })
         return
       }
-      if (!sameExpectedTotal(priced.expectedTotal, shownTotal)) {
+      // A total the page never showed is not a change: the delivery
+      // step's quote prices no pay way, and a first answer may still be
+      // on its way. The shopper can only accept what was shown.
+      if (shownTotal !== null && !sameExpectedTotal(priced.expectedTotal, shownTotal)) {
         failCheckout(describeTotalChange(priced.amountDue, t, n))
         return
       }
@@ -1026,6 +1032,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     currentStep,
     addressStepErrors,
     quote: checkoutQuote.quote,
+    // The page's order button waits while the quote is being asked for,
+    // and the summary says why when Django refuses one.
+    quotePending: checkoutQuote.pending,
+    quoteRefusal: checkoutQuote.refusal,
     submitError,
     checkoutMode,
     useHostedCheckout,

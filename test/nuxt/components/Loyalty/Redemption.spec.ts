@@ -37,7 +37,7 @@ beforeEach(() => {
   useCartStore().cart = makeCart()
 })
 
-function mountRedemption(maxDiscountAmount = 100) {
+function mountRedemption(maxDiscountAmount: number | null = 100) {
   return mountSuspended(LoyaltyRedemption, {
     props: { currency: 'EUR', maxDiscountAmount },
     route: false,
@@ -77,6 +77,18 @@ describe('Loyalty/Redemption', () => {
       expect(wrapper.emitted('redeemed')).toBeUndefined()
       expect(toastAdd).not.toHaveBeenCalled()
     })
+  })
+
+  // No quote yet, or Django refused it: the products' value is unknown,
+  // so the balance alone caps the field, and no cap of 0 disables it.
+  it('stays usable, capped by the balance alone, while there is no quote', async () => {
+    const wrapper = await mountRedemption(null)
+
+    expect(pointsInput(wrapper).props('disabled')).toBe(false)
+    await enterPoints(wrapper, 100)
+    await submit(wrapper)
+
+    expect(wrapper.emitted('redeemed')).toEqual([[{ amount: 1, currency: 'EUR', points: 100 }]])
   })
 
   describe('applying a redemption', () => {

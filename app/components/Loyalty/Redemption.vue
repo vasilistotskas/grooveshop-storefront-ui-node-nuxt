@@ -6,8 +6,11 @@ interface Props {
   /**
    * The most the points may take off: the goods after the offers (the
    * checkout quote's `freeThresholdValue`), the cap Django redeems under.
+   * `null` while there is no quote (not answered yet, or refused): only
+   * the balance caps the field then, rather than a cap of 0 that would
+   * disable it.
    */
-  maxDiscountAmount: number
+  maxDiscountAmount: number | null
 }
 
 interface Emits {
@@ -67,6 +70,7 @@ const availableBalance = computed(() => summary.value?.pointsBalance || 0)
 // Max redeemable points: capped by both balance and products total
 const maxRedeemablePoints = computed(() => {
   if (redemptionRatio.value === null) return 0
+  if (props.maxDiscountAmount === null) return availableBalance.value
   const maxFromProductsTotal = Math.floor(props.maxDiscountAmount * redemptionRatio.value)
   return Math.min(availableBalance.value, maxFromProductsTotal)
 })

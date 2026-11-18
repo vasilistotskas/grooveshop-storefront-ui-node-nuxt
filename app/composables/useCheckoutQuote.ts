@@ -42,6 +42,18 @@ export function useCheckoutQuote({ request, cartVersion }: {
   const quote = computed<CartQuote | null>(() =>
     status.value === 'error' ? null : data.value ?? null)
 
+  /** A quote is being asked for: what is on the page may be about to change. */
+  const pending = computed(() => status.value === 'pending')
+
+  /**
+   * Why Django refused the quote, in the page's language (its coded
+   * refusal: a pay way not offered, a delivery it cannot price, a gift
+   * card or a points redemption it does not accept), `null` while it
+   * answers. Without it a refused quote left dashes and nothing saying why.
+   */
+  const refusal = computed<string | null>(() =>
+    status.value === 'error' ? describeApiError(error.value).description : null)
+
   /**
    * The quote for the request as it stands, what an order is placed at:
    * a request in flight is waited for. Without one, Django's refusal
@@ -58,6 +70,8 @@ export function useCheckoutQuote({ request, cartVersion }: {
 
   return {
     quote,
+    pending,
+    refusal,
     current,
     refresh: () => refresh(),
   }

@@ -28,6 +28,7 @@ const { state, submit, prevStep } = vi.hoisted(() => ({
     loggedIn: false,
     redemption: null as { amount: number, currency: string, points: number } | null,
     quote: null as CheckoutQuote | null,
+    quotePending: false,
   },
   submit: vi.fn(() => Promise.resolve()),
   prevStep: vi.fn(),
@@ -81,6 +82,8 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
     currentStep: step,
     addressStepErrors: ref({}),
     quote: ref(state.quote),
+    quotePending: ref(state.quotePending),
+    quoteRefusal: ref(null),
     createdOrder: ref(state.orderCreated ? { id: 7 } : null),
     isSubmitting: ref(state.submitting),
     loyaltyDiscount: ref(state.redemption),
@@ -125,7 +128,7 @@ const PARTS = ['CheckoutItems', 'CheckoutCouponInput', 'CheckoutGiftCardInput', 
 const shownStep = (wrapper: VueWrapper) => wrapper.find('[data-step]').attributes('data-step')
 
 beforeEach(() => {
-  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null, quote: null })
+  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null, quote: null, quotePending: false })
 })
 
 describe('Checkout page (default)', () => {
@@ -227,6 +230,17 @@ describe('Checkout page (default)', () => {
       const wrapper = await mountOnStep(2, { payWay: 3, online: true, quote: makeCartQuote({ amountDue: 63.5 }) })
 
       expect(cta(wrapper).text()).toBe(t('pay', { total: useNuxtApp().$i18n.n(63.5, 'currency') }))
+    })
+
+    // A click before the payment step's quote lands would accept a total
+    // the page never showed.
+    it('waits, loading, while the quote is being asked for', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, online: true, quote: makeCartQuote(), quotePending: true })
+
+      expect(cta(wrapper).attributes('disabled')).toBeDefined()
+      await cta(wrapper).trigger('click')
+      await flushPromises()
+      expect(submit).not.toHaveBeenCalled()
     })
 
     it('names no amount while the quote has none to charge', async () => {
@@ -407,6 +421,13 @@ describe('Place order (webside)', () => {
     expect(sidebar.contains(checkbox)).toBe(true)
     // The checkbox comes before the button in the document.
     expect(checkbox.compareDocumentPosition(cta(wrapper).element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('waits, loading, while the quote is being asked for', async () => {
+    state.quotePending = true
+    const wrapper = await mountOnStep(2)
+
+    expect(cta(wrapper).attributes('disabled')).toBeDefined()
   })
 
   it.each([0, 1])('asks for no consent before the payment step (step %i)', async (index) => {

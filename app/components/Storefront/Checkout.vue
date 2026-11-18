@@ -72,6 +72,8 @@ const {
   currentStep,
   addressStepErrors,
   quote,
+  quotePending,
+  quoteRefusal,
   createdOrder,
   isSubmitting,
   loyaltyDiscount,
@@ -325,7 +327,7 @@ useSeoMeta({
               :icon="currentStep === 2 ? 'i-lucide-lock' : undefined"
               :trailing-icon="currentStep === 2 ? undefined : 'i-lucide-arrow-right'"
               :color="currentStep === 2 ? 'secondary' : 'neutral'"
-              :loading="isSubmitting"
+              :loading="isSubmitting || (currentStep === 2 && quotePending)"
               :disabled="currentStep === 2 && !formState.payWay"
               size="xl"
               data-testid="checkout-cta"
@@ -338,6 +340,7 @@ useSeoMeta({
         <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+1.5rem)]">
           <CheckoutSidebar
             :quote="quote"
+            :quote-refusal="quoteRefusal"
             :include-shipping="currentStep >= 1 && Boolean(formState.shippingMethod)"
             :loyalty="loyaltyDiscount"
           >
@@ -372,7 +375,7 @@ useSeoMeta({
               <CheckoutPointsPanel
                 v-if="loggedIn"
                 :currency="cart?.currency ?? 'EUR'"
-                :max-discount-amount="quote?.freeThresholdValue ?? 0"
+                :max-discount-amount="quote?.freeThresholdValue ?? null"
                 :redemption="loyaltyDiscount"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"

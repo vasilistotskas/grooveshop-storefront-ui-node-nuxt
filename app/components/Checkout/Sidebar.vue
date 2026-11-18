@@ -21,6 +21,8 @@ const props = defineProps<{
   includeShipping: boolean
   /** The points redemption the page holds, for the points it names, or `null`. */
   loyalty: { points: number } | null
+  /** Why Django refused the quote, said where the total would be; `null` while it answers. */
+  quoteRefusal?: string | null
 }>()
 
 defineSlots<{
@@ -195,10 +197,21 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
           class="font-mono text-xl font-bold text-highlighted"
         >{{ n(quote.amountDue, 'currency') }}</span>
         <span
+          v-else-if="quoteRefusal"
+          class="font-mono text-xl font-bold text-highlighted"
+        >—</span>
+        <span
           v-else
           class="text-sm text-toned"
         >{{ t('calculated_at_payment') }}</span>
       </div>
+      <p
+        v-if="quote?.amountDue == null && quoteRefusal"
+        role="status"
+        class="text-sm text-warning"
+      >
+        {{ t('quote_refused', { reason: quoteRefusal }) }}
+      </p>
       <p
         v-if="cart?.totalVatValue"
         class="text-xs text-toned"
@@ -220,6 +233,7 @@ el:
   shipping: Αποστολή
   calculated_next: Στο επόμενο βήμα
   calculated_at_payment: Υπολογίζεται στην πληρωμή
+  quote_refused: "Δεν υπολογίστηκε το σύνολο: {reason}"
   coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
   coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   free: Δωρεάν
@@ -240,6 +254,7 @@ en:
   shipping: Delivery
   calculated_next: Calculated next
   calculated_at_payment: Calculated at payment
+  quote_refused: "The total could not be worked out: {reason}"
   coupon_blocked: Coupon {code} cannot be used with this order
   coupon_blocked_hint: Remove it from your cart to place the order.
   free: Free

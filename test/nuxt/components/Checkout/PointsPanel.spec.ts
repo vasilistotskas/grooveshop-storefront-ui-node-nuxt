@@ -38,7 +38,7 @@ beforeEach(() => {
 
 const n = (value: number, format?: string) => format ? useNuxtApp().$i18n.n(value, format) : useNuxtApp().$i18n.n(value)
 
-function mount(props: { maxDiscountAmount?: number, redemption?: { amount: number, currency: string, points: number } | null } = {}) {
+function mount(props: { maxDiscountAmount?: number | null, redemption?: { amount: number, currency: string, points: number } | null } = {}) {
   return mountSuspended(PointsPanel, {
     props: { currency: 'EUR', maxDiscountAmount: 100, redemption: null, ...props },
     route: false,
@@ -59,6 +59,18 @@ describe('Checkout/PointsPanel', () => {
     expect(wrapper.text()).toContain(`${n(1240)} πόντοι`)
     // 1240 points, but 12,40 € of items at 100 points per euro caps it there.
     expect(wrapper.text()).toContain(`100 πόντοι = 1 €. Έως ${n(12.4, 'currency')} έκπτωση σε αυτή την παραγγελία.`)
+  })
+
+  // No quote yet, or Django refused it: the goods' value is unknown, so
+  // the balance alone caps the field, and no cap of 0 disables it.
+  it('names no cap and stays usable while there is no quote', async () => {
+    const wrapper = await mount({ maxDiscountAmount: null })
+
+    expect(wrapper.text()).toContain('100 πόντοι = 1 €.')
+    expect(wrapper.text()).not.toContain('Έως')
+    expect(wrapper.findComponent({ name: 'UInputNumber' }).props('disabled')).toBe(false)
+    await redeem(wrapper, 500)
+    expect(wrapper.emitted('redeemed')).toEqual([[{ amount: 5, currency: 'EUR', points: 500 }]])
   })
 
   it('records the intent to redeem, priced at the store\'s ratio', async () => {

@@ -5,6 +5,9 @@ const props = defineProps({
   // total the order is placed at, which reads "at payment" until the
   // quote prices the delivery and the pay way.
   quote: { type: Object as PropType<CheckoutQuote | null>, default: null },
+  // Why Django refused the quote, said where the total would be; ``null``
+  // while it answers.
+  quoteRefusal: { type: String as PropType<string | null>, default: null },
   // Selected shipping method context — surfaced as a "selected"
   // callout on the payment step so the shopper can verify what
   // they picked at step 2 without scrolling back. Pass ``null`` (or
@@ -362,6 +365,13 @@ defineSlots<{
             "
           >{{ $i18n.n(checkoutTotal, 'currency') }}</span>
           <span
+            v-else-if="quoteRefusal"
+            class="
+              text-xl font-bold text-primary-950
+              dark:text-primary-50
+            "
+          >—</span>
+          <span
             v-else
             class="
               text-sm text-primary-950
@@ -369,6 +379,13 @@ defineSlots<{
             "
           >{{ t('calculated_at_payment') }}</span>
         </div>
+        <p
+          v-if="checkoutTotal === null && quoteRefusal"
+          role="status"
+          class="text-sm text-warning"
+        >
+          {{ t('quote_refused', { reason: quoteRefusal }) }}
+        </p>
       </div>
 
       <template #footer>
@@ -400,6 +417,7 @@ el:
   free: Δωρεάν
   total: Σύνολο
   calculated_at_payment: Υπολογίζεται στην πληρωμή
+  quote_refused: "Δεν υπολογίστηκε το σύνολο: {reason}"
   coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
   coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
@@ -422,6 +440,7 @@ en:
   free: Free
   total: Total
   calculated_at_payment: Calculated at payment
+  quote_refused: "The total could not be worked out: {reason}"
   coupon_blocked: Coupon {code} cannot be used with this order
   coupon_blocked_hint: Remove it from your cart to place the order.
   pay_way_fee: Payment method fee

@@ -91,20 +91,22 @@ describe('useCheckoutQuote', () => {
   })
 
   it('shows no quote while Django refuses one, and current() hands back the refusal', async () => {
-    const refusal = { detail: 'Δεν γίνεται αποστολή.', reason: 'shipping_unavailable', code: 'shipping_unavailable' }
-    api.routes({ '/api/cart/quote': failWith(400, refusal) })
+    const body = { detail: 'Δεν γίνεται αποστολή.', reason: 'shipping_unavailable', code: 'shipping_unavailable' }
+    api.routes({ '/api/cart/quote': failWith(400, body) })
 
-    const { quote, current } = setup()
+    const { quote, current, refusal } = setup()
     await flushPromises()
 
     expect(quote.value).toBeNull()
+    // Said on the page, where the total would be.
+    expect(refusal.value).toBe('Δεν γίνεται αποστολή.')
     const { quote: priced, error } = await current()
     expect(priced).toBeNull()
-    expect(apiErrorBodyOf(error)).toEqual(refusal)
+    expect(apiErrorBodyOf(error)).toEqual(body)
   })
 
   it('makes current() wait for the answer to a change made just before it', async () => {
-    const { request, current } = setup({ countryId: 'GR' })
+    const { request, current, pending } = setup({ countryId: 'GR' })
     await flushPromises()
     const answers: Array<(value: unknown) => void> = []
     api.routes({ '/api/cart/quote': () => new Promise(resolve => answers.push(resolve)) })
@@ -113,9 +115,12 @@ describe('useCheckoutQuote', () => {
     const settled = current()
     await nextTick()
     await vi.waitFor(() => expect(answers).toHaveLength(1))
+    // The page's order button waits on this.
+    expect(pending.value).toBe(true)
     const changed = makeCartQuote({ amountDue: 70, expectedTotal: { amount: 7000, currency: 'EUR' } })
     answers[0]!(changed)
 
     expect(await settled).toEqual({ quote: changed, error: null })
+    expect(pending.value).toBe(false)
   })
 })

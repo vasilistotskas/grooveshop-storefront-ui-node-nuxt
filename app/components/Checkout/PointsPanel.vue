@@ -27,8 +27,11 @@ const props = defineProps<{
   /**
    * The most the points may take off: the goods after the offers (the
    * checkout quote's `freeThresholdValue`), the cap Django redeems under.
+   * `null` while there is no quote (not answered yet, or refused): only
+   * the balance caps the field then, and no cap is named, rather than a
+   * cap of 0 that would disable it.
    */
-  maxDiscountAmount: number
+  maxDiscountAmount: number | null
   /** The redemption the page holds, or `null`. */
   redemption: Redemption | null
 }>()
@@ -63,8 +66,11 @@ const enabled = computed(() =>
   && !b2bSuppressesLoyalty.value)
 
 const balance = computed(() => summary.value?.pointsBalance ?? 0)
-const maxPoints = computed(() =>
-  ratio.value === null ? 0 : Math.min(balance.value, Math.floor(props.maxDiscountAmount * ratio.value)))
+const maxPoints = computed(() => {
+  if (ratio.value === null) return 0
+  if (props.maxDiscountAmount === null) return balance.value
+  return Math.min(balance.value, Math.floor(props.maxDiscountAmount * ratio.value))
+})
 
 const worth = (points: number) => ratio.value === null ? 0 : Math.round((points / ratio.value) * 100) / 100
 
@@ -172,7 +178,9 @@ const redeem = (event: FormSubmitEvent<z.output<typeof schema.value>>) => {
       v-if="ratio !== null"
       class="text-xs text-toned"
     >
-      {{ t('worth', { ratio: n(ratio), max: n(worth(maxPoints), 'currency') }) }}
+      {{ maxDiscountAmount === null
+        ? t('ratio', { ratio: n(ratio) })
+        : t('worth', { ratio: n(ratio), max: n(worth(maxPoints), 'currency') }) }}
     </p>
   </div>
 </template>
@@ -186,6 +194,7 @@ el:
   redeemed: "{points} πόντοι εξαργυρώθηκαν · −{amount}"
   remove: Αφαίρεση
   worth: "{ratio} πόντοι = 1 €. Έως {max} έκπτωση σε αυτή την παραγγελία."
+  ratio: "{ratio} πόντοι = 1 €."
   validation:
     required: Συμπλήρωσε τους πόντους
     min_points: Εξαργύρωσε τουλάχιστον 1 πόντο
@@ -199,6 +208,7 @@ en:
   redeemed: "{points} points redeemed · −{amount}"
   remove: Remove
   worth: "{ratio} points = 1 €. Up to {max} off this order."
+  ratio: "{ratio} points = 1 €."
   validation:
     required: Enter the points
     min_points: Redeem at least 1 point
