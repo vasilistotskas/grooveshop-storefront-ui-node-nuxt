@@ -94,6 +94,7 @@ Pinia stores in `app/stores/`:
 - `useMediaStreamImage.ts` — `useMediaStreamBaseUrl`/`useMediaStreamImage`/`useMediaStreamSrc`: tenant-aware Media Stream origin resolution (see Image Handling)
 - `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
 - `useCheckout.ts` — Stock reservation and release, cart payment intent (payment-status polling, the purchase pixels and the cart cleanup after an order live in `useCheckoutSuccess.ts`; the delivery step's cards and its move-on rule in `useCheckoutShippingStep.ts`)
+- `useCheckoutQuote.ts` — the checkout's one total: Django's quote (`POST /api/cart/quote`) of the order the form would place. The summary and «Pay …» print it as it came, nothing is added up in the app, and the order sends its `expectedTotal`, so Django creates it only at that total (a 409 `total_changed` shows the new one)
 - `useProductFilters.ts` — Product filtering with URL state
 - `useLoyalty.ts` — Loyalty program data (summary, transactions, tiers, product points); `useLoyaltySettings.ts` — the programme's figures (ratio, points factor, expiry, bonus, XP per level) parsed from the one `useStoreSettings` payload, `null` when unreadable (no request, no default); whether it is on is `useStoreFeature('loyalty')`
 - `useCookieControl.ts` — GDPR cookie consent management

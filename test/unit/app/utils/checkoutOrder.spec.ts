@@ -1,29 +1,34 @@
 import { describe, it, expect } from 'vitest'
-import { buildOrderCreateBody, classifyOrderError, failedStatusOf, refusedResponseOf, rejectionSettlesAttempt, setDocumentType } from '~/utils/checkoutOrder'
+import { buildOrderCreateBody, classifyOrderError, describeTotalChange, failedStatusOf, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
+import { makeCheckoutQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
 
-/** Echoes the key, so a title names the translation it came from. */
-const t = (key: string) => key
+/** Echoes the key and its params, so a text names the translation it came from. */
+const t = (key: string, params?: Record<string, unknown>) => params ? `${key} ${JSON.stringify(params)}` : key
+/** Formats like the page would, so a text shows which amount it names. */
+const n = (value: number, format: string) => `${format}:${value.toFixed(2)}`
 
 describe('classifyOrderError', () => {
   it('makes an expired stock hold the one retryable error', () => {
-    expect(classifyOrderError({ error: { type: 'reservation_unavailable' }, detail: 'ignored' }, t)).toEqual({
+    expect(classifyOrderError({ error: { type: 'reservation_unavailable' }, detail: 'ignored' }, t, n)).toEqual({
       title: 'form.submit.error.reservation_expired',
       description: 'form.submit.error.reservation_expired_description',
       shouldRetry: true,
       addressStepErrors: [],
+      totalChanged: false,
     })
   })
 
   // Django's idempotency middleware, while the same key is still being
   // processed: its English `detail` must not reach the shopper.
   it('tells the shopper an order with this key is already being placed', () => {
-    expect(classifyOrderError({ detail: 'A duplicate request is already in progress.', code: 'idempotency_in_flight' }, t)).toEqual({
+    expect(classifyOrderError({ detail: 'A duplicate request is already in progress.', code: 'idempotency_in_flight' }, t, n)).toEqual({
       title: 'form.submit.error.order_in_progress',
       description: 'form.submit.error.order_in_progress_description',
       shouldRetry: false,
       addressStepErrors: [],
+      totalChanged: false,
     })
   })
 
@@ -41,14 +46,15 @@ describe('classifyOrderError', () => {
     ['invalid_gift_card', 'invalid_gift_card', 'invalid_gift_card_description'],
     ['insufficient_stock', 'insufficient_stock', 'insufficient_stock_description'],
   ])('classifies %s by its type, not by its text', (type, title, fallback) => {
-    const withDetail = classifyOrderError({ error: { type }, detail: 'Από το Django.' }, t)
-    const withoutDetail = classifyOrderError({ error: { type } }, t)
+    const withDetail = classifyOrderError({ error: { type }, detail: 'Από το Django.' }, t, n)
+    const withoutDetail = classifyOrderError({ error: { type } }, t, n)
 
     expect(withDetail).toEqual({
       title: `form.submit.error.${title}`,
       description: 'Από το Django.',
       shouldRetry: false,
       addressStepErrors: [],
+      totalChanged: false,
     })
     expect(withoutDetail.description).toBe(`form.submit.error.${fallback}`)
   })
@@ -61,19 +67,19 @@ describe('classifyOrderError', () => {
       error: { type },
       detail: 'The cart cannot be checked out.',
       cart: ['Shirt: 1 left', 'Hat is gone'],
-    }, t)
+    }, t, n)
 
     expect(info.title).toBe(title)
     expect(info.description).toBe('Shirt: 1 left. Hat is gone')
   })
 
   it('shows cart_invalid\'s detail when no line message came, and nothing invented', () => {
-    expect(classifyOrderError({ error: { type: 'cart_invalid' }, detail: 'Empty cart.' }, t).description).toBe('Empty cart.')
-    expect(classifyOrderError({ error: { type: 'cart_invalid' } }, t).description).toBeUndefined()
+    expect(classifyOrderError({ error: { type: 'cart_invalid' }, detail: 'Empty cart.' }, t, n).description).toBe('Empty cart.')
+    expect(classifyOrderError({ error: { type: 'cart_invalid' } }, t, n).description).toBeUndefined()
   })
 
   it('reads an untyped cart field error as an inventory problem, whatever it says', () => {
-    const info = classifyOrderError({ cart: ['Product has insufficient stock.'] }, t)
+    const info = classifyOrderError({ cart: ['Product has insufficient stock.'] }, t, n)
 
     expect(info).toMatchObject({ title: 'form.submit.error.inventory', description: 'Product has insufficient stock.' })
   })
@@ -83,7 +89,7 @@ describe('classifyOrderError', () => {
       zipcode: ['Enter a valid postcode.'],
       countryId: ['Select a valid country.'],
       boxnowLockerId: ['Locker ID required.'],
-    }, t)
+    }, t, n)
 
     expect(info.title).toBe('form.submit.error.invalid_order_data')
     expect(info.description).toBe([
@@ -98,23 +104,50 @@ describe('classifyOrderError', () => {
   })
 
   it('falls back to the detail under the generic title', () => {
-    expect(classifyOrderError({ detail: 'Something broke.' }, t)).toEqual({
+    expect(classifyOrderError({ detail: 'Something broke.' }, t, n)).toEqual({
       title: 'form.submit.error.general',
       description: 'Something broke.',
       shouldRetry: false,
       addressStepErrors: [],
+      totalChanged: false,
     })
+  })
+
+  // Django's 409 when the order's expectedTotal is not what it priced:
+  // its error.type stays invalid_order_data until every client knows
+  // the new one, so the code is what tells it apart.
+  it('tells the shopper the new total a changed-total refusal carries', () => {
+    const info = classifyOrderError({
+      detail: 'The order total changed.',
+      code: 'total_changed',
+      error: { type: 'invalid_order_data', quote: makeCheckoutQuote({ amountDue: 71.4 }) },
+    }, t, n)
+
+    expect(info).toEqual({
+      title: 'form.submit.error.total_changed',
+      description: 'form.submit.error.total_changed_description {"total":"currency:71.40"}',
+      shouldRetry: false,
+      addressStepErrors: [],
+      totalChanged: true,
+    })
+  })
+
+  it('asks for a review when the changed-total refusal carries no readable quote', () => {
+    const info = classifyOrderError({ code: 'total_changed', error: { type: 'invalid_order_data' } }, t, n)
+
+    expect(info).toMatchObject({ description: 'form.submit.error.total_changed_review', totalChanged: true })
   })
 
   it.each([
     ['no body (a non-JSON 5xx)', undefined],
     ['an empty body', {}],
   ])('shows only the generic title for %s', (_case, body) => {
-    expect(classifyOrderError(body, t)).toEqual({
+    expect(classifyOrderError(body, t, n)).toEqual({
       title: 'form.submit.error.general',
       description: undefined,
       shouldRetry: false,
       addressStepErrors: [],
+      totalChanged: false,
     })
   })
 })
@@ -147,6 +180,7 @@ describe('buildOrderCreateBody', () => {
     giftCards: [],
     meta: null,
     attribution: null,
+    expectedTotal: null,
     ...overrides,
   })
 
@@ -268,6 +302,80 @@ describe('buildOrderCreateBody', () => {
     expect(bare).not.toHaveProperty('meta')
     expect(bare).not.toHaveProperty('attribution')
   })
+
+  it('sends the expected total exactly as the quote stated it, and none without one', () => {
+    const expectedTotal = { amount: 6300, currency: 'EUR' }
+
+    expect(buildOrderCreateBody(form(), ctx({ expectedTotal })).expectedTotal).toBe(expectedTotal)
+    expect(buildOrderCreateBody(form(), ctx())).not.toHaveProperty('expectedTotal')
+  })
+
+  describe('quoteRequestOf', () => {
+    const order = (overrides: Record<string, unknown> = {}) => buildOrderCreateBody(form({ countryId: 'GR', ...overrides }), ctx({
+      loyaltyDiscount: { points: 500 },
+      giftCards: [{ code: 'GC-1' }],
+    }))
+
+    it('prices every input of the order once the payment step is reached', () => {
+      expect(quoteRequestOf(order({ shippingMethod: 'box_now_locker', boxnowLockerId: 'L-42' }), { delivery: true, payWay: true })).toEqual({
+        countryId: 'GR',
+        regionId: 'ATT',
+        giftCardCodes: ['GC-1'],
+        loyaltyPointsToRedeem: 500,
+        shippingKind: 'pickup_point',
+        shippingProviderCode: 'boxnow',
+        email: 'maria@example.com',
+        payWayId: 3,
+      })
+    })
+
+    it('leaves out the pay way the form pre-selected before the payment step', () => {
+      const request = quoteRequestOf(order(), { delivery: true, payWay: false })
+
+      expect(request).not.toHaveProperty('payWayId')
+      expect(request).toMatchObject({ shippingKind: 'home_delivery', email: 'maria@example.com' })
+    })
+
+    it('leaves out the delivery and the email on the address step', () => {
+      const request = quoteRequestOf(order(), { delivery: false, payWay: false })
+
+      expect(request).not.toHaveProperty('shippingKind')
+      expect(request).not.toHaveProperty('shippingProviderCode')
+      expect(request).not.toHaveProperty('email')
+    })
+
+    // The proxy refuses an empty country, which the form holds until the
+    // shopper picks one.
+    it('sends a blank country, region or email as absent', () => {
+      const request = quoteRequestOf(order({ countryId: '', regionId: '', email: '' }), { delivery: true, payWay: true })
+
+      expect(request.countryId).toBeUndefined()
+      expect(request.regionId).toBeUndefined()
+      expect(request.email).toBeUndefined()
+    })
+  })
+})
+
+describe('sameExpectedTotal', () => {
+  it.each([
+    [{ amount: 6300, currency: 'EUR' }, { amount: 6300, currency: 'EUR' }, true],
+    [{ amount: 6300, currency: 'EUR' }, { amount: 6301, currency: 'EUR' }, false],
+    [{ amount: 6300, currency: 'EUR' }, { amount: 6300, currency: 'USD' }, false],
+    // A total the shopper was never shown is not the one they accepted.
+    [{ amount: 6300, currency: 'EUR' }, null, false],
+    [null, null, false],
+  ])('%j and %j are the same: %s', (a, b, same) => {
+    expect(sameExpectedTotal(a, b)).toBe(same)
+  })
+})
+
+describe('describeTotalChange', () => {
+  it('names the new amount due', () => {
+    expect(describeTotalChange(12.5, t, n)).toEqual({
+      title: 'form.submit.error.total_changed',
+      description: 'form.submit.error.total_changed_description {"total":"currency:12.50"}',
+    })
+  })
 })
 
 describe('failedStatusOf', () => {
@@ -300,17 +408,25 @@ describe('refusedResponseOf', () => {
 })
 
 describe('rejectionSettlesAttempt', () => {
+  /** A refusal as ofetch rejects it: the status, and Django's body at `data`. */
+  const refused = (status: number, data: unknown = {}) =>
+    Object.assign(new Error(String(status)), { response: { status, _data: data }, data })
+
   it.each([400, 401, 404, 422, 429])('settles the attempt on a %i, which Django replays for the same key', (status) => {
-    expect(rejectionSettlesAttempt(status)).toBe(true)
+    expect(rejectionSettlesAttempt(refused(status))).toBe(true)
+  })
+
+  it.each(['total_changed', 'legal_document_unavailable'])('settles the attempt on a 409 %s, a refusal Django replays too', (code) => {
+    expect(rejectionSettlesAttempt(refused(409, { code }))).toBe(true)
   })
 
   it.each([
-    ['no response', undefined],
-    ['a 500', 500],
-    ['a 503', 503],
-    ['a 409 (the same key is still being processed)', 409],
-  ])('leaves the attempt open on %s, because the order may exist', (_label, status) => {
-    expect(rejectionSettlesAttempt(status)).toBe(false)
+    ['no response', new TypeError('fetch failed')],
+    ['a 500', refused(500)],
+    ['a 503', refused(503)],
+    ['a 409 while the same key is still being processed', refused(409, { code: 'idempotency_in_flight' })],
+  ])('leaves the attempt open on %s, because the order may exist', (_label, error) => {
+    expect(rejectionSettlesAttempt(error)).toBe(false)
   })
 })
 

@@ -7,6 +7,7 @@ import Checkout from '~/components/Storefront/Checkout.vue'
 import WebsideCheckout from '~/components/variants/webside/Storefront/Checkout.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
+import { makeCartQuote } from '~~/test/fixtures/checkoutQuote'
 
 /**
  * The checkout page drives its three steps. Every forward move — the
@@ -26,6 +27,7 @@ const { state, submit, prevStep } = vi.hoisted(() => ({
     submitting: false,
     loggedIn: false,
     redemption: null as { amount: number, currency: string, points: number } | null,
+    quote: null as CheckoutQuote | null,
   },
   submit: vi.fn(() => Promise.resolve()),
   prevStep: vi.fn(),
@@ -49,7 +51,6 @@ mockNuxtImport('useCheckoutForm', () => () => {
     selectedPayWay: ref(null),
     selectedCountry: ref(null),
     payWays: ref([]),
-    shippingPrice: ref(0),
     countryOptions: ref([]),
     postcodeExample: ref(''),
     regionOptions: ref([]),
@@ -79,11 +80,11 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
   return {
     currentStep: step,
     addressStepErrors: ref({}),
+    quote: ref(state.quote),
     createdOrder: ref(state.orderCreated ? { id: 7 } : null),
     isSubmitting: ref(state.submitting),
     loyaltyDiscount: ref(state.redemption),
     giftCards: ref([]),
-    giftCardBalanceTotal: ref(0),
     stockError: ref(null),
     isStripePayment: ref(false),
     isVivaWalletPayment: ref(state.online),
@@ -124,7 +125,7 @@ const PARTS = ['CheckoutItems', 'CheckoutCouponInput', 'CheckoutGiftCardInput', 
 const shownStep = (wrapper: VueWrapper) => wrapper.find('[data-step]').attributes('data-step')
 
 beforeEach(() => {
-  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null })
+  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null, quote: null })
 })
 
 describe('Checkout page (default)', () => {
@@ -216,12 +217,18 @@ describe('Checkout page (default)', () => {
       expect(cta(wrapper).text()).toBe(t('place_order'))
     })
 
-    it('names the amount it will charge when payment happens online', async () => {
+    it('names the amount it will charge when payment happens online: the quote\'s amount due', async () => {
       useCartStore().cart = makeCart({ totalPrice: 60 })
 
-      const wrapper = await mountOnStep(2, { payWay: 3, online: true })
+      const wrapper = await mountOnStep(2, { payWay: 3, online: true, quote: makeCartQuote({ amountDue: 63.5 }) })
 
-      expect(cta(wrapper).text()).toBe(t('pay', { total: useNuxtApp().$i18n.n(60, 'currency') }))
+      expect(cta(wrapper).text()).toBe(t('pay', { total: useNuxtApp().$i18n.n(63.5, 'currency') }))
+    })
+
+    it('names no amount while the quote has none to charge', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, online: true, quote: null })
+
+      expect(cta(wrapper).text()).toBe(t('place_order'))
     })
 
     it('submits the active step', async () => {

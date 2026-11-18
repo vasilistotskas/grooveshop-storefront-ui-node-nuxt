@@ -8,17 +8,18 @@ import WebsideCheckoutSidebar from '~/components/variants/webside/Checkout/Sideb
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import type { CartOverrides } from '~~/test/fixtures/cart'
+import { makeCartQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import type { PayWay } from '~~/shared/openapi/types.gen'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
  * The checkout's order summary is the only place the shopper sees what
- * they will pay before they pay it. Both trees print the figures
- * `useCheckoutTotals` computes (its own suite holds the arithmetic). The
- * webside copy counts the delivery only on the payment step, where
- * it recaps the chosen method, so its suite keeps the cases that pin how
- * it feeds the composable.
+ * they will pay before they pay it. Both trees print Django's quote as
+ * it came, row by row, and its amount due as the total: nothing is added
+ * up here (Django's own suites hold the arithmetic: waivers, caps, the
+ * gift-card minimum). The webside copy shows the delivery only on the
+ * payment step, where it recaps the chosen method.
  */
 
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
@@ -31,6 +32,21 @@ function setPayWay(payWay: PayWay | null) {
   useState<PayWay | null>('selectedPayWay').value = payWay
 }
 
+/** A quote of every row: 100 of products, an offer, delivery, a fee, points and a gift card. */
+const FULL_QUOTE = makeCartQuote({
+  itemsSubtotal: 100,
+  discountTotal: 10,
+  appliedPromotions: [{ promotionId: 1, name: 'Φθινόπωρο', code: null, amount: 10 }],
+  freeThresholdValue: 90,
+  shipping: { price: 5, waivedBy: null },
+  paymentMethodFee: { amount: 2, waived: false },
+  loyaltyDiscount: 7,
+  giftCardAmount: 20,
+  grandTotal: 97,
+  amountDue: 70,
+  expectedTotal: { amount: 7000, currency: 'EUR' },
+})
+
 describe('Checkout/Sidebar (default)', () => {
   const messages = YAML.parse(
     parseSfc(resolve(REPO, 'app/components/Checkout/Sidebar.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
@@ -40,11 +56,9 @@ describe('Checkout/Sidebar (default)', () => {
     mountSuspended(CheckoutSidebar, {
       route: false,
       props: {
-        shippingPrice: null,
+        quote: unpricedQuote(),
         includeShipping: false,
-        showPaymentFee: false,
         loyalty: null,
-        giftCardBalance: 0,
         ...props,
       },
       slots,
@@ -64,21 +78,10 @@ describe('Checkout/Sidebar (default)', () => {
     setPayWay(null)
   })
 
-  it('prints every charge and the total they come to', async () => {
-    setCart({
-      totalPrice: 100,
-      promotionDiscount: 10,
-      appliedPromotions: [{ promotionId: 1, name: 'Φθινόπωρο', code: null, amount: 10 }],
-    })
+  it('prints every row of the quote and its amount due as the total', async () => {
     setPayWay(makePayWay({ cost: 2 }))
 
-    const wrapper = await mount({
-      shippingPrice: 5,
-      includeShipping: true,
-      showPaymentFee: true,
-      loyalty: { amount: 7, points: 700 },
-      giftCardBalance: 20,
-    })
+    const wrapper = await mount({ quote: FULL_QUOTE, includeShipping: true, loyalty: { points: 700 } })
 
     expect(charge(wrapper, messages.subtotal)).toBe(money(100))
     expect(charge(wrapper, 'Φθινόπωρο')).toBe(`−${money(10)}`)
@@ -86,78 +89,64 @@ describe('Checkout/Sidebar (default)', () => {
     expect(charge(wrapper, messages.gift_card)).toBe(`−${money(20)}`)
     expect(charge(wrapper, messages.shipping)).toBe(money(5))
     expect(charge(wrapper, 'Αντικαταβολή')).toBe(money(2))
-    // 100 − 10 + 5 + 2 − 7 − 20
+    // Django's amount due, not a sum of the rows above.
     expect(total(wrapper)).toBe(money(70))
   })
 
   it('names a coupon by its code and an unnamed offer generically', async () => {
-    setCart({
-      totalPrice: 60,
-      promotionDiscount: 8,
-      appliedPromotions: [
-        { promotionId: 1, name: 'Καλωσόρισμα', code: 'WELCOME', amount: 5 },
-        { promotionId: 2, name: '', code: null, amount: 3 },
-      ],
+    const wrapper = await mount({
+      quote: unpricedQuote({
+        appliedPromotions: [
+          { promotionId: 1, name: 'Καλωσόρισμα', code: 'WELCOME', amount: 5 },
+          { promotionId: 2, name: '', code: null, amount: 3 },
+        ],
+      }),
     })
-
-    const wrapper = await mount()
 
     expect(charge(wrapper, messages.coupon.replace('{code}', 'WELCOME'))).toBe(`−${money(5)}`)
     expect(charge(wrapper, messages.promotion_discount)).toBe(`−${money(3)}`)
-    expect(total(wrapper)).toBe(money(52))
+  })
+
+  it('leaves the total to the payment step until the quote prices the delivery and the pay way', async () => {
+    const wrapper = await mount({ quote: unpricedQuote({ shipping: { price: 5, waivedBy: null } }), includeShipping: true })
+
+    expect(charge(wrapper, messages.shipping)).toBe(money(5))
+    expect(total(wrapper)).toBe(messages.calculated_at_payment)
+  })
+
+  it('shows dashes, not zeros, before the first quote arrives', async () => {
+    const wrapper = await mount({ quote: null, includeShipping: true })
+
+    expect(charge(wrapper, messages.subtotal)).toBe('—')
+    expect(charge(wrapper, messages.shipping)).toBe('—')
+    expect(total(wrapper)).toBe(messages.calculated_at_payment)
   })
 
   describe('delivery', () => {
     it('says it is calculated next until a method is chosen', async () => {
-      const wrapper = await mount({ shippingPrice: 5, includeShipping: false })
+      const wrapper = await mount({ includeShipping: false })
 
       expect(charge(wrapper, messages.shipping)).toBe(messages.calculated_next)
-      expect(total(wrapper)).toBe(money(60))
     })
 
-    it('shows a dash while the chosen method is not priced yet', async () => {
-      const wrapper = await mount({ shippingPrice: null, includeShipping: true })
+    it('shows a dash while the chosen method is not priced', async () => {
+      const wrapper = await mount({ includeShipping: true })
 
       expect(charge(wrapper, messages.shipping)).toBe('—')
     })
 
-    it('says it is free when a promotion waives it', async () => {
-      setCart({ totalPrice: 60, promotionFreeShipping: true })
-
-      const wrapper = await mount({ shippingPrice: 5, includeShipping: true })
+    it('says it is free when the quote waives it', async () => {
+      const wrapper = await mount({ quote: makeCartQuote({ shipping: { price: 0, waivedBy: 'promotion' } }), includeShipping: true })
 
       expect(charge(wrapper, messages.shipping)).toBe(messages.free)
     })
   })
 
   describe('pay-way fee', () => {
-    it('shows no fee while there is no cart to judge the threshold on', async () => {
-      useCartStore().cart = null
+    it('shows no fee row for a fee the quote waived', async () => {
       setPayWay(makePayWay({ cost: 2.5, freeThreshold: 50 }))
 
-      const wrapper = await mount({ shippingPrice: 0, includeShipping: true, showPaymentFee: true })
-
-      expect(wrapper.text()).not.toContain(money(2.5))
-    })
-
-    it.each([
-      { case: '39,98 €: delivery and the fee are charged', totalPrice: 39.98, promotionDiscount: 0, shipping: 2.99, threshold: 40, total: 44.97 },
-      { case: '40,00 €: delivery and the fee are free', totalPrice: 40, promotionDiscount: 0, shipping: 0, threshold: 40, total: 40 },
-      { case: '45,00 € less a 6,00 € coupon: both are charged', totalPrice: 45, promotionDiscount: 6, shipping: 2.99, threshold: 40, total: 43.99 },
-      { case: 'delivery never lifts the discounted products over the threshold', totalPrice: 60, promotionDiscount: 15, shipping: 5, threshold: 50, total: 52 },
-    ])('waives the fee on the freeThresholdValue of the cart, never recomputed: $case', async ({ totalPrice, promotionDiscount, shipping, threshold, total: expected }) => {
-      setCart({ totalPrice, promotionDiscount })
-      setPayWay(makePayWay({ cost: 2, freeThreshold: threshold }))
-
-      const wrapper = await mount({ shippingPrice: shipping, includeShipping: true, showPaymentFee: true })
-
-      expect(total(wrapper)).toBe(money(expected))
-    })
-
-    it('shows no fee row before the payment page', async () => {
-      setPayWay(makePayWay({ cost: 2.5 }))
-
-      const wrapper = await mount({ showPaymentFee: false })
+      const wrapper = await mount({ quote: makeCartQuote({ paymentMethodFee: { amount: 0, waived: true } }) })
 
       expect(charge(wrapper, 'Αντικαταβολή')).toBeNull()
     })
@@ -165,12 +154,9 @@ describe('Checkout/Sidebar (default)', () => {
     // the schema leaves the key optional; the row then says what it
     // is generically, in the page's language.
     it('labels the fee generically for a pay way with no key', async () => {
-      setPayWay(makePayWay({
-        cost: 2.5,
-        key: undefined,
-      }))
+      setPayWay(makePayWay({ cost: 2.5, key: undefined }))
 
-      const wrapper = await mount({ showPaymentFee: true })
+      const wrapper = await mount({ quote: makeCartQuote({ paymentMethodFee: { amount: 2.5, waived: false } }) })
 
       expect(charge(wrapper, messages.pay_way_fee)).toBe(money(2.5))
     })
@@ -239,7 +225,7 @@ describe('Checkout/Sidebar (webside)', () => {
   const HOME = { method: 'home_delivery' as const }
 
   const mount = (props: Record<string, unknown> = {}) =>
-    mountSuspended(WebsideCheckoutSidebar, { route: false, props: { shippingPrice: null, ...props } })
+    mountSuspended(WebsideCheckoutSidebar, { route: false, props: { quote: unpricedQuote(), ...props } })
 
   /** The amount printed beside the row whose label is exactly `label`, or `null` when there is no such row. */
   function amountBeside(wrapper: VueWrapper, label: string): string | null {
@@ -253,147 +239,73 @@ describe('Checkout/Sidebar (webside)', () => {
     setPayWay(null)
   })
 
-  it('totals the cart, the shipping, the fee and the discounts', async () => {
-    setCart({
-      totalPrice: 100,
-      promotionDiscount: 10,
-      appliedPromotions: [{ promotionId: 1, name: 'Φθινόπωρο', code: null, amount: 10 }],
-    })
+  it('prints every row of the quote and its amount due as the total', async () => {
     setPayWay(makePayWay({ cost: 2 }))
 
-    const wrapper = await mount({
-      shippingPrice: 5,
-      shippingSummary: HOME,
-      showPaymentFee: true,
-      loyaltyDiscount: 7,
-    })
+    const wrapper = await mount({ quote: FULL_QUOTE, shippingSummary: HOME })
 
-    // 100 − 10 promotion + 5 shipping + 2 fee − 7 points
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(90))
+    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(70))
     expect(amountBeside(wrapper, 'Μεταφορικά')).toBe(money(5))
+    expect(amountBeside(wrapper, 'Αντικαταβολή')).toBe(money(2))
     expect(amountBeside(wrapper, 'Φθινόπωρο')).toBe(`-${money(10)}`)
     expect(amountBeside(wrapper, 'Έκπτωση πόντων')).toBe(`-${money(7)}`)
+    expect(amountBeside(wrapper, 'Δωροκάρτα')).toBe(`-${money(20)}`)
   })
 
-  it('leaves shipping out of the total until a method is chosen', async () => {
-    const wrapper = await mount({ shippingPrice: 5 })
+  it('leaves the delivery row to the payment step, where the method is recapped', async () => {
+    const wrapper = await mount({ quote: unpricedQuote({ shipping: { price: 5, waivedBy: null } }) })
 
     expect(amountBeside(wrapper, 'Μεταφορικά')).toBeNull()
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(60))
   })
 
-  it('shows a dash and adds nothing while the chosen method is not priced yet', async () => {
-    const wrapper = await mount({ shippingPrice: null, shippingSummary: HOME })
+  it('leaves the total to the payment step until the quote prices the delivery and the pay way', async () => {
+    const wrapper = await mount()
+
+    expect(amountBeside(wrapper, 'Σύνολο')).toBe('Υπολογίζεται στην πληρωμή')
+  })
+
+  it('shows a dash while the chosen method is not priced', async () => {
+    const wrapper = await mount({ shippingSummary: HOME })
 
     expect(amountBeside(wrapper, 'Μεταφορικά')).toBe('—')
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(60))
   })
 
-  it('waives the shipping price when a promotion grants free shipping', async () => {
-    setCart({ totalPrice: 60, promotionFreeShipping: true })
-
-    const wrapper = await mount({ shippingPrice: 5, shippingSummary: HOME })
+  it('says the delivery is free when the quote waives it', async () => {
+    const wrapper = await mount({ quote: makeCartQuote({ shipping: { price: 0, waivedBy: 'threshold' } }), shippingSummary: HOME })
 
     expect(amountBeside(wrapper, 'Μεταφορικά')).toBe('Δωρεάν')
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(60))
   })
 
-  describe('pay-way fee', () => {
-    it('shows no fee while there is no cart to judge the threshold on', async () => {
-      useCartStore().cart = null
-      setPayWay(makePayWay({ cost: 2.5, freeThreshold: 50 }))
+  it('labels the fee generically for a pay way with no key', async () => {
+    setPayWay(makePayWay({ cost: 2.5, key: undefined }))
 
-      const wrapper = await mount({ shippingPrice: 0, shippingSummary: HOME, showPaymentFee: true })
+    const wrapper = await mount({ quote: makeCartQuote({ paymentMethodFee: { amount: 2.5, waived: false } }) })
 
-      expect(wrapper.text()).not.toContain(money(2.5))
-    })
-
-    it('adds the fee on a row named after the pay way', async () => {
-      setPayWay(makePayWay({ cost: 2.5 }))
-
-      const wrapper = await mount({ showPaymentFee: true })
-
-      expect(amountBeside(wrapper, 'Αντικαταβολή')).toBe(money(2.5))
-      expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(62.5))
-    })
-
-    it('labels the fee generically for a pay way with no key', async () => {
-      setPayWay(makePayWay({
-        cost: 2.5,
-        key: undefined,
-      }))
-
-      const wrapper = await mount({ showPaymentFee: true })
-
-      expect(amountBeside(wrapper, 'Προμήθεια Τρόπου πληρωμής')).toBe(money(2.5))
-    })
-
-    it('neither shows nor charges the fee on steps that hide it', async () => {
-      setPayWay(makePayWay({ cost: 2.5 }))
-
-      const wrapper = await mount({ showPaymentFee: false })
-
-      expect(amountBeside(wrapper, 'Αντικαταβολή')).toBeNull()
-      expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(60))
-    })
-
-    it.each([
-      { case: '39,98 €: delivery and the fee are charged', totalPrice: 39.98, promotionDiscount: 0, shipping: 2.99, threshold: 40, total: 44.97 },
-      { case: '40,00 €: delivery and the fee are free', totalPrice: 40, promotionDiscount: 0, shipping: 0, threshold: 40, total: 40 },
-      { case: '45,00 € less a 6,00 € coupon: both are charged', totalPrice: 45, promotionDiscount: 6, shipping: 2.99, threshold: 40, total: 43.99 },
-      { case: 'delivery never lifts the discounted products over the threshold', totalPrice: 60, promotionDiscount: 15, shipping: 5, threshold: 50, total: 52 },
-    ])('waives the fee on the freeThresholdValue of the cart, never recomputed: $case', async ({ totalPrice, promotionDiscount, shipping, threshold, total }) => {
-      setCart({ totalPrice, promotionDiscount })
-      setPayWay(makePayWay({ cost: 2, freeThreshold: threshold }))
-
-      const wrapper = await mount({ shippingPrice: shipping, shippingSummary: HOME, showPaymentFee: true })
-
-      expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(total))
-    })
+    expect(amountBeside(wrapper, 'Προμήθεια Τρόπου πληρωμής')).toBe(money(2.5))
   })
 
-  describe('gift cards', () => {
-    it.each([
-      { case: 'covers the whole amount when the balance exceeds it', balance: 80, applied: 60, total: 0 },
-      { case: 'keeps 0.50 € due when it would leave less than that', balance: 59.8, applied: 59.5, total: 0.5 },
-      { case: 'applies the whole balance when at least 0.50 € stays due', balance: 59.5, applied: 59.5, total: 0.5 },
-      { case: 'applies a small balance in full', balance: 20, applied: 20, total: 40 },
-    ])('$case', async ({ balance, applied, total }) => {
-      const wrapper = await mount({ giftCardBalance: balance })
+  it('shows no fee or gift-card row the quote did not price', async () => {
+    setPayWay(makePayWay({ cost: 2.5 }))
 
-      expect(amountBeside(wrapper, 'Δωροκάρτα')).toBe(`-${money(applied)}`)
-      expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(total))
-    })
+    const wrapper = await mount()
 
-    it('shows no gift-card row without a balance', async () => {
-      const wrapper = await mount({ giftCardBalance: 0 })
-
-      expect(amountBeside(wrapper, 'Δωροκάρτα')).toBeNull()
-    })
-  })
-
-  it('never shows a negative total when the points exceed what is due', async () => {
-    const wrapper = await mount({ loyaltyDiscount: 75 })
-
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(0))
+    expect(amountBeside(wrapper, 'Αντικαταβολή')).toBeNull()
+    expect(amountBeside(wrapper, 'Δωροκάρτα')).toBeNull()
   })
 
   it('lists each applied offer with its coupon code, naming an unnamed one generically', async () => {
-    setCart({
-      totalPrice: 60,
-      promotionDiscount: 8,
-      appliedPromotions: [
-        { promotionId: 1, name: 'Καλωσόρισμα', code: 'WELCOME', amount: 5 },
-        { promotionId: 2, name: '', code: null, amount: 3 },
-      ],
+    const wrapper = await mount({
+      quote: unpricedQuote({
+        appliedPromotions: [
+          { promotionId: 1, name: 'Καλωσόρισμα', code: 'WELCOME', amount: 5 },
+          { promotionId: 2, name: '', code: null, amount: 3 },
+        ],
+      }),
     })
-
-    const wrapper = await mount()
     const text = wrapper.text()
 
     expect(text).toContain('WELCOME')
     expect(text).toContain('Έκπτωση προσφοράς')
-    expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(52))
   })
 
   it('warns a wholesale cart below the minimum order value, with the minimum', async () => {
@@ -406,7 +318,7 @@ describe('Checkout/Sidebar (webside)', () => {
 
   it('recaps the chosen locker on the payment step', async () => {
     const wrapper = await mount({
-      shippingPrice: 3,
+      quote: makeCartQuote(),
       shippingSummary: {
         method: 'box_now_locker',
         lockerName: 'BOX NOW Σύνταγμα',

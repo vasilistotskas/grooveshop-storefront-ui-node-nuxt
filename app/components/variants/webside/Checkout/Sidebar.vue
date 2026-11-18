@@ -1,16 +1,10 @@
 <script lang="ts" setup>
 const props = defineProps({
-  // ``null`` while the live options haven't priced this method yet
-  // (loading, or ``shippingOptionsError``) — there is no local
-  // flat-rate fallback anymore, so the sidebar shows "—" rather than
-  // a misleading 0,00 €.
-  shippingPrice: { type: [Number, null] as PropType<number | null>, required: true },
-  showPaymentFee: { type: Boolean, default: false },
-  loyaltyDiscount: { type: Number, default: 0 },
-  // Sum of the balances of the gift cards the shopper attached. The
-  // sidebar previews how much of the total they settle; Django's
-  // order-create redemption is the authoritative computation.
-  giftCardBalance: { type: Number, default: 0 },
+  // The checkout's quote (``useCheckoutQuote``), ``null`` until Django
+  // answered one. Every figure below is its own: the rows, and the
+  // total the order is placed at, which reads "at payment" until the
+  // quote prices the delivery and the pay way.
+  quote: { type: Object as PropType<CheckoutQuote | null>, default: null },
   // Selected shipping method context — surfaced as a "selected"
   // callout on the payment step so the shopper can verify what
   // they picked at step 2 without scrolling back. Pass ``null`` (or
@@ -57,23 +51,14 @@ const shippingSummaryView = computed(() => {
   }
 })
 
-// The charges and the total, as the default summary computes them. This
-// summary counts the delivery only on the payment step, where it recaps
-// the chosen method (``shippingSummary``).
-const {
-  promotionDiscount,
-  appliedPromotions,
-  shipping: effectiveShippingPrice,
-  payWayCost,
-  giftCardApplied,
-  total: checkoutTotal,
-} = useCheckoutTotals({
-  shippingPrice: () => props.shippingPrice,
-  includeShipping: () => props.shippingSummary !== null,
-  includePaymentFee: () => props.showPaymentFee,
-  loyaltyDiscount: () => props.loyaltyDiscount,
-  giftCardBalance: () => props.giftCardBalance,
-})
+// The quote's rows. This summary shows the delivery only on the payment
+// step, where it recaps the chosen method (``shippingSummary``).
+const appliedPromotions = computed(() => props.quote?.appliedPromotions ?? [])
+const effectiveShippingPrice = computed(() => props.quote?.shipping?.price ?? null)
+const payWayCost = computed(() => props.quote?.paymentMethodFee?.amount ?? 0)
+const loyaltyDiscount = computed(() => props.quote?.loyaltyDiscount ?? 0)
+const giftCardAmount = computed(() => props.quote?.giftCardAmount ?? 0)
+const checkoutTotal = computed(() => props.quote?.amountDue ?? null)
 
 // A pay way may have no name in this language (parler allows a blank
 // one per locale): the row then says what it is, generically.
@@ -231,7 +216,7 @@ defineSlots<{
             border-t border-primary-200 pt-4
             dark:border-primary-800
           "
-          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 || promotionDiscount > 0 || giftCardApplied > 0 ? `
+          :class="shippingSummaryView || payWayCost > 0 || loyaltyDiscount > 0 || appliedPromotions.length > 0 || giftCardAmount > 0 ? `
             space-y-3
           ` : ''"
         >
@@ -281,7 +266,7 @@ defineSlots<{
             >{{ $i18n.n(effectiveShippingPrice, 'currency') }}</span>
           </div>
           <div
-            v-if="showPaymentFee && payWayCost"
+            v-if="payWayCost > 0"
             class="flex items-center justify-between"
           >
             <span
@@ -332,11 +317,11 @@ defineSlots<{
             <span class="font-bold text-success">-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
           </div>
           <div
-            v-if="giftCardApplied > 0"
+            v-if="giftCardAmount > 0"
             class="flex items-center justify-between"
           >
             <span class="text-success">{{ t('gift_card') }}</span>
-            <span class="font-bold text-success">-{{ $i18n.n(giftCardApplied, 'currency') }}</span>
+            <span class="font-bold text-success">-{{ $i18n.n(giftCardAmount, 'currency') }}</span>
           </div>
         </div>
 
@@ -358,11 +343,19 @@ defineSlots<{
             "
           >{{ t('total') }}</span>
           <span
+            v-if="checkoutTotal !== null"
             class="
               text-xl font-bold text-primary-600
               dark:text-primary-400
             "
           >{{ $i18n.n(checkoutTotal, 'currency') }}</span>
+          <span
+            v-else
+            class="
+              text-sm text-primary-950
+              dark:text-primary-50
+            "
+          >{{ t('calculated_at_payment') }}</span>
         </div>
       </div>
 
@@ -394,6 +387,7 @@ el:
   shipping: Μεταφορικά
   free: Δωρεάν
   total: Σύνολο
+  calculated_at_payment: Υπολογίζεται στην πληρωμή
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   loyalty_discount: Έκπτωση πόντων
   promotion_discount: Έκπτωση προσφοράς

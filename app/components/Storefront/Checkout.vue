@@ -45,7 +45,6 @@ const {
   selectedPayWay,
   selectedCountry,
   payWays,
-  shippingPrice,
   countryOptions,
   postcodeExample,
   regionOptions,
@@ -72,11 +71,11 @@ const {
 const {
   currentStep,
   addressStepErrors,
+  quote,
   createdOrder,
   isSubmitting,
   loyaltyDiscount,
   giftCards,
-  giftCardBalanceTotal,
   stockError,
   submitError,
   isStripePayment,
@@ -113,19 +112,13 @@ const handleStockRetry = () => {
 // button calls it, so the per-step Zod schema gates every forward move.
 const stepRef = ref<{ submit: () => void | Promise<void> } | null>(null)
 
-// What the order costs — the summary's own figures, named on "Pay …".
-const { total } = useCheckoutTotals({
-  shippingPrice: () => shippingPrice.value,
-  includeShipping: () => currentStep.value >= 1 && Boolean(formState.shippingMethod),
-  includePaymentFee: () => currentStep.value === 2,
-  loyaltyDiscount: () => loyaltyDiscount.value?.amount ?? 0,
-  giftCardBalance: () => giftCardBalanceTotal.value,
-})
-
+// "Pay …" names the quote's amount due, the summary's total and the one
+// the order is placed at.
 const ctaLabel = computed(() => {
   if (currentStep.value === 0) return t('continue_to_delivery')
   if (currentStep.value === 1) return t('continue_to_payment')
-  return isOnlinePayment.value ? t('pay', { total: n(total.value, 'currency') }) : t('place_order')
+  const amountDue = quote.value?.amountDue
+  return isOnlinePayment.value && amountDue != null ? t('pay', { total: n(amountDue, 'currency') }) : t('place_order')
 })
 
 // The online-payment view owns the main column once the order exists:
@@ -340,11 +333,9 @@ useSeoMeta({
 
         <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+1.5rem)]">
           <CheckoutSidebar
-            :shipping-price="shippingPrice"
+            :quote="quote"
             :include-shipping="currentStep >= 1 && Boolean(formState.shippingMethod)"
-            :show-payment-fee="currentStep === 2"
             :loyalty="loyaltyDiscount"
-            :gift-card-balance="giftCardBalanceTotal"
           >
             <template #items>
               <CheckoutItems />

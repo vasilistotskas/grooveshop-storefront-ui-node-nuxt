@@ -592,7 +592,8 @@ export async function useCheckoutForm() {
   // shopper changes country or adds/removes items. A fetch failure
   // sets ``shippingOptionsError`` — there is no local flat-rate
   // fallback price anymore, so the step blocks advancing instead of
-  // silently pricing wrong. See ``shippingPrice`` below.
+  // silently pricing wrong. What the order is charged is the checkout
+  // quote's (``useCheckoutQuote``); these rows price the method cards.
   const shippingOptions = ref<ShippingOption[]>([])
   // BoxNow visibility — true when the backend's
   // ``ShippingProvider(code='boxnow').is_active`` flag is set, which
@@ -708,8 +709,8 @@ export async function useCheckoutForm() {
 
   /** Match the live option row for the selected ``shippingMethod``.
    *  ``undefined`` while the live fetch hasn't populated, or when the
-   *  method is not offered for this country — there is no price to
-   *  show then, and ``shippingPrice`` reads ``null``. */
+   *  method is not offered for this country: the method cannot be
+   *  submitted then (``refetchShippingOptions``). */
   const matchedShippingOption = computed<ShippingOption | undefined>(() => {
     const method = formState.shippingMethod
     if (!shippingOptions.value.length) return undefined
@@ -731,19 +732,6 @@ export async function useCheckoutForm() {
       o => o.kind === 'home_delivery',
     )
     return homeDelivery.find(o => !o.exceedsMaxWeight) ?? homeDelivery[0]
-  })
-
-  // Shipping cost is the live backend quote — a resolved
-  // ``ShippingRate`` price, a live carrier quote, or 0 when the rate's
-  // free-shipping threshold is met (``ShippingService.quote``). There
-  // is no local fallback price to fall back to: pricing is per-country
-  // rate data now, not a store-wide Setting, so a null here means
-  // "not priced yet" (options still loading, or the fetch failed —
-  // see ``shippingOptionsError``) and the sidebar shows "—" rather
-  // than a misleading 0,00 €.
-  const shippingPrice = computed<number | null>(() => {
-    const live = matchedShippingOption.value
-    return typeof live?.price === 'number' ? live.price : null
   })
 
   // Set when the cart is over the weight cap of every method offered:
@@ -1182,10 +1170,10 @@ export async function useCheckoutForm() {
   await applyPayWaysForShippingMethod()
 
   /**
-   * Re-fetches the live shipping options at submit time so the priced
-   * total the customer commits to matches the latest rate — a rate
-   * edited (or an ACS tariff change, when dynamic pricing is on) since
-   * page load is reflected in the sidebar before the order is created.
+   * Re-fetches the live shipping options at submit time, so a method
+   * that is no longer offered, priced or able to carry the cart sends
+   * the shopper back to the delivery step before the order is created.
+   * The total the order is placed at is the checkout quote's.
    */
   const refetchShippingOptions = async (): Promise<boolean> => {
     // Superseded by a newer request (the cart changed mid-submit): its
@@ -1211,7 +1199,6 @@ export async function useCheckoutForm() {
     // ``StepPersonalInfo`` doesn't need its own copy of the lookup.
     selectedCountry,
     payWays,
-    shippingPrice,
     countryOptions,
     postcodeExample,
     regionOptions,

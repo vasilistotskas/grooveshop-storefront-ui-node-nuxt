@@ -50,7 +50,18 @@ const ADDRESS_STEP_FIELDS: Record<string, string> = {
  */
 const IDEMPOTENCY_IN_FLIGHT = 'idempotency_in_flight'
 
+/**
+ * The `code` of the 409 Django answers when the order's `expectedTotal`
+ * is not the amount due it computes under the cart lock; `error.quote`
+ * is the quote the order would have been created at. Told by `code`:
+ * its `error.type` stays `invalid_order_data` until every client lists
+ * the new `OrderCreateErrorType` value (`docs/order/creation.md` §3.0
+ * in the Django repo).
+ */
+const TOTAL_CHANGED = 'total_changed'
+
 type Translate = (key: string, params?: Record<string, unknown>) => string
+type FormatNumber = (value: number, format: string) => string
 
 export interface OrderErrorInfo {
   title: string
@@ -62,21 +73,41 @@ export interface OrderErrorInfo {
   shouldRetry: boolean
   /** Django field errors the address step owns, one per input. */
   addressStepErrors: FormError[]
+  /**
+   * Django priced the order at another total than the one sent: the
+   * caller shows the new quote, and the shopper's next submit sends it.
+   */
+  totalChanged: boolean
+}
+
+/**
+ * What to tell the shopper when the total changed before the order was
+ * placed: the new amount due, which the summary now shows, and that
+ * placing the order again accepts it. `null` when no total came with it.
+ */
+export function describeTotalChange(amountDue: number | null, t: Translate, n: FormatNumber): { title: string, description: string } {
+  return {
+    title: t('form.submit.error.total_changed'),
+    description: amountDue === null
+      ? t('form.submit.error.total_changed_review')
+      : t('form.submit.error.total_changed_description', { total: n(amountDue, 'currency') }),
+  }
 }
 
 /**
  * What to tell the shopper about a rejected `POST /api/orders`, from the
  * error body Django sent (`response._data`).
  *
- * First an order still being placed under the same idempotency key.
- * Then branches on Django's stable `error.type` (`OrderCreateErrorType` in
+ * First an order still being placed under the same idempotency key, then
+ * a total that changed (`TOTAL_CHANGED`, its new amount from the quote
+ * Django sent). Then branches on Django's stable `error.type` (`OrderCreateErrorType` in
  * the OpenAPI contract), never on `detail` / `cart` TEXT: Django answers
  * in the page's language, so a message match works in one language at
  * most. Then a `cart` field error (a missing or empty cart), then a DRF
  * field-error map (each message under its translated label), then any
  * `detail`, then the generic title.
  */
-export function classifyOrderError(errorData: any, t: Translate): OrderErrorInfo {
+export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber): OrderErrorInfo {
   let errorTitle = t('form.submit.error.general')
   let errorDescription: string | undefined
   let addressStepErrors: FormError[] = []
@@ -93,6 +124,16 @@ export function classifyOrderError(errorData: any, t: Translate): OrderErrorInfo
       description: t('form.submit.error.order_in_progress_description'),
       shouldRetry: false,
       addressStepErrors,
+      totalChanged: false,
+    }
+  }
+  if (errorData?.code === TOTAL_CHANGED) {
+    const quote = zCheckoutQuote.safeParse(errorData?.error?.quote)
+    return {
+      ...describeTotalChange(quote.success ? quote.data.amountDue : null, t, n),
+      shouldRetry: false,
+      addressStepErrors,
+      totalChanged: true,
     }
   }
   if (errorType === 'reservation_unavailable') {
@@ -101,6 +142,7 @@ export function classifyOrderError(errorData: any, t: Translate): OrderErrorInfo
       description: t('form.submit.error.reservation_expired_description'),
       shouldRetry: true,
       addressStepErrors,
+      totalChanged: false,
     }
   }
   else if (errorType === 'invalid_order_data') {
@@ -160,7 +202,7 @@ export function classifyOrderError(errorData: any, t: Translate): OrderErrorInfo
     errorDescription = errorData.detail
   }
 
-  return { title: errorTitle, description: errorDescription, shouldRetry: false, addressStepErrors }
+  return { title: errorTitle, description: errorDescription, shouldRetry: false, addressStepErrors, totalChanged: false }
 }
 
 /** The checkout state an order body is built from, besides the form. */
@@ -173,6 +215,12 @@ export interface OrderCreateBodyContext {
   meta: Record<string, unknown> | null
   /** Where this tab's visit came from, `null` when nothing was captured. */
   attribution: Omit<OrderAttributionInputRequest, 'agentProtocol'> | null
+  /**
+   * The quote's `expectedTotal` the shopper was shown, copied as Django
+   * sent it (cents and currency, never converted here): the order is then
+   * created only at that total. `null` builds a body to quote from.
+   */
+  expectedTotal: ExpectedTotal | null
 }
 
 /**
@@ -254,7 +302,47 @@ export function buildOrderCreateBody(
     ...carrierPayload,
     ...(ctx.meta ? { meta: ctx.meta } : {}),
     ...(ctx.attribution ? { attribution: ctx.attribution } : {}),
+    ...(ctx.expectedTotal ? { expectedTotal: ctx.expectedTotal } : {}),
   }
+}
+
+/** The choices of an order the shopper has reached, so a quote may price them. */
+export interface QuotedChoices {
+  /** The delivery step was reached: the delivery and the address's email count. */
+  delivery: boolean
+  /** The payment step was reached: the pay way counts. */
+  payWay: boolean
+}
+
+/**
+ * The `POST /api/cart/quote` body for an order body: its pricing inputs,
+ * taken from that body so the quote prices exactly what the order will
+ * carry. A choice the shopper has not reached is left out, and Django
+ * then leaves its rows and the total null rather than price what the
+ * form pre-selected: the delivery (and the email, which promotions may
+ * read, once the address step validated it) until the delivery step,
+ * the pay way until the payment step.
+ */
+export function quoteRequestOf(order: OrderCreateFromCartRequestWritable, chosen: QuotedChoices): CartQuoteRequestRequest {
+  return {
+    countryId: order.countryId || undefined,
+    regionId: order.regionId || undefined,
+    giftCardCodes: order.giftCardCodes,
+    loyaltyPointsToRedeem: order.loyaltyPointsToRedeem,
+    ...(chosen.delivery
+      ? {
+          shippingKind: order.shippingKind,
+          shippingProviderCode: order.shippingProviderCode || undefined,
+          email: order.email || undefined,
+        }
+      : {}),
+    ...(chosen.payWay ? { payWayId: order.payWayId } : {}),
+  }
+}
+
+/** Whether two expected totals are the same amount in the same currency. */
+export function sameExpectedTotal(a: ExpectedTotal | null | undefined, b: ExpectedTotal | null | undefined): boolean {
+  return Boolean(a && b && a.amount === b.amount && a.currency === b.currency)
 }
 
 /** What a refused `$api` call got back: ofetch's `FetchError.response`. */
@@ -293,13 +381,16 @@ export function failedStatusOf(error: unknown): number | undefined {
  *
  * Django caches every 4xx under the key for 24 hours and replays it, so a
  * rejection is final for that key: a repeat would only be answered with
- * the same rejection. Three outcomes leave the question open and keep
- * the key, because the repeat must find the order if it was created: no
- * response at all (a dropped connection), a 5xx (never cached), and the
- * 409 Django answers while the same key is still being processed.
+ * the same rejection. Its 409s are refusals like any other
+ * (`legal_document_unavailable`, `total_changed`). Three outcomes leave
+ * the question open and keep the key, because the repeat must find the
+ * order if it was created: no response at all (a dropped connection), a
+ * 5xx (never cached), and the 409 `idempotency_in_flight` Django answers
+ * while the same key is still being processed, before any view runs.
  */
-export function rejectionSettlesAttempt(status: number | undefined): boolean {
-  return status !== undefined && status < 500 && status !== 409
+export function rejectionSettlesAttempt(error: unknown): boolean {
+  const status = failedStatusOf(error)
+  return status !== undefined && status < 500 && apiErrorBodyOf(error)?.code !== IDEMPOTENCY_IN_FLIGHT
 }
 
 /**

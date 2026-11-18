@@ -249,13 +249,6 @@ describe('useCheckoutForm', () => {
   })
 
   describe('live shipping pricing (no local fallback)', () => {
-    it('shippingPrice is the matched live option\'s price', async () => {
-      const { shippingPrice, formState } = await setup()
-      formState.shippingMethod = 'box_now_locker'
-      await nextTick()
-      expect(shippingPrice.value).toBe(2.99)
-    })
-
     it('quotes shipping for the cart\'s own freeThresholdValue, weight and currency', async () => {
       // A coupon makes the value differ from the gross total, which is
       // not what Django judges free shipping on.
@@ -288,11 +281,12 @@ describe('useCheckoutForm', () => {
         '/api/shipping/options': [home('acs', 2.99, true), home('flat_rate', 3.5, false)],
       })
 
-      const { shippingPrice } = await setup()
+      const { refetchShippingOptions } = await setup()
 
-      // The server routes the heavy cart to flat_rate, so that is the
-      // price the shopper must see.
-      expect(shippingPrice.value).toBe(3.5)
+      // The server routes the heavy cart to flat_rate, which can carry
+      // it, so home delivery stays submittable; judged by the first
+      // carrier (over its cap) it would not be.
+      expect(await refetchShippingOptions()).toBe(true)
     })
 
     it('keeps the newer country\'s options when an older response lands last', async () => {
@@ -300,7 +294,7 @@ describe('useCheckoutForm', () => {
       // also fires the composable's own refetch watcher, so which call
       // is newest is read from this list, not assumed.
       const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
-      const { formState, retryShippingOptions, shippingPrice } = await setup()
+      const { formState, retryShippingOptions, shippingOptions } = await setup()
       formState.shippingMethod = 'box_now_locker'
       api.routes({
         ...defaultRoutes(),
@@ -324,7 +318,7 @@ describe('useCheckoutForm', () => {
       oldest.resolve([shippingOption({ countryCode: 'GR', price: 2.99 })])
       await flushPromises()
 
-      expect(shippingPrice.value).toBe(4.5)
+      expect(shippingOptions.value.map(option => option.countryCode)).toEqual(['CY'])
     })
 
     it('refetchShippingOptions reports whether the selected method has a live price', async () => {
@@ -395,16 +389,16 @@ describe('useCheckoutForm', () => {
       expect(await refetchShippingOptions()).toBe(false)
     })
 
-    it('is null (not 0) when the live options fetch fails, and sets shippingOptionsError', async () => {
+    it('offers no option (no stale price) when the live options fetch fails, and sets shippingOptionsError', async () => {
       api.routes({
         ...defaultRoutes(),
         '/api/shipping/options': () => { throw new Error('network') },
       })
 
-      const { shippingPrice, shippingOptionsError } = await setup()
+      const { shippingOptions, shippingOptionsError } = await setup()
 
       expect(shippingOptionsError.value).toBe(true)
-      expect(shippingPrice.value).toBeNull()
+      expect(shippingOptions.value).toEqual([])
     })
 
     it('retryShippingOptions clears the error once the fetch succeeds', async () => {
@@ -549,8 +543,8 @@ describe('useCheckoutForm', () => {
       // One line whose final price is the items total the shopper sees.
       setCart(makeCart({ items: [{ product: { price: itemsTotal, vatPercent: 0 } }], promotionDiscount }))
       api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
-      const { payWayOptions, shippingPrice } = await setup()
-      return { option: payWayOptions.value[0]!, shippingPrice: shippingPrice.value }
+      const { payWayOptions } = await setup()
+      return { option: payWayOptions.value[0]! }
     }
 
     it('waives the fee once the products reach the threshold, as Django does', async () => {
@@ -563,9 +557,8 @@ describe('useCheckoutForm', () => {
     it('charges the fee just below the threshold, though shipping would lift the total over it', async () => {
       // 49,98 € of products + 2,99 € shipping = 52,97 € ≥ 50 €, yet the
       // value Django judges the fee on (`freeThresholdValue`) excludes it.
-      const { option, shippingPrice } = await optionFor(49.98)
+      const { option } = await optionFor(49.98)
 
-      expect(shippingPrice).toBe(2.99)
       expect(option.cost).toBe(FEE)
     })
 

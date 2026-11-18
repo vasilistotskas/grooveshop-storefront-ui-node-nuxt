@@ -45,7 +45,6 @@ const {
   selectedPayWay,
   selectedCountry,
   payWays,
-  shippingPrice,
   countryOptions,
   postcodeExample,
   regionOptions,
@@ -71,11 +70,10 @@ const {
 const {
   currentStep,
   addressStepErrors,
+  quote,
   createdOrder,
   isSubmitting,
-  loyaltyDiscount,
   giftCards,
-  giftCardBalanceTotal,
   stockError,
   submitError,
   isStripePayment,
@@ -390,10 +388,7 @@ useSeoMeta({
       >
         <div class="lg:sticky lg:top-4">
           <WebsideCheckoutSidebar
-            :shipping-price="shippingPrice"
-            :show-payment-fee="currentStep === 2"
-            :loyalty-discount="loyaltyDiscount?.amount ?? 0"
-            :gift-card-balance="giftCardBalanceTotal"
+            :quote="quote"
             :shipping-summary="shippingSummary"
           >
             <template #items>

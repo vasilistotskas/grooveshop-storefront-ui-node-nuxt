@@ -1150,6 +1150,7 @@ export const zCreateCheckoutSessionResponse = z.object({
   amount: z.string(),
   currency: z.string(),
   provider: z.string(),
+  expiresAt: z.iso.datetime({ offset: true }),
 })
 
 /**
@@ -1248,6 +1249,22 @@ export const zEmailPreferences = z.object({
 export const zErrorResponse = z.object({
   detail: z.string(),
   code: z.string().optional(),
+})
+
+/**
+ * An order total in whole minor units, compared exactly.
+ */
+export const zExpectedTotal = z.object({
+  amount: z.int().gte(0),
+  currency: z.string().length(3),
+})
+
+/**
+ * An order total in whole minor units, compared exactly.
+ */
+export const zExpectedTotalRequest = z.object({
+  amount: z.int().gte(0),
+  currency: z.string().length(3),
 })
 
 /**
@@ -1866,33 +1883,6 @@ export const zOrderCreateErrorType = z.enum([
   'payment_amount_mismatch',
   'payment_currency_mismatch',
 ])
-
-export const zOrderCreateErrorDetail = z.object({
-  type: zOrderCreateErrorType,
-  productId: z.int().optional(),
-  available: z.int().optional(),
-  requested: z.int().optional(),
-  code: z.string().optional(),
-  reason: z.string().optional(),
-})
-
-/**
- * The 400 or 409 body of ``POST /order``.
- *
- * 409 is ``legal_document_unavailable``: a checkout legal text the
- * store cannot show in the order's language.
- *
- * A refusal the order service understands carries ``error.type``; a
- * malformed payload is DRF's field-error map instead (``{field:
- * [messages]}``), which is why every key here is optional.
- */
-export const zOrderCreateError = z.object({
-  detail: z.string().optional(),
-  code: z.string().optional(),
-  error: zOrderCreateErrorDetail.optional(),
-  cart: z.array(z.string()).optional(),
-  fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
-})
 
 /**
  * * `RECEIPT` - Απόδειξη
@@ -3404,6 +3394,34 @@ export const zPublishedPageEntry = z.object({
   updatedAt: z.iso.datetime({ offset: true }),
 })
 
+export const zQuoteAppliedPromotion = z.object({
+  promotionId: z.int(),
+  name: z.string().readonly(),
+  code: z.string().nullable(),
+  amount: z.number().gt(-1000000000).lt(1000000000),
+})
+
+export const zQuoteBlockingCoupon = z.object({
+  code: z.string(),
+  reason: z.string(),
+})
+
+/**
+ * One pay way the shopper is offered, with the fee this cart would
+ * be charged for choosing it.
+ */
+export const zQuotePayWayOption = z.object({
+  id: z.int(),
+  key: z.string(),
+  fee: z.number().gt(-1000000000).lt(1000000000),
+  waived: z.boolean(),
+})
+
+export const zQuotePaymentFee = z.object({
+  amount: z.number().gt(-1000000000).lt(1000000000),
+  waived: z.boolean(),
+})
+
 /**
  * * `1` - Ένα
  * * `2` - Δύο
@@ -4625,6 +4643,30 @@ export const zShipmentStateEnum = z.enum([
  * * `pickup_point` - Σημείο παραλαβής / locker
  */
 export const zShippingKind = z.enum(['home_delivery', 'pickup_point'])
+
+/**
+ * Request body for ``POST /api/v1/cart/quote``.
+ *
+ * The choices of the payment-intent body, each optional: a quote may
+ * be asked before the shopper has chosen a delivery or a pay way, and
+ * the rows that depend on a missing choice come back null. A delivery
+ * is priced once both ``shipping_kind`` and ``country_id`` are given.
+ * Send what the order-create body will carry, the email included, so
+ * the quote is the total that order is created at.
+ */
+export const zCartQuoteRequestRequest = z.object({
+  payWayId: z.int().gte(1).optional(),
+  shippingKind: zShippingKind.optional(),
+  shippingProviderCode: z.string().max(32).optional(),
+  countryId: z.string().min(1).max(2).optional(),
+  regionId: z.string().max(16).optional(),
+  email: z.union([
+    z.email(),
+    z.string().max(0),
+  ]).optional(),
+  giftCardCodes: z.array(z.string().min(1).max(32)).max(3).optional(),
+  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
+})
 
 /**
  * One (provider, kind) row in the free-shipping-info response.
@@ -6261,6 +6303,9 @@ export const zOrderDetail = z.object({
   metaEventIds: z.record(z.string(), z.string()).readonly(),
   currency: z.string().readonly(),
   isFirstOrder: z.boolean().readonly(),
+  paymentHoldExpiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  paymentDecidedBy: z.iso.datetime({ offset: true }).readonly().nullable(),
+  paymentAwaitsReview: z.boolean().readonly(),
 })
 
 export const zPaginatedBoxNowLockerList = z.object({
@@ -6943,6 +6988,115 @@ export const zVivaReturnLookupResponse = z.discriminatedUnion('kind', [
   zVivaReturnGiftCardPurchaseResponse.extend({ kind: z.literal('gift_card_purchase') }),
 ])
 
+/**
+ * * `threshold` - threshold
+ * * `promotion` - promotion
+ */
+export const zWaivedByEnum = z.enum(['threshold', 'promotion'])
+
+export const zQuoteShipping = z.object({
+  price: z.number().gt(-1000000000).lt(1000000000),
+  waivedBy: z.union([
+    zWaivedByEnum,
+    zNullEnum,
+  ]).nullable(),
+})
+
+/**
+ * What checkout charges for a cart, row by row.
+ *
+ * A row that depends on a choice the request did not make is null,
+ * never guessed: ``shipping`` without a delivery, ``paymentMethodFee``
+ * without a pay way, and ``giftCardAmount``, ``grandTotal``,
+ * ``amountDue`` and ``expectedTotal`` without both.
+ */
+export const zCheckoutQuote = z.object({
+  itemsSubtotal: z.number().gt(-1000000000).lt(1000000000),
+  discountTotal: z.number().gt(-1000000000).lt(1000000000),
+  appliedPromotions: z.array(zQuoteAppliedPromotion),
+  blockingCoupon: zQuoteBlockingCoupon.nullable(),
+  freeThresholdValue: z.number().gt(-1000000000).lt(1000000000),
+  shipping: zQuoteShipping.nullable(),
+  paymentMethodFee: zQuotePaymentFee.nullable(),
+  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000),
+  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  grandTotal: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  currency: z.string(),
+  expectedTotal: zExpectedTotal.nullable(),
+})
+
+export const zOrderCreateErrorDetail = z.object({
+  type: zOrderCreateErrorType,
+  productId: z.int().optional(),
+  available: z.int().optional(),
+  requested: z.int().optional(),
+  code: z.string().optional(),
+  reason: z.string().optional(),
+  quote: zCheckoutQuote.optional(),
+})
+
+/**
+ * The 400 or 409 body of ``POST /order``.
+ *
+ * 409 is ``legal_document_unavailable`` (a checkout legal text the
+ * store cannot show in the order's language) or ``total_changed``
+ * (the request's ``expectedTotal`` is not the amount due computed
+ * now). Tell ``total_changed`` by ``code`` and the status: its
+ * ``error.type`` is ``invalid_order_data`` until every client lists
+ * the new value.
+ *
+ * A refusal the order service understands carries ``error.type``; a
+ * malformed payload is DRF's field-error map instead (``{field:
+ * [messages]}``), which is why every key here is optional.
+ */
+export const zOrderCreateError = z.object({
+  detail: z.string().optional(),
+  code: z.string().optional(),
+  error: zOrderCreateErrorDetail.optional(),
+  cart: z.array(z.string()).optional(),
+  fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
+})
+
+/**
+ * One delivery the store offers, at the price this cart would be
+ * charged for choosing it.
+ */
+export const zQuoteShippingOption = z.object({
+  providerCode: z.string(),
+  providerName: z.string(),
+  kind: zShippingKind,
+  price: z.number().gt(-1000000000).lt(1000000000),
+  waivedBy: z.union([
+    zWaivedByEnum,
+    zNullEnum,
+  ]).nullable(),
+  exceedsMaxWeight: z.boolean(),
+  exceedsParcelSize: z.boolean(),
+})
+
+/**
+ * The body of ``POST /cart/quote``: the quote, and what each
+ * delivery and pay way on offer would cost this cart.
+ */
+export const zCartQuote = z.object({
+  itemsSubtotal: z.number().gt(-1000000000).lt(1000000000),
+  discountTotal: z.number().gt(-1000000000).lt(1000000000),
+  appliedPromotions: z.array(zQuoteAppliedPromotion),
+  blockingCoupon: zQuoteBlockingCoupon.nullable(),
+  freeThresholdValue: z.number().gt(-1000000000).lt(1000000000),
+  shipping: zQuoteShipping.nullable(),
+  paymentMethodFee: zQuotePaymentFee.nullable(),
+  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000),
+  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  grandTotal: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  currency: z.string(),
+  expectedTotal: zExpectedTotal.nullable(),
+  shippingOptions: z.array(zQuoteShippingOption).readonly().nullable(),
+  payWays: z.array(zQuotePayWayOption).readonly(),
+})
+
 export const zWebSocketTicketResponse = z.object({
   ticket: z.string(),
   expiresIn: z.int(),
@@ -7551,6 +7705,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   acsStationBranch: z.string().max(32).optional(),
   acsChargeType: zAcsChargeType.optional(),
   acsItemQuantity: z.int().gte(1).lte(20).optional(),
+  expectedTotal: zExpectedTotalRequest.optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
   attribution: zOrderAttributionInputRequest.optional(),
   termsAccepted: z.boolean(),
@@ -8528,6 +8683,88 @@ export const zProductVariantWritable = z.object({
 export const zProductVariantsResponseWritable = z.object({
   axes: z.array(zVariantAxis),
   variants: z.array(zProductVariantWritable),
+})
+
+export const zQuoteAppliedPromotionWritable = z.object({
+  promotionId: z.int(),
+  code: z.string().nullable(),
+  amount: z.number().gt(-1000000000).lt(1000000000),
+})
+
+/**
+ * The body of ``POST /cart/quote``: the quote, and what each
+ * delivery and pay way on offer would cost this cart.
+ */
+export const zCartQuoteWritable = z.object({
+  itemsSubtotal: z.number().gt(-1000000000).lt(1000000000),
+  discountTotal: z.number().gt(-1000000000).lt(1000000000),
+  appliedPromotions: z.array(zQuoteAppliedPromotionWritable),
+  blockingCoupon: zQuoteBlockingCoupon.nullable(),
+  freeThresholdValue: z.number().gt(-1000000000).lt(1000000000),
+  shipping: zQuoteShipping.nullable(),
+  paymentMethodFee: zQuotePaymentFee.nullable(),
+  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000),
+  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  grandTotal: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  currency: z.string(),
+  expectedTotal: zExpectedTotal.nullable(),
+})
+
+/**
+ * What checkout charges for a cart, row by row.
+ *
+ * A row that depends on a choice the request did not make is null,
+ * never guessed: ``shipping`` without a delivery, ``paymentMethodFee``
+ * without a pay way, and ``giftCardAmount``, ``grandTotal``,
+ * ``amountDue`` and ``expectedTotal`` without both.
+ */
+export const zCheckoutQuoteWritable = z.object({
+  itemsSubtotal: z.number().gt(-1000000000).lt(1000000000),
+  discountTotal: z.number().gt(-1000000000).lt(1000000000),
+  appliedPromotions: z.array(zQuoteAppliedPromotionWritable),
+  blockingCoupon: zQuoteBlockingCoupon.nullable(),
+  freeThresholdValue: z.number().gt(-1000000000).lt(1000000000),
+  shipping: zQuoteShipping.nullable(),
+  paymentMethodFee: zQuotePaymentFee.nullable(),
+  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000),
+  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  grandTotal: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  currency: z.string(),
+  expectedTotal: zExpectedTotal.nullable(),
+})
+
+export const zOrderCreateErrorDetailWritable = z.object({
+  type: zOrderCreateErrorType,
+  productId: z.int().optional(),
+  available: z.int().optional(),
+  requested: z.int().optional(),
+  code: z.string().optional(),
+  reason: z.string().optional(),
+  quote: zCheckoutQuoteWritable.optional(),
+})
+
+/**
+ * The 400 or 409 body of ``POST /order``.
+ *
+ * 409 is ``legal_document_unavailable`` (a checkout legal text the
+ * store cannot show in the order's language) or ``total_changed``
+ * (the request's ``expectedTotal`` is not the amount due computed
+ * now). Tell ``total_changed`` by ``code`` and the status: its
+ * ``error.type`` is ``invalid_order_data`` until every client lists
+ * the new value.
+ *
+ * A refusal the order service understands carries ``error.type``; a
+ * malformed payload is DRF's field-error map instead (``{field:
+ * [messages]}``), which is why every key here is optional.
+ */
+export const zOrderCreateErrorWritable = z.object({
+  detail: z.string().optional(),
+  code: z.string().optional(),
+  error: zOrderCreateErrorDetailWritable.optional(),
+  cart: z.array(z.string()).optional(),
+  fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
 })
 
 export const zRecommendationItemWritable = z.record(z.string(), z.unknown())
@@ -12478,6 +12715,15 @@ export const zListCartQuery = z.object({
 })
 
 export const zListCartResponse = zPaginatedCartList
+
+export const zQuoteCartBody = zCartQuoteRequestRequest
+
+export const zQuoteCartHeaders = z.object({
+  'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
+})
+
+export const zQuoteCartResponse = zCartQuote
 
 export const zReleaseCartReservationsBody = zReleaseReservationsRequestRequest
 

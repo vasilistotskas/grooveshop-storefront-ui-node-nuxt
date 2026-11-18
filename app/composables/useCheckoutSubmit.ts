@@ -20,6 +20,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const localePath = useLocalePath()
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
+  const n = $i18n.n.bind($i18n)
   const toast = useToast()
 
   const cartStore = useCartStore()
@@ -60,6 +61,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // Django field errors for the address step, handed to its ``UForm``
   // (``setErrors``) when a rejected order sends the shopper back there.
   const addressStepErrors = ref<FormError[]>([])
+  // The quote's `expectedTotal` the submit in progress places its order
+  // at: the total the shopper was shown (`onSubmit`, step 2b).
+  let pricedTotal: ExpectedTotal | null = null
 
   // Meta Pixel event_ids for browser↔server deduplication. Minted at
   // the moment the customer enters checkout (InitiateCheckout) and
@@ -114,12 +118,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
 
   // Gift cards the shopper wants to redeem. The widget validates each
-  // code via /api/giftcard/check for display; Django re-validates the
-  // codes under row locks at order creation — that pass is the
-  // authoritative one, these balances only drive the sidebar preview.
+  // code via /api/giftcard/check for display; what they settle is the
+  // quote's (`giftCardAmount`), and Django re-validates the codes under
+  // row locks at order creation.
   const giftCards = ref<AppliedGiftCard[]>([])
-  const giftCardBalanceTotal = computed(() =>
-    giftCards.value.reduce((sum, card) => sum + card.balance, 0))
 
   // A failure that stops the checkout stays on the page until the shopper
   // acts again: a toast times out, and a shopper who looked away would not
@@ -181,10 +183,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         contentType: response.headers?.get('content-type'),
       })
     }
-    const errorInfo = classifyOrderError(errorData, t)
+    const errorInfo = classifyOrderError(errorData, t, n)
     // The only retryable error is an expired hold: drop the dead
     // reservation ids so the retry re-reserves stock.
     if (errorInfo.shouldRetry) reservationIds.value = []
+    // Django priced the order at another total: show the cart's lines at
+    // their prices now and the quote the shopper's next submit sends.
+    if (errorInfo.totalChanged) {
+      void cartStore.refreshCart().then(() => checkoutQuote.refresh())
+    }
     // A field the address step owns: go back there and show each
     // message under its own input, not only in the toast.
     if (errorInfo.addressStepErrors.length) {
@@ -214,6 +221,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       giftCards: giftCards.value,
       meta: metaPayload,
       attribution,
+      expectedTotal: pricedTotal,
     })
   }
 
@@ -313,6 +321,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   const intentPricing = (body: Parameters<typeof createPaymentIntentFromCart>[0]) => JSON.stringify({
     body,
+    // Django prices the intent at the quote's amount due: a total that
+    // moved (a price edit the cart does not carry) needs a fresh intent.
+    expectedTotal: pricedTotal,
     ...cartPricedFrom(),
   })
 
@@ -346,8 +357,29 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   /** Ends the attempt when ``error`` settles it (see ``rejectionSettlesAttempt``). */
   const settleAttemptOnFailure = (error: unknown) => {
-    if (rejectionSettlesAttempt(failedStatusOf(error))) orderAttempt.value = null
+    if (rejectionSettlesAttempt(error)) orderAttempt.value = null
   }
+
+  // What checkout charges: Django's quote of the order this form would
+  // place, with the choices the shopper has reached (`quoteRequestOf`).
+  // The summary and «Pay …» show it; the order sends its `expectedTotal`.
+  const checkoutQuote = useCheckoutQuote({
+    request: () => quoteRequestOf(
+      buildOrderCreateBody(formState, {
+        selectedCountry: selectedCountry.value,
+        loyaltyDiscount: loyaltyDiscount.value,
+        giftCards: giftCards.value,
+        meta: null,
+        attribution: null,
+        expectedTotal: null,
+      }),
+      {
+        delivery: currentStep.value >= 1 && Boolean(formState.shippingMethod),
+        payWay: currentStep.value === 2,
+      },
+    ),
+    cartVersion: () => JSON.stringify(cartPricedFrom()),
+  })
 
   /**
    * Posts the order and answers it, or `null` when Django refused it: the
@@ -376,7 +408,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       const response = refusedResponseOf(error)
       if (!response) throw error
       onRefused?.()
-      settleAttemptOnFailure({ response })
+      settleAttemptOnFailure(error)
       handleRetryableError(handleOrderError(response))
       return null
     }
@@ -608,6 +640,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     isRetryReentry.value = false
     // A new attempt starts clean: the last failure no longer applies.
     submitError.value = null
+    // The total on the page as the shopper clicked: the one they accept.
+    const shownTotal = checkoutQuote.quote.value?.expectedTotal ?? null
+    pricedTotal = null
 
     // Cancel any pending retry before checking isSubmitting — this
     // manual submit supersedes the scheduled automatic one. The retry
@@ -703,7 +738,27 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         return
       }
 
-      // Step 2b: Set selected payment way
+      // Step 2b: the order is placed at the total the shopper was shown,
+      // sent as the quote's `expectedTotal`. A quote still in flight is
+      // waited for; one that differs from the total on the page when they
+      // clicked (a price, an offer or a rate changed meanwhile, or the
+      // refetch above moved the delivery) is shown first, and their next
+      // click accepts it.
+      const { quote: priced, error: quoteError } = await checkoutQuote.current()
+      if (!priced?.expectedTotal) {
+        failCheckoutWith(quoteError, {
+          title: t('form.submit.error.total_unavailable'),
+          fallback: t('form.submit.error.total_unavailable_description'),
+        })
+        return
+      }
+      if (!sameExpectedTotal(priced.expectedTotal, shownTotal)) {
+        failCheckout(describeTotalChange(priced.amountDue, t, n))
+        return
+      }
+      pricedTotal = priced.expectedTotal
+
+      // Step 2c: Set selected payment way
       payWays.value?.results?.forEach((pw) => {
         if (pw.id === formState.payWay) {
           selectedPayWay.value = pw
@@ -970,6 +1025,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   return {
     currentStep,
     addressStepErrors,
+    quote: checkoutQuote.quote,
     submitError,
     checkoutMode,
     useHostedCheckout,
@@ -977,7 +1033,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     isSubmitting,
     loyaltyDiscount,
     giftCards,
-    giftCardBalanceTotal,
     stockError,
     isStripePayment,
     isVivaWalletPayment,

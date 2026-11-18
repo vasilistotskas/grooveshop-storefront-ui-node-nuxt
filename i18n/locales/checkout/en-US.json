@@ -214,7 +214,12 @@
         "invalid_gift_card": "Invalid gift card",
         "invalid_gift_card_description": "This gift card cannot be used for this order.",
         "loyalty_requires_authentication": "Sign in to redeem points",
-        "loyalty_redemption_invalid": "Point redemption is not available"
+        "loyalty_redemption_invalid": "Point redemption is not available",
+        "total_changed": "Your order total has changed",
+        "total_changed_description": "The new total is {total}. Check your order summary and place the order again to complete it at this amount.",
+        "total_changed_review": "Check your order summary and place the order again.",
+        "total_unavailable": "We could not work out your total",
+        "total_unavailable_description": "We could not work out your order total. Please try again."
       }
     }
   },

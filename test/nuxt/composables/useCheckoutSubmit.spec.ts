@@ -16,9 +16,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { setActivePinia, createPinia } from 'pinia'
-import { defineComponent, nextTick } from 'vue'
+import { computed, defineComponent, nextTick } from 'vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
+import { makeCartQuote, makeCheckoutQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import { setTenant } from '~~/test/helpers/tenant'
@@ -61,6 +62,30 @@ mockNuxtImport('useTikTokPixel', () => () => m.tiktok)
 mockNuxtImport('useOpenAIPixel', () => () => m.openai)
 mockNuxtImport('useGoogleAds', () => () => m.googleAds)
 mockNuxtImport('useGA4', () => () => m.ga4)
+
+/**
+ * The checkout quote (`useCheckoutQuote` has its own spec): `shown` is
+ * the quote on the page, `priced` (or `error`) what asking for the
+ * current one settles on. `request` is the body the submit asks with.
+ */
+const q = await vi.hoisted(async () => {
+  const { reactive } = await import('vue')
+  return reactive({
+    shown: null as CheckoutQuote | null,
+    priced: null as CheckoutQuote | null,
+    error: null as unknown,
+    request: null as null | (() => CartQuoteRequestRequest),
+    refresh: vi.fn(() => Promise.resolve()),
+  })
+})
+mockNuxtImport('useCheckoutQuote', () => ({ request }: { request: () => CartQuoteRequestRequest }) => {
+  q.request = request
+  return {
+    quote: computed(() => q.shown),
+    current: () => Promise.resolve({ quote: q.priced, error: q.error }),
+    refresh: q.refresh,
+  }
+})
 
 const t = (key: string) => useNuxtApp().$i18n.t(key)
 
@@ -143,6 +168,9 @@ beforeEach(() => {
   cart = useCartStore()
   cart.cart = makeCart()
   m.consent.value = []
+  q.shown = makeCartQuote()
+  q.priced = makeCartQuote()
+  q.error = null
   window.sessionStorage.clear()
   vi.spyOn(crypto, 'randomUUID').mockReturnValue('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
 })
@@ -197,14 +225,15 @@ describe('useCheckoutSubmit', () => {
 
     it('redeems the applied gift cards on both the intent and the order, once per code', async () => {
       api.routes({ '/api/orders': orderCreated() })
-      const { onSubmit, onGiftCardApplied, onGiftCardRemoved, giftCardBalanceTotal } = setup(STRIPE)
+      const { onSubmit, onGiftCardApplied, onGiftCardRemoved } = setup(STRIPE)
 
       onGiftCardApplied({ code: 'GC-1', balance: 10 })
       onGiftCardApplied({ code: 'GC-1', balance: 10 })
       onGiftCardApplied({ code: 'GC-2', balance: 5 })
       onGiftCardApplied({ code: 'GC-3', balance: 1 })
       onGiftCardRemoved('GC-3')
-      expect(giftCardBalanceTotal.value).toBe(15)
+      // Asked for with the codes it settles, so the summary shows Django's figure.
+      expect(q.request!().giftCardCodes).toEqual(['GC-1', 'GC-2'])
 
       await onSubmit()
 
@@ -331,6 +360,11 @@ describe('useCheckoutSubmit', () => {
           cart.cart = { ...cart.cart!, items: [{ ...line!, quantity: 99 }, ...rest], totalPrice: cart.cart!.totalPrice + 10 }
         }],
         ['the shopper changes the email', (_s: ReturnType<typeof setup>, form: Record<string, any>) => { form.email = 'other@example.com' }],
+        ['the quoted total moves, as a price edit the cart does not carry would', () => {
+          const moved = makeCartQuote({ amountDue: 70, expectedTotal: { amount: 7000, currency: 'EUR' } })
+          q.shown = moved
+          q.priced = moved
+        }],
       ])('prices a fresh intent when %s', async (_case, change: (s: ReturnType<typeof setup>, form: Record<string, any>) => void) => {
         const form = makeFormState()
         const submit = await submitOnceWithoutAnOrder(form)
@@ -858,6 +892,119 @@ describe('useCheckoutSubmit', () => {
     })
   })
 
+  describe('the total the order is placed at', () => {
+    const NEW_TOTAL = makeCartQuote({ grandTotal: 70, amountDue: 70, expectedTotal: { amount: 7000, currency: 'EUR' } })
+    const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+
+    it.each([
+      ['cash on delivery', COD],
+      ['Viva Wallet', VIVA],
+      ['Stripe', STRIPE],
+    ])('sends the total the shopper was shown with a %s order, as the quote stated it', async (_label, payWay) => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit } = setup(payWay)
+
+      await onSubmit()
+
+      expect(orderBodies()[0].expectedTotal).toEqual({ amount: 6300, currency: 'EUR' })
+    })
+
+    it('quotes the choices the shopper has reached, and every one on the payment step', () => {
+      const { currentStep } = setup(COD)
+
+      const onAddress = q.request!()
+      expect(onAddress).not.toHaveProperty('payWayId')
+      expect(onAddress).not.toHaveProperty('shippingKind')
+      expect(onAddress).not.toHaveProperty('email')
+
+      currentStep.value = 2
+      expect(q.request!()).toMatchObject({ payWayId: 1, shippingKind: 'home_delivery', email: 'test@example.com' })
+    })
+
+    it('shows a total that changed since the click instead of ordering at it', async () => {
+      q.priced = NEW_TOTAL
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders')).toEqual([])
+      expect(lastFailure()).toMatchObject({
+        title: t('form.submit.error.total_changed'),
+        description: useNuxtApp().$i18n.t('form.submit.error.total_changed_description', { total: money(70) }),
+      })
+      expect(m.releaseReservations).toHaveBeenCalledWith([42])
+    })
+
+    it('orders at the new total once the shopper submits again with it on the page', async () => {
+      q.priced = NEW_TOTAL
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit } = setup(COD)
+      await onSubmit()
+
+      q.shown = NEW_TOTAL
+      await onSubmit()
+
+      expect(orderBodies().map(body => body.expectedTotal)).toEqual([{ amount: 7000, currency: 'EUR' }])
+    })
+
+    it('orders nothing when the total cannot be quoted, and says why', async () => {
+      q.priced = null
+      q.error = Object.assign(new Error('400'), {
+        statusCode: 400,
+        data: { detail: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.', reason: 'pay_way_unavailable', code: 'pay_way_unavailable' },
+      })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders')).toEqual([])
+      expect(lastFailure()).toMatchObject({
+        title: t('form.submit.error.total_unavailable'),
+        description: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.',
+      })
+    })
+
+    describe('refused by Django because the total changed', () => {
+      const totalChanged = orderRejected(409, {
+        detail: 'The order total changed.',
+        code: 'total_changed',
+        error: { type: 'invalid_order_data', quote: makeCheckoutQuote({ amountDue: 70, expectedTotal: { amount: 7000, currency: 'EUR' } }) },
+      })
+
+      it('shows the new total and asks Django for the cart and the quote again', async () => {
+        api.routes({ '/api/orders': totalChanged, '/api/cart': makeCart() })
+        const { onSubmit } = setup(COD)
+
+        await onSubmit()
+        await vi.waitFor(() => expect(q.refresh).toHaveBeenCalled())
+
+        expect(lastFailure()).toMatchObject({
+          title: t('form.submit.error.total_changed'),
+          description: useNuxtApp().$i18n.t('form.submit.error.total_changed_description', { total: money(70) }),
+          code: 'total_changed',
+        })
+        expect(api.callsTo('/api/cart')).toHaveLength(1)
+      })
+
+      it('drops the intent priced at the old total, so the next submit prices a fresh one', async () => {
+        let orders = 0
+        api.routes({
+          '/api/orders': () => (orders++ === 0 ? totalChanged : orderCreated())(),
+          '/api/cart': makeCart(),
+        })
+        const { onSubmit } = setup(STRIPE)
+        await onSubmit()
+
+        q.shown = NEW_TOTAL
+        q.priced = NEW_TOTAL
+        await onSubmit()
+
+        expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(2)
+        expect(orderBodies().at(-1)!.expectedTotal).toEqual({ amount: 7000, currency: 'EUR' })
+      })
+    })
+  })
+
   describe('a rejected order', () => {
     it('keeps the cart and releases the holds', async () => {
       api.routes({ '/api/orders': orderRejected(422, { error: { type: 'invalid_order_data' }, detail: 'invalid data' }) })
@@ -961,7 +1108,7 @@ describe('useCheckoutSubmit', () => {
     it.each([
       ['a dropped connection', droppedConnection],
       ['a server error', orderRejected(503, { detail: 'Service unavailable.' })],
-      ['a duplicate still being processed', orderRejected(409, { detail: 'A duplicate request is already in progress.' })],
+      ['a duplicate still being processed', orderRejected(409, { detail: 'A duplicate request is already in progress.', code: 'idempotency_in_flight' })],
     ])('is reused when the submit ends in %s, because the order may exist', async (_outcome, failure) => {
       api.routes({ '/api/orders': inSequence(failure, orderCreated()) })
       const { onSubmit } = setup(COD)
