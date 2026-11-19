@@ -1,3 +1,10 @@
+## [3.344.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.3...v3.344.4) (2026-11-19)
+
+
+### Bug Fixes
+
+* **deps:** patch fast-xml-parser and minimatch on the production paths ([d83e32a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d83e32a2c3b747a7617371e2698eb9c6dfe6933a))
+
 ## [3.344.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.2...v3.344.3) (2026-11-19)
 
 
