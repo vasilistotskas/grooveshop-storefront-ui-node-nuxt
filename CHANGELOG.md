@@ -1,3 +1,10 @@
+## [3.344.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.2...v3.344.3) (2026-11-19)
+
+
+### Bug Fixes
+
+* **products:** the webside filter sidebar no longer leaves a timer behind when it unmounts ([1bedb07](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1bedb07dce43806216184de1685805db0e4baa2e))
+
 ## [3.344.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.1...v3.344.2) (2026-11-17)
 
 
