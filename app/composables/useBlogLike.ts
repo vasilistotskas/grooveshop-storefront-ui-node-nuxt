@@ -38,6 +38,10 @@ async function toggleLike(options: {
  *
  * `onLoggedOut` runs for a visitor who is not signed in, in place of the
  * request (the drawing opens its sign-in).
+ *
+ * `offered`: a like is an account's, so a store without customer
+ * accounts (`customerAccounts`) offers none. The drawing draws nothing
+ * there: its sign-in would lead to routes that store answers 404.
  */
 export function useBlogPostLike(options: {
   blogPostId: Ref<number>
@@ -51,6 +55,7 @@ export function useBlogPostLike(options: {
   const { loggedIn } = useUserSession()
   const { blogPostLiked, addLikedPost, removeLikedPost } = useUserStore()
 
+  const offered = useStoreFeature('customerAccounts')
   const liked = computed(() => blogPostLiked(blogPostId.value))
 
   const toggle = async () => {
@@ -90,7 +95,7 @@ export function useBlogPostLike(options: {
     })
   }
 
-  return { liked, toggle }
+  return { offered, liked, toggle }
 }
 
 /**
