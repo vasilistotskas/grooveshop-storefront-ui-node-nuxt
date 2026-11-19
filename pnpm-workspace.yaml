@@ -61,11 +61,23 @@ overrides:
   # GHSA-45c6-75p6-83cc (comment regex bypass).
   fast-xml-builder: '>=1.1.7'
 
-  # NEW — was missing from the legacy package.json overrides.
-  # Tree currently has fast-xml-parser@5.5.11 via @nuxtjs/sitemap
-  # → @nuxtjs/seo. GHSA-gh4j-gqv2-49f6 + GHSA-fj3w-jwp8-x2g3
-  # patched in 5.7.0.
-  fast-xml-parser: '>=5.7.0'
+  # Via sitemapd → @nuxtjs/sitemap → @nuxtjs/seo. GHSA-gh4j-gqv2-49f6
+  # + GHSA-fj3w-jwp8-x2g3 (patched in 5.7.0) and CVE-2026-126066 /
+  # GHSA-474x-hrwr-fgx4, quadratic CPU on unterminated stop-node tags
+  # (patched in 5.12.0). Capped <6 like the others.
+  'fast-xml-parser@<5.12.0': '>=5.12.0 <6'
+
+  # CVE-2026-118764 / GHSA-g3hv-75wg-m249 — minimatch <11.0.1, DoS via
+  # globparts amplification. Scoped to the consumers on production paths
+  # (nitropack → archiver → readdir-glob; @nuxtjs/i18n →
+  # @intlify/unplugin-vue-i18n → eslint / typescript-estree), which call
+  # only `minimatch()`, `new Minimatch()`, `match()` and `pattern`, all
+  # kept in 11. Not global: 11.0 removed `makeRe` and `Minimatch#regexp`,
+  # which eslint-plugin-import-x calls, so its lint-only copy stays on 10
+  # until it moves to 11.
+  'readdir-glob>minimatch': '>=11.0.1 <12'
+  'eslint>minimatch': '>=11.0.1 <12'
+  '@typescript-eslint/typescript-estree>minimatch': '>=11.0.1 <12'
 
   # CVE-2026-59869 (patched 4.3.0) + GHSA-5p4m-2wfm-xmqj (prototype
   # pollution, patched 4.3.1) — js-yaml. Supersedes the old
