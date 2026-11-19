@@ -3,6 +3,7 @@ import {
   carrierForMethod,
   exceededWeightCapGrams,
   methodForCarrier,
+  methodCarrier,
   methodKeyForOption,
   optionFitsCart,
   resolveShippingMethod,
@@ -64,6 +65,37 @@ describe('optionFitsCart', () => {
  * cash on delivery pre-selected, for an order that can never settle in
  * cash. It corrected itself only if the shopper clicked the row by hand.
  */
+/**
+ * The one carrier a method is priced, enabled and submitted with: Django's
+ * home-delivery resolver weighs the cart only, so a first carrier whose
+ * parcels cannot take the cart is still the one that would refuse it.
+ */
+describe('methodCarrier', () => {
+  const home = (providerCode: string, overrides: Record<string, boolean> = {}) =>
+    ({ providerCode, kind: 'home_delivery', ...overrides })
+
+  it('is the first home-delivery carrier whose weight cap the cart fits', () => {
+    expect(methodCarrier([home('heavy', { exceedsMaxWeight: true }), home('acs'), home('elta')], 'home_delivery')?.providerCode).toBe('acs')
+  })
+
+  it('stays the weight-fitting carrier when its parcels cannot take the cart, though a later one could', () => {
+    const options = [home('acs', { exceedsParcelSize: true }), home('elta')]
+
+    expect(methodCarrier(options, 'home_delivery')?.providerCode).toBe('acs')
+  })
+
+  it('is the first carrier when none fits the weight', () => {
+    expect(methodCarrier([home('a', { exceedsMaxWeight: true }), home('b', { exceedsMaxWeight: true })], 'home_delivery')?.providerCode).toBe('a')
+  })
+
+  it('is the locker carrier of a pickup method, and nothing for a method not offered', () => {
+    const options = [home('acs'), { providerCode: 'boxnow', kind: 'pickup_point' }]
+
+    expect(methodCarrier(options, 'box_now_locker')?.providerCode).toBe('boxnow')
+    expect(methodCarrier(options, 'acs_smartpoint')).toBeUndefined()
+  })
+})
+
 describe('resolveShippingMethod', () => {
   const HOME = { providerCode: 'acs', kind: 'home_delivery' }
   const BOXNOW_LOCKER = { providerCode: 'boxnow', kind: 'pickup_point' }
@@ -88,6 +120,12 @@ describe('resolveShippingMethod', () => {
 
   it('takes the first offered method when several are available', () => {
     expect(resolveShippingMethod([BOXNOW_LOCKER, ACS_SMARTPOINT], 'home_delivery')).toBe('box_now_locker')
+  })
+
+  // Django would place it with the first carrier, which the parcels refuse.
+  it('never auto-selects home delivery whose carrier the cart is too large for, though a later one fits', () => {
+    expect(resolveShippingMethod([{ ...HOME, exceedsParcelSize: true }, { providerCode: 'elta', kind: 'home_delivery' }, BOXNOW_LOCKER], 'home_delivery'))
+      .toBe('box_now_locker')
   })
 
   it('ignores options it cannot map to a checkout method', () => {

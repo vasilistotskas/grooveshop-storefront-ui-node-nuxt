@@ -249,13 +249,6 @@ describe('useCheckoutForm', () => {
   })
 
   describe('live shipping pricing (no local fallback)', () => {
-    it('shippingPrice is the matched live option\'s price', async () => {
-      const { shippingPrice, formState } = await setup()
-      formState.shippingMethod = 'box_now_locker'
-      await nextTick()
-      expect(shippingPrice.value).toBe(2.99)
-    })
-
     it('quotes shipping for the cart\'s own freeThresholdValue, weight and currency', async () => {
       // A coupon makes the value differ from the gross total, which is
       // not what Django judges free shipping on.
@@ -288,11 +281,12 @@ describe('useCheckoutForm', () => {
         '/api/shipping/options': [home('acs', 2.99, true), home('flat_rate', 3.5, false)],
       })
 
-      const { shippingPrice } = await setup()
+      const { refetchShippingOptions } = await setup()
 
-      // The server routes the heavy cart to flat_rate, so that is the
-      // price the shopper must see.
-      expect(shippingPrice.value).toBe(3.5)
+      // The server routes the heavy cart to flat_rate, which can carry
+      // it, so home delivery stays submittable; judged by the first
+      // carrier (over its cap) it would not be.
+      expect(await refetchShippingOptions()).toBe(true)
     })
 
     it('keeps the newer country\'s options when an older response lands last', async () => {
@@ -300,7 +294,7 @@ describe('useCheckoutForm', () => {
       // also fires the composable's own refetch watcher, so which call
       // is newest is read from this list, not assumed.
       const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
-      const { formState, retryShippingOptions, shippingPrice } = await setup()
+      const { formState, retryShippingOptions, shippingOptions } = await setup()
       formState.shippingMethod = 'box_now_locker'
       api.routes({
         ...defaultRoutes(),
@@ -324,7 +318,7 @@ describe('useCheckoutForm', () => {
       oldest.resolve([shippingOption({ countryCode: 'GR', price: 2.99 })])
       await flushPromises()
 
-      expect(shippingPrice.value).toBe(4.5)
+      expect(shippingOptions.value.map(option => option.countryCode)).toEqual(['CY'])
     })
 
     it('refetchShippingOptions reports whether the selected method has a live price', async () => {
@@ -395,16 +389,18 @@ describe('useCheckoutForm', () => {
       expect(await refetchShippingOptions()).toBe(false)
     })
 
-    it('is null (not 0) when the live options fetch fails, and sets shippingOptionsError', async () => {
+    it('drops the options it had (no stale price) when a later fetch fails, and sets shippingOptionsError', async () => {
+      const { shippingOptions, shippingOptionsError, retryShippingOptions } = await setup()
+      expect(shippingOptions.value.length).toBeGreaterThan(0)
       api.routes({
         ...defaultRoutes(),
         '/api/shipping/options': () => { throw new Error('network') },
       })
 
-      const { shippingPrice, shippingOptionsError } = await setup()
+      await retryShippingOptions()
 
       expect(shippingOptionsError.value).toBe(true)
-      expect(shippingPrice.value).toBeNull()
+      expect(shippingOptions.value).toEqual([])
     })
 
     it('retryShippingOptions clears the error once the fetch succeeds', async () => {
@@ -540,116 +536,23 @@ describe('useCheckoutForm', () => {
     })
   })
 
-  describe('payWayOptions — the fee shown next to each pay way', () => {
-    const FEE = 2.5
-    const THRESHOLD = 50
-    const withFee = makePayWay({ id: 3, cost: FEE, freeThreshold: THRESHOLD })
+  describe('payWayOptions — the pay ways the payment step lists', () => {
+    const withFee = makePayWay({ id: 3, cost: 2.5, freeThreshold: 50 })
 
-    async function optionFor(itemsTotal: number, promotionDiscount = 0) {
-      // One line whose final price is the items total the shopper sees.
-      setCart(makeCart({ items: [{ product: { price: itemsTotal, vatPercent: 0 } }], promotionDiscount }))
-      api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
-      const { payWayOptions, shippingPrice } = await setup()
-      return { option: payWayOptions.value[0]!, shippingPrice: shippingPrice.value }
-    }
-
-    it('waives the fee once the products reach the threshold, as Django does', async () => {
-      const { option } = await optionFor(50)
-
-      expect(option.label).not.toContain('(+')
-      expect(option.freeThresholdHint).toBe('')
-    })
-
-    it('charges the fee just below the threshold, though shipping would lift the total over it', async () => {
-      // 49,98 € of products + 2,99 € shipping = 52,97 € ≥ 50 €, yet the
-      // value Django judges the fee on (`freeThresholdValue`) excludes it.
-      const { option, shippingPrice } = await optionFor(49.98)
-
-      expect(shippingPrice).toBe(2.99)
-      expect(option.cost).toBe(FEE)
-    })
-
-    it('shows no surcharge while there is no cart to judge the threshold on', async () => {
-      api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
-      const { payWayOptions } = await setup()
-      useCartStore().cart = null
-      await nextTick()
-
-      expect(payWayOptions.value[0]!.cost).toBe(0)
-      expect(payWayOptions.value[0]!.label).not.toContain('(+')
-      expect(payWayOptions.value[0]!.freeThresholdHint).toBe('')
-    })
-
-    it('reads the freeThresholdValue of the cart, never recomputes it', async () => {
-      setCart(makeCart({ items: [{ product: { price: 30, vatPercent: 0 } }], freeThresholdValue: 50 }))
+    it('carries the name, the provider, how it settles and the threshold, and no price of its own', async () => {
       api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
 
       const { payWayOptions } = await setup()
 
-      expect(payWayOptions.value[0]!.cost).toBe(0)
-    })
-
-    it('shows the surcharge and how to avoid it while below the threshold', async () => {
-      const { $i18n } = useNuxtApp()
-
-      const { option } = await optionFor(10)
-
-      expect(option.label).toContain(` (+${$i18n.n(FEE, 'currency')})`)
-      expect(option.freeThresholdHint).toBe(
-        $i18n.t('pay_way_free_above', { amount: $i18n.n(THRESHOLD, 'currency') }),
-      )
-    })
-
-    it('carries the name apart from the surcharge, and the surcharge as a number', async () => {
-      const { option } = await optionFor(10)
-
-      expect(option.name).toBe('Αντικαταβολή')
-      expect(option.cost).toBe(FEE)
-    })
-
-    it('carries a cost of 0 once the fee is waived', async () => {
-      const { option } = await optionFor(50)
-
-      expect(option.cost).toBe(0)
-    })
-
-    it('carries the provider and how it settles, for the payment step to draw', async () => {
-      const { option } = await optionFor(10)
-
-      expect(option).toMatchObject({ providerCode: 'cash_on_delivery', settlement: 'courier_cash' })
-    })
-
-    /**
-     * Django waives the fee on the products AFTER promotions
-     * (`OrderService.threshold_value`): the card must not show a fee
-     * the total then leaves out, or the other way round.
-     */
-    async function optionWithPromotion(promotion: { promotionDiscount?: number, promotionFreeShipping?: boolean }) {
-      setCart(makeCart({ items: [{ product: { price: 60, vatPercent: 0 } }], ...promotion }))
-      api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
-      const { payWayOptions } = await setup()
-      return payWayOptions.value[0]!
-    }
-
-    it('charges the fee when a promotion takes the items below the threshold', async () => {
-      // 60,00 € − 15,00 € + 2,99 € delivery = 47,99 € < 50 €.
-      const option = await optionWithPromotion({ promotionDiscount: 15 })
-
-      expect(option.cost).toBe(FEE)
-    })
-
-    it('leaves the delivery out of the base when a promotion makes it free', async () => {
-      // 60,00 € − 12,00 € = 48,00 €; the 2,99 € delivery is not charged.
-      const option = await optionWithPromotion({ promotionDiscount: 12, promotionFreeShipping: true })
-
-      expect(option.cost).toBe(FEE)
-    })
-
-    it('waives the fee when the products after the promotion reach the threshold', async () => {
-      // 60,00 € − 10,00 € = 50,00 €.
-      const option = await optionWithPromotion({ promotionDiscount: 10 })
-
-      expect(option.cost).toBe(0)
+      expect(payWayOptions.value[0]).toMatchObject({
+        name: useNuxtApp().$i18n.t('payment_methods.PAY_ON_DELIVERY'),
+        value: 3,
+        freeThreshold: 50,
+        providerCode: 'cash_on_delivery',
+        settlement: 'courier_cash',
+      })
+      // What it costs is the quote's (`useQuotedPayWayOptions`).
+      expect(payWayOptions.value[0]).not.toHaveProperty('cost')
     })
   })
 

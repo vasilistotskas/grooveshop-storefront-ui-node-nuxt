@@ -2,11 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import { defineComponent, h, reactive, ref } from 'vue'
+import { computed, defineComponent, h, reactive, ref } from 'vue'
 import Checkout from '~/components/Storefront/Checkout.vue'
 import WebsideCheckout from '~/components/variants/webside/Storefront/Checkout.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
+import { makeCartQuote, makeCheckoutQuote } from '~~/test/fixtures/checkoutQuote'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import { setTenant } from '~~/test/helpers/tenant'
 
@@ -54,6 +55,17 @@ mockNuxtImport('useTikTokPixel', () => () => ({ trackInitiateCheckout: vi.fn(), 
 mockNuxtImport('useOpenAIPixel', () => () => ({ trackCheckoutStarted: vi.fn() }))
 mockNuxtImport('useGoogleAds', () => () => ({ trackBeginCheckout: vi.fn(), trackAddPaymentInfo: vi.fn() }))
 mockNuxtImport('useGA4', () => () => ({ trackBeginCheckout: vi.fn(), trackAddPaymentInfo: vi.fn() }))
+// The quote the page shows and the order is placed at (its own spec is
+// `useCheckoutQuote.spec.ts`).
+const QUOTE = await vi.hoisted(async () => (await import('~~/test/fixtures/checkoutQuote')).makeCartQuote())
+mockNuxtImport('useCheckoutQuote', () => () => ({
+  quote: computed(() => QUOTE),
+  quotedFor: computed(() => null),
+  pending: computed(() => false),
+  refusal: computed(() => null),
+  current: () => Promise.resolve({ quote: QUOTE, error: null }),
+  refresh: () => Promise.resolve(),
+}))
 
 const COD = makePayWay({ id: 1 })
 
@@ -80,7 +92,6 @@ mockNuxtImport('useCheckoutForm', () => () => ({
   selectedPayWay: ref(COD),
   selectedCountry: ref(undefined),
   payWays: ref({ count: 1, results: [COD] }),
-  shippingPrice: ref(0),
   countryOptions: ref([]),
   postcodeExample: ref(''),
   regionOptions: ref([]),
@@ -130,9 +141,9 @@ const QUIET = ['CheckoutItems', 'CheckoutCouponInput', 'CheckoutGiftCardInput', 
  * the body and whose response carries the request id (the checkout reads
  * the refusal from it).
  */
-const refused = (body: Record<string, unknown>, requestId = 'req-checkout-42') => () => {
-  const response = { ok: false, status: 400, _data: body, headers: new Headers({ 'x-request-id': requestId }) }
-  throw Object.assign(new Error('400 Bad Request'), { status: 400, statusCode: 400, response, data: body })
+const refused = (body: Record<string, unknown>, status = 400, requestId = 'req-checkout-42') => () => {
+  const response = { ok: false, status, _data: body, headers: new Headers({ 'x-request-id': requestId }) }
+  throw Object.assign(new Error(`${status}`), { status, statusCode: status, response, data: body })
 }
 
 const t = (key: string, params: Record<string, unknown> = {}) => useNuxtApp().$i18n.t(key, params)
@@ -148,8 +159,8 @@ describe.each([
     window.sessionStorage.clear()
   })
 
-  async function placeOrder(body: Record<string, unknown>): Promise<VueWrapper> {
-    api.routes({ '/api/orders': refused(body) })
+  async function placeOrder(body: Record<string, unknown>, status = 400): Promise<VueWrapper> {
+    api.routes({ '/api/orders': refused(body, status) })
     const wrapper = await mountSuspended(Page, {
       route: false,
       global: {
@@ -192,5 +203,18 @@ describe.each([
     expect(wrapper.text()).toContain(`${t('error.request_id_label')}: req-checkout-42`)
     // The alert is the explanation: no toast repeats it.
     expect(m.toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+  })
+
+  it('sends the total on the page, and shows the new one when Django priced the order at another', async () => {
+    const wrapper = await placeOrder({
+      detail: 'Το σύνολο της παραγγελίας άλλαξε.',
+      code: 'total_changed',
+      error: { type: 'invalid_order_data', quote: makeCheckoutQuote({ amountDue: 71.4, expectedTotal: { amount: 7140, currency: 'EUR' } }) },
+    }, 409)
+
+    expect(api.callsTo('/api/orders')[0]!.options.body.expectedTotal).toEqual(makeCartQuote().expectedTotal)
+    const alert = wrapper.get('[role="alert"]')
+    expect(alert.text()).toContain(t('form.submit.error.total_changed'))
+    expect(alert.text()).toContain(t('form.submit.error.total_changed_description', { total: useNuxtApp().$i18n.n(71.4, 'currency') }))
   })
 })

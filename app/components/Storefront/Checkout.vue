@@ -45,7 +45,6 @@ const {
   selectedPayWay,
   selectedCountry,
   payWays,
-  shippingPrice,
   countryOptions,
   postcodeExample,
   regionOptions,
@@ -72,11 +71,15 @@ const {
 const {
   currentStep,
   addressStepErrors,
+  quote,
+  quotedFor,
+  quotePending,
+  quoteRefusal,
+  retryQuote,
   createdOrder,
   isSubmitting,
   loyaltyDiscount,
   giftCards,
-  giftCardBalanceTotal,
   stockError,
   submitError,
   isStripePayment,
@@ -96,6 +99,9 @@ const {
   fireInitiateCheckout,
 } = useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions, shippingOverWeight })
 
+// The pay ways at the fee the quote charges for each.
+const quotedPayWayOptions = useQuotedPayWayOptions(payWayOptions, quote)
+
 // Meta Pixel: InitiateCheckout fires once when the customer lands on
 // the checkout page. The eventID is stashed inside useCheckoutSubmit
 // so the order POST body forwards it to Django for server-side dedup.
@@ -113,19 +119,19 @@ const handleStockRetry = () => {
 // button calls it, so the per-step Zod schema gates every forward move.
 const stepRef = ref<{ submit: () => void | Promise<void> } | null>(null)
 
-// What the order costs — the summary's own figures, named on "Pay …".
-const { total } = useCheckoutTotals({
-  shippingPrice: () => shippingPrice.value,
-  includeShipping: () => currentStep.value >= 1 && Boolean(formState.shippingMethod),
-  includePaymentFee: () => currentStep.value === 2,
-  loyaltyDiscount: () => loyaltyDiscount.value?.amount ?? 0,
-  giftCardBalance: () => giftCardBalanceTotal.value,
-})
+// An order is only placed at a total the shopper sees: on the payment
+// step the button waits for one, and says why while there is none (the
+// quote is refused, or never answered).
+const quoteAccepted = computed(() => Boolean(quote.value?.expectedTotal))
+const quoteMissing = computed(() => currentStep.value === 2 && !quotePending.value && !quoteAccepted.value)
 
+// "Pay …" names the quote's amount due, the summary's total and the one
+// the order is placed at.
 const ctaLabel = computed(() => {
   if (currentStep.value === 0) return t('continue_to_delivery')
   if (currentStep.value === 1) return t('continue_to_payment')
-  return isOnlinePayment.value ? t('pay', { total: n(total.value, 'currency') }) : t('place_order')
+  const amountDue = quote.value?.amountDue
+  return isOnlinePayment.value && amountDue != null ? t('pay', { total: n(amountDue, 'currency') }) : t('place_order')
 })
 
 // The online-payment view owns the main column once the order exists:
@@ -274,6 +280,7 @@ useSeoMeta({
               :schema="step2Schema"
               :partner-id="boxnowPartnerId"
               :api-options="shippingOptions"
+              :quoted-options="quote?.shippingOptions ?? null"
               :options-error="shippingOptionsError"
               :over-weight="shippingOverWeight"
               @next="nextStep"
@@ -286,7 +293,7 @@ useSeoMeta({
               ref="stepRef"
               v-model:form-state="formState"
               :schema="step3Schema"
-              :pay-way-options="payWayOptions"
+              :pay-way-options="quotedPayWayOptions"
               :is-submitting="isSubmitting"
               :use-hosted-checkout="useHostedCheckout"
               @submit="onSubmit"
@@ -328,23 +335,32 @@ useSeoMeta({
               :icon="currentStep === 2 ? 'i-lucide-lock' : undefined"
               :trailing-icon="currentStep === 2 ? undefined : 'i-lucide-arrow-right'"
               :color="currentStep === 2 ? 'secondary' : 'neutral'"
-              :loading="isSubmitting"
-              :disabled="currentStep === 2 && !formState.payWay"
+              :loading="isSubmitting || (currentStep === 2 && quotePending)"
+              :disabled="currentStep === 2 && (!formState.payWay || !quoteAccepted)"
               size="xl"
               data-testid="checkout-cta"
               class="max-sm:flex-1 max-sm:justify-center"
               @click="onCta"
             />
           </div>
+          <!-- The order waits for a total to accept: why there is none. -->
+          <p
+            v-if="showNavigation && quoteMissing"
+            role="status"
+            data-testid="checkout-cta-reason"
+            class="text-end text-sm text-warning"
+          >
+            {{ quoteRefusal ?? t('form.submit.error.quote_unavailable_cta') }}
+          </p>
         </div>
 
         <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+1.5rem)]">
           <CheckoutSidebar
-            :shipping-price="shippingPrice"
+            :quote="quote"
+            :quoted-for="quotedFor"
+            :quote-refusal="quoteRefusal"
             :include-shipping="currentStep >= 1 && Boolean(formState.shippingMethod)"
-            :show-payment-fee="currentStep === 2"
-            :loyalty="loyaltyDiscount"
-            :gift-card-balance="giftCardBalanceTotal"
+            @retry-quote="retryQuote"
           >
             <template #items>
               <CheckoutItems />
@@ -377,7 +393,7 @@ useSeoMeta({
               <CheckoutPointsPanel
                 v-if="loggedIn"
                 :currency="cart?.currency ?? 'EUR'"
-                :max-discount-amount="cart?.totalPrice ?? 0"
+                :max-discount-amount="quote?.freeThresholdValue ?? null"
                 :redemption="loyaltyDiscount"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"

@@ -24,8 +24,15 @@ interface Redemption {
 
 const props = defineProps<{
   currency: string
-  /** The most the points may take off: the items' total. */
-  maxDiscountAmount: number
+  /**
+   * The most the points may take off: the goods after the offers (the
+   * checkout quote's `freeThresholdValue`), the cap Django redeems under.
+   * `null` while there is no quote (not answered yet, or refused): no new
+   * points are taken then, since Django may not accept them, and the panel
+   * says so rather than name a cap of 0; a redemption already held can
+   * still be removed.
+   */
+  maxDiscountAmount: number | null
   /** The redemption the page holds, or `null`. */
   redemption: Redemption | null
 }>()
@@ -60,8 +67,10 @@ const enabled = computed(() =>
   && !b2bSuppressesLoyalty.value)
 
 const balance = computed(() => summary.value?.pointsBalance ?? 0)
-const maxPoints = computed(() =>
-  ratio.value === null ? 0 : Math.min(balance.value, Math.floor(props.maxDiscountAmount * ratio.value)))
+const maxPoints = computed(() => {
+  if (ratio.value === null || props.maxDiscountAmount === null) return 0
+  return Math.min(balance.value, Math.floor(props.maxDiscountAmount * ratio.value))
+})
 
 const worth = (points: number) => ratio.value === null ? 0 : Math.round((points / ratio.value) * 100) / 100
 
@@ -169,7 +178,9 @@ const redeem = (event: FormSubmitEvent<z.output<typeof schema.value>>) => {
       v-if="ratio !== null"
       class="text-xs text-toned"
     >
-      {{ t('worth', { ratio: n(ratio), max: n(worth(maxPoints), 'currency') }) }}
+      {{ maxDiscountAmount === null
+        ? t('awaiting_quote', { ratio: n(ratio) })
+        : t('worth', { ratio: n(ratio), max: n(worth(maxPoints), 'currency') }) }}
     </p>
   </div>
 </template>
@@ -183,6 +194,7 @@ el:
   redeemed: "{points} πόντοι εξαργυρώθηκαν · −{amount}"
   remove: Αφαίρεση
   worth: "{ratio} πόντοι = 1 €. Έως {max} έκπτωση σε αυτή την παραγγελία."
+  awaiting_quote: "{ratio} πόντοι = 1 €. Εξαργύρωσέ τους μόλις υπολογιστεί το σύνολο της παραγγελίας."
   validation:
     required: Συμπλήρωσε τους πόντους
     min_points: Εξαργύρωσε τουλάχιστον 1 πόντο
@@ -196,6 +208,7 @@ en:
   redeemed: "{points} points redeemed · −{amount}"
   remove: Remove
   worth: "{ratio} points = 1 €. Up to {max} off this order."
+  awaiting_quote: "{ratio} points = 1 €. Redeem them once the order total is worked out."
   validation:
     required: Enter the points
     min_points: Redeem at least 1 point

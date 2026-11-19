@@ -21755,6 +21755,129 @@
                 }
             }
         },
+        "/api/v1/cart/quote": {
+            "post": {
+                "operationId": "quoteCart",
+                "description": "What checkout charges for the cart with the choices made so far, computed by the function order creation and the payment intent use: the products, the promotions, the delivery, the pay-way fee, the loyalty discount and the gift cards, and the amount due. A row that depends on a choice the request did not make is null. Also lists every delivery and pay way on offer at the price this cart would be charged. Send ``expectedTotal`` back when creating the order: it is then created only at this total. A quote asked with ``X-Cart-Token`` is the cart owner's price.",
+                "summary": "Quote the cart's checkout total",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
+                    }
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartQuoteRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartQuoteRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartQuoteRequestRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartQuote"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/cart/release-reservations": {
             "post": {
                 "operationId": "releaseCartReservations",
@@ -31175,6 +31298,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PaymentStatusResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -64134,6 +64267,353 @@
                     "paymentIntentId"
                 ]
             },
+            "CartQuote": {
+                "type": "object",
+                "description": "The body of ``POST /cart/quote``: the quote, and what each\ndelivery and pay way on offer would cost this cart.",
+                "properties": {
+                    "itemsSubtotal": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "The cart's lines at the prices the shopper pays."
+                    },
+                    "discountTotal": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "What live promotions and the applied coupon take off."
+                    },
+                    "appliedPromotions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteAppliedPromotion"
+                        },
+                        "description": "One entry per promotion that took money off; the amounts sum to discountTotal."
+                    },
+                    "blockingCoupon": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/QuoteBlockingCoupon"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none."
+                    },
+                    "freeThresholdValue": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees."
+                    },
+                    "shipping": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/QuoteShipping"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "paymentMethodFee": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/QuotePaymentFee"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "loyaltyDiscount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "What the redeemed loyalty points take off."
+                    },
+                    "giftCardAmount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "What the gift cards settle of the total; they are payment, applied last."
+                    },
+                    "grandTotal": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "The products after promotions, plus shipping and the pay-way fee."
+                    },
+                    "amountDue": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "ISO 4217 currency code of every amount in the quote."
+                    },
+                    "expectedTotal": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpectedTotal"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total."
+                    },
+                    "shippingOptions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteShippingOption"
+                        },
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "Every delivery the store offers to the request's country, priced as an order would be. Null without a country."
+                    },
+                    "payWays": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuotePayWayOption"
+                        },
+                        "readOnly": true,
+                        "description": "Every pay way offered for the chosen delivery (all of them while none is chosen), with the fee an order would be charged."
+                    }
+                },
+                "required": [
+                    "amountDue",
+                    "appliedPromotions",
+                    "blockingCoupon",
+                    "currency",
+                    "discountTotal",
+                    "expectedTotal",
+                    "freeThresholdValue",
+                    "giftCardAmount",
+                    "grandTotal",
+                    "itemsSubtotal",
+                    "loyaltyDiscount",
+                    "payWays",
+                    "paymentMethodFee",
+                    "shipping",
+                    "shippingOptions"
+                ]
+            },
+            "CartQuoteRequestRequest": {
+                "type": "object",
+                "description": "Request body for ``POST /api/v1/cart/quote``.\n\nThe choices of the payment-intent body, each optional: a quote may\nbe asked before the shopper has chosen a delivery or a pay way, and\nthe rows that depend on a missing choice come back null. A delivery\nis priced once both ``shipping_kind`` and ``country_id`` are given.\nSend what the order-create body will carry, the email included, so\nthe quote is the total that order is created at.",
+                "properties": {
+                    "payWayId": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "ID of the chosen PayWay; omit while none is chosen."
+                    },
+                    "shippingKind": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ShippingKind"
+                            }
+                        ],
+                        "description": "Fulfilment kind of the chosen delivery; omit while none is chosen.\n\n* `home_delivery` - Κατ' οίκον παράδοση\n* `pickup_point` - Σημείο παραλαβής / locker"
+                    },
+                    "shippingProviderCode": {
+                        "type": "string",
+                        "description": "Κωδικός μεταφορέα που αντιστοιχεί σε καταχωρημένο προσαρμογέα αποστολής (π.χ. 'acs', 'boxnow'). Απαιτείται για ``pickup_point``· παραλείψτε/αφήστε κενό για ``home_delivery`` (το backend χρησιμοποιεί τη γενική πάγια χρέωση, αντίστοιχη με αυτή που θα υπολογίσει η επαλήθευση δημιουργίας παραγγελίας για το ίδιο αίτημα).",
+                        "maxLength": 32
+                    },
+                    "countryId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "ISO 3166-1 alpha-2 delivery country. Needed to price a delivery and to list the shipping options.",
+                        "maxLength": 2
+                    },
+                    "regionId": {
+                        "type": "string",
+                        "description": "Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.",
+                        "maxLength": 16
+                    },
+                    "email": {
+                        "description": "Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.",
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
+                    },
+                    "giftCardCodes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 32
+                        },
+                        "description": "Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.",
+                        "maxItems": 3
+                    },
+                    "loyaltyPointsToRedeem": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true,
+                        "description": "Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα."
+                    }
+                }
+            },
+            "CheckoutQuote": {
+                "type": "object",
+                "description": "What checkout charges for a cart, row by row.\n\nA row that depends on a choice the request did not make is null,\nnever guessed: ``shipping`` without a delivery, ``paymentMethodFee``\nwithout a pay way, and ``giftCardAmount``, ``grandTotal``,\n``amountDue`` and ``expectedTotal`` without both.",
+                "properties": {
+                    "itemsSubtotal": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "The cart's lines at the prices the shopper pays."
+                    },
+                    "discountTotal": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "What live promotions and the applied coupon take off."
+                    },
+                    "appliedPromotions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteAppliedPromotion"
+                        },
+                        "description": "One entry per promotion that took money off; the amounts sum to discountTotal."
+                    },
+                    "blockingCoupon": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/QuoteBlockingCoupon"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none."
+                    },
+                    "freeThresholdValue": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees."
+                    },
+                    "shipping": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/QuoteShipping"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "paymentMethodFee": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/QuotePaymentFee"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "loyaltyDiscount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "What the redeemed loyalty points take off."
+                    },
+                    "giftCardAmount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "What the gift cards settle of the total; they are payment, applied last."
+                    },
+                    "grandTotal": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "The products after promotions, plus shipping and the pay-way fee."
+                    },
+                    "amountDue": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "ISO 4217 currency code of every amount in the quote."
+                    },
+                    "expectedTotal": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpectedTotal"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total."
+                    }
+                },
+                "required": [
+                    "amountDue",
+                    "appliedPromotions",
+                    "blockingCoupon",
+                    "currency",
+                    "discountTotal",
+                    "expectedTotal",
+                    "freeThresholdValue",
+                    "giftCardAmount",
+                    "grandTotal",
+                    "itemsSubtotal",
+                    "loyaltyDiscount",
+                    "paymentMethodFee",
+                    "shipping"
+                ]
+            },
             "CheckpointWriteRequest": {
                 "type": "object",
                 "properties": {
@@ -65084,12 +65564,18 @@
                     },
                     "provider": {
                         "type": "string"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When this payment link stops being payable: the expiry the provider applied, which the order keeps as paymentHoldExpiresAt."
                     }
                 },
                 "required": [
                     "amount",
                     "checkoutUrl",
                     "currency",
+                    "expiresAt",
                     "provider",
                     "sessionId",
                     "status"
@@ -65457,6 +65943,48 @@
                 },
                 "required": [
                     "detail"
+                ]
+            },
+            "ExpectedTotal": {
+                "type": "object",
+                "description": "An order total in whole minor units, compared exactly.",
+                "properties": {
+                    "amount": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "The amount due in minor units (cents): 1999 for 19.99."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "ISO 4217 currency code of the amount.",
+                        "maxLength": 3,
+                        "minLength": 3
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency"
+                ]
+            },
+            "ExpectedTotalRequest": {
+                "type": "object",
+                "description": "An order total in whole minor units, compared exactly.",
+                "properties": {
+                    "amount": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "The amount due in minor units (cents): 1999 for 19.99."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "minLength": 3,
+                        "description": "ISO 4217 currency code of the amount.",
+                        "maxLength": 3
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency"
                 ]
             },
             "FacetStats": {
@@ -67603,7 +68131,7 @@
             },
             "OrderCreateError": {
                 "type": "object",
-                "description": "The 400 or 409 body of ``POST /order``.\n\n409 is ``legal_document_unavailable``: a checkout legal text the\nstore cannot show in the order's language.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
+                "description": "The 400 or 409 body of ``POST /order``.\n\n409 is ``legal_document_unavailable`` (a checkout legal text the\nstore cannot show in the order's language) or ``total_changed``\n(the request's ``expectedTotal`` is not the amount due computed\nnow). Tell ``total_changed`` by ``code`` and the status: its\n``error.type`` is ``invalid_order_data`` until every client lists\nthe new value.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
                 "properties": {
                     "detail": {
                         "type": "string"
@@ -67663,6 +68191,14 @@
                     "reason": {
                         "type": "string",
                         "description": "Μόνο για ``invalid_coupon`` / ``invalid_gift_card``."
+                    },
+                    "quote": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CheckoutQuote"
+                            }
+                        ],
+                        "description": "``total_changed`` only: what checkout charges for the cart now. Show its total and send its ``expectedTotal`` to order at it."
                     }
                 },
                 "required": [
@@ -67900,6 +68436,15 @@
                         "maximum": 20,
                         "minimum": 1,
                         "description": "Προαιρετική παράκαμψη ανά παραγγελία για το ACS Item_Quantity (αριθμός φυσικών δεμάτων στην αποστολή). Προεπιλογή 1. ΔΕΝ πρέπει να οριστεί για παραλαβή Smartpoint — η ACS απορρίπτει vouchers πολλαπλών δεμάτων σε lockers."
+                    },
+                    "expectedTotal": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpectedTotalRequest"
+                            }
+                        ],
+                        "writeOnly": true,
+                        "description": "The total the buyer was shown: ``expectedTotal`` of ``POST /cart/quote``, or the client's own amount due in minor units. When sent, the order is created only if it is exactly the amount due computed now; otherwise the answer is 409 ``total_changed`` with the new quote and nothing is created."
                     },
                     "meta": {
                         "type": "object",
@@ -68539,6 +69084,25 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "True when the customer (account, or email for a guest) has no earlier non-canceled order. Feeds the ``new_customer`` parameter of the Google Ads purchase conversion, which Google asks to be calculated rather than hardcoded."
+                    },
+                    "paymentHoldExpiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "When the order's payment link stops being payable: the expiry the provider applied to the last link opened, or, before any was opened, the store's hold counted from the order's creation. Set for every order waiting for an online payment (PENDING, online pay way, payment not final); null for any other order."
+                    },
+                    "paymentDecidedBy": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "When the store's scheduled unpaid-order sweep, running normally, will have decided the order: canceled it, and released its stock, if it is still unpaid. It is the next sweep run after the payment link expired plus the store's grace (for a failed payment, also after the failure plus the store's wait for a retry), plus the longest that run may take. It moves later if the sweep is paused or a run is cut short, and is never an instant already past. If the provider reports the payment as processing during that run, the order stays open for its outcome. Null when nothing will decide the order: the sweep does not cancel it (it does not wait for a payment, the provider is already processing one, or a charge did not match the total and waits for the store, which paymentAwaitsReview tells apart), or the sweep is switched off."
+                    },
+                    "paymentAwaitsReview": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "True when the provider confirmed a charge that did not match the order's total and the order is still undecided (PENDING, payment not final): the money has left the customer, the order was not marked paid, and the store reconciles it by hand. Do not offer a new payment link. False for any other order, including one whose mismatch the store has since settled, canceled or refunded."
                     }
                 },
                 "required": [
@@ -68586,6 +69150,9 @@
                     "orderTimeline",
                     "payWay",
                     "payWayKey",
+                    "paymentAwaitsReview",
+                    "paymentDecidedBy",
+                    "paymentHoldExpiresAt",
                     "paymentMethodFee",
                     "paymentStatusDisplay",
                     "phone",
@@ -77950,6 +78517,186 @@
                     "updatedAt"
                 ]
             },
+            "QuoteAppliedPromotion": {
+                "type": "object",
+                "properties": {
+                    "promotionId": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "code": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The coupon that earned the entry; null for an automatic promotion."
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    }
+                },
+                "required": [
+                    "amount",
+                    "code",
+                    "name",
+                    "promotionId"
+                ]
+            },
+            "QuoteBlockingCoupon": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "description": "Why the code is refused, in the coupon rejection vocabulary (``discount_code_expired``, ...)."
+                    }
+                },
+                "required": [
+                    "code",
+                    "reason"
+                ]
+            },
+            "QuotePayWayOption": {
+                "type": "object",
+                "description": "One pay way the shopper is offered, with the fee this cart would\nbe charged for choosing it.",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "key": {
+                        "type": "string",
+                        "description": "The pay way's key, as on the pay-way endpoint."
+                    },
+                    "fee": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "waived": {
+                        "type": "boolean",
+                        "description": "True when the pay way has a fee and the cart reached its free-above threshold."
+                    }
+                },
+                "required": [
+                    "fee",
+                    "id",
+                    "key",
+                    "waived"
+                ]
+            },
+            "QuotePaymentFee": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "waived": {
+                        "type": "boolean",
+                        "description": "True when the pay way has a fee and the cart reached its free-above threshold."
+                    }
+                },
+                "required": [
+                    "amount",
+                    "waived"
+                ]
+            },
+            "QuoteShipping": {
+                "type": "object",
+                "properties": {
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "waivedBy": {
+                        "nullable": true,
+                        "description": "What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.\n\n* `threshold` - threshold\n* `promotion` - promotion",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/WaivedByEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "price",
+                    "waivedBy"
+                ]
+            },
+            "QuoteShippingOption": {
+                "type": "object",
+                "description": "One delivery the store offers, at the price this cart would be\ncharged for choosing it.",
+                "properties": {
+                    "providerCode": {
+                        "type": "string"
+                    },
+                    "providerName": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/ShippingKind"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "waivedBy": {
+                        "nullable": true,
+                        "description": "What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.\n\n* `threshold` - threshold\n* `promotion` - promotion",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/WaivedByEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
+                    },
+                    "exceedsMaxWeight": {
+                        "type": "boolean",
+                        "description": "True when the cart is heavier than this option carries; choosing it is refused."
+                    },
+                    "exceedsParcelSize": {
+                        "type": "boolean",
+                        "description": "True when the cart does not fit this carrier's parcels; choosing it is refused."
+                    }
+                },
+                "required": [
+                    "exceedsMaxWeight",
+                    "exceedsParcelSize",
+                    "kind",
+                    "price",
+                    "providerCode",
+                    "providerName",
+                    "waivedBy"
+                ]
+            },
             "RateEnum": {
                 "enum": [
                     1,
@@ -83047,6 +83794,14 @@
                 ],
                 "type": "string",
                 "description": "* `order` - order"
+            },
+            "WaivedByEnum": {
+                "enum": [
+                    "threshold",
+                    "promotion"
+                ],
+                "type": "string",
+                "description": "* `threshold` - threshold\n* `promotion` - promotion"
             },
             "WebSocketTicketResponse": {
                 "type": "object",

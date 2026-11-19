@@ -7,6 +7,7 @@ import Checkout from '~/components/Storefront/Checkout.vue'
 import WebsideCheckout from '~/components/variants/webside/Storefront/Checkout.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
+import { makeCartQuote } from '~~/test/fixtures/checkoutQuote'
 
 /**
  * The checkout page drives its three steps. Every forward move — the
@@ -26,6 +27,9 @@ const { state, submit, prevStep } = vi.hoisted(() => ({
     submitting: false,
     loggedIn: false,
     redemption: null as { amount: number, currency: string, points: number } | null,
+    quote: null as CheckoutQuote | null,
+    quotePending: false,
+    quoteRefusal: null as string | null,
   },
   submit: vi.fn(() => Promise.resolve()),
   prevStep: vi.fn(),
@@ -49,7 +53,6 @@ mockNuxtImport('useCheckoutForm', () => () => {
     selectedPayWay: ref(null),
     selectedCountry: ref(null),
     payWays: ref([]),
-    shippingPrice: ref(0),
     countryOptions: ref([]),
     postcodeExample: ref(''),
     regionOptions: ref([]),
@@ -79,11 +82,15 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
   return {
     currentStep: step,
     addressStepErrors: ref({}),
+    quote: ref(state.quote),
+    quotePending: ref(state.quotePending),
+    quoteRefusal: ref(state.quoteRefusal),
+    quotedFor: ref(null),
+    retryQuote: vi.fn(),
     createdOrder: ref(state.orderCreated ? { id: 7 } : null),
     isSubmitting: ref(state.submitting),
     loyaltyDiscount: ref(state.redemption),
     giftCards: ref([]),
-    giftCardBalanceTotal: ref(0),
     stockError: ref(null),
     isStripePayment: ref(false),
     isVivaWalletPayment: ref(state.online),
@@ -124,15 +131,19 @@ const PARTS = ['CheckoutItems', 'CheckoutCouponInput', 'CheckoutGiftCardInput', 
 const shownStep = (wrapper: VueWrapper) => wrapper.find('[data-step]').attributes('data-step')
 
 beforeEach(() => {
-  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null })
+  Object.assign(state, { step: 0, payWay: null, online: false, orderCreated: false, submitting: false, loggedIn: false, redemption: null, quote: makeCartQuote(), quotePending: false, quoteRefusal: null })
 })
 
 describe('Checkout page (default)', () => {
   /** The points panel, showing the redemption the page hands it. */
   const PointsPanelStub = defineComponent({
     name: 'CheckoutPointsPanel',
-    props: { redemption: { type: Object, default: null } },
-    setup: props => () => h('div', { 'data-part': 'CheckoutPointsPanel', 'data-points': props.redemption?.points ?? '' }),
+    props: { redemption: { type: Object, default: null }, maxDiscountAmount: { type: Number, default: null } },
+    setup: props => () => h('div', {
+      'data-part': 'CheckoutPointsPanel',
+      'data-points': props.redemption?.points ?? '',
+      'data-max-discount': props.maxDiscountAmount ?? '',
+    }),
   })
 
   /** The summary renders its slots, so the page's choice of fields shows. */
@@ -216,12 +227,46 @@ describe('Checkout page (default)', () => {
       expect(cta(wrapper).text()).toBe(t('place_order'))
     })
 
-    it('names the amount it will charge when payment happens online', async () => {
+    it('names the amount it will charge when payment happens online: the quote\'s amount due', async () => {
       useCartStore().cart = makeCart({ totalPrice: 60 })
 
-      const wrapper = await mountOnStep(2, { payWay: 3, online: true })
+      const wrapper = await mountOnStep(2, { payWay: 3, online: true, quote: makeCartQuote({ amountDue: 63.5 }) })
 
-      expect(cta(wrapper).text()).toBe(t('pay', { total: useNuxtApp().$i18n.n(60, 'currency') }))
+      expect(cta(wrapper).text()).toBe(t('pay', { total: useNuxtApp().$i18n.n(63.5, 'currency') }))
+    })
+
+    // A click before the payment step's quote lands would accept a total
+    // the page never showed.
+    it('waits, loading, while the quote is being asked for', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, online: true, quote: makeCartQuote(), quotePending: true })
+
+      expect(cta(wrapper).attributes('disabled')).toBeDefined()
+      await cta(wrapper).trigger('click')
+      await flushPromises()
+      expect(submit).not.toHaveBeenCalled()
+    })
+
+    // No order without a total to accept: a refused or missing quote
+    // leaves the button off, saying why beside it.
+    it('waits for a total to accept, saying why there is none', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, quote: null, quoteRefusal: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.' })
+
+      expect(cta(wrapper).attributes('disabled')).toBeDefined()
+      expect(wrapper.get('[data-testid="checkout-cta-reason"]').text()).toBe('Ο τρόπος πληρωμής δεν είναι διαθέσιμος.')
+      await cta(wrapper).trigger('click')
+      expect(submit).not.toHaveBeenCalled()
+    })
+
+    it('says the total is still to come when no quote answered and none was refused', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, quote: null })
+
+      expect(wrapper.get('[data-testid="checkout-cta-reason"]').text()).toBe(t('form.submit.error.quote_unavailable_cta'))
+    })
+
+    it('names no amount while the quote has none to charge', async () => {
+      const wrapper = await mountOnStep(2, { payWay: 3, online: true, quote: null })
+
+      expect(cta(wrapper).text()).toBe(t('place_order'))
     })
 
     it('submits the active step', async () => {
@@ -284,6 +329,16 @@ describe('Checkout page (default)', () => {
 
     expect(parts(wrapper)).toEqual(['CheckoutItems', 'CheckoutPointsEarned', 'CheckoutPointsPanel'])
     expect(wrapper.get('[data-part="CheckoutPointsPanel"]').attributes('data-points')).toBe('500')
+  })
+
+  // Django caps a redemption at the goods after promotions (the quote's
+  // freeThresholdValue), not at the cart's gross total.
+  it('caps the points at what the quote says the goods cost after the offers', async () => {
+    useCartStore().cart = makeCart({ totalPrice: 100 })
+
+    const wrapper = await mountOnStep(2, { loggedIn: true, quote: makeCartQuote({ itemsSubtotal: 100, discountTotal: 20, freeThresholdValue: 80 }) })
+
+    expect(wrapper.get('[data-part="CheckoutPointsPanel"]').attributes('data-max-discount')).toBe('80')
   })
 })
 
@@ -388,6 +443,21 @@ describe('Place order (webside)', () => {
     expect(checkbox.compareDocumentPosition(cta(wrapper).element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
+  it('waits, loading, while the quote is being asked for', async () => {
+    state.quotePending = true
+    const wrapper = await mountOnStep(2)
+
+    expect(cta(wrapper).attributes('disabled')).toBeDefined()
+  })
+
+  it('waits for a total to accept, saying why when no quote answered', async () => {
+    state.quote = null
+    const wrapper = await mountOnStep(2)
+
+    expect(cta(wrapper).attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-testid="checkout-sidebar-cta-reason"]').text()).toBe(useNuxtApp().$i18n.t('form.submit.error.quote_unavailable_cta'))
+  })
+
   it.each([0, 1])('asks for no consent before the payment step (step %i)', async (index) => {
     const wrapper = await mountOnStep(index)
 
@@ -415,5 +485,41 @@ describe('Place order (webside)', () => {
 
     expect(form.termsAccepted).toBe(true)
     expect(submit).toHaveBeenCalledTimes(1)
+  })
+})
+
+/**
+ * Django caps a points redemption at the goods after promotions (the
+ * quote's freeThresholdValue): the webside redemption field is capped
+ * there too, not at the cart's gross total.
+ */
+describe('Points cap (webside)', () => {
+  it('caps the points at what the quote says the goods cost after the offers', async () => {
+    Object.assign(state, { step: 2, loggedIn: true, quote: makeCartQuote({ itemsSubtotal: 100, discountTotal: 20, freeThresholdValue: 80 }) })
+    useCartStore().cart = makeCart({ totalPrice: 100 })
+    const SidebarStub = defineComponent({
+      name: 'WebsideCheckoutSidebar',
+      setup: (_props, { slots }) => () => h('div', slots.loyalty?.()),
+    })
+    const RedemptionStub = defineComponent({
+      name: 'LoyaltyRedemption',
+      props: { maxDiscountAmount: { type: Number, default: null } },
+      setup: props => () => h('div', { 'data-max-discount': props.maxDiscountAmount ?? '' }),
+    })
+
+    const wrapper = await mountSuspended(WebsideCheckout, {
+      route: false,
+      global: {
+        stubs: {
+          ...Object.fromEntries(STEPS.map(name => [`Webside${name}`, StepStub(name)])),
+          ...Object.fromEntries(PARTS.flatMap(name => [[name, true], [`Webside${name}`, true]])),
+          WebsideCheckoutSidebar: SidebarStub,
+          LoyaltyRedemption: RedemptionStub,
+        },
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.get('[data-max-discount]').attributes('data-max-discount')).toBe('80')
   })
 })

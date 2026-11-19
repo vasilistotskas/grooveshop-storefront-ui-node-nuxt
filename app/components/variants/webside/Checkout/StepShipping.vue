@@ -9,6 +9,11 @@ const props = defineProps<{
   // (``useCheckoutShippingStep``).
   apiOptions: ShippingOption[]
   /**
+   * The checkout quote's ``shippingOptions``: what each delivery costs
+   * this cart, the only price a card states (``useCheckoutShippingStep``).
+   */
+  quotedOptions: readonly QuoteShippingOption[] | null
+  /**
    * Set when the live ``/api/v1/shipping/options`` fetch failed.
    * There is no local flat-rate fallback price anymore, so the whole
    * step renders a retry prompt instead of a picker with no prices.
@@ -28,7 +33,7 @@ const emit = defineEmits<{
   'retry-options': []
 }>()
 
-const { t } = useStoreI18n('components/variants/webside/Checkout/StepShipping')
+const { t, n } = useStoreI18n('components/variants/webside/Checkout/StepShipping')
 const localePath = useLocalePath()
 
 const formRef = useTemplateRef<{
@@ -46,6 +51,7 @@ const {
 } = useCheckoutShippingStep({
   formState,
   apiOptions: () => props.apiOptions,
+  quotedOptions: () => props.quotedOptions,
   partnerId: () => props.partnerId,
   optionsError: () => props.optionsError,
   form: formRef,
@@ -208,6 +214,20 @@ defineExpose({ submit })
                 {{ item.disabledReason }}
               </span>
             </div>
+            <!-- The price is the quote's: "Free" only when it is 0, a dash
+                 while the quote has none for this card. -->
+            <span
+              v-if="item.price === 0"
+              class="shrink-0 font-semibold text-success"
+            >
+              {{ t('free') }}
+            </span>
+            <span
+              v-else
+              class="shrink-0 font-semibold"
+            >
+              {{ item.price === null ? '—' : n(item.price, 'currency') }}
+            </span>
           </div>
         </template>
       </URadioGroup>
@@ -273,4 +293,10 @@ el:
   subtitle: Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας
   back: Πίσω
   retry: Δοκιμάστε ξανά
+  free: Δωρεάν
+en:
+  subtitle: Choose how you want to receive your order
+  back: Back
+  retry: Try again
+  free: Free
 </i18n>

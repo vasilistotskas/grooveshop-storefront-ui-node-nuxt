@@ -86,6 +86,26 @@ export function optionFitsCart(option: { exceedsMaxWeight?: boolean, exceedsParc
 }
 
 /**
+ * The option a checkout method is priced and placed with: the one row
+ * that decides its card's price, whether the card can be picked, and
+ * whether submit lets it through.
+ *
+ * A pickup method is one carrier. Home delivery stands for every
+ * home-delivery carrier, and Django places the order with the first one,
+ * in priority order, whose weight cap the cart fits, else the first
+ * (``ShippingService.resolve_home_delivery_provider``). That rule weighs
+ * the cart only: a carrier it picks whose parcels the cart does not fit
+ * refuses the order, whatever a later carrier could carry.
+ */
+export function methodCarrier<T extends { providerCode: string, kind: string, exceedsMaxWeight?: boolean }>(
+  options: ReadonlyArray<T>,
+  method: string,
+): T | undefined {
+  const same = options.filter(option => methodKeyForOption(option) === method)
+  return same.find(option => !option.exceedsMaxWeight) ?? same[0]
+}
+
+/**
  * The shipping method checkout should open on, given what the store
  * actually offers.
  *
@@ -97,9 +117,9 @@ export function optionFitsCart(option: { exceedsMaxWeight?: boolean, exceedsParc
  * ways: cash on delivery, pre-selected, for a locker order that can
  * never settle in cash.
  *
- * Options the cart does not fit (``optionFitsCart``: over the weight
- * cap or too large for the parcels) are excluded from "available"
- * here — they still render in the picker (disabled, with a reason),
+ * Methods whose carrier (``methodCarrier``) the cart does not fit
+ * (``optionFitsCart``: over the weight cap or too large for the
+ * parcels) are excluded from "available" here — they still render in the picker (disabled, with a reason),
  * but auto-selecting a method the current cart can't actually use
  * would silently strand the shopper on a step they can't advance past.
  *
@@ -113,9 +133,10 @@ export function resolveShippingMethod(
 ): string | null {
   const available: string[] = []
   for (const option of options) {
-    if (!optionFitsCart(option)) continue
     const key = methodKeyForOption(option)
-    if (key && !available.includes(key)) available.push(key)
+    if (!key || available.includes(key)) continue
+    const carrier = methodCarrier(options, key)
+    if (carrier && optionFitsCart(carrier)) available.push(key)
   }
   if (!available.length) return null
   if (available.includes(current)) return null

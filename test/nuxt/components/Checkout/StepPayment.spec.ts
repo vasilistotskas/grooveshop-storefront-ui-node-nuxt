@@ -303,6 +303,14 @@ describe('Checkout/StepPayment (redesign)', () => {
       expect(card(wrapper, 7).textContent).not.toContain('+')
     })
 
+    // A card provider can carry a quoted fee too: it shows beside its brands.
+    it('shows the surcharge of a card method beside its brands', async () => {
+      const { wrapper } = await mountStep({ payWayOptions: [{ ...STRIPE, cost: 1.5 }, COD] })
+
+      expect(card(wrapper, 8).textContent).toContain('VISA')
+      expect(card(wrapper, 8).textContent).toContain(`+${eur(1.5)}`)
+    })
+
     it('shows card brands on the card methods only', async () => {
       const { wrapper } = await mountStep()
 

@@ -2746,6 +2746,172 @@ export type CartPaymentIntentResponse = {
   currency: string
 }
 
+/**
+ * The body of ``POST /cart/quote``: the quote, and what each
+ * delivery and pay way on offer would cost this cart.
+ */
+export type CartQuote = {
+  /**
+     * The cart's lines at the prices the shopper pays.
+     */
+  itemsSubtotal: number
+  /**
+     * What live promotions and the applied coupon take off.
+     */
+  discountTotal: number
+  /**
+     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     */
+  appliedPromotions: Array<QuoteAppliedPromotion>
+  /**
+     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     */
+  blockingCoupon: QuoteBlockingCoupon | null
+  /**
+     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     */
+  freeThresholdValue: number
+  shipping: QuoteShipping | null
+  paymentMethodFee: QuotePaymentFee | null
+  /**
+     * What the redeemed loyalty points take off.
+     */
+  loyaltyDiscount: number
+  /**
+     * What the gift cards settle of the total; they are payment, applied last.
+     */
+  giftCardAmount: number | null
+  /**
+     * The products after promotions, plus shipping and the pay-way fee.
+     */
+  grandTotal: number | null
+  /**
+     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     */
+  amountDue: number | null
+  /**
+     * ISO 4217 currency code of every amount in the quote.
+     */
+  currency: string
+  /**
+     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     */
+  expectedTotal: ExpectedTotal | null
+  /**
+     * Every delivery the store offers to the request's country, priced as an order would be. Null without a country.
+     */
+  readonly shippingOptions: Array<QuoteShippingOption> | null
+  /**
+     * Every pay way offered for the chosen delivery (all of them while none is chosen), with the fee an order would be charged.
+     */
+  readonly payWays: Array<QuotePayWayOption>
+}
+
+/**
+ * Request body for ``POST /api/v1/cart/quote``.
+ *
+ * The choices of the payment-intent body, each optional: a quote may
+ * be asked before the shopper has chosen a delivery or a pay way, and
+ * the rows that depend on a missing choice come back null. A delivery
+ * is priced once both ``shipping_kind`` and ``country_id`` are given.
+ * Send what the order-create body will carry, the email included, so
+ * the quote is the total that order is created at.
+ */
+export type CartQuoteRequestRequest = {
+  /**
+     * ID of the chosen PayWay; omit while none is chosen.
+     */
+  payWayId?: number
+  /**
+     * Fulfilment kind of the chosen delivery; omit while none is chosen.
+     *
+     * * `home_delivery` - Κατ' οίκον παράδοση
+     * * `pickup_point` - Σημείο παραλαβής / locker
+     */
+  shippingKind?: ShippingKind
+  /**
+     * Κωδικός μεταφορέα που αντιστοιχεί σε καταχωρημένο προσαρμογέα αποστολής (π.χ. 'acs', 'boxnow'). Απαιτείται για ``pickup_point``· παραλείψτε/αφήστε κενό για ``home_delivery`` (το backend χρησιμοποιεί τη γενική πάγια χρέωση, αντίστοιχη με αυτή που θα υπολογίσει η επαλήθευση δημιουργίας παραγγελίας για το ίδιο αίτημα).
+     */
+  shippingProviderCode?: string
+  /**
+     * ISO 3166-1 alpha-2 delivery country. Needed to price a delivery and to list the shipping options.
+     */
+  countryId?: string
+  /**
+     * Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
+     */
+  regionId?: string
+  /**
+     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.
+     */
+  email?: string | string
+  /**
+     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
+     */
+  giftCardCodes?: Array<string>
+  /**
+     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
+     */
+  loyaltyPointsToRedeem?: number | null
+}
+
+/**
+ * What checkout charges for a cart, row by row.
+ *
+ * A row that depends on a choice the request did not make is null,
+ * never guessed: ``shipping`` without a delivery, ``paymentMethodFee``
+ * without a pay way, and ``giftCardAmount``, ``grandTotal``,
+ * ``amountDue`` and ``expectedTotal`` without both.
+ */
+export type CheckoutQuote = {
+  /**
+     * The cart's lines at the prices the shopper pays.
+     */
+  itemsSubtotal: number
+  /**
+     * What live promotions and the applied coupon take off.
+     */
+  discountTotal: number
+  /**
+     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     */
+  appliedPromotions: Array<QuoteAppliedPromotion>
+  /**
+     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     */
+  blockingCoupon: QuoteBlockingCoupon | null
+  /**
+     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     */
+  freeThresholdValue: number
+  shipping: QuoteShipping | null
+  paymentMethodFee: QuotePaymentFee | null
+  /**
+     * What the redeemed loyalty points take off.
+     */
+  loyaltyDiscount: number
+  /**
+     * What the gift cards settle of the total; they are payment, applied last.
+     */
+  giftCardAmount: number | null
+  /**
+     * The products after promotions, plus shipping and the pay-way fee.
+     */
+  grandTotal: number | null
+  /**
+     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     */
+  amountDue: number | null
+  /**
+     * ISO 4217 currency code of every amount in the quote.
+     */
+  currency: string
+  /**
+     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     */
+  expectedTotal: ExpectedTotal | null
+}
+
 export type CheckpointWriteRequest = {
   note?: string
 }
@@ -3249,6 +3415,10 @@ export type CreateCheckoutSessionResponse = {
   amount: string
   currency: string
   provider: string
+  /**
+     * When this payment link stops being payable: the expiry the provider applied, which the order keeps as paymentHoldExpiresAt.
+     */
+  expiresAt: string
 }
 
 /**
@@ -3449,6 +3619,34 @@ export type ErrorResponse = {
      * Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
      */
   code?: string
+}
+
+/**
+ * An order total in whole minor units, compared exactly.
+ */
+export type ExpectedTotal = {
+  /**
+     * The amount due in minor units (cents): 1999 for 19.99.
+     */
+  amount: number
+  /**
+     * ISO 4217 currency code of the amount.
+     */
+  currency: string
+}
+
+/**
+ * An order total in whole minor units, compared exactly.
+ */
+export type ExpectedTotalRequest = {
+  /**
+     * The amount due in minor units (cents): 1999 for 19.99.
+     */
+  amount: number
+  /**
+     * ISO 4217 currency code of the amount.
+     */
+  currency: string
 }
 
 /**
@@ -4586,8 +4784,12 @@ export type OrderCreateDocumentType = 'RECEIPT' | 'INVOICE'
 /**
  * The 400 or 409 body of ``POST /order``.
  *
- * 409 is ``legal_document_unavailable``: a checkout legal text the
- * store cannot show in the order's language.
+ * 409 is ``legal_document_unavailable`` (a checkout legal text the
+ * store cannot show in the order's language) or ``total_changed``
+ * (the request's ``expectedTotal`` is not the amount due computed
+ * now). Tell ``total_changed`` by ``code`` and the status: its
+ * ``error.type`` is ``invalid_order_data`` until every client lists
+ * the new value.
  *
  * A refusal the order service understands carries ``error.type``; a
  * malformed payload is DRF's field-error map instead (``{field:
@@ -4646,6 +4848,10 @@ export type OrderCreateErrorDetail = {
      * Μόνο για ``invalid_coupon`` / ``invalid_gift_card``.
      */
   reason?: string
+  /**
+     * ``total_changed`` only: what checkout charges for the cart now. Show its total and send its ``expectedTotal`` to order at it.
+     */
+  quote?: CheckoutQuote
 }
 
 /**
@@ -5144,6 +5350,18 @@ export type OrderDetail = {
      * True when the customer (account, or email for a guest) has no earlier non-canceled order. Feeds the ``new_customer`` parameter of the Google Ads purchase conversion, which Google asks to be calculated rather than hardcoded.
      */
   readonly isFirstOrder: boolean
+  /**
+     * When the order's payment link stops being payable: the expiry the provider applied to the last link opened, or, before any was opened, the store's hold counted from the order's creation. Set for every order waiting for an online payment (PENDING, online pay way, payment not final); null for any other order.
+     */
+  readonly paymentHoldExpiresAt: string | null
+  /**
+     * When the store's scheduled unpaid-order sweep, running normally, will have decided the order: canceled it, and released its stock, if it is still unpaid. It is the next sweep run after the payment link expired plus the store's grace (for a failed payment, also after the failure plus the store's wait for a retry), plus the longest that run may take. It moves later if the sweep is paused or a run is cut short, and is never an instant already past. If the provider reports the payment as processing during that run, the order stays open for its outcome. Null when nothing will decide the order: the sweep does not cancel it (it does not wait for a payment, the provider is already processing one, or a charge did not match the total and waits for the store, which paymentAwaitsReview tells apart), or the sweep is switched off.
+     */
+  readonly paymentDecidedBy: string | null
+  /**
+     * True when the provider confirmed a charge that did not match the order's total and the order is still undecided (PENDING, payment not final): the money has left the customer, the order was not marked paid, and the store reconciles it by hand. Do not offer a new payment link. False for any other order, including one whose mismatch the store has since settled, canceled or refunded.
+     */
+  readonly paymentAwaitsReview: boolean
 }
 
 /**
@@ -8841,6 +9059,86 @@ export type PublishedPageEntry = {
   updatedAt: string
 }
 
+export type QuoteAppliedPromotion = {
+  promotionId: number
+  readonly name: string
+  /**
+     * The coupon that earned the entry; null for an automatic promotion.
+     */
+  code: string | null
+  amount: number
+}
+
+export type QuoteBlockingCoupon = {
+  code: string
+  /**
+     * Why the code is refused, in the coupon rejection vocabulary (``discount_code_expired``, ...).
+     */
+  reason: string
+}
+
+/**
+ * One pay way the shopper is offered, with the fee this cart would
+ * be charged for choosing it.
+ */
+export type QuotePayWayOption = {
+  id: number
+  /**
+     * The pay way's key, as on the pay-way endpoint.
+     */
+  key: string
+  fee: number
+  /**
+     * True when the pay way has a fee and the cart reached its free-above threshold.
+     */
+  waived: boolean
+}
+
+export type QuotePaymentFee = {
+  amount: number
+  /**
+     * True when the pay way has a fee and the cart reached its free-above threshold.
+     */
+  waived: boolean
+}
+
+export type QuoteShipping = {
+  price: number
+  /**
+     * What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.
+     *
+     * * `threshold` - threshold
+     * * `promotion` - promotion
+     */
+  waivedBy: WaivedByEnum | NullEnum | null
+}
+
+/**
+ * One delivery the store offers, at the price this cart would be
+ * charged for choosing it.
+ */
+export type QuoteShippingOption = {
+  providerCode: string
+  providerName: string
+  kind: ShippingKind
+  price: number
+  /**
+     * What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.
+     *
+     * * `threshold` - threshold
+     * * `promotion` - promotion
+     */
+  waivedBy: WaivedByEnum | NullEnum | null
+  /**
+     * True when the cart is heavier than this option carries; choosing it is refused.
+     */
+  exceedsMaxWeight: boolean
+  /**
+     * True when the cart does not fit this carrier's parcels; choosing it is refused.
+     */
+  exceedsParcelSize: boolean
+}
+
 /**
  * * `1` - Ένα
  * * `2` - Δύο
@@ -11140,6 +11438,12 @@ export type VivaReturnOrderResponse = {
  */
 export type VivaReturnOrderResponseKindEnum = 'order'
 
+/**
+ * * `threshold` - threshold
+ * * `promotion` - promotion
+ */
+export type WaivedByEnum = 'threshold' | 'promotion'
+
 export type WebSocketTicketResponse = {
   ticket: string
   expiresIn: number
@@ -11557,6 +11861,116 @@ export type CartItemMutationResponseWritable = {
   quantity?: number
 }
 
+/**
+ * The body of ``POST /cart/quote``: the quote, and what each
+ * delivery and pay way on offer would cost this cart.
+ */
+export type CartQuoteWritable = {
+  /**
+     * The cart's lines at the prices the shopper pays.
+     */
+  itemsSubtotal: number
+  /**
+     * What live promotions and the applied coupon take off.
+     */
+  discountTotal: number
+  /**
+     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     */
+  appliedPromotions: Array<QuoteAppliedPromotionWritable>
+  /**
+     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     */
+  blockingCoupon: QuoteBlockingCoupon | null
+  /**
+     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     */
+  freeThresholdValue: number
+  shipping: QuoteShipping | null
+  paymentMethodFee: QuotePaymentFee | null
+  /**
+     * What the redeemed loyalty points take off.
+     */
+  loyaltyDiscount: number
+  /**
+     * What the gift cards settle of the total; they are payment, applied last.
+     */
+  giftCardAmount: number | null
+  /**
+     * The products after promotions, plus shipping and the pay-way fee.
+     */
+  grandTotal: number | null
+  /**
+     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     */
+  amountDue: number | null
+  /**
+     * ISO 4217 currency code of every amount in the quote.
+     */
+  currency: string
+  /**
+     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     */
+  expectedTotal: ExpectedTotal | null
+}
+
+/**
+ * What checkout charges for a cart, row by row.
+ *
+ * A row that depends on a choice the request did not make is null,
+ * never guessed: ``shipping`` without a delivery, ``paymentMethodFee``
+ * without a pay way, and ``giftCardAmount``, ``grandTotal``,
+ * ``amountDue`` and ``expectedTotal`` without both.
+ */
+export type CheckoutQuoteWritable = {
+  /**
+     * The cart's lines at the prices the shopper pays.
+     */
+  itemsSubtotal: number
+  /**
+     * What live promotions and the applied coupon take off.
+     */
+  discountTotal: number
+  /**
+     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     */
+  appliedPromotions: Array<QuoteAppliedPromotionWritable>
+  /**
+     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     */
+  blockingCoupon: QuoteBlockingCoupon | null
+  /**
+     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     */
+  freeThresholdValue: number
+  shipping: QuoteShipping | null
+  paymentMethodFee: QuotePaymentFee | null
+  /**
+     * What the redeemed loyalty points take off.
+     */
+  loyaltyDiscount: number
+  /**
+     * What the gift cards settle of the total; they are payment, applied last.
+     */
+  giftCardAmount: number | null
+  /**
+     * The products after promotions, plus shipping and the pay-way fee.
+     */
+  grandTotal: number | null
+  /**
+     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     */
+  amountDue: number | null
+  /**
+     * ISO 4217 currency code of every amount in the quote.
+     */
+  currency: string
+  /**
+     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     */
+  expectedTotal: ExpectedTotal | null
+}
+
 export type ContactWriteWritable = {
   /**
      * Όνομα
@@ -11954,6 +12368,79 @@ export type OrderWritable = {
 }
 
 /**
+ * The 400 or 409 body of ``POST /order``.
+ *
+ * 409 is ``legal_document_unavailable`` (a checkout legal text the
+ * store cannot show in the order's language) or ``total_changed``
+ * (the request's ``expectedTotal`` is not the amount due computed
+ * now). Tell ``total_changed`` by ``code`` and the status: its
+ * ``error.type`` is ``invalid_order_data`` until every client lists
+ * the new value.
+ *
+ * A refusal the order service understands carries ``error.type``; a
+ * malformed payload is DRF's field-error map instead (``{field:
+ * [messages]}``), which is why every key here is optional.
+ */
+export type OrderCreateErrorWritable = {
+  detail?: string
+  /**
+     * Η ίδια τιμή με το ``error.type``.
+     */
+  code?: string
+  error?: OrderCreateErrorDetailWritable
+  /**
+     * ``insufficient_stock`` / ``cart_invalid`` από τον έλεγχο καλαθιού: ένα μήνυμα ανά πρόβλημα, για εμφάνιση.
+     */
+  cart?: Array<string>
+  fieldErrors?: {
+    [key: string]: Array<string>
+  }
+}
+
+export type OrderCreateErrorDetailWritable = {
+  /**
+     * Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.
+     *
+     * * `insufficient_stock` - Ανεπαρκές απόθεμα
+     * * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς
+     * * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
+     * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
+     * * `invalid_coupon` - Μη έγκυρο κουπόνι
+     * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
+     * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
+     * * `payment_not_found` - Δεν βρέθηκε πληρωμή
+     * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
+     * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
+     * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
+     */
+  type: OrderCreateErrorType
+  /**
+     * Μόνο για ``insufficient_stock``.
+     */
+  productId?: number
+  /**
+     * Μόνο για ``insufficient_stock``.
+     */
+  available?: number
+  /**
+     * Μόνο για ``insufficient_stock``.
+     */
+  requested?: number
+  /**
+     * Μόνο για ``invalid_coupon``.
+     */
+  code?: string
+  /**
+     * Μόνο για ``invalid_coupon`` / ``invalid_gift_card``.
+     */
+  reason?: string
+  /**
+     * ``total_changed`` only: what checkout charges for the cart now. Show its total and send its ``expectedTotal`` to order at it.
+     */
+  quote?: CheckoutQuoteWritable
+}
+
+/**
  * Serializer for creating orders from cart (dual-flow payment architecture).
  *
  * The flow follows the pay way's ``settlement``:
@@ -12120,6 +12607,10 @@ export type OrderCreateFromCartRequestWritable = {
      * Προαιρετική παράκαμψη ανά παραγγελία για το ACS Item_Quantity (αριθμός φυσικών δεμάτων στην αποστολή). Προεπιλογή 1. ΔΕΝ πρέπει να οριστεί για παραλαβή Smartpoint — η ACS απορρίπτει vouchers πολλαπλών δεμάτων σε lockers.
      */
   acsItemQuantity?: number
+  /**
+     * The total the buyer was shown: ``expectedTotal`` of ``POST /cart/quote``, or the client's own amount due in minor units. When sent, the order is created only if it is exactly the amount due computed now; otherwise the answer is 409 ``total_changed`` with the new quote and nothing is created.
+     */
+  expectedTotal?: ExpectedTotalRequest
   /**
      * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
      */
@@ -13367,6 +13858,15 @@ export type ProductVariantWritable = {
 export type ProductVariantsResponseWritable = {
   axes: Array<VariantAxis>
   variants: Array<ProductVariantWritable>
+}
+
+export type QuoteAppliedPromotionWritable = {
+  promotionId: number
+  /**
+     * The coupon that earned the entry; null for an automatic promotion.
+     */
+  code: string | null
+  amount: number
 }
 
 export type RecommendationItemWritable = {
@@ -19843,6 +20343,39 @@ export type ListCartResponses = {
 
 export type ListCartResponse = ListCartResponses[keyof ListCartResponses]
 
+export type QuoteCartData = {
+  body?: CartQuoteRequestRequest
+  headers?: {
+    /**
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
+         */
+    'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
+  }
+  path?: never
+  query?: never
+  url: '/api/v1/cart/quote'
+}
+
+export type QuoteCartErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type QuoteCartError = QuoteCartErrors[keyof QuoteCartErrors]
+
+export type QuoteCartResponses = {
+  200: CartQuote
+}
+
+export type QuoteCartResponse = QuoteCartResponses[keyof QuoteCartResponses]
+
 export type ReleaseCartReservationsData = {
   body: ReleaseReservationsRequestRequest
   headers?: {
@@ -22402,6 +22935,7 @@ export type GetOrderPaymentStatusErrors = {
   403: ErrorResponse
   404: ErrorResponse
   500: ErrorResponse
+  503: ErrorResponse
 }
 
 export type GetOrderPaymentStatusError = GetOrderPaymentStatusErrors[keyof GetOrderPaymentStatusErrors]

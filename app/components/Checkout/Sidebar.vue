@@ -5,22 +5,34 @@
  * fields the page puts in, then the charges — subtotal, each offer by
  * name, free gifts, points and gift cards, the delivery ("Calculated
  * next" until a method is chosen) and the pay way's fee on the payment
- * page — and the total. The figures are `useCheckoutTotals`', the same
- * the page's "Pay …" button names.
+ * page — and the total. Every figure is Django's quote (`useCheckoutQuote`),
+ * the one the page's "Pay …" button names and the order is placed at;
+ * until the quote prices the delivery and the pay way, the total is
+ * "at payment" rather than a sum worked out here.
  *
  * A plain `<div>`, not an `<aside>`: the checkout layout renders it
  * inside `<main>`, and a landmark nested in a landmark is an axe error;
  * it summarises the form beside it rather than being tangential to it.
  */
 const props = defineProps<{
-  shippingPrice: number | null
+  /** The checkout's quote, `null` until Django answered one. */
+  quote: CartQuote | null
   /** Whether a delivery method is chosen, so its price counts. */
   includeShipping: boolean
-  /** The payment page: the pay way's fee counts. */
-  showPaymentFee: boolean
-  /** The points redemption the page holds, or `null`. */
-  loyalty: { amount: number, points: number } | null
-  giftCardBalance: number
+  /**
+   * The choices the quote priced (`useCheckoutQuote`'s `quotedFor`): the
+   * fee row is named after its pay way and the points row counts its
+   * points, so a selection the next quote has not priced yet never labels
+   * this quote's figure.
+   */
+  quotedFor?: CartQuoteRequestRequest | null
+  /** Why Django refused the quote, said where the total would be; `null` while it answers. */
+  quoteRefusal?: string | null
+}>()
+
+const emit = defineEmits<{
+  /** Ask for the quote again with the same choices. */
+  'retry-quote': []
 }>()
 
 defineSlots<{
@@ -34,21 +46,18 @@ defineSlots<{
 const { t, n } = useStoreI18n('components/Checkout/Sidebar')
 const localePath = useLocalePath()
 const { cart } = storeToRefs(useCartStore())
-const payWay = useState<PayWay | null>('selectedPayWay')
 const { getPaymentMethodName } = usePaymentMethod()
+const { rejectionMessage } = usePromotionOffer()
 
-const { appliedPromotions, shipping, paymentFee, giftCardApplied, total } = useCheckoutTotals({
-  shippingPrice: () => props.shippingPrice,
-  includeShipping: () => props.includeShipping,
-  includePaymentFee: () => props.showPaymentFee,
-  loyaltyDiscount: () => props.loyalty?.amount ?? 0,
-  giftCardBalance: () => props.giftCardBalance,
-})
+const shipping = computed(() => props.quote?.shipping?.price ?? null)
+const paymentFee = computed(() => props.quote?.paymentMethodFee?.amount ?? 0)
+const loyaltyDiscount = computed(() => props.quote?.loyaltyDiscount ?? 0)
+const giftCardAmount = computed(() => props.quote?.giftCardAmount ?? 0)
 
-// A pay way may carry no key (the field is optional in the schema):
-// the row then says what it is, generically.
+// The pay way the quote priced. One without a key in this language
+// (parler allows a blank one) is named generically.
 const payWayName = computed(() => {
-  const key = payWay.value?.key
+  const key = props.quote?.payWays?.find(row => row.id === props.quotedFor?.payWayId)?.key
   return key ? getPaymentMethodName(key) : t('pay_way_fee')
 })
 
@@ -93,6 +102,17 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
       variant="soft"
       class="w-full justify-center"
     />
+    <!-- A coupon attached to the cart that order creation would refuse
+         (the quote's `blockingCoupon`): said before «Place order», with
+         Django's reason, so the order is not refused for it. -->
+    <UAlert
+      v-if="quote?.blockingCoupon"
+      :title="t('coupon_blocked', { code: quote.blockingCoupon.code })"
+      :description="`${rejectionMessage(quote.blockingCoupon.reason)}. ${t('coupon_blocked_hint')}`"
+      icon="i-lucide-ticket-x"
+      color="warning"
+      variant="soft"
+    />
     <UAlert
       v-if="cart?.b2bPricing?.belowMinimum"
       :description="t('b2b_below_minimum', { minimum: n(Number(cart.b2bPricing.minOrderValue ?? 0), 'currency') })"
@@ -107,13 +127,13 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
           {{ t('subtotal') }}
         </dt>
         <dd class="font-mono text-highlighted">
-          {{ n(cart?.totalPrice ?? 0, 'currency') }}
+          {{ quote ? n(quote.itemsSubtotal, 'currency') : '—' }}
         </dd>
       </div>
       <!-- One row per offer that took money off, so the shopper sees which
            applied; a coupon is credited only with what it earned. -->
       <div
-        v-for="promo in appliedPromotions"
+        v-for="promo in quote?.appliedPromotions ?? []"
         :key="`promo-${promo.promotionId}-${promo.code ?? 'auto'}`"
         class="flex justify-between gap-3 text-success"
       >
@@ -128,21 +148,21 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
         :gift="gift"
       />
       <div
-        v-if="loyalty && loyalty.amount > 0"
+        v-if="loyaltyDiscount > 0"
         class="flex justify-between gap-3 text-success"
       >
-        <dt>{{ t('loyalty_discount', { points: n(loyalty.points) }) }}</dt>
+        <dt>{{ t('loyalty_discount', { points: n(quotedFor?.loyaltyPointsToRedeem ?? 0) }) }}</dt>
         <dd class="font-mono">
-          {{ minus(loyalty.amount) }}
+          {{ minus(loyaltyDiscount) }}
         </dd>
       </div>
       <div
-        v-if="giftCardApplied > 0"
+        v-if="giftCardAmount > 0"
         class="flex justify-between gap-3 text-success"
       >
         <dt>{{ t('gift_card') }}</dt>
         <dd class="font-mono">
-          {{ minus(giftCardApplied) }}
+          {{ minus(giftCardAmount) }}
         </dd>
       </div>
       <div class="flex justify-between gap-3">
@@ -181,7 +201,37 @@ const minus = (amount: number) => `−${n(amount, 'currency')}`
     <div class="flex flex-col gap-1 border-t border-default pt-4">
       <div class="flex items-baseline justify-between gap-3">
         <span class="font-semibold text-highlighted">{{ t('total') }}</span>
-        <span class="font-mono text-xl font-bold text-highlighted">{{ n(total, 'currency') }}</span>
+        <span
+          v-if="quote?.amountDue != null"
+          class="font-mono text-xl font-bold text-highlighted"
+        >{{ n(quote.amountDue, 'currency') }}</span>
+        <span
+          v-else-if="quoteRefusal"
+          class="font-mono text-xl font-bold text-highlighted"
+        >—</span>
+        <span
+          v-else
+          class="text-sm text-toned"
+        >{{ t('calculated_at_payment') }}</span>
+      </div>
+      <div
+        v-if="quote?.amountDue == null && quoteRefusal"
+        class="flex items-start justify-between gap-3"
+      >
+        <p
+          role="status"
+          class="text-sm text-warning"
+        >
+          {{ t('quote_refused', { reason: quoteRefusal }) }}
+        </p>
+        <UButton
+          :label="t('retry_quote')"
+          color="neutral"
+          variant="link"
+          size="sm"
+          class="shrink-0 p-0"
+          @click="() => emit('retry-quote')"
+        />
       </div>
       <p
         v-if="cart?.totalVatValue"
@@ -203,6 +253,11 @@ el:
   coupon: Κουπόνι {code}
   shipping: Αποστολή
   calculated_next: Στο επόμενο βήμα
+  calculated_at_payment: Υπολογίζεται στην πληρωμή
+  quote_refused: "Δεν υπολογίστηκε το σύνολο: {reason}"
+  retry_quote: Δοκίμασε ξανά
+  coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
+  coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   free: Δωρεάν
   total: Σύνολο
   vat_items: Περιλαμβάνεται ΦΠΑ προϊόντων {amount}
@@ -220,6 +275,11 @@ en:
   coupon: Coupon {code}
   shipping: Delivery
   calculated_next: Calculated next
+  calculated_at_payment: Calculated at payment
+  quote_refused: "The total could not be worked out: {reason}"
+  retry_quote: Try again
+  coupon_blocked: Coupon {code} cannot be used with this order
+  coupon_blocked_hint: Remove it from your cart to place the order.
   free: Free
   total: Total
   vat_items: Includes {amount} VAT on the items

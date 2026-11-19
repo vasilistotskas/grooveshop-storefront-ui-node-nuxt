@@ -1,16 +1,17 @@
 <script lang="ts" setup>
 const props = defineProps({
-  // ``null`` while the live options haven't priced this method yet
-  // (loading, or ``shippingOptionsError``) — there is no local
-  // flat-rate fallback anymore, so the sidebar shows "—" rather than
-  // a misleading 0,00 €.
-  shippingPrice: { type: [Number, null] as PropType<number | null>, required: true },
-  showPaymentFee: { type: Boolean, default: false },
-  loyaltyDiscount: { type: Number, default: 0 },
-  // Sum of the balances of the gift cards the shopper attached. The
-  // sidebar previews how much of the total they settle; Django's
-  // order-create redemption is the authoritative computation.
-  giftCardBalance: { type: Number, default: 0 },
+  // The checkout's quote (``useCheckoutQuote``), ``null`` until Django
+  // answered one. Every figure below is its own: the rows, and the
+  // total the order is placed at, which reads "at payment" until the
+  // quote prices the delivery and the pay way.
+  quote: { type: Object as PropType<CartQuote | null>, default: null },
+  // Why Django refused the quote, said where the total would be; ``null``
+  // while it answers.
+  quoteRefusal: { type: String as PropType<string | null>, default: null },
+  // The choices the quote priced (``useCheckoutQuote``'s ``quotedFor``):
+  // the fee row is named after its pay way, never after a selection the
+  // next quote has not priced yet.
+  quotedFor: { type: Object as PropType<CartQuoteRequestRequest | null>, default: null },
   // Selected shipping method context — surfaced as a "selected"
   // callout on the payment step so the shopper can verify what
   // they picked at step 2 without scrolling back. Pass ``null`` (or
@@ -36,10 +37,10 @@ const props = defineProps({
 const { $i18n } = useNuxtApp()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
-const payWay = useState<PayWay | null>('selectedPayWay')
 const localePath = useLocalePath()
 const { t } = useStoreI18n('components/variants/webside/Checkout/Sidebar')
 const { getPaymentMethodName } = usePaymentMethod()
+const { rejectionMessage } = usePromotionOffer()
 
 const shippingSummaryView = computed(() => {
   const summary = props.shippingSummary
@@ -57,28 +58,24 @@ const shippingSummaryView = computed(() => {
   }
 })
 
-// The charges and the total, as the default summary computes them. This
-// summary counts the delivery only on the payment step, where it recaps
-// the chosen method (``shippingSummary``).
-const {
-  promotionDiscount,
-  appliedPromotions,
-  shipping: effectiveShippingPrice,
-  payWayCost,
-  giftCardApplied,
-  total: checkoutTotal,
-} = useCheckoutTotals({
-  shippingPrice: () => props.shippingPrice,
-  includeShipping: () => props.shippingSummary !== null,
-  includePaymentFee: () => props.showPaymentFee,
-  loyaltyDiscount: () => props.loyaltyDiscount,
-  giftCardBalance: () => props.giftCardBalance,
-})
+// The quote's rows. This summary shows the delivery only on the payment
+// step, where it recaps the chosen method (``shippingSummary``).
+const appliedPromotions = computed(() => props.quote?.appliedPromotions ?? [])
+const effectiveShippingPrice = computed(() => props.quote?.shipping?.price ?? null)
+const payWayCost = computed(() => props.quote?.paymentMethodFee?.amount ?? 0)
+const loyaltyDiscount = computed(() => props.quote?.loyaltyDiscount ?? 0)
+const giftCardAmount = computed(() => props.quote?.giftCardAmount ?? 0)
+const checkoutTotal = computed(() => props.quote?.amountDue ?? null)
 
-// A pay way may have no name in this language (parler allows a blank
-// one per locale): the row then says what it is, generically.
+const emit = defineEmits<{
+  /** Ask for the quote again with the same choices. */
+  'retry-quote': []
+}>()
+
+// The pay way the quote priced. One without a key in this language
+// (parler allows a blank one) is named generically.
 const payWayName = computed(() => {
-  const key = payWay.value?.key
+  const key = props.quote?.payWays?.find(row => row.id === props.quotedFor?.payWayId)?.key
   return key ? getPaymentMethodName(key) : t('pay_way_fee')
 })
 
@@ -216,6 +213,17 @@ defineSlots<{
             ? t('b2b_pricing_applied', { group: cart.b2bPricing.groupName })
             : t('b2b_pricing_applied_generic') }}
         </UBadge>
+        <!-- A coupon attached to the cart that order creation would
+             refuse (the quote's ``blockingCoupon``): said before Place
+             order, with Django's reason, so the order is not refused. -->
+        <UAlert
+          v-if="quote?.blockingCoupon"
+          color="warning"
+          variant="subtle"
+          icon="i-heroicons-ticket"
+          :title="t('coupon_blocked', { code: quote.blockingCoupon.code })"
+          :description="`${rejectionMessage(quote.blockingCoupon.reason)}. ${t('coupon_blocked_hint')}`"
+        />
         <UAlert
           v-if="cart?.b2bPricing?.belowMinimum"
           color="warning"
@@ -231,7 +239,7 @@ defineSlots<{
             border-t border-primary-200 pt-4
             dark:border-primary-800
           "
-          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 || promotionDiscount > 0 || giftCardApplied > 0 ? `
+          :class="shippingSummaryView || payWayCost > 0 || loyaltyDiscount > 0 || appliedPromotions.length > 0 || giftCardAmount > 0 ? `
             space-y-3
           ` : ''"
         >
@@ -281,7 +289,7 @@ defineSlots<{
             >{{ $i18n.n(effectiveShippingPrice, 'currency') }}</span>
           </div>
           <div
-            v-if="showPaymentFee && payWayCost"
+            v-if="payWayCost > 0"
             class="flex items-center justify-between"
           >
             <span
@@ -332,11 +340,11 @@ defineSlots<{
             <span class="font-bold text-success">-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
           </div>
           <div
-            v-if="giftCardApplied > 0"
+            v-if="giftCardAmount > 0"
             class="flex items-center justify-between"
           >
             <span class="text-success">{{ t('gift_card') }}</span>
-            <span class="font-bold text-success">-{{ $i18n.n(giftCardApplied, 'currency') }}</span>
+            <span class="font-bold text-success">-{{ $i18n.n(giftCardAmount, 'currency') }}</span>
           </div>
         </div>
 
@@ -358,11 +366,46 @@ defineSlots<{
             "
           >{{ t('total') }}</span>
           <span
+            v-if="checkoutTotal !== null"
             class="
               text-xl font-bold text-primary-600
               dark:text-primary-400
             "
           >{{ $i18n.n(checkoutTotal, 'currency') }}</span>
+          <span
+            v-else-if="quoteRefusal"
+            class="
+              text-xl font-bold text-primary-950
+              dark:text-primary-50
+            "
+          >—</span>
+          <span
+            v-else
+            class="
+              text-sm text-primary-950
+              dark:text-primary-50
+            "
+          >{{ t('calculated_at_payment') }}</span>
+        </div>
+        <div
+          v-if="checkoutTotal === null && quoteRefusal"
+          class="flex items-start justify-between gap-3"
+        >
+          <p
+            role="status"
+            class="text-sm text-warning"
+          >
+            {{ t('quote_refused', { reason: quoteRefusal }) }}
+          </p>
+          <UButton
+            color="neutral"
+            variant="link"
+            size="sm"
+            class="shrink-0 p-0"
+            @click="() => emit('retry-quote')"
+          >
+            {{ t('retry_quote') }}
+          </UButton>
         </div>
       </div>
 
@@ -394,6 +437,11 @@ el:
   shipping: Μεταφορικά
   free: Δωρεάν
   total: Σύνολο
+  calculated_at_payment: Υπολογίζεται στην πληρωμή
+  quote_refused: "Δεν υπολογίστηκε το σύνολο: {reason}"
+  retry_quote: Δοκίμασε ξανά
+  coupon_blocked: Το κουπόνι {code} δεν ισχύει για αυτή την παραγγελία
+  coupon_blocked_hint: Αφαίρεσέ το από το καλάθι για να ολοκληρώσεις την παραγγελία.
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   loyalty_discount: Έκπτωση πόντων
   promotion_discount: Έκπτωση προσφοράς
@@ -404,6 +452,30 @@ el:
   need_help: Χρειάζεσαι βοήθεια;
   shipping_method_label:
     home_delivery: Παράδοση στη διεύθυνσή σας
+    box_now_locker: BOX NOW Locker
+    acs_smartpoint: ACS Smartpoint
+  locker_id_short: 'ID {id}'
+en:
+  title: Checkout
+  items_unique: Products
+  shipping: Shipping
+  free: Free
+  total: Total
+  calculated_at_payment: Calculated at payment
+  quote_refused: "The total could not be worked out: {reason}"
+  retry_quote: Try again
+  coupon_blocked: Coupon {code} cannot be used with this order
+  coupon_blocked_hint: Remove it from your cart to place the order.
+  pay_way_fee: Payment method fee
+  loyalty_discount: Points discount
+  promotion_discount: Offer discount
+  gift_card: Gift card
+  b2b_pricing_applied: 'Wholesale prices: {group}'
+  b2b_pricing_applied_generic: Wholesale prices
+  b2b_below_minimum: The minimum wholesale order value is {minimum}. Add more items to place the order.
+  need_help: Need help?
+  shipping_method_label:
+    home_delivery: Delivery to your address
     box_now_locker: BOX NOW Locker
     acs_smartpoint: ACS Smartpoint
   locker_id_short: 'ID {id}'

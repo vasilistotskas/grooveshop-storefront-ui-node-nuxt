@@ -81,6 +81,9 @@ export function makeOrder(overrides: Partial<OrderDetail> = {}): OrderDetail {
     metaEventIds: {},
     currency: 'EUR',
     isFirstOrder: false,
+    paymentHoldExpiresAt: null,
+    paymentDecidedBy: null,
+    paymentAwaitsReview: false,
     ...overrides,
   }
 }

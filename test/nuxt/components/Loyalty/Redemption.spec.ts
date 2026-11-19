@@ -9,6 +9,11 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
 import type { Cart, LoyaltySummary } from '~~/shared/openapi/types.gen'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import redemptionSource from '~/components/Loyalty/Redemption.vue?raw'
+
+/** The component's own texts, as it formats them. */
+const texts = componentTexts(redemptionSource, 'Redemption.vue')
 
 /**
  * Checkout's points redemption. Nothing is spent here: the component
@@ -37,7 +42,7 @@ beforeEach(() => {
   useCartStore().cart = makeCart()
 })
 
-function mountRedemption(maxDiscountAmount = 100) {
+function mountRedemption(maxDiscountAmount: number | null = 100) {
   return mountSuspended(LoyaltyRedemption, {
     props: { currency: 'EUR', maxDiscountAmount },
     route: false,
@@ -77,6 +82,17 @@ describe('Loyalty/Redemption', () => {
       expect(wrapper.emitted('redeemed')).toBeUndefined()
       expect(toastAdd).not.toHaveBeenCalled()
     })
+  })
+
+  // No quote yet, or Django refused it: what the products are worth after
+  // the offers is unknown, so no new points are taken (Django might not
+  // accept them) and the component says why.
+  it('takes no new points while there is no quote, and says why', async () => {
+    const wrapper = await mountRedemption(null)
+
+    expect(pointsInput(wrapper).props('disabled')).toBe(true)
+    expect(wrapper.text()).toContain(texts.t('awaiting_quote'))
+    expect(wrapper.findAll('button').some(button => button.text() === texts.t('redeem_all'))).toBe(false)
   })
 
   describe('applying a redemption', () => {

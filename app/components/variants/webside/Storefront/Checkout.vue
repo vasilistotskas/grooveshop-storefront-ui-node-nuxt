@@ -45,7 +45,6 @@ const {
   selectedPayWay,
   selectedCountry,
   payWays,
-  shippingPrice,
   countryOptions,
   postcodeExample,
   regionOptions,
@@ -71,11 +70,14 @@ const {
 const {
   currentStep,
   addressStepErrors,
+  quote,
+  quotedFor,
+  quotePending,
+  quoteRefusal,
+  retryQuote,
   createdOrder,
   isSubmitting,
-  loyaltyDiscount,
   giftCards,
-  giftCardBalanceTotal,
   stockError,
   submitError,
   isStripePayment,
@@ -94,6 +96,9 @@ const {
   onGiftCardRemoved,
   fireInitiateCheckout,
 } = useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions, shippingOverWeight })
+
+// The pay ways at the fee the quote charges for each.
+const quotedPayWayOptions = useQuotedPayWayOptions(payWayOptions, quote)
 
 // Meta Pixel: InitiateCheckout fires once when the customer lands on
 // the checkout page. The eventID is stashed inside useCheckoutSubmit
@@ -187,8 +192,13 @@ const sidebarCtaLabel = computed(() =>
 const sidebarCtaIcon = computed(() =>
   currentStep.value === 2 ? undefined : 'i-heroicons-arrow-right',
 )
+// An order is only placed at a total the shopper sees: on the payment
+// step Place order waits for one, and says why while there is none (the
+// quote is refused, or never answered).
+const quoteAccepted = computed(() => Boolean(quote.value?.expectedTotal))
+const quoteMissing = computed(() => currentStep.value === 2 && !quotePending.value && !quoteAccepted.value)
 const sidebarCtaDisabled = computed(() =>
-  currentStep.value === 2 && !formState.payWay,
+  currentStep.value === 2 && (!formState.payWay || !quoteAccepted.value),
 )
 // Hide the sidebar CTA while the online-payment view owns the main
 // column — that view ships its own Pay / Back controls.
@@ -342,6 +352,7 @@ useSeoMeta({
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
             :api-options="shippingOptions"
+            :quoted-options="quote?.shippingOptions ?? null"
             :options-error="shippingOptionsError"
             :over-weight="shippingOverWeight"
             @next="nextStep"
@@ -355,7 +366,7 @@ useSeoMeta({
             ref="paymentStep"
             v-model:form-state="formState"
             :schema="step3Schema"
-            :pay-way-options="payWayOptions"
+            :pay-way-options="quotedPayWayOptions"
             @submit="onSubmit"
             @back="prevStep"
           />
@@ -390,11 +401,11 @@ useSeoMeta({
       >
         <div class="lg:sticky lg:top-4">
           <WebsideCheckoutSidebar
-            :shipping-price="shippingPrice"
-            :show-payment-fee="currentStep === 2"
-            :loyalty-discount="loyaltyDiscount?.amount ?? 0"
-            :gift-card-balance="giftCardBalanceTotal"
+            :quote="quote"
+            :quoted-for="quotedFor"
+            :quote-refusal="quoteRefusal"
             :shipping-summary="shippingSummary"
+            @retry-quote="retryQuote"
           >
             <template #items>
               <WebsideCheckoutItems />
@@ -417,7 +428,7 @@ useSeoMeta({
               <LoyaltyRedemption
                 v-if="loggedIn"
                 :currency="cart?.currency ?? 'EUR'"
-                :max-discount-amount="cart?.totalPrice ?? 0"
+                :max-discount-amount="quote?.freeThresholdValue ?? null"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"
               />
@@ -447,7 +458,7 @@ useSeoMeta({
                 block
                 trailing
                 :icon="sidebarCtaIcon"
-                :loading="isSubmitting"
+                :loading="isSubmitting || (currentStep === 2 && quotePending)"
                 :disabled="sidebarCtaDisabled"
                 data-testid="checkout-sidebar-cta"
                 :ui="{ trailingIcon: 'ms-0' }"
@@ -455,6 +466,16 @@ useSeoMeta({
               >
                 {{ sidebarCtaLabel }}
               </UButton>
+              <!-- Why Place order waits; a refusal is said beside the
+                   total above. -->
+              <p
+                v-if="showSidebarCta && quoteMissing && !quoteRefusal"
+                role="status"
+                data-testid="checkout-sidebar-cta-reason"
+                class="text-sm text-warning"
+              >
+                {{ t('form.submit.error.quote_unavailable_cta') }}
+              </p>
             </template>
           </WebsideCheckoutSidebar>
         </div>

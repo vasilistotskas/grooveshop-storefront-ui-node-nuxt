@@ -592,7 +592,8 @@ export async function useCheckoutForm() {
   // shopper changes country or adds/removes items. A fetch failure
   // sets ``shippingOptionsError`` — there is no local flat-rate
   // fallback price anymore, so the step blocks advancing instead of
-  // silently pricing wrong. See ``shippingPrice`` below.
+  // silently pricing wrong. What the order is charged is the checkout
+  // quote's (``useCheckoutQuote``); these rows price the method cards.
   const shippingOptions = ref<ShippingOption[]>([])
   // BoxNow visibility — true when the backend's
   // ``ShippingProvider(code='boxnow').is_active`` flag is set, which
@@ -708,43 +709,12 @@ export async function useCheckoutForm() {
 
   /** Match the live option row for the selected ``shippingMethod``.
    *  ``undefined`` while the live fetch hasn't populated, or when the
-   *  method is not offered for this country — there is no price to
-   *  show then, and ``shippingPrice`` reads ``null``. */
-  const matchedShippingOption = computed<ShippingOption | undefined>(() => {
-    const method = formState.shippingMethod
-    if (!shippingOptions.value.length) return undefined
-    if (method === 'box_now_locker') {
-      return shippingOptions.value.find(
-        o => o.providerCode === 'boxnow' && o.kind === 'pickup_point',
-      )
-    }
-    if (method === 'acs_smartpoint') {
-      return shippingOptions.value.find(
-        o => o.providerCode === 'acs' && o.kind === 'pickup_point',
-      )
-    }
-    // Home delivery collapses every home-delivery carrier into one
-    // choice. The options arrive in priority order, and the server
-    // routes a cart to the first carrier whose weight cap it fits
-    // (``resolve_home_delivery_provider``), so price the same one.
-    const homeDelivery = shippingOptions.value.filter(
-      o => o.kind === 'home_delivery',
-    )
-    return homeDelivery.find(o => !o.exceedsMaxWeight) ?? homeDelivery[0]
-  })
-
-  // Shipping cost is the live backend quote — a resolved
-  // ``ShippingRate`` price, a live carrier quote, or 0 when the rate's
-  // free-shipping threshold is met (``ShippingService.quote``). There
-  // is no local fallback price to fall back to: pricing is per-country
-  // rate data now, not a store-wide Setting, so a null here means
-  // "not priced yet" (options still loading, or the fetch failed —
-  // see ``shippingOptionsError``) and the sidebar shows "—" rather
-  // than a misleading 0,00 €.
-  const shippingPrice = computed<number | null>(() => {
-    const live = matchedShippingOption.value
-    return typeof live?.price === 'number' ? live.price : null
-  })
+   *  method is not offered for this country: the method cannot be
+   *  submitted then (``refetchShippingOptions``). */
+  // The carrier the order is placed with (``methodCarrier``), the same
+  // one the delivery card is priced and enabled by.
+  const matchedShippingOption = computed<ShippingOption | undefined>(() =>
+    methodCarrier(shippingOptions.value, formState.shippingMethod))
 
   // Set when the cart is over the weight cap of every method offered:
   // StepShipping explains it and cannot advance, and submit says so
@@ -772,43 +742,21 @@ export async function useCheckoutForm() {
     })) || []
   })
 
+  // The pay ways as the payment step lists them. What each costs is the
+  // checkout quote's (`useQuotedPayWayOptions`), never worked out here.
   const payWayOptions = computed(() => {
     return payWays.value?.results?.map((payWay) => {
       const name = payWay.key ? getPaymentMethodName(payWay.key) : undefined
 
-      // Django waives the fee on the cart's `freeThresholdValue`, the same
-      // value it judges free shipping on.
-      // With no cart there is no value to judge it on, so no surcharge.
-      const { cost: displayCost, freeAbove } = cart.value
-        ? payWayDisplayCost(payWay, cart.value.freeThresholdValue)
-        : { cost: 0, freeAbove: null }
-      // Only show the surcharge suffix when it's a real charge — a
-      // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
-      // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer
-      // doesn't pay.
-      const costSuffix = displayCost > 0 ? ` (+${n(displayCost, 'currency')})` : ''
-
-      // Only while the fee is actually being charged. Once the
-      // threshold is met the suffix disappears, and a line explaining
-      // how to remove a charge that is no longer there is noise.
-      // Answers the question the surcharge provokes — "why 2,99 €, and
-      // can I avoid it?" — next to the charge itself, rather than in a
-      // separate notice the shopper has to go find.
-      const freeThresholdHint = freeAbove !== null
-        ? t('pay_way_free_above', { amount: n(freeAbove, 'currency') })
-        : ''
-
       return {
-        label: `${name ?? ''}${costSuffix}`,
-        // The redesigned payment step draws the name and the surcharge
-        // apart; the webside step reads only `label`.
         name: name ?? '',
-        cost: displayCost,
+        // The threshold the pay way's configuration waives its fee at,
+        // named next to a fee the quote charges.
+        freeThreshold: payWay.freeThreshold ?? 0,
         providerCode: payWay.providerCode,
         settlement: payWay.settlement,
         value: payWay.id,
         mainImagePath: payWay.mainImagePath,
-        freeThresholdHint,
         // Operator-authored in Django admin (PayWay → Περιγραφή /
         // Οδηγίες Πληρωμής). Both are TinyMCE HTML, so they are
         // sanitised at the render site like every other WYSIWYG field.
@@ -1182,10 +1130,10 @@ export async function useCheckoutForm() {
   await applyPayWaysForShippingMethod()
 
   /**
-   * Re-fetches the live shipping options at submit time so the priced
-   * total the customer commits to matches the latest rate — a rate
-   * edited (or an ACS tariff change, when dynamic pricing is on) since
-   * page load is reflected in the sidebar before the order is created.
+   * Re-fetches the live shipping options at submit time, so a method
+   * that is no longer offered, priced or able to carry the cart sends
+   * the shopper back to the delivery step before the order is created.
+   * The total the order is placed at is the checkout quote's.
    */
   const refetchShippingOptions = async (): Promise<boolean> => {
     // Superseded by a newer request (the cart changed mid-submit): its
@@ -1211,7 +1159,6 @@ export async function useCheckoutForm() {
     // ``StepPersonalInfo`` doesn't need its own copy of the lookup.
     selectedCountry,
     payWays,
-    shippingPrice,
     countryOptions,
     postcodeExample,
     regionOptions,
