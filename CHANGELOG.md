@@ -1,3 +1,10 @@
+# [3.345.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.4...v3.345.0) (2026-11-19)
+
+
+### Features
+
+* **checkout:** show Django's quote as the one total and send its expected total ([#497](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/497)) ([712c70f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/712c70f081f4fa263d3b9896810a8f688bdd6fa9)), closes [vasilistotskas/grooveshop-django-api#635](https://github.com/vasilistotskas/grooveshop-django-api/issues/635)
+
 ## [3.344.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.3...v3.344.4) (2026-11-19)
 
 
