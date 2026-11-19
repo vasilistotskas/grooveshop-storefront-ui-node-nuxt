@@ -93,6 +93,17 @@ describe('useCheckoutQuote', () => {
     expect(quotedFor.value).toEqual({ countryId: 'GR', payWayId: 1 })
   })
 
+  it('keeps the priced choices when the request object is edited in place', async () => {
+    const { request, quotedFor } = setup({ countryId: 'GR', payWayId: 1 })
+    await flushPromises()
+    api.routes({ '/api/cart/quote': () => new Promise(() => {}) })
+
+    request.value.payWayId = 2
+    await flushPromises()
+
+    expect(quotedFor.value).toEqual({ countryId: 'GR', payWayId: 1 })
+  })
+
   it('shows no quote once the cart has no lines left', async () => {
     const { quote, current } = setup()
     await flushPromises()

@@ -652,17 +652,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // submit resets the retry counter, an automatic retry preserves it.
     const wasRetry = isRetryReentry.value
     isRetryReentry.value = false
-    // A new attempt starts clean: the last failure no longer applies.
-    submitError.value = null
-    // The total the shopper accepts: the one on the page as they clicked,
-    // or, for the automatic retry of an expired hold, the one the click
-    // that started it accepted.
-    const shownTotal = wasRetry
-      ? retryAcceptedTotal
-      : checkoutQuote.quote.value?.expectedTotal ?? null
-    pricedTotal = null
-    retryAcceptedTotal = null
-
     // Cancel any pending retry before checking isSubmitting — this
     // manual submit supersedes the scheduled automatic one. The retry
     // window HOLDS the guard (isSubmitting stays true so a double-click
@@ -680,6 +669,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     if (isSubmitting.value) return
 
     isSubmitting.value = true
+
+    // A new attempt starts clean: the last failure no longer applies. Only
+    // past the guard: a duplicate click refused while an order is being
+    // placed must not drop what the active submit accepted, which its own
+    // automatic retry still needs.
+    submitError.value = null
+    // The total the shopper accepts: the one on the page as they clicked,
+    // or, for the automatic retry of an expired hold, the one the click
+    // that started it accepted.
+    const shownTotal = wasRetry
+      ? retryAcceptedTotal
+      : checkoutQuote.quote.value?.expectedTotal ?? null
+    pricedTotal = null
+    retryAcceptedTotal = null
 
     if (!wasRetry) retryCount.value = 0
 

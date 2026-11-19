@@ -74,7 +74,7 @@ describe('Checkout/PointsPanel', () => {
 
     expect(wrapper.text()).toContain(texts.t('awaiting_quote', { ratio: n(100) }))
     expect(wrapper.text()).not.toContain(texts.t('worth', { ratio: n(100), max: n(0, 'currency') }))
-    expect(wrapper.findComponent({ name: 'UInputNumber' }).props('disabled')).toBe(true)
+    expect(wrapper.get('input').attributes('disabled')).toBeDefined()
   })
 
   it('still lets the shopper remove a redemption it holds while there is no quote', async () => {

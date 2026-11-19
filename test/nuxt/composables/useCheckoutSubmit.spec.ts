@@ -1347,6 +1347,39 @@ describe('useCheckoutSubmit', () => {
       expect(createdOrder.value).toEqual({ uuid: 'order-after-retry' })
     })
 
+    it('keeps the accepted total when a duplicate click is refused while the order is placed', async () => {
+      let refuse!: () => void
+      let calls = 0
+      api.routes({
+        '/api/orders': () => {
+          calls++
+          if (calls > 1) return orderCreated({ uuid: 'order-after-retry' })()
+          return new Promise((_resolve, reject) => {
+            refuse = () => {
+              try {
+                orderRejected(400, EXPIRED_HOLD)()
+              }
+              catch (error) {
+                reject(error)
+              }
+            }
+          })
+        },
+      })
+      const { onSubmit, createdOrder, isSubmitting } = setup(COD)
+
+      const first = onSubmit()
+      await vi.waitFor(() => expect(api.callsTo('/api/orders')).toHaveLength(1))
+      await onSubmit()
+      refuse()
+      await first
+      await vi.advanceTimersByTimeAsync(500)
+      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
+
+      expect(orderBodies().map(body => body.expectedTotal.amount)).toEqual([6300, 6300])
+      expect(createdOrder.value).toEqual({ uuid: 'order-after-retry' })
+    })
+
     it('gives up after three retries, says so, and leaves the CTA usable', async () => {
       rejectFirst(Infinity)
       const { onSubmit, isSubmitting } = setup(STRIPE)

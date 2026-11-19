@@ -33,8 +33,14 @@ export function useCheckoutQuote({ request, cartVersion }: {
     // fee or a redemption after is the quote's own, never a selection made
     // since that the next quote has not priced yet. A change of the
     // request asks again and cancels the request in flight, so only an
-    // answer to the request as it stands is ever transformed.
-    transform: (quote: CartQuote): PricedQuote => ({ quote, request: toValue(request) }),
+    // answer to the request as it stands is ever transformed. A copy, as a
+    // ref's object edited in place must not rewrite what was priced: the
+    // request is plain JSON (it is the body sent), the same text the
+    // watcher compares.
+    transform: (quote: CartQuote): PricedQuote => ({
+      quote,
+      request: JSON.parse(requestKey.value) as CartQuoteRequestRequest,
+    }),
   })
 
   watch([requestKey, () => toValue(cartVersion)], () => {
