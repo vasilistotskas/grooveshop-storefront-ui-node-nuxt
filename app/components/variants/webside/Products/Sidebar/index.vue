@@ -9,7 +9,7 @@
  * - Accordion-based filter sections with smooth animations
  * - Brand and availability (in stock, on offer) sections
  * - A quick search over the sections and a button that opens or folds all
- * - Responsive: Slideover on mobile/tablet, sticky sidebar on desktop
+ * - Responsive: Slideover on mobile/tablet, a sidebar column on desktop
  * - Active filter count badges per section
  * - Clear all filters functionality
  * - Accessible with proper ARIA labels and keyboard navigation
@@ -31,7 +31,6 @@ const { filters, hasActiveFilters, activeFilterCount, clearFilters, filterCountB
 const { allAttributes, allAttributeValues, attributeValueFacets } = useProductSearchData(useListingScope())
 const { allBrands, brandFacets } = useProductBrands(useListingScope())
 
-const sidebar = ref<HTMLElement | null>(null)
 const slideoverOpen = ref(false)
 
 // Reusable template for filter content (shared between mobile and desktop)
@@ -136,13 +135,6 @@ function toggleDrawer() {
 
 defineExpose({
   toggleDrawer,
-})
-
-// Sticky sidebar behavior for desktop
-onMounted(() => {
-  if (!sidebar.value) return
-  const { onScroll } = useSticky(sidebar.value, 150)
-  setTimeout(() => onScroll(), 50)
 })
 
 // Focus management for slideover
@@ -288,7 +280,6 @@ watch(slideoverOpen, (isOpen) => {
   <!-- Desktop: Sticky Sidebar -->
   <div
     v-if="!isMobileOrTablet"
-    ref="sidebar"
     v-bind="attrs"
     role="region"
     :aria-label="t('filters.title')"
