@@ -423,7 +423,7 @@ describe('useCheckoutSubmit', () => {
     })
 
     it('remembers in this browser an order left to be paid on the provider\'s page', async () => {
-      const order = makeOrder({ id: 9, isOnlinePayment: true, paymentHoldExpiresAt: '2026-11-20T10:30:00.000Z' })
+      const order = makeOrder({ id: 9, isOnlinePayment: true, paymentHoldExpiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString() })
       api.routes({ '/api/orders': orderCreated(order) })
       const { onSubmit } = setup(VIVA)
 

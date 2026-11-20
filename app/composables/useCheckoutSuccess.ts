@@ -130,6 +130,14 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
     isActive.value = false
   })
 
+  // An order that no longer takes a payment link (paid, closed) is no
+  // longer one for the cart to point at (`useAwaitingPaymentOrder`).
+  watch(order, (value) => {
+    if (value && !offersPaymentLink(value)) {
+      forgetAwaitingPaymentOrder(value.uuid)
+    }
+  }, { immediate: true })
+
   /**
    * Reads the order again, with `$api`, not `refresh()`: a failed refetch
    * resets `useApi`'s data to its empty default, which blanked the whole

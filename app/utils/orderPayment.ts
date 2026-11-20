@@ -43,26 +43,73 @@ export function orderPageLocation(order: Pick<OrderDetail, 'id' | 'uuid' | 'user
 
 const AWAITING_PAYMENT_KEY = 'order-awaiting-payment'
 
-/**
- * The order this browser's checkout placed that waits for its online
- * payment, by uuid. Django keeps the cart while such an order is unpaid, so
- * a shopper who left the provider's page finds the same cart and could order
- * it again: the cart and the checkout read this to point at the order
- * instead (`useAwaitingPaymentOrder`). Kept in `localStorage`, like the
- * checkout's own per-order marks, since the order outlives the tab; the uuid
- * already belongs to this browser, which placed the order. Browser only.
- */
-export function rememberAwaitingPaymentOrder(uuid: string): void {
-  localStorage.setItem(AWAITING_PAYMENT_KEY, uuid)
+/** What the browser keeps: the order's uuid, and until when it can be paid. */
+interface AwaitingPaymentOrder {
+  uuid: string
+  /** The order's `paymentHoldExpiresAt`, as the latest payment link set it. */
+  until: string
 }
 
+/**
+ * The order this browser's checkout placed that waits for its online
+ * payment. Django keeps the cart while such an order is unpaid, so a shopper
+ * who left the provider's page finds the same cart and could order it again:
+ * the cart and the checkout read this to point at the order instead
+ * (`useAwaitingPaymentOrder`).
+ *
+ * Strictly necessary storage, kept without a consent answer: it serves the
+ * purchase the shopper started, paying for the order they placed, and
+ * nothing else; it is read by no tracker and sent only to our own order
+ * call. It holds the least that does that: the order's uuid (which this
+ * browser already has, having placed the order) and its deadline, no amount
+ * and nothing about the shopper. It lives no longer than the order can be
+ * paid: a read past the deadline drops it unasked, a new payment link moves
+ * the deadline with it (`extendAwaitingPaymentOrder`), and an order that is
+ * paid, closed or gone is forgotten when it is next read. `localStorage`,
+ * since the order outlives the tab. Browser only.
+ */
+export function rememberAwaitingPaymentOrder(uuid: string, until: string): void {
+  const kept: AwaitingPaymentOrder = { uuid, until }
+  localStorage.setItem(AWAITING_PAYMENT_KEY, JSON.stringify(kept))
+}
+
+function keptOrder(): AwaitingPaymentOrder | null {
+  const raw = localStorage.getItem(AWAITING_PAYMENT_KEY)
+  if (!raw) return null
+  try {
+    const kept = JSON.parse(raw) as Partial<AwaitingPaymentOrder> | null
+    if (typeof kept?.uuid === 'string' && typeof kept.until === 'string') {
+      return { uuid: kept.uuid, until: kept.until }
+    }
+  }
+  catch {
+    // Not ours to read: dropped below.
+  }
+  localStorage.removeItem(AWAITING_PAYMENT_KEY)
+  return null
+}
+
+/** The order's uuid while it can still be paid; one past its deadline is dropped. */
 export function readAwaitingPaymentOrder(): string | null {
-  return localStorage.getItem(AWAITING_PAYMENT_KEY)
+  const kept = keptOrder()
+  if (!kept) return null
+  if (!(Date.parse(kept.until) > Date.now())) {
+    localStorage.removeItem(AWAITING_PAYMENT_KEY)
+    return null
+  }
+  return kept.uuid
+}
+
+/** Moves the deadline of the kept order, when it is this one, to a new link's. */
+export function extendAwaitingPaymentOrder(uuid: string, until: string): void {
+  if (keptOrder()?.uuid === uuid) {
+    rememberAwaitingPaymentOrder(uuid, until)
+  }
 }
 
 /** Forgets the order, unless a newer one has taken its place. */
 export function forgetAwaitingPaymentOrder(uuid: string): void {
-  if (localStorage.getItem(AWAITING_PAYMENT_KEY) === uuid) {
+  if (keptOrder()?.uuid === uuid) {
     localStorage.removeItem(AWAITING_PAYMENT_KEY)
   }
 }

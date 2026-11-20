@@ -322,6 +322,15 @@ describe.each([
       ...overrides,
     })
 
+    it('forgets the order this browser kept for the cart once it is paid', async () => {
+      rememberAwaitingPaymentOrder(UUID, new Date(Date.now() + 30 * 60 * 1000).toISOString())
+      serveOrders(order({ isPaid: true, paymentStatus: 'COMPLETED' }))
+      await mount()
+      await flushPromises()
+
+      expect(readAwaitingPaymentOrder()).toBeNull()
+    })
+
     it('offers it on the order\'s own link (the payment-failed email\'s)', async () => {
       serveOrders(waiting())
       const wrapper = await mount()

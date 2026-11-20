@@ -38,6 +38,7 @@ const NOW = new Date('2026-11-20T10:00:00Z')
 const DEADLINE = '2026-11-20T10:30:00.000Z'
 const SESSION = '/api/orders/42/create-checkout-session'
 const PROVIDER = 'https://demo.vivapayments.test/web/checkout?ref=1'
+const LINK_EXPIRES = '2026-11-20T10:40:00.000Z'
 
 /** A Viva order of 25€, its link payable for another half hour. */
 function payable(overrides: Partial<OrderDetail> = {}): OrderDetail {
@@ -59,11 +60,12 @@ const payButton = (wrapper: VueWrapper) => wrapper.findAll('button').find(b => b
 describe('OrderPayNow', () => {
   beforeEach(() => {
     session.loggedIn = false
+    localStorage.clear()
     vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
     vi.setSystemTime(NOW)
     location = { origin: ORIGIN, href: `${ORIGIN}/account/orders/42` }
     vi.stubGlobal('location', location)
-    api.routes({ [SESSION]: { checkoutUrl: PROVIDER } })
+    api.routes({ [SESSION]: { checkoutUrl: PROVIDER, expiresAt: LINK_EXPIRES } })
   })
 
   afterEach(() => {
@@ -84,6 +86,18 @@ describe('OrderPayNow', () => {
     await flushPromises()
 
     expect(location.href).toBe(PROVIDER)
+  })
+
+  it('moves the deadline this browser keeps for the order to the new link\'s', async () => {
+    const order = payable()
+    rememberAwaitingPaymentOrder(order.uuid, DEADLINE)
+    const wrapper = await mount(order)
+
+    await payButton(wrapper)!.trigger('click')
+    await flushPromises()
+    vi.setSystemTime(new Date('2026-11-20T10:35:00Z'))
+
+    expect(readAwaitingPaymentOrder()).toBe(order.uuid)
   })
 
   it.each([
@@ -149,7 +163,7 @@ describe('OrderPayNow', () => {
     expect(wrapper.text()).toContain(texts.t('error_fallback'))
     expect(wrapper.emitted('closed')).toBeUndefined()
 
-    api.routes({ [SESSION]: { checkoutUrl: PROVIDER } })
+    api.routes({ [SESSION]: { checkoutUrl: PROVIDER, expiresAt: LINK_EXPIRES } })
     await payButton(wrapper)!.trigger('click')
     await flushPromises()
 

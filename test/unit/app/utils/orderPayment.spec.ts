@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  extendAwaitingPaymentOrder,
   forgetAwaitingPaymentOrder,
   offersPaymentLink,
   orderPageLocation,
@@ -38,8 +39,14 @@ describe('orderPageLocation', () => {
 })
 
 describe('the order awaiting payment in this browser', () => {
+  const NOW = new Date('2026-11-20T10:00:00Z')
+  const UNTIL = '2026-11-20T10:30:00.000Z'
+  let store: Map<string, string>
+
   beforeEach(() => {
-    const store = new Map<string, string>()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(NOW)
+    store = new Map<string, string>()
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => store.get(key) ?? null,
       setItem: (key: string, value: string) => { store.set(key, value) },
@@ -47,15 +54,52 @@ describe('the order awaiting payment in this browser', () => {
     })
   })
 
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('keeps the uuid and the deadline, nothing else', () => {
+    rememberAwaitingPaymentOrder('first', UNTIL)
+
+    expect(JSON.parse(store.get('order-awaiting-payment')!)).toEqual({ uuid: 'first', until: UNTIL })
+  })
+
   it('keeps the latest order placed', () => {
-    rememberAwaitingPaymentOrder('first')
-    rememberAwaitingPaymentOrder('second')
+    rememberAwaitingPaymentOrder('first', UNTIL)
+    rememberAwaitingPaymentOrder('second', UNTIL)
 
     expect(readAwaitingPaymentOrder()).toBe('second')
   })
 
+  it('drops the order once its deadline has passed, unasked', () => {
+    rememberAwaitingPaymentOrder('first', UNTIL)
+    vi.setSystemTime(new Date(UNTIL))
+
+    expect(readAwaitingPaymentOrder()).toBeNull()
+    expect(store.size).toBe(0)
+  })
+
+  it('moves the deadline with a new link for the same order only', () => {
+    rememberAwaitingPaymentOrder('first', UNTIL)
+    extendAwaitingPaymentOrder('other', '2026-11-20T11:00:00.000Z')
+    vi.setSystemTime(new Date(UNTIL))
+    expect(readAwaitingPaymentOrder()).toBeNull()
+
+    rememberAwaitingPaymentOrder('first', '2026-11-20T10:45:00.000Z')
+    extendAwaitingPaymentOrder('first', '2026-11-20T11:00:00.000Z')
+    vi.setSystemTime(new Date('2026-11-20T10:50:00Z'))
+    expect(readAwaitingPaymentOrder()).toBe('first')
+  })
+
+  it('drops what it cannot read', () => {
+    store.set('order-awaiting-payment', 'not json')
+
+    expect(readAwaitingPaymentOrder()).toBeNull()
+    expect(store.size).toBe(0)
+  })
+
   it('forgets an order, but not a newer one that took its place', () => {
-    rememberAwaitingPaymentOrder('second')
+    rememberAwaitingPaymentOrder('second', UNTIL)
     forgetAwaitingPaymentOrder('first')
     expect(readAwaitingPaymentOrder()).toBe('second')
 

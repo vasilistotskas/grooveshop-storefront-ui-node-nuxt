@@ -23,7 +23,9 @@ export function useAwaitingPaymentOrder() {
         method: 'GET',
         query: { languageCode: locale.value },
       })
-      if (offersPaymentLink(found)) {
+      if (found.paymentHoldExpiresAt && offersPaymentLink(found)) {
+        // A link opened elsewhere (the order's page) may have moved it.
+        extendAwaitingPaymentOrder(uuid, found.paymentHoldExpiresAt)
         order.value = found
       }
       else {

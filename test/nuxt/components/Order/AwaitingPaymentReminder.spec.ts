@@ -23,6 +23,7 @@ const NOW = new Date('2026-11-20T10:00:00Z')
 const UUID = '00000000-0000-4006-8000-000000000042'
 const ORDER_URL = `/api/orders/uuid/${UUID}`
 const KEY = 'order-awaiting-payment'
+const UNTIL = '2026-11-20T10:30:00.000Z'
 
 function waiting(overrides: Partial<OrderDetail> = {}): OrderDetail {
   return makeOrder({
@@ -31,7 +32,7 @@ function waiting(overrides: Partial<OrderDetail> = {}): OrderDetail {
     amountDue: 25,
     isOnlinePayment: true,
     isCollectedOnDelivery: false,
-    paymentHoldExpiresAt: '2026-11-20T10:30:00.000Z',
+    paymentHoldExpiresAt: UNTIL,
     ...overrides,
   })
 }
@@ -61,13 +62,34 @@ describe('OrderAwaitingPaymentReminder', () => {
   })
 
   it('reminds of the order while Django offers it a link', async () => {
-    localStorage.setItem(KEY, UUID)
+    rememberAwaitingPaymentOrder(UUID, UNTIL)
     api.routes({ [ORDER_URL]: waiting() })
 
     const wrapper = await mount()
 
     expect(wrapper.text()).toContain(texts.t('reminder.title', { id: 42 }))
-    expect(localStorage.getItem(KEY)).toBe(UUID)
+    expect(readAwaitingPaymentOrder()).toBe(UUID)
+  })
+
+  it('drops an order past its deadline without asking Django', async () => {
+    rememberAwaitingPaymentOrder(UUID, UNTIL)
+    vi.setSystemTime(new Date(UNTIL))
+
+    const wrapper = await mount()
+
+    expect(api.callsTo(ORDER_URL)).toEqual([])
+    expect(wrapper.text()).toBe('')
+    expect(localStorage.getItem(KEY)).toBeNull()
+  })
+
+  it('follows a deadline a later link moved', async () => {
+    rememberAwaitingPaymentOrder(UUID, UNTIL)
+    api.routes({ [ORDER_URL]: waiting({ paymentHoldExpiresAt: '2026-11-20T10:50:00.000Z' }) })
+
+    await mount()
+    vi.setSystemTime(new Date('2026-11-20T10:40:00Z'))
+
+    expect(readAwaitingPaymentOrder()).toBe(UUID)
   })
 
   it.each([
@@ -76,7 +98,7 @@ describe('OrderAwaitingPaymentReminder', () => {
     { case: 'is gone', answer: failWith(404) },
     { case: 'no longer opens for this browser', answer: failWith(403) },
   ])('forgets an order that $case', async ({ answer }) => {
-    localStorage.setItem(KEY, UUID)
+    rememberAwaitingPaymentOrder(UUID, UNTIL)
     api.routes({ [ORDER_URL]: answer })
 
     const wrapper = await mount()
@@ -86,12 +108,12 @@ describe('OrderAwaitingPaymentReminder', () => {
   })
 
   it('keeps the order for the next page when the read fails', async () => {
-    localStorage.setItem(KEY, UUID)
+    rememberAwaitingPaymentOrder(UUID, UNTIL)
     api.routes({ [ORDER_URL]: failWith(502) })
 
     const wrapper = await mount()
 
     expect(wrapper.text()).toBe('')
-    expect(localStorage.getItem(KEY)).toBe(UUID)
+    expect(readAwaitingPaymentOrder()).toBe(UUID)
   })
 })

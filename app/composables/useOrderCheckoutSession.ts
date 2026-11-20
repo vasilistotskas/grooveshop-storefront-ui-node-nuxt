@@ -35,6 +35,8 @@ export function useOrderCheckoutSession() {
       },
       query: { uuid: order.uuid },
     })
+    // The order stays payable until this link expires.
+    extendAwaitingPaymentOrder(order.uuid, response.expiresAt)
     return response.checkoutUrl
   }
 

@@ -41,8 +41,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // back without paying is shown the order on the cart and the checkout
   // (`useAwaitingPaymentOrder`) rather than ordering the same items again.
   watch(createdOrder, (order) => {
-    if (order && offersPaymentLink(order)) {
-      rememberAwaitingPaymentOrder(order.uuid)
+    if (order?.paymentHoldExpiresAt && offersPaymentLink(order)) {
+      rememberAwaitingPaymentOrder(order.uuid, order.paymentHoldExpiresAt)
     }
   })
   const isSubmitting = ref(false)
