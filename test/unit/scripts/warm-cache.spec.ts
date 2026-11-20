@@ -9,6 +9,7 @@ import { deviceClassFromUserAgent } from '~~/shared/utils/deviceClass'
 import {
   buildAssetPaths,
   DEVICE_USER_AGENTS,
+  envNumber,
   forEachOnPods,
   isCachedResponse,
   listReadyOrigins,
@@ -25,6 +26,7 @@ import {
   sitemapLocations,
   storefrontHosts,
   untilComplete,
+  warmBuild,
   warmedBuild,
   warmedEveryStore,
   waitForRollout,
@@ -482,6 +484,56 @@ describe('forEachOnPods', () => {
     expect(queue).toEqual(items(5))
   })
 
+  it('waits a refresh before it reads the pods again', async () => {
+    const work = async (_item: number, origin: string) => {
+      throw new PodGone(origin)
+    }
+    const listOrigins = vi.fn(async (): Promise<string[]> => [])
+    const run = forEachOnPods(items(3), { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 1000, work })
+
+    await vi.advanceTimersByTimeAsync(999)
+    expect(listOrigins).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(listOrigins).toHaveBeenCalledTimes(1)
+    await drain(run)
+  })
+
+  it('stops with items left when a pod stays listed but refuses every connection', async () => {
+    const attempts = vi.fn()
+    const work = async (_item: number, origin: string) => {
+      attempts(origin)
+      throw new PodGone(origin)
+    }
+    const listOrigins = vi.fn(async () => ['http://a:3000'])
+    const queue = items(5)
+    await drain(forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 1000, work }))
+
+    // One read after the first stall; the second stall, with nothing done
+    // since, ends it.
+    expect(listOrigins).toHaveBeenCalledTimes(1)
+    expect(attempts).toHaveBeenCalledTimes(2)
+    expect(queue).toEqual(items(5))
+  })
+
+  it('keeps reading the pods while each read leads to progress', async () => {
+    // a refuses one connection after every two items, b is never listed.
+    const run = recorder()
+    let sinceRefusal = 0
+    const work = async (item: number, origin: string) => {
+      if (sinceRefusal === 2) {
+        sinceRefusal = 0
+        throw new PodGone(origin)
+      }
+      sinceRefusal++
+      await run.work(item, origin)
+    }
+    const queue = items(9)
+    await drain(forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins: async () => ['http://a:3000'], concurrency: 1, refreshMs: 1000, work }))
+
+    expect(queue).toEqual([])
+    expect(run.ranOn['http://a:3000']).toEqual(items(9))
+  })
+
   it('fails on any other error from the work', async () => {
     const work = async () => {
       throw new Error('a bug')
@@ -621,5 +673,166 @@ describe('waitForRollout', () => {
     await expect(settle(waitForRollout({ ...options, kube: api, buildAt: async () => 'b2', timeoutMs: 5 })))
       .rejects
       .toThrow('for the rollout of frontend-nuxt')
+  })
+})
+
+describe('envNumber', () => {
+  it('reads a number, and refuses a blank, unset or non-numeric value', () => {
+    expect(envNumber('300')).toBe(300)
+    expect(envNumber(' 0 ')).toBe(0)
+    expect(envNumber('')).toBeNaN()
+    expect(envNumber('  ')).toBeNaN()
+    expect(envNumber(undefined)).toBeNaN()
+    expect(envNumber('five')).toBeNaN()
+  })
+})
+
+describe('warmBuild', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  type Page = { host: string, pathname: string }
+  type Sitemap = { host: string, path: string }
+  const page = (host: string, pathname: string): Page => ({ host, pathname })
+  const pagesOf = (...list: Page[]) => new Map(list.map(item => [`${item.host}${item.pathname}`, item]))
+  const counts = (rendered: number) => ({ rendered, payloads: 0, uncached: 0, failed: rendered ? 0 : 1 })
+  type Counts = ReturnType<typeof counts>
+  const roots: Sitemap[] = [{ host: 'a.test', path: '/sitemap.xml' }, { host: 'b.test', path: '/sitemap.xml' }]
+
+  /**
+   * A fake world: each try's sitemap answers in `reads` (by sitemap path,
+   * "a.test/sitemap.xml"), each page rendering unless listed in `failing`
+   * for that try. Records what each try read and requested.
+   */
+  function world({ reads, failing = [] }: { reads: Record<string, Page[] | 'failed'>[], failing?: string[][] }) {
+    const readsPerTry: string[][] = []
+    const requestedPerTry: string[][] = []
+    const assets: string[][] = []
+    const lines: { level: string, message: string, fields: Record<string, unknown> }[] = []
+    const record = vi.fn(async () => {})
+    // Tries finished: the sitemap answers of the next try are reads[triesDone].
+    let triesDone = 0
+    const options = {
+      attempts: 3,
+      retryMs: 300_000,
+      sitemaps: roots,
+      readSitemaps: async (sitemaps: Sitemap[]) => {
+        const answers = reads[triesDone] ?? {}
+        readsPerTry.push(sitemaps.map(({ host, path }) => `${host}${path}`))
+        const pages = new Map<string, Page>()
+        const failed: Sitemap[] = []
+        for (const sitemap of sitemaps) {
+          const answer = answers[`${sitemap.host}${sitemap.path}`] ?? 'failed'
+          if (answer === 'failed') failed.push(sitemap)
+          else for (const [key, value] of pagesOf(...answer)) pages.set(key, value)
+        }
+        return { pages, failed, redirectingHosts: [] }
+      },
+      warmAssets: async (stores: string[]) => {
+        assets.push(stores)
+      },
+      warmPages: async (queue: Page[], tryNumber: number, onPage: (page: Page, done: Counts) => void) => {
+        triesDone = tryNumber
+        requestedPerTry.push(queue.map(item => `${item.host}${item.pathname}`))
+        for (let item = queue.shift(); item; item = queue.shift()) {
+          onPage(item, counts((failing[tryNumber - 1] ?? []).includes(`${item.host}${item.pathname}`) ? 0 : 3))
+        }
+        return 2
+      },
+      record,
+      log: (level: string, message: string, fields: Record<string, unknown> = {}) => {
+        lines.push({ level, message, fields })
+      },
+      fields: { build: 'build-1' },
+    }
+    return { options, readsPerTry, requestedPerTry, assets, lines, record }
+  }
+
+  async function settle<T>(run: Promise<T>): Promise<T> {
+    await vi.runAllTimersAsync()
+    return run
+  }
+
+  it('records the build after one complete try', async () => {
+    const run = world({ reads: [{ 'a.test/sitemap.xml': [page('a.test', '/'), page('a.test', '/products')], 'b.test/sitemap.xml': [page('b.test', '/')] }] })
+
+    expect(await settle(warmBuild(run.options))).toBe(0)
+    expect(run.record).toHaveBeenCalledTimes(1)
+    expect(run.lines.at(-1)).toMatchObject({ level: 'info', message: 'cache warmed', fields: { build: 'build-1', attempt: 1, pages: 3 } })
+  })
+
+  it('reads only the sitemap that failed on the next try, and requests only the pages not done', async () => {
+    const run = world({
+      reads: [
+        { 'a.test/sitemap.xml': [page('a.test', '/'), page('a.test', '/products')] },
+        { 'b.test/sitemap.xml': [page('b.test', '/')] },
+      ],
+    })
+
+    expect(await settle(warmBuild(run.options))).toBe(0)
+    expect(run.readsPerTry).toEqual([['a.test/sitemap.xml', 'b.test/sitemap.xml'], ['b.test/sitemap.xml']])
+    expect(run.requestedPerTry).toEqual([['a.test/', 'a.test/products'], ['b.test/']])
+    expect(run.lines.find(line => line.message === 'cache partly warmed, trying again')).toMatchObject({ level: 'warn', fields: { failedSitemaps: ['b.test/sitemap.xml'], attempt: 1 } })
+    expect(run.record).toHaveBeenCalledTimes(1)
+  })
+
+  it('sends each store\'s build files to the edge once, on the first try that found it', async () => {
+    const run = world({
+      reads: [
+        { 'a.test/sitemap.xml': [page('a.test', '/')] },
+        { 'b.test/sitemap.xml': [page('b.test', '/')] },
+      ],
+    })
+    await settle(warmBuild(run.options))
+
+    expect(run.assets).toEqual([['a.test'], ['b.test']])
+  })
+
+  it('asks again for the pages of a store that rendered nothing, not for those of a store that did', async () => {
+    const both = { 'a.test/sitemap.xml': [page('a.test', '/')], 'b.test/sitemap.xml': [page('b.test', '/'), page('b.test', '/blog')] }
+    const run = world({ reads: [both], failing: [['b.test/', 'b.test/blog']] })
+
+    expect(await settle(warmBuild(run.options))).toBe(0)
+    expect(run.requestedPerTry).toEqual([['a.test/', 'b.test/', 'b.test/blog'], ['b.test/', 'b.test/blog']])
+  })
+
+  it('logs an error and exits 1 when the last try still leaves the build unrecorded', async () => {
+    const run = world({ reads: [{ 'a.test/sitemap.xml': [page('a.test', '/')] }] })
+
+    expect(await settle(warmBuild(run.options))).toBe(1)
+    expect(run.record).not.toHaveBeenCalled()
+    expect(run.readsPerTry).toEqual([['a.test/sitemap.xml', 'b.test/sitemap.xml'], ['b.test/sitemap.xml'], ['b.test/sitemap.xml']])
+    // a.test's page was done on the first try and never asked for again.
+    expect(run.requestedPerTry).toEqual([['a.test/'], [], []])
+    expect(run.lines.filter(line => line.level === 'warn')).toHaveLength(2)
+    expect(run.lines.at(-1)).toMatchObject({
+      level: 'error',
+      message: 'cache partly warmed, build not recorded',
+      fields: { attempt: 3, attempts: 3, failedSitemaps: ['b.test/sitemap.xml'], build: 'build-1' },
+    })
+  })
+
+  it('counts pages no pod took as unrequested, and asks for them on the next try', async () => {
+    const run = world({ reads: [{ 'a.test/sitemap.xml': [page('a.test', '/'), page('a.test', '/products')], 'b.test/sitemap.xml': [page('b.test', '/')] }] })
+    const warmPages = run.options.warmPages
+    let first = true
+    run.options.warmPages = async (queue, tryNumber, onPage) => {
+      if (first) {
+        // Every pod lost: the first page is done, the rest stay queued.
+        first = false
+        run.requestedPerTry.push(queue.map(item => `${item.host}${item.pathname}`))
+        onPage(queue.shift()!, counts(3))
+        return 1
+      }
+      return warmPages(queue, tryNumber, onPage)
+    }
+
+    expect(await settle(warmBuild(run.options))).toBe(0)
+    expect(run.lines.find(line => line.message === 'cache partly warmed, trying again')?.fields).toMatchObject({ unrequested: 2 })
+    expect(run.requestedPerTry[1]).toEqual(['b.test/', 'a.test/products'])
   })
 })
