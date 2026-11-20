@@ -357,10 +357,19 @@ describe('forEachOnPods', () => {
     }
   }
 
+  it('starts on the pods it is given, without reading them again', async () => {
+    const run = recorder()
+    let reads = 0
+    const queue = Array.from({ length: 4 }, (_, index) => index)
+    await forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins: async () => [String(++reads)], concurrency: 1, refreshMs: 1000, work: run.work })
+    expect(reads).toBe(0)
+    expect(run.ranOn['http://a:3000']).toHaveLength(4)
+  })
+
   it('spreads the items over every pod, the concurrency on each', async () => {
     const run = recorder()
     const queue = Array.from({ length: 12 }, (_, index) => index)
-    const peak = await forEachOnPods(queue, { listOrigins: async () => ['http://a:3000', 'http://b:3000'], concurrency: 2, refreshMs: 1000, work: run.work })
+    const peak = await forEachOnPods(queue, { origins: ['http://a:3000', 'http://b:3000'], listOrigins: async () => ['http://a:3000', 'http://b:3000'], concurrency: 2, refreshMs: 1000, work: run.work })
 
     expect(peak).toBe(2)
     expect(queue).toEqual([])
@@ -370,9 +379,8 @@ describe('forEachOnPods', () => {
 
   it('gives a pod that becomes ready its share, and none to a pod that left', async () => {
     const run = recorder()
-    const lists = [['http://a:3000'], ['http://b:3000']]
     const queue = Array.from({ length: 30 }, (_, index) => index)
-    const peak = await forEachOnPods(queue, { listOrigins: async () => lists.length > 1 ? lists.shift()! : lists[0]!, concurrency: 1, refreshMs: 10, work: run.work })
+    const peak = await forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins: async () => ['http://b:3000'], concurrency: 1, refreshMs: 10, work: run.work })
 
     expect(peak).toBe(1)
     expect(run.ranOn['http://a:3000']?.length).toBeGreaterThan(0)
@@ -386,13 +394,13 @@ describe('forEachOnPods', () => {
     const run = recorder()
     let reads = 0
     const listOrigins = async () => {
-      if (reads++) throw new Error('API server restarting')
-      return ['http://a:3000']
+      reads++
+      throw new Error('API server restarting')
     }
     const queue = Array.from({ length: 10 }, (_, index) => index)
-    await forEachOnPods(queue, { listOrigins, concurrency: 1, refreshMs: 5, work: run.work })
+    await forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 5, work: run.work })
 
-    expect(reads).toBeGreaterThan(1)
+    expect(reads).toBeGreaterThan(0)
     expect(run.ranOn['http://a:3000']).toHaveLength(10)
   })
 
@@ -400,6 +408,7 @@ describe('forEachOnPods', () => {
     const seen: string[][] = []
     const queue = Array.from({ length: 10 }, (_, index) => index)
     await forEachOnPods(queue, {
+      origins: ['http://a:3000', 'http://b:3000'],
       listOrigins: async () => ['http://a:3000', 'http://b:3000'],
       concurrency: 1,
       refreshMs: 5,

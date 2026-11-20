@@ -287,14 +287,16 @@ export function readyOrigins(sliceList) {
 
 /**
  * Run `work(item, origin)` over `queue` with `concurrency` items in flight on
- * each pod `listOrigins()` names. The list is read again every `refreshMs`
- * while items remain: a new pod gets workers, and a pod no longer listed
- * takes no new item (the one in flight finishes). A failed read keeps the
- * pods it had. Returns the most pods worked on at once.
+ * each pod, starting with `origins`. The pods are read again with
+ * `listOrigins()` every `refreshMs` while items remain: a new pod gets
+ * workers, and a pod no longer listed takes no new item (the one in flight
+ * finishes). A failed read keeps the pods it had. Returns the most pods
+ * worked on at once.
  *
  * @template T
  * @param {T[]} queue
  * @param {{
+ *   origins: string[],
  *   listOrigins: () => Promise<string[]>,
  *   concurrency: number,
  *   refreshMs: number,
@@ -303,8 +305,8 @@ export function readyOrigins(sliceList) {
  * }} options
  * @returns {Promise<number>}
  */
-export async function forEachOnPods(queue, { listOrigins, concurrency, refreshMs, work, onRefresh = () => {} }) {
-  let current = new Set(await listOrigins())
+export async function forEachOnPods(queue, { origins, listOrigins, concurrency, refreshMs, work, onRefresh = () => {} }) {
+  let current = new Set(origins)
   let peak = current.size
   const running = new Set()
   async function worker(origin) {
@@ -636,12 +638,13 @@ async function main() {
   const summary = { pages: pages.size, rendered: 0, payloads: 0, uncached: 0, failed: 0 }
   const queue = warmOrder([...pages.values()])
   let pagesDone = 0
-  // A pod the HPA adds is used once it serves this build; a pod of a newer
-  // rollout is not (its cache is another build's).
+  // A pod the HPA adds is used once it is ready. A pod serving another
+  // build is not (a newer rollout's: its cache is another build's); a pod
+  // whose build could not be read is, as Kubernetes calls it ready.
   const listOrigins = async () => {
     const ready = await listReadyOrigins(kube, serviceName)
     const builds = await Promise.all(ready.map(origin => buildAt(origin).catch(() => undefined)))
-    return ready.filter((_, index) => builds[index] === ownBuild)
+    return ready.filter((_, index) => builds[index] === undefined || builds[index] === ownBuild)
   }
   async function warmPage(page, origin) {
     try {
@@ -678,6 +681,7 @@ async function main() {
     }
   }
   const pods = await forEachOnPods(queue, {
+    origins,
     listOrigins,
     concurrency,
     refreshMs: pollMs,
