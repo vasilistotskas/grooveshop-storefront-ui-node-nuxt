@@ -13,6 +13,8 @@ import { makeOrder, makeOrderItem } from '~~/test/fixtures/order'
 import { makeBoxNowLocker, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
 import { fixtureUuid } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import payNowSource from '~/components/Order/PayNow.vue?raw'
 
 /**
  * The order-confirmation page. Arriving from a payment provider it
@@ -310,6 +312,56 @@ describe.each([
       expect(refreshes()).toBe(0)
       expect(wrapper.text()).not.toContain(messages.payment.processing.title)
       expect(wrapper.text()).not.toContain(messages.payment.completed.title)
+    })
+  })
+
+  describe('paying for the order', () => {
+    const payNow = (wrapper: Awaited<ReturnType<typeof mount>>) =>
+      wrapper.findAll('button').find(b => b.text() === componentTexts(payNowSource, 'PayNow.vue').t('pay'))
+    const waiting = (overrides: Partial<OrderDetail> = {}) => order({
+      isOnlinePayment: true,
+      paymentHoldExpiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      ...overrides,
+    })
+
+    it('forgets the order this browser kept for the cart once it is paid', async () => {
+      rememberAwaitingPaymentOrder(UUID, new Date(Date.now() + 30 * 60 * 1000).toISOString())
+      serveOrders(order({ isPaid: true, paymentStatus: 'COMPLETED' }))
+      await mount()
+      await flushPromises()
+
+      expect(readAwaitingPaymentOrder()).toBeNull()
+    })
+
+    it('offers it on the order\'s own link (the payment-failed email\'s)', async () => {
+      serveOrders(waiting())
+      const wrapper = await mount()
+      await flushPromises()
+
+      expect(payNow(wrapper)).toBeTruthy()
+    })
+
+    it('does not offer a second link to a shopper back from paying, while the provider has not answered', async () => {
+      route.query = { session_id: 'cs_test_1' }
+      serveOrders(waiting())
+      const wrapper = await mount()
+
+      expect(payNow(wrapper)).toBeUndefined()
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL * 10)
+
+      expect(wrapper.text()).toContain(messages.payment.processing.title)
+      expect(payNow(wrapper)).toBeUndefined()
+    })
+
+    it('offers it again once the provider answered that the payment failed', async () => {
+      route.query = { session_id: 'cs_test_1' }
+      serveOrders(waiting(), waiting({ paymentStatus: 'FAILED' }))
+      const wrapper = await mount()
+
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL)
+      await flushPromises()
+
+      expect(payNow(wrapper)).toBeTruthy()
     })
   })
 

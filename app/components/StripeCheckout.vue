@@ -13,6 +13,7 @@ const emit = defineEmits<{
 
 const { t } = useStoreI18n('components/StripeCheckout')
 const localePath = useLocalePath()
+const { open } = useOrderCheckoutSession()
 
 const processing = ref(false)
 const error = ref('')
@@ -24,37 +25,12 @@ const createCheckoutSession = async () => {
   error.value = ''
 
   try {
-    const baseUrl = window.location.origin
-    const successUrl = `${baseUrl}${localePath({
-      name: 'checkout-success-uuid',
-      params: { uuid: props.order.uuid },
-    })}?session_id={CHECKOUT_SESSION_ID}`
-
-    const cancelUrl = `${baseUrl}${localePath({
-      name: 'checkout',
-    })}?canceled=true`
-
-    const response = await $api(
-      `/api/orders/${props.order.id}/create-checkout-session`,
-      {
-        method: 'POST',
-        body: {
-          successUrl: successUrl,
-          cancelUrl: cancelUrl,
-          customerEmail: props.order.email,
-          description: `Payment for Order #${props.order.id}`,
-        },
-        query: props.order.uuid ? { uuid: props.order.uuid } : undefined,
-      },
+    const checkoutUrl = await open(
+      props.order,
+      localePath({ name: 'checkout', query: { canceled: 'true' } }),
     )
-
-    if (!response || !response.checkoutUrl) {
-      throw new Error('Invalid response from server')
-    }
-
     emit('redirecting')
-
-    window.location.href = response.checkoutUrl
+    window.location.href = checkoutUrl
   }
   catch (err: unknown) {
     log.error({ action: 'stripe:checkoutSession', error: err })

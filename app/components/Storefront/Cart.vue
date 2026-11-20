@@ -171,10 +171,12 @@ useSeoMeta({
           >· {{ t('free_delivery_unlocked') }}</span>
         </p>
         <USkeleton
-          v-else
+          v-else-if="initialLoading"
           class="h-6 w-24"
         />
       </header>
+
+      <OrderAwaitingPaymentReminder />
 
       <UAlert
         v-if="showRecoveredBanner"

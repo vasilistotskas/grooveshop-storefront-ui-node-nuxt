@@ -32,6 +32,8 @@ const {
   fromCheckout,
   sessionVerified,
   verifyingSession,
+  offersPayment,
+  reloadOrder,
   recommendedPostsList,
 } = await useCheckoutSuccess({ guideCount: 3 })
 
@@ -225,6 +227,12 @@ async function openInvoice() {
           :ui="paymentState === 'verifying' ? { icon: 'motion-safe:animate-spin' } : undefined"
           variant="soft"
           role="status"
+        />
+
+        <OrderPayNow
+          v-if="offersPayment"
+          :order="order"
+          @closed="() => { reloadOrder() }"
         />
 
         <div

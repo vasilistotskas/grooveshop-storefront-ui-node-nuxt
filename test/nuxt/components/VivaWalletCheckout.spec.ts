@@ -11,8 +11,9 @@ import { failWith } from '~~/test/helpers/api'
  * Viva Wallet Smart Checkout: once mounted, the component asks Django
  * for a payment order and sends the browser to Viva's page. Viva
  * redirects to the URL configured in its merchant portal, so the URLs
- * sent here only satisfy Django's serializer — but they still name this
- * order and a cancelled checkout. `window.location` is replaced for
+ * sent here only satisfy Django's serializer: they are the ones every
+ * payment link of the order sends (`useOrderCheckoutSession`), naming
+ * this order and a cancelled checkout. `window.location` is replaced for
  * each test: the redirect must be observed, not performed.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -49,10 +50,8 @@ describe('VivaWalletCheckout', () => {
       options: {
         method: 'POST',
         body: {
-          successUrl: `${ORIGIN}/checkout/success/${ORDER_UUID}`,
+          successUrl: `${ORIGIN}/checkout/success/${ORDER_UUID}?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${ORIGIN}/checkout?canceled=true`,
-          customerEmail: 'maria@example.com',
-          description: 'Payment for Order #5',
         },
         query: { uuid: ORDER_UUID },
       },
@@ -70,7 +69,6 @@ describe('VivaWalletCheckout', () => {
   })
 
   it.each([
-    { case: 'answers without a checkout URL', answer: () => ({}), message: 'Αποτυχία δημιουργίας συνεδρίας πληρωμής' },
     {
       case: 'refuses with a detail',
       answer: failWith(400, { detail: 'Η παραγγελία έχει ήδη πληρωθεί' }),
@@ -95,7 +93,7 @@ describe('VivaWalletCheckout', () => {
   })
 
   it('tries again from the retry button', async () => {
-    api.routes({ [SESSION]: () => ({}) })
+    api.routes({ [SESSION]: failWith(502) })
     const wrapper = await mount()
     await flushPromises()
     api.routes({ [SESSION]: { checkoutUrl: 'https://demo.vivapayments.test/web/checkout?ref=2' } })

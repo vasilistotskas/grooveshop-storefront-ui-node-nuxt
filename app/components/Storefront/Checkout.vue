@@ -228,6 +228,8 @@ useSeoMeta({
         "
       >
         <div class="flex min-w-0 flex-col gap-6">
+          <OrderAwaitingPaymentReminder />
+
           <ApiErrorAlert :error="submitError" />
 
           <CheckoutStockErrorAlert

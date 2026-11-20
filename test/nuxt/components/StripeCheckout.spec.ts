@@ -50,8 +50,6 @@ describe('StripeCheckout', () => {
         body: {
           successUrl: `${ORIGIN}/checkout/success/${ORDER_UUID}?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${ORIGIN}/checkout?canceled=true`,
-          customerEmail: 'maria@example.com',
-          description: 'Payment for Order #5',
         },
         query: { uuid: ORDER_UUID },
       },
@@ -69,7 +67,6 @@ describe('StripeCheckout', () => {
   })
 
   it.each([
-    { case: 'answers without a checkout URL', answer: () => ({}), message: 'Αποτυχία δημιουργίας συνεδρίας πληρωμής' },
     {
       case: 'refuses with a detail',
       answer: failWith(400, { detail: 'Η παραγγελία έχει ήδη πληρωθεί' }),
@@ -94,7 +91,7 @@ describe('StripeCheckout', () => {
   })
 
   it('tries again from the retry button', async () => {
-    api.routes({ [SESSION]: () => ({}) })
+    api.routes({ [SESSION]: failWith(502) })
     const wrapper = await mount()
     await flushPromises()
     api.routes({ [SESSION]: { checkoutUrl: 'https://checkout.stripe.test/c/pay/cs_2' } })

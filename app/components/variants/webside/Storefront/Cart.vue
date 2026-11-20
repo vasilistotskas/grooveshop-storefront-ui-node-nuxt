@@ -149,6 +149,8 @@ useSeoMeta({
       class="mb-8"
     />
 
+    <OrderAwaitingPaymentReminder class="mb-6" />
+
     <UAlert
       v-if="showRecoveredBanner"
       color="info"
@@ -196,7 +198,7 @@ useSeoMeta({
             {{ t('items_in_cart', { count: cart.totalItems }) }}
           </p>
           <USkeleton
-            v-else
+            v-else-if="initialLoading"
             class="h-6 w-24"
           />
         </div>
@@ -468,7 +470,7 @@ useSeoMeta({
         </UCard>
       </div>
       <div
-        v-else
+        v-else-if="initialLoading"
         class="
           w-full
           lg:max-w-md

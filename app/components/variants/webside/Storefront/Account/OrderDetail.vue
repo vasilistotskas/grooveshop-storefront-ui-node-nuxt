@@ -7,7 +7,7 @@ const productReviewsEnabled = useStoreFeature('productReviews')
 // The one account route with no `title` string of its own: the order
 // number IS the title here, and without this the tab read the store
 // name twice like every other account page.
-const { orderId, order, refresh: refreshOrder } = await useOrderDetail()
+const { orderId, order, refresh: refreshOrder, stale } = await useOrderDetail()
 useHead({ title: () => `${t('order')} #${orderId}` })
 
 const { cancelOrder } = useOrder()
@@ -219,10 +219,13 @@ const orderAlert = computed(() => {
   // payment. Suppress for offline pay ways. ``isOnlinePayment``
   // ships from OrderDetailSerializer.get_is_online_payment.
   const remaining = order.value?.pricingBreakdown?.remainingAmount
+  // One that can still be paid here says so itself, with its button
+  // (`OrderPayNow`).
   if (
     remaining
     && remaining > 0
     && order.value?.isOnlinePayment
+    && !offersPaymentLink(order.value)
   ) {
     return {
       show: true,
@@ -466,6 +469,34 @@ async function handleReorder() {
       :description="orderAlert.description"
       :icon="orderAlert.icon"
       variant="soft"
+    />
+
+    <!-- A read that failed leaves the order as it was: say so, since a
+         change just made (a cancel) is not on the page yet. -->
+    <UAlert
+      v-if="stale"
+      color="warning"
+      variant="soft"
+      icon="i-heroicons-arrow-path"
+      role="status"
+      :title="t('stale.title')"
+      :description="t('stale.description')"
+    >
+      <template #actions>
+        <UButton
+          color="neutral"
+          variant="outline"
+          size="sm"
+          @click="() => { refreshOrder() }"
+        >
+          {{ t('stale.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
+
+    <OrderPayNow
+      :order="order"
+      @closed="() => { refreshOrder() }"
     />
 
     <div
@@ -1266,6 +1297,10 @@ el:
   payment_pending: Εκκρεμής Πληρωμή
   payment_method_fee: Χρέωση μεθόδου πληρωμής
   payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
+  stale:
+    title: Η παραγγελία δεν ανανεώθηκε
+    description: Βλέπεις την παραγγελία όπως ήταν πριν. Δοκίμασε ξανά για να δεις πού βρίσκεται τώρα.
+    retry: Δοκίμασε ξανά
   invoice:
     download: "Λήψη απόδειξης"
     error_title: "Αποτυχία λήψης απόδειξης"
@@ -1360,6 +1395,10 @@ en:
   payment_pending: Payment Pending
   payment_method_fee: Payment method fee
   payment_pending_desc: There is {amount} still to pay on this order
+  stale:
+    title: The order could not be refreshed
+    description: You are seeing the order as it was before. Try again to see where it stands now.
+    retry: Try again
   invoice:
     download: "Download receipt"
     error_title: "Could not download the receipt"

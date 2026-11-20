@@ -4,15 +4,20 @@ import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-uti
 import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import type { Component } from 'vue'
-import { getQuery } from 'h3'
+import { createError, getQuery } from 'h3'
 import OrderDetailPage from '~/components/Storefront/Account/OrderDetail.vue'
 import WebsideOrderDetailPage from '~/components/variants/webside/Storefront/Account/OrderDetail.vue'
 import { makeAcsShipment, makeAcsStation, makeAcsTrackingEvent } from '~~/test/fixtures/acs'
 import { makeBoxNowLocker, makeBoxNowParcelEvent, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
+import type { OrderDetail } from '~~/shared/openapi/types.gen'
 import { makeOrder, makeOrderItem } from '~~/test/fixtures/order'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { failWith } from '~~/test/helpers/api'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import payNowSource from '~/components/Order/PayNow.vue?raw'
+import orderDetailSource from '~/components/Storefront/Account/OrderDetail.vue?raw'
+import websideOrderDetailSource from '~/components/variants/webside/Storefront/Account/OrderDetail.vue?raw'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -104,6 +109,90 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
     const wrapper = await mountPage(C)
 
     expect(button(wrapper, reorderLabel()) !== undefined).toBe(offered)
+  })
+
+  describe('an online order waiting for its payment', () => {
+    const payNow = componentTexts(payNowSource, 'PayNow.vue').t('pay')
+    const staleTexts = () => defaultOnly
+      ? componentTexts(orderDetailSource, 'OrderDetail.vue')
+      : componentTexts(websideOrderDetailSource, 'OrderDetail.vue')
+    // The page's own "still due" line, for the 25€ the order owes.
+    const stillDue = () => {
+      const amount = useNuxtApp().$i18n.n(25, 'currency')
+      return defaultOnly
+        ? componentTexts(orderDetailSource, 'OrderDetail.vue').t('alert.payment_pending_description', { amount })
+        : componentTexts(websideOrderDetailSource, 'OrderDetail.vue').t('payment_pending_desc', { amount })
+    }
+    const waiting = (overrides: Partial<OrderDetail> = {}) => makeOrder({
+      id: 3,
+      amountDue: 25,
+      isOnlinePayment: true,
+      isCollectedOnDelivery: false,
+      pricingBreakdown: { remainingAmount: 25 },
+      paymentHoldExpiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      ...overrides,
+    })
+
+    it('offers to pay it, in place of the bare "still due" alert', async () => {
+      state.order = waiting()
+
+      const wrapper = await mountPage(C)
+
+      expect(button(wrapper, payNow)).toBeTruthy()
+      expect(wrapper.text()).not.toContain(stillDue())
+    })
+
+    it('keeps the "still due" alert, with no button, while the store reviews a charge', async () => {
+      state.order = waiting({ paymentAwaitsReview: true })
+
+      const wrapper = await mountPage(C)
+
+      expect(button(wrapper, payNow)).toBeUndefined()
+      expect(wrapper.text()).toContain(stillDue())
+    })
+
+    it('reads the order again when Django says its time ran out', async () => {
+      state.order = waiting()
+      api.routes({ '/api/orders/3/create-checkout-session': failWith(400, { detail: 'Django', code: 'payment_window_expired' }) })
+      const wrapper = await mountPage(C)
+
+      await button(wrapper, payNow)!.trigger('click')
+      await flushPromises()
+
+      expect(fetches).toBe(2)
+      expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('errors.codes.payment_window_expired'))
+    })
+
+    it('keeps the order on the page when reading it again fails', async () => {
+      state.order = waiting()
+      api.routes({ '/api/orders/3/create-checkout-session': failWith(400, { detail: 'Django', code: 'payment_window_expired' }) })
+      const wrapper = await mountPage(C)
+      registerEndpoint('/api/orders/3', () => {
+        fetches++
+        throw createError({ statusCode: 503 })
+      })
+
+      await button(wrapper, payNow)!.trigger('click')
+      await flushPromises()
+
+      expect(fetches).toBeGreaterThan(1)
+      expect(wrapper.get('h1').text()).toContain('#3')
+      expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('errors.codes.payment_window_expired'))
+      expect(wrapper.text()).toContain(staleTexts().t('stale.title'))
+
+      // Trying again reads it, and a read that works ends the notice.
+      registerEndpoint('/api/orders/3', () => {
+        fetches++
+        return makeOrder({ id: 3, status: 'CANCELED', isCanceled: true, canBeCanceled: false })
+      })
+      await button(wrapper, staleTexts().t('stale.retry'))!.trigger('click')
+
+      await vi.waitFor(() => expect(wrapper.text()).not.toContain(staleTexts().t('stale.title')))
+      // The page draws the order the retry read: canceled, nothing to pay or cancel.
+      expect(wrapper.text()).toContain(staleTexts().t(defaultOnly ? 'alert.canceled' : 'order_cancelled'))
+      expect(button(wrapper, payNow)).toBeUndefined()
+      expect(button(wrapper, defaultOnly ? staleTexts().t('cancel.cta') : staleTexts().t('cancel_order'))).toBeUndefined()
+    })
   })
 
   it.runIf(!defaultOnly)('buys the order again with the webside page\'s own words and toast icons', async () => {
