@@ -113,6 +113,8 @@ describe('Storefront/Cart', () => {
 
     expect(wrapper.text()).not.toContain(summaryMessages.title)
     expect(itemIds(wrapper)).toEqual([])
+    // The count's placeholder is for a cart still loading, not an empty one.
+    expect(wrapper.get('header').findAll('[aria-busy="true"]')).toHaveLength(0)
   })
 
   it('shows neither lines nor "empty" while the cart is still loading', async () => {
@@ -125,6 +127,7 @@ describe('Storefront/Cart', () => {
     expect(wrapper.text()).not.toContain(messages.empty.title)
     expect(itemIds(wrapper)).toEqual([])
     expect(wrapper.text()).not.toContain(summaryMessages.title)
+    expect(wrapper.get('header').findAll('[aria-busy="true"]')).toHaveLength(1)
   })
 
   describe('delivery and offers', () => {
@@ -413,6 +416,9 @@ describe('Storefront/Cart (webside)', () => {
     await vi.waitFor(() => expect(wrapper.text()).toContain('Το καλάθι σου είναι άδειο'))
 
     expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(false)
+    // The count's and the summary's placeholders are for a cart still
+    // loading, not an empty one.
+    expect(wrapper.findAll('[aria-busy="true"]')).toHaveLength(0)
   })
 
   it('keeps the cross-sell strip, not the empty-cart one, on a cart with lines', async () => {
