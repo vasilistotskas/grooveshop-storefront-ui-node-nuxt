@@ -1,3 +1,10 @@
+## [3.345.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.0...v3.345.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **blog:** a store without customer accounts draws no post like button ([#498](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/498)) ([bc95b70](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bc95b70e982d0edfb327b3bff75426e5434b2a68)), closes [vasilistotskas/grooveshop-django-api#198](https://github.com/vasilistotskas/grooveshop-django-api/issues/198)
+
 # [3.345.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.344.4...v3.345.0) (2026-11-19)
 
 
