@@ -31,6 +31,7 @@ import {
   warmedEveryStore,
   waitForRollout,
   warmOrder,
+  withLocaleTwins,
 } from '~~/scripts/warm-cache.mjs'
 
 describe('DEVICE_USER_AGENTS', () => {
@@ -427,14 +428,30 @@ describe('forEachOnPods', () => {
   })
 
   it('keeps a pod that left and came back at its concurrency', async () => {
-    const run = recorder()
-    // a is dropped by one read and listed again by the next, while its
-    // worker is still inside an item.
+    // a is dropped by the read at 2 ms and listed again by the one at 4 ms,
+    // while its worker is still inside its first item (until 10 ms).
+    const inFlight: Record<string, number> = {}
+    const peakInFlight: Record<string, number> = {}
+    const ran: number[] = []
+    let firstOnA = true
+    const work = async (item: number, origin: string) => {
+      inFlight[origin] = (inFlight[origin] ?? 0) + 1
+      peakInFlight[origin] = Math.max(peakInFlight[origin] ?? 0, inFlight[origin]!)
+      const hold = origin === 'http://a:3000' && firstOnA ? 10 : 3
+      if (origin === 'http://a:3000') firstOnA = false
+      await new Promise(resolve => setTimeout(resolve, hold))
+      ran.push(item)
+      inFlight[origin]!--
+    }
     const lists = [['http://b:3000'], ['http://a:3000', 'http://b:3000']]
-    await drain(forEachOnPods(items(40), { origins: ['http://a:3000'], listOrigins: async () => lists.shift() ?? ['http://a:3000', 'http://b:3000'], concurrency: 1, refreshMs: 2, work: run.work }))
+    const listOrigins = vi.fn(async () => lists.shift() ?? ['http://a:3000', 'http://b:3000'])
+    const queue = items(40)
+    await drain(forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 2, work }))
 
-    expect(run.peakInFlight['http://a:3000']).toBe(1)
-    expect(Object.values(run.ranOn).flat()).toHaveLength(40)
+    expect(listOrigins.mock.calls.length).toBeGreaterThanOrEqual(2)
+    expect(peakInFlight['http://a:3000']).toBe(1)
+    expect(queue).toEqual([])
+    expect(ran.sort((a, b) => a - b)).toEqual(items(40))
   })
 
   it('puts the item back and drops a pod that is gone, until a read lists it again', async () => {
@@ -532,6 +549,20 @@ describe('forEachOnPods', () => {
 
     expect(queue).toEqual([])
     expect(run.ranOn['http://a:3000']).toEqual(items(9))
+  })
+
+  it('fails on another error from the work that lands while the pods are being read', async () => {
+    // The refresh at 5 ms waits 20 ms for its read; item 0 fails at 7 ms,
+    // and the other worker drains the queue before the read returns.
+    const work = async (item: number) => {
+      await new Promise(resolve => setTimeout(resolve, item === 0 ? 7 : 1))
+      if (item === 0) throw new Error('a bug')
+    }
+    const listOrigins = async () => {
+      await new Promise(resolve => setTimeout(resolve, 20))
+      return ['http://a:3000']
+    }
+    await expect(drain(forEachOnPods(items(20), { origins: ['http://a:3000'], listOrigins, concurrency: 2, refreshMs: 5, work }))).rejects.toThrow('a bug')
   })
 
   it('fails on any other error from the work', async () => {
@@ -661,11 +692,30 @@ describe('waitForRollout', () => {
     expect(origins).toEqual(['http://10.42.0.7:3000'])
   })
 
-  it('fails at once when the storefront rolled out on another build', async () => {
-    const api = fakeKube({ status: 200, body: rolled }, { status: 200, body: slices('10.42.0.7', '10.42.1.9') })
+  it('fails when the next read still finds the storefront on another build after its rollout', async () => {
+    const api = fakeKube(
+      { status: 200, body: rolled },
+      { status: 200, body: slices('10.42.0.7', '10.42.1.9') },
+      { status: 200, body: rolled },
+      { status: 200, body: slices('10.42.0.7', '10.42.1.9') },
+    )
     await expect(settle(waitForRollout({ ...options, kube: api.kube, buildAt: async origin => origin.includes('10.42.0.7') ? 'b2' : 'b1' })))
       .rejects
       .toThrow('serves b1 after its rollout')
+    expect(api.calls).toHaveLength(4)
+  })
+
+  it('waits out an old pod listed ready for a moment after the rollout', async () => {
+    // The EndpointSlice still lists the old pod (b1, in its preStop sleep)
+    // on the first read; the next one has dropped it.
+    const api = fakeKube(
+      { status: 200, body: rolled },
+      { status: 200, body: slices('10.42.0.7', '10.42.1.9') },
+      { status: 200, body: rolled },
+      { status: 200, body: slices('10.42.0.7') },
+    )
+    const origins = await settle(waitForRollout({ ...options, kube: api.kube, buildAt: async origin => origin.includes('10.42.0.7') ? 'b2' : 'b1' }))
+    expect(origins).toEqual(['http://10.42.0.7:3000'])
   })
 
   it('gives up on a rollout that does not finish in time', async () => {
@@ -684,6 +734,7 @@ describe('envNumber', () => {
     expect(envNumber('  ')).toBeNaN()
     expect(envNumber(undefined)).toBeNaN()
     expect(envNumber('five')).toBeNaN()
+    expect(envNumber('Infinity')).toBeNaN()
   })
 })
 
@@ -816,6 +867,28 @@ describe('warmBuild', () => {
     })
   })
 
+  it('requests a twin a later try found for a page already done, not the page again', async () => {
+    const run = world({
+      reads: [
+        { 'a.test/sitemap.xml': [page('a.test', '/products/1')] },
+        // The second try learns a.test's locales: it lists the twin.
+        { 'b.test/sitemap.xml': [page('b.test', '/')] },
+      ],
+    })
+    const readSitemaps = run.options.readSitemaps
+    run.options.readSitemaps = async (sitemaps) => {
+      const read = await readSitemaps(sitemaps)
+      if (run.readsPerTry.length === 2) {
+        read.pages.set('a.test/products/1', page('a.test', '/products/1'))
+        read.pages.set('a.test/en/products/1', page('a.test', '/en/products/1'))
+      }
+      return read
+    }
+
+    expect(await settle(warmBuild(run.options))).toBe(0)
+    expect(run.requestedPerTry).toEqual([['a.test/products/1'], ['b.test/', 'a.test/en/products/1']])
+  })
+
   it('counts pages no pod took as unrequested, and asks for them on the next try', async () => {
     const run = world({ reads: [{ 'a.test/sitemap.xml': [page('a.test', '/'), page('a.test', '/products')], 'b.test/sitemap.xml': [page('b.test', '/')] }] })
     const warmPages = run.options.warmPages
@@ -834,5 +907,23 @@ describe('warmBuild', () => {
     expect(await settle(warmBuild(run.options))).toBe(0)
     expect(run.lines.find(line => line.message === 'cache partly warmed, trying again')?.fields).toMatchObject({ unrequested: 2 })
     expect(run.requestedPerTry[1]).toEqual(['b.test/', 'a.test/products'])
+  })
+})
+
+describe('withLocaleTwins', () => {
+  const canonical = (...pathnames: string[]) => new Map(pathnames.map(pathname => [`a.test${pathname}`, { host: 'a.test', pathname }]))
+
+  it('adds each page\'s twin in every other locale of its host, and none to a page already in one', () => {
+    const pages = withLocaleTwins(canonical('/', '/products/1', '/en/about'), new Map([['a.test', ['/en']]]))
+
+    expect([...pages.keys()].sort()).toEqual(['a.test/', 'a.test/en', 'a.test/en/about', 'a.test/en/products/1', 'a.test/products/1'])
+    expect(pages.get('a.test/en/products/1')).toEqual({ host: 'a.test', pathname: '/en/products/1', locale: '/en' })
+    expect(pages.get('a.test/products/1')?.locale).toBe('')
+  })
+
+  it('gives a page found before its host\'s prefixes were known its twins once they are', () => {
+    const pages = canonical('/products/1')
+    expect([...withLocaleTwins(pages, new Map()).keys()]).toEqual(['a.test/products/1'])
+    expect([...withLocaleTwins(pages, new Map([['a.test', ['/en']]])).keys()]).toEqual(['a.test/products/1', 'a.test/en/products/1'])
   })
 })

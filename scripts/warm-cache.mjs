@@ -98,8 +98,9 @@
  * Exit 1, with an `error` line, when the warm-up cannot run at all (no
  * Ingress access, no storefront host, no build id), when the rollouts it
  * waits for do not finish within `WARM_ROLLOUT_TIMEOUT_SECONDS`, when the
- * storefront finished rolling out on a build that is not this image's
- * (the warm-up's image tag drifted from the storefront's), or when the last
+ * storefront finished rolling out on a build that is not this image's, on
+ * two reads in a row (the warm-up's image tag drifted from the
+ * storefront's), or when the last
  * try still left the build unrecorded. A page that fails to render is
  * logged and counted; it does not fail the run.
  *
@@ -366,6 +367,10 @@ export async function forEachOnPods(queue, { origins, listOrigins, concurrency, 
   // stopped with items left.
   let finished = 0
   let finishedAtStall = -1
+  // A failure other than `PodGone`, kept so one that lands while a refresh
+  // is being read (the race it would have rejected already settled) still
+  // fails the pool.
+  let failure
   async function worker(origin) {
     while (current.has(origin)) {
       const item = queue.shift()
@@ -375,7 +380,10 @@ export async function forEachOnPods(queue, { origins, listOrigins, concurrency, 
         finished++
       }
       catch (error) {
-        if (!(error instanceof PodGone)) throw error
+        if (!(error instanceof PodGone)) {
+          failure ??= error
+          throw error
+        }
         queue.unshift(item)
         current.delete(origin)
       }
@@ -410,6 +418,7 @@ export async function forEachOnPods(queue, { origins, listOrigins, concurrency, 
     const listed = await listOrigins().catch(() => (running.size ? [...current] : []))
     current = new Set(listed)
     listed.forEach(launch)
+    if (failure) throw failure
     peak = Math.max(peak, current.size)
     onRefresh([...current])
     if (!running.size) break
@@ -447,14 +456,47 @@ export function pageKey(page) {
 
 /**
  * A numeric setting read from the environment: `NaN` when it is unset,
- * blank or not a number, so the caller's range check refuses it. Plain
- * `Number('')` is 0, and a Helm value left out renders as `""`.
+ * blank, not a number or not finite, so the caller's range check refuses
+ * it. Plain `Number('')` is 0 (a Helm value left out renders as `""`), and
+ * `Infinity` passes a check for `> 0`.
  *
  * @param {string | undefined} value
  */
 export function envNumber(value) {
   const text = value?.trim()
-  return text ? Number(text) : Number.NaN
+  const number = text ? Number(text) : Number.NaN
+  return Number.isFinite(number) ? number : Number.NaN
+}
+
+/**
+ * The longest wait Node's timers keep: a longer one fires after 1 ms
+ * (`TimeoutOverflowWarning`).
+ */
+export const MAX_TIMER_MS = 2 ** 31 - 1
+
+/**
+ * Every page of `canonical` (pages as their sitemaps list them, by key)
+ * and its twin in each other locale its host serves, by key. `prefixes`
+ * holds each host's locale prefixes, learnt from its sitemap's home page
+ * entry, which may come from another sitemap, or another try, than the
+ * page's own.
+ *
+ * @param {Map<string, { host: string, pathname: string }>} canonical
+ * @param {Map<string, string[]>} prefixes
+ */
+export function withLocaleTwins(canonical, prefixes) {
+  const pages = new Map()
+  for (const { host, pathname } of canonical.values()) {
+    const hostPrefixes = prefixes.get(host) ?? []
+    const locale = localeOf(pathname, hostPrefixes)
+    pages.set(pageKey({ host, pathname }), { host, pathname, locale })
+    if (locale) continue
+    for (const prefix of hostPrefixes) {
+      const twin = { host, pathname: localeTwin(pathname, prefix), locale: prefix }
+      if (!pages.has(pageKey(twin))) pages.set(pageKey(twin), twin)
+    }
+  }
+  return pages
 }
 
 /**
@@ -493,7 +535,7 @@ export function envNumber(value) {
  *   fields?: Record<string, unknown>,
  * }} options `sitemaps`: where to start (each store host's
  *   `/sitemap.xml`). `readSitemaps` reads those, `failed` being the ones
- *   not served. `warmPages` renders the queue's pages, calls `onPage` for
+ *   not served, and returns every page known so far (`withLocaleTwins`). `warmPages` renders the queue's pages, calls `onPage` for
  *   each page done, leaves in the queue the pages no pod took and returns
  *   the most pods it used. `fields` joins every summary line.
  * @returns {Promise<0 | 1>}
@@ -513,9 +555,9 @@ export async function warmBuild({ attempts, retryMs, sitemaps, readSitemaps, war
     tryOnce: async (attempt) => {
       const read = await readSitemaps(unread)
       unread = read.failed
-      for (const [key, page] of read.pages) {
-        if (!pages.has(key)) pages.set(key, page)
-      }
+      // A read lists every page known so far, a page's locale twins
+      // included once its host's prefixes are known; a key done stays done.
+      for (const [key, page] of read.pages) pages.set(key, page)
       read.redirectingHosts.forEach(host => redirectingHosts.add(host))
       const stores = [...new Set([...pages.values()].map(page => page.host))]
       const newStores = stores.filter(store => !assetsWarmed.has(store))
@@ -686,7 +728,10 @@ class DriftError extends Error {}
  * just turned ready), is waited out (`pollMs`), up to `timeoutMs`. Once the
  * rollouts are done, a pod serving another build is not a rollout in
  * progress but a drift of this image's tag from the storefront's, and fails
- * at once.
+ * when the next read still finds it. One read is not enough: the
+ * EndpointSlices follow the Deployment's status on their own, so for a
+ * moment after a rollout an old pod (still answering through its preStop
+ * sleep) can be listed ready.
  *
  * @param {{
  *   kube: { namespace: string, call: Function },
@@ -701,8 +746,12 @@ class DriftError extends Error {}
  */
 export async function waitForRollout({ kube, serviceName, waitFor, buildAt, ownBuild, pollMs, timeoutMs }) {
   const deadline = performance.now() + timeoutMs
+  // Whether the last read, after the rollouts were done, found a pod
+  // serving another build.
+  let driftSeen = false
   for (;;) {
     let waiting
+    let drift = false
     try {
       const rolling = (await readDeployments(kube, waitFor))
         .filter(deployment => !rolloutComplete(deployment))
@@ -711,18 +760,22 @@ export async function waitForRollout({ kube, serviceName, waitFor, buildAt, ownB
       else {
         const origins = await listReadyOrigins(kube, serviceName)
         const builds = await Promise.all(origins.map(origin => buildAt(origin).catch(() => undefined)))
-        const drifted = builds.filter(build => build !== undefined && build !== ownBuild)
-        if (drifted.length) {
-          throw new DriftError(`this image is build ${ownBuild} but ${serviceName} serves ${[...new Set(drifted)].join(', ')} after its rollout: the warm-up's image tag is not the storefront's`)
+        const drifted = [...new Set(builds.filter(build => build !== undefined && build !== ownBuild))]
+        if (drifted.length && driftSeen) {
+          throw new DriftError(`this image is build ${ownBuild} but ${serviceName} serves ${drifted.join(', ')} after its rollout: the warm-up's image tag is not the storefront's`)
         }
+        drift = drifted.length > 0
         if (origins.length && builds.every(build => build === ownBuild)) return origins
-        waiting = origins.length ? `an answer from every pod of ${serviceName}` : `a ready pod of ${serviceName}`
+        waiting = drift
+          ? `a pod of ${serviceName} serving ${drifted.join(', ')} to leave`
+          : origins.length ? `an answer from every pod of ${serviceName}` : `a ready pod of ${serviceName}`
       }
     }
     catch (error) {
       if (error instanceof DriftError) throw error
       waiting = String(error?.message ?? error)
     }
+    driftSeen = drift
     if (performance.now() >= deadline) throw new Error(`still waiting after ${Math.round(timeoutMs / 1000)} s for ${waiting}`)
     log('info', 'waiting for the rollout', { waiting })
     await sleep(pollMs)
@@ -766,9 +819,9 @@ async function main() {
   const rolloutTimeoutMs = envNumber(process.env.WARM_ROLLOUT_TIMEOUT_SECONDS) * 1000
   const attempts = envNumber(process.env.WARM_ATTEMPTS)
   const retryMs = envNumber(process.env.WARM_RETRY_SECONDS) * 1000
-  if (!target || !serviceName || !(concurrency > 0) || !(timeoutMs > 0) || !stateConfigMap
-    || !waitFor.length || !(pollMs > 0) || !(rolloutTimeoutMs > 0)
-    || !(Number.isInteger(attempts) && attempts > 0) || !(retryMs >= 0)) {
+  if (!target || !serviceName || !(Number.isInteger(concurrency) && concurrency > 0) || !(timeoutMs > 0) || !stateConfigMap
+    || !waitFor.length || !(pollMs > 0 && pollMs <= MAX_TIMER_MS) || !(rolloutTimeoutMs > 0)
+    || !(Number.isInteger(attempts) && attempts > 0) || !(retryMs >= 0 && retryMs <= MAX_TIMER_MS)) {
     throw new Error('WARM_TARGET, WARM_SERVICE, WARM_CONCURRENCY, WARM_TIMEOUT_MS, WARM_STATE_CONFIGMAP, WARM_WAIT_FOR, WARM_POLL_SECONDS, WARM_ROLLOUT_TIMEOUT_SECONDS, WARM_ATTEMPTS and WARM_RETRY_SECONDS are required')
   }
   // `origin` is the Service (the sitemaps: any pod serves them) or one pod.
@@ -809,9 +862,11 @@ async function main() {
   // host's `/sitemap.xml` first, then on a later try only those that were
   // not served). A host that redirects (a `www.` twin to its store) has no
   // pages of its own; its store's sitemap is read under the store's host.
+  // What a read finds is kept for the whole run, so a page found on one try
+  // gets its locale twins from prefixes another try learnt.
+  const canonical = new Map()
+  const prefixesByHost = new Map()
   async function readSitemaps(sitemaps) {
-    const pages = new Map()
-    const prefixesByHost = new Map()
     const redirectingHosts = []
     const failed = []
     const queue = [...sitemaps]
@@ -841,20 +896,11 @@ async function main() {
       for (const loc of locs) {
         const url = new URL(loc)
         const page = { host: url.host, pathname: url.pathname }
-        pages.set(pageKey(page), page)
+        canonical.set(pageKey(page), page)
         if (prefixes.length) prefixesByHost.set(url.host, prefixes)
       }
     }
-    for (const page of [...pages.values()]) {
-      const prefixes = prefixesByHost.get(page.host) ?? []
-      page.locale = localeOf(page.pathname, prefixes)
-      if (page.locale) continue
-      for (const prefix of prefixes) {
-        const twin = { host: page.host, pathname: localeTwin(page.pathname, prefix), locale: prefix }
-        if (!pages.has(pageKey(twin))) pages.set(pageKey(twin), twin)
-      }
-    }
-    return { pages, failed, redirectingHosts }
+    return { pages: withLocaleTwins(canonical, prefixesByHost), failed, redirectingHosts }
   }
 
   // The build's own files first: a missing chunk breaks the page it is
