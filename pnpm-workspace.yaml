@@ -73,11 +73,14 @@ overrides:
   # @intlify/unplugin-vue-i18n → eslint / typescript-estree), which call
   # only `minimatch()`, `new Minimatch()`, `match()` and `pattern`, all
   # kept in 11. Not global: 11.0 removed `makeRe` and `Minimatch#regexp`,
-  # which eslint-plugin-import-x calls, so its lint-only copy stays on 10
-  # until it moves to 11.
+  # which older consumers may call. editorconfig (js-beautify, a
+  # @vue/test-utils test-only dependency) pins ~10.2 but calls only
+  # `new Minimatch()` and `escape()`, both kept in 11. eslint-plugin-import-x
+  # 4.18 accepts 11 itself.
   'readdir-glob>minimatch': '>=11.0.1 <12'
   'eslint>minimatch': '>=11.0.1 <12'
   '@typescript-eslint/typescript-estree>minimatch': '>=11.0.1 <12'
+  'editorconfig>minimatch': '>=11.0.1 <12'
 
   # CVE-2026-59869 (patched 4.3.0) + GHSA-5p4m-2wfm-xmqj (prototype
   # pollution, patched 4.3.1) — js-yaml. Supersedes the old
