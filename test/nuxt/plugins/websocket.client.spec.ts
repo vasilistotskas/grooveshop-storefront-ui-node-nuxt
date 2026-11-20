@@ -485,6 +485,7 @@ describe('websocket plugin heartbeat', () => {
     expect(api.callsTo(TICKET)).toHaveLength(2)
     expect(sockets).toHaveLength(2)
   })
+
   it('backs off further each time a server that never answers drops the socket', async () => {
     await connectForReal()
 
@@ -498,6 +499,7 @@ describe('websocket plugin heartbeat', () => {
       await acceptForReal()
     }
   })
+
   it('starts the back-off over after a socket whose server answered, however late the drop', async () => {
     await connectForReal()
     await vi.advanceTimersByTimeAsync(35000)
