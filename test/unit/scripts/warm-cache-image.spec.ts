@@ -8,7 +8,7 @@ import { REPO } from '../../helpers/sourceText'
  * only the files `docker/Dockerfile` copies beside it. The script imports
  * the page-cache route lists as TypeScript (`hasExtractedPayload`), so every
  * file in its import graph must be copied to the path the import names, or
- * the PostSync hook dies on its first line and the sync fails.
+ * the warm-up dies on its first line and the new build stays cold.
  */
 const SCRIPT = resolve(REPO, 'scripts/warm-cache.mjs')
 const RELATIVE_IMPORT = /^\s*import\s[^'"]*['"](\.{1,2}\/[^'"]+)['"]/gm

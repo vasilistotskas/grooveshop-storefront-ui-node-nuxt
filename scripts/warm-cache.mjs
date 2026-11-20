@@ -8,9 +8,15 @@
  * over 1 s in the first 15 minutes (p50 ~1.5 s), mostly `_payload.json`
  * for client-side navigation, then steady state.
  *
- * Runs as an Argo CD PostSync hook (`grooveshop-infrastructure`, chart
- * `storefront-warm-helm`), i.e. once every Deployment is Healthy, from the
- * SAME image as the storefront. For every store it:
+ * Runs from the SAME image as the storefront, in a Deployment of its own
+ * (`grooveshop-infrastructure`, chart `storefront-warm-helm`) that the
+ * sync rolls with the storefront. It is not an Argo CD hook: a hook holds
+ * the sync operation open until it finishes, and a warm-up that grows with
+ * every page a store adds held production deploys for 7-16 minutes. So it
+ * starts while the sync is still rolling, and first waits until the
+ * Deployments named in `WARM_WAIT_FOR` (the storefront and the backend its
+ * renders call) have finished their rollouts and every ready storefront pod
+ * serves this image's build (`waitForRollout`). Then, for every store, it:
  *
  * 1. finds the storefront hosts: the Ingress rules that route `/` to the
  *    storefront Service (onboarding a tenant adds one, so nothing here
@@ -38,38 +44,52 @@
  * PUBLIC host, because the edge caches per host and only a request that
  * passes through it fills it. Cloudflare's Tiered Cache means one such
  * request also fills the upper tier the other data centres read from; a
- * request from this Job does not reach every data centre's own cache.
- * Failures are logged and counted, never a reason to fail or repeat the sync.
+ * request from this pod does not reach every data centre's own cache.
+ * Failures are logged and counted, never a reason to fail the warm-up.
  *
- * The page requests go straight to the Service with only Host, User-Agent and
- * Accept. Verified 2026-09-25: such a render is byte-identical to one that
- * came through Cloudflare and Traefik (only Cloudflare's `Vary` differs),
- * so what this caches is exactly what a visitor would have.
+ * The page requests go straight to the storefront pods with only Host,
+ * User-Agent and Accept. Verified 2026-09-25: such a render is
+ * byte-identical to one that came through Cloudflare and Traefik (only
+ * Cloudflare's `Vary` differs), so what this caches is exactly what a
+ * visitor would have. Every pod writes the one page cache (Redis), so a
+ * page rendered on any pod is warm on all of them.
  *
- * Once per build. The hook runs on EVERY sync, and a sync that leaves the
- * storefront as it was (a Django or gateway release) finds this build's
- * cache already filled: a second pass only forces the revalidation of every
- * stale page at once, against a backend that has just restarted. On
- * 2026-10-20 such a pass after Django v3.143.8 put demo's visitors behind
- * 3-10 s renders. The build last warmed is recorded in a ConfigMap
- * (`WARM_STATE_CONFIGMAP`), after a run completes, so a run that died
- * midway is repeated by the next sync.
+ * Per pod, not through the Service (`forEachOnPods`). Rendering holds a
+ * pod's one JavaScript thread, so the warm-up runs `WARM_CONCURRENCY`
+ * renders on EACH ready pod, and re-reads the ready pods every
+ * `WARM_POLL_SECONDS`: a pod the HPA adds under the load gets its share, a
+ * pod that leaves gets no more. Through the Service, Node's keep-alive
+ * agent held one connection per worker for the whole run, kube-proxy picks
+ * a pod per connection, and in 20 of the 35 production runs from
+ * 2026-11-06 to 11-20 both connections sat on ONE pod: 540-986 s, that pod
+ * at 1.3 cores and the others idle, against 408-460 s when they landed on
+ * two.
+ *
+ * Once per build. The pod is replaced only when the storefront tag moves,
+ * but it restarts when its node drains, and a second pass over a warm cache
+ * only forces the revalidation of every stale page at once: on 2026-10-20
+ * such a pass after Django v3.143.8 put demo's visitors behind 3-10 s
+ * renders. The build last warmed is recorded in a ConfigMap
+ * (`WARM_STATE_CONFIGMAP`) after a run completes, and a run starts only for
+ * a build not recorded there, so a run that died midway is repeated when
+ * the pod next starts.
  *
  * A run that completed is recorded only when it warmed every store
  * (`warmedEveryStore`): every sitemap it asked for was served, and each
  * store whose sitemap listed pages rendered at least one of them. A
  * sitemap that failed (a 503 while Django restarts after the deploy)
  * leaves that store unknown, and a store with nothing rendered is as cold
- * as before, so either leaves the build unrecorded and the next sync warms
- * it again. A page that fails among others that render is not a reason: a
- * sitemap can list a few URLs that no longer render, and a rule that
- * demanded all of them would re-warm on every sync.
+ * as before, so either leaves the build unrecorded and the next start of
+ * the pod warms it again. A page that fails among others that render is not
+ * a reason: a sitemap can list a few URLs that no longer render, and a rule
+ * that demanded all of them would never record a build.
  *
- * Exit 1 only when the warm-up cannot run at all (no Ingress access, no
- * storefront host, no build id) or when this image's build is not the one
- * being served, which means the hook's image tag drifted from the
- * Deployment's. A page that fails to render is logged and counted; it does
- * not fail the sync.
+ * Exit 1, with an `error` line, only when the warm-up cannot run at all (no
+ * Ingress access, no storefront host, no build id), when the rollouts it
+ * waits for do not finish within `WARM_ROLLOUT_TIMEOUT_SECONDS`, or when the
+ * storefront finished rolling out on a build that is not this image's,
+ * which means the warm-up's image tag drifted from the storefront's. A page
+ * that fails to render is logged and counted; it does not fail the run.
  *
  * Deliberately `node:http(s)`, not `fetch`: `fetch` drops a `Host` header.
  */
@@ -77,6 +97,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import http from 'node:http'
 import https from 'node:https'
 import { relative } from 'node:path'
+import { setTimeout as sleep } from 'node:timers/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 // The route lists `nuxt.config.ts` builds its page-cache rules from. Node
 // runs the TypeScript as is (type stripping); the image ships this module
@@ -225,6 +246,94 @@ export function warmOrder(pages) {
     .map(({ page }) => page)
 }
 
+/**
+ * Whether a Deployment has finished rolling out, by the rule of
+ * `kubectl rollout status`: the controller has seen its latest spec, every
+ * wanted replica runs it and is available, and no replica of an older
+ * ReplicaSet is left.
+ */
+export function rolloutComplete(deployment) {
+  const status = deployment.status ?? {}
+  const updated = status.updatedReplicas ?? 0
+  return (status.observedGeneration ?? 0) >= (deployment.metadata?.generation ?? 0)
+    && updated >= (deployment.spec?.replicas ?? 1)
+    && (status.replicas ?? 0) === updated
+    && (status.availableReplicas ?? 0) >= updated
+}
+
+/**
+ * The origin (`http://<pod ip>:<port>`) of every storefront pod ready to
+ * serve, from the Service's EndpointSlices. A missing `ready` means unknown
+ * and counts as ready (Kubernetes' EndpointConditions); a terminating pod is
+ * not ready.
+ */
+export function readyOrigins(sliceList) {
+  const origins = []
+  for (const slice of sliceList.items ?? []) {
+    const endpoints = (slice.endpoints ?? []).filter(endpoint => endpoint.conditions?.ready !== false)
+    if (!endpoints.length) continue
+    if (slice.ports?.length !== 1) {
+      throw new Error(`EndpointSlice ${slice.metadata?.name} lists ${slice.ports?.length ?? 0} ports, not the one the storefront serves on`)
+    }
+    const port = slice.ports[0].port
+    for (const endpoint of endpoints) {
+      const address = endpoint.addresses[0]
+      const origin = `http://${slice.addressType === 'IPv6' ? `[${address}]` : address}:${port}`
+      if (!origins.includes(origin)) origins.push(origin)
+    }
+  }
+  return origins
+}
+
+/**
+ * Run `work(item, origin)` over `queue` with `concurrency` items in flight on
+ * each pod `listOrigins()` names. The list is read again every `refreshMs`
+ * while items remain: a new pod gets workers, and a pod no longer listed
+ * takes no new item (the one in flight finishes). A failed read keeps the
+ * pods it had. Returns the most pods worked on at once.
+ *
+ * @template T
+ * @param {T[]} queue
+ * @param {{
+ *   listOrigins: () => Promise<string[]>,
+ *   concurrency: number,
+ *   refreshMs: number,
+ *   work: (item: T, origin: string) => Promise<unknown>,
+ *   onRefresh?: (origins: string[]) => void,
+ * }} options
+ * @returns {Promise<number>}
+ */
+export async function forEachOnPods(queue, { listOrigins, concurrency, refreshMs, work, onRefresh = () => {} }) {
+  let current = new Set(await listOrigins())
+  let peak = current.size
+  const running = new Set()
+  async function worker(origin) {
+    while (current.has(origin)) {
+      const item = queue.shift()
+      if (item === undefined) return
+      await work(item, origin)
+    }
+  }
+  function launch(origin) {
+    for (let index = 0; index < concurrency; index++) {
+      const done = worker(origin).finally(() => running.delete(done))
+      running.add(done)
+    }
+  }
+  current.forEach(launch)
+  while (running.size) {
+    const tick = sleep(refreshMs, 'tick', { ref: false })
+    if (await Promise.race([Promise.all(running), tick]) !== 'tick' || !queue.length) continue
+    const listed = await listOrigins().catch(() => [...current])
+    const added = listed.filter(origin => !current.has(origin))
+    current = new Set(listed)
+    added.forEach(launch)
+    peak = Math.max(peak, current.size)
+    onRefresh([...current])
+  }
+  return peak
+}
+
 function log(level, message, fields = {}) {
   process.stdout.write(`${JSON.stringify({ timestamp: new Date().toISOString(), level, tag: 'cache-warm', message, ...fields })}\n`)
 }
@@ -320,6 +429,77 @@ async function listIngresses(kube) {
   return JSON.parse(response.body)
 }
 
+/** The Deployments `names`, as the API holds them now. */
+export async function readDeployments(kube, names) {
+  return Promise.all(names.map(async (name) => {
+    const response = await kube.call(`/apis/apps/v1/namespaces/{namespace}/deployments/${name}`)
+    if (response.status !== 200) throw new Error(`reading Deployment ${name} answered ${response.status}`)
+    return JSON.parse(response.body)
+  }))
+}
+
+/** The ready pods behind `serviceName` (`readyOrigins`). */
+export async function listReadyOrigins(kube, serviceName) {
+  const selector = encodeURIComponent(`kubernetes.io/service-name=${serviceName}`)
+  const response = await kube.call(`/apis/discovery.k8s.io/v1/namespaces/{namespace}/endpointslices?labelSelector=${selector}`)
+  if (response.status !== 200) throw new Error(`listing the EndpointSlices of ${serviceName} answered ${response.status}`)
+  return readyOrigins(JSON.parse(response.body))
+}
+
+/** The storefront finished rolling out on a build that is not this image's. */
+class DriftError extends Error {}
+
+/**
+ * Wait until the Deployments in `waitFor` have finished rolling out, then
+ * return the ready storefront pods, each of which serves `ownBuild`.
+ * The warm-up starts with the sync, beside the rollouts it waits for, so an
+ * unfinished rollout, or a read that failed (the API server, a pod that has
+ * just turned ready), is waited out (`pollMs`), up to `timeoutMs`. Once the
+ * rollouts are done, a pod serving another build is not a rollout in
+ * progress but a drift of this image's tag from the storefront's, and fails
+ * at once.
+ *
+ * @param {{
+ *   kube: { namespace: string, call: Function },
+ *   serviceName: string,
+ *   waitFor: string[],
+ *   buildAt: (origin: string) => Promise<string | undefined>,
+ *   ownBuild: string,
+ *   pollMs: number,
+ *   timeoutMs: number,
+ * }} options
+ * @returns {Promise<string[]>}
+ */
+export async function waitForRollout({ kube, serviceName, waitFor, buildAt, ownBuild, pollMs, timeoutMs }) {
+  const deadline = performance.now() + timeoutMs
+  for (;;) {
+    let waiting
+    try {
+      const rolling = (await readDeployments(kube, waitFor))
+        .filter(deployment => !rolloutComplete(deployment))
+        .map(deployment => deployment.metadata.name)
+      if (rolling.length) waiting = `the rollout of ${rolling.join(', ')}`
+      else {
+        const origins = await listReadyOrigins(kube, serviceName)
+        const builds = await Promise.all(origins.map(origin => buildAt(origin).catch(() => undefined)))
+        const drifted = builds.filter(build => build !== undefined && build !== ownBuild)
+        if (drifted.length) {
+          throw new DriftError(`this image is build ${ownBuild} but ${serviceName} serves ${[...new Set(drifted)].join(', ')} after its rollout: the warm-up's image tag is not the storefront's`)
+        }
+        if (origins.length && builds.every(build => build === ownBuild)) return origins
+        waiting = origins.length ? `an answer from every pod of ${serviceName}` : `a ready pod of ${serviceName}`
+      }
+    }
+    catch (error) {
+      if (error instanceof DriftError) throw error
+      waiting = String(error?.message ?? error)
+    }
+    if (performance.now() >= deadline) throw new Error(`still waiting after ${Math.round(timeoutMs / 1000)} s for ${waiting}`)
+    log('info', 'waiting for the rollout', { waiting })
+    await sleep(pollMs)
+  }
+}
+
 /** The build the last complete warm-up filled, or `undefined`. */
 export async function warmedBuild(kube, configMap) {
   const response = await kube.call(`/api/v1/namespaces/{namespace}/configmaps/${configMap}`)
@@ -352,11 +532,16 @@ async function main() {
   const concurrency = Number(process.env.WARM_CONCURRENCY)
   const timeoutMs = Number(process.env.WARM_TIMEOUT_MS)
   const stateConfigMap = process.env.WARM_STATE_CONFIGMAP
-  if (!target || !serviceName || !(concurrency > 0) || !(timeoutMs > 0) || !stateConfigMap) {
-    throw new Error('WARM_TARGET, WARM_SERVICE, WARM_CONCURRENCY, WARM_TIMEOUT_MS and WARM_STATE_CONFIGMAP are required')
+  const waitFor = (process.env.WARM_WAIT_FOR ?? '').split(',').map(name => name.trim()).filter(Boolean)
+  const pollMs = Number(process.env.WARM_POLL_SECONDS) * 1000
+  const rolloutTimeoutMs = Number(process.env.WARM_ROLLOUT_TIMEOUT_SECONDS) * 1000
+  if (!target || !serviceName || !(concurrency > 0) || !(timeoutMs > 0) || !stateConfigMap
+    || !waitFor.length || !(pollMs > 0) || !(rolloutTimeoutMs > 0)) {
+    throw new Error('WARM_TARGET, WARM_SERVICE, WARM_CONCURRENCY, WARM_TIMEOUT_MS, WARM_STATE_CONFIGMAP, WARM_WAIT_FOR, WARM_POLL_SECONDS and WARM_ROLLOUT_TIMEOUT_SECONDS are required')
   }
-  const get = (path, host, accept, userAgent = DEVICE_USER_AGENTS.desktop) =>
-    request(new URL(path, target), { headers: { host, accept, 'user-agent': userAgent, [CACHE_WARM_HEADER]: '1' }, timeoutMs })
+  // `origin` is the Service (the sitemaps: any pod serves them) or one pod.
+  const get = (path, host, accept, userAgent = DEVICE_USER_AGENTS.desktop, origin = target) =>
+    request(new URL(path, origin), { headers: { host, accept, 'user-agent': userAgent, [CACHE_WARM_HEADER]: '1' }, timeoutMs })
 
   const kube = kubernetes()
   const { namespace } = kube
@@ -365,11 +550,14 @@ async function main() {
   if (!candidates.length) throw new Error(`no Ingress in ${namespace} routes / to ${serviceName}`)
 
   const ownBuild = JSON.parse(readFileSync(new URL('../public/_nuxt/builds/latest.json', import.meta.url), 'utf8')).id
-  const served = await get('/_nuxt/builds/latest.json', candidates[0], 'application/json')
-  const servedBuild = served.status === 200 ? JSON.parse(served.body).id : undefined
-  if (servedBuild !== ownBuild) {
-    throw new Error(`this image is build ${ownBuild} but ${serviceName} serves ${servedBuild ?? `HTTP ${served.status}`}: the hook's image tag is not the Deployment's`)
+  // The build a pod serves; `undefined` while it does not answer with one.
+  const buildAt = async (origin) => {
+    const served = await get('/_nuxt/builds/latest.json', candidates[0], 'application/json', DEVICE_USER_AGENTS.desktop, origin)
+    return served.status === 200 ? JSON.parse(served.body).id : undefined
   }
+  const waitStarted = performance.now()
+  const origins = await waitForRollout({ kube, serviceName, waitFor, buildAt, ownBuild, pollMs, timeoutMs: rolloutTimeoutMs })
+  const waitedSeconds = Math.round((performance.now() - waitStarted) / 1000)
 
   const warmed = await warmedBuild(kube, stateConfigMap)
   if (warmed === ownBuild) {
@@ -436,7 +624,7 @@ async function main() {
     .filter(entry => entry.isFile())
     .map(entry => relative(fileURLToPath(assetsDir), `${entry.parentPath}/${entry.name}`))
   const assetsStarted = performance.now()
-  const assets = await warmEdgeAssets({ stores, paths: buildAssetPaths(assetFiles), concurrency, timeoutMs })
+  const assets = await warmEdgeAssets({ stores, paths: buildAssetPaths(assetFiles), concurrency: concurrency * origins.length, timeoutMs })
   log(assets.failed ? 'warn' : 'info', 'build assets requested through the public hosts', {
     build: ownBuild,
     hosts: stores,
@@ -447,11 +635,19 @@ async function main() {
   const started = performance.now()
   const summary = { pages: pages.size, rendered: 0, payloads: 0, uncached: 0, failed: 0 }
   const queue = warmOrder([...pages.values()])
-  async function worker() {
-    for (let page = queue.shift(); page; page = queue.shift()) {
+  let pagesDone = 0
+  // A pod the HPA adds is used once it serves this build; a pod of a newer
+  // rollout is not (its cache is another build's).
+  const listOrigins = async () => {
+    const ready = await listReadyOrigins(kube, serviceName)
+    const builds = await Promise.all(ready.map(origin => buildAt(origin).catch(() => undefined)))
+    return ready.filter((_, index) => builds[index] === ownBuild)
+  }
+  async function warmPage(page, origin) {
+    try {
       for (const [deviceClass, userAgent] of Object.entries(DEVICE_USER_AGENTS)) {
         try {
-          const html = await get(page.pathname, page.host, 'text/html', userAgent)
+          const html = await get(page.pathname, page.host, 'text/html', userAgent, origin)
           if (html.status !== 200) {
             summary.failed++
             log('warn', 'page did not render', { host: page.host, path: page.pathname, deviceClass, status: html.status })
@@ -464,7 +660,7 @@ async function main() {
             break
           }
           if (!hasExtractedPayload(page.pathname)) continue
-          const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent)
+          const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent, origin)
           if (payload.status === 200) summary.payloads++
           else {
             summary.failed++
@@ -477,8 +673,22 @@ async function main() {
         }
       }
     }
+    finally {
+      pagesDone++
+    }
   }
-  await Promise.all(Array.from({ length: concurrency }, worker))
+  const pods = await forEachOnPods(queue, {
+    listOrigins,
+    concurrency,
+    refreshMs: pollMs,
+    work: warmPage,
+    onRefresh: current => log('info', 'warming pages', {
+      done: pagesDone,
+      pages: pages.size,
+      pods: current.length,
+      seconds: Math.round((performance.now() - started) / 1000),
+    }),
+  })
 
   const complete = warmedEveryStore({ failedSitemaps, stores, rendered: renderedByStore })
   if (complete) await recordWarmedBuild(kube, stateConfigMap, ownBuild)
@@ -491,6 +701,10 @@ async function main() {
     failedSitemaps,
     redirectingHosts,
     ...summary,
+    // Pages no pod was left to render (every pod left the ready set).
+    unrequested: queue.length,
+    pods,
+    waitedSeconds,
     seconds: Math.round((performance.now() - started) / 1000),
   })
 }

@@ -4,21 +4,28 @@
  * varies on, the payload URL Nuxt's client fetches, and only the hosts the
  * Ingresses route to the storefront.
  */
+import { setTimeout as sleep } from 'node:timers/promises'
 import { describe, expect, it } from 'vitest'
 import { deviceClassFromUserAgent } from '~~/shared/utils/deviceClass'
 import {
   buildAssetPaths,
   DEVICE_USER_AGENTS,
+  forEachOnPods,
   isCachedResponse,
+  listReadyOrigins,
   localeOf,
   localePrefixes,
   localeTwin,
   payloadPath,
+  readDeployments,
+  readyOrigins,
   recordWarmedBuild,
+  rolloutComplete,
   sitemapLocations,
   storefrontHosts,
   warmedBuild,
   warmedEveryStore,
+  waitForRollout,
   warmOrder,
 } from '~~/scripts/warm-cache.mjs'
 
@@ -160,25 +167,25 @@ describe('warmedEveryStore', () => {
   })
 })
 
-describe('the build last warmed', () => {
-  type Call = { path: string, method: string, contentType?: string, body?: unknown }
-  // The Kubernetes API as `kubernetes()` exposes it, answering from a
-  // script and recording what it was asked.
-  function fakeKube(...answers: Array<{ status: number, body?: unknown }>) {
-    const calls: Call[] = []
-    return {
-      calls,
-      kube: {
-        namespace: 'grooveshop',
-        call: async (path: string, { method = 'GET', contentType, body }: Omit<Call, 'path'> = { method: 'GET' }) => {
-          calls.push({ path, method, contentType, body })
-          const answer = answers.shift() ?? { status: 500 }
-          return { status: answer.status, headers: {}, body: JSON.stringify(answer.body ?? {}), ms: 0 }
-        },
+type Call = { path: string, method: string, contentType?: string, body?: unknown }
+// The Kubernetes API as `kubernetes()` exposes it, answering from a
+// script and recording what it was asked.
+function fakeKube(...answers: Array<{ status: number, body?: unknown }>) {
+  const calls: Call[] = []
+  return {
+    calls,
+    kube: {
+      namespace: 'grooveshop',
+      call: async (path: string, { method = 'GET', contentType, body }: Omit<Call, 'path'> = { method: 'GET' }) => {
+        calls.push({ path, method, contentType, body })
+        const answer = answers.shift() ?? { status: 500 }
+        return { status: answer.status, headers: {}, body: JSON.stringify(answer.body ?? {}), ms: 0 }
       },
-    }
+    },
   }
+}
 
+describe('the build last warmed', () => {
   it('reads the build from the ConfigMap, and none before the first run', async () => {
     const recorded = fakeKube({ status: 200, body: { data: { warmedBuild: 'b1' } } })
     expect(await warmedBuild(recorded.kube, 'storefront-warm-state')).toBe('b1')
@@ -249,5 +256,199 @@ describe('buildAssetPaths', () => {
 
   it('writes Windows separators as URL slashes', () => {
     expect(buildAssetPaths(['fonts\\abc.woff2', 'builds\\latest.json'])).toEqual(['/_nuxt/fonts/abc.woff2'])
+  })
+})
+
+describe('rolloutComplete', () => {
+  // `kubectl rollout status`'s rule, on the fields the API reports.
+  const deployment = (status: Record<string, number>, { generation = 4, replicas = 2 } = {}) => ({
+    metadata: { name: 'frontend-nuxt', generation },
+    spec: { replicas },
+    status: { observedGeneration: 4, replicas: 2, updatedReplicas: 2, availableReplicas: 2, ...status },
+  })
+
+  it('is complete when every replica runs the latest spec and is available', () => {
+    expect(rolloutComplete(deployment({}))).toBe(true)
+  })
+
+  it('waits for the controller to see the latest spec', () => {
+    expect(rolloutComplete(deployment({}, { generation: 5 }))).toBe(false)
+  })
+
+  it('waits for new replicas, for old ones to go, and for the new ones to be available', () => {
+    expect(rolloutComplete(deployment({ updatedReplicas: 1, replicas: 3 }))).toBe(false)
+    expect(rolloutComplete(deployment({ replicas: 3 }))).toBe(false)
+    expect(rolloutComplete(deployment({ availableReplicas: 1 }))).toBe(false)
+  })
+
+  it('waits for the replicas the HPA asked for', () => {
+    expect(rolloutComplete(deployment({}, { replicas: 4 }))).toBe(false)
+  })
+})
+
+describe('readyOrigins', () => {
+  const slice = (endpoints: Array<{ ip: string, ready?: boolean }>, { addressType = 'IPv4', ports = [{ name: 'http', port: 3000 }] } = {}) => ({
+    metadata: { name: 'frontend-nuxt-service-abcde' },
+    addressType,
+    ports,
+    endpoints: endpoints.map(({ ip, ready }) => ({ addresses: [ip], conditions: ready === undefined ? {} : { ready } })),
+  })
+
+  it('names each ready pod by address and target port, once', () => {
+    const list = { items: [slice([{ ip: '10.42.0.7', ready: true }, { ip: '10.42.1.9' }]), slice([{ ip: '10.42.0.7', ready: true }])] }
+    expect(readyOrigins(list)).toEqual(['http://10.42.0.7:3000', 'http://10.42.1.9:3000'])
+  })
+
+  it('leaves out a pod that is not ready, terminating ones included', () => {
+    expect(readyOrigins({ items: [slice([{ ip: '10.42.0.7', ready: false }, { ip: '10.42.1.9', ready: true }])] }))
+      .toEqual(['http://10.42.1.9:3000'])
+  })
+
+  it('brackets an IPv6 address', () => {
+    expect(readyOrigins({ items: [slice([{ ip: 'fd00::7', ready: true }], { addressType: 'IPv6' })] })).toEqual(['http://[fd00::7]:3000'])
+  })
+
+  it('refuses to guess the port of a Service with several', () => {
+    const ports = [{ name: 'http', port: 3000 }, { name: 'metrics', port: 9100 }]
+    expect(() => readyOrigins({ items: [slice([{ ip: '10.42.0.7' }], { ports })] })).toThrow('2 ports')
+  })
+
+  it('skips a slice with no ready pod', () => {
+    expect(readyOrigins({ items: [slice([{ ip: '10.42.0.7', ready: false }], { ports: [] })] })).toEqual([])
+  })
+})
+
+describe('the Kubernetes reads of the rollout wait', () => {
+  it('reads each Deployment by name and refuses a failed read', async () => {
+    const api = fakeKube({ status: 200, body: { metadata: { name: 'frontend-nuxt' } } }, { status: 200, body: { metadata: { name: 'backend' } } })
+    const deployments = await readDeployments(api.kube, ['frontend-nuxt', 'backend'])
+    expect(deployments.map(deployment => deployment.metadata.name)).toEqual(['frontend-nuxt', 'backend'])
+    expect(api.calls.map(call => call.path)).toEqual([
+      '/apis/apps/v1/namespaces/{namespace}/deployments/frontend-nuxt',
+      '/apis/apps/v1/namespaces/{namespace}/deployments/backend',
+    ])
+    await expect(readDeployments(fakeKube({ status: 403 }).kube, ['backend'])).rejects.toThrow('403')
+  })
+
+  it('lists the Service\'s EndpointSlices by its label', async () => {
+    const api = fakeKube({ status: 200, body: { items: [{ ports: [{ port: 3000 }], endpoints: [{ addresses: ['10.42.0.7'], conditions: { ready: true } }] }] } })
+    expect(await listReadyOrigins(api.kube, 'frontend-nuxt-service')).toEqual(['http://10.42.0.7:3000'])
+    expect(api.calls[0]?.path).toBe('/apis/discovery.k8s.io/v1/namespaces/{namespace}/endpointslices?labelSelector=kubernetes.io%2Fservice-name%3Dfrontend-nuxt-service')
+  })
+})
+
+describe('forEachOnPods', () => {
+  // Work that takes a moment and records where it ran and how many items
+  // each pod had in flight at most.
+  function recorder() {
+    const ranOn: Record<string, number[]> = {}
+    const inFlight: Record<string, number> = {}
+    const peakInFlight: Record<string, number> = {}
+    return {
+      ranOn,
+      peakInFlight,
+      work: async (item: number, origin: string) => {
+        inFlight[origin] = (inFlight[origin] ?? 0) + 1
+        peakInFlight[origin] = Math.max(peakInFlight[origin] ?? 0, inFlight[origin]!)
+        await sleep(3)
+        ;(ranOn[origin] ??= []).push(item)
+        inFlight[origin]!--
+      },
+    }
+  }
+
+  it('spreads the items over every pod, the concurrency on each', async () => {
+    const run = recorder()
+    const queue = Array.from({ length: 12 }, (_, index) => index)
+    const peak = await forEachOnPods(queue, { listOrigins: async () => ['http://a:3000', 'http://b:3000'], concurrency: 2, refreshMs: 1000, work: run.work })
+
+    expect(peak).toBe(2)
+    expect(queue).toEqual([])
+    expect(Object.values(run.ranOn).flat().sort((a, b) => a - b)).toEqual(Array.from({ length: 12 }, (_, index) => index))
+    expect(run.peakInFlight).toEqual({ 'http://a:3000': 2, 'http://b:3000': 2 })
+  })
+
+  it('gives a pod that becomes ready its share, and none to a pod that left', async () => {
+    const run = recorder()
+    const lists = [['http://a:3000'], ['http://b:3000']]
+    const queue = Array.from({ length: 30 }, (_, index) => index)
+    const peak = await forEachOnPods(queue, { listOrigins: async () => lists.length > 1 ? lists.shift()! : lists[0]!, concurrency: 1, refreshMs: 10, work: run.work })
+
+    expect(peak).toBe(1)
+    expect(run.ranOn['http://a:3000']?.length).toBeGreaterThan(0)
+    expect(run.ranOn['http://b:3000']?.length).toBeGreaterThan(0)
+    // Once b replaced a, a took nothing new: every item a ran precedes b's first.
+    expect(Math.max(...run.ranOn['http://a:3000']!)).toBeLessThan(Math.min(...run.ranOn['http://b:3000']!))
+    expect(Object.values(run.ranOn).flat()).toHaveLength(30)
+  })
+
+  it('keeps its pods when a refresh cannot be read', async () => {
+    const run = recorder()
+    let reads = 0
+    const listOrigins = async () => {
+      if (reads++) throw new Error('API server restarting')
+      return ['http://a:3000']
+    }
+    const queue = Array.from({ length: 10 }, (_, index) => index)
+    await forEachOnPods(queue, { listOrigins, concurrency: 1, refreshMs: 5, work: run.work })
+
+    expect(reads).toBeGreaterThan(1)
+    expect(run.ranOn['http://a:3000']).toHaveLength(10)
+  })
+
+  it('reports the pods it works on at each refresh', async () => {
+    const seen: string[][] = []
+    const queue = Array.from({ length: 10 }, (_, index) => index)
+    await forEachOnPods(queue, {
+      listOrigins: async () => ['http://a:3000', 'http://b:3000'],
+      concurrency: 1,
+      refreshMs: 5,
+      work: () => sleep(3),
+      onRefresh: current => seen.push(current),
+    })
+
+    expect(seen.length).toBeGreaterThan(0)
+    expect(seen.every(current => current.length === 2)).toBe(true)
+  })
+})
+
+describe('waitForRollout', () => {
+  const rolled = { metadata: { name: 'frontend-nuxt', generation: 2 }, spec: { replicas: 2 }, status: { observedGeneration: 2, replicas: 2, updatedReplicas: 2, availableReplicas: 2 } }
+  const rolling = { ...rolled, status: { ...rolled.status, replicas: 3, updatedReplicas: 1 } }
+  const slices = (...ips: string[]) => ({ items: [{ ports: [{ port: 3000 }], endpoints: ips.map(ip => ({ addresses: [ip], conditions: { ready: true } })) }] })
+  const options = { serviceName: 'frontend-nuxt-service', waitFor: ['frontend-nuxt'], ownBuild: 'b2', pollMs: 1, timeoutMs: 2000 }
+
+  it('waits out the rollout, then answers the pods that serve this build', async () => {
+    const api = fakeKube({ status: 200, body: rolling }, { status: 200, body: rolled }, { status: 200, body: slices('10.42.0.7', '10.42.1.9') })
+    const origins = await waitForRollout({ ...options, kube: api.kube, buildAt: async () => 'b2' })
+    expect(origins).toEqual(['http://10.42.0.7:3000', 'http://10.42.1.9:3000'])
+    expect(api.calls).toHaveLength(3)
+  })
+
+  it('waits out a failed read and a pod that does not answer yet', async () => {
+    const api = fakeKube(
+      { status: 503 },
+      { status: 200, body: rolled },
+      { status: 200, body: slices('10.42.0.7') },
+      { status: 200, body: rolled },
+      { status: 200, body: slices('10.42.0.7') },
+    )
+    const answers = [undefined, 'b2']
+    const origins = await waitForRollout({ ...options, kube: api.kube, buildAt: async () => answers.shift() })
+    expect(origins).toEqual(['http://10.42.0.7:3000'])
+  })
+
+  it('fails at once when the storefront rolled out on another build', async () => {
+    const api = fakeKube({ status: 200, body: rolled }, { status: 200, body: slices('10.42.0.7', '10.42.1.9') })
+    await expect(waitForRollout({ ...options, kube: api.kube, buildAt: async origin => origin.includes('10.42.0.7') ? 'b2' : 'b1' }))
+      .rejects
+      .toThrow('serves b1 after its rollout')
+  })
+
+  it('gives up on a rollout that does not finish in time', async () => {
+    const api = { namespace: 'grooveshop', call: async () => ({ status: 200, headers: {}, body: JSON.stringify(rolling), ms: 0 }) }
+    await expect(waitForRollout({ ...options, kube: api, buildAt: async () => 'b2', timeoutMs: 5 }))
+      .rejects
+      .toThrow('for the rollout of frontend-nuxt')
   })
 })
