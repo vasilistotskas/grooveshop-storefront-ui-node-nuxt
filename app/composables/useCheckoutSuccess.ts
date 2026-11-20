@@ -88,6 +88,17 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   )
 
   const amountDue = computed(() => order.value?.amountDue || 0)
+
+  // Whether the page offers a new payment link (`OrderPayNow`, which also
+  // asks Django whether the order takes one). A shopper back from the
+  // provider's page paid there as far as the page knows, and until the
+  // provider confirms it a second link could charge them twice; the order's
+  // own link (the payment-failed email's, an older one) offers it, and so
+  // does a return the provider answered as failed.
+  const offersPayment = computed(() =>
+    !verifyingSession.value
+    && (!fromCheckout.value || paymentStatus.value === zPaymentStatusEnum.enum.FAILED),
+  )
   const shippingPrice = computed(() => order.value?.shippingPrice || 0)
 
   // Only fetch + show the store's guides when the tenant has the blog
@@ -118,6 +129,26 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
   onBeforeUnmount(() => {
     isActive.value = false
   })
+
+  /**
+   * Reads the order again, with `$api`, not `refresh()`: a failed refetch
+   * resets `useApi`'s data to its empty default, which blanked the whole
+   * confirmation. A failed read keeps the last answer on screen and says so
+   * (`false`).
+   */
+  async function reloadOrder(): Promise<boolean> {
+    try {
+      order.value = await $api<RetrieveOrderByUuidResponse>(`/api/orders/uuid/${orderUUID}`, {
+        method: 'GET',
+        query: { languageCode: locale.value },
+      })
+      return true
+    }
+    catch (err) {
+      log.warn({ action: 'checkout:reloadOrder', error: err })
+      return false
+    }
+  }
 
   // Meta Pixel — Purchase event. The success page is the canonical
   // browser-side firing point for Purchase. We reuse the event_id the
@@ -311,20 +342,9 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
       if (!isActive.value) break
       await new Promise(resolve => setTimeout(resolve, interval))
       if (!isActive.value) break
-      // Polled with `$api`, not `refresh()`: a failed refetch resets
-      // `useApi`'s data to its empty default, which blanked the whole
-      // confirmation. A missed poll keeps the last answer on screen and
-      // the next one tries again.
-      try {
-        order.value = await $api<RetrieveOrderByUuidResponse>(`/api/orders/uuid/${orderUUID}`, {
-          method: 'GET',
-          query: { languageCode: locale.value },
-        })
-      }
-      catch (err) {
-        log.warn({ action: 'checkout:pollOrder', error: err })
-        continue
-      }
+      // A missed poll keeps the last answer on screen and the next one
+      // tries again.
+      if (!await reloadOrder()) continue
 
       const status = order.value?.paymentStatus?.toLowerCase() || ''
       if (
@@ -365,6 +385,8 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
     fromCheckout,
     sessionVerified,
     verifyingSession,
+    offersPayment,
+    reloadOrder,
     recommendedPostsList,
   }
 }

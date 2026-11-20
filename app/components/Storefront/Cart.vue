@@ -176,6 +176,8 @@ useSeoMeta({
         />
       </header>
 
+      <OrderAwaitingPaymentReminder />
+
       <UAlert
         v-if="showRecoveredBanner"
         color="info"

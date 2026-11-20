@@ -149,6 +149,8 @@ useSeoMeta({
       class="mb-8"
     />
 
+    <OrderAwaitingPaymentReminder class="mb-6" />
+
     <UAlert
       v-if="showRecoveredBanner"
       color="info"

@@ -9,6 +9,7 @@ import OrderDetailPage from '~/components/Storefront/Account/OrderDetail.vue'
 import WebsideOrderDetailPage from '~/components/variants/webside/Storefront/Account/OrderDetail.vue'
 import { makeAcsShipment, makeAcsStation, makeAcsTrackingEvent } from '~~/test/fixtures/acs'
 import { makeBoxNowLocker, makeBoxNowParcelEvent, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
+import type { OrderDetail } from '~~/shared/openapi/types.gen'
 import { makeOrder, makeOrderItem } from '~~/test/fixtures/order'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { failWith } from '~~/test/helpers/api'
@@ -104,6 +105,50 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
     const wrapper = await mountPage(C)
 
     expect(button(wrapper, reorderLabel()) !== undefined).toBe(offered)
+  })
+
+  describe('an online order waiting for its payment', () => {
+    const payNow = 'Πληρωμή τώρα'
+    const stillDue = defaultOnly ? 'Απομένουν' : 'Υπάρχει εκκρεμές ποσό'
+    const waiting = (overrides: Partial<OrderDetail> = {}) => makeOrder({
+      id: 3,
+      amountDue: 25,
+      isOnlinePayment: true,
+      isCollectedOnDelivery: false,
+      pricingBreakdown: { remainingAmount: 25 },
+      paymentHoldExpiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      ...overrides,
+    })
+
+    it('offers to pay it, in place of the bare "still due" alert', async () => {
+      state.order = waiting()
+
+      const wrapper = await mountPage(C)
+
+      expect(button(wrapper, payNow)).toBeTruthy()
+      expect(wrapper.text()).not.toContain(stillDue)
+    })
+
+    it('keeps the "still due" alert, with no button, while the store reviews a charge', async () => {
+      state.order = waiting({ paymentAwaitsReview: true })
+
+      const wrapper = await mountPage(C)
+
+      expect(button(wrapper, payNow)).toBeUndefined()
+      expect(wrapper.text()).toContain(stillDue)
+    })
+
+    it('reads the order again when Django says its time ran out', async () => {
+      state.order = waiting()
+      api.routes({ '/api/orders/3/create-checkout-session': failWith(400, { detail: 'Django', code: 'payment_window_expired' }) })
+      const wrapper = await mountPage(C)
+
+      await button(wrapper, payNow)!.trigger('click')
+      await flushPromises()
+
+      expect(fetches).toBe(2)
+      expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('errors.codes.payment_window_expired'))
+    })
   })
 
   it.runIf(!defaultOnly)('buys the order again with the webside page\'s own words and toast icons', async () => {

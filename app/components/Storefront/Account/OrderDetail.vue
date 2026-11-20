@@ -175,9 +175,10 @@ const alert = computed(() => {
     }
   }
   // Cash on delivery owes its whole total until the courier collects
-  // it: an unpaid remainder is news only for an online payment.
+  // it: an unpaid remainder is news only for an online payment. One that
+  // can still be paid here says so itself, with its button (`OrderPayNow`).
   const remaining = value.pricingBreakdown?.remainingAmount
-  if (remaining && remaining > 0 && value.isOnlinePayment) {
+  if (remaining && remaining > 0 && value.isOnlinePayment && !offersPaymentLink(value)) {
     return {
       color: 'warning' as const,
       icon: 'i-lucide-credit-card',
@@ -312,6 +313,11 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
       :title="alert.title"
       :description="alert.description"
       variant="subtle"
+    />
+
+    <OrderPayNow
+      :order="order"
+      @closed="() => { refreshOrder() }"
     />
 
     <section

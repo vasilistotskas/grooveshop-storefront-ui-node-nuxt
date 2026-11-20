@@ -313,6 +313,47 @@ describe.each([
     })
   })
 
+  describe('paying for the order', () => {
+    const payNow = (wrapper: Awaited<ReturnType<typeof mount>>) =>
+      wrapper.findAll('button').find(b => b.text() === 'Πληρωμή τώρα')
+    const waiting = (overrides: Partial<OrderDetail> = {}) => order({
+      isOnlinePayment: true,
+      paymentHoldExpiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      ...overrides,
+    })
+
+    it('offers it on the order\'s own link (the payment-failed email\'s)', async () => {
+      serveOrders(waiting())
+      const wrapper = await mount()
+      await flushPromises()
+
+      expect(payNow(wrapper)).toBeTruthy()
+    })
+
+    it('does not offer a second link to a shopper back from paying, while the provider has not answered', async () => {
+      route.query = { session_id: 'cs_test_1' }
+      serveOrders(waiting())
+      const wrapper = await mount()
+
+      expect(payNow(wrapper)).toBeUndefined()
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL * 10)
+
+      expect(wrapper.text()).toContain(messages.payment.processing.title)
+      expect(payNow(wrapper)).toBeUndefined()
+    })
+
+    it('offers it again once the provider answered that the payment failed', async () => {
+      route.query = { session_id: 'cs_test_1' }
+      serveOrders(waiting(), waiting({ paymentStatus: 'FAILED' }))
+      const wrapper = await mount()
+
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL)
+      await flushPromises()
+
+      expect(payNow(wrapper)).toBeTruthy()
+    })
+  })
+
   describe('cart cleanup', () => {
     it('clears the local cart once per order, not on every reopening of the URL', async () => {
       const cleanCartState = vi.spyOn(useCartStore(), 'cleanCartState').mockResolvedValue(undefined)

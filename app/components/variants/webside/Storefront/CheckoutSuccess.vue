@@ -27,6 +27,8 @@ const {
   fromCheckout,
   sessionVerified,
   verifyingSession,
+  offersPayment,
+  reloadOrder,
   recommendedPostsList,
 } = await useCheckoutSuccess({ guideCount: 8 })
 
@@ -238,6 +240,13 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
       :description="t('main.subtitle')"
       icon="i-heroicons-check-circle"
       class="mx-auto max-w-2xl"
+    />
+
+    <OrderPayNow
+      v-if="order && offersPayment"
+      :order="order"
+      class="mx-auto w-full max-w-2xl"
+      @closed="() => { reloadOrder() }"
     />
 
     <div

@@ -500,7 +500,9 @@
   },
   "errors": {
     "codes": {
-      "must_have_purchased": "You can only review products you have bought."
+      "must_have_purchased": "You can only review products you have bought.",
+      "order_not_payable": "This order can no longer be paid: it has already been paid or was closed.",
+      "payment_window_expired": "The time to pay for this order has run out. To buy these items, place a new order."
     }
   },
   "maps": {

@@ -21,6 +21,7 @@ import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeCartQuote, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
+import { makeOrder } from '~~/test/fixtures/order'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import { setTenant } from '~~/test/helpers/tenant'
 
@@ -177,6 +178,7 @@ beforeEach(() => {
   q.error = null
   q.pending = false
   window.sessionStorage.clear()
+  window.localStorage.clear()
   vi.spyOn(crypto, 'randomUUID').mockReturnValue('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
 })
 
@@ -420,6 +422,17 @@ describe('useCheckoutSubmit', () => {
       expect(lastToast()).toMatchObject({ title: t('order_created_payment_required') })
     })
 
+    it('remembers in this browser an order left to be paid on the provider\'s page', async () => {
+      const order = makeOrder({ id: 9, isOnlinePayment: true, paymentHoldExpiresAt: '2026-11-20T10:30:00.000Z' })
+      api.routes({ '/api/orders': orderCreated(order) })
+      const { onSubmit } = setup(VIVA)
+
+      await onSubmit()
+      await nextTick()
+
+      expect(readAwaitingPaymentOrder()).toBe(order.uuid)
+    })
+
     it('releases the holds when the order request itself fails', async () => {
       api.routes({
         '/api/orders': () => {
@@ -500,6 +513,16 @@ describe('useCheckoutSubmit', () => {
       expect(m.releaseReservations).not.toHaveBeenCalled()
       // The success page is the confirmation: no toast beside it.
       expect(m.toastAdd).not.toHaveBeenCalled()
+    })
+
+    it('remembers no order that waits for no online payment', async () => {
+      api.routes({ '/api/orders': orderCreated(makeOrder({ id: 9 })) })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+      await nextTick()
+
+      expect(readAwaitingPaymentOrder()).toBeNull()
     })
 
     it('clears the failure of the last attempt when a new one starts', async () => {

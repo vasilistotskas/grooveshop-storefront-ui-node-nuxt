@@ -219,10 +219,13 @@ const orderAlert = computed(() => {
   // payment. Suppress for offline pay ways. ``isOnlinePayment``
   // ships from OrderDetailSerializer.get_is_online_payment.
   const remaining = order.value?.pricingBreakdown?.remainingAmount
+  // One that can still be paid here says so itself, with its button
+  // (`OrderPayNow`).
   if (
     remaining
     && remaining > 0
     && order.value?.isOnlinePayment
+    && !offersPaymentLink(order.value)
   ) {
     return {
       show: true,
@@ -466,6 +469,11 @@ async function handleReorder() {
       :description="orderAlert.description"
       :icon="orderAlert.icon"
       variant="soft"
+    />
+
+    <OrderPayNow
+      :order="order"
+      @closed="() => { refreshOrder() }"
     />
 
     <div

@@ -36,6 +36,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const checkoutMode = ref<'embedded' | 'hosted'>('hosted')
   const useHostedCheckout = computed(() => checkoutMode.value === 'hosted')
   const createdOrder = ref<OrderDetail | null>(null)
+  // An order placed to be paid on the provider's page is remembered in this
+  // browser: Django keeps the cart until it is paid, and a shopper who comes
+  // back without paying is shown the order on the cart and the checkout
+  // (`useAwaitingPaymentOrder`) rather than ordering the same items again.
+  watch(createdOrder, (order) => {
+    if (order && offersPaymentLink(order)) {
+      rememberAwaitingPaymentOrder(order.uuid)
+    }
+  })
   const isSubmitting = ref(false)
   const reservationIds = ref<number[]>([])
   const retryCount = ref(0)

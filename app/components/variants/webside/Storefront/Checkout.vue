@@ -279,6 +279,8 @@ useSeoMeta({
     >
       <!-- Main Content -->
       <div class="flex-1">
+        <OrderAwaitingPaymentReminder class="mb-6" />
+
         <!-- Stock Error Alert -->
         <ApiErrorAlert :error="submitError" />
 
