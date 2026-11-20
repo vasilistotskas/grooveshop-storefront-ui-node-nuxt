@@ -1,3 +1,10 @@
+## [3.346.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.346.0...v3.346.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **websocket:** back off across sockets that die young, one log line per drop ([#503](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/503)) ([94101ae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/94101aef9fc085c9ea69137917bc48914a2d76c5)), closes [#414](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/414) [#414](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/414)
+
 # [3.346.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.3...v3.346.0) (2026-11-20)
 
 
