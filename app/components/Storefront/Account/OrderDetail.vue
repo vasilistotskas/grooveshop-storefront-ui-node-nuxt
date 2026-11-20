@@ -11,7 +11,7 @@
 const { t, n, locale } = useStoreI18n('components/Storefront/Account/OrderDetail')
 const toast = useToast()
 const { notify } = useApiError()
-const { orderId, order, refresh: refreshOrder } = await useOrderDetail()
+const { orderId, order, refresh: refreshOrder, stale } = await useOrderDetail()
 
 useHead({ title: () => t('title', { id: orderId }) })
 
@@ -314,6 +314,28 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
       :description="alert.description"
       variant="subtle"
     />
+
+    <!-- A read that failed leaves the order as it was: say so, since a
+         change just made (a cancel) is not on the page yet. -->
+    <UAlert
+      v-if="stale"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-refresh-cw"
+      role="status"
+      :title="t('stale.title')"
+      :description="t('stale.description')"
+    >
+      <template #actions>
+        <UButton
+          :label="t('stale.retry')"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          @click="() => { refreshOrder() }"
+        />
+      </template>
+    </UAlert>
 
     <OrderPayNow
       :order="order"
@@ -626,6 +648,10 @@ el:
   title: "Παραγγελία #{id}"
   placed: Καταχωρήθηκε {date} στις {time}
   progress: Πορεία της παραγγελίας
+  stale:
+    title: Η παραγγελία δεν ανανεώθηκε
+    description: Βλέπεις την παραγγελία όπως ήταν πριν. Δοκίμασε ξανά για να δεις πού βρίσκεται τώρα.
+    retry: Δοκίμασε ξανά
   history:
     created: Η παραγγελία καταχωρήθηκε
     status: Αλλαγή κατάστασης
@@ -681,6 +707,10 @@ en:
   title: "Order #{id}"
   placed: Placed {date} at {time}
   progress: Order progress
+  stale:
+    title: The order could not be refreshed
+    description: You are seeing the order as it was before. Try again to see where it stands now.
+    retry: Try again
   history:
     created: Order placed
     status: Status change

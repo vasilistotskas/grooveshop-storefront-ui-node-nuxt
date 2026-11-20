@@ -3,7 +3,8 @@
  * from its drawing (`Storefront/Account/OrderDetail` and the tenants' own):
  * the route's order id, and the order as Django holds it, in the page's
  * language. `refresh` reads it again after a change (a cancellation, a
- * payment refused); a read that fails leaves the order as it was.
+ * payment refused); a read that fails leaves the order as it was, and
+ * `stale` says so.
  * Call it where `await` is allowed: the order is read before it returns.
  */
 export async function useOrderDetail() {
@@ -19,13 +20,19 @@ export async function useOrderDetail() {
 
   // The last order Django gave: `useApi` empties its data when a read
   // fails, which took the whole page down after a refresh that failed.
-  // Watched before the first await, so the watcher belongs to the page.
+  // Registered before the first await, so it belongs to the page, and
+  // `sync`: on the server Vue stops any other immediate watcher right
+  // after its first run, before the read below fills the data, and the
+  // page would render without its order.
   const order = shallowRef<OrderDetail>()
   watch(request.data, (value) => {
     if (value) order.value = value
-  }, { immediate: true })
+  }, { immediate: true, flush: 'sync' })
 
-  const { refresh } = await request
+  const { refresh, error } = await request
 
-  return { orderId, order, refresh }
+  /** The last read failed: the page shows the order as it was before it. */
+  const stale = computed(() => Boolean(error.value && order.value))
+
+  return { orderId, order, refresh, stale }
 }

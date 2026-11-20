@@ -113,6 +113,9 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
 
   describe('an online order waiting for its payment', () => {
     const payNow = componentTexts(payNowSource, 'PayNow.vue').t('pay')
+    const staleTexts = () => defaultOnly
+      ? componentTexts(orderDetailSource, 'OrderDetail.vue')
+      : componentTexts(websideOrderDetailSource, 'OrderDetail.vue')
     // The page's own "still due" line, for the 25€ the order owes.
     const stillDue = () => {
       const amount = useNuxtApp().$i18n.n(25, 'currency')
@@ -175,6 +178,17 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
       expect(fetches).toBeGreaterThan(1)
       expect(wrapper.get('h1').text()).toContain('#3')
       expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('errors.codes.payment_window_expired'))
+      expect(wrapper.text()).toContain(staleTexts().t('stale.title'))
+
+      // Trying again reads it, and a read that works ends the notice.
+      registerEndpoint('/api/orders/3', () => {
+        fetches++
+        return makeOrder({ id: 3, status: 'CANCELED', isCanceled: true, canBeCanceled: false })
+      })
+      await button(wrapper, staleTexts().t('stale.retry'))!.trigger('click')
+
+      await vi.waitFor(() => expect(wrapper.text()).not.toContain(staleTexts().t('stale.title')))
+      expect(button(wrapper, payNow)).toBeUndefined()
     })
   })
 
