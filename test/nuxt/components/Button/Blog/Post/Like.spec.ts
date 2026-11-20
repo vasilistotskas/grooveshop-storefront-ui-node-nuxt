@@ -5,6 +5,7 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import ButtonBlogPostLike from '~/components/Button/Blog/Post/Like.vue'
 import WebsideButtonBlogPostLike from '~/components/variants/webside/Button/Blog/Post/Like.vue'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -43,6 +44,7 @@ describe.each(trees(ButtonBlogPostLike, WebsideButtonBlogPostLike))('$tree Butto
   beforeEach(() => {
     loggedIn.value = true
     useUserStore().blogLikedPosts = []
+    setTenant()
   })
 
   const mount = () => mountSuspended(C, { route: false, props: { blogPostId: 3, likesCount: 4 } })
@@ -105,6 +107,14 @@ describe.each(trees(ButtonBlogPostLike, WebsideButtonBlogPostLike))('$tree Butto
     expect(api.callsTo(LIKES)).toHaveLength(0)
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
     await vi.waitFor(() => expect(wrapper.find('[data-test="login-modal"]').exists()).toBe(true))
+  })
+
+  it('is not drawn on a store without customer accounts, which has no sign-in to offer', async () => {
+    setTenantFeatures({ customerAccounts: false })
+    const wrapper = await mount()
+
+    expect(wrapper.find('button').exists()).toBe(false)
+    expect(api.callsTo(LIKES)).toHaveLength(0)
   })
 
   it('names the button with the count it shows (WCAG 2.5.3 Label in Name)', async () => {

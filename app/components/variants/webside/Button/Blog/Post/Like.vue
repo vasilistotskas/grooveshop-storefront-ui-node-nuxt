@@ -44,7 +44,7 @@ const { t } = useStoreI18n('components/variants/webside/Button/Blog/Post/Like')
 const { blogPostId } = toRefs(props)
 
 const isOpen = ref(false)
-const { liked, toggle: toggleFavourite } = useBlogPostLike({
+const { offered, liked, toggle: toggleFavourite } = useBlogPostLike({
   blogPostId,
   t,
   onToggled: payload => emit('update', payload),
@@ -82,6 +82,7 @@ const getColor = computed(() => {
 
 <template>
   <UButton
+    v-if="offered"
     v-bind="attrs"
     :icon="liked ? 'i-heroicons-hand-thumb-up-solid' : 'i-heroicons-hand-thumb-up'"
     :size="size"
