@@ -12,7 +12,8 @@ import { failWith } from '~~/test/helpers/api'
  * The notifications socket. It authenticates with a single-use ticket
  * (never the Knox token in the URL), so every connection — the first
  * and each reconnect — fetches a fresh one, and reconnects back off
- * exponentially up to 30s. A ticket refused with 401/403 means the
+ * exponentially up to 30s, starting over only after a connection that held
+ * past its first heartbeat. A ticket refused with 401/403 means the
  * session is gone, which goes through the canonical `auth:change`
  * pipeline rather than a bare session clear.
  */
@@ -22,7 +23,8 @@ mockNuxtImport('$fetch', () => api)
 
 interface SocketOptions {
   onConnected: () => void
-  onDisconnected: (ws: unknown, event?: { reason?: string }) => void
+  onDisconnected: (ws: unknown, event?: { code?: number, reason?: string }) => void
+  onError?: () => void
   autoReconnect: boolean
 }
 
@@ -30,7 +32,7 @@ const { session, channel, sockets, callAuthChangeHookMock, mockLog } = vi.hoiste
   session: { loggedIn: undefined as undefined | Ref<boolean>, fetch: undefined as undefined | (() => Promise<void>) },
   /** The tabs' `notifications` BroadcastChannel: unsupported unless a test turns it on. */
   channel: { supported: false, post: undefined as undefined | ((message: Record<string, unknown>) => void), data: undefined as undefined | Ref<Record<string, unknown> | null> },
-  sockets: [] as Array<{ url: string, options: SocketOptions, close: ReturnType<typeof vi.fn> }>,
+  sockets: [] as Array<{ url: string, options: SocketOptions, close: ReturnType<typeof vi.fn>, status: Ref<string> }>,
   callAuthChangeHookMock: vi.fn(() => Promise.resolve()),
   mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }))
@@ -48,7 +50,7 @@ mockNuxtImport('useUserSession', () => () => {
   }
 })
 mockNuxtImport('useWebSocket', () => (url: string, options: SocketOptions) => {
-  const socket = { url, options, close: vi.fn() }
+  const socket = { url, options, close: vi.fn(), status: ref('OPEN') }
   sockets.push(socket)
   return socket
 })
@@ -68,15 +70,17 @@ async function install() {
   await flushPromises()
 }
 
-/** Drop the current socket and let `ms` pass. */
+/** Drop the current socket, as the browser does (closed first), and let `ms` pass. */
 async function disconnectAndWait(ms: number) {
-  sockets.at(-1)!.options.onDisconnected(null, { reason: 'network' })
+  const socket = sockets.at(-1)!
+  socket.status.value = 'CLOSED'
+  socket.options.onDisconnected(null, { code: 1006, reason: '' })
   await vi.advanceTimersByTimeAsync(ms)
 }
 
 describe('websocket plugin', () => {
   beforeEach(() => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })
     setTenant({ apiDomain: 'api.test.local' })
     session.loggedIn = ref(true)
     sockets.length = 0
@@ -131,16 +135,45 @@ describe('websocket plugin', () => {
     expect(sockets.at(-1)!.url).toContain(`ticket=t${sockets.length}`)
   })
 
-  it('starts the back-off over once a connection succeeds', async () => {
+  it('starts the back-off over after a connection that held past its first heartbeat', async () => {
     await install()
     await disconnectAndWait(1000)
     await disconnectAndWait(2000)
     expect(sockets).toHaveLength(3)
 
     sockets.at(-1)!.options.onConnected()
+    await vi.advanceTimersByTimeAsync(60000)
     await disconnectAndWait(1000)
 
     expect(sockets).toHaveLength(4)
+  })
+
+  it('keeps backing off while connections open and are closed again at once', async () => {
+    await install()
+
+    for (const [attempt, delay] of [1000, 2000, 4000, 8000].entries()) {
+      sockets.at(-1)!.options.onConnected()
+      await disconnectAndWait(delay - 1)
+      expect(sockets, `attempt ${attempt + 1} came early`).toHaveLength(attempt + 1)
+      await vi.advanceTimersByTimeAsync(1)
+      expect(sockets).toHaveLength(attempt + 2)
+    }
+  })
+
+  it('logs one line per drop, with its close code, and nothing for the socket error before it', async () => {
+    await install()
+    expect(sockets[0]!.options.onError).toBeUndefined()
+
+    await disconnectAndWait(1000)
+    await disconnectAndWait(2000)
+    await disconnectAndWait(4000)
+
+    expect(mockLog.info.mock.calls).toEqual([
+      [{ tag: 'ws', message: 'Disconnected', code: 1006, reason: '', attempt: 1, delayMs: 1000 }],
+      [{ tag: 'ws', message: 'Disconnected', code: 1006, reason: '', attempt: 2, delayMs: 2000 }],
+      [{ tag: 'ws', message: 'Disconnected', code: 1006, reason: '', attempt: 3, delayMs: 4000 }],
+    ])
+    expect(mockLog.error).not.toHaveBeenCalled()
   })
 
   it('closes the socket and stops reconnecting on sign-out', async () => {
@@ -153,6 +186,16 @@ describe('websocket plugin', () => {
 
     expect(sockets).toHaveLength(1)
     expect(sockets[0]!.close).toHaveBeenCalled()
+  })
+
+  it('logs closing a live socket on sign-out', async () => {
+    await install()
+
+    session.loggedIn!.value = false
+    await nextTick()
+
+    expect(sockets[0]!.close).toHaveBeenCalled()
+    expect(mockLog.info).toHaveBeenCalledWith('ws', 'Closed')
   })
 
   it.each([[401], [403]])('treats a ticket refused with %s as an expired session', async (statusCode) => {
@@ -294,7 +337,7 @@ describe('websocket plugin heartbeat', () => {
   beforeEach(() => {
     scope = effectScope()
     FakeSocket.last = undefined
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] })
     vi.stubGlobal('WebSocket', FakeSocket)
     setTenant({ apiDomain: 'api.test.local' })
     session.loggedIn = ref(true)
@@ -308,15 +351,21 @@ describe('websocket plugin heartbeat', () => {
     vi.useRealTimers()
   })
 
-  /** Install the plugin, then open a real VueUse socket with the options it chose. */
-  async function connectForReal(): Promise<FakeSocket> {
-    await install()
-    const options: UseWebSocketOptions = sockets[0]!.options
+  /** Open the plugin's latest socket as a real VueUse one, with the options it chose, and accept it. */
+  async function acceptForReal(): Promise<FakeSocket> {
+    const socket = sockets.at(-1)!
+    const options: UseWebSocketOptions = socket.options
     const { useWebSocket } = await vi.importActual<typeof import('@vueuse/core')>('@vueuse/core')
-    scope.run(() => useWebSocket(sockets[0]!.url, options))
+    scope.run(() => useWebSocket(socket.url, options))
     const server = FakeSocket.last!
     server.accept()
     return server
+  }
+
+  /** Install the plugin, then open its socket for real. */
+  async function connectForReal(): Promise<FakeSocket> {
+    await install()
+    return acceptForReal()
   }
 
   it('keeps the socket while the server answers each ping, and never reads the answer as a notification', async () => {
@@ -346,5 +395,18 @@ describe('websocket plugin heartbeat', () => {
     await vi.advanceTimersByTimeAsync(1000)
     expect(api.callsTo(TICKET)).toHaveLength(2)
     expect(sockets).toHaveLength(2)
+  })
+  it('backs off further each time a server that never answers drops the socket', async () => {
+    await connectForReal()
+
+    for (const [attempt, delay] of [1000, 2000, 4000].entries()) {
+      await vi.advanceTimersByTimeAsync(35000)
+      expect(FakeSocket.last!.closed).toBe(true)
+      await vi.advanceTimersByTimeAsync(delay - 1)
+      expect(sockets, `reconnect ${attempt + 1} came early`).toHaveLength(attempt + 1)
+      await vi.advanceTimersByTimeAsync(1)
+      expect(sockets).toHaveLength(attempt + 2)
+      await acceptForReal()
+    }
   })
 })

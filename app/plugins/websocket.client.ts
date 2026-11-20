@@ -16,6 +16,19 @@ const HEARTBEAT_PONG = 'pong'
 const HEARTBEAT_INTERVAL_MS = 30000
 const HEARTBEAT_PONG_TIMEOUT_MS = 5000
 
+/**
+ * Reconnects back off from RECONNECT_BASE_DELAY_MS, doubling up to
+ * RECONNECT_MAX_DELAY_MS. The back-off starts over only after a connection
+ * that held for STABLE_CONNECTION_MS: a socket whose server leaves the ping
+ * unanswered is closed at the first pong deadline (35 s), so one that reached
+ * its second ping had the first answered. Starting over on every open let a
+ * socket that opens and is then closed reconnect after one second forever,
+ * each cycle a ticket, a handshake and its log lines (storefront #414).
+ */
+const RECONNECT_BASE_DELAY_MS = 1000
+const RECONNECT_MAX_DELAY_MS = 30000
+const STABLE_CONNECTION_MS = 2 * HEARTBEAT_INTERVAL_MS
+
 export default defineNuxtPlugin({
   name: 'websocket',
   parallel: true,
@@ -39,13 +52,16 @@ export default defineNuxtPlugin({
     let adoptingOtherTabSignIn = false
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
     let reconnectAttempt = 0
+    let connectedAt: number | null = null
     let ws: ReturnType<typeof useWebSocket> | null = null
 
     function closeWebSocket() {
       if (ws) {
+        // A reconnect finds its dropped socket closed already: only closing
+        // a live one is news.
+        if (ws.status.value !== 'CLOSED') log.info('ws', 'Closed')
         ws.close()
         ws = null
-        log.info('ws', 'Closed')
       }
       if (reconnectTimer !== null) {
         clearTimeout(reconnectTimer)
@@ -114,22 +130,33 @@ export default defineNuxtPlugin({
             pongTimeout: HEARTBEAT_PONG_TIMEOUT_MS,
           },
           onConnected: () => {
-            reconnectAttempt = 0
+            connectedAt = Date.now()
             log.info('ws', 'Connected')
           },
+          // One log line per drop: every line is a POST to the rate-limited
+          // `/api/_evlog/ingest`, and a socket that keeps failing must not
+          // spend a tab's budget. The `error` event a failed socket fires
+          // first is not logged: browsers give it no detail, and the close
+          // that always follows carries the code.
           onDisconnected: (_wsConn, event) => {
-            log.info({ tag: 'ws', message: 'Disconnected', reason: event?.reason })
-            if (!loggedIn.value) return
-            const delay = Math.min(1000 * 2 ** reconnectAttempt, 30000)
+            if (connectedAt !== null && Date.now() - connectedAt >= STABLE_CONNECTION_MS) {
+              reconnectAttempt = 0
+            }
+            connectedAt = null
+            const drop = { tag: 'ws', message: 'Disconnected', code: event?.code, reason: event?.reason }
+            if (!loggedIn.value) {
+              log.info(drop)
+              return
+            }
+            const delay = Math.min(RECONNECT_BASE_DELAY_MS * 2 ** reconnectAttempt, RECONNECT_MAX_DELAY_MS)
             reconnectAttempt++
-            log.info({ tag: 'ws', message: 'Reconnecting', attempt: reconnectAttempt, delayMs: delay })
+            log.info({ ...drop, attempt: reconnectAttempt, delayMs: delay })
             reconnectTimer = setTimeout(() => {
               if (loggedIn.value) {
                 initializeWebSocket()
               }
             }, delay)
           },
-          onError: () => { log.error({ action: 'ws:error' }) },
           onMessage: async (_wsConn, event) => {
             let data
             try {
