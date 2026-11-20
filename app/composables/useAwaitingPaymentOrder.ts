@@ -17,8 +17,9 @@ export function useAwaitingPaymentOrder() {
   const order = ref<OrderDetail | null>(null)
 
   onMounted(async () => {
-    const uuid = readAwaitingPaymentOrder()
-    if (!uuid) return
+    const seen = keptAwaitingPaymentOrder()
+    if (!seen) return
+    const { uuid } = seen
     try {
       const found = await $api<RetrieveOrderByUuidResponse>(`/api/orders/uuid/${uuid}`, {
         method: 'GET',
@@ -30,7 +31,7 @@ export function useAwaitingPaymentOrder() {
         return
       }
       // A link opened elsewhere (the order's page) may have moved it.
-      extendAwaitingPaymentOrder(uuid, found.paymentHoldExpiresAt)
+      updateAwaitingPaymentOrder(seen, found.paymentHoldExpiresAt)
       // A payment the provider is processing, or a charge the store
       // reviews, takes no link for now but may still end unpaid: kept,
       // and shown once it takes one again.

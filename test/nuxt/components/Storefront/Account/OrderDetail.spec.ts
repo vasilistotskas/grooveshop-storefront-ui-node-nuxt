@@ -188,7 +188,10 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
       await button(wrapper, staleTexts().t('stale.retry'))!.trigger('click')
 
       await vi.waitFor(() => expect(wrapper.text()).not.toContain(staleTexts().t('stale.title')))
+      // The page draws the order the retry read: canceled, nothing to pay or cancel.
+      expect(wrapper.text()).toContain(staleTexts().t(defaultOnly ? 'alert.canceled' : 'order_cancelled'))
       expect(button(wrapper, payNow)).toBeUndefined()
+      expect(button(wrapper, defaultOnly ? staleTexts().t('cancel.cta') : staleTexts().t('cancel_order'))).toBeUndefined()
     })
   })
 

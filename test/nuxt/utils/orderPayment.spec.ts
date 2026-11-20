@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   extendAwaitingPaymentOrder,
+  keptAwaitingPaymentOrder,
+  updateAwaitingPaymentOrder,
   forgetAwaitingPaymentOrder,
   offersPaymentLink,
   orderPageLocation,
@@ -90,6 +92,30 @@ describe('the order awaiting payment in this browser', () => {
     extendAwaitingPaymentOrder('first', '2026-11-20T11:00:00.000Z')
     vi.setSystemTime(new Date('2026-11-20T10:50:00Z'))
     expect(readAwaitingPaymentOrder()).toBe('first')
+  })
+
+  it('takes a read\'s deadline only while the kept order is still the one the read started from', () => {
+    rememberAwaitingPaymentOrder('first', UNTIL)
+    const seen = keptAwaitingPaymentOrder()!
+    // A link opened in another tab while the read was on its way.
+    extendAwaitingPaymentOrder('first', '2026-11-20T10:40:00.000Z')
+    updateAwaitingPaymentOrder(seen, UNTIL)
+    expect(keptAwaitingPaymentOrder()).toEqual({ uuid: 'first', until: '2026-11-20T10:40:00.000Z' })
+
+    updateAwaitingPaymentOrder(keptAwaitingPaymentOrder()!, '2026-11-20T10:50:00.000Z')
+    expect(keptAwaitingPaymentOrder()).toEqual({ uuid: 'first', until: '2026-11-20T10:50:00.000Z' })
+  })
+
+  it('keeps nothing, and holds nothing up, where storage cannot be used', () => {
+    const refuse = () => {
+      throw new Error('SecurityError')
+    }
+    vi.stubGlobal('localStorage', { getItem: refuse, setItem: refuse, removeItem: refuse })
+
+    expect(() => rememberAwaitingPaymentOrder('first', UNTIL)).not.toThrow()
+    expect(() => extendAwaitingPaymentOrder('first', UNTIL)).not.toThrow()
+    expect(() => forgetAwaitingPaymentOrder('first')).not.toThrow()
+    expect(readAwaitingPaymentOrder()).toBeNull()
   })
 
   it('drops what it cannot read', () => {

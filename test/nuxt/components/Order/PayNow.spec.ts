@@ -100,6 +100,25 @@ describe('OrderPayNow', () => {
     expect(readAwaitingPaymentOrder()).toBe(order.uuid)
   })
 
+  it('still sends the browser to the provider when this browser cannot keep the order', async () => {
+    const order = payable()
+    // The order is kept, and the storage refuses to keep the new deadline.
+    vi.stubGlobal('localStorage', {
+      getItem: () => JSON.stringify({ uuid: order.uuid, until: DEADLINE }),
+      setItem: () => {
+        throw new DOMException('full', 'QuotaExceededError')
+      },
+      removeItem: () => {},
+      clear: () => {},
+    })
+    const wrapper = await mount(order)
+
+    await payButton(wrapper)!.trigger('click')
+    await flushPromises()
+
+    expect(location.href).toBe(PROVIDER)
+  })
+
   it.each([
     { reader: 'a guest', loggedIn: false, user: null, page: '/checkout/success/' },
     { reader: 'the signed-in owner', loggedIn: true, user: 7, page: '/account/orders/42' },

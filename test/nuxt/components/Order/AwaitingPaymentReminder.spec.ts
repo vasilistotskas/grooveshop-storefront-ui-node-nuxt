@@ -92,6 +92,22 @@ describe('OrderAwaitingPaymentReminder', () => {
     expect(readAwaitingPaymentOrder()).toBe(UUID)
   })
 
+  it('leaves a newer deadline, kept while its read was on its way, as it is', async () => {
+    rememberAwaitingPaymentOrder(UUID, UNTIL)
+    api.routes({
+      [ORDER_URL]: () => {
+        // Another tab opens a new link before this read answers.
+        rememberAwaitingPaymentOrder(UUID, '2026-11-20T10:50:00.000Z')
+        return waiting()
+      },
+    })
+
+    await mount()
+    vi.setSystemTime(new Date('2026-11-20T10:40:00Z'))
+
+    expect(readAwaitingPaymentOrder()).toBe(UUID)
+  })
+
   it.each([
     { case: 'is paid', answer: () => waiting({ paymentHoldExpiresAt: null, isPaid: true, paymentStatus: 'COMPLETED' }) },
     { case: 'is gone', answer: failWith(404) },

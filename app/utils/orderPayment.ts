@@ -45,7 +45,7 @@ export function orderPageLocation(order: Pick<OrderDetail, 'id' | 'uuid' | 'user
 const AWAITING_PAYMENT_KEY = 'order-awaiting-payment'
 
 /** What the browser keeps: the order's uuid, and until when it can be paid. */
-interface AwaitingPaymentOrder {
+export interface AwaitingPaymentOrder {
   uuid: string
   /** The order's `paymentHoldExpiresAt`, as the latest payment link set it. */
   until: string
@@ -67,15 +67,39 @@ interface AwaitingPaymentOrder {
  * paid: a read past the deadline drops it unasked, a new payment link moves
  * the deadline with it (`extendAwaitingPaymentOrder`), and an order that is
  * paid, closed or gone is forgotten when it is next read. `localStorage`,
- * since the order outlives the tab. Browser only.
+ * since the order outlives the tab; where it cannot be used (a private
+ * window, storage full or off) nothing is kept and there is no reminder.
+ * Browser only.
  */
 export function rememberAwaitingPaymentOrder(uuid: string, until: string): void {
   const kept: AwaitingPaymentOrder = { uuid, until }
-  localStorage.setItem(AWAITING_PAYMENT_KEY, JSON.stringify(kept))
+  try {
+    localStorage.setItem(AWAITING_PAYMENT_KEY, JSON.stringify(kept))
+  }
+  catch (error) {
+    // Storage unavailable or full (a private window): no reminder, and
+    // nothing else is held up by it, a payment's redirect least of all.
+    log.warn({ action: 'order:awaitingPayment:notKept', error })
+  }
+}
+
+function dropKeptOrder(): void {
+  try {
+    localStorage.removeItem(AWAITING_PAYMENT_KEY)
+  }
+  catch {
+    // Nothing was kept where storage is unavailable.
+  }
 }
 
 function keptOrder(): AwaitingPaymentOrder | null {
-  const raw = localStorage.getItem(AWAITING_PAYMENT_KEY)
+  let raw: string | null
+  try {
+    raw = localStorage.getItem(AWAITING_PAYMENT_KEY)
+  }
+  catch {
+    return null
+  }
   if (!raw) return null
   try {
     const kept = JSON.parse(raw) as Partial<AwaitingPaymentOrder> | null
@@ -86,19 +110,24 @@ function keptOrder(): AwaitingPaymentOrder | null {
   catch {
     // Not ours to read: dropped below.
   }
-  localStorage.removeItem(AWAITING_PAYMENT_KEY)
+  dropKeptOrder()
   return null
 }
 
-/** The order's uuid while it can still be paid; one past its deadline is dropped. */
-export function readAwaitingPaymentOrder(): string | null {
+/** The kept order while it can still be paid; one past its deadline is dropped. */
+export function keptAwaitingPaymentOrder(): AwaitingPaymentOrder | null {
   const kept = keptOrder()
   if (!kept) return null
   if (!(Date.parse(kept.until) > Date.now())) {
-    localStorage.removeItem(AWAITING_PAYMENT_KEY)
+    dropKeptOrder()
     return null
   }
-  return kept.uuid
+  return kept
+}
+
+/** The kept order's uuid while it can still be paid. */
+export function readAwaitingPaymentOrder(): string | null {
+  return keptAwaitingPaymentOrder()?.uuid ?? null
 }
 
 /** Moves the deadline of the kept order, when it is this one, to a new link's. */
@@ -108,9 +137,21 @@ export function extendAwaitingPaymentOrder(uuid: string, until: string): void {
   }
 }
 
+/**
+ * Takes the deadline a read of the order found, unless the kept order
+ * changed while the read was on its way (`seen` is what was kept when it
+ * started): a link opened meanwhile, in another tab, is newer than the read.
+ */
+export function updateAwaitingPaymentOrder(seen: AwaitingPaymentOrder, until: string): void {
+  const kept = keptOrder()
+  if (kept?.uuid === seen.uuid && kept.until === seen.until) {
+    rememberAwaitingPaymentOrder(seen.uuid, until)
+  }
+}
+
 /** Forgets the order, unless a newer one has taken its place. */
 export function forgetAwaitingPaymentOrder(uuid: string): void {
   if (keptOrder()?.uuid === uuid) {
-    localStorage.removeItem(AWAITING_PAYMENT_KEY)
+    dropKeptOrder()
   }
 }
