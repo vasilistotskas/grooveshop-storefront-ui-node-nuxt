@@ -1,3 +1,10 @@
+## [3.345.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.1...v3.345.2) (2026-11-20)
+
+
+### Performance Improvements
+
+* **warm-cache:** render on every storefront pod and wait for the rollout itself ([#499](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/499)) ([da76007](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/da76007f225d1cd8755e3b48b5740e90db4beb8a))
+
 ## [3.345.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.0...v3.345.1) (2026-11-20)
 
 
