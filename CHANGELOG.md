@@ -1,3 +1,10 @@
+# [3.346.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.3...v3.346.0) (2026-11-20)
+
+
+### Features
+
+* **checkout:** pay an unpaid online order from its page ([#501](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/501)) ([65d7227](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/65d7227614d00a88b2c5f61451b2574697de3dac)), closes [#445](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/445)
+
 ## [3.345.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.2...v3.345.3) (2026-11-20)
 
 
