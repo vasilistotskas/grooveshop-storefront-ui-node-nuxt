@@ -263,6 +263,28 @@ describe('websocket plugin', () => {
     expect(sockets).toHaveLength(1)
   })
 
+  it('opens only the newest socket when the shopper signs out and in again while a ticket is on its way', async () => {
+    const releases: Array<() => void> = []
+    api.routes({
+      [TICKET]: () => new Promise((resolve) => {
+        const ticket = `t${releases.length + 1}`
+        releases.push(() => resolve({ ticket, expiresIn: 60 }))
+      }),
+    })
+    await install()
+
+    session.loggedIn!.value = false
+    await nextTick()
+    session.loggedIn!.value = true
+    await nextTick()
+    expect(releases).toHaveLength(2)
+    releases[0]!()
+    releases[1]!()
+    await flushPromises()
+
+    expect(sockets.map(socket => socket.url)).toEqual(['ws://api.test.local/ws/notifications/?ticket=t2'])
+  })
+
   it.each([[401], [403]])('treats a ticket refused with %s as an expired session, and stops', async (statusCode) => {
     api.routes({ [TICKET]: failWith(statusCode) })
 
