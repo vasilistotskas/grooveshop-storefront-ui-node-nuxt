@@ -118,6 +118,43 @@ describe('the order awaiting payment in this browser', () => {
     expect(readAwaitingPaymentOrder()).toBeNull()
   })
 
+  describe('where storage reads but cannot remove', () => {
+    const KEY = 'order-awaiting-payment'
+    let removeItem: ReturnType<typeof vi.fn>
+
+    beforeEach(() => {
+      removeItem = vi.fn(() => {
+        throw new Error('SecurityError')
+      })
+      vi.stubGlobal('localStorage', {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => { store.set(key, value) },
+        removeItem,
+      })
+    })
+
+    it('reads nothing past the deadline, though the drop fails', () => {
+      store.set(KEY, JSON.stringify({ uuid: 'first', until: '2026-11-20T09:59:00.000Z' }))
+
+      expect(keptAwaitingPaymentOrder()).toBeNull()
+      expect(removeItem).toHaveBeenCalledExactlyOnceWith(KEY)
+    })
+
+    it('reads nothing it cannot parse, though the drop fails', () => {
+      store.set(KEY, 'not json')
+
+      expect(readAwaitingPaymentOrder()).toBeNull()
+      expect(removeItem).toHaveBeenCalledExactlyOnceWith(KEY)
+    })
+
+    it('forgets nothing, and throws nothing, when the drop fails', () => {
+      store.set(KEY, JSON.stringify({ uuid: 'first', until: UNTIL }))
+
+      expect(() => forgetAwaitingPaymentOrder('first')).not.toThrow()
+      expect(removeItem).toHaveBeenCalledExactlyOnceWith(KEY)
+    })
+  })
+
   it('drops what it cannot read', () => {
     store.set('order-awaiting-payment', 'not json')
 
