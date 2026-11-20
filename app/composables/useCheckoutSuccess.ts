@@ -130,10 +130,10 @@ export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions)
     isActive.value = false
   })
 
-  // An order that no longer takes a payment link (paid, closed) is no
+  // An order that no longer waits for its payment (paid, closed) is no
   // longer one for the cart to point at (`useAwaitingPaymentOrder`).
   watch(order, (value) => {
-    if (value && !offersPaymentLink(value)) {
+    if (value && !value.paymentHoldExpiresAt) {
       forgetAwaitingPaymentOrder(value.uuid)
     }
   }, { immediate: true })

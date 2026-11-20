@@ -13,6 +13,8 @@ import { makeOrder, makeOrderItem } from '~~/test/fixtures/order'
 import { makeBoxNowLocker, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
 import { fixtureUuid } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
+import { componentTexts } from '~~/test/helpers/componentTexts'
+import payNowSource from '~/components/Order/PayNow.vue?raw'
 
 /**
  * The order-confirmation page. Arriving from a payment provider it
@@ -315,7 +317,7 @@ describe.each([
 
   describe('paying for the order', () => {
     const payNow = (wrapper: Awaited<ReturnType<typeof mount>>) =>
-      wrapper.findAll('button').find(b => b.text() === 'Πληρωμή τώρα')
+      wrapper.findAll('button').find(b => b.text() === componentTexts(payNowSource, 'PayNow.vue').t('pay'))
     const waiting = (overrides: Partial<OrderDetail> = {}) => order({
       isOnlinePayment: true,
       paymentHoldExpiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),

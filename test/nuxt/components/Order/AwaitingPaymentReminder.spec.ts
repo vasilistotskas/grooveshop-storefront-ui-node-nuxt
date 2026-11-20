@@ -94,7 +94,6 @@ describe('OrderAwaitingPaymentReminder', () => {
 
   it.each([
     { case: 'is paid', answer: () => waiting({ paymentHoldExpiresAt: null, isPaid: true, paymentStatus: 'COMPLETED' }) },
-    { case: 'awaits the store\'s review', answer: () => waiting({ paymentAwaitsReview: true }) },
     { case: 'is gone', answer: failWith(404) },
     { case: 'no longer opens for this browser', answer: failWith(403) },
   ])('forgets an order that $case', async ({ answer }) => {
@@ -105,6 +104,19 @@ describe('OrderAwaitingPaymentReminder', () => {
 
     expect(wrapper.text()).toBe('')
     expect(localStorage.getItem(KEY)).toBeNull()
+  })
+
+  it.each([
+    { case: 'a payment the provider is processing', state: { paymentStatus: 'PROCESSING' as const } },
+    { case: 'a charge the store reviews', state: { paymentAwaitsReview: true } },
+  ])('keeps, without showing, an order held up by $case', async ({ state }) => {
+    rememberAwaitingPaymentOrder(UUID, UNTIL)
+    api.routes({ [ORDER_URL]: waiting(state) })
+
+    const wrapper = await mount()
+
+    expect(wrapper.text()).toBe('')
+    expect(readAwaitingPaymentOrder()).toBe(UUID)
   })
 
   it('keeps the order for the next page when the read fails', async () => {

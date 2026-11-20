@@ -103,6 +103,7 @@ describe('OrderPayNow', () => {
   it.each([
     { reader: 'a guest', loggedIn: false, user: null, page: '/checkout/success/' },
     { reader: 'the signed-in owner', loggedIn: true, user: 7, page: '/account/orders/42' },
+    { reader: 'another signed-in shopper', loggedIn: true, user: 8, page: '/checkout/success/' },
   ])('asks for a link to the same order that returns $reader to the order\'s page', async ({ loggedIn, user, page }) => {
     session.loggedIn = loggedIn
     const order = payable({ user })

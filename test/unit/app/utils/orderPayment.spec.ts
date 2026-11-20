@@ -26,15 +26,16 @@ describe('offersPaymentLink', () => {
 describe('orderPageLocation', () => {
   const order = makeOrder({ id: 42, user: 7 })
 
-  it('is the account page for the signed-in owner', () => {
-    expect(orderPageLocation(order, true)).toEqual({ name: 'account-orders-id', params: { id: '42' } })
+  it('is the account page for its owner, signed in', () => {
+    expect(orderPageLocation(order, 7)).toEqual({ name: 'account-orders-id', params: { id: '42' } })
   })
 
   it.each([
-    { case: 'a signed-out reader', o: order, signedIn: false },
-    { case: 'a guest order', o: makeOrder({ id: 42, user: null }), signedIn: true },
-  ])('is the confirmation by uuid for $case', ({ o, signedIn }) => {
-    expect(orderPageLocation(o, signedIn)).toEqual({ name: 'checkout-success-uuid', params: { uuid: o.uuid } })
+    { case: 'a signed-out reader', o: order, readerId: undefined },
+    { case: 'another signed-in shopper', o: order, readerId: 8 },
+    { case: 'a guest order', o: makeOrder({ id: 42, user: null }), readerId: 7 },
+  ])('is the confirmation by uuid for $case', ({ o, readerId }) => {
+    expect(orderPageLocation(o, readerId)).toEqual({ name: 'checkout-success-uuid', params: { uuid: o.uuid } })
   })
 })
 

@@ -28,7 +28,7 @@ const emit = defineEmits<{
 
 const { t, n, locale } = useStoreI18n('components/Order/PayNow')
 const localePath = useLocalePath()
-const { loggedIn } = useUserSession()
+const { user } = useUserSession()
 const { open } = useOrderCheckoutSession()
 
 const opening = ref(false)
@@ -37,7 +37,7 @@ const failure = ref<DescribedApiError | null>(null)
 const refusal = ref<DescribedApiError | null>(null)
 const expired = ref(false)
 
-const orderPage = computed(() => localePath(orderPageLocation(props.order, loggedIn.value)))
+const orderPage = computed(() => localePath(orderPageLocation(props.order, user.value?.id)))
 
 const offer = computed<'closed' | 'expired' | 'open' | null>(() => {
   if (refusal.value) return 'closed'

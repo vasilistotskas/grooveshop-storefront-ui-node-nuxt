@@ -31,12 +31,13 @@ export const PAYMENT_LINK_CLOSED_CODES: readonly string[] = ['order_not_payable'
 
 /**
  * The page of an order that opens for its reader: the account's order page
- * for a signed-in shopper's own order, the order confirmation (opened by the
- * uuid) for any other. The same split as Django's `order_page_path`
- * (`order/storefront_links.py`), which the order emails link to.
+ * for the order's owner, signed in (`readerId` is the signed-in shopper's
+ * id), the order confirmation (opened by the uuid) for anyone else. The same
+ * split as Django's `order_page_path` (`order/storefront_links.py`), which
+ * the order emails link to.
  */
-export function orderPageLocation(order: Pick<OrderDetail, 'id' | 'uuid' | 'user'>, signedIn: boolean) {
-  return signedIn && order.user
+export function orderPageLocation(order: Pick<OrderDetail, 'id' | 'uuid' | 'user'>, readerId: number | undefined) {
+  return readerId !== undefined && order.user === readerId
     ? { name: 'account-orders-id' as const, params: { id: String(order.id) } }
     : { name: 'checkout-success-uuid' as const, params: { uuid: order.uuid } }
 }
