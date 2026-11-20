@@ -118,28 +118,41 @@ describe('the order awaiting payment in this browser', () => {
     expect(readAwaitingPaymentOrder()).toBeNull()
   })
 
-  it('reads nothing, and throws nothing, when storage reads but cannot remove', () => {
-    const refuse = () => {
-      throw new Error('SecurityError')
-    }
-    vi.stubGlobal('localStorage', {
-      getItem: (key: string) => store.get(key) ?? null,
-      setItem: (key: string, value: string) => { store.set(key, value) },
-      removeItem: refuse,
+  describe('where storage reads but cannot remove', () => {
+    const KEY = 'order-awaiting-payment'
+    let removeItem: ReturnType<typeof vi.fn>
+
+    beforeEach(() => {
+      removeItem = vi.fn(() => {
+        throw new Error('SecurityError')
+      })
+      vi.stubGlobal('localStorage', {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => { store.set(key, value) },
+        removeItem,
+      })
     })
 
-    // Past its deadline: the read tries to drop it, and the removal fails.
-    store.set('order-awaiting-payment', JSON.stringify({ uuid: 'first', until: '2026-11-20T09:59:00.000Z' }))
-    expect(() => keptAwaitingPaymentOrder()).not.toThrow()
-    expect(keptAwaitingPaymentOrder()).toBeNull()
+    it('reads nothing past the deadline, though the drop fails', () => {
+      store.set(KEY, JSON.stringify({ uuid: 'first', until: '2026-11-20T09:59:00.000Z' }))
 
-    // Unreadable: the same.
-    store.set('order-awaiting-payment', 'not json')
-    expect(readAwaitingPaymentOrder()).toBeNull()
+      expect(keptAwaitingPaymentOrder()).toBeNull()
+      expect(removeItem).toHaveBeenCalledExactlyOnceWith(KEY)
+    })
 
-    // Forgetting the kept order: no throw either.
-    store.set('order-awaiting-payment', JSON.stringify({ uuid: 'first', until: UNTIL }))
-    expect(() => forgetAwaitingPaymentOrder('first')).not.toThrow()
+    it('reads nothing it cannot parse, though the drop fails', () => {
+      store.set(KEY, 'not json')
+
+      expect(readAwaitingPaymentOrder()).toBeNull()
+      expect(removeItem).toHaveBeenCalledExactlyOnceWith(KEY)
+    })
+
+    it('forgets nothing, and throws nothing, when the drop fails', () => {
+      store.set(KEY, JSON.stringify({ uuid: 'first', until: UNTIL }))
+
+      expect(() => forgetAwaitingPaymentOrder('first')).not.toThrow()
+      expect(removeItem).toHaveBeenCalledExactlyOnceWith(KEY)
+    })
   })
 
   it('drops what it cannot read', () => {
