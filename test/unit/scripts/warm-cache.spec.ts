@@ -24,6 +24,7 @@ import {
   recordWarmedBuild,
   rolloutComplete,
   sitemapLocations,
+  sitemapReader,
   storefrontHosts,
   untilComplete,
   warmBuild,
@@ -867,7 +868,7 @@ describe('warmBuild', () => {
     })
   })
 
-  it('requests a twin a later try found for a page already done, not the page again', async () => {
+  it('requests a page a later read adds, such as a twin, and not a page already done', async () => {
     const run = world({
       reads: [
         { 'a.test/sitemap.xml': [page('a.test', '/products/1')] },
@@ -925,5 +926,45 @@ describe('withLocaleTwins', () => {
     const pages = canonical('/products/1')
     expect([...withLocaleTwins(pages, new Map()).keys()]).toEqual(['a.test/products/1'])
     expect([...withLocaleTwins(pages, new Map([['a.test', ['/en']]])).keys()]).toEqual(['a.test/products/1', 'a.test/en/products/1'])
+  })
+})
+
+describe('sitemapReader', () => {
+  const entry = (loc: string, alternates: string[] = []) =>
+    `<url><loc>${loc}</loc>${alternates.map(href => `<xhtml:link rel="alternate" hreflang="x" href="${href}" />`).join('')}</url>`
+  const index = `<sitemapindex><sitemap><loc>https://a.test/__sitemap__/pages.xml</loc></sitemap><sitemap><loc>https://a.test/__sitemap__/products.xml</loc></sitemap></sitemapindex>`
+  const homeSitemap = `<urlset>${entry('https://a.test/', ['https://a.test/', 'https://a.test/en'])}</urlset>`
+  const productSitemap = `<urlset>${entry('https://a.test/products/1')}</urlset>`
+
+  it('keeps the locales a first read learnt for a product sitemap read again alone', async () => {
+    // First read: the product sitemap answers 503. Second read: only it,
+    // served now, without the home page entry the prefixes come from.
+    const answers: Record<string, Array<{ status: number, body: string }>> = {
+      '/sitemap.xml': [{ status: 200, body: index }],
+      '/__sitemap__/pages.xml': [{ status: 200, body: homeSitemap }],
+      '/__sitemap__/products.xml': [{ status: 503, body: '' }, { status: 200, body: productSitemap }],
+    }
+    const get = vi.fn(async (path: string) => answers[path]!.shift()!)
+    const readSitemaps = sitemapReader({ get, log: () => {} })
+
+    const first = await readSitemaps([{ host: 'a.test', path: '/sitemap.xml' }])
+    expect(first.failed).toEqual([{ host: 'a.test', path: '/__sitemap__/products.xml' }])
+    expect([...first.pages.keys()].sort()).toEqual(['a.test/', 'a.test/en'])
+
+    const second = await readSitemaps(first.failed)
+    expect(get).toHaveBeenCalledTimes(4)
+    expect(second.failed).toEqual([])
+    expect([...second.pages.keys()].sort()).toEqual(['a.test/', 'a.test/en', 'a.test/en/products/1', 'a.test/products/1'])
+    expect(second.pages.get('a.test/en/products/1')).toEqual({ host: 'a.test', pathname: '/en/products/1', locale: '/en' })
+  })
+
+  it('reports a host that redirects, and a sitemap whose request failed', async () => {
+    const get = vi.fn(async (_path: string, host: string) => {
+      if (host === 'www.a.test') return { status: 301, body: '' }
+      throw new Error('socket hang up')
+    })
+    const read = await sitemapReader({ get, log: () => {} })([{ host: 'www.a.test', path: '/sitemap.xml' }, { host: 'a.test', path: '/sitemap.xml' }])
+
+    expect(read).toEqual({ pages: new Map(), failed: [{ host: 'a.test', path: '/sitemap.xml' }], redirectingHosts: ['www.a.test'] })
   })
 })

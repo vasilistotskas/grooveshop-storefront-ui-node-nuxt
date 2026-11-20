@@ -416,9 +416,9 @@ export async function forEachOnPods(queue, { origins, listOrigins, concurrency, 
     // With workers running, a failed read keeps their pods; with none, it
     // leaves no pod to work on.
     const listed = await listOrigins().catch(() => (running.size ? [...current] : []))
+    if (failure) throw failure
     current = new Set(listed)
     listed.forEach(launch)
-    if (failure) throw failure
     peak = Math.max(peak, current.size)
     onRefresh([...current])
     if (!running.size) break
@@ -497,6 +497,67 @@ export function withLocaleTwins(canonical, prefixes) {
     }
   }
   return pages
+}
+
+/**
+ * A reader of the stores' sitemaps for one run: `readSitemaps(sitemaps)`
+ * reads the sitemaps named (each store host's `/sitemap.xml` first, then on
+ * a later try only those that were not served), following a sitemap index
+ * into its children, and returns every page known so far with its locale
+ * twins (`withLocaleTwins`), the sitemaps not served (`failed`) and the
+ * hosts that redirect. A host that redirects (a `www.` twin to its store)
+ * has no pages of its own; its store's sitemap is read under the store's
+ * host.
+ *
+ * The pages and each host's locale prefixes are kept for the whole run,
+ * not per read: the prefixes come from the sitemap that lists the home
+ * page, so a product sitemap read again alone, on a later try, still gets
+ * its twins in the store's other locales.
+ *
+ * @param {{
+ *   get: (path: string, host: string) => Promise<{ status: number, body: string }>,
+ *   log: (level: string, message: string, fields?: Record<string, unknown>) => void,
+ * }} options `get` requests a sitemap path under a host.
+ */
+export function sitemapReader({ get, log }) {
+  const canonical = new Map()
+  const prefixesByHost = new Map()
+  return async function readSitemaps(sitemaps) {
+    const redirectingHosts = []
+    const failed = []
+    const queue = [...sitemaps]
+    while (queue.length) {
+      const { host, path } = queue.shift()
+      let response
+      try {
+        response = await get(path, host)
+      }
+      catch (error) {
+        failed.push({ host, path })
+        log('warn', 'sitemap request failed', { host, path, error: String(error?.message ?? error) })
+        continue
+      }
+      if (response.status >= 300 && response.status < 400) {
+        redirectingHosts.push(host)
+        continue
+      }
+      if (response.status !== 200) {
+        failed.push({ host, path })
+        log('warn', 'sitemap not served', { host, path, status: response.status })
+        continue
+      }
+      const { sitemaps: children, pages: locs } = sitemapLocations(response.body)
+      for (const loc of children) queue.push({ host, path: new URL(loc).pathname })
+      const prefixes = localePrefixes(response.body)
+      for (const loc of locs) {
+        const url = new URL(loc)
+        const page = { host: url.host, pathname: url.pathname }
+        canonical.set(pageKey(page), page)
+        if (prefixes.length) prefixesByHost.set(url.host, prefixes)
+      }
+    }
+    return { pages: withLocaleTwins(canonical, prefixesByHost), failed, redirectingHosts }
+  }
 }
 
 /**
@@ -858,50 +919,7 @@ async function main() {
     const builds = await Promise.all(ready.map(origin => buildAt(origin).catch(() => undefined)))
     return ready.filter((_, index) => builds[index] === undefined || builds[index] === ownBuild)
   }
-  // Canonical pages per store, from the sitemaps named (each store
-  // host's `/sitemap.xml` first, then on a later try only those that were
-  // not served). A host that redirects (a `www.` twin to its store) has no
-  // pages of its own; its store's sitemap is read under the store's host.
-  // What a read finds is kept for the whole run, so a page found on one try
-  // gets its locale twins from prefixes another try learnt.
-  const canonical = new Map()
-  const prefixesByHost = new Map()
-  async function readSitemaps(sitemaps) {
-    const redirectingHosts = []
-    const failed = []
-    const queue = [...sitemaps]
-    while (queue.length) {
-      const { host, path } = queue.shift()
-      let response
-      try {
-        response = await get(path, host, 'application/xml')
-      }
-      catch (error) {
-        failed.push({ host, path })
-        log('warn', 'sitemap request failed', { host, path, error: String(error?.message ?? error) })
-        continue
-      }
-      if (response.status >= 300 && response.status < 400) {
-        redirectingHosts.push(host)
-        continue
-      }
-      if (response.status !== 200) {
-        failed.push({ host, path })
-        log('warn', 'sitemap not served', { host, path, status: response.status })
-        continue
-      }
-      const { sitemaps: children, pages: locs } = sitemapLocations(response.body)
-      for (const loc of children) queue.push({ host, path: new URL(loc).pathname })
-      const prefixes = localePrefixes(response.body)
-      for (const loc of locs) {
-        const url = new URL(loc)
-        const page = { host: url.host, pathname: url.pathname }
-        canonical.set(pageKey(page), page)
-        if (prefixes.length) prefixesByHost.set(url.host, prefixes)
-      }
-    }
-    return { pages: withLocaleTwins(canonical, prefixesByHost), failed, redirectingHosts }
-  }
+  const readSitemaps = sitemapReader({ get: (path, host) => get(path, host, 'application/xml'), log })
 
   // The build's own files first: a missing chunk breaks the page it is
   // wanted by, where a cold render is only slow.
