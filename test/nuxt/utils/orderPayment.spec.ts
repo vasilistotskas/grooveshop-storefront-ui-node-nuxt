@@ -118,6 +118,30 @@ describe('the order awaiting payment in this browser', () => {
     expect(readAwaitingPaymentOrder()).toBeNull()
   })
 
+  it('reads nothing, and throws nothing, when storage reads but cannot remove', () => {
+    const refuse = () => {
+      throw new Error('SecurityError')
+    }
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => { store.set(key, value) },
+      removeItem: refuse,
+    })
+
+    // Past its deadline: the read tries to drop it, and the removal fails.
+    store.set('order-awaiting-payment', JSON.stringify({ uuid: 'first', until: '2026-11-20T09:59:00.000Z' }))
+    expect(() => keptAwaitingPaymentOrder()).not.toThrow()
+    expect(keptAwaitingPaymentOrder()).toBeNull()
+
+    // Unreadable: the same.
+    store.set('order-awaiting-payment', 'not json')
+    expect(readAwaitingPaymentOrder()).toBeNull()
+
+    // Forgetting the kept order: no throw either.
+    store.set('order-awaiting-payment', JSON.stringify({ uuid: 'first', until: UNTIL }))
+    expect(() => forgetAwaitingPaymentOrder('first')).not.toThrow()
+  })
+
   it('drops what it cannot read', () => {
     store.set('order-awaiting-payment', 'not json')
 
