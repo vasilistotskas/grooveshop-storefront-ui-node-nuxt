@@ -24,6 +24,7 @@ import {
   rolloutComplete,
   sitemapLocations,
   storefrontHosts,
+  untilComplete,
   warmedBuild,
   warmedEveryStore,
   waitForRollout,
@@ -447,6 +448,40 @@ describe('forEachOnPods', () => {
     expect(run.ranOn['http://a:3000']?.sort((a, b) => a - b)).toEqual(items(10))
   })
 
+  it('reads the pods again when every worker lost its pod, and finishes on the pods still listed', async () => {
+    // Both containers restart at once: each refuses one connection while
+    // every read still lists it.
+    const run = recorder()
+    const refused = new Set<string>()
+    const work = async (item: number, origin: string) => {
+      if (item >= 2 && !refused.has(origin)) {
+        refused.add(origin)
+        throw new PodGone(origin)
+      }
+      await run.work(item, origin)
+    }
+    const origins = ['http://a:3000', 'http://b:3000']
+    const listOrigins = vi.fn(async () => origins)
+    const queue = items(20)
+    await drain(forEachOnPods(queue, { origins, listOrigins, concurrency: 1, refreshMs: 1000, work }))
+
+    expect(listOrigins).toHaveBeenCalled()
+    expect(queue).toEqual([])
+    expect(Object.values(run.ranOn).flat().sort((a, b) => a - b)).toEqual(items(20))
+  })
+
+  it('stops with items left when the read after every pod was lost lists none', async () => {
+    const work = async (_item: number, origin: string) => {
+      throw new PodGone(origin)
+    }
+    const listOrigins = vi.fn(async (): Promise<string[]> => [])
+    const queue = items(5)
+    await drain(forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 1000, work }))
+
+    expect(listOrigins).toHaveBeenCalledTimes(1)
+    expect(queue).toEqual(items(5))
+  })
+
   it('fails on any other error from the work', async () => {
     const work = async () => {
       throw new Error('a bug')
@@ -479,6 +514,45 @@ describe('forEachOnPods', () => {
 
     expect(seen.length).toBeGreaterThan(0)
     expect(seen.every(current => current.length === 2)).toBe(true)
+  })
+})
+
+describe('untilComplete', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('tries again after the wait until a try completes', async () => {
+    const tries = [{ complete: false }, { complete: true }]
+    const tryOnce = vi.fn(async () => tries.shift()!)
+    const onRetry = vi.fn()
+    const result = untilComplete({ attempts: 3, retryMs: 300_000, tryOnce, onRetry })
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(tryOnce).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(299_999)
+    expect(tryOnce).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(await result).toEqual({ complete: true, attempt: 2 })
+    expect(onRetry).toHaveBeenCalledTimes(1)
+  })
+
+  it('gives up after the last try, which it returns unrecorded', async () => {
+    const tryOnce = vi.fn(async () => ({ complete: false }))
+    const result = untilComplete({ attempts: 3, retryMs: 1000, tryOnce, onRetry: () => {} })
+    await vi.advanceTimersByTimeAsync(2000)
+
+    expect(await result).toEqual({ complete: false, attempt: 3 })
+    expect(tryOnce).toHaveBeenCalledTimes(3)
+  })
+
+  it('tries once when one try is all it has', async () => {
+    const tryOnce = vi.fn(async () => ({ complete: false }))
+    expect(await untilComplete({ attempts: 1, retryMs: 1000, tryOnce, onRetry: () => {} })).toEqual({ complete: false, attempt: 1 })
+    expect(tryOnce).toHaveBeenCalledTimes(1)
   })
 })
 

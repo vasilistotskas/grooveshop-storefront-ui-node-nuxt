@@ -78,18 +78,24 @@
  * (`warmedEveryStore`): every sitemap it asked for was served, and each
  * store whose sitemap listed pages rendered at least one of them. A
  * sitemap that failed (a 503 while Django restarts after the deploy)
- * leaves that store unknown, and a store with nothing rendered is as cold
- * as before, so either leaves the build unrecorded and the next start of
- * the pod warms it again. A page that fails among others that render is not
- * a reason: a sitemap can list a few URLs that no longer render, and a rule
- * that demanded all of them would never record a build.
+ * leaves that store unknown, a store with nothing rendered is as cold as
+ * before, and pages no pod was left to render are cold too, so any of them
+ * leaves the build unrecorded. Such a try is repeated, sitemaps read again,
+ * up to `WARM_ATTEMPTS` tries in all, `WARM_RETRY_SECONDS` apart (the pod
+ * runs the script once per start, so nothing else would repeat it); after
+ * the last one it logs `error` ("cache partly warmed, build not recorded"),
+ * which the infrastructure's error-log alert reports. A page that fails
+ * among others that render is not a reason: a sitemap can list a few URLs
+ * that no longer render, and a rule that demanded all of them would never
+ * record a build.
  *
- * Exit 1, with an `error` line, only when the warm-up cannot run at all (no
+ * Exit 1, with an `error` line, when the warm-up cannot run at all (no
  * Ingress access, no storefront host, no build id), when the rollouts it
- * waits for do not finish within `WARM_ROLLOUT_TIMEOUT_SECONDS`, or when the
- * storefront finished rolling out on a build that is not this image's,
- * which means the warm-up's image tag drifted from the storefront's. A page
- * that fails to render is logged and counted; it does not fail the run.
+ * waits for do not finish within `WARM_ROLLOUT_TIMEOUT_SECONDS`, when the
+ * storefront finished rolling out on a build that is not this image's
+ * (the warm-up's image tag drifted from the storefront's), or when the last
+ * try still left the build unrecorded. A page that fails to render is
+ * logged and counted; it does not fail the run.
  *
  * Deliberately `node:http(s)`, not `fetch`: `fetch` drops a `Host` header.
  */
@@ -322,7 +328,9 @@ export function readyOrigins(sliceList) {
  * `PodGone`, the item goes back to the front of the queue and the pod takes
  * no more until a read lists it again, so a pod that vanished between two
  * reads costs one request, not every item its workers could fail through.
- * Returns the most pods worked on at once.
+ * When every worker has stopped that way with items left, it waits
+ * `refreshMs` and reads the pods again; it ends early only when such a
+ * read lists no pod (or fails). Returns the most pods worked on at once.
  *
  * @template T
  * @param {T[]} queue
@@ -368,16 +376,50 @@ export async function forEachOnPods(queue, { origins, listOrigins, concurrency, 
     }
   }
   current.forEach(launch)
-  while (running.size) {
-    const tick = sleep(refreshMs, { unref: true }).then(() => 'tick')
-    if (await Promise.race([Promise.all(running), tick]) !== 'tick' || !queue.length) continue
-    const listed = await listOrigins().catch(() => [...current])
+  for (;;) {
+    if (running.size) {
+      const tick = sleep(refreshMs, { unref: true }).then(() => 'tick')
+      if (await Promise.race([Promise.all(running), tick]) !== 'tick' || !queue.length) continue
+    }
+    else {
+      if (!queue.length) break
+      // Every worker stopped with items left: each lost its pod. Wait a
+      // refresh, then work on whatever the next read lists.
+      await sleep(refreshMs)
+    }
+    // With workers running, a failed read keeps their pods; with none, it
+    // leaves no pod to work on.
+    const listed = await listOrigins().catch(() => (running.size ? [...current] : []))
     current = new Set(listed)
     listed.forEach(launch)
     peak = Math.max(peak, current.size)
     onRefresh([...current])
+    if (!running.size) break
   }
   return peak
+}
+
+/**
+ * Run `tryOnce(attempt)` until it reports `complete`, at most `attempts`
+ * times, waiting `retryMs` between tries; `onRetry(run, attempt)` is told of
+ * each try that will be repeated. Returns the last try with its number.
+ *
+ * @template {{ complete: boolean }} R
+ * @param {{
+ *   attempts: number,
+ *   retryMs: number,
+ *   tryOnce: (attempt: number) => Promise<R>,
+ *   onRetry: (run: R, attempt: number) => void,
+ * }} options
+ * @returns {Promise<R & { attempt: number }>}
+ */
+export async function untilComplete({ attempts, retryMs, tryOnce, onRetry }) {
+  for (let attempt = 1; ; attempt++) {
+    const run = await tryOnce(attempt)
+    if (run.complete || attempt >= attempts) return { ...run, attempt }
+    onRetry(run, attempt)
+    await sleep(retryMs)
+  }
 }
 
 function log(level, message, fields = {}) {
@@ -581,9 +623,12 @@ async function main() {
   const waitFor = (process.env.WARM_WAIT_FOR ?? '').split(',').map(name => name.trim()).filter(Boolean)
   const pollMs = Number(process.env.WARM_POLL_SECONDS) * 1000
   const rolloutTimeoutMs = Number(process.env.WARM_ROLLOUT_TIMEOUT_SECONDS) * 1000
+  const attempts = Number(process.env.WARM_ATTEMPTS)
+  const retryMs = Number(process.env.WARM_RETRY_SECONDS) * 1000
   if (!target || !serviceName || !(concurrency > 0) || !(timeoutMs > 0) || !stateConfigMap
-    || !waitFor.length || !(pollMs > 0) || !(rolloutTimeoutMs > 0)) {
-    throw new Error('WARM_TARGET, WARM_SERVICE, WARM_CONCURRENCY, WARM_TIMEOUT_MS, WARM_STATE_CONFIGMAP, WARM_WAIT_FOR, WARM_POLL_SECONDS and WARM_ROLLOUT_TIMEOUT_SECONDS are required')
+    || !waitFor.length || !(pollMs > 0) || !(rolloutTimeoutMs > 0)
+    || !(Number.isInteger(attempts) && attempts > 0) || !(retryMs >= 0)) {
+    throw new Error('WARM_TARGET, WARM_SERVICE, WARM_CONCURRENCY, WARM_TIMEOUT_MS, WARM_STATE_CONFIGMAP, WARM_WAIT_FOR, WARM_POLL_SECONDS, WARM_ROLLOUT_TIMEOUT_SECONDS, WARM_ATTEMPTS and WARM_RETRY_SECONDS are required')
   }
   // `origin` is the Service (the sitemaps: any pod serves them) or one pod.
   const get = (path, host, accept, userAgent = DEVICE_USER_AGENTS.desktop, origin = target) =>
@@ -611,77 +656,6 @@ async function main() {
     return
   }
 
-  // Canonical pages per store, from each candidate host's own sitemap. A
-  // host that redirects (a `www.` twin to its store) has no pages of its
-  // own; its store's sitemap is read under the store's host.
-  const pages = new Map()
-  const prefixesByHost = new Map()
-  const redirectingHosts = []
-  const failedSitemaps = []
-  for (const host of candidates) {
-    const queue = ['/sitemap.xml']
-    while (queue.length) {
-      const path = queue.shift()
-      let response
-      try {
-        response = await get(path, host, 'application/xml')
-      }
-      catch (error) {
-        failedSitemaps.push(`${host}${path}`)
-        log('warn', 'sitemap request failed', { host, path, error: String(error?.message ?? error) })
-        continue
-      }
-      if (response.status >= 300 && response.status < 400) {
-        redirectingHosts.push(host)
-        continue
-      }
-      if (response.status !== 200) {
-        failedSitemaps.push(`${host}${path}`)
-        log('warn', 'sitemap not served', { host, path, status: response.status })
-        continue
-      }
-      const { sitemaps, pages: locs } = sitemapLocations(response.body)
-      for (const loc of sitemaps) queue.push(new URL(loc).pathname)
-      const prefixes = localePrefixes(response.body)
-      for (const loc of locs) {
-        const url = new URL(loc)
-        pages.set(`${url.host}${url.pathname}`, { host: url.host, pathname: url.pathname })
-        if (prefixes.length) prefixesByHost.set(url.host, prefixes)
-      }
-    }
-  }
-  for (const page of [...pages.values()]) {
-    const prefixes = prefixesByHost.get(page.host) ?? []
-    page.locale = localeOf(page.pathname, prefixes)
-    if (page.locale) continue
-    for (const prefix of prefixes) {
-      const pathname = localeTwin(page.pathname, prefix)
-      const key = `${page.host}${pathname}`
-      if (!pages.has(key)) pages.set(key, { host: page.host, pathname, locale: prefix })
-    }
-  }
-
-  const stores = [...new Set([...pages.values()].map(page => page.host))]
-
-  // The build's own files first: a missing chunk breaks the page it is
-  // wanted by, where a cold render is only slow.
-  const assetsDir = new URL('../public/_nuxt/', import.meta.url)
-  const assetFiles = readdirSync(assetsDir, { recursive: true, withFileTypes: true })
-    .filter(entry => entry.isFile())
-    .map(entry => relative(fileURLToPath(assetsDir), `${entry.parentPath}/${entry.name}`))
-  const assetsStarted = performance.now()
-  const assets = await warmEdgeAssets({ stores, paths: buildAssetPaths(assetFiles), concurrency: concurrency * origins.length, timeoutMs })
-  log(assets.failed ? 'warn' : 'info', 'build assets requested through the public hosts', {
-    build: ownBuild,
-    hosts: stores,
-    ...assets,
-    seconds: Math.round((performance.now() - assetsStarted) / 1000),
-  })
-  const renderedByStore = new Map()
-  const started = performance.now()
-  const summary = { pages: pages.size, rendered: 0, payloads: 0, uncached: 0, failed: 0 }
-  const queue = warmOrder([...pages.values()])
-  let pagesDone = 0
   // A pod the HPA adds is used once it is ready. A pod serving another
   // build is not (a newer rollout's: its cache is another build's); a pod
   // whose build could not be read is, as Kubernetes calls it ready.
@@ -690,75 +664,185 @@ async function main() {
     const builds = await Promise.all(ready.map(origin => buildAt(origin).catch(() => undefined)))
     return ready.filter((_, index) => builds[index] === undefined || builds[index] === ownBuild)
   }
-  // A page's counts join the summary once it is done, so a page put back
-  // because its pod vanished (`PodGone`) is counted once, where it finished.
-  async function warmPage(page, origin) {
-    const counts = { rendered: 0, payloads: 0, uncached: 0, failed: 0 }
-    for (const [deviceClass, userAgent] of Object.entries(DEVICE_USER_AGENTS)) {
-      try {
-        const html = await get(page.pathname, page.host, 'text/html', userAgent, origin)
-        if (html.status !== 200) {
-          counts.failed++
-          log('warn', 'page did not render', { host: page.host, path: page.pathname, deviceClass, status: html.status })
-          break
+  // Canonical pages per store, read again on every try (a sitemap that
+  // failed may be served now).
+  async function readSitemaps() {
+    // From each candidate host's own sitemap. A host that redirects (a
+    // `www.` twin to its store) has no pages of its own; its store's
+    // sitemap is read under the store's host.
+    const pages = new Map()
+    const prefixesByHost = new Map()
+    const redirectingHosts = []
+    const failedSitemaps = []
+    for (const host of candidates) {
+      const queue = ['/sitemap.xml']
+      while (queue.length) {
+        const path = queue.shift()
+        let response
+        try {
+          response = await get(path, host, 'application/xml')
         }
-        counts.rendered++
-        if (!isCachedResponse(html.headers)) {
-          counts.uncached++
-          break
+        catch (error) {
+          failedSitemaps.push(`${host}${path}`)
+          log('warn', 'sitemap request failed', { host, path, error: String(error?.message ?? error) })
+          continue
         }
-        if (!hasExtractedPayload(page.pathname)) continue
-        const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent, origin)
-        if (payload.status === 200) counts.payloads++
-        else {
-          counts.failed++
-          log('warn', 'payload did not render', { host: page.host, path: page.pathname, deviceClass, status: payload.status })
+        if (response.status >= 300 && response.status < 400) {
+          redirectingHosts.push(host)
+          continue
         }
-      }
-      catch (error) {
-        if (podGone(error)) {
-          log('info', 'pod gone, page put back', { origin, host: page.host, path: page.pathname })
-          throw new PodGone(origin)
+        if (response.status !== 200) {
+          failedSitemaps.push(`${host}${path}`)
+          log('warn', 'sitemap not served', { host, path, status: response.status })
+          continue
         }
-        counts.failed++
-        log('warn', 'request failed', { host: page.host, path: page.pathname, deviceClass, error: String(error?.message ?? error) })
+        const { sitemaps, pages: locs } = sitemapLocations(response.body)
+        for (const loc of sitemaps) queue.push(new URL(loc).pathname)
+        const prefixes = localePrefixes(response.body)
+        for (const loc of locs) {
+          const url = new URL(loc)
+          pages.set(`${url.host}${url.pathname}`, { host: url.host, pathname: url.pathname })
+          if (prefixes.length) prefixesByHost.set(url.host, prefixes)
+        }
       }
     }
-    for (const key of Object.keys(counts)) summary[key] += counts[key]
-    if (counts.rendered) renderedByStore.set(page.host, (renderedByStore.get(page.host) ?? 0) + counts.rendered)
-    pagesDone++
+    for (const page of [...pages.values()]) {
+      const prefixes = prefixesByHost.get(page.host) ?? []
+      page.locale = localeOf(page.pathname, prefixes)
+      if (page.locale) continue
+      for (const prefix of prefixes) {
+        const pathname = localeTwin(page.pathname, prefix)
+        const key = `${page.host}${pathname}`
+        if (!pages.has(key)) pages.set(key, { host: page.host, pathname, locale: prefix })
+      }
+    }
+
+    const stores = [...new Set([...pages.values()].map(page => page.host))]
+    return { pages, redirectingHosts, failedSitemaps, stores }
   }
-  const pods = await forEachOnPods(queue, {
-    origins,
-    listOrigins,
-    concurrency,
-    refreshMs: pollMs,
-    work: warmPage,
-    onRefresh: current => log('info', 'warming pages', {
-      done: pagesDone,
-      pages: pages.size,
-      pods: current.length,
-      seconds: Math.round((performance.now() - started) / 1000),
-    }),
-  })
 
-  const complete = warmedEveryStore({ failedSitemaps, unrequested: queue.length, stores, rendered: renderedByStore })
-  if (complete) await recordWarmedBuild(kube, stateConfigMap, ownBuild)
+  // The build's own files first: a missing chunk breaks the page it is
+  // wanted by, where a cold render is only slow.
+  async function warmAssets(stores) {
+    const assetsDir = new URL('../public/_nuxt/', import.meta.url)
+    const assetFiles = readdirSync(assetsDir, { recursive: true, withFileTypes: true })
+      .filter(entry => entry.isFile())
+      .map(entry => relative(fileURLToPath(assetsDir), `${entry.parentPath}/${entry.name}`))
+    const assetsStarted = performance.now()
+    const assets = await warmEdgeAssets({ stores, paths: buildAssetPaths(assetFiles), concurrency: concurrency * origins.length, timeoutMs })
+    log(assets.failed ? 'warn' : 'info', 'build assets requested through the public hosts', {
+      build: ownBuild,
+      hosts: stores,
+      ...assets,
+      seconds: Math.round((performance.now() - assetsStarted) / 1000),
+    })
+  }
 
-  log(complete ? 'info' : 'warn', complete ? 'cache warmed' : 'cache partly warmed, build not recorded', {
-    namespace,
-    build: ownBuild,
-    hosts: stores,
-    storesWithoutRenders: stores.filter(store => !renderedByStore.has(store)),
-    failedSitemaps,
-    redirectingHosts,
-    ...summary,
-    // Pages no pod was left to render (every pod left the ready set).
-    unrequested: queue.length,
-    pods,
-    waitedSeconds,
-    seconds: Math.round((performance.now() - started) / 1000),
+  // One try: every page of `pages` on the ready pods. Returns whether the
+  // build may be recorded (`warmedEveryStore`) and the try's summary.
+  async function warmPages({ pages, redirectingHosts, failedSitemaps, stores }, tryOrigins) {
+    const renderedByStore = new Map()
+    const started = performance.now()
+    const summary = { pages: pages.size, rendered: 0, payloads: 0, uncached: 0, failed: 0 }
+    const queue = warmOrder([...pages.values()])
+    let pagesDone = 0
+    // A page's counts join the summary once it is done, so a page put back
+    // because its pod vanished (`PodGone`) is counted once, where it finished.
+    async function warmPage(page, origin) {
+      const counts = { rendered: 0, payloads: 0, uncached: 0, failed: 0 }
+      for (const [deviceClass, userAgent] of Object.entries(DEVICE_USER_AGENTS)) {
+        try {
+          const html = await get(page.pathname, page.host, 'text/html', userAgent, origin)
+          if (html.status !== 200) {
+            counts.failed++
+            log('warn', 'page did not render', { host: page.host, path: page.pathname, deviceClass, status: html.status })
+            break
+          }
+          counts.rendered++
+          if (!isCachedResponse(html.headers)) {
+            counts.uncached++
+            break
+          }
+          if (!hasExtractedPayload(page.pathname)) continue
+          const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent, origin)
+          if (payload.status === 200) counts.payloads++
+          else {
+            counts.failed++
+            log('warn', 'payload did not render', { host: page.host, path: page.pathname, deviceClass, status: payload.status })
+          }
+        }
+        catch (error) {
+          if (podGone(error)) {
+            log('info', 'pod gone, page put back', { origin, host: page.host, path: page.pathname })
+            throw new PodGone(origin)
+          }
+          counts.failed++
+          log('warn', 'request failed', { host: page.host, path: page.pathname, deviceClass, error: String(error?.message ?? error) })
+        }
+      }
+      for (const key of Object.keys(counts)) summary[key] += counts[key]
+      if (counts.rendered) renderedByStore.set(page.host, (renderedByStore.get(page.host) ?? 0) + counts.rendered)
+      pagesDone++
+    }
+    const pods = await forEachOnPods(queue, {
+      origins: tryOrigins,
+      listOrigins,
+      concurrency,
+      refreshMs: pollMs,
+      work: warmPage,
+      onRefresh: current => log('info', 'warming pages', {
+        done: pagesDone,
+        pages: pages.size,
+        pods: current.length,
+        seconds: Math.round((performance.now() - started) / 1000),
+      }),
+    })
+    return {
+      complete: warmedEveryStore({ failedSitemaps, unrequested: queue.length, stores, rendered: renderedByStore }),
+      fields: {
+        namespace,
+        build: ownBuild,
+        hosts: stores,
+        storesWithoutRenders: stores.filter(store => !renderedByStore.has(store)),
+        failedSitemaps,
+        redirectingHosts,
+        ...summary,
+        // Pages no pod was left to render (every pod left the ready set).
+        unrequested: queue.length,
+        pods,
+        waitedSeconds,
+        seconds: Math.round((performance.now() - started) / 1000),
+      },
+    }
+  }
+
+  // An unrecorded try (a sitemap that failed, a store with nothing
+  // rendered, pages no pod was left for) is tried again, up to
+  // `attempts` in all, `retryMs` apart. The build's files go to the edge
+  // once per store, on the first try that found the store.
+  const assetStores = new Set()
+  const run = await untilComplete({
+    attempts,
+    retryMs,
+    tryOnce: async (attempt) => {
+      const read = await readSitemaps()
+      const newStores = read.stores.filter(store => !assetStores.has(store))
+      if (newStores.length) {
+        await warmAssets(newStores)
+        newStores.forEach(store => assetStores.add(store))
+      }
+      return warmPages(read, attempt === 1 ? origins : await listOrigins().catch(() => origins))
+    },
+    onRetry: (failed, attempt) => log('warn', 'cache partly warmed, trying again', { ...failed.fields, attempt, attempts, retrySeconds: retryMs / 1000 }),
   })
+  if (run.complete) {
+    await recordWarmedBuild(kube, stateConfigMap, ownBuild)
+    log('info', 'cache warmed', { ...run.fields, attempt: run.attempt })
+  }
+  else {
+    log('error', 'cache partly warmed, build not recorded', { ...run.fields, attempt: run.attempt, attempts })
+    process.exitCode = 1
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
