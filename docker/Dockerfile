@@ -64,8 +64,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 COPY --from=build --chown=node:node /app/.output .
-# The post-deploy cache warm-up, run by the infrastructure's PostSync hook
-# from THIS image so it warms the build it belongs to (it reads
+# The post-deploy cache warm-up, run by the infrastructure's storefront-warm
+# Deployment from THIS image so it warms the build it belongs to (it reads
 # public/_nuxt/builds/latest.json next to it).
 COPY --from=build --chown=node:node /app/scripts/warm-cache.mjs ./scripts/warm-cache.mjs
 # The route lists it imports (`hasExtractedPayload`) and their imports, at
