@@ -12,8 +12,9 @@ import { failWith } from '~~/test/helpers/api'
  * The notifications socket. It authenticates with a single-use ticket
  * (never the Knox token in the URL), so every connection — the first
  * and each reconnect — fetches a fresh one, and reconnects back off
- * exponentially up to 30s, starting over only after a connection that held
- * past its first heartbeat. A ticket refused with 401/403 means the
+ * exponentially up to 30s, starting over only after a socket the server
+ * answered twice. A ticket that cannot be fetched is tried again on the same
+ * back-off; a ticket refused with 401/403 means the
  * session is gone, which goes through the canonical `auth:change`
  * pipeline rather than a bare session clear.
  */
@@ -21,8 +22,13 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
+/** The browser socket VueUse hands `onConnected`, which the plugin listens to for pongs. */
+interface Conn {
+  addEventListener: (type: 'message', listener: (event: { data: string }) => void) => void
+}
+
 interface SocketOptions {
-  onConnected: () => void
+  onConnected: (ws: Conn) => void
   onDisconnected: (ws: unknown, event?: { code?: number, reason?: string }) => void
   onError?: () => void
   autoReconnect: boolean
@@ -68,6 +74,23 @@ let tickets = 0
 async function install() {
   await (websocketPlugin as unknown as (app: unknown) => Promise<unknown>)({ $i18n: { locale: ref('el') } })
   await flushPromises()
+}
+
+/** Open the current socket; `answer` sends that many pongs on it. */
+function connect(answers = 0) {
+  const listeners: Array<(event: { data: string }) => void> = []
+  sockets.at(-1)!.options.onConnected({ addEventListener: (_type, listener) => listeners.push(listener) })
+  for (let pong = 0; pong < answers; pong++) listeners.forEach(listener => listener({ data: 'pong' }))
+}
+
+/** A ticket request that answers when the test says. */
+function heldTicket() {
+  let release!: () => void
+  const answered = new Promise<{ ticket: string, expiresIn: number }>((resolve) => {
+    release = () => resolve({ ticket: `t${++tickets}`, expiresIn: 60 })
+  })
+  api.routes({ [TICKET]: () => answered })
+  return () => release()
 }
 
 /** Drop the current socket, as the browser does (closed first), and let `ms` pass. */
@@ -135,24 +158,35 @@ describe('websocket plugin', () => {
     expect(sockets.at(-1)!.url).toContain(`ticket=t${sockets.length}`)
   })
 
-  it('starts the back-off over after a connection that held past its first heartbeat', async () => {
+  it('starts the back-off over after a socket the server answered twice', async () => {
     await install()
     await disconnectAndWait(1000)
     await disconnectAndWait(2000)
     expect(sockets).toHaveLength(3)
 
-    sockets.at(-1)!.options.onConnected()
-    await vi.advanceTimersByTimeAsync(60000)
+    connect(2)
     await disconnectAndWait(1000)
 
     expect(sockets).toHaveLength(4)
+  })
+
+  it('keeps backing off after a socket the server answered once, however long its close took to arrive', async () => {
+    await install()
+    await disconnectAndWait(1000)
+
+    connect(1)
+    await vi.advanceTimersByTimeAsync(61000)
+    await disconnectAndWait(1999)
+    expect(sockets).toHaveLength(2)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(sockets).toHaveLength(3)
   })
 
   it('keeps backing off while connections open and are closed again at once', async () => {
     await install()
 
     for (const [attempt, delay] of [1000, 2000, 4000, 8000].entries()) {
-      sockets.at(-1)!.options.onConnected()
+      connect()
       await disconnectAndWait(delay - 1)
       expect(sockets, `attempt ${attempt + 1} came early`).toHaveLength(attempt + 1)
       await vi.advanceTimersByTimeAsync(1)
@@ -188,22 +222,55 @@ describe('websocket plugin', () => {
     expect(sockets[0]!.close).toHaveBeenCalled()
   })
 
-  it('logs closing a live socket on sign-out', async () => {
+  it('logs one line for a sign-out, and nothing when its socket reports the close', async () => {
     await install()
 
     session.loggedIn!.value = false
     await nextTick()
+    sockets[0]!.options.onDisconnected(null, { code: 1000, reason: '' })
 
     expect(sockets[0]!.close).toHaveBeenCalled()
-    expect(mockLog.info).toHaveBeenCalledWith('ws', 'Closed')
+    expect(mockLog.info.mock.calls).toEqual([['ws', 'Closed']])
   })
 
-  it.each([[401], [403]])('treats a ticket refused with %s as an expired session', async (statusCode) => {
+  it('leaves the new socket alone when the one closed at sign-out reports its close late', async () => {
+    await install()
+    session.loggedIn!.value = false
+    await nextTick()
+    session.loggedIn!.value = true
+    await nextTick()
+    await flushPromises()
+    expect(sockets).toHaveLength(2)
+
+    sockets[0]!.options.onDisconnected(null, { code: 1000, reason: '' })
+    await vi.advanceTimersByTimeAsync(60000)
+
+    expect(sockets).toHaveLength(2)
+    expect(sockets[1]!.close).not.toHaveBeenCalled()
+  })
+
+  it('opens no socket when the shopper signs out while the ticket is on its way', async () => {
+    await install()
+    const release = heldTicket()
+    await disconnectAndWait(1000)
+    expect(api.callsTo(TICKET)).toHaveLength(2)
+
+    session.loggedIn!.value = false
+    await nextTick()
+    release()
+    await flushPromises()
+
+    expect(sockets).toHaveLength(1)
+  })
+
+  it.each([[401], [403]])('treats a ticket refused with %s as an expired session, and stops', async (statusCode) => {
     api.routes({ [TICKET]: failWith(statusCode) })
 
     await install()
+    await vi.advanceTimersByTimeAsync(60000)
 
     expect(sockets).toEqual([])
+    expect(api.callsTo(TICKET)).toHaveLength(1)
     expect(callAuthChangeHookMock).toHaveBeenCalledWith(expect.objectContaining({ status: 410 }))
   })
 
@@ -216,12 +283,24 @@ describe('websocket plugin', () => {
     expect(callAuthChangeHookMock).not.toHaveBeenCalled()
   })
 
-  it('does not connect without a ticket', async () => {
-    api.routes({ [TICKET]: {} })
+  it.each([
+    ['a 502', failWith(502)],
+    ['no network', () => { throw new TypeError('Failed to fetch') }],
+  ])('tries a ticket that failed with %s again, backing off, until one comes', async (_failure, fail) => {
+    let failures = 2
+    api.routes({ [TICKET]: () => failures-- > 0 ? fail() : { ticket: `t${++tickets}`, expiresIn: 60 } })
 
     await install()
-
+    expect(mockLog.error).toHaveBeenLastCalledWith(expect.objectContaining({ action: 'ws:init', attempt: 1, delayMs: 1000 }))
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(api.callsTo(TICKET)).toHaveLength(2)
     expect(sockets).toEqual([])
+    await vi.advanceTimersByTimeAsync(1999)
+    expect(api.callsTo(TICKET)).toHaveLength(2)
+    await vi.advanceTimersByTimeAsync(1)
+
+    expect(api.callsTo(TICKET)).toHaveLength(3)
+    expect(sockets).toHaveLength(1)
   })
 })
 
@@ -234,6 +313,7 @@ class FakeSocket {
   onclose: ((event: { code: number, reason: string }) => void) | null = null
   onmessage: ((event: { data: string }) => void) | null = null
   onerror: (() => void) | null = null
+  private listeners: Array<(event: { data: string }) => void> = []
 
   constructor(readonly url: string) {
     FakeSocket.last = this
@@ -248,7 +328,16 @@ class FakeSocket {
   /** The server accepts the connection. */
   accept() { this.onopen?.() }
   /** The server sends a frame. */
-  reply(data: string) { this.onmessage?.({ data }) }
+  reply(data: string) {
+    this.onmessage?.({ data })
+    this.listeners.forEach(listener => listener({ data }))
+  }
+
+  /** The plugin counts pongs through this. */
+  addEventListener(_type: 'message', listener: (event: { data: string }) => void) { this.listeners.push(listener) }
+
+  /** The connection drops without a close frame. */
+  drop() { this.onclose?.({ code: 1006, reason: '' }) }
 }
 
 /**
@@ -337,7 +426,7 @@ describe('websocket plugin heartbeat', () => {
   beforeEach(() => {
     scope = effectScope()
     FakeSocket.last = undefined
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] })
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
     vi.stubGlobal('WebSocket', FakeSocket)
     setTenant({ apiDomain: 'api.test.local' })
     session.loggedIn = ref(true)
@@ -408,5 +497,20 @@ describe('websocket plugin heartbeat', () => {
       expect(sockets).toHaveLength(attempt + 2)
       await acceptForReal()
     }
+  })
+  it('starts the back-off over after a socket whose server answered, however late the drop', async () => {
+    await connectForReal()
+    await vi.advanceTimersByTimeAsync(35000)
+    await vi.advanceTimersByTimeAsync(1000)
+    const server = await acceptForReal()
+
+    for (let beat = 0; beat < 2; beat++) {
+      await vi.advanceTimersByTimeAsync(30000)
+      server.reply('pong')
+    }
+    server.drop()
+    await vi.advanceTimersByTimeAsync(1000)
+
+    expect(sockets).toHaveLength(3)
   })
 })

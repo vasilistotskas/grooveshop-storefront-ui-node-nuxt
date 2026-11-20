@@ -5,11 +5,9 @@ import type { Composer } from 'vue-i18n'
 /**
  * The socket's heartbeat, a contract with Django's `NotificationConsumer`
  * (`notification/consumers.py`), which answers HEARTBEAT_PING with
- * HEARTBEAT_PONG from django-api #516 on. An answer keeps the socket open.
- * No answer within HEARTBEAT_PONG_TIMEOUT_MS closes it and a new one opens,
- * which is how a connection a proxy dropped without a word is found. Until
- * Django answers, every signed-in tab reconnects about every 36 seconds
- * (storefront #414).
+ * HEARTBEAT_PONG. An answer keeps the socket open. No answer within
+ * HEARTBEAT_PONG_TIMEOUT_MS closes it and a new one opens, which is how a
+ * connection a proxy dropped without a word is found.
  */
 const HEARTBEAT_PING = 'ping'
 const HEARTBEAT_PONG = 'pong'
@@ -17,17 +15,19 @@ const HEARTBEAT_INTERVAL_MS = 30000
 const HEARTBEAT_PONG_TIMEOUT_MS = 5000
 
 /**
- * Reconnects back off from RECONNECT_BASE_DELAY_MS, doubling up to
- * RECONNECT_MAX_DELAY_MS. The back-off starts over only after a connection
- * that held for STABLE_CONNECTION_MS: a socket whose server leaves the ping
- * unanswered is closed at the first pong deadline (35 s), so one that reached
- * its second ping had the first answered. Starting over on every open let a
- * socket that opens and is then closed reconnect after one second forever,
- * each cycle a ticket, a handshake and its log lines (storefront #414).
+ * Every attempt that fails, whether its socket drops or its ticket cannot be
+ * fetched, schedules the next after a back-off from RECONNECT_BASE_DELAY_MS,
+ * doubling up to RECONNECT_MAX_DELAY_MS. Only a 401 or 403 on the ticket
+ * stops it: the session is gone. The back-off starts over only after a socket
+ * the server answered STABLE_ANSWERED_HEARTBEATS times, about a minute of
+ * proven life, however late the browser reports the close. Starting over on
+ * every open let a socket that opens and is then closed reconnect after one
+ * second forever, each cycle a ticket, a handshake and its log lines
+ * (storefront #414).
  */
 const RECONNECT_BASE_DELAY_MS = 1000
 const RECONNECT_MAX_DELAY_MS = 30000
-const STABLE_CONNECTION_MS = 2 * HEARTBEAT_INTERVAL_MS
+const STABLE_ANSWERED_HEARTBEATS = 2
 
 export default defineNuxtPlugin({
   name: 'websocket',
@@ -52,10 +52,14 @@ export default defineNuxtPlugin({
     let adoptingOtherTabSignIn = false
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
     let reconnectAttempt = 0
-    let connectedAt: number | null = null
     let ws: ReturnType<typeof useWebSocket> | null = null
+    // Moved by every close and every new attempt. An attempt whose number
+    // moved is over: its ticket arriving after a sign-out opens nothing, and
+    // the close event of a socket closed on purpose schedules nothing.
+    let attemptNumber = 0
 
     function closeWebSocket() {
+      attemptNumber++
       if (ws) {
         // A reconnect finds its dropped socket closed already: only closing
         // a live one is news.
@@ -69,24 +73,37 @@ export default defineNuxtPlugin({
       }
     }
 
+    /** Schedule the next attempt; returns its number and delay for the caller's one log line. */
+    function scheduleReconnect() {
+      const delayMs = Math.min(RECONNECT_BASE_DELAY_MS * 2 ** reconnectAttempt, RECONNECT_MAX_DELAY_MS)
+      reconnectAttempt++
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = null
+        if (loggedIn.value) {
+          initializeWebSocket()
+        }
+      }, delayMs)
+      return { attempt: reconnectAttempt, delayMs }
+    }
+
     async function initializeWebSocket() {
       closeWebSocket()
+      const attempt = attemptNumber
+      const isCurrent = () => attempt === attemptNumber && loggedIn.value
       if (!loggedIn.value) {
         log.warn('ws', 'User not logged in, skipping websocket initialization.')
         return
       }
 
       try {
-        // Single-use 60s ticket — see server/api/websocket/user/ticket.get.ts.
-        // Never put the Knox access token in the URL; it is logged by
-        // every proxy layer and lives for 7 days.
+        // Single-use 60s ticket — see server/api/websocket/user/ticket.get.ts,
+        // which validates the answer, so a ticket is always there. Never put
+        // the Knox access token in the URL; it is logged by every proxy layer
+        // and lives for 7 days.
         const response = await $api<{ ticket: string, expiresIn: number }>('/api/websocket/user/ticket', {
           method: 'GET',
         })
-        if (!response?.ticket) {
-          log.warn('ws', 'No ticket returned from /api/websocket/user/ticket')
-          return
-        }
+        if (!isCurrent()) return
 
         const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
         const djangoApiHostName = tenantStore.apiDomain || config.public.djangoHostName
@@ -116,6 +133,9 @@ export default defineNuxtPlugin({
 
         const { isSupported: isWebNotificationSupported, show } = useWebNotification(notificationOptions)
 
+        // Pongs this socket got: proof it lived, counted apart from when
+        // the browser gets round to reporting its close.
+        let answeredHeartbeats = 0
         ws = useWebSocket(wsEndpoint, {
           // Ticket is single-use and consumed on connect — autoReconnect
           // would reuse the same (dead) URL. Instead we handle reconnection
@@ -129,8 +149,10 @@ export default defineNuxtPlugin({
             scheduler: ping => useIntervalFn(ping, HEARTBEAT_INTERVAL_MS, { immediate: false }),
             pongTimeout: HEARTBEAT_PONG_TIMEOUT_MS,
           },
-          onConnected: () => {
-            connectedAt = Date.now()
+          onConnected: (wsConn) => {
+            wsConn.addEventListener('message', (event) => {
+              if (event.data === HEARTBEAT_PONG) answeredHeartbeats++
+            })
             log.info('ws', 'Connected')
           },
           // One log line per drop: every line is a POST to the rate-limited
@@ -139,23 +161,16 @@ export default defineNuxtPlugin({
           // first is not logged: browsers give it no detail, and the close
           // that always follows carries the code.
           onDisconnected: (_wsConn, event) => {
-            if (connectedAt !== null && Date.now() - connectedAt >= STABLE_CONNECTION_MS) {
+            if (attempt !== attemptNumber) return
+            if (answeredHeartbeats >= STABLE_ANSWERED_HEARTBEATS) {
               reconnectAttempt = 0
             }
-            connectedAt = null
             const drop = { tag: 'ws', message: 'Disconnected', code: event?.code, reason: event?.reason }
             if (!loggedIn.value) {
               log.info(drop)
               return
             }
-            const delay = Math.min(RECONNECT_BASE_DELAY_MS * 2 ** reconnectAttempt, RECONNECT_MAX_DELAY_MS)
-            reconnectAttempt++
-            log.info({ ...drop, attempt: reconnectAttempt, delayMs: delay })
-            reconnectTimer = setTimeout(() => {
-              if (loggedIn.value) {
-                initializeWebSocket()
-              }
-            }, delay)
+            log.info({ ...drop, ...scheduleReconnect() })
           },
           onMessage: async (_wsConn, event) => {
             let data
@@ -216,14 +231,20 @@ export default defineNuxtPlugin({
         })
       }
       catch (error) {
+        if (!isCurrent()) return
         const statusCode = (error as { statusCode?: number })?.statusCode
         if (statusCode === 401 || statusCode === 403) {
           // Route through the canonical auth:change pipeline so Pinia stores
           // clear, navigation happens, and the user sees the session-expired
           // toast. Bare useUserSession().clear() would leave the UI half-stale.
           await callAuthChangeHook(SYNTHETIC_EXPIRED_SESSION)
+          log.error({ action: 'ws:init', error })
+          return
         }
-        log.error({ action: 'ws:init', error })
+        // Anything else (the network down after a laptop wakes, a 5xx, the
+        // server restarting) is tried again: no socket means no close event
+        // to schedule the next attempt.
+        log.error({ action: 'ws:init', error, ...scheduleReconnect() })
       }
     }
 
