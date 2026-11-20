@@ -1,3 +1,10 @@
+## [3.345.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.2...v3.345.3) (2026-11-20)
+
+
+### Bug Fixes
+
+* **deps:** move the last minimatch 10 copies to 11.0.1+ ([#500](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/500)) ([abac1ac](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/abac1ac5b88fc0263acc78df9f72c4f133b00505))
+
 ## [3.345.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.345.1...v3.345.2) (2026-11-20)
 
 
