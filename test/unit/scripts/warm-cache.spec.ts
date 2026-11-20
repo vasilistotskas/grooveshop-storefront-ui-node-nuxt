@@ -4,8 +4,7 @@
  * varies on, the payload URL Nuxt's client fetches, and only the hosts the
  * Ingresses route to the storefront.
  */
-import { setTimeout as sleep } from 'node:timers/promises'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { deviceClassFromUserAgent } from '~~/shared/utils/deviceClass'
 import {
   buildAssetPaths,
@@ -17,6 +16,8 @@ import {
   localePrefixes,
   localeTwin,
   payloadPath,
+  PodGone,
+  podGone,
   readDeployments,
   readyOrigins,
   recordWarmedBuild,
@@ -128,6 +129,7 @@ describe('warmedEveryStore', () => {
   it('does not record a run whose sitemaps all failed (Django restarting after the deploy)', () => {
     expect(warmedEveryStore({
       failedSitemaps: ['webside.gr/sitemap.xml', 'demo.grooveshop.space/sitemap.xml'],
+      unrequested: 0,
       stores: [],
       rendered: rendered({}),
     })).toBe(false)
@@ -136,6 +138,7 @@ describe('warmedEveryStore', () => {
   it('does not record a run in which no page rendered', () => {
     expect(warmedEveryStore({
       failedSitemaps: [],
+      unrequested: 0,
       stores: ['webside.gr', 'demo.grooveshop.space'],
       rendered: rendered({}),
     })).toBe(false)
@@ -145,6 +148,7 @@ describe('warmedEveryStore', () => {
     // 282 pages listed, three of them no longer render: counted, not a reason.
     expect(warmedEveryStore({
       failedSitemaps: [],
+      unrequested: 0,
       stores: ['webside.gr', 'demo.grooveshop.space'],
       rendered: rendered({ 'webside.gr': 106, 'demo.grooveshop.space': 120 }),
     })).toBe(true)
@@ -153,6 +157,7 @@ describe('warmedEveryStore', () => {
   it('does not record a run in which one store\'s sitemap failed, the others warm', () => {
     expect(warmedEveryStore({
       failedSitemaps: ['ekfyseosfyteias.com/sitemap.xml'],
+      unrequested: 0,
       stores: ['webside.gr', 'demo.grooveshop.space'],
       rendered: rendered({ 'webside.gr': 106, 'demo.grooveshop.space': 120 }),
     })).toBe(false)
@@ -161,8 +166,18 @@ describe('warmedEveryStore', () => {
   it('does not record a run in which one store rendered nothing', () => {
     expect(warmedEveryStore({
       failedSitemaps: [],
+      unrequested: 0,
       stores: ['webside.gr', 'demo.grooveshop.space'],
       rendered: rendered({ 'webside.gr': 106 }),
+    })).toBe(false)
+  })
+
+  it('does not record a run that left pages unrequested (every pod left the ready set)', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: [],
+      unrequested: 40,
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({ 'webside.gr': 106, 'demo.grooveshop.space': 120 }),
     })).toBe(false)
   })
 })
@@ -338,8 +353,15 @@ describe('the Kubernetes reads of the rollout wait', () => {
 })
 
 describe('forEachOnPods', () => {
-  // Work that takes a moment and records where it ran and how many items
-  // each pod had in flight at most.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  // Work that takes 3 ms of fake time and records where it ran and how many
+  // items each pod had in flight at most.
   function recorder() {
     const ranOn: Record<string, number[]> = {}
     const inFlight: Record<string, number> = {}
@@ -350,37 +372,48 @@ describe('forEachOnPods', () => {
       work: async (item: number, origin: string) => {
         inFlight[origin] = (inFlight[origin] ?? 0) + 1
         peakInFlight[origin] = Math.max(peakInFlight[origin] ?? 0, inFlight[origin]!)
-        await sleep(3)
+        await new Promise(resolve => setTimeout(resolve, 3))
         ;(ranOn[origin] ??= []).push(item)
         inFlight[origin]!--
       },
     }
   }
+  const items = (count: number) => Array.from({ length: count }, (_, index) => index)
+  // Run the pool to the end on fake time.
+  async function drain<T>(run: Promise<T>): Promise<T> {
+    let settled = false
+    void run.then(() => {
+      settled = true
+    }, () => {
+      settled = true
+    })
+    while (!settled) await vi.advanceTimersByTimeAsync(1)
+    return run
+  }
 
   it('starts on the pods it is given, without reading them again', async () => {
     const run = recorder()
-    let reads = 0
-    const queue = Array.from({ length: 4 }, (_, index) => index)
-    await forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins: async () => [String(++reads)], concurrency: 1, refreshMs: 1000, work: run.work })
-    expect(reads).toBe(0)
+    const listOrigins = vi.fn(async () => ['http://b:3000'])
+    await drain(forEachOnPods(items(4), { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 1000, work: run.work }))
+    expect(listOrigins).not.toHaveBeenCalled()
     expect(run.ranOn['http://a:3000']).toHaveLength(4)
   })
 
   it('spreads the items over every pod, the concurrency on each', async () => {
     const run = recorder()
-    const queue = Array.from({ length: 12 }, (_, index) => index)
-    const peak = await forEachOnPods(queue, { origins: ['http://a:3000', 'http://b:3000'], listOrigins: async () => ['http://a:3000', 'http://b:3000'], concurrency: 2, refreshMs: 1000, work: run.work })
+    const queue = items(12)
+    const origins = ['http://a:3000', 'http://b:3000']
+    const peak = await drain(forEachOnPods(queue, { origins, listOrigins: async () => origins, concurrency: 2, refreshMs: 1000, work: run.work }))
 
     expect(peak).toBe(2)
     expect(queue).toEqual([])
-    expect(Object.values(run.ranOn).flat().sort((a, b) => a - b)).toEqual(Array.from({ length: 12 }, (_, index) => index))
+    expect(Object.values(run.ranOn).flat().sort((a, b) => a - b)).toEqual(items(12))
     expect(run.peakInFlight).toEqual({ 'http://a:3000': 2, 'http://b:3000': 2 })
   })
 
   it('gives a pod that becomes ready its share, and none to a pod that left', async () => {
     const run = recorder()
-    const queue = Array.from({ length: 30 }, (_, index) => index)
-    const peak = await forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins: async () => ['http://b:3000'], concurrency: 1, refreshMs: 10, work: run.work })
+    const peak = await drain(forEachOnPods(items(30), { origins: ['http://a:3000'], listOrigins: async () => ['http://b:3000'], concurrency: 1, refreshMs: 10, work: run.work }))
 
     expect(peak).toBe(1)
     expect(run.ranOn['http://a:3000']?.length).toBeGreaterThan(0)
@@ -390,38 +423,93 @@ describe('forEachOnPods', () => {
     expect(Object.values(run.ranOn).flat()).toHaveLength(30)
   })
 
+  it('keeps a pod that left and came back at its concurrency', async () => {
+    const run = recorder()
+    // a is dropped by one read and listed again by the next, while its
+    // worker is still inside an item.
+    const lists = [['http://b:3000'], ['http://a:3000', 'http://b:3000']]
+    await drain(forEachOnPods(items(40), { origins: ['http://a:3000'], listOrigins: async () => lists.shift() ?? ['http://a:3000', 'http://b:3000'], concurrency: 1, refreshMs: 2, work: run.work }))
+
+    expect(run.peakInFlight['http://a:3000']).toBe(1)
+    expect(Object.values(run.ranOn).flat()).toHaveLength(40)
+  })
+
+  it('puts the item back and drops a pod that is gone, until a read lists it again', async () => {
+    const run = recorder()
+    const work = async (item: number, origin: string) => {
+      if (origin === 'http://gone:3000') throw new PodGone(origin)
+      await run.work(item, origin)
+    }
+    const queue = items(10)
+    await drain(forEachOnPods(queue, { origins: ['http://gone:3000', 'http://a:3000'], listOrigins: async () => ['http://a:3000'], concurrency: 1, refreshMs: 1000, work }))
+
+    expect(queue).toEqual([])
+    expect(run.ranOn['http://a:3000']?.sort((a, b) => a - b)).toEqual(items(10))
+  })
+
+  it('fails on any other error from the work', async () => {
+    const work = async () => {
+      throw new Error('a bug')
+    }
+    await expect(drain(forEachOnPods(items(2), { origins: ['http://a:3000'], listOrigins: async () => ['http://a:3000'], concurrency: 1, refreshMs: 1000, work }))).rejects.toThrow('a bug')
+  })
+
   it('keeps its pods when a refresh cannot be read', async () => {
     const run = recorder()
-    let reads = 0
-    const listOrigins = async () => {
-      reads++
+    const listOrigins = vi.fn(async (): Promise<string[]> => {
       throw new Error('API server restarting')
-    }
-    const queue = Array.from({ length: 10 }, (_, index) => index)
-    await forEachOnPods(queue, { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 5, work: run.work })
+    })
+    await drain(forEachOnPods(items(10), { origins: ['http://a:3000'], listOrigins, concurrency: 1, refreshMs: 5, work: run.work }))
 
-    expect(reads).toBeGreaterThan(0)
+    expect(listOrigins).toHaveBeenCalled()
     expect(run.ranOn['http://a:3000']).toHaveLength(10)
   })
 
   it('reports the pods it works on at each refresh', async () => {
     const seen: string[][] = []
-    const queue = Array.from({ length: 10 }, (_, index) => index)
-    await forEachOnPods(queue, {
-      origins: ['http://a:3000', 'http://b:3000'],
-      listOrigins: async () => ['http://a:3000', 'http://b:3000'],
+    const origins = ['http://a:3000', 'http://b:3000']
+    await drain(forEachOnPods(items(10), {
+      origins,
+      listOrigins: async () => origins,
       concurrency: 1,
       refreshMs: 5,
-      work: () => sleep(3),
+      work: () => new Promise(resolve => setTimeout(resolve, 3)),
       onRefresh: current => seen.push(current),
-    })
+    }))
 
     expect(seen.length).toBeGreaterThan(0)
     expect(seen.every(current => current.length === 2)).toBe(true)
   })
 })
 
+describe('podGone', () => {
+  it('reads a refused or unreachable connection as a pod that is gone, a timeout as a slow render', () => {
+    const error = (code: string) => Object.assign(new Error(code), { code })
+    expect(podGone(error('ECONNREFUSED'))).toBe(true)
+    expect(podGone(error('EHOSTUNREACH'))).toBe(true)
+    expect(podGone(error('ETIMEDOUT'))).toBe(false)
+    expect(podGone(new Error('timed out after 60000 ms'))).toBe(false)
+  })
+})
+
 describe('waitForRollout', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] })
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+  // Run the wait to the end on fake time.
+  async function settle<T>(run: Promise<T>): Promise<T> {
+    let settled = false
+    void run.then(() => {
+      settled = true
+    }, () => {
+      settled = true
+    })
+    while (!settled) await vi.advanceTimersByTimeAsync(1)
+    return run
+  }
   const rolled = { metadata: { name: 'frontend-nuxt', generation: 2 }, spec: { replicas: 2 }, status: { observedGeneration: 2, replicas: 2, updatedReplicas: 2, availableReplicas: 2 } }
   const rolling = { ...rolled, status: { ...rolled.status, replicas: 3, updatedReplicas: 1 } }
   const slices = (...ips: string[]) => ({ items: [{ ports: [{ port: 3000 }], endpoints: ips.map(ip => ({ addresses: [ip], conditions: { ready: true } })) }] })
@@ -429,7 +517,7 @@ describe('waitForRollout', () => {
 
   it('waits out the rollout, then answers the pods that serve this build', async () => {
     const api = fakeKube({ status: 200, body: rolling }, { status: 200, body: rolled }, { status: 200, body: slices('10.42.0.7', '10.42.1.9') })
-    const origins = await waitForRollout({ ...options, kube: api.kube, buildAt: async () => 'b2' })
+    const origins = await settle(waitForRollout({ ...options, kube: api.kube, buildAt: async () => 'b2' }))
     expect(origins).toEqual(['http://10.42.0.7:3000', 'http://10.42.1.9:3000'])
     expect(api.calls).toHaveLength(3)
   })
@@ -443,20 +531,20 @@ describe('waitForRollout', () => {
       { status: 200, body: slices('10.42.0.7') },
     )
     const answers = [undefined, 'b2']
-    const origins = await waitForRollout({ ...options, kube: api.kube, buildAt: async () => answers.shift() })
+    const origins = await settle(waitForRollout({ ...options, kube: api.kube, buildAt: async () => answers.shift() }))
     expect(origins).toEqual(['http://10.42.0.7:3000'])
   })
 
   it('fails at once when the storefront rolled out on another build', async () => {
     const api = fakeKube({ status: 200, body: rolled }, { status: 200, body: slices('10.42.0.7', '10.42.1.9') })
-    await expect(waitForRollout({ ...options, kube: api.kube, buildAt: async origin => origin.includes('10.42.0.7') ? 'b2' : 'b1' }))
+    await expect(settle(waitForRollout({ ...options, kube: api.kube, buildAt: async origin => origin.includes('10.42.0.7') ? 'b2' : 'b1' })))
       .rejects
       .toThrow('serves b1 after its rollout')
   })
 
   it('gives up on a rollout that does not finish in time', async () => {
     const api = { namespace: 'grooveshop', call: async () => ({ status: 200, headers: {}, body: JSON.stringify(rolling), ms: 0 }) }
-    await expect(waitForRollout({ ...options, kube: api, buildAt: async () => 'b2', timeoutMs: 5 }))
+    await expect(settle(waitForRollout({ ...options, kube: api, buildAt: async () => 'b2', timeoutMs: 5 })))
       .rejects
       .toThrow('for the rollout of frontend-nuxt')
   })

@@ -97,7 +97,6 @@ import { readdirSync, readFileSync } from 'node:fs'
 import http from 'node:http'
 import https from 'node:https'
 import { relative } from 'node:path'
-import { setTimeout as sleep } from 'node:timers/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 // The route lists `nuxt.config.ts` builds its page-cache rules from. Node
 // runs the TypeScript as is (type stripping); the image ships this module
@@ -221,14 +220,17 @@ export function isCachedResponse(headers) {
 
 /**
  * Whether a completed run warmed every store, and so may be recorded as
- * this build's warm-up (the rule is in the header): no sitemap failed, at
- * least one store listed pages, and each such store rendered one or more.
+ * this build's warm-up (the rule is in the header): no sitemap failed, no
+ * page was left unrequested (every pod left the ready set), at least one
+ * store listed pages, and each such store rendered one or more.
  *
- * `failedSitemaps`: the sitemap URLs that were not served; `stores`: the
- * hosts the sitemaps listed pages for; `rendered`: pages rendered, by host.
+ * `failedSitemaps`: the sitemap URLs that were not served; `unrequested`:
+ * pages no pod was left to render; `stores`: the hosts the sitemaps listed
+ * pages for; `rendered`: pages rendered, by host.
  */
-export function warmedEveryStore({ failedSitemaps, stores, rendered }) {
+export function warmedEveryStore({ failedSitemaps, unrequested, stores, rendered }) {
   return failedSitemaps.length === 0
+    && unrequested === 0
     && stores.length > 0
     && stores.every(store => (rendered.get(store) ?? 0) > 0)
 }
@@ -244,6 +246,32 @@ export function warmOrder(pages) {
     .map((page, index) => ({ page, index }))
     .sort((a, b) => depth(a.page) - depth(b.page) || a.index - b.index)
     .map(({ page }) => page)
+}
+
+/**
+ * Resolve after `ms`. An `unref`ed wait does not keep the process alive on
+ * its own.
+ */
+function sleep(ms, { unref = false } = {}) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms)
+    if (unref) timer.unref()
+  })
+}
+
+/**
+ * Connection errors that mean the pod is gone (deleted, or past its
+ * preStop), as opposed to a slow or failed render: nothing listens at its
+ * address any more.
+ */
+const POD_GONE_CODES = new Set(['ECONNREFUSED', 'EHOSTUNREACH', 'ENETUNREACH'])
+
+/** Thrown by `work` when its pod is gone: the item goes back on the queue. */
+export class PodGone extends Error {}
+
+/** Whether `error` says nothing listens at the pod's address any more. */
+export function podGone(error) {
+  return POD_GONE_CODES.has(error?.code)
 }
 
 /**
@@ -290,8 +318,11 @@ export function readyOrigins(sliceList) {
  * each pod, starting with `origins`. The pods are read again with
  * `listOrigins()` every `refreshMs` while items remain: a new pod gets
  * workers, and a pod no longer listed takes no new item (the one in flight
- * finishes). A failed read keeps the pods it had. Returns the most pods
- * worked on at once.
+ * finishes). A failed read keeps the pods it had. When `work` throws
+ * `PodGone`, the item goes back to the front of the queue and the pod takes
+ * no more until a read lists it again, so a pod that vanished between two
+ * reads costs one request, not every item its workers could fail through.
+ * Returns the most pods worked on at once.
  *
  * @template T
  * @param {T[]} queue
@@ -309,27 +340,40 @@ export async function forEachOnPods(queue, { origins, listOrigins, concurrency, 
   let current = new Set(origins)
   let peak = current.size
   const running = new Set()
+  // Workers per pod, counting those still finishing an item for a pod that
+  // left: a pod that comes back gets only what brings it to `concurrency`.
+  const active = new Map()
   async function worker(origin) {
     while (current.has(origin)) {
       const item = queue.shift()
       if (item === undefined) return
-      await work(item, origin)
+      try {
+        await work(item, origin)
+      }
+      catch (error) {
+        if (!(error instanceof PodGone)) throw error
+        queue.unshift(item)
+        current.delete(origin)
+      }
     }
   }
   function launch(origin) {
-    for (let index = 0; index < concurrency; index++) {
-      const done = worker(origin).finally(() => running.delete(done))
+    for (let count = active.get(origin) ?? 0; count < concurrency; count++) {
+      active.set(origin, count + 1)
+      const done = worker(origin).finally(() => {
+        running.delete(done)
+        active.set(origin, active.get(origin) - 1)
+      })
       running.add(done)
     }
   }
   current.forEach(launch)
   while (running.size) {
-    const tick = sleep(refreshMs, 'tick', { ref: false })
+    const tick = sleep(refreshMs, { unref: true }).then(() => 'tick')
     if (await Promise.race([Promise.all(running), tick]) !== 'tick' || !queue.length) continue
     const listed = await listOrigins().catch(() => [...current])
-    const added = listed.filter(origin => !current.has(origin))
     current = new Set(listed)
-    added.forEach(launch)
+    listed.forEach(launch)
     peak = Math.max(peak, current.size)
     onRefresh([...current])
   }
@@ -646,39 +690,43 @@ async function main() {
     const builds = await Promise.all(ready.map(origin => buildAt(origin).catch(() => undefined)))
     return ready.filter((_, index) => builds[index] === undefined || builds[index] === ownBuild)
   }
+  // A page's counts join the summary once it is done, so a page put back
+  // because its pod vanished (`PodGone`) is counted once, where it finished.
   async function warmPage(page, origin) {
-    try {
-      for (const [deviceClass, userAgent] of Object.entries(DEVICE_USER_AGENTS)) {
-        try {
-          const html = await get(page.pathname, page.host, 'text/html', userAgent, origin)
-          if (html.status !== 200) {
-            summary.failed++
-            log('warn', 'page did not render', { host: page.host, path: page.pathname, deviceClass, status: html.status })
-            break
-          }
-          summary.rendered++
-          renderedByStore.set(page.host, (renderedByStore.get(page.host) ?? 0) + 1)
-          if (!isCachedResponse(html.headers)) {
-            summary.uncached++
-            break
-          }
-          if (!hasExtractedPayload(page.pathname)) continue
-          const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent, origin)
-          if (payload.status === 200) summary.payloads++
-          else {
-            summary.failed++
-            log('warn', 'payload did not render', { host: page.host, path: page.pathname, deviceClass, status: payload.status })
-          }
+    const counts = { rendered: 0, payloads: 0, uncached: 0, failed: 0 }
+    for (const [deviceClass, userAgent] of Object.entries(DEVICE_USER_AGENTS)) {
+      try {
+        const html = await get(page.pathname, page.host, 'text/html', userAgent, origin)
+        if (html.status !== 200) {
+          counts.failed++
+          log('warn', 'page did not render', { host: page.host, path: page.pathname, deviceClass, status: html.status })
+          break
         }
-        catch (error) {
-          summary.failed++
-          log('warn', 'request failed', { host: page.host, path: page.pathname, deviceClass, error: String(error?.message ?? error) })
+        counts.rendered++
+        if (!isCachedResponse(html.headers)) {
+          counts.uncached++
+          break
+        }
+        if (!hasExtractedPayload(page.pathname)) continue
+        const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent, origin)
+        if (payload.status === 200) counts.payloads++
+        else {
+          counts.failed++
+          log('warn', 'payload did not render', { host: page.host, path: page.pathname, deviceClass, status: payload.status })
         }
       }
+      catch (error) {
+        if (podGone(error)) {
+          log('info', 'pod gone, page put back', { origin, host: page.host, path: page.pathname })
+          throw new PodGone(origin)
+        }
+        counts.failed++
+        log('warn', 'request failed', { host: page.host, path: page.pathname, deviceClass, error: String(error?.message ?? error) })
+      }
     }
-    finally {
-      pagesDone++
-    }
+    for (const key of Object.keys(counts)) summary[key] += counts[key]
+    if (counts.rendered) renderedByStore.set(page.host, (renderedByStore.get(page.host) ?? 0) + counts.rendered)
+    pagesDone++
   }
   const pods = await forEachOnPods(queue, {
     origins,
@@ -694,7 +742,7 @@ async function main() {
     }),
   })
 
-  const complete = warmedEveryStore({ failedSitemaps, stores, rendered: renderedByStore })
+  const complete = warmedEveryStore({ failedSitemaps, unrequested: queue.length, stores, rendered: renderedByStore })
   if (complete) await recordWarmedBuild(kube, stateConfigMap, ownBuild)
 
   log(complete ? 'info' : 'warn', complete ? 'cache warmed' : 'cache partly warmed, build not recorded', {
