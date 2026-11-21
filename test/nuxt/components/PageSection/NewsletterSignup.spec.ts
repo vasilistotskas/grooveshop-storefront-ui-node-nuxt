@@ -258,7 +258,11 @@ describe('NewsletterSignup', () => {
   })
 
   it('shows a field rejection inline', async () => {
-    api.routes({ [NEWSLETTER_URL]: failWith(400, { email: ['Enter a valid email address.'] }) })
+    api.routes({ [NEWSLETTER_URL]: failWith(400, {
+      email: ['Enter a valid email address.'],
+      code: 'invalid',
+      fields: { email: [{ message: 'Enter a valid email address.', code: 'invalid' }] },
+    }) })
     const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)

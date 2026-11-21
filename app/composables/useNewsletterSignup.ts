@@ -13,7 +13,7 @@ export type NewsletterOutcome = NewsletterSubscribeResponseStatusEnum
 /** Why a subscription request did not go through. */
 export type NewsletterFailure
   = | { kind: 'rate_limited' }
-    | { kind: 'fields', errors: Record<string, string[]> }
+    | { kind: 'fields', errors: DescribedFieldError[] }
     | { kind: 'failed' }
 
 interface NewsletterSignupOptions {
@@ -127,13 +127,11 @@ export async function useNewsletterSignup(options: NewsletterSignupOptions) {
       // The proxy returns Django's 4xx body with its status. A throttled
       // visitor is told to wait; a field rejection says which field; the
       // rest is a plain failure.
-      const data = error && typeof error === 'object' && 'data' in error
-        ? (error as { data: unknown }).data
-        : null
+      const fieldErrors = apiFieldErrorsOf(apiErrorBodyOf(error))
       failure.value = isRateLimitedClientError(error)
         ? { kind: 'rate_limited' }
-        : isDrfFieldErrorMap(data)
-          ? { kind: 'fields', errors: data }
+        : fieldErrors.length
+          ? { kind: 'fields', errors: fieldErrors }
           : { kind: 'failed' }
     }
     finally {

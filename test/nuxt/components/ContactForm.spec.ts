@@ -281,6 +281,30 @@ describe.each(trees(ContactForm, WebsideContactForm))('$tree ContactForm', ({ tr
       }))
     })
 
+    // Django's body for a refused upload (`core/api/exception_handler.py`):
+    // the field keys, plus `code` and `fields`. Its wording reaches the shopper.
+    it('says why the server refused a file, in its own words', async () => {
+      attachmentStub.enabled = true
+      attachmentStub.refusals = [{
+        code: 'rejected',
+        data: {
+          file: ['Αυτός ο τύπος αρχείου δεν γίνεται δεκτός.'],
+          code: 'invalid',
+          fields: { file: [{ message: 'Αυτός ο τύπος αρχείου δεν γίνεται δεκτός.', code: 'invalid' }] },
+        },
+      }]
+      const wrapper = await mount(C)
+      const file = new File(['x'], 'photo.pdf', { type: 'application/pdf' })
+      const input = wrapper.find<HTMLInputElement>('input[type="file"]')
+      Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+
+      await input.trigger('change')
+
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+        description: expect.stringContaining('Αυτός ο τύπος αρχείου δεν γίνεται δεκτός.'),
+      }))
+    })
+
     it('says a file is too large without naming a limit it could not read', async () => {
       attachmentStub.enabled = true
       attachmentStub.megabytes = null

@@ -47,7 +47,7 @@ const errorMessage = computed(() => {
   const value = failure.value
   if (!value) return ''
   if (value.kind === 'rate_limited') return t('error.rate_limited')
-  if (value.kind === 'fields') return formatDrfFieldErrors(value.errors, t)
+  if (value.kind === 'fields') return formatFieldErrors(value.errors, t)
   return t('failed')
 })
 

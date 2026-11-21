@@ -34,8 +34,9 @@ export function useContactAttachmentsControl(options: { t: ReturnType<typeof use
     if (error.code === 'throttled') return t('files.throttled')
     if (error.code === 'busy') return t('files.busy')
     if (error.code === 'network') return t('files.network')
-    return isDrfFieldErrorMap(error.data)
-      ? formatDrfFieldErrors(error.data, t)
+    const fieldErrors = apiFieldErrorsOf(error.data)
+    return fieldErrors.length
+      ? formatFieldErrors(fieldErrors, t)
       : t('files.rejected')
   }
 

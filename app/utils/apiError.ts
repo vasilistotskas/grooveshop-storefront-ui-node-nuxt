@@ -111,7 +111,16 @@ function fieldLeaves(value: unknown, path: string[], out: DescribedFieldError[])
 /** Keys of a legacy DRF body that are not field names. */
 const NON_FIELD_KEYS = new Set(['detail', 'code', 'fields', 'reason', 'error', 'nonFieldErrors', 'status'])
 
-function fieldErrorsOf(body: Record<string, unknown>): DescribedFieldError[] {
+/**
+ * The per-field errors of a Django error body (`error.data`), the one
+ * reading every caller shares: `fields` (`{ field: [{ message, code }] }`,
+ * which every validation error carries), allauth's `errors`, or a body from
+ * before `fields`. Django's field keys sit beside `code` and `fields` in its
+ * body, so the body itself is never a plain `{ field: string[] }` map. Empty
+ * for anything that is not a body or names no field.
+ */
+export function apiFieldErrorsOf(body: unknown): DescribedFieldError[] {
+  if (!isRecord(body)) return []
   const out: DescribedFieldError[] = []
   if (isRecord(body.fields)) {
     fieldLeaves(body.fields, [], out)
@@ -168,7 +177,7 @@ export function describeApiErrorWith(
   const code = body ? codeOf(body) : undefined
   const mapped = (c: string | undefined) => (c && te(`errors.codes.${c}`) ? t(`errors.codes.${c}`) : undefined)
 
-  const rawFieldErrors = body ? fieldErrorsOf(body) : []
+  const rawFieldErrors = apiFieldErrorsOf(body)
   const fieldErrors = rawFieldErrors.map(entry => ({ ...entry, message: mapped(entry.code) ?? entry.message }))
 
   // A call with no answer has no status; a 5xx is ours to fix, not the shopper's.

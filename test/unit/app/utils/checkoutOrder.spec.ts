@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { buildOrderCreateBody, classifyOrderError, describeTotalChange, describeTotalToConfirm, failedStatusOf, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
+import { acceptedQuoteChange, acceptedQuoteOf, buildOrderCreateBody, classifyOrderError, describeCartChange, describeTotalChange, describeTotalToConfirm, failedStatusOf, placeOrderAt, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
-import { makeCheckoutQuote } from '~~/test/fixtures/checkoutQuote'
+import { CART_DIGEST, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
 
 /** Echoes the key and its params, so a text names the translation it came from. */
@@ -16,7 +16,7 @@ describe('classifyOrderError', () => {
       description: 'form.submit.error.reservation_expired_description',
       shouldRetry: true,
       addressStepErrors: [],
-      totalChanged: false,
+      quoteChanged: false,
     })
   })
 
@@ -28,7 +28,7 @@ describe('classifyOrderError', () => {
       description: 'form.submit.error.order_in_progress_description',
       shouldRetry: false,
       addressStepErrors: [],
-      totalChanged: false,
+      quoteChanged: false,
     })
   })
 
@@ -54,7 +54,7 @@ describe('classifyOrderError', () => {
       description: 'Από το Django.',
       shouldRetry: false,
       addressStepErrors: [],
-      totalChanged: false,
+      quoteChanged: false,
     })
     expect(withoutDetail.description).toBe(`form.submit.error.${fallback}`)
   })
@@ -84,6 +84,37 @@ describe('classifyOrderError', () => {
     expect(info).toMatchObject({ title: 'form.submit.error.inventory', description: 'Product has insufficient stock.' })
   })
 
+  // Django's body for a serializer error (`core/api/exception_handler.py`):
+  // the field keys DRF gave, plus `code` and `fields`. Its own refusal of a
+  // street number that is a postcode lands under that input.
+  it('reads Django\'s field errors from `fields` and hands the address-step ones back per input', () => {
+    const message = 'This looks like a postcode. Enter the street number here and the postcode in the postcode field.'
+    const info = classifyOrderError({
+      streetNumber: [message],
+      code: 'street_number_is_postcode',
+      fields: { streetNumber: [{ message, code: 'street_number_is_postcode' }] },
+    }, t, n)
+
+    expect(info).toEqual({
+      title: 'form.submit.error.invalid_order_data',
+      description: `streetNumber: ${message}`,
+      shouldRetry: false,
+      addressStepErrors: [{ name: 'streetNumber', message }],
+      quoteChanged: false,
+    })
+  })
+
+  it('puts a street line Django could not split under the street input', () => {
+    const message = 'Add the street number after the street name, for example Ermou 12, or enter it in the street number field.'
+    const info = classifyOrderError({
+      street: [message],
+      code: 'street_number_missing',
+      fields: { street: [{ message, code: 'street_number_missing' }] },
+    }, t, n)
+
+    expect(info.addressStepErrors).toEqual([{ name: 'street', message }])
+  })
+
   it('lists DRF field errors and hands the address-step ones back per input', () => {
     const info = classifyOrderError({
       zipcode: ['Enter a valid postcode.'],
@@ -109,7 +140,7 @@ describe('classifyOrderError', () => {
       description: 'Something broke.',
       shouldRetry: false,
       addressStepErrors: [],
-      totalChanged: false,
+      quoteChanged: false,
     })
   })
 
@@ -128,14 +159,38 @@ describe('classifyOrderError', () => {
       description: 'form.submit.error.total_changed_description {"total":"currency:71.40"}',
       shouldRetry: false,
       addressStepErrors: [],
-      totalChanged: true,
+      quoteChanged: true,
     })
+  })
+
+  // Django's 409 when the order's expectedCartDigest is not the cart's:
+  // told by its code as total_changed is, with the quote of the cart now.
+  it('tells the shopper the cart changed, with the amount due its refusal carries', () => {
+    const info = classifyOrderError({
+      detail: 'Your cart has changed since its total was shown.',
+      code: 'cart_changed',
+      error: { type: 'invalid_order_data', quote: makeCheckoutQuote({ amountDue: 63, cartDigest: 'digest-now' }) },
+    }, t, n)
+
+    expect(info).toEqual({
+      title: 'form.submit.error.cart_changed',
+      description: 'form.submit.error.cart_changed_description {"total":"currency:63.00"}',
+      shouldRetry: false,
+      addressStepErrors: [],
+      quoteChanged: true,
+    })
+  })
+
+  it('asks for a review of the cart when the changed-cart refusal carries no readable quote', () => {
+    const info = classifyOrderError({ code: 'cart_changed', error: { type: 'invalid_order_data' } }, t, n)
+
+    expect(info).toMatchObject({ description: 'form.submit.error.cart_changed_review', quoteChanged: true })
   })
 
   it('asks for a review when the changed-total refusal carries no readable quote', () => {
     const info = classifyOrderError({ code: 'total_changed', error: { type: 'invalid_order_data' } }, t, n)
 
-    expect(info).toMatchObject({ description: 'form.submit.error.total_changed_review', totalChanged: true })
+    expect(info).toMatchObject({ description: 'form.submit.error.total_changed_review', quoteChanged: true })
   })
 
   it.each([
@@ -147,7 +202,7 @@ describe('classifyOrderError', () => {
       description: undefined,
       shouldRetry: false,
       addressStepErrors: [],
-      totalChanged: false,
+      quoteChanged: false,
     })
   })
 })
@@ -180,7 +235,6 @@ describe('buildOrderCreateBody', () => {
     giftCards: [],
     meta: null,
     attribution: null,
-    expectedTotal: null,
     ...overrides,
   })
 
@@ -303,11 +357,26 @@ describe('buildOrderCreateBody', () => {
     expect(bare).not.toHaveProperty('attribution')
   })
 
-  it('sends the expected total exactly as the quote stated it, and none without one', () => {
+  it('leaves the quote it is placed at to placeOrderAt', () => {
+    const body = buildOrderCreateBody(form(), ctx())
+
+    expect(body).not.toHaveProperty('expectedTotal')
+    expect(body).not.toHaveProperty('expectedCartDigest')
+  })
+
+  describe('placeOrderAt', () => {
     const expectedTotal = { amount: 6300, currency: 'EUR' }
 
-    expect(buildOrderCreateBody(form(), ctx({ expectedTotal })).expectedTotal).toBe(expectedTotal)
-    expect(buildOrderCreateBody(form(), ctx())).not.toHaveProperty('expectedTotal')
+    it('sends the expected total and the cart digest exactly as the quote stated them', () => {
+      const body = placeOrderAt(buildOrderCreateBody(form(), ctx()), { expectedTotal, cartDigest: CART_DIGEST })
+
+      expect(body.expectedTotal).toBe(expectedTotal)
+      expect(body.expectedCartDigest).toBe(CART_DIGEST)
+    })
+
+    it('sends no digest when the quote had none to give', () => {
+      expect(placeOrderAt(buildOrderCreateBody(form(), ctx()), { expectedTotal, cartDigest: null })).not.toHaveProperty('expectedCartDigest')
+    })
   })
 
   describe('quoteRequestOf', () => {
@@ -325,8 +394,16 @@ describe('buildOrderCreateBody', () => {
         shippingKind: 'pickup_point',
         shippingProviderCode: 'boxnow',
         email: 'maria@example.com',
+        boxnowLockerId: 'L-42',
         payWayId: 3,
       })
+    })
+
+    // Django digests the pickup point: a quote without it would never
+    // carry the digest of the order that has it.
+    it('carries the pickup point the order carries, for each carrier', () => {
+      expect(quoteRequestOf(order({ shippingMethod: 'acs_smartpoint', acsStationExternalId: 'ACS-7', acsStationBranch: 'ATH' }), { delivery: true, payWay: true }))
+        .toMatchObject({ shippingProviderCode: 'acs', acsStationExternalId: 'ACS-7', acsStationBranch: 'ATH' })
     })
 
     it('leaves out the pay way the form pre-selected before the payment step', () => {
@@ -342,6 +419,7 @@ describe('buildOrderCreateBody', () => {
       expect(request).not.toHaveProperty('shippingKind')
       expect(request).not.toHaveProperty('shippingProviderCode')
       expect(request).not.toHaveProperty('email')
+      expect(request).not.toHaveProperty('boxnowLockerId')
     })
 
     // The proxy refuses an empty country, which the form holds until the
@@ -366,6 +444,43 @@ describe('sameExpectedTotal', () => {
     [null, null, false],
   ])('%j and %j are the same: %s', (a, b, same) => {
     expect(sameExpectedTotal(a, b)).toBe(same)
+  })
+})
+
+describe('acceptedQuoteOf', () => {
+  it('takes the total and the digest a quote states', () => {
+    expect(acceptedQuoteOf(makeCheckoutQuote())).toEqual({ expectedTotal: { amount: 6300, currency: 'EUR' }, cartDigest: CART_DIGEST })
+  })
+
+  it('has nothing to accept without a total', () => {
+    expect(acceptedQuoteOf(unpricedQuote())).toBeNull()
+    expect(acceptedQuoteOf(null)).toBeNull()
+  })
+})
+
+describe('acceptedQuoteChange', () => {
+  const total = { amount: 6300, currency: 'EUR' }
+
+  it.each([
+    ['the same quote', { expectedTotal: total, cartDigest: 'a' }, null],
+    ['another total', { expectedTotal: { amount: 6400, currency: 'EUR' }, cartDigest: 'a' }, 'total'],
+    // A line swapped for one at the same price: only the digest tells.
+    ['another cart at the same total', { expectedTotal: total, cartDigest: 'b' }, 'cart'],
+  ])('names %s', (_case, accepted, change) => {
+    expect(acceptedQuoteChange({ expectedTotal: total, cartDigest: 'a' }, accepted)).toBe(change)
+  })
+
+  it('names a quote the shopper was never shown as another total', () => {
+    expect(acceptedQuoteChange({ expectedTotal: total, cartDigest: 'a' }, null)).toBe('total')
+  })
+})
+
+describe('describeCartChange', () => {
+  it('names the amount due of the cart now', () => {
+    expect(describeCartChange(12.5, t, n)).toEqual({
+      title: 'form.submit.error.cart_changed',
+      description: 'form.submit.error.cart_changed_description {"total":"currency:12.50"}',
+    })
   })
 })
 

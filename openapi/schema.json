@@ -21758,8 +21758,8 @@
         "/api/v1/cart/quote": {
             "post": {
                 "operationId": "quoteCart",
-                "description": "What checkout charges for the cart with the choices made so far, computed by the function order creation and the payment intent use: the products, the promotions, the delivery, the pay-way fee, the loyalty discount and the gift cards, and the amount due. A row that depends on a choice the request did not make is null. Also lists every delivery and pay way on offer at the price this cart would be charged. Send ``expectedTotal`` back when creating the order: it is then created only at this total. A quote asked with ``X-Cart-Token`` is the cart owner's price.",
-                "summary": "Quote the cart's checkout total",
+                "description": "Τι χρεώνει το ταμείο για το καλάθι με τις επιλογές που έχουν γίνει ως τώρα, υπολογισμένο από τη συνάρτηση που χρησιμοποιούν η δημιουργία παραγγελίας και το payment intent: τα προϊόντα, οι προσφορές, η παράδοση, η επιβάρυνση της μεθόδου πληρωμής, η έκπτωση πόντων και οι δωροκάρτες, και το οφειλόμενο ποσό. Μια γραμμή που εξαρτάται από επιλογή που δεν έκανε το αίτημα είναι null. Παραθέτει επίσης κάθε διαθέσιμο τρόπο παράδοσης και κάθε μέθοδο πληρωμής στην τιμή που θα χρεωνόταν αυτό το καλάθι. Στείλτε πίσω το ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: τότε δημιουργείται μόνο σε αυτό το σύνολο. Μια κοστολόγηση που ζητείται με ``X-Cart-Token`` είναι η τιμή του κατόχου του καλαθιού.",
+                "summary": "Κοστολόγηση του συνόλου του καλαθιού στο ταμείο",
                 "parameters": [
                     {
                         "in": "header",
@@ -64278,7 +64278,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "The cart's lines at the prices the shopper pays."
+                        "description": "Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής."
                     },
                     "discountTotal": {
                         "type": "number",
@@ -64287,14 +64287,14 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "What live promotions and the applied coupon take off."
+                        "description": "Ό,τι αφαιρούν οι ενεργές προσφορές και το εφαρμοσμένο κουπόνι."
                     },
                     "appliedPromotions": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/QuoteAppliedPromotion"
                         },
-                        "description": "One entry per promotion that took money off; the amounts sum to discountTotal."
+                        "description": "Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal."
                     },
                     "blockingCoupon": {
                         "allOf": [
@@ -64303,7 +64303,7 @@
                             }
                         ],
                         "nullable": true,
-                        "description": "An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none."
+                        "description": "Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει."
                     },
                     "freeThresholdValue": {
                         "type": "number",
@@ -64312,7 +64312,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees."
+                        "description": "Η αξία με την οποία κρίνεται κάθε όριο «δωρεάν άνω των»: τα προϊόντα μετά τις εκπτώσεις, χωρίς μεταφορικά και επιβαρύνσεις."
                     },
                     "shipping": {
                         "allOf": [
@@ -64337,7 +64337,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "What the redeemed loyalty points take off."
+                        "description": "Ό,τι αφαιρούν οι πόντοι πιστότητας που εξαργυρώνονται."
                     },
                     "giftCardAmount": {
                         "type": "number",
@@ -64347,7 +64347,7 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "nullable": true,
-                        "description": "What the gift cards settle of the total; they are payment, applied last."
+                        "description": "Το μέρος του συνόλου που εξοφλούν οι δωροκάρτες· είναι πληρωμή και εφαρμόζονται τελευταίες."
                     },
                     "grandTotal": {
                         "type": "number",
@@ -64357,7 +64357,7 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "nullable": true,
-                        "description": "The products after promotions, plus shipping and the pay-way fee."
+                        "description": "Τα προϊόντα μετά τις προσφορές, συν τα μεταφορικά και την επιβάρυνση της μεθόδου πληρωμής."
                     },
                     "amountDue": {
                         "type": "number",
@@ -64367,11 +64367,11 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "nullable": true,
-                        "description": "What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for."
+                        "description": "Ό,τι απομένει προς πληρωμή μετά την έκπτωση πόντων και τις δωροκάρτες: το ποσό που αποθηκεύει μια παραγγελία με αυτές τις επιλογές και για το οποίο πληρώνεται."
                     },
                     "currency": {
                         "type": "string",
-                        "description": "ISO 4217 currency code of every amount in the quote."
+                        "description": "Κωδικός νομίσματος ISO 4217 για κάθε ποσό της κοστολόγησης."
                     },
                     "expectedTotal": {
                         "allOf": [
@@ -64380,7 +64380,12 @@
                             }
                         ],
                         "nullable": true,
-                        "description": "amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total."
+                        "description": "Το amountDue όπως το συγκρίνει η δημιουργία παραγγελίας. Στείλτε το πίσω ως ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο σε αυτό το σύνολο."
+                    },
+                    "cartDigest": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό."
                     },
                     "shippingOptions": {
                         "type": "array",
@@ -64389,7 +64394,7 @@
                         },
                         "nullable": true,
                         "readOnly": true,
-                        "description": "Every delivery the store offers to the request's country, priced as an order would be. Null without a country."
+                        "description": "Κάθε τρόπος παράδοσης που προσφέρει το κατάστημα στη χώρα του αιτήματος, με την τιμή που θα χρεωνόταν μια παραγγελία. Null χωρίς χώρα."
                     },
                     "payWays": {
                         "type": "array",
@@ -64397,13 +64402,14 @@
                             "$ref": "#/components/schemas/QuotePayWayOption"
                         },
                         "readOnly": true,
-                        "description": "Every pay way offered for the chosen delivery (all of them while none is chosen), with the fee an order would be charged."
+                        "description": "Κάθε μέθοδος πληρωμής που προσφέρεται για την επιλεγμένη παράδοση (όλες, όσο δεν έχει επιλεγεί καμία), με την επιβάρυνση που θα χρεωνόταν μια παραγγελία."
                     }
                 },
                 "required": [
                     "amountDue",
                     "appliedPromotions",
                     "blockingCoupon",
+                    "cartDigest",
                     "currency",
                     "discountTotal",
                     "expectedTotal",
@@ -64420,12 +64426,27 @@
             },
             "CartQuoteRequestRequest": {
                 "type": "object",
-                "description": "Request body for ``POST /api/v1/cart/quote``.\n\nThe choices of the payment-intent body, each optional: a quote may\nbe asked before the shopper has chosen a delivery or a pay way, and\nthe rows that depend on a missing choice come back null. A delivery\nis priced once both ``shipping_kind`` and ``country_id`` are given.\nSend what the order-create body will carry, the email included, so\nthe quote is the total that order is created at.",
+                "description": "Request body for ``POST /api/v1/cart/quote``.\n\nThe choices of the payment-intent body, each optional: a quote may\nbe asked before the shopper has chosen a delivery or a pay way, and\nthe rows that depend on a missing choice come back null. A delivery\nis priced once both ``shipping_kind`` and ``country_id`` are given.\nSend what the order-create body will carry, the email and the pickup\npoint included, so the quote is the total that order is created at\nand its ``cartDigest`` the cart that order is made of.",
                 "properties": {
+                    "boxnowLockerId": {
+                        "type": "string",
+                        "description": "ID locker APM BoxNow από το widget",
+                        "maxLength": 64
+                    },
+                    "acsStationExternalId": {
+                        "type": "string",
+                        "description": "Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).",
+                        "maxLength": 32
+                    },
+                    "acsStationBranch": {
+                        "type": "string",
+                        "description": "Τιμή ACS_Station_Branch_Destination.",
+                        "maxLength": 32
+                    },
                     "payWayId": {
                         "type": "integer",
                         "minimum": 1,
-                        "description": "ID of the chosen PayWay; omit while none is chosen."
+                        "description": "ID της επιλεγμένης μεθόδου πληρωμής· παραλείψτε το όσο δεν έχει επιλεγεί καμία."
                     },
                     "shippingKind": {
                         "allOf": [
@@ -64433,7 +64454,7 @@
                                 "$ref": "#/components/schemas/ShippingKind"
                             }
                         ],
-                        "description": "Fulfilment kind of the chosen delivery; omit while none is chosen.\n\n* `home_delivery` - Κατ' οίκον παράδοση\n* `pickup_point` - Σημείο παραλαβής / locker"
+                        "description": "Είδος εκπλήρωσης της επιλεγμένης παράδοσης· παραλείψτε το όσο δεν έχει επιλεγεί καμία.\n\n* `home_delivery` - Κατ' οίκον παράδοση\n* `pickup_point` - Σημείο παραλαβής / locker"
                     },
                     "shippingProviderCode": {
                         "type": "string",
@@ -64443,7 +64464,7 @@
                     "countryId": {
                         "type": "string",
                         "minLength": 1,
-                        "description": "ISO 3166-1 alpha-2 delivery country. Needed to price a delivery and to list the shipping options.",
+                        "description": "Χώρα παράδοσης (ISO 3166-1 alpha-2). Χρειάζεται για την τιμολόγηση μιας παράδοσης και για τη λίστα των τρόπων αποστολής.",
                         "maxLength": 2
                     },
                     "regionId": {
@@ -64493,7 +64514,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "The cart's lines at the prices the shopper pays."
+                        "description": "Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής."
                     },
                     "discountTotal": {
                         "type": "number",
@@ -64502,14 +64523,14 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "What live promotions and the applied coupon take off."
+                        "description": "Ό,τι αφαιρούν οι ενεργές προσφορές και το εφαρμοσμένο κουπόνι."
                     },
                     "appliedPromotions": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/QuoteAppliedPromotion"
                         },
-                        "description": "One entry per promotion that took money off; the amounts sum to discountTotal."
+                        "description": "Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal."
                     },
                     "blockingCoupon": {
                         "allOf": [
@@ -64518,7 +64539,7 @@
                             }
                         ],
                         "nullable": true,
-                        "description": "An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none."
+                        "description": "Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει."
                     },
                     "freeThresholdValue": {
                         "type": "number",
@@ -64527,7 +64548,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees."
+                        "description": "Η αξία με την οποία κρίνεται κάθε όριο «δωρεάν άνω των»: τα προϊόντα μετά τις εκπτώσεις, χωρίς μεταφορικά και επιβαρύνσεις."
                     },
                     "shipping": {
                         "allOf": [
@@ -64552,7 +64573,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "What the redeemed loyalty points take off."
+                        "description": "Ό,τι αφαιρούν οι πόντοι πιστότητας που εξαργυρώνονται."
                     },
                     "giftCardAmount": {
                         "type": "number",
@@ -64562,7 +64583,7 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "nullable": true,
-                        "description": "What the gift cards settle of the total; they are payment, applied last."
+                        "description": "Το μέρος του συνόλου που εξοφλούν οι δωροκάρτες· είναι πληρωμή και εφαρμόζονται τελευταίες."
                     },
                     "grandTotal": {
                         "type": "number",
@@ -64572,7 +64593,7 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "nullable": true,
-                        "description": "The products after promotions, plus shipping and the pay-way fee."
+                        "description": "Τα προϊόντα μετά τις προσφορές, συν τα μεταφορικά και την επιβάρυνση της μεθόδου πληρωμής."
                     },
                     "amountDue": {
                         "type": "number",
@@ -64582,11 +64603,11 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "nullable": true,
-                        "description": "What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for."
+                        "description": "Ό,τι απομένει προς πληρωμή μετά την έκπτωση πόντων και τις δωροκάρτες: το ποσό που αποθηκεύει μια παραγγελία με αυτές τις επιλογές και για το οποίο πληρώνεται."
                     },
                     "currency": {
                         "type": "string",
-                        "description": "ISO 4217 currency code of every amount in the quote."
+                        "description": "Κωδικός νομίσματος ISO 4217 για κάθε ποσό της κοστολόγησης."
                     },
                     "expectedTotal": {
                         "allOf": [
@@ -64595,13 +64616,19 @@
                             }
                         ],
                         "nullable": true,
-                        "description": "amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total."
+                        "description": "Το amountDue όπως το συγκρίνει η δημιουργία παραγγελίας. Στείλτε το πίσω ως ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο σε αυτό το σύνολο."
+                    },
+                    "cartDigest": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό."
                     }
                 },
                 "required": [
                     "amountDue",
                     "appliedPromotions",
                     "blockingCoupon",
+                    "cartDigest",
                     "currency",
                     "discountTotal",
                     "expectedTotal",
@@ -65952,11 +65979,11 @@
                     "amount": {
                         "type": "integer",
                         "minimum": 0,
-                        "description": "The amount due in minor units (cents): 1999 for 19.99."
+                        "description": "Το οφειλόμενο ποσό σε υποδιαιρέσεις του νομίσματος (λεπτά): 1999 για 19,99."
                     },
                     "currency": {
                         "type": "string",
-                        "description": "ISO 4217 currency code of the amount.",
+                        "description": "Κωδικός νομίσματος ISO 4217 του ποσού.",
                         "maxLength": 3,
                         "minLength": 3
                     }
@@ -65973,12 +66000,12 @@
                     "amount": {
                         "type": "integer",
                         "minimum": 0,
-                        "description": "The amount due in minor units (cents): 1999 for 19.99."
+                        "description": "Το οφειλόμενο ποσό σε υποδιαιρέσεις του νομίσματος (λεπτά): 1999 για 19,99."
                     },
                     "currency": {
                         "type": "string",
                         "minLength": 3,
-                        "description": "ISO 4217 currency code of the amount.",
+                        "description": "Κωδικός νομίσματος ISO 4217 του ποσού.",
                         "maxLength": 3
                     }
                 },
@@ -68131,7 +68158,7 @@
             },
             "OrderCreateError": {
                 "type": "object",
-                "description": "The 400 or 409 body of ``POST /order``.\n\n409 is ``legal_document_unavailable`` (a checkout legal text the\nstore cannot show in the order's language) or ``total_changed``\n(the request's ``expectedTotal`` is not the amount due computed\nnow). Tell ``total_changed`` by ``code`` and the status: its\n``error.type`` is ``invalid_order_data`` until every client lists\nthe new value.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
+                "description": "The 400 or 409 body of ``POST /order``.\n\n409 is ``legal_document_unavailable`` (a checkout legal text the\nstore cannot show in the order's language) or ``total_changed``\n(the request's ``expectedTotal`` is not the amount due computed\nnow) or ``cart_changed`` (its ``expectedCartDigest`` is not the\ncart digest computed now). Tell those two by ``code`` and the\nstatus: their ``error.type`` is ``invalid_order_data`` until every\nclient lists the new values.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
                 "properties": {
                     "detail": {
                         "type": "string"
@@ -68198,7 +68225,7 @@
                                 "$ref": "#/components/schemas/CheckoutQuote"
                             }
                         ],
-                        "description": "``total_changed`` only: what checkout charges for the cart now. Show its total and send its ``expectedTotal`` to order at it."
+                        "description": "Μόνο για ``total_changed`` και ``cart_changed``: τι χρεώνει τώρα το ταμείο για το καλάθι. Εμφανίστε το και στείλτε το ``expectedTotal`` του, και το ``cartDigest`` του ως ``expectedCartDigest``, για να παραγγείλετε με αυτό."
                     }
                 },
                 "required": [
@@ -68226,6 +68253,21 @@
                 "type": "object",
                 "description": "Serializer for creating orders from cart (dual-flow payment architecture).\n\nThe flow follows the pay way's ``settlement``:\n1. ``online``: the shopper pays at checkout. A client-confirmed\n   provider (Stripe) takes ``payment_intent_id`` for the balance\n   left after deductions (gift cards, promotions, loyalty points);\n   without one the order is created order-first, which succeeds only\n   when the deductions cover the whole total, so no provider charge\n   is made. A hosted-checkout provider (Viva) creates the order\n   first and redirects.\n2. Any other settlement (courier cash, carrier terminal, offline\n   transfer): money is collected later, no ``payment_intent_id``.\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
                 "properties": {
+                    "boxnowLockerId": {
+                        "type": "string",
+                        "description": "ID locker APM BoxNow από το widget",
+                        "maxLength": 64
+                    },
+                    "acsStationExternalId": {
+                        "type": "string",
+                        "description": "Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).",
+                        "maxLength": 32
+                    },
+                    "acsStationBranch": {
+                        "type": "string",
+                        "description": "Τιμή ACS_Station_Branch_Destination.",
+                        "maxLength": 32
+                    },
                     "payWayId": {
                         "type": "integer",
                         "description": "ID μεθόδου πληρωμής"
@@ -68256,13 +68298,12 @@
                     "street": {
                         "type": "string",
                         "minLength": 1,
-                        "description": "Όνομα οδού",
+                        "description": "Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.",
                         "maxLength": 255
                     },
                     "streetNumber": {
                         "type": "string",
-                        "minLength": 1,
-                        "description": "Αριθμός οδού",
+                        "description": "Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.",
                         "maxLength": 50
                     },
                     "city": {
@@ -68386,11 +68427,6 @@
                         "description": "Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.",
                         "maxItems": 3
                     },
-                    "boxnowLockerId": {
-                        "type": "string",
-                        "description": "ID locker APM BoxNow από το widget",
-                        "maxLength": 64
-                    },
                     "shippingProviderCode": {
                         "description": "Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').",
                         "oneOf": [
@@ -68413,16 +68449,6 @@
                         ],
                         "description": "Γενικός τύπος εκπλήρωσης, ανεξάρτητος από τον πάροχο.\n\n* `home_delivery` - Κατ' οίκον παράδοση\n* `pickup_point` - Σημείο παραλαβής / locker"
                     },
-                    "acsStationExternalId": {
-                        "type": "string",
-                        "description": "Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).",
-                        "maxLength": 32
-                    },
-                    "acsStationBranch": {
-                        "type": "string",
-                        "description": "Τιμή ACS_Station_Branch_Destination.",
-                        "maxLength": 32
-                    },
                     "acsChargeType": {
                         "allOf": [
                             {
@@ -68444,7 +68470,14 @@
                             }
                         ],
                         "writeOnly": true,
-                        "description": "The total the buyer was shown: ``expectedTotal`` of ``POST /cart/quote``, or the client's own amount due in minor units. When sent, the order is created only if it is exactly the amount due computed now; otherwise the answer is 409 ``total_changed`` with the new quote and nothing is created."
+                        "description": "Το σύνολο που είδε ο αγοραστής: το ``expectedTotal`` του ``POST /cart/quote``. Η παραγγελία δημιουργείται μόνο αν είναι ακριβώς το οφειλόμενο ποσό που υπολογίζεται τώρα· διαφορετικά η απάντηση είναι 409 ``total_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα."
+                    },
+                    "expectedCartDigest": {
+                        "type": "string",
+                        "writeOnly": true,
+                        "minLength": 1,
+                        "description": "Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής, τρόπος πληρωμής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.",
+                        "maxLength": 64
                     },
                     "meta": {
                         "type": "object",
@@ -68452,6 +68485,12 @@
                         "writeOnly": true,
                         "nullable": true,
                         "description": "Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή."
+                    },
+                    "agentCheckout": {
+                        "type": "string",
+                        "format": "uuid",
+                        "writeOnly": true,
+                        "description": "Ορίζεται από το agent gateway: το αναγνωριστικό της ολοκλήρωσης αγοράς του. Μια ολοκλήρωση αγοράς δημιουργεί μία παραγγελία: μια επανάληψη με το ίδιο αναγνωριστικό απαντάται με την παραγγελία που δημιούργησε και δεν δημιουργεί τίποτα."
                     },
                     "attribution": {
                         "allOf": [
@@ -68471,12 +68510,12 @@
                     "city",
                     "countryId",
                     "email",
+                    "expectedTotal",
                     "firstName",
                     "lastName",
                     "payWayId",
                     "phone",
                     "street",
-                    "streetNumber",
                     "termsAccepted",
                     "zipcode"
                 ]
@@ -69103,10 +69142,19 @@
                         "type": "boolean",
                         "readOnly": true,
                         "description": "True when the provider confirmed a charge that did not match the order's total and the order is still undecided (PENDING, payment not final): the money has left the customer, the order was not marked paid, and the store reconciles it by hand. Do not offer a new payment link. False for any other order, including one whose mismatch the store has since settled, canceled or refunded."
+                    },
+                    "agentCheckout": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Ολοκλήρωση αγοράς πράκτορα AI",
+                        "description": "Η ολοκλήρωση αγοράς του agent gateway που δημιούργησε αυτή την παραγγελία. Μια ολοκλήρωση αγοράς δημιουργεί μία παραγγελία: μια επανάληψη της δημιουργίας της απαντάται με αυτή την παραγγελία."
                     }
                 },
                 "required": [
                     "acsShipment",
+                    "agentCheckout",
                     "amountDue",
                     "appliedCouponCodes",
                     "attribution",
@@ -72737,7 +72785,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -74011,7 +74059,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -75294,7 +75342,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -75612,7 +75660,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -76099,7 +76147,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -77153,7 +77201,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -77892,7 +77940,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1.0
+                            "value": 1
                         },
                         "nullable": true
                     },
@@ -78530,7 +78578,7 @@
                     "code": {
                         "type": "string",
                         "nullable": true,
-                        "description": "The coupon that earned the entry; null for an automatic promotion."
+                        "description": "Το κουπόνι που έδωσε την εγγραφή· null για αυτόματη προσφορά."
                     },
                     "amount": {
                         "type": "number",
@@ -78556,7 +78604,7 @@
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Why the code is refused, in the coupon rejection vocabulary (``discount_code_expired``, ...)."
+                        "description": "Γιατί απορρίπτεται ο κωδικός, στο λεξιλόγιο απόρριψης κουπονιών (``discount_code_expired``, ...)."
                     }
                 },
                 "required": [
@@ -78573,7 +78621,7 @@
                     },
                     "key": {
                         "type": "string",
-                        "description": "The pay way's key, as on the pay-way endpoint."
+                        "description": "Το κλειδί της μεθόδου πληρωμής, όπως στο endpoint των μεθόδων πληρωμής."
                     },
                     "fee": {
                         "type": "number",
@@ -78585,7 +78633,7 @@
                     },
                     "waived": {
                         "type": "boolean",
-                        "description": "True when the pay way has a fee and the cart reached its free-above threshold."
+                        "description": "Αληθές όταν η μέθοδος πληρωμής έχει επιβάρυνση και το καλάθι έφτασε το όριο πάνω από το οποίο είναι δωρεάν."
                     }
                 },
                 "required": [
@@ -78608,7 +78656,7 @@
                     },
                     "waived": {
                         "type": "boolean",
-                        "description": "True when the pay way has a fee and the cart reached its free-above threshold."
+                        "description": "Αληθές όταν η μέθοδος πληρωμής έχει επιβάρυνση και το καλάθι έφτασε το όριο πάνω από το οποίο είναι δωρεάν."
                     }
                 },
                 "required": [
@@ -78629,7 +78677,7 @@
                     },
                     "waivedBy": {
                         "nullable": true,
-                        "description": "What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.\n\n* `threshold` - threshold\n* `promotion` - promotion",
+                        "description": "Τι έκανε την παράδοση δωρεάν: ``threshold`` (το όριο δωρεάν αποστολής του μεταφορέα) ή ``promotion`` (προσφορά δωρεάν αποστολής). Null όταν χρεώνεται ή όταν απλώς δεν κοστίζει τίποτα.\n\n* `threshold` - threshold\n* `promotion` - promotion",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/WaivedByEnum"
@@ -78668,7 +78716,7 @@
                     },
                     "waivedBy": {
                         "nullable": true,
-                        "description": "What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.\n\n* `threshold` - threshold\n* `promotion` - promotion",
+                        "description": "Τι έκανε την παράδοση δωρεάν: ``threshold`` (το όριο δωρεάν αποστολής του μεταφορέα) ή ``promotion`` (προσφορά δωρεάν αποστολής). Null όταν χρεώνεται ή όταν απλώς δεν κοστίζει τίποτα.\n\n* `threshold` - threshold\n* `promotion` - promotion",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/WaivedByEnum"
@@ -78680,11 +78728,11 @@
                     },
                     "exceedsMaxWeight": {
                         "type": "boolean",
-                        "description": "True when the cart is heavier than this option carries; choosing it is refused."
+                        "description": "Αληθές όταν το καλάθι είναι βαρύτερο από όσο μεταφέρει αυτή η επιλογή· η επιλογή της απορρίπτεται."
                     },
                     "exceedsParcelSize": {
                         "type": "boolean",
-                        "description": "True when the cart does not fit this carrier's parcels; choosing it is refused."
+                        "description": "Αληθές όταν το καλάθι δεν χωρά στα δέματα αυτού του μεταφορέα· η επιλογή του απορρίπτεται."
                     }
                 },
                 "required": [

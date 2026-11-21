@@ -19,7 +19,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { computed, defineComponent, nextTick } from 'vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
-import { makeCartQuote, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
+import { CART_DIGEST, makeCartQuote, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
 import { makeOrder } from '~~/test/fixtures/order'
 import { makePayWay } from '~~/test/fixtures/payWay'
@@ -928,13 +928,14 @@ describe('useCheckoutSubmit', () => {
       ['cash on delivery', COD],
       ['Viva Wallet', VIVA],
       ['Stripe', STRIPE],
-    ])('sends the total the shopper was shown with a %s order, as the quote stated it', async (_label, payWay) => {
+    ])('sends the total and the cart the shopper was shown with a %s order, as the quote stated them', async (_label, payWay) => {
       api.routes({ '/api/orders': orderCreated() })
       const { onSubmit } = setup(payWay)
 
       await onSubmit()
 
       expect(orderBodies()[0].expectedTotal).toEqual({ amount: 6300, currency: 'EUR' })
+      expect(orderBodies()[0].expectedCartDigest).toBe(CART_DIGEST)
     })
 
     it('quotes the choices the shopper has reached, and every one on the payment step', () => {
@@ -961,6 +962,21 @@ describe('useCheckoutSubmit', () => {
         description: useNuxtApp().$i18n.t('form.submit.error.total_changed_description', { total: money(70) }),
       })
       expect(m.releaseReservations).toHaveBeenCalledWith([42])
+    })
+
+    // A line swapped for one at the same price: the total cannot tell, the
+    // digest does, and the order is not placed of a cart the page never showed.
+    it('shows a cart that changed at the same total since the click instead of ordering it', async () => {
+      q.priced = makeCartQuote({ cartDigest: 'digest-of-another-cart' })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders')).toEqual([])
+      expect(lastFailure()).toMatchObject({
+        title: t('form.submit.error.cart_changed'),
+        description: useNuxtApp().$i18n.t('form.submit.error.cart_changed_description', { total: money(63) }),
+      })
     })
 
     // A click that lands while the page showed no total (the delivery
@@ -1032,6 +1048,46 @@ describe('useCheckoutSubmit', () => {
       expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.total_unavailable'),
         description: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.',
+      })
+    })
+
+    describe('refused by Django because the cart changed', () => {
+      const NEW_CART = makeCartQuote({ cartDigest: 'digest-of-the-cart-now' })
+      const cartChanged = orderRejected(409, {
+        detail: 'Your cart has changed since its total was shown.',
+        code: 'cart_changed',
+        error: { type: 'invalid_order_data', quote: makeCheckoutQuote({ cartDigest: 'digest-of-the-cart-now' }) },
+      })
+
+      it('says the cart changed, with the amount due now, and asks Django for the cart and the quote again', async () => {
+        api.routes({ '/api/orders': cartChanged, '/api/cart': makeCart() })
+        const { onSubmit } = setup(COD)
+
+        await onSubmit()
+        await vi.waitFor(() => expect(q.refresh).toHaveBeenCalled())
+
+        expect(lastFailure()).toMatchObject({
+          title: t('form.submit.error.cart_changed'),
+          description: useNuxtApp().$i18n.t('form.submit.error.cart_changed_description', { total: money(63) }),
+          code: 'cart_changed',
+        })
+        expect(api.callsTo('/api/cart')).toHaveLength(1)
+      })
+
+      it('orders the cart now once the shopper submits again with its quote on the page', async () => {
+        let orders = 0
+        api.routes({
+          '/api/orders': () => (orders++ === 0 ? cartChanged : orderCreated())(),
+          '/api/cart': makeCart(),
+        })
+        const { onSubmit } = setup(COD)
+        await onSubmit()
+
+        q.shown = NEW_CART
+        q.priced = NEW_CART
+        await onSubmit()
+
+        expect(orderBodies().map(body => body.expectedCartDigest)).toEqual([CART_DIGEST, 'digest-of-the-cart-now'])
       })
     })
 

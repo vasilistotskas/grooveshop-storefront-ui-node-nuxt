@@ -2752,57 +2752,61 @@ export type CartPaymentIntentResponse = {
  */
 export type CartQuote = {
   /**
-     * The cart's lines at the prices the shopper pays.
+     * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
   itemsSubtotal: number
   /**
-     * What live promotions and the applied coupon take off.
+     * Ό,τι αφαιρούν οι ενεργές προσφορές και το εφαρμοσμένο κουπόνι.
      */
   discountTotal: number
   /**
-     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotion>
   /**
-     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
   blockingCoupon: QuoteBlockingCoupon | null
   /**
-     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     * Η αξία με την οποία κρίνεται κάθε όριο «δωρεάν άνω των»: τα προϊόντα μετά τις εκπτώσεις, χωρίς μεταφορικά και επιβαρύνσεις.
      */
   freeThresholdValue: number
   shipping: QuoteShipping | null
   paymentMethodFee: QuotePaymentFee | null
   /**
-     * What the redeemed loyalty points take off.
+     * Ό,τι αφαιρούν οι πόντοι πιστότητας που εξαργυρώνονται.
      */
   loyaltyDiscount: number
   /**
-     * What the gift cards settle of the total; they are payment, applied last.
+     * Το μέρος του συνόλου που εξοφλούν οι δωροκάρτες· είναι πληρωμή και εφαρμόζονται τελευταίες.
      */
   giftCardAmount: number | null
   /**
-     * The products after promotions, plus shipping and the pay-way fee.
+     * Τα προϊόντα μετά τις προσφορές, συν τα μεταφορικά και την επιβάρυνση της μεθόδου πληρωμής.
      */
   grandTotal: number | null
   /**
-     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     * Ό,τι απομένει προς πληρωμή μετά την έκπτωση πόντων και τις δωροκάρτες: το ποσό που αποθηκεύει μια παραγγελία με αυτές τις επιλογές και για το οποίο πληρώνεται.
      */
   amountDue: number | null
   /**
-     * ISO 4217 currency code of every amount in the quote.
+     * Κωδικός νομίσματος ISO 4217 για κάθε ποσό της κοστολόγησης.
      */
   currency: string
   /**
-     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     * Το amountDue όπως το συγκρίνει η δημιουργία παραγγελίας. Στείλτε το πίσω ως ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο σε αυτό το σύνολο.
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Every delivery the store offers to the request's country, priced as an order would be. Null without a country.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     */
+  cartDigest: string | null
+  /**
+     * Κάθε τρόπος παράδοσης που προσφέρει το κατάστημα στη χώρα του αιτήματος, με την τιμή που θα χρεωνόταν μια παραγγελία. Null χωρίς χώρα.
      */
   readonly shippingOptions: Array<QuoteShippingOption> | null
   /**
-     * Every pay way offered for the chosen delivery (all of them while none is chosen), with the fee an order would be charged.
+     * Κάθε μέθοδος πληρωμής που προσφέρεται για την επιλεγμένη παράδοση (όλες, όσο δεν έχει επιλεγεί καμία), με την επιβάρυνση που θα χρεωνόταν μια παραγγελία.
      */
   readonly payWays: Array<QuotePayWayOption>
 }
@@ -2814,16 +2818,29 @@ export type CartQuote = {
  * be asked before the shopper has chosen a delivery or a pay way, and
  * the rows that depend on a missing choice come back null. A delivery
  * is priced once both ``shipping_kind`` and ``country_id`` are given.
- * Send what the order-create body will carry, the email included, so
- * the quote is the total that order is created at.
+ * Send what the order-create body will carry, the email and the pickup
+ * point included, so the quote is the total that order is created at
+ * and its ``cartDigest`` the cart that order is made of.
  */
 export type CartQuoteRequestRequest = {
   /**
-     * ID of the chosen PayWay; omit while none is chosen.
+     * ID locker APM BoxNow από το widget
+     */
+  boxnowLockerId?: string
+  /**
+     * Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).
+     */
+  acsStationExternalId?: string
+  /**
+     * Τιμή ACS_Station_Branch_Destination.
+     */
+  acsStationBranch?: string
+  /**
+     * ID της επιλεγμένης μεθόδου πληρωμής· παραλείψτε το όσο δεν έχει επιλεγεί καμία.
      */
   payWayId?: number
   /**
-     * Fulfilment kind of the chosen delivery; omit while none is chosen.
+     * Είδος εκπλήρωσης της επιλεγμένης παράδοσης· παραλείψτε το όσο δεν έχει επιλεγεί καμία.
      *
      * * `home_delivery` - Κατ' οίκον παράδοση
      * * `pickup_point` - Σημείο παραλαβής / locker
@@ -2834,7 +2851,7 @@ export type CartQuoteRequestRequest = {
      */
   shippingProviderCode?: string
   /**
-     * ISO 3166-1 alpha-2 delivery country. Needed to price a delivery and to list the shipping options.
+     * Χώρα παράδοσης (ISO 3166-1 alpha-2). Χρειάζεται για την τιμολόγηση μιας παράδοσης και για τη λίστα των τρόπων αποστολής.
      */
   countryId?: string
   /**
@@ -2865,51 +2882,55 @@ export type CartQuoteRequestRequest = {
  */
 export type CheckoutQuote = {
   /**
-     * The cart's lines at the prices the shopper pays.
+     * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
   itemsSubtotal: number
   /**
-     * What live promotions and the applied coupon take off.
+     * Ό,τι αφαιρούν οι ενεργές προσφορές και το εφαρμοσμένο κουπόνι.
      */
   discountTotal: number
   /**
-     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotion>
   /**
-     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
   blockingCoupon: QuoteBlockingCoupon | null
   /**
-     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     * Η αξία με την οποία κρίνεται κάθε όριο «δωρεάν άνω των»: τα προϊόντα μετά τις εκπτώσεις, χωρίς μεταφορικά και επιβαρύνσεις.
      */
   freeThresholdValue: number
   shipping: QuoteShipping | null
   paymentMethodFee: QuotePaymentFee | null
   /**
-     * What the redeemed loyalty points take off.
+     * Ό,τι αφαιρούν οι πόντοι πιστότητας που εξαργυρώνονται.
      */
   loyaltyDiscount: number
   /**
-     * What the gift cards settle of the total; they are payment, applied last.
+     * Το μέρος του συνόλου που εξοφλούν οι δωροκάρτες· είναι πληρωμή και εφαρμόζονται τελευταίες.
      */
   giftCardAmount: number | null
   /**
-     * The products after promotions, plus shipping and the pay-way fee.
+     * Τα προϊόντα μετά τις προσφορές, συν τα μεταφορικά και την επιβάρυνση της μεθόδου πληρωμής.
      */
   grandTotal: number | null
   /**
-     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     * Ό,τι απομένει προς πληρωμή μετά την έκπτωση πόντων και τις δωροκάρτες: το ποσό που αποθηκεύει μια παραγγελία με αυτές τις επιλογές και για το οποίο πληρώνεται.
      */
   amountDue: number | null
   /**
-     * ISO 4217 currency code of every amount in the quote.
+     * Κωδικός νομίσματος ISO 4217 για κάθε ποσό της κοστολόγησης.
      */
   currency: string
   /**
-     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     * Το amountDue όπως το συγκρίνει η δημιουργία παραγγελίας. Στείλτε το πίσω ως ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο σε αυτό το σύνολο.
      */
   expectedTotal: ExpectedTotal | null
+  /**
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     */
+  cartDigest: string | null
 }
 
 export type CheckpointWriteRequest = {
@@ -3626,11 +3647,11 @@ export type ErrorResponse = {
  */
 export type ExpectedTotal = {
   /**
-     * The amount due in minor units (cents): 1999 for 19.99.
+     * Το οφειλόμενο ποσό σε υποδιαιρέσεις του νομίσματος (λεπτά): 1999 για 19,99.
      */
   amount: number
   /**
-     * ISO 4217 currency code of the amount.
+     * Κωδικός νομίσματος ISO 4217 του ποσού.
      */
   currency: string
 }
@@ -3640,11 +3661,11 @@ export type ExpectedTotal = {
  */
 export type ExpectedTotalRequest = {
   /**
-     * The amount due in minor units (cents): 1999 for 19.99.
+     * Το οφειλόμενο ποσό σε υποδιαιρέσεις του νομίσματος (λεπτά): 1999 για 19,99.
      */
   amount: number
   /**
-     * ISO 4217 currency code of the amount.
+     * Κωδικός νομίσματος ISO 4217 του ποσού.
      */
   currency: string
 }
@@ -4787,9 +4808,10 @@ export type OrderCreateDocumentType = 'RECEIPT' | 'INVOICE'
  * 409 is ``legal_document_unavailable`` (a checkout legal text the
  * store cannot show in the order's language) or ``total_changed``
  * (the request's ``expectedTotal`` is not the amount due computed
- * now). Tell ``total_changed`` by ``code`` and the status: its
- * ``error.type`` is ``invalid_order_data`` until every client lists
- * the new value.
+ * now) or ``cart_changed`` (its ``expectedCartDigest`` is not the
+ * cart digest computed now). Tell those two by ``code`` and the
+ * status: their ``error.type`` is ``invalid_order_data`` until every
+ * client lists the new values.
  *
  * A refusal the order service understands carries ``error.type``; a
  * malformed payload is DRF's field-error map instead (``{field:
@@ -4849,7 +4871,7 @@ export type OrderCreateErrorDetail = {
      */
   reason?: string
   /**
-     * ``total_changed`` only: what checkout charges for the cart now. Show its total and send its ``expectedTotal`` to order at it.
+     * Μόνο για ``total_changed`` και ``cart_changed``: τι χρεώνει τώρα το ταμείο για το καλάθι. Εμφανίστε το και στείλτε το ``expectedTotal`` του, και το ``cartDigest`` του ως ``expectedCartDigest``, για να παραγγείλετε με αυτό.
      */
   quote?: CheckoutQuote
 }
@@ -4888,6 +4910,18 @@ export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'rese
  */
 export type OrderCreateFromCartRequest = {
   /**
+     * ID locker APM BoxNow από το widget
+     */
+  boxnowLockerId?: string
+  /**
+     * Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).
+     */
+  acsStationExternalId?: string
+  /**
+     * Τιμή ACS_Station_Branch_Destination.
+     */
+  acsStationBranch?: string
+  /**
      * ID μεθόδου πληρωμής
      */
   payWayId: number
@@ -4908,13 +4942,13 @@ export type OrderCreateFromCartRequest = {
      */
   email: string
   /**
-     * Όνομα οδού
+     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.
      */
   street: string
   /**
-     * Αριθμός οδού
+     * Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.
      */
-  streetNumber: string
+  streetNumber?: string
   /**
      * Όνομα πόλης
      */
@@ -5003,10 +5037,6 @@ export type OrderCreateFromCartRequest = {
      */
   giftCardCodes?: Array<string>
   /**
-     * ID locker APM BoxNow από το widget
-     */
-  boxnowLockerId?: string
-  /**
      * Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').
      */
   shippingProviderCode?: string | string
@@ -5017,14 +5047,6 @@ export type OrderCreateFromCartRequest = {
      * * `pickup_point` - Σημείο παραλαβής / locker
      */
   shippingKind?: ShippingKind
-  /**
-     * Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).
-     */
-  acsStationExternalId?: string
-  /**
-     * Τιμή ACS_Station_Branch_Destination.
-     */
-  acsStationBranch?: string
   /**
      * Προαιρετική παράκαμψη του ACS Charge_Type ανά παραγγελία. Αφήστε το κενό για χρήση της προεπιλογής σε επίπεδο μεταφορέα (COD σε σύμβαση μόνο-COD). Ο ορισμός εδώ έχει νόημα μόνο αν η εμπορική σύμβαση με την ACS επιτρέπει την επιλεγμένη τιμή — μη έγκυροι συνδυασμοί απορρίπτονται από το ACS_Create_Voucher.
      *
@@ -5362,6 +5384,12 @@ export type OrderDetail = {
      * True when the provider confirmed a charge that did not match the order's total and the order is still undecided (PENDING, payment not final): the money has left the customer, the order was not marked paid, and the store reconciles it by hand. Do not offer a new payment link. False for any other order, including one whose mismatch the store has since settled, canceled or refunded.
      */
   readonly paymentAwaitsReview: boolean
+  /**
+     * Ολοκλήρωση αγοράς πράκτορα AI
+     *
+     * Η ολοκλήρωση αγοράς του agent gateway που δημιούργησε αυτή την παραγγελία. Μια ολοκλήρωση αγοράς δημιουργεί μία παραγγελία: μια επανάληψη της δημιουργίας της απαντάται με αυτή την παραγγελία.
+     */
+  readonly agentCheckout: string | null
 }
 
 /**
@@ -9063,7 +9091,7 @@ export type QuoteAppliedPromotion = {
   promotionId: number
   readonly name: string
   /**
-     * The coupon that earned the entry; null for an automatic promotion.
+     * Το κουπόνι που έδωσε την εγγραφή· null για αυτόματη προσφορά.
      */
   code: string | null
   amount: number
@@ -9072,7 +9100,7 @@ export type QuoteAppliedPromotion = {
 export type QuoteBlockingCoupon = {
   code: string
   /**
-     * Why the code is refused, in the coupon rejection vocabulary (``discount_code_expired``, ...).
+     * Γιατί απορρίπτεται ο κωδικός, στο λεξιλόγιο απόρριψης κουπονιών (``discount_code_expired``, ...).
      */
   reason: string
 }
@@ -9084,12 +9112,12 @@ export type QuoteBlockingCoupon = {
 export type QuotePayWayOption = {
   id: number
   /**
-     * The pay way's key, as on the pay-way endpoint.
+     * Το κλειδί της μεθόδου πληρωμής, όπως στο endpoint των μεθόδων πληρωμής.
      */
   key: string
   fee: number
   /**
-     * True when the pay way has a fee and the cart reached its free-above threshold.
+     * Αληθές όταν η μέθοδος πληρωμής έχει επιβάρυνση και το καλάθι έφτασε το όριο πάνω από το οποίο είναι δωρεάν.
      */
   waived: boolean
 }
@@ -9097,7 +9125,7 @@ export type QuotePayWayOption = {
 export type QuotePaymentFee = {
   amount: number
   /**
-     * True when the pay way has a fee and the cart reached its free-above threshold.
+     * Αληθές όταν η μέθοδος πληρωμής έχει επιβάρυνση και το καλάθι έφτασε το όριο πάνω από το οποίο είναι δωρεάν.
      */
   waived: boolean
 }
@@ -9105,7 +9133,7 @@ export type QuotePaymentFee = {
 export type QuoteShipping = {
   price: number
   /**
-     * What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.
+     * Τι έκανε την παράδοση δωρεάν: ``threshold`` (το όριο δωρεάν αποστολής του μεταφορέα) ή ``promotion`` (προσφορά δωρεάν αποστολής). Null όταν χρεώνεται ή όταν απλώς δεν κοστίζει τίποτα.
      *
      * * `threshold` - threshold
      * * `promotion` - promotion
@@ -9123,18 +9151,18 @@ export type QuoteShippingOption = {
   kind: ShippingKind
   price: number
   /**
-     * What made the delivery free: ``threshold`` (the carrier's free-shipping threshold) or ``promotion`` (a free-shipping promotion). Null when it is charged, or simply costs nothing.
+     * Τι έκανε την παράδοση δωρεάν: ``threshold`` (το όριο δωρεάν αποστολής του μεταφορέα) ή ``promotion`` (προσφορά δωρεάν αποστολής). Null όταν χρεώνεται ή όταν απλώς δεν κοστίζει τίποτα.
      *
      * * `threshold` - threshold
      * * `promotion` - promotion
      */
   waivedBy: WaivedByEnum | NullEnum | null
   /**
-     * True when the cart is heavier than this option carries; choosing it is refused.
+     * Αληθές όταν το καλάθι είναι βαρύτερο από όσο μεταφέρει αυτή η επιλογή· η επιλογή της απορρίπτεται.
      */
   exceedsMaxWeight: boolean
   /**
-     * True when the cart does not fit this carrier's parcels; choosing it is refused.
+     * Αληθές όταν το καλάθι δεν χωρά στα δέματα αυτού του μεταφορέα· η επιλογή του απορρίπτεται.
      */
   exceedsParcelSize: boolean
 }
@@ -11867,51 +11895,55 @@ export type CartItemMutationResponseWritable = {
  */
 export type CartQuoteWritable = {
   /**
-     * The cart's lines at the prices the shopper pays.
+     * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
   itemsSubtotal: number
   /**
-     * What live promotions and the applied coupon take off.
+     * Ό,τι αφαιρούν οι ενεργές προσφορές και το εφαρμοσμένο κουπόνι.
      */
   discountTotal: number
   /**
-     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotionWritable>
   /**
-     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
   blockingCoupon: QuoteBlockingCoupon | null
   /**
-     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     * Η αξία με την οποία κρίνεται κάθε όριο «δωρεάν άνω των»: τα προϊόντα μετά τις εκπτώσεις, χωρίς μεταφορικά και επιβαρύνσεις.
      */
   freeThresholdValue: number
   shipping: QuoteShipping | null
   paymentMethodFee: QuotePaymentFee | null
   /**
-     * What the redeemed loyalty points take off.
+     * Ό,τι αφαιρούν οι πόντοι πιστότητας που εξαργυρώνονται.
      */
   loyaltyDiscount: number
   /**
-     * What the gift cards settle of the total; they are payment, applied last.
+     * Το μέρος του συνόλου που εξοφλούν οι δωροκάρτες· είναι πληρωμή και εφαρμόζονται τελευταίες.
      */
   giftCardAmount: number | null
   /**
-     * The products after promotions, plus shipping and the pay-way fee.
+     * Τα προϊόντα μετά τις προσφορές, συν τα μεταφορικά και την επιβάρυνση της μεθόδου πληρωμής.
      */
   grandTotal: number | null
   /**
-     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     * Ό,τι απομένει προς πληρωμή μετά την έκπτωση πόντων και τις δωροκάρτες: το ποσό που αποθηκεύει μια παραγγελία με αυτές τις επιλογές και για το οποίο πληρώνεται.
      */
   amountDue: number | null
   /**
-     * ISO 4217 currency code of every amount in the quote.
+     * Κωδικός νομίσματος ISO 4217 για κάθε ποσό της κοστολόγησης.
      */
   currency: string
   /**
-     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     * Το amountDue όπως το συγκρίνει η δημιουργία παραγγελίας. Στείλτε το πίσω ως ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο σε αυτό το σύνολο.
      */
   expectedTotal: ExpectedTotal | null
+  /**
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     */
+  cartDigest: string | null
 }
 
 /**
@@ -11924,51 +11956,55 @@ export type CartQuoteWritable = {
  */
 export type CheckoutQuoteWritable = {
   /**
-     * The cart's lines at the prices the shopper pays.
+     * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
   itemsSubtotal: number
   /**
-     * What live promotions and the applied coupon take off.
+     * Ό,τι αφαιρούν οι ενεργές προσφορές και το εφαρμοσμένο κουπόνι.
      */
   discountTotal: number
   /**
-     * One entry per promotion that took money off; the amounts sum to discountTotal.
+     * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotionWritable>
   /**
-     * An attached coupon order creation refuses this cart for (``invalid_coupon``). Its discount is not in this quote; remove the code before ordering. Null when there is none.
+     * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
   blockingCoupon: QuoteBlockingCoupon | null
   /**
-     * The value every free-above threshold is judged on: the products after discounts, excluding shipping and fees.
+     * Η αξία με την οποία κρίνεται κάθε όριο «δωρεάν άνω των»: τα προϊόντα μετά τις εκπτώσεις, χωρίς μεταφορικά και επιβαρύνσεις.
      */
   freeThresholdValue: number
   shipping: QuoteShipping | null
   paymentMethodFee: QuotePaymentFee | null
   /**
-     * What the redeemed loyalty points take off.
+     * Ό,τι αφαιρούν οι πόντοι πιστότητας που εξαργυρώνονται.
      */
   loyaltyDiscount: number
   /**
-     * What the gift cards settle of the total; they are payment, applied last.
+     * Το μέρος του συνόλου που εξοφλούν οι δωροκάρτες· είναι πληρωμή και εφαρμόζονται τελευταίες.
      */
   giftCardAmount: number | null
   /**
-     * The products after promotions, plus shipping and the pay-way fee.
+     * Τα προϊόντα μετά τις προσφορές, συν τα μεταφορικά και την επιβάρυνση της μεθόδου πληρωμής.
      */
   grandTotal: number | null
   /**
-     * What is left to pay after the loyalty discount and the gift cards: the amount an order created with these choices stores and is paid for.
+     * Ό,τι απομένει προς πληρωμή μετά την έκπτωση πόντων και τις δωροκάρτες: το ποσό που αποθηκεύει μια παραγγελία με αυτές τις επιλογές και για το οποίο πληρώνεται.
      */
   amountDue: number | null
   /**
-     * ISO 4217 currency code of every amount in the quote.
+     * Κωδικός νομίσματος ISO 4217 για κάθε ποσό της κοστολόγησης.
      */
   currency: string
   /**
-     * amountDue as order creation compares it. Send it back as ``expectedTotal`` when creating the order: the order is created only at this total.
+     * Το amountDue όπως το συγκρίνει η δημιουργία παραγγελίας. Στείλτε το πίσω ως ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο σε αυτό το σύνολο.
      */
   expectedTotal: ExpectedTotal | null
+  /**
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     */
+  cartDigest: string | null
 }
 
 export type ContactWriteWritable = {
@@ -12373,9 +12409,10 @@ export type OrderWritable = {
  * 409 is ``legal_document_unavailable`` (a checkout legal text the
  * store cannot show in the order's language) or ``total_changed``
  * (the request's ``expectedTotal`` is not the amount due computed
- * now). Tell ``total_changed`` by ``code`` and the status: its
- * ``error.type`` is ``invalid_order_data`` until every client lists
- * the new value.
+ * now) or ``cart_changed`` (its ``expectedCartDigest`` is not the
+ * cart digest computed now). Tell those two by ``code`` and the
+ * status: their ``error.type`` is ``invalid_order_data`` until every
+ * client lists the new values.
  *
  * A refusal the order service understands carries ``error.type``; a
  * malformed payload is DRF's field-error map instead (``{field:
@@ -12435,7 +12472,7 @@ export type OrderCreateErrorDetailWritable = {
      */
   reason?: string
   /**
-     * ``total_changed`` only: what checkout charges for the cart now. Show its total and send its ``expectedTotal`` to order at it.
+     * Μόνο για ``total_changed`` και ``cart_changed``: τι χρεώνει τώρα το ταμείο για το καλάθι. Εμφανίστε το και στείλτε το ``expectedTotal`` του, και το ``cartDigest`` του ως ``expectedCartDigest``, για να παραγγείλετε με αυτό.
      */
   quote?: CheckoutQuoteWritable
 }
@@ -12459,6 +12496,18 @@ export type OrderCreateErrorDetailWritable = {
  */
 export type OrderCreateFromCartRequestWritable = {
   /**
+     * ID locker APM BoxNow από το widget
+     */
+  boxnowLockerId?: string
+  /**
+     * Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).
+     */
+  acsStationExternalId?: string
+  /**
+     * Τιμή ACS_Station_Branch_Destination.
+     */
+  acsStationBranch?: string
+  /**
      * ID μεθόδου πληρωμής
      */
   payWayId: number
@@ -12479,13 +12528,13 @@ export type OrderCreateFromCartRequestWritable = {
      */
   email: string
   /**
-     * Όνομα οδού
+     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.
      */
   street: string
   /**
-     * Αριθμός οδού
+     * Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.
      */
-  streetNumber: string
+  streetNumber?: string
   /**
      * Όνομα πόλης
      */
@@ -12574,10 +12623,6 @@ export type OrderCreateFromCartRequestWritable = {
      */
   giftCardCodes?: Array<string>
   /**
-     * ID locker APM BoxNow από το widget
-     */
-  boxnowLockerId?: string
-  /**
      * Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').
      */
   shippingProviderCode?: string | string
@@ -12588,14 +12633,6 @@ export type OrderCreateFromCartRequestWritable = {
      * * `pickup_point` - Σημείο παραλαβής / locker
      */
   shippingKind?: ShippingKind
-  /**
-     * Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).
-     */
-  acsStationExternalId?: string
-  /**
-     * Τιμή ACS_Station_Branch_Destination.
-     */
-  acsStationBranch?: string
   /**
      * Προαιρετική παράκαμψη του ACS Charge_Type ανά παραγγελία. Αφήστε το κενό για χρήση της προεπιλογής σε επίπεδο μεταφορέα (COD σε σύμβαση μόνο-COD). Ο ορισμός εδώ έχει νόημα μόνο αν η εμπορική σύμβαση με την ACS επιτρέπει την επιλεγμένη τιμή — μη έγκυροι συνδυασμοί απορρίπτονται από το ACS_Create_Voucher.
      *
@@ -12608,15 +12645,23 @@ export type OrderCreateFromCartRequestWritable = {
      */
   acsItemQuantity?: number
   /**
-     * The total the buyer was shown: ``expectedTotal`` of ``POST /cart/quote``, or the client's own amount due in minor units. When sent, the order is created only if it is exactly the amount due computed now; otherwise the answer is 409 ``total_changed`` with the new quote and nothing is created.
+     * Το σύνολο που είδε ο αγοραστής: το ``expectedTotal`` του ``POST /cart/quote``. Η παραγγελία δημιουργείται μόνο αν είναι ακριβώς το οφειλόμενο ποσό που υπολογίζεται τώρα· διαφορετικά η απάντηση είναι 409 ``total_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
      */
-  expectedTotal?: ExpectedTotalRequest
+  expectedTotal: ExpectedTotalRequest
+  /**
+     * Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής, τρόπος πληρωμής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
+     */
+  expectedCartDigest?: string
   /**
      * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
      */
   meta?: {
     [key: string]: unknown
   } | null
+  /**
+     * Ορίζεται από το agent gateway: το αναγνωριστικό της ολοκλήρωσης αγοράς του. Μια ολοκλήρωση αγοράς δημιουργεί μία παραγγελία: μια επανάληψη με το ίδιο αναγνωριστικό απαντάται με την παραγγελία που δημιούργησε και δεν δημιουργεί τίποτα.
+     */
+  agentCheckout?: string
   attribution?: OrderAttributionInputRequest
   /**
      * Ο αγοραστής αποδέχεται τους όρους χρήσης και την πολιτική απορρήτου του καταστήματος. Πρέπει να είναι true.
@@ -13863,7 +13908,7 @@ export type ProductVariantsResponseWritable = {
 export type QuoteAppliedPromotionWritable = {
   promotionId: number
   /**
-     * The coupon that earned the entry; null for an automatic promotion.
+     * Το κουπόνι που έδωσε την εγγραφή· null για αυτόματη προσφορά.
      */
   code: string | null
   amount: number
