@@ -100,7 +100,7 @@ describe('Chrome/AssistantPanel', () => {
   it('says a cart-changing turn updated the cart and links to it', async () => {
     stubReply('event: done\ndata: {"conversationId":"c1","cartId":"abc","cartMutated":true}\n\n')
     const wrapper = await mountPanel()
-    useCartStore().refreshCart = vi.fn(() => Promise.resolve())
+    useCartStore().refreshCart = vi.fn(() => Promise.resolve(true))
 
     await useShopChat().send('βάλε το στο καλάθι')
     await vi.waitFor(() => expect(wrapper.text()).toContain(own(wrapper, 'cartUpdated')))

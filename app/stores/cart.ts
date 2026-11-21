@@ -443,8 +443,14 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function refreshCart() {
-    if (!cartOn()) return
+  /**
+   * Reads the cart from Django again. Resolves whether it was read: a
+   * failure is logged and leaves the cart on the page as it was, which a
+   * caller that must show the cart as it is now (checkout after a quote
+   * changed) cannot accept.
+   */
+  async function refreshCart(): Promise<boolean> {
+    if (!cartOn()) return false
     try {
       const data = await $api<RetrieveCartResponse | null>('/api/cart', {
         method: 'GET',
@@ -454,9 +460,11 @@ export const useCartStore = defineStore('cart', () => {
       if (data) {
         cart.value = data
       }
+      return Boolean(data)
     }
     catch (err) {
       log.error({ action: 'cart:refresh', error: err })
+      return false
     }
   }
 

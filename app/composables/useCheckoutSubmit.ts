@@ -381,18 +381,26 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // The cart and its quote being asked again after a quote changed under
   // the shopper (`reloadCartAndQuote`): the order button waits for both.
   const cartReload = shallowRef<Promise<void> | null>(null)
+  // The last reload could not read the cart: the page may still show
+  // lines the quote is no longer for, so no quote can be accepted until a
+  // reload reads it.
+  const cartUnread = ref(false)
 
   /**
    * Asks Django for the cart's lines and the quote again, at once, so the
    * quote is pending from the change on, never showing the old one as
    * current. The page offers no order until BOTH answered
-   * (`quotePending`), and a submit meanwhile waits for them: the quote
-   * names no lines, so a click accepted while only the quote had come back
-   * would place an order of lines the page did not show yet.
+   * (`quotePending`), and a submit meanwhile does nothing (`onSubmit`):
+   * the quote names no lines, so a click accepted while only the quote had
+   * come back would place an order of lines the page did not show yet.
+   * A reload that could not read the cart leaves `cartUnread`, and the
+   * next submit reloads instead of ordering.
    */
   const reloadCartAndQuote = (): Promise<void> => {
     const reload = Promise.all([cartStore.refreshCart(), checkoutQuote.refresh()])
-      .then(() => undefined)
+      .then(([cartRead]) => {
+        cartUnread.value = !cartRead
+      })
       .finally(() => {
         if (cartReload.value === reload) cartReload.value = null
       })
@@ -693,6 +701,21 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     }
 
     if (isSubmitting.value) return
+    // The cart and its quote are being asked again after a change: the
+    // page does not show yet what an order would be made of, so there is
+    // nothing to accept (the order button waits on `quotePending`; this
+    // also stops a submit by keyboard). What the shopper was told stays.
+    if (cartReload.value) return
+    // The cart could not be read after the change: say so and ask again;
+    // the click after the cart is back may order.
+    if (cartUnread.value) {
+      failCheckout({
+        title: t('form.submit.error.cart_unread'),
+        description: t('form.submit.error.cart_unread_description'),
+      })
+      void reloadCartAndQuote()
+      return
+    }
 
     isSubmitting.value = true
 
@@ -792,7 +815,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       // when they clicked (a price, an offer, a rate or the cart changed
       // meanwhile, or the refetch above moved the delivery) is shown
       // first, and their next click accepts it.
-      if (cartReload.value) await cartReload.value
       const { quote: pricedQuote, error: quoteError } = await checkoutQuote.current()
       const priced = acceptedQuoteOf(pricedQuote)
       if (!pricedQuote || !priced) {
