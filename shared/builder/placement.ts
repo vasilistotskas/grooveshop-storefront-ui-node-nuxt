@@ -6,7 +6,7 @@ export const BUILDER_THEME_GROUP = 'theme'
 
 /**
  * Whether a section of `definition` may sit at the top of the document
- * `documentKey`, as Django decides it on save (`builder/validation.py:
+ * `documentKey`, as Django decides it on save (`src/builder/validation.py:
  * _placement_allowed`): a block restricted to groups lives only in those
  * groups, and the theme is the group `theme`; a block restricted to
  * templates lives only in those (a page the store made is the template

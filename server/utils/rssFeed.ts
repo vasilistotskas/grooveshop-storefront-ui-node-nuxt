@@ -9,7 +9,7 @@
  * Two nested SWR reads left the feed two builds behind Django, which on a
  * feed few readers ask for was hours. Django's `sitemap_seo` surface purges
  * `cache:nitro:functions:rss*` whenever a post, product, category or content
- * page changes or goes live (`core/cache/surfaces.py`, `core/publication.py`),
+ * page changes or goes live (`src/core/cache/surfaces.py`, `src/core/publication.py`),
  * so the TTL only bounds a purge that did not arrive.
  *
  * **The edge.** A feed carries the store's Cache-Tag (`edgeCacheHeaders`),

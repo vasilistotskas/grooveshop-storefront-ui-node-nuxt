@@ -71,7 +71,7 @@ describe('GET /api/texts/overrides', () => {
 
   describe('cache', () => {
     // Django purges `cache:nitro:handlers:textOverrides*` after a save
-    // (core/cache/surfaces.py): the name is half of that contract.
+    // (src/texts/cache_surfaces.py): the name is half of that contract.
     it('is the handler named textOverrides', () => {
       expect(cacheOptionsOf(handler).name).toBe('textOverrides')
     })

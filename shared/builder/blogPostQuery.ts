@@ -1,7 +1,7 @@
 import type { BlogPostOrdering } from '../types/builderData'
 import type { DataDescriptor } from './dataSources'
 
-/** What each ordering of a band of blog posts sorts by: the fields `blog/views/post.py` declares in `ordering_fields`. */
+/** What each ordering of a band of blog posts sorts by: the fields `src/blog/views/post.py` declares in `ordering_fields`. */
 export const BLOG_POST_ORDER_BY = {
   newest: '-publishedAt',
   mostViewed: '-viewCount',

@@ -19,7 +19,7 @@ const isSupportedLocale = (code: string | null | undefined): code is SupportedLo
  * `Tenant` validation no longer admits — declared no second language,
  * so it gets `DEFAULT_LOCALE`, the unprefixed locale every store
  * renders, and nothing more. Django's `tenant_storefront_locales`
- * (`core/utils/tenant_urls.py`) is this rule, rule for rule.
+ * (`src/core/utils/tenant_urls.py`) is this rule, rule for rule.
  *
  * Shared deliberately: the server locale middleware, the route guard
  * and the language switcher must agree, or a visitor can be handed a

@@ -12,7 +12,7 @@
  * menu that would hide the wrong links, and a failure is never cached.
  *
  * Cached as the handler named `builderChrome`, which Django's purge after a
- * release names (`core/cache/surfaces.py`, the `builder` surface); the key
+ * release names (`src/builder/cache_surfaces.py`, the `builder` surface); the key
  * carries the store, the language and the epoch a release moves.
  */
 export default defineCachedRoute(async (event): Promise<NavigationItems> => {

@@ -7,8 +7,8 @@ import type { z } from 'zod'
  * question share one entry.
  *
  * Each key of a descriptor maps to a filter or an ordering the endpoint has;
- * `product/views/product.py` declares the product orderings, and
- * `blog/views/post.py` the blog's. The query string is camelCase, as the
+ * `src/product/views/product.py` declares the product orderings, and
+ * `src/blog/views/post.py` the blog's. The query string is camelCase, as the
  * generated query schemas state it (`id_In` is how Django's camel-case parser
  * spells `id__in`).
  */

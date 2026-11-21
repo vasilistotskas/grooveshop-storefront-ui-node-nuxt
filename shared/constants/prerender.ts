@@ -106,7 +106,8 @@ export const SWR_ROUTE_RULES: Readonly<Record<string, number>> = {
  *  - catalogue carries PRICE and STOCK, so it gets the same 300s the
  *    homepage's product rails already run at. Staleness is bounded by
  *    the merchant's own edit, not the TTL: the Django Cache Management
- *    surfaces purge these route keys (``core/cache/surfaces.py``).
+ *    surfaces purge these route keys (``src/blog/cache_surfaces.py``,
+ *    ``src/product/cache_surfaces.py``).
  */
 const BLOG_SWR_TTL = 600
 const CONTENT_SWR_TTL = 600
