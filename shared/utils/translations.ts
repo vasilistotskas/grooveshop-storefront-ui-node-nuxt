@@ -56,7 +56,7 @@ function decodeWhiteSpace(data: string): string {
  * its content, and an image or frame with no source loads nothing; inline
  * `svg` counts.
  *
- * The same rule as Django's `has_visible_content` (`core/utils/sanitize.py`),
+ * The same rule as Django's `has_visible_content` (`src/core/utils/sanitize.py`),
  * which fills `ContentPage.translatedLocales`: change them together.
  */
 export function hasVisibleContent(value: string | null | undefined): value is string {

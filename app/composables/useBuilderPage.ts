@@ -60,7 +60,7 @@ export async function useBuilderPage(
 
   // The operator's own <title> and meta description. Django resolves them for
   // the page's language by laying that language's translations over the
-  // default language's settings (`builder/published.py`, `localised`), so a
+  // default language's settings (`src/builder/published.py`, `localised`), so a
   // field not translated is the default language's text, and "empty" means
   // "not set in the default language either". An unset field emits NO tag at all, not a tag
   // with an empty value (which would still win the dedupe and then be

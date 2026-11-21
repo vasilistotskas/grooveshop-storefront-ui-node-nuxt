@@ -49,7 +49,7 @@ describe('apiErrorBodyOf', () => {
 
 describe('apiFieldErrorsOf', () => {
   // What Django's exception handler answers for a serializer error
-  // (`core/api/exception_handler.py`): the field keys DRF gave, plus
+  // (`src/core/api/exception_handler.py`): the field keys DRF gave, plus
   // `code` and `fields`. The body is no plain `{ field: string[] }` map.
   const MESSAGE = 'Add the street number after the street name, for example Ermou 12, or enter it in the street number field.'
   const djangoBody = {

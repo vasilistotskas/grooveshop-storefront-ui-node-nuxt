@@ -55,7 +55,8 @@ const PLATFORM_KEYS = [
 ]
 
 // The `page_config` and `sitemap_seo` surfaces as Django sent them on
-// 2026-09-18 (`core/cache/surfaces.py`), with the keys above.
+// 2026-09-18 (now `src/page_config/cache_surfaces.py` and
+// `src/core/cache/surfaces.py`), with the keys above.
 const PAGE_CONFIG_PATTERNS = [
   'cache:nitro:handlers:pageConfig*',
   'cache:nitro:handlers:pageConfigNavigation*',
@@ -338,7 +339,7 @@ describe('POST /api/admin/cache/purge', () => {
   })
 
   it('lets a later pattern claim a key an earlier same-prefix pattern rejected', async () => {
-    // Every `_nuxt_routes()` pattern lists the whole `nitro:routes:_:`
+    // Every `nuxt_routes()` pattern lists the whole `nitro:routes:_:`
     // family and post-filters by regex. Marking a key as visited before
     // the regex ran meant `*index*` swallowed `/about`, `/contact`, … and
     // only the first route of a surface was ever purged.

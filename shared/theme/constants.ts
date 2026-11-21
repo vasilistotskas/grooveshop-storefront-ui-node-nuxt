@@ -47,7 +47,7 @@ export const FONT_ALLOWLIST: Record<string, string> = {
   // Engineered/technical pairing. Both ship a Greek subset — most
   // technical faces do not (IBM Plex Mono and Plex Condensed have
   // none), which is why the mono half is JetBrains Mono rather than
-  // Plex's own. Mirrored in Django's tenant/validators.py.
+  // Plex's own. Mirrored in Django's src/tenant/validators.py.
   'ibm-plex-sans': '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
   'jetbrains-mono': '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
   // The Groove Volt display face. Chosen over Bricolage Grotesque,

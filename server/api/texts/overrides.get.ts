@@ -9,7 +9,7 @@ import { getQuery } from 'h3'
  *
  * Per store and per language, and the same for every visitor, so it is
  * cached. Django names this handler, `textOverrides`, in the purge it sends
- * after an edit (`core/cache/surfaces.py`, `cache:nitro:handlers:textOverrides*`):
+ * after an edit (`src/texts/cache_surfaces.py`, `cache:nitro:handlers:textOverrides*`):
  * rename it and an edit stops reaching visitors until the TTL runs out.
  * An empty object is data too, and is cached like any other answer, which
  * is what keeps a store without overrides cheap.

@@ -53,7 +53,7 @@ describe('GET /rss.xml', () => {
     expect(xml).not.toContain('/products/2/')
   })
 
-  // Django's store purge after an edit names these tags (core/cache/edge.py),
+  // Django's store purge after an edit names these tags (src/core/cache/edge.py),
   // so the edge never keeps a feed the purge cannot reach.
   it('is kept at the edge under the store\'s purge tags, and revalidated by browsers', async () => {
     djangoServesTheCatalogue()

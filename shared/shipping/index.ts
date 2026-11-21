@@ -9,7 +9,7 @@
  * resolver scans every ``shared/`` file individually and a barrel
  * file would shadow the originals (Vite warns "Duplicated imports").
  *
- * Mirror of ``shipping/interfaces.py`` + ``shipping/services.py`` on
+ * Mirror of ``src/shipping/interfaces.py`` + ``src/shipping/services.py`` on
  * the backend.
  */
 import type { ShippingCarrier } from './interfaces'

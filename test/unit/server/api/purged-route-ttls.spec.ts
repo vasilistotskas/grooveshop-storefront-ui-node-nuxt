@@ -11,7 +11,7 @@ const HOUR = 60 * 60
 /**
  * How long a route keeps an entry follows what clears it.
  *
- * Django's cache surfaces (`core/cache/surfaces.py`) purge these three
+ * Django's cache surfaces (each app's `cache_surfaces.py`) purge these three
  * handlers when the data behind them changes (`ProductReviewsViewSet` and
  * `productRecommendations` by name, the related posts through the `blog`
  * surface's `*Blog*` sweep), so the TTL only bounds a missed purge and an
@@ -20,7 +20,7 @@ const HOUR = 60 * 60
  * them, so they stay short:
  *
  * - the product offers change when a promotion's window opens or closes,
- *   and nothing is saved then (`promotion/tasks.py`), so no signal purges
+ *   and nothing is saved then (`src/promotion/tasks.py`), so no signal purges
  *   `ProductPromotionList`;
  * - `ProductVariantsViewSet` is named in no surface's `nuxt_patterns`.
  */

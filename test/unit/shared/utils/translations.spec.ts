@@ -29,7 +29,7 @@ describe('hasVisibleContent', () => {
     expect(hasVisibleContent(value)).toBe(expected)
   })
 
-  // The cases of Django's TestHasVisibleContent (`core/utils/sanitize.py`):
+  // The cases of Django's TestHasVisibleContent (`src/core/utils/sanitize.py`):
   // one rule on both sides, since Django fills `translatedLocales` with it.
   describe('as Django reads it', () => {
     it.each([

@@ -23,7 +23,7 @@ import type { AstNode } from '../../helpers/sourceText'
  * They used to ship the platform's Greek legal text as markup and fall
  * back to it whenever the tenant had published nothing — platform text
  * published under the merchant's name, on a binding document. The text
- * now lives in `page_config/legal_documents.py` on the API and is seeded
+ * now lives in `src/page_config/legal_documents.py` on the API and is seeded
  * into every tenant at provisioning.
  *
  * What is left to check here is the wiring nothing renders on its own:
