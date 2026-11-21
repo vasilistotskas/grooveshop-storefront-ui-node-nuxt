@@ -1,3 +1,10 @@
+# [3.350.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.349.0...v3.350.0) (2026-11-21)
+
+
+### Features
+
+* **footer:** social links in every design; webside menu icons and product text size ([#509](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/509)) ([8bd070b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8bd070b72df89293dcbf7d79abadfc0860f75852))
+
 # [3.349.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.348.1...v3.349.0) (2026-11-21)
 
 
