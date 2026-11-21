@@ -72,6 +72,7 @@ beforeEach(() => {
     street: 'Main St',
     streetNumber: '1',
     city: 'Athens',
+    addressLine2: '3ος όροφος',
     zipcode: '151 24',
     phone: savedPhone,
     country: 'GR',
@@ -86,6 +87,13 @@ describe.each(trees(EditAddressPage, WebsideEditAddressPage))('$tree address edi
     await flushPromises()
     return { wrapper, vm: wrapper.vm as unknown as { state: Record<string, unknown> } }
   }
+
+  // django-api #769: the saved line 2 is in its own field, ready to edit.
+  it('opens the saved address line 2 in its field', async () => {
+    const { wrapper } = await mountPage()
+
+    expect((wrapper.get('input[autocomplete="address-line2"]').element as HTMLInputElement).value).toBe('3ος όροφος')
+  })
 
   describe('account/addresses/[id]/edit phone flag picker', () => {
     it('parses a saved E.164 into the picker country and the national digits', async () => {

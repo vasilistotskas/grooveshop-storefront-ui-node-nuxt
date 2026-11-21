@@ -46,7 +46,7 @@ const addressDetails = computed(() => {
   if (address.value.street || address.value.streetNumber) {
     details.push({
       icon: 'i-heroicons-map-pin',
-      text: `${address.value.street} ${address.value.streetNumber}`,
+      text: [`${address.value.street} ${address.value.streetNumber}`, address.value.addressLine2].filter(Boolean).join(', '),
     })
   }
 

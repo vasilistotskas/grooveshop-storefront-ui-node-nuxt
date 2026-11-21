@@ -83,6 +83,20 @@ const canOfferSave = computed(() => loggedIn.value && props.mode !== 'saved')
       </UFormField>
     </div>
 
+    <UFormField
+      :label="t('form.address_line_2')"
+      name="addressLine2"
+    >
+      <UInput
+        v-model="formState.addressLine2"
+        size="lg"
+        autocomplete="address-line2"
+        :placeholder="t('form.address_line_2_placeholder')"
+        maxlength="255"
+        class="w-full"
+      />
+    </UFormField>
+
     <!-- ACS address validation. Greece-only because ACS only
          services GR, and only when the tenant HAS ACS: the proxy
          answers 503 "not configured" otherwise, so a country-only

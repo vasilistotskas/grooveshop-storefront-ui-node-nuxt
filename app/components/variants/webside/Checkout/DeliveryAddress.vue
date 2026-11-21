@@ -71,6 +71,17 @@ const canOfferSave = computed(() => loggedIn.value && props.mode !== 'saved')
       </UFormField>
     </div>
 
+    <UFormField :label="t('form.address_line_2')" name="addressLine2">
+      <UInput
+        v-model="formState.addressLine2"
+        size="xl"
+        autocomplete="address-line2"
+        :placeholder="t('form.address_line_2_placeholder')"
+        maxlength="255"
+        class="w-full"
+      />
+    </UFormField>
+
     <div
       class="
         grid grid-cols-1 gap-4

@@ -70,6 +70,13 @@ describe.each(trees(AddressCard, WebsideAddressCard))('$tree Address/Card', ({ t
     expect(wrapper.emitted(own.changedEvent)).toBeUndefined()
   })
 
+  // django-api #769: the saved address's line 2, right after its street.
+  it('shows the address line 2 after the street', async () => {
+    const wrapper = await mountCard(makeUserAddress({ addressLine2: '3ος όροφος, διαμ. 5' }))
+
+    expect(wrapper.text()).toMatch(/Ερμού 12[\s\S]*3ος όροφος, διαμ\. 5[\s\S]*10563/)
+  })
+
   describe.runIf(tree === 'default')('the default card', () => {
     it('shows the label, the name, the street, the postcode with the city and country, and the phone', async () => {
       const wrapper = await mountCard()

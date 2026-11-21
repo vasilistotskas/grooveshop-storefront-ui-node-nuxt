@@ -619,6 +619,16 @@ describe('useCheckoutSubmit', () => {
       expect(api.callsTo('/api/user/addresses')).toEqual([])
     })
 
+    // django-api #769: the address book keeps the line 2 typed at checkout.
+    it('saves the address line 2 with it', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+
+      await setup(COD, { formState: Object.assign(saving('Home'), { addressLine2: ' 3ος όροφος ' }) }).onSubmit()
+
+      await vi.waitFor(() => expect(api.callsTo('/api/user/addresses')).toHaveLength(1))
+      expect(api.callsTo('/api/user/addresses')[0]!.options.body).toMatchObject({ addressLine2: '3ος όροφος' })
+    })
+
     it('tells the shopper the order went through when only the save failed', async () => {
       api.routes({
         '/api/orders': orderCreated({ uuid: 'order-cod' }),
