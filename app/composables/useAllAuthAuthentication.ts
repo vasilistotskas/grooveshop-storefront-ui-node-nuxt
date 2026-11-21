@@ -104,7 +104,8 @@ export default function () {
         // the server-leg with rich user_data (email/UA/fbp/fbc) so
         // the two legs together drive Event Match Quality on
         // signups. Mints a fresh eventID; we don't dedup because
-        // the server-leg uses its own UUID — Meta will count both
+        // the server-leg uses its own id (``complete-registration-<account>``)
+        // — Meta will count both
         // up to the standard 1-event-per-user-per-funnel-step
         // expectation. Wrapped to never break the signup UX.
         if (response.ok) {
