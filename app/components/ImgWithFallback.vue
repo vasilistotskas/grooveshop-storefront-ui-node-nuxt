@@ -59,8 +59,6 @@ const handleError = (error: string | Event) => {
   hasError.value = true
 }
 
-const isSvg = (src: string) => /\.svg(\?|#|$)/i.test(src)
-
 // The raw (pre-provider-resolution) src — same fallback semantics as the
 // old `imgSrc` computed. Provider selection below reads THIS, not the
 // final (possibly tenant-absolutized) `imgSrc`, to avoid a circular
@@ -91,7 +89,7 @@ const provider = computed<keyof ConfiguredImageProviders>(() => {
   }
   // Local/public SVGs are served raw (never rasterized through IPX, which
   // destroys vector — or embedded-raster — quality).
-  if (isSvg(rawSrc.value)) {
+  if (isSvgImage(rawSrc.value)) {
     return 'none'
   }
   return 'ipx'

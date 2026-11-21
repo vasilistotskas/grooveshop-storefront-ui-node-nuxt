@@ -89,7 +89,8 @@ export const useTenantStore = defineStore('tenant', () => {
   // locker-pickup option).
   const boxNowPartnerId = computed(() => config.value?.boxNowPartnerId ?? '')
 
-  // Social links — each empty string means "use platform fallback"
+  // Social links — tenant-only; an empty string means the store links
+  // no account on that network, and every design leaves it out.
   const socials = computed(() => ({
     discord: config.value?.socialsDiscord ?? '',
     facebook: config.value?.socialsFacebook ?? '',
