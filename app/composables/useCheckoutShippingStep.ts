@@ -4,7 +4,9 @@
  * take and why, the chosen carrier's locker picker, and the rule for
  * moving on to payment. Both drawings of the step (the default and the
  * webside copy) render these; the step's own `submit()` is
- * `submit` here.
+ * `submit` here, and the step's form moves on once it validates (its
+ * `@submit`): the method, the point or a home delivery's address, and
+ * the receipt or invoice.
  */
 export interface CheckoutShippingStepInputs {
   /** The checkout form (`useCheckoutForm`'s state), shared with the page. */
@@ -27,12 +29,14 @@ export interface CheckoutShippingStepInputs {
   partnerId: MaybeRefOrGetter<string>
   /** The options fetch failed: the step shows a retry prompt, not the cards. */
   optionsError: MaybeRefOrGetter<boolean | undefined>
-  /** The step's `UForm`, re-validated when a locker is picked. */
+  /**
+   * The step's `UForm`: re-validated when a locker is picked, and
+   * submitted to move on (its `@submit` emits the step's `next`).
+   */
   form: Readonly<Ref<{
+    submit: () => Promise<void>
     validate: (opts?: { name?: string | string[], silent?: boolean }) => Promise<unknown>
   } | null>>
-  /** Moves on to the payment step. */
-  onNext: () => void
 }
 
 // Brand metadata (icon, optional badge tagline) lives in
@@ -328,7 +332,7 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     },
   )
 
-  function submit() {
+  async function submit() {
     // The step shows the retry prompt (not the form) while the options
     // failed to load: nothing to validate or advance past yet.
     if (toValue(inputs.optionsError)) return
@@ -345,7 +349,8 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
       pickerOpen.value = true
       return
     }
-    inputs.onNext()
+    // The rest of the step: a home delivery's address, the invoice.
+    await inputs.form.value?.submit()
   }
 
   return {

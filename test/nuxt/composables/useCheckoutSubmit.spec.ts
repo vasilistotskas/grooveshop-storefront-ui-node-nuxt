@@ -1315,39 +1315,94 @@ describe('useCheckoutSubmit', () => {
       expect(lastFailure()).toMatchObject({ title: t('form.submit.error.insufficient_stock'), description: message })
     })
 
-    it('sends the shopper back to the address step, one error per input', async () => {
+    it('sends the shopper back to the first step with a refused field, each under its input', async () => {
       api.routes({
         '/api/orders': orderRejected(400, {
           zipcode: ['Enter a valid postcode, e.g. 151 24.'],
           countryId: ['Select a valid country.'],
         }),
       })
-      const { onSubmit, currentStep, addressStepErrors, nextStep } = setup(COD)
+      const { onSubmit, currentStep, stepErrors, nextStep } = setup(COD)
       currentStep.value = 2
 
       await onSubmit()
 
       expect(currentStep.value).toBe(0)
-      expect(addressStepErrors.value).toEqual([
-        { name: 'zipcode', message: 'Enter a valid postcode, e.g. 151 24.' },
-        { name: 'country', message: 'Select a valid country.' },
-      ])
+      expect(stepErrors.value).toEqual({
+        0: [{ name: 'country', message: 'Select a valid country.' }],
+        1: [{ name: 'zipcode', message: 'Enter a valid postcode, e.g. 151 24.' }],
+      })
       expect(lastFailure().description).toContain('Enter a valid postcode, e.g. 151 24.')
 
-      // Passing the address step again answers them.
+      // Passing each step again answers its own errors, and only those.
       await nextStep()
-      expect(addressStepErrors.value).toEqual([])
+      expect(stepErrors.value).toEqual({ 1: [{ name: 'zipcode', message: 'Enter a valid postcode, e.g. 151 24.' }] })
+      await nextStep()
+      expect(stepErrors.value).toEqual({})
     })
 
-    it('leaves the step alone for a field the address step does not own', async () => {
-      api.routes({ '/api/orders': orderRejected(400, { boxnowLockerId: ['Locker ID required.'] }) })
-      const { onSubmit, currentStep, addressStepErrors } = setup(COD)
+    // #767: Django refuses a pickup point on the carrier's own field.
+    it('sends a refused pickup point back to the delivery step, under the picker', async () => {
+      const message = 'This pickup point is not available.'
+      api.routes({
+        '/api/orders': orderRejected(400, {
+          boxnowLockerId: [message],
+          code: 'pickup_point_unknown',
+          fields: { boxnowLockerId: [{ message, code: 'pickup_point_unknown' }] },
+        }),
+      })
+      const { onSubmit, currentStep, stepErrors } = setup(COD)
+      currentStep.value = 2
+
+      await onSubmit()
+
+      expect(currentStep.value).toBe(1)
+      expect(stepErrors.value).toEqual({ 1: [{ name: 'boxnowLockerId', message: t('form.submit.error.pickup_point_unknown') }] })
+      expect(lastFailure()).toMatchObject({
+        title: t('form.submit.error.pickup_point_refused'),
+        description: t('form.submit.error.pickup_point_unknown'),
+      })
+    })
+
+    it('leaves the step alone for a field no step shows', async () => {
+      api.routes({ '/api/orders': orderRejected(400, { meta: ['Not a valid object.'] }) })
+      const { onSubmit, currentStep, stepErrors } = setup(COD)
       currentStep.value = 2
 
       await onSubmit()
 
       expect(currentStep.value).toBe(2)
-      expect(addressStepErrors.value).toEqual([])
+      expect(stepErrors.value).toEqual({})
+    })
+
+    // The carrier's catalogue could not be asked (503, Retry-After): the
+    // order may be placed as it is shortly, so the attempt's key stays and
+    // the shopper is told to try again, on the payment step.
+    it('tells the shopper to try again when the pickup point could not be checked, under the same key', async () => {
+      let orders = 0
+      api.routes({
+        '/api/orders': () => (orders++ === 0
+          ? orderRejected(503, { detail: 'The pickup point cannot be checked right now.', code: 'pickup_point_check_unavailable' })
+          : orderCreated())(),
+      })
+      vi.mocked(crypto.randomUUID)
+        .mockReturnValueOnce('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
+        .mockReturnValue('1111-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
+      const { onSubmit, currentStep } = setup(COD)
+      currentStep.value = 2
+
+      await onSubmit()
+
+      expect(currentStep.value).toBe(2)
+      expect(lastFailure()).toMatchObject({
+        title: t('form.submit.error.pickup_point_check_unavailable'),
+        description: t('form.submit.error.pickup_point_check_unavailable_description'),
+      })
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders').map(call => call.options.headers['Idempotency-Key']))
+        .toEqual(['0000-idem-key', '0000-idem-key'])
     })
   })
 

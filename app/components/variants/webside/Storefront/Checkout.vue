@@ -69,7 +69,7 @@ const {
 
 const {
   currentStep,
-  addressStepErrors,
+  stepErrors,
   quote,
   quotedFor,
   quotePending,
@@ -302,8 +302,8 @@ useSeoMeta({
           :model-value="currentStep"
           :linear="false"
           :items="[
-            { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
-            { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
+            { title: t('steps.details'), icon: 'i-heroicons-user-circle' },
+            { title: t('steps.delivery'), icon: 'i-heroicons-truck' },
             { title: t('steps.payment'), icon: 'i-heroicons-credit-card' },
           ]"
           class="mb-6"
@@ -324,29 +324,24 @@ useSeoMeta({
             @back-to-form="backToForm"
           />
 
-          <!-- Step 0: Personal Info & Address -->
+          <!-- Step 0: Personal Info -->
           <WebsideCheckoutStepPersonalInfo
             v-else-if="currentStep === 0"
             ref="stepRef"
             v-model:form-state="formState"
             :schema="step1Schema"
             :country-options="countryOptions"
-            :postcode-example="postcodeExample"
-            :selected-country="selectedCountry"
-            :server-errors="addressStepErrors"
-            :region-options="regionOptions"
+            :server-errors="stepErrors[CHECKOUT_STEP.details]"
             :saved-addresses="savedAddresses"
             :selected-saved-address-id="selectedSavedAddressId"
             :mode="addressEntryMode"
-            :b2b-invoicing-enabled="b2bInvoicingEnabled"
-            :acs-enabled="acsEnabled"
             @next="nextStep"
             @select-saved-address="selectSavedAddress"
             @use-new-address="useNewAddress"
             @edit-address="editSelectedAddress"
           />
 
-          <!-- Step 1: Shipping Method -->
+          <!-- Step 1: Delivery: the method, the point or the address -->
           <WebsideCheckoutStepShipping
             v-else-if="currentStep === 1"
             ref="stepRef"
@@ -357,6 +352,14 @@ useSeoMeta({
             :quoted-options="quote?.shippingOptions ?? null"
             :options-error="shippingOptionsError"
             :over-weight="shippingOverWeight"
+            :region-options="regionOptions"
+            :postcode-example="postcodeExample"
+            :selected-country="selectedCountry"
+            :acs-enabled="acsEnabled"
+            :b2b-invoicing-enabled="b2bInvoicingEnabled"
+            :mode="addressEntryMode"
+            :selected-saved-address-id="selectedSavedAddressId"
+            :server-errors="stepErrors[CHECKOUT_STEP.delivery]"
             @next="nextStep"
             @back="prevStep"
             @retry-options="retryShippingOptions"

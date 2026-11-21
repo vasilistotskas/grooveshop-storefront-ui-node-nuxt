@@ -220,6 +220,14 @@ export async function useCheckoutForm() {
     }
   }
 
+  /** The fields among ``fields`` that ``schema`` refuses in ``state``. */
+  const issuesIn = (schema: z.ZodType, state: object, fields: readonly string[]): string[] => {
+    const result = schema.safeParse(state)
+    if (result.success) return []
+    const names = result.error.issues.map(issue => String(issue.path[0]))
+    return [...new Set(names)].filter(name => fields.includes(name))
+  }
+
   /**
    * The fields of ``state`` that fail step 1 among those a picked saved
    * address stands for (``SAVED_ADDRESS_FIELDS``) — the errors the
@@ -227,22 +235,30 @@ export async function useCheckoutForm() {
    * ``step1Schema`` itself, so the picker and «Continue» can never
    * disagree about what a usable address is.
    */
-  const savedAddressIssues = (state: typeof formState): string[] => {
-    const result = step1Schema.safeParse(state)
-    if (result.success) return []
-    const names = result.error.issues.map(issue => String(issue.path[0]))
-    return [...new Set(names)].filter(name => SAVED_ADDRESS_FIELDS.includes(name))
-  }
+  const savedAddressIssues = (state: typeof formState): string[] =>
+    issuesIn(step1Schema, state, SAVED_ADDRESS_FIELDS)
+
+  /**
+   * The address fields of ``state`` a home delivery refuses
+   * (``DELIVERY_ADDRESS_FIELDS``): the delivery step shows them, and
+   * marks them when it opens with a picked address.
+   */
+  const deliveryAddressIssues = (state: typeof formState): string[] =>
+    issuesIn(step2Schema, { ...state, shippingMethod: 'home_delivery' }, DELIVERY_ADDRESS_FIELDS)
 
   /**
    * Saved addresses that fail checkout's rules: saved before a rule
    * existed, or seeded without a region and a phone (the demo
    * accounts, 2026-10-16). The picker marks them as needing an update,
-   * and picking one opens its fields. Each is checked with the values
-   * ``applyAddressToFormState`` would put in the form.
+   * and picking one opens the fields step 1 shows; the address's own
+   * fields are marked on the delivery step. Each is checked with the
+   * values ``applyAddressToFormState`` would put in the form.
    */
   const addressIdsNeedingUpdate = computed(() => savedAddresses.value
-    .filter(address => savedAddressIssues({ ...formState, ...savedAddressFields(address) }).length)
+    .filter((address) => {
+      const state = { ...formState, ...savedAddressFields(address) }
+      return savedAddressIssues(state).length || deliveryAddressIssues(state).length
+    })
     .map(address => address.id))
 
   /**
@@ -281,12 +297,13 @@ export async function useCheckoutForm() {
       })
       return
     }
+    // A region renamed or removed upstream: cleared, so the delivery
+    // step, where the region is chosen, asks for it again.
     const region = formState.region
     const validAlphas = regions.value?.results?.map(r => r.alpha) ?? []
     if (region && validAlphas.length && !validAlphas.includes(region)) {
       formState.region = ''
       formState.regionId = undefined
-      addressEntryMode.value = 'new'
       toast.add({
         title: t('saved_address_invalid_title'),
         description: t('saved_address_invalid_description'),
@@ -773,6 +790,15 @@ export async function useCheckoutForm() {
   // requires these fields non-empty (plus max_length), so a stricter
   // floor here (the old min 3) falsely rejected real customers
   // ("Bo", "Li Wei") that the saved-address form happily accepted.
+
+  /** A required text field's issue, at the step that renders the field. */
+  const requireText = (ctx: z.RefinementCtx, value: string | undefined, path: string, message = t('validation.required')) => {
+    if (!(value ?? '').trim()) ctx.addIssue({ path: [path], code: 'custom', message })
+  }
+
+  // Step 1, the shopper: who orders and to which country. The address
+  // is the delivery step's: a pickup order is delivered to the point and
+  // takes none of the shopper's (Django's `_deliver_to_pickup_point`).
   const step1Schema = z.object({
     firstName: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
@@ -792,30 +818,46 @@ export async function useCheckoutForm() {
     country: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
     }),
-    // Required only when the selected country actually has regions
-    // (``Country.hasRegions``) — checked in ``superRefine`` below,
-    // where the country row is available. Optional at the field level
-    // so a regionless country's blank value doesn't fail here first.
-    region: z.string().optional(),
-    city: z.string({ error: t('validation.required') }).min(1, {
-      error: t('validation.required'),
-    }).max(100, { error: t('validation.max', { max: 100 }) }),
-    // Format checked per country in ``superRefine`` below.
-    zipcode: z.string({ error: t('validation.required') }).min(1, {
-      error: t('validation.required'),
-    }).max(20, { error: t('validation.max', { max: 20 }) }),
-    street: z.string({ error: t('validation.required') }).min(1, {
-      error: t('validation.required'),
-    }).max(255, { error: t('validation.max', { max: 255 }) }),
-    // Django allows a blank street number; the courier voucher needs
-    // one, so requiring it here is deliberately stricter.
-    streetNumber: z.string({ error: t('validation.required') }).min(1, {
-      error: t('validation.street_number.min', { min: 1 }),
-    }).max(50, { error: t('validation.max', { max: 50 }) }),
     customerNotes: z.string().max(500, {
       error: t('validation.max', { max: 500 }),
     }).optional(),
     phoneCountry: z.string().optional(),
+  }).superRefine((data, ctx) => {
+    const country = countries.value?.results?.find(c => c.alpha2 === data.country)
+    // The phone is E.164 (built by ``FormPhoneInput`` from the picked
+    // country's dial code) and is checked against THAT country — the
+    // picker follows the delivery country until the shopper picks.
+    const phoneCountry = resolvePhoneCountry(phoneCountries.value?.results, data.phoneCountry) ?? country
+    if (!isPlausiblePhone(data.phone, phoneCountry)) {
+      ctx.addIssue({
+        path: ['phone'],
+        code: 'custom',
+        message: phoneCountry?.phoneMetadata?.exampleMobile
+          ? t('validation.phone.invalid_example', { example: phoneCountry.phoneMetadata.exampleMobile })
+          : t('validation.phone.invalid'),
+      })
+    }
+  })
+
+  // Step 2, the delivery: the method, then what it needs. A home
+  // delivery needs the address (its rules mirror Django's
+  // ``core/validators/address.py``); a pickup point needs the point, and
+  // its order sends no address at all. The receipt or invoice follows,
+  // since only a home delivery has an address an invoice can share.
+  const step2Schema = z.object({
+    shippingMethod: z.enum(['home_delivery', 'box_now_locker', 'acs_smartpoint']),
+    boxnowLockerId: z.string().optional(),
+    acsStationExternalId: z.string().optional(),
+    country: z.string().optional(),
+    // Required for a home delivery only, in ``superRefine`` below.
+    region: z.string().optional(),
+    city: z.string().max(100, { error: t('validation.max', { max: 100 }) }).optional(),
+    // Format checked per country in ``superRefine`` below.
+    zipcode: z.string().max(20, { error: t('validation.max', { max: 20 }) }).optional(),
+    street: z.string().max(255, { error: t('validation.max', { max: 255 }) }).optional(),
+    // Django allows a blank street number; the courier voucher needs
+    // one, so requiring it here is deliberately stricter.
+    streetNumber: z.string().max(50, { error: t('validation.max', { max: 50 }) }).optional(),
     saveAddress: z.boolean().optional(),
     // Optional label ("Home" / "Office" etc.) — only meaningful when
     // saveAddress is true. The pairing requirement is enforced in
@@ -835,40 +877,38 @@ export async function useCheckoutForm() {
     billingCity: z.string().max(100).optional(),
     billingZipcode: z.string().max(20).optional(),
   }).superRefine((data, ctx) => {
-    const country = countries.value?.results?.find(c => c.alpha2 === data.country)
-    // Postcode format + street/number mix-ups, against the selected
-    // country's row — mirrors Django's ``core/validators/address.py``.
-    refineAddress(ctx, country, data, t)
-    // Region is only meaningful for a country that actually has them
-    // (``Country.hasRegions``) — Cyprus and Greece both do, but a
-    // future country without a region breakdown must not be blocked
-    // on an empty dropdown it has no rows for.
-    if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
+    if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
       ctx.addIssue({
-        path: ['region'],
         code: 'custom',
-        message: t('validation.required'),
+        path: ['boxnowLockerId'],
+        message: t('shipping.boxnow.required_error'),
       })
     }
-    // The phone is E.164 (built by ``FormPhoneInput`` from the picked
-    // country's dial code) and is checked against THAT country — the
-    // picker follows the delivery country until the shopper picks.
-    const phoneCountry = resolvePhoneCountry(phoneCountries.value?.results, data.phoneCountry) ?? country
-    if (!isPlausiblePhone(data.phone, phoneCountry)) {
+    if (data.shippingMethod === 'acs_smartpoint' && !data.acsStationExternalId) {
       ctx.addIssue({
-        path: ['phone'],
         code: 'custom',
-        message: phoneCountry?.phoneMetadata?.exampleMobile
-          ? t('validation.phone.invalid_example', { example: phoneCountry.phoneMetadata.exampleMobile })
-          : t('validation.phone.invalid'),
+        path: ['acsStationExternalId'],
+        message: t('shipping.acs.required_error'),
       })
     }
-    if (data.saveAddress && !(data.addressTitle ?? '').trim()) {
-      ctx.addIssue({
-        path: ['addressTitle'],
-        code: 'custom',
-        message: t('validation.required'),
-      })
+    const homeDelivery = data.shippingMethod === 'home_delivery'
+    if (homeDelivery) {
+      const country = countries.value?.results?.find(c => c.alpha2 === data.country)
+      requireText(ctx, data.street, 'street')
+      requireText(ctx, data.streetNumber, 'streetNumber', t('validation.street_number.min', { min: 1 }))
+      requireText(ctx, data.city, 'city')
+      requireText(ctx, data.zipcode, 'zipcode')
+      // Postcode format + street/number mix-ups, against the selected
+      // country's row — mirrors Django's ``core/validators/address.py``.
+      refineAddress(ctx, country, data, t)
+      // Region is only meaningful for a country that actually has them
+      // (``Country.hasRegions``) — Cyprus and Greece both do, but a
+      // future country without a region breakdown must not be blocked
+      // on an empty dropdown it has no rows for.
+      if (country?.hasRegions !== false) requireText(ctx, data.region, 'region')
+      // The address book holds addresses delivered to, so saving one is
+      // a home delivery's.
+      if (data.saveAddress) requireText(ctx, data.addressTitle, 'addressTitle')
     }
     // Buyer asked for a proper invoice — require a valid Greek ΑΦΜ.
     // Mirror the Django-side normalisation (strip EL/GR, 9 digits) so
@@ -895,58 +935,17 @@ export async function useCheckoutForm() {
       }
       // The invoice requisites trio — a Τιμολόγιο without company
       // name / ΔΟΥ / activity is useless to the buyer's accountant.
-      for (const field of [
-        'billingCompanyName',
-        'billingTaxOffice',
-        'billingActivity',
-      ] as const) {
-        if (!(data[field] ?? '').trim()) {
-          ctx.addIssue({
-            path: [field],
-            code: 'custom',
-            message: t('validation.required'),
-          })
+      for (const field of ['billingCompanyName', 'billingTaxOffice', 'billingActivity'] as const) {
+        requireText(ctx, data[field], field)
+      }
+      // Registered address — required when it is not the delivery
+      // address: the shopper said so, or the order goes to a pickup
+      // point, which is no company's address (Django refuses it).
+      if (!billingSharesDelivery(data)) {
+        for (const field of ['billingStreet', 'billingStreetNumber', 'billingCity', 'billingZipcode'] as const) {
+          requireText(ctx, data[field], field)
         }
       }
-      // Registered address — required only when it differs from the
-      // delivery address.
-      if (data.billingSameAsShipping === false) {
-        for (const field of [
-          'billingStreet',
-          'billingStreetNumber',
-          'billingCity',
-          'billingZipcode',
-        ] as const) {
-          if (!(data[field] ?? '').trim()) {
-            ctx.addIssue({
-              path: [field],
-              code: 'custom',
-              message: t('validation.required'),
-            })
-          }
-        }
-      }
-    }
-  })
-
-  const step2Schema = z.object({
-    shippingMethod: z.enum(['home_delivery', 'box_now_locker', 'acs_smartpoint']),
-    boxnowLockerId: z.string().optional(),
-    acsStationExternalId: z.string().optional(),
-  }).superRefine((data, ctx) => {
-    if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['boxnowLockerId'],
-        message: t('shipping.boxnow.required_error'),
-      })
-    }
-    if (data.shippingMethod === 'acs_smartpoint' && !data.acsStationExternalId) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['acsStationExternalId'],
-        message: t('shipping.acs.required_error'),
-      })
     }
   })
 
