@@ -1,5 +1,5 @@
 {
-  "hash": "dfab1a52e5b0d811",
+  "hash": "1750e6a5b0dcc89d",
   "blocks": [
     {
       "type": "about_content",
@@ -923,6 +923,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -1812,6 +1813,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -2680,6 +2682,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -5663,6 +5666,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -7606,6 +7610,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -7713,6 +7718,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -9267,6 +9273,13 @@
       "labels": {
         "el": "Οθόνη υπολογιστή",
         "en": "Desktop computer"
+      }
+    },
+    {
+      "name": "i-fa6-solid-gamepad",
+      "labels": {
+        "el": "Χειριστήριο παιχνιδιών",
+        "en": "Game controller"
       }
     },
     {

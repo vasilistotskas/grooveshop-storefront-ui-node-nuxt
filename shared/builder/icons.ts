@@ -16,11 +16,13 @@
  * type graph (the upgrade is `iconUpgrades.ts`). Adding one: append it here,
  * from one of `BUILDER_ICON_SETS`, name it in both label files, and the
  * editor offers it and the server paints it. It holds every icon the stores
- * had published on 2026-11-13, the trust badge's preset, and the icons the
- * bundle listed for database content before it.
+ * had published on 2026-11-13, the trust badge's preset, the icons the
+ * bundle listed for database content before it, and the gamepad a store's
+ * blog category drew as a picture (2026-11-21).
  */
 export const BUILDER_ICONS = [
   'i-fa6-solid-desktop',
+  'i-fa6-solid-gamepad',
   'i-fa6-solid-globe',
   'i-fa6-solid-microchip',
   'i-fa6-solid-mobile',
