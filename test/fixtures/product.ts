@@ -33,7 +33,7 @@ export type ProductOverrides = Partial<Product> & { discountPercent?: number }
  * The derived money fields — `vatValue`, `finalPrice` — are computed from `price`,
  * the merchant's markdown (`discountPercent`, a fixture knob: the API no
  * longer serialises it) and `vatPercent` the way Django's `Product`
- * properties compute them (`product/models/product.py`: discount and
+ * properties compute them (`src/product/models/product.py`: discount and
  * VAT are both taken off the NET price, `finalPrice = price + vat -
  * discount`), so `makeProduct({ price: 100, discountPercent: 10 })` is
  * self-consistent. `offerKind` follows the markdown the way the backend

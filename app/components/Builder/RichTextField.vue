@@ -18,7 +18,7 @@ const { t } = useStoreI18n('components/Builder/RichTextField')
 
 /**
  * What the editor may write: only markup the store's sanitiser keeps
- * (`core/utils/sanitize.py` in Django, which refuses a save that would lose
+ * (`src/core/utils/sanitize.py` in Django, which refuses a save that would lose
  * content), so a merchant never types something a save refuses or a page
  * drops. Headings start at the second level, under the section's own title;
  * no code blocks and no images (pictures come with the media library).

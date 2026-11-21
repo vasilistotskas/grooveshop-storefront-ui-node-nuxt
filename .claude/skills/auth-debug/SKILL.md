@@ -37,12 +37,12 @@ the workspace root. Symptom triage that stays on the Nuxt side works either way.
 | Purpose | File |
 |---|---|
 | allauth + Knox config | `settings.py` (grep `ACCOUNT_`, `MFA_`, `REST_KNOX`) |
-| Custom token strategy | `core/api/tokens.py` |
-| MFA adapter (WebAuthn RP ID) | `core/adapter.py` |
-| Social + account adapter | `user/adapter.py` |
-| Password change Knox revoke | `user/signals.py` |
-| Rate limiting middleware | `core/middleware/allauth_ratelimit.py` |
-| WebSocket ticket auth | `core/middleware/channels.py` |
+| Custom token strategy | `src/core/api/tokens.py` |
+| MFA adapter (WebAuthn RP ID) | `src/core/adapter.py` |
+| Social + account adapter | `src/user/adapter.py` |
+| Password change Knox revoke | `src/user/signals.py` |
+| Rate limiting middleware | `src/core/middleware/allauth_ratelimit.py` |
+| WebSocket ticket auth | `src/core/middleware/channels.py` |
 
 ### Nuxt
 | Purpose | File |
@@ -90,12 +90,12 @@ the workspace root. Symptom triage that stays on the Nuxt side works either way.
 
 **"2FA / WebAuthn not working"**
 - TOTP: `MFA_TOTP_PERIOD=30`, `MFA_TOTP_DIGITS=6` — standard RFC 6238.
-- WebAuthn RP ID: per tenant (`_webauthn_rp_id()` in `core/adapter.py`, the request's tenant's primary domain); `APP_MAIN_HOST_NAME` is only the platform fallback.
+- WebAuthn RP ID: per tenant (`_webauthn_rp_id()` in `src/core/adapter.py`, the request's tenant's primary domain); `APP_MAIN_HOST_NAME` is only the platform fallback.
 - `MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN = DEBUG` — must be False in production.
 - WebAuthn credential creation: `GET /_allauth/app/v1/account/authenticators/webauthn` → `POST`.
 
 **"WebSocket auth fails"**
-- URL: `wss://<tenant apiDomain>/ws/notifications/?ticket=<single-use ticket>` from `GET /api/websocket/user/ticket` (requires a valid Nuxt session; 60 s, consumed on first read by `core/middleware/channels.py`).
+- URL: `wss://<tenant apiDomain>/ws/notifications/?ticket=<single-use ticket>` from `GET /api/websocket/user/ticket` (requires a valid Nuxt session; 60 s, consumed on first read by `src/core/middleware/channels.py`).
 - Ticket rejected → check it was minted under the same tenant and used once.
 
 **"Flow navigation broken (stuck after signup/email verify)"**
@@ -107,7 +107,7 @@ the workspace root. Symptom triage that stays on the Nuxt side works either way.
 **"Password change doesn't log out other sessions"**
 - `ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True` (allauth sessions).
 - `revoke_knox_tokens_on_password_change` signal (Knox tokens).
-- Both should fire. Check `user/signals.py` — is the `password_changed` receiver imported?
+- Both should fire. Check `src/user/signals.py` — is the `password_changed` receiver imported?
 
 ### 2. Check allauth response structure
 
@@ -162,7 +162,7 @@ grep -oE "^(NUXT_APP_SECRET|NUXT_OAUTH_[A-Z_]+)=" .env
 ### 5. Fix checklist
 
 - [ ] `NUXT_APP_SECRET` ≥ 32 chars and consistent across restarts
-- [ ] Each tenant's primary domain is set (WebAuthn RP ID, `_webauthn_rp_id()` in `core/adapter.py`; `APP_MAIN_HOST_NAME` is only the platform fallback)
+- [ ] Each tenant's primary domain is set (WebAuthn RP ID, `_webauthn_rp_id()` in `src/core/adapter.py`; `APP_MAIN_HOST_NAME` is only the platform fallback)
 - [ ] `ALLOWED_HOSTS` set in production (not wildcarded)
 - [ ] `DEBUG=False` in production (enables SSL, CSRF, CORS restrictions)
 - [ ] `MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN=False` in production

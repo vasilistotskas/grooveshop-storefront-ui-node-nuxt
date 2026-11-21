@@ -137,7 +137,7 @@ export const PRODUCT_STOCK_MODES = ['inStockFirst', 'inStockOnly'] as const
 /** How a list of blog posts may be ordered. */
 export const BLOG_POST_ORDERINGS = ['newest', 'mostViewed'] as const
 
-/** Most records one list read of Django returns (`core/pagination/page_number.py: max_page_size`); a read of more ids is split. */
+/** Most records one list read of Django returns (`src/core/pagination/page_number.py: max_page_size`); a read of more ids is split. */
 export const DATA_MAX_PAGE_SIZE = 100
 
 /** Most asset ids one `GET builder/media/resolve` answers (Django's `BUILDER_MEDIA_RESOLVE_MAX_IDS`, which refuses more); a read of more ids is split. */

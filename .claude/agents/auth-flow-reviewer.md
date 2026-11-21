@@ -76,7 +76,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 ### WebSocket
 
-25. **WebSocket auth is a single-use ticket.** The client fetches `GET /api/websocket/user/ticket` (`server/api/websocket/user/ticket.get.ts`, which mints it from Django; 60 s, consumed on first read by Django's `core/middleware/channels.py`) and connects with `?ticket=`. Flag any Knox/session token placed in the socket URL.
+25. **WebSocket auth is a single-use ticket.** The client fetches `GET /api/websocket/user/ticket` (`server/api/websocket/user/ticket.get.ts`, which mints it from Django; 60 s, consumed on first read by Django's `src/core/middleware/channels.py`) and connects with `?ticket=`. Flag any Knox/session token placed in the socket URL.
 26. **Origin validation**. Don't relax WebSocket origin checks.
 
 ## Hot zones requiring extra attention

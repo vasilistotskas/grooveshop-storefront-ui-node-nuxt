@@ -1,11 +1,11 @@
 /**
- * A builder document's key, as Django names them (`builder/models.py`,
+ * A builder document's key, as Django names them (`src/builder/models.py`,
  * `_KEY_PATTERNS`): the theme, a section group, a template of a page type,
  * or a page the store made.
  */
 export const BUILDER_DOCUMENT_KEY_PATTERN = /^(?:theme|(?:group|template|page):[a-z0-9][a-z0-9_-]{0,63})$/
 
-/** Django's largest page of a list (`core/pagination/page_number.py`, `max_page_size`). */
+/** Django's largest page of a list (`src/core/pagination/page_number.py`, `max_page_size`). */
 export const BUILDER_DOCUMENTS_PAGE_SIZE = 100
 
 /** The document the editor opens on when the address names none: the home page's template. */

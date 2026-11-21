@@ -1,6 +1,6 @@
 /**
  * ACS Courier carrier adapter — mirror of the Python
- * ``shipping_acs/carrier.py::AcsCarrier``.
+ * ``src/shipping_acs/carrier.py::AcsCarrier``.
  *
  * Registered by ``shared/shipping/registry.ts`` via static import
  * (Nitro's rollup bundler can't run Vite's ``import.meta.glob``).
@@ -24,7 +24,7 @@ function _toNumber(value: string | null | undefined): number | null {
 /**
  * An ACS locker's identity. Django keys a station on the PAIR
  * (``UniqueConstraint(external_id, branch_code)``,
- * ``shipping_acs/models/station.py``): every Smartpoint in an area
+ * ``src/shipping_acs/models/station.py``): every Smartpoint in an area
  * shares its ``external_id`` (``ATH``). JSON keeps the pair unambiguous
  * whatever characters either half holds.
  */

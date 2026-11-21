@@ -4,7 +4,7 @@ import { getCarrier, listCarriers } from '~~/shared/shipping/registry'
 /**
  * The carrier registry is the dispatch table: checkout asks it which
  * adapter handles a provider code instead of branching on the code.
- * Its keys must match the Python registry's (`shipping/interfaces.py`),
+ * Its keys must match the Python registry's (`src/shipping/interfaces.py`),
  * which is why the set is written out — a carrier added on one side
  * only has to fail here.
  */

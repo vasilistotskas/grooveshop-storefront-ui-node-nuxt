@@ -7,7 +7,7 @@ import {
 
 // Rows as the countries API serves them — Google's Address Data Service
 // ``zip`` regex and first ``zipex``, seeded by Django's
-// ``country/migrations/0011_country_postal_code_format.py``.
+// ``src/country/migrations/0011_country_postal_code_format.py``.
 const GREECE = { postalCodePattern: '\\d{3} ?\\d{2}', postalCodeExample: '151 24' }
 const CYPRUS = { postalCodePattern: '\\d{4}', postalCodeExample: '2008' }
 const FALKLANDS = { postalCodePattern: 'FIQQ 1ZZ', postalCodeExample: 'FIQQ 1ZZ' }

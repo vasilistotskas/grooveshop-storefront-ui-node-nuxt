@@ -3,7 +3,7 @@ import { z } from 'zod'
 /**
  * The header a retried request carries so Django answers it with the
  * first outcome instead of running it again
- * (`core/middleware/idempotency.py` in the Django API).
+ * (`src/core/middleware/idempotency.py` in the Django API).
  */
 export const IDEMPOTENCY_KEY_HEADER = 'Idempotency-Key'
 

@@ -2,7 +2,7 @@ import type { BadgeProps } from '@nuxt/ui'
 
 /**
  * An order's way from placed to done, as Django's `OrderStatus` walks it
- * (`order/enum/status.py`, the transitions in `order/services.py`).
+ * (`src/order/enum/status.py`, the transitions in `src/order/services.py`).
  * CANCELED, RETURNED and REFUNDED leave this path: they end an order
  * rather than move it along.
  */

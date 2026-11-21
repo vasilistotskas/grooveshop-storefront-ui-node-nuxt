@@ -1,6 +1,6 @@
 /**
  * Symmetric carrier abstraction — mirror of the Python
- * ``shipping/interfaces.py::ShippingCarrierInterface`` registry.
+ * ``src/shipping/interfaces.py::ShippingCarrierInterface`` registry.
  *
  * Goals:
  * 1. **Scalability** — adding a new courier (ELTA, Speedex, Geniki…)

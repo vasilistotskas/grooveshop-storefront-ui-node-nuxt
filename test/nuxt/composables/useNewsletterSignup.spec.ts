@@ -77,7 +77,7 @@ describe('useNewsletterSignup', () => {
     expect(signup.failure.value).toEqual({ kind: 'rate_limited' })
   })
 
-  // Django's body for a serializer error (`core/api/exception_handler.py`):
+  // Django's body for a serializer error (`src/core/api/exception_handler.py`):
   // the field keys, plus `code` and `fields`.
   it('reads a field rejection from Django\'s own body', async () => {
     api.routes({

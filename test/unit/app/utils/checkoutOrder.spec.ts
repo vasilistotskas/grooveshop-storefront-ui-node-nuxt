@@ -153,6 +153,28 @@ describe('classifyOrderError', () => {
     })
   })
 
+  it('lists every other field Django refused after the pickup point, never only the point', () => {
+    const refusal = 'This pickup point is not available.'
+    const info = classifyOrderError({
+      boxnowLockerId: [refusal],
+      billingVatId: ['Enter a valid VAT number.'],
+      fields: {
+        boxnowLockerId: [{ message: refusal, code: 'pickup_point_unknown' }],
+        billingVatId: [{ message: 'Enter a valid VAT number.', code: 'invalid' }],
+      },
+    }, t, n)
+
+    expect(info.title).toBe('form.submit.error.pickup_point_refused')
+    expect(info.description).toBe([
+      'form.submit.error.pickup_point_unknown',
+      'billingVatId: Enter a valid VAT number.',
+    ].join('\n'))
+    expect(info.stepErrors[CHECKOUT_STEP.delivery]).toEqual([
+      { name: 'boxnowLockerId', message: 'form.submit.error.pickup_point_unknown' },
+      { name: 'billingVatId', message: 'Enter a valid VAT number.' },
+    ])
+  })
+
   // The 503 when the carrier's catalogue could not be asked: the point is
   // not judged, so the shopper tries again with it.
   it('tells the shopper to try again when the pickup point could not be checked', () => {

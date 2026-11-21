@@ -65,7 +65,7 @@ export function cachedRead<Schema extends z.ZodType>(
   )
 }
 
-// The cache names are a contract with Django's purge (`core/cache/surfaces.py`), except `builderDataMedia`, which that file does not name yet: until the block change adds it, the epoch in the key and the short TTL are what evict it.
+// The cache names are a contract with Django's purge: the app that owns the data names its read in its `cache_surfaces.py` (`product`, `blog`, `promotion`), and `builderDataMedia` is in the `builder` surface, which a release purges.
 const readProducts = cachedRead('builderDataProduct', '/product', zListProductResponse)
 const readBlogPosts = cachedRead('builderDataBlogPost', '/blog/post', zListBlogPostResponse)
 const readCategories = cachedRead('builderDataCategory', '/product/category', zListProductCategoryResponse)
