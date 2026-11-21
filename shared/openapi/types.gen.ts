@@ -8789,6 +8789,42 @@ export type ProductReviewWriteRequest = {
 }
 
 /**
+ * Response payload of the product shipping endpoint.
+ */
+export type ProductShipping = {
+  /**
+     * Null όταν το κατάστημα δεν αποστέλλει πουθενά ή όταν καμία αποστολή που προσφέρει δεν μπορεί να πάρει αυτό το προϊόν.
+     */
+  estimate: ProductShippingEstimate | null
+}
+
+/**
+ * The cheapest delivery of one product bought on its own.
+ */
+export type ProductShippingEstimate = {
+  /**
+     * Η χώρα για την οποία υπολογίστηκε η τιμή: η πρώτη χώρα αποστολής του καταστήματος, αυτή που προεπιλέγει η ολοκλήρωση αγοράς.
+     */
+  countryCode: string
+  /**
+     * Η φθηνότερη αποστολή που θα χρέωνε η ολοκλήρωση αγοράς σε ένα καλάθι μόνο με αυτό το προϊόν, μετά το όριο δωρεάν αποστολής και τις προωθήσεις δωρεάν αποστολής.
+     */
+  price: number
+  /**
+     * Νόμισμα των ``price`` και ``free_shipping_threshold``.
+     */
+  currency: string
+  /**
+     * Το προϊόν αποστέλλεται δωρεάν και μόνο του: το ``price`` είναι 0.
+     */
+  free: boolean
+  /**
+     * Το χαμηλότερο υποσύνολο προϊόντων, μετά τις εκπτώσεις, από το οποίο μια μεταφορική που μπορεί να πάρει αυτό το προϊόν το αποστέλλει δωρεάν. Null όταν καμία δεν το κάνει ποτέ.
+     */
+  freeShippingThreshold: number | null
+}
+
+/**
  * A single sibling product within a variant group, trimmed to what a
  * storefront swatch card needs: identity, image, price and its
  * variant-axis attribute values (Colour, Memory, …). Its price fields
@@ -28323,6 +28359,27 @@ export type GetShippingPolicyResponses = {
 }
 
 export type GetShippingPolicyResponse = GetShippingPolicyResponses[keyof GetShippingPolicyResponses]
+
+export type GetProductShippingData = {
+  body?: never
+  path: {
+    productId: string | number
+  }
+  query?: never
+  url: '/api/v1/shipping/product/{product_id}'
+}
+
+export type GetProductShippingErrors = {
+  404: ErrorResponse
+}
+
+export type GetProductShippingError = GetProductShippingErrors[keyof GetProductShippingErrors]
+
+export type GetProductShippingResponses = {
+  200: ProductShipping
+}
+
+export type GetProductShippingResponse = GetProductShippingResponses[keyof GetProductShippingResponses]
 
 export type ApiV1ShippingProvidersListData = {
   body?: never

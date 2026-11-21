@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, defineComponent, h, ref } from 'vue'
+import { computed, defineComponent, h, ref, toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart, makeFreeShippingProgress } from '~~/test/fixtures/cart'
@@ -11,13 +12,16 @@ import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/help
  * the store already publishes, each hidden when that data is missing, the
  * whole box a store preference. The requests are the ones the footer and the
  * app shell make (`useShippingPolicy`, `useStorePayWays`,
- * `useFreeShippingInfo`), mocked at the composable.
+ * `useFreeShippingInfo`), mocked at the composable, and the product's own
+ * shipping price (`/api/shipping/product/<id>`), mocked at `useApi`.
  */
 const data = vi.hoisted(() => ({
   freeShipping: { minThreshold: 40 as number | null, countryCode: 'GR' as string | null },
   policy: [] as Array<{ countryCode: string, deliveryDaysMin: number | null, deliveryDaysMax: number | null }>,
   payWays: [] as Array<{ settlement?: string }>,
   returnWindow: 14 as number | undefined,
+  estimate: null as null | { countryCode: string, price: number, currency: string, free: boolean, freeShippingThreshold: number | null },
+  shippingUrl: '',
   published: new Set<string>(),
   requested: 0,
 }))
@@ -34,6 +38,12 @@ mockNuxtImport('useStorePayWays', () => () => {
   data.requested++
   return Promise.resolve({ data: ref({ results: data.payWays }) })
 })
+mockNuxtImport('useApi', () => (url: () => string, options: { enabled: MaybeRefOrGetter<boolean> }) => {
+  if (toValue(options.enabled) === false) return Promise.resolve({ data: ref(undefined) })
+  data.requested++
+  data.shippingUrl = url()
+  return Promise.resolve({ data: ref({ estimate: data.estimate }) })
+})
 mockNuxtImport('useStoreSettings', () => () => ({ values: computed(() => data.returnWindow === undefined ? null : makePublicValues({ returnWindowDays: data.returnWindow })) }))
 mockNuxtImport('useFooterContentPages', () => () => ({ published: computed(() => data.published), links: computed(() => []) }))
 
@@ -43,7 +53,7 @@ async function load() {
   let result!: Assurances
   const Reader = defineComponent({
     async setup() {
-      result = await useProductAssurances()
+      result = await useProductAssurances(7)
       return () => h('div')
     },
   })
@@ -63,6 +73,8 @@ beforeEach(() => {
   ]
   data.payWays = [{ settlement: 'online' }, { settlement: 'courier_cash' }]
   data.returnWindow = 14
+  data.estimate = { countryCode: 'GR', price: 1.99, currency: 'EUR', free: false, freeShippingThreshold: 39.9 }
+  data.shippingUrl = ''
   data.published = new Set()
   data.requested = 0
 })
@@ -78,19 +90,61 @@ describe('useProductAssurances', () => {
     ])
   })
 
-  it('reads the delivery days of the country the store ships to first, with the free-shipping threshold under them', async () => {
+  it('reads the delivery days of the country the store ships to first, with what shipping this product costs under them', async () => {
     const assurances = await load()
 
     const delivery = assurances.rows.value[0]!
     expect(delivery.kind).toBe('delivery')
-    expect(delivery.note).toBe(useNuxtApp().$i18n.t('product_assurances.free_shipping_over', { amount: useNuxtApp().$i18n.n(40, 'currency') }))
+    expect(delivery.note).toBe('Μεταφορικά από 1,99\u00A0€ · δωρεάν άνω των 39,90\u00A0€')
     expect(assurances.coversFreeShipping.value).toBe(true)
+    expect(data.shippingUrl).toBe('/api/shipping/product/7')
+  })
+
+  // A product no carrier that takes it ships free above a threshold.
+  it('states the price alone when no carrier that takes the product ever ships it free', async () => {
+    data.estimate = { countryCode: 'GR', price: 2.99, currency: 'EUR', free: false, freeShippingThreshold: null }
+
+    const assurances = await load()
+
+    expect(assurances.rows.value[0]!.note).toBe('Μεταφορικά από 2,99\u00A0€')
+    expect(assurances.coversFreeShipping.value).toBe(true)
+  })
+
+  it('says the product ships free when it does on its own', async () => {
+    data.estimate = { countryCode: 'GR', price: 0, currency: 'EUR', free: true, freeShippingThreshold: 39.9 }
+
+    const assurances = await load()
+
+    expect(assurances.rows.value[0]!.note).toBe('Δωρεάν μεταφορικά')
+    expect(assurances.coversFreeShipping.value).toBe(true)
+  })
+
+  it('says nothing of shipping when Django has no price for the product', async () => {
+    data.estimate = null
+
+    const assurances = await load()
+
+    expect(assurances.rows.value[0]!.kind).toBe('delivery')
+    expect(assurances.rows.value[0]!.note).toBeUndefined()
+    expect(assurances.coversFreeShipping.value).toBe(false)
+  })
+
+  it('words the note in the page\'s language', async () => {
+    setTenant({ availableLocales: ['el', 'en'] })
+    const i18n = useNuxtApp().$i18n
+    await i18n.setLocale('en')
+    try {
+      expect((await load()).rows.value[0]!.note).toBe('Shipping from €1.99 · free over €39.90')
+    }
+    finally {
+      await i18n.setLocale('el')
+    }
   })
 
   // The cart's own distance ("add 12 € more") is the more useful line, and
   // the product page's notice draws it, so the row does not state the
   // store-wide threshold beside it.
-  it('leaves the store-wide threshold to the notice of the cart itself once the cart has a route to free shipping', async () => {
+  it('leaves shipping to the notice of the cart itself once the cart has a route to free shipping', async () => {
     useCartStore().cart = makeCart({ freeShippingProgress: makeFreeShippingProgress() })
 
     const assurances = await load()
@@ -99,7 +153,7 @@ describe('useProductAssurances', () => {
     expect(assurances.coversFreeShipping.value).toBe(false)
   })
 
-  it('keeps the store-wide threshold for a cart with no route to free shipping', async () => {
+  it('keeps the product\'s shipping for a cart with no route to free shipping', async () => {
     useCartStore().cart = makeCart({ freeShippingProgress: null })
 
     const assurances = await load()
@@ -114,8 +168,22 @@ describe('useProductAssurances', () => {
     expect(text(await load())[0]).toBe('Παράδοση σε 2 εργάσιμες ημέρες από την αποστολή')
   })
 
-  it('hides the delivery row, and does not claim the free-shipping line, when no delivery days are entered', async () => {
+  // Most stores enter no delivery days: the row then states the price alone.
+  it('states what shipping costs as the row itself when no delivery days are entered', async () => {
     data.policy = [{ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null }]
+
+    const assurances = await load()
+
+    const delivery = assurances.rows.value[0]!
+    expect(delivery.kind).toBe('delivery')
+    expect(delivery.text).toBe('Μεταφορικά από 1,99\u00A0€ · δωρεάν άνω των 39,90\u00A0€')
+    expect(delivery.note).toBeUndefined()
+    expect(assurances.coversFreeShipping.value).toBe(true)
+  })
+
+  it('hides the delivery row, and does not claim the free-shipping line, with neither delivery days nor a price', async () => {
+    data.policy = [{ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null }]
+    data.estimate = null
 
     const assurances = await load()
 
@@ -123,26 +191,14 @@ describe('useProductAssurances', () => {
     expect(assurances.coversFreeShipping.value).toBe(false)
   })
 
-  it('leaves the threshold out when the store has none', async () => {
-    data.freeShipping = { minThreshold: null, countryCode: 'GR' }
+  it('hides the delivery row without delivery days once the cart has a route to free shipping', async () => {
+    data.policy = [{ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null }]
+    useCartStore().cart = makeCart({ freeShippingProgress: makeFreeShippingProgress() })
 
     const assurances = await load()
 
-    expect(assurances.rows.value[0]!.note).toBeUndefined()
+    expect(assurances.rows.value.map(row => row.kind)).toEqual(['payment', 'returns'])
     expect(assurances.coversFreeShipping.value).toBe(false)
-  })
-
-  it.each([
-    [['online'], 'Κάρτα'],
-    [['courier_cash'], 'Αντικαταβολή'],
-    [['carrier_terminal', 'courier_cash'], 'Αντικαταβολή'],
-    [['offline_transfer', 'online', 'courier_cash'], 'Κάρτα, αντικαταβολή ή τραπεζική κατάθεση'],
-  ])('words the pay ways %j as one phrase', async (settlements, phrase) => {
-    data.payWays = settlements.map(settlement => ({ settlement }))
-
-    const assurances = await load()
-
-    expect(assurances.rows.value.find(row => row.kind === 'payment')!.text).toBe(phrase)
   })
 
   it('hides the payment row when no pay way is active', async () => {
