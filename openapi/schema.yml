@@ -16490,6 +16490,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/order-items:
     get:
       operationId: listOrderItem
@@ -17715,7 +17721,7 @@ paths:
   /api/v1/order/{id}/create_checkout_session:
     post:
       operationId: createOrderCheckoutSession
-      description: Δημιουργία φιλοξενούμενης συνεδρίας ολοκλήρωσης αγοράς (Stripe ή Viva Wallet). Ο πελάτης θα ανακατευθυνθεί στη σελίδα πληρωμής του παρόχου για να ολοκληρώσει την πληρωμή.
+      description: 'Ο φιλοξενούμενος σύνδεσμος πληρωμής της παραγγελίας (Stripe ή Viva Wallet). Όσο ένας σύνδεσμος της παραγγελίας μπορεί ακόμη να πληρωθεί, επιστρέφεται ξανά, με τη δική του λήξη, και τα successUrl και cancelUrl είναι αυτά με τα οποία άνοιξε· μόνο όταν κανένας δεν μπορεί να πληρωθεί ανοίγει νέος. 409 payment_in_progress: έγινε πληρωμή και επιβεβαιώνεται, οπότε δεν ανοίγει σύνδεσμος· διαβάστε ξανά την παραγγελία μετά το Retry-After. 503 payment_provider_unavailable: ο πάροχος δεν μπορεί να πει αν ένας σύνδεσμος πληρώνεται ακόμη· δοκιμάστε ξανά μετά το Retry-After.'
       summary: Δημιουργία φιλοξενούμενης συνεδρίας ολοκλήρωσης αγοράς για παραγγελία
       parameters:
         - in: path
@@ -17782,7 +17788,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '503':
           content:
             application/json:
               schema:
@@ -28413,6 +28431,21 @@ paths:
       operationId: api_v1_shipping_acs_stations_list
       description: List / retrieve ACS stations and Smartpoint lockers.
       parameters:
+        - in: query
+          name: branch
+          schema:
+            type: string
+          description: The station's branch, exactly; empty matches the station without one.
+        - in: query
+          name: countryCode
+          schema:
+            type: string
+          description: ISO 3166-1 alpha-2 country of the station.
+        - in: query
+          name: externalId
+          schema:
+            type: string
+          description: 'The station''s ACS code, exactly (an area code that several Smartpoints share: add branch for one).'
         - name: ordering
           required: false
           in: query
@@ -28437,12 +28470,25 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
+        - in: query
+          name: postalCode
+          schema:
+            type: string
+          description: Postcode prefix (its first 5 characters).
         - name: search
           required: false
           in: query
           description: A search term.
           schema:
             type: string
+        - in: query
+          name: shopKind
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: 'ACS shop kind. Default: the locker kinds of countryCode, or of every configured country.'
       tags:
         - api
       security:
@@ -28529,10 +28575,20 @@ paths:
       summary: Λίστα Lockers BoxNow
       parameters:
         - in: query
+          name: countryCode
+          schema:
+            type: string
+          description: Χώρα του locker κατά ISO 3166-1 alpha-2.
+        - in: query
           name: cursor
           schema:
             type: string
           description: Δείκτης (cursor) για σελιδοποίηση
+        - in: query
+          name: externalId
+          schema:
+            type: string
+          description: Ο κωδικός BOX NOW του locker, ακριβώς.
         - in: query
           name: languageCode
           schema:
@@ -38641,7 +38697,7 @@ components:
         cartDigest:
           type: string
           nullable: true
-          description: 'Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.'
+          description: 'Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.'
         shippingOptions:
           type: array
           items:
@@ -38840,7 +38896,7 @@ components:
         cartDigest:
           type: string
           nullable: true
-          description: 'Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.'
+          description: 'Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.'
       required:
         - amountDue
         - appliedPromotions
@@ -41316,6 +41372,10 @@ components:
           type: string
           title: Αριθμός
           maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
+          maxLength: 255
         payWay:
           type: integer
           nullable: true
@@ -41494,6 +41554,10 @@ components:
           description: Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
         fullAddress:
           type: string
+          description: |-
+            The delivery address on one line: the street and its number, the
+            address line 2 when there is one, then the postcode and the city
+            ("Ερμού 12, 3ος όροφος, 10563 Αθήνα").
           readOnly: true
         paymentId:
           type: string
@@ -41870,22 +41934,23 @@ components:
           description: Email πελάτη
         street:
           type: string
-          minLength: 1
-          description: Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.
+          description: Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό τη διεύθυνση του σημείου.
           maxLength: 255
         streetNumber:
           type: string
           description: 'Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.'
           maxLength: 50
+        addressLine2:
+          type: string
+          description: 'Ό,τι δεν περιέχει η γραμμή της οδού: διαμέρισμα, όροφος, κτίριο. Προαιρετικό ελεύθερο κείμενο, που τυπώνεται κάτω από την οδό και δίνεται στον courier.'
+          maxLength: 255
         city:
           type: string
-          minLength: 1
-          description: Όνομα πόλης
+          description: Όνομα πόλης. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό την πόλη του σημείου.
           maxLength: 100
         zipcode:
           type: string
-          minLength: 1
-          description: Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
+          description: Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά). Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτόν τον ταχυδρομικό κώδικα του σημείου.
           maxLength: 20
         countryId:
           type: string
@@ -42021,7 +42086,7 @@ components:
           type: string
           writeOnly: true
           minLength: 1
-          description: Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής, τρόπος πληρωμής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
+          description: Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
           maxLength: 64
         meta:
           type: object
@@ -42043,7 +42108,6 @@ components:
           writeOnly: true
           description: Ο αγοραστής αποδέχεται τους όρους χρήσης και την πολιτική απορρήτου του καταστήματος. Πρέπει να είναι true.
       required:
-        - city
         - countryId
         - email
         - expectedTotal
@@ -42051,9 +42115,7 @@ components:
         - lastName
         - payWayId
         - phone
-        - street
         - termsAccepted
-        - zipcode
     OrderDeliveryMethod:
       type: object
       properties:
@@ -42104,6 +42166,10 @@ components:
         streetNumber:
           type: string
           title: Αριθμός
+          maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
           maxLength: 255
         payWay:
           type: integer
@@ -42284,6 +42350,10 @@ components:
           description: Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
         fullAddress:
           type: string
+          description: |-
+            The delivery address on one line: the street and its number, the
+            address line 2 when there is one, then the postcode and the city
+            ("Ερμού 12, 3ος όροφος, 10563 Αθήνα").
           readOnly: true
         paymentId:
           type: string
@@ -42921,8 +42991,11 @@ components:
           maxLength: 255
         streetNumber:
           type: string
-          minLength: 1
           title: Αριθμός
+          maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
           maxLength: 255
         firstName:
           type: string
@@ -44906,8 +44979,11 @@ components:
           maxLength: 255
         streetNumber:
           type: string
-          minLength: 1
           title: Αριθμός
+          maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
           maxLength: 255
         firstName:
           type: string
@@ -45408,6 +45484,10 @@ components:
           type: string
           minLength: 1
           title: Αριθμός
+          maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
           maxLength: 255
         city:
           type: string
@@ -52888,6 +52968,10 @@ components:
           type: string
           title: Αριθμός
           maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
+          maxLength: 255
         city:
           type: string
           title: Πόλη
@@ -52981,6 +53065,10 @@ components:
         streetNumber:
           type: string
           title: Αριθμός
+          maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
           maxLength: 255
         city:
           type: string
@@ -53077,6 +53165,10 @@ components:
           type: string
           minLength: 1
           title: Αριθμός
+          maxLength: 255
+        addressLine2:
+          type: string
+          title: Διεύθυνση γραμμή 2
           maxLength: 255
         city:
           type: string

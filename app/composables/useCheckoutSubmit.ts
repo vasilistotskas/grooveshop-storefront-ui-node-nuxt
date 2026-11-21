@@ -1,5 +1,3 @@
-import type { FormError } from '@nuxt/ui'
-
 export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions, shippingOverWeight }: {
   // The reactive form-state object from ``useCheckoutForm`` —
   // its inferred shape isn't exported, so we accept a permissive
@@ -67,9 +65,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // (it caches a 4xx under the key too, so a repeat would replay the
   // rejection).
   const orderAttempt = ref<{ key: string, fingerprint: string } | null>(null)
-  // Django field errors for the address step, handed to its ``UForm``
+  // Django's field errors by step, each handed to that step's ``UForm``
   // (``setErrors``) when a rejected order sends the shopper back there.
-  const addressStepErrors = ref<FormError[]>([])
+  const stepErrors = ref<StepFieldErrors>({})
   // The quote the submit in progress places its order at: the total and
   // the cart the shopper was shown (`onSubmit`, step 2b).
   let accepted: AcceptedQuote | null = null
@@ -204,11 +202,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // the cart's lines at their prices now and the quote the shopper's
     // next submit accepts.
     if (errorInfo.quoteChanged) void reloadCartAndQuote()
-    // A field the address step owns: go back there and show each
-    // message under its own input, not only in the toast.
-    if (errorInfo.addressStepErrors.length) {
-      addressStepErrors.value = errorInfo.addressStepErrors
-      currentStep.value = 0
+    // Fields a step shows: go back to the first of those steps and show
+    // each message under its own input, not only in the alert.
+    const firstErrorStep = Math.min(...Object.keys(errorInfo.stepErrors).map(Number))
+    if (Number.isFinite(firstErrorStep)) {
+      stepErrors.value = errorInfo.stepErrors
+      currentStep.value = firstErrorStep
     }
     // What the shopper quotes to support: the refusal's stable code and
     // the request's id (`describeApiError` reads both).
@@ -245,7 +244,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
    * if the bonus bookkeeping didn't.
    */
   const maybeSaveDeliveryAddress = () => {
-    if (!formState.saveAddress) return
+    // The address book holds addresses delivered to: a pickup order
+    // has none of the shopper's.
+    if (!formState.saveAddress || formState.shippingMethod !== 'home_delivery') return
     const title = (formState.addressTitle ?? '').trim()
     if (!title) return
 
@@ -988,9 +989,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   const nextStep = async () => {
     if (currentStep.value < 2) {
-      // Leaving the address step means it validated: any server errors
-      // it was showing are answered.
-      if (currentStep.value === 0) addressStepErrors.value = []
+      // Leaving a step means it validated: any server errors it was
+      // showing are answered.
+      const { [currentStep.value as CheckoutStep]: _answered, ...unanswered } = stepErrors.value
+      stepErrors.value = unanswered
       currentStep.value++
       // Meta Pixel: AddPaymentInfo, GA4: add_payment_info and the Google
       // Ads add-payment-info conversion all fire
@@ -1110,7 +1112,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   return {
     currentStep,
-    addressStepErrors,
+    stepErrors,
     quote: checkoutQuote.quote,
     // The choices the quote on the page priced: the summary names its fee
     // and its points after them, never after a newer selection.

@@ -70,7 +70,7 @@ const {
 
 const {
   currentStep,
-  addressStepErrors,
+  stepErrors,
   quote,
   quotedFor,
   quotePending,
@@ -259,16 +259,11 @@ useSeoMeta({
               v-model:form-state="formState"
               :schema="step1Schema"
               :country-options="countryOptions"
-              :postcode-example="postcodeExample"
-              :selected-country="selectedCountry"
-              :server-errors="addressStepErrors"
-              :region-options="regionOptions"
+              :server-errors="stepErrors[CHECKOUT_STEP.details]"
               :saved-addresses="savedAddresses"
               :selected-saved-address-id="selectedSavedAddressId"
               :address-ids-needing-update="addressIdsNeedingUpdate"
               :mode="addressEntryMode"
-              :b2b-invoicing-enabled="b2bInvoicingEnabled"
-              :acs-enabled="acsEnabled"
               @next="nextStep"
               @select-saved-address="selectSavedAddress"
               @use-new-address="useNewAddress"
@@ -285,6 +280,14 @@ useSeoMeta({
               :quoted-options="quote?.shippingOptions ?? null"
               :options-error="shippingOptionsError"
               :over-weight="shippingOverWeight"
+              :region-options="regionOptions"
+              :postcode-example="postcodeExample"
+              :selected-country="selectedCountry"
+              :acs-enabled="acsEnabled"
+              :b2b-invoicing-enabled="b2bInvoicingEnabled"
+              :mode="addressEntryMode"
+              :selected-saved-address-id="selectedSavedAddressId"
+              :server-errors="stepErrors[CHECKOUT_STEP.delivery]"
               @next="nextStep"
               @back="prevStep"
               @retry-options="retryShippingOptions"

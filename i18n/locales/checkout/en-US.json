@@ -43,7 +43,8 @@
   "payment_error_description": "An error occurred while processing your payment. Please try again or contact us.",
   "retry": "Try Again",
   "steps": {
-    "info_and_address": "Details & Address",
+    "details": "Details",
+    "delivery": "Delivery",
     "payment": "Payment"
   },
   "shipping": {
@@ -52,7 +53,7 @@
       "subtitle": "Choose how you would like to receive your order",
       "home_delivery": {
         "label": "Delivery to your address",
-        "description": "Courier delivery to the address you provided"
+        "description": "Courier delivery to the address you enter"
       },
       "boxnow": {
         "label": "BOX NOW Lockers",
@@ -65,7 +66,7 @@
       "acs_smartpoint": {
         "label": "ACS Smartpoint Lockers",
         "tagline": "Collect in your own time",
-        "description": "Collect your order from any ACS Smartpoint locker, based on the delivery postcode."
+        "description": "Collect your order from the ACS Smartpoint locker you choose, with no address to enter."
       },
       "exceeds_max_weight": "Your cart exceeds this method's weight limit ({maxWeight}).",
       "exceeds_parcel_size": "Your cart is too large for locker delivery.",
@@ -220,6 +221,12 @@
         "cart_changed": "Your cart has changed",
         "cart_changed_description": "Your cart changed while you were checking out, and its total is now {total}. Check the items and the summary, then place the order again to complete it as shown.",
         "cart_changed_review": "Your cart changed while you were checking out. Check the items and the summary, then place the order again.",
+        "pickup_point_refused": "Choose another pickup point",
+        "pickup_point_unknown": "The pickup point you chose is no longer available. Choose another one.",
+        "pickup_point_required": "Choose a pickup point to continue.",
+        "pickup_point_in_another_country": "That pickup point is in another country than your order's. Choose one in the delivery country.",
+        "pickup_point_check_unavailable": "We could not check the pickup point",
+        "pickup_point_check_unavailable_description": "The courier's list of pickup points could not be reached just now, so nothing was ordered. Your point is still selected: place the order again in a moment.",
         "total_changed": "Your order total has changed",
         "total_changed_description": "The new total is {total}. Check your order summary and place the order again to complete it at this amount.",
         "total_changed_review": "Check your order summary and place the order again.",

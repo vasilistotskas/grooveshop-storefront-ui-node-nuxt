@@ -1996,7 +1996,8 @@ export const zOrderWriteRequest = z.object({
     zBlankEnum,
   ]).optional(),
   street: z.string().min(1).max(255),
-  streetNumber: z.string().min(1).max(255),
+  streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   firstName: z.string().min(1).max(255),
   lastName: z.string().min(1).max(255),
   email: z.email().min(1).max(255),
@@ -2336,7 +2337,8 @@ export const zPatchedOrderWriteRequest = z.object({
     zBlankEnum,
   ]).optional(),
   street: z.string().min(1).max(255).optional(),
-  streetNumber: z.string().min(1).max(255).optional(),
+  streetNumber: z.string().max(255).optional(),
+  addressLine2: z.string().max(255).optional(),
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
   email: z.email().min(1).max(255).optional(),
@@ -2503,6 +2505,7 @@ export const zPatchedUserAddressWriteRequest = z.object({
   lastName: z.string().min(1).max(255).optional(),
   street: z.string().min(1).max(255).optional(),
   streetNumber: z.string().min(1).max(255).optional(),
+  addressLine2: z.string().max(255).optional(),
   city: z.string().min(1).max(255).optional(),
   zipcode: z.string().min(1).max(255).optional(),
   floor: z.union([
@@ -4720,10 +4723,11 @@ export const zOrderCreateFromCartRequest = z.object({
   firstName: z.string().min(1).max(150),
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
-  street: z.string().min(1).max(255),
+  street: z.string().max(255).optional(),
   streetNumber: z.string().max(50).optional(),
-  city: z.string().min(1).max(100),
-  zipcode: z.string().min(1).max(20),
+  addressLine2: z.string().max(255).optional(),
+  city: z.string().max(100).optional(),
+  zipcode: z.string().max(20).optional(),
   countryId: z.string().min(1),
   regionId: z.string().nullish(),
   phone: z.string().min(1),
@@ -4778,6 +4782,7 @@ export const zOrder = z.object({
   ]).optional(),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   payWay: z.int().nullable(),
   status: zOrderStatus.optional(),
   statusDisplay: z.string().readonly(),
@@ -6203,6 +6208,7 @@ export const zOrderDetail = z.object({
   ]).optional(),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   payWay: z.int().nullable(),
   status: zOrderStatus.optional(),
   statusDisplay: z.string().readonly(),
@@ -6337,6 +6343,7 @@ export const zUserAddress = z.object({
   lastName: z.string().max(255),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   city: z.string().max(255),
   zipcode: z.string().max(255),
   floor: z.union([
@@ -6378,6 +6385,7 @@ export const zUserAddressDetail = z.object({
   lastName: z.string().max(255),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   city: z.string().max(255),
   zipcode: z.string().max(255),
   floor: z.union([
@@ -6405,6 +6413,7 @@ export const zUserAddressWriteRequest = z.object({
   lastName: z.string().min(1).max(255),
   street: z.string().min(1).max(255),
   streetNumber: z.string().min(1).max(255),
+  addressLine2: z.string().max(255).optional(),
   city: z.string().min(1).max(255),
   zipcode: z.string().min(1).max(255),
   floor: z.union([
@@ -7678,10 +7687,11 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   firstName: z.string().min(1).max(150),
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
-  street: z.string().min(1).max(255),
+  street: z.string().max(255).optional(),
   streetNumber: z.string().max(50).optional(),
-  city: z.string().min(1).max(100),
-  zipcode: z.string().min(1).max(20),
+  addressLine2: z.string().max(255).optional(),
+  city: z.string().max(100).optional(),
+  zipcode: z.string().max(20).optional(),
   countryId: z.string().min(1),
   regionId: z.string().nullish(),
   phone: z.string().min(1),
@@ -7747,6 +7757,7 @@ export const zOrderWritable = z.object({
   ]).optional(),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   payWay: z.int().nullable(),
   status: zOrderStatus.optional(),
   firstName: z.string().max(255),
@@ -7781,6 +7792,7 @@ export const zOrderDetailWritable = z.object({
   ]).optional(),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   payWay: z.int().nullable(),
   status: zOrderStatus.optional(),
   firstName: z.string().max(255),
@@ -9034,6 +9046,7 @@ export const zUserAddressWritable = z.object({
   lastName: z.string().max(255),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   city: z.string().max(255),
   zipcode: z.string().max(255),
   floor: z.union([
@@ -9070,6 +9083,7 @@ export const zUserAddressDetailWritable = z.object({
   lastName: z.string().max(255),
   street: z.string().max(255),
   streetNumber: z.string().max(255),
+  addressLine2: z.string().max(255).optional(),
   city: z.string().max(255),
   zipcode: z.string().max(255),
   floor: z.union([
@@ -16755,6 +16769,9 @@ export const zGetAcsTrackingPath = z.object({
 export const zGetAcsTrackingResponse = zAcsShipmentDetail
 
 export const zApiV1ShippingAcsStationsListQuery = z.object({
+  branch: z.string().optional(),
+  countryCode: z.string().optional(),
+  externalId: z.string().optional(),
   ordering: z.string().optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16764,7 +16781,12 @@ export const zApiV1ShippingAcsStationsListQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  postalCode: z.string().optional(),
   search: z.string().optional(),
+  shopKind: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zApiV1ShippingAcsStationsListResponse = zPaginatedAcsStationList
@@ -16791,7 +16813,9 @@ export const zFindNearestAcsStationsQuery = z.object({
 export const zFindNearestAcsStationsResponse = z.array(zAcsStation)
 
 export const zListBoxNowLockerQuery = z.object({
+  countryCode: z.string().optional(),
   cursor: z.string().optional(),
+  externalId: z.string().optional(),
   languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt)(?:,(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt))*$/).optional(),
   page: z.union([

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { DOMWrapper, VueWrapper } from '@vue/test-utils'
 import { nextTick, reactive } from 'vue'
+import * as z from 'zod'
 import StepShipping from '~/components/Checkout/StepShipping.vue'
 import WebsideStepShipping from '~/components/variants/webside/Checkout/StepShipping.vue'
 import type { QuoteShippingOption, ShippingOption } from '~~/shared/openapi/types.gen'
@@ -47,6 +48,9 @@ function makeProps(overrides: Record<string, unknown> = {}) {
     partnerId: '10391',
     apiOptions: GREEK_ROWS(),
     quotedOptions: null,
+    regionOptions: [],
+    acsEnabled: false,
+    b2bInvoicingEnabled: false,
     ...overrides,
   }
 }
@@ -69,8 +73,8 @@ function radioValues(wrapper: VueWrapper): string[] {
 }
 
 /** The step's exposed `submit()`, which the sidebar CTA calls. */
-function submitStep(wrapper: VueWrapper): void {
-  ;(wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed.submit()
+async function submitStep(wrapper: VueWrapper): Promise<void> {
+  await (wrapper.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
 }
 
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
@@ -268,7 +272,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     it('advances with home delivery', async () => {
       const wrapper = await mount()
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toHaveLength(1)
     })
@@ -287,7 +291,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
         apiOptions,
       })
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toHaveLength(1)
     })
@@ -299,7 +303,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       const picker = wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') })
       expect(picker.props('open')).toBe(false)
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
       await nextTick()
 
       expect(wrapper.emitted('next')).toBeUndefined()
@@ -312,9 +316,84 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
         apiOptions: [acsHomeDeliveryOption()],
       })
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toBeUndefined()
+    })
+  })
+
+  // #767: a pickup order is delivered to the point, so the address is
+  // a home delivery's alone, asked here rather than on the details step.
+  describe('the address', () => {
+    it('asks a home delivery for its address', async () => {
+      const wrapper = await mount()
+
+      for (const name of ['street', 'streetNumber', 'zipcode', 'city']) {
+        expect(wrapper.find(`input[name="${name}"]`).exists(), name).toBe(true)
+      }
+    })
+
+    it.each(['box_now_locker', 'acs_smartpoint'])('asks a %s order for no address', async (shippingMethod) => {
+      const wrapper = await mount({
+        formState: makeFormState({ shippingMethod }),
+        apiOptions: [...GREEK_ROWS(), acsSmartpointOption()],
+      })
+
+      for (const name of ['street', 'streetNumber', 'zipcode', 'city']) {
+        expect(wrapper.find(`input[name="${name}"]`).exists(), name).toBe(false)
+      }
+    })
+
+    // The step's form holds the address: «Continue» checks it.
+    it('does not advance a home delivery its schema refuses', async () => {
+      const wrapper = await mount({
+        schema: z.object({ street: z.string().min(1, { error: 'Required street' }) }),
+        formState: makeFormState({ street: '' }),
+      })
+
+      await submitStep(wrapper)
+      await nextTick()
+
+      expect(wrapper.emitted('next')).toBeUndefined()
+      expect(wrapper.text()).toContain('Required street')
+    })
+
+    it('shows Django\'s field errors under their inputs', async () => {
+      const wrapper = await mount({ serverErrors: [{ name: 'zipcode', message: 'Enter a valid postcode.' }] })
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Enter a valid postcode.')
+    })
+  })
+
+  describe('the invoice', () => {
+    const invoiceForm = (shippingMethod: string) => makeFormState({
+      shippingMethod,
+      documentType: 'INVOICE',
+      billingSameAsShipping: true,
+      boxnowLockerId: '4',
+      boxnowLocker: makeBoxNowSelectedLocker(),
+    })
+
+    it('offers "same as delivery" to a home delivery', async () => {
+      const wrapper = await mount({ b2bInvoicingEnabled: true, formState: invoiceForm('home_delivery') })
+
+      expect(wrapper.text()).toContain(t('form.invoice.billing_same_label'))
+      expect(wrapper.find('input[name="billingStreet"]').exists()).toBe(false)
+    })
+
+    // A pickup point is no company's address: Django refuses one.
+    it('asks a pickup invoice for the company\'s address', async () => {
+      const wrapper = await mount({ b2bInvoicingEnabled: true, formState: invoiceForm('box_now_locker') })
+
+      expect(wrapper.text()).not.toContain(t('form.invoice.billing_same_label'))
+      expect(wrapper.find('input[name="billingStreet"]').exists()).toBe(true)
+    })
+
+    it('is not offered by a store that issues none', async () => {
+      const wrapper = await mount({ formState: invoiceForm('home_delivery') })
+
+      expect(wrapper.find('input[name="billingCompanyName"]').exists()).toBe(false)
     })
   })
 
@@ -523,7 +602,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
           ],
         })
 
-        submitStep(wrapper)
+        await submitStep(wrapper)
 
         expect(wrapper.emitted('next')).toBeUndefined()
       })
@@ -550,7 +629,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       it('does not advance', async () => {
         const wrapper = await mount({ apiOptions: allCapped(), overWeight })
 
-        submitStep(wrapper)
+        await submitStep(wrapper)
 
         expect(wrapper.emitted('next')).toBeUndefined()
       })
@@ -596,7 +675,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
         formState: makeFormState({ shippingMethod: 'box_now_locker', boxnowLockerId: '4' }),
       })
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toBeUndefined()
     })
@@ -616,7 +695,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
 
       expect(radio(wrapper, 'home_delivery').attributes()).toHaveProperty('data-disabled')
       expect(card(wrapper, 'home_delivery').text()).toContain(t('shipping.method.exceeds_parcel_size'))
-      submitStep(wrapper)
+      await submitStep(wrapper)
       expect(wrapper.emitted('next')).toBeUndefined()
     })
   })
@@ -701,7 +780,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     it('does not advance from the sidebar CTA', async () => {
       const wrapper = await failed()
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toBeUndefined()
     })

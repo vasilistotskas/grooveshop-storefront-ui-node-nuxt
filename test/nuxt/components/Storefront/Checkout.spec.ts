@@ -81,7 +81,7 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
   step = ref(state.step)
   return {
     currentStep: step,
-    addressStepErrors: ref({}),
+    stepErrors: ref({}),
     quote: ref(state.quote),
     quotePending: ref(state.quotePending),
     quoteRefusal: ref(state.quoteRefusal),

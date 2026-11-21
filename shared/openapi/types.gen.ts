@@ -2798,7 +2798,7 @@ export type CartQuote = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
   /**
@@ -2928,7 +2928,7 @@ export type CheckoutQuote = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
 }
@@ -4532,6 +4532,10 @@ export type Order = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -4648,6 +4652,11 @@ export type Order = {
      * Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
      */
   readonly giftCardAmount: number
+  /**
+     * The delivery address on one line: the street and its number, the
+     * address line 2 when there is one, then the postcode and the city
+     * ("Ερμού 12, 3ος όροφος, 10563 Αθήνα").
+     */
   readonly fullAddress: string
   /**
      * ID πληρωμής
@@ -4942,21 +4951,25 @@ export type OrderCreateFromCartRequest = {
      */
   email: string
   /**
-     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.
+     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό τη διεύθυνση του σημείου.
      */
-  street: string
+  street?: string
   /**
      * Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.
      */
   streetNumber?: string
   /**
-     * Όνομα πόλης
+     * Ό,τι δεν περιέχει η γραμμή της οδού: διαμέρισμα, όροφος, κτίριο. Προαιρετικό ελεύθερο κείμενο, που τυπώνεται κάτω από την οδό και δίνεται στον courier.
      */
-  city: string
+  addressLine2?: string
   /**
-     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
+     * Όνομα πόλης. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό την πόλη του σημείου.
      */
-  zipcode: string
+  city?: string
+  /**
+     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά). Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτόν τον ταχυδρομικό κώδικα του σημείου.
+     */
+  zipcode?: string
   /**
      * Κωδικός χώρας alpha-2 (π.χ. 'GR', 'US')
      */
@@ -5096,6 +5109,10 @@ export type OrderDetail = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -5212,6 +5229,11 @@ export type OrderDetail = {
      * Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
      */
   readonly giftCardAmount: number
+  /**
+     * The delivery address on one line: the street and its number, the
+     * address line 2 when there is one, then the postcode and the city
+     * ("Ερμού 12, 3ος όροφος, 10563 Αθήνα").
+     */
   readonly fullAddress: string
   /**
      * ID πληρωμής
@@ -5584,6 +5606,10 @@ export type OrderWriteRequest = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Όνομα
      */
@@ -6413,6 +6439,10 @@ export type PatchedOrderWriteRequest = {
      */
   streetNumber?: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Όνομα
      */
   firstName?: string
@@ -6793,6 +6823,10 @@ export type PatchedUserAddressWriteRequest = {
      * Αριθμός
      */
   streetNumber?: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Πόλη
      */
@@ -10813,6 +10847,10 @@ export type UserAddress = {
      */
   streetNumber: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Πόλη
      */
   city: string
@@ -10880,6 +10918,10 @@ export type UserAddressDetail = {
      */
   streetNumber: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Πόλη
      */
   city: string
@@ -10945,6 +10987,10 @@ export type UserAddressWriteRequest = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Πόλη
      */
@@ -11941,7 +11987,7 @@ export type CartQuoteWritable = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
 }
@@ -12002,7 +12048,7 @@ export type CheckoutQuoteWritable = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
 }
@@ -12353,6 +12399,10 @@ export type OrderWritable = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -12528,21 +12578,25 @@ export type OrderCreateFromCartRequestWritable = {
      */
   email: string
   /**
-     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.
+     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό τη διεύθυνση του σημείου.
      */
-  street: string
+  street?: string
   /**
      * Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.
      */
   streetNumber?: string
   /**
-     * Όνομα πόλης
+     * Ό,τι δεν περιέχει η γραμμή της οδού: διαμέρισμα, όροφος, κτίριο. Προαιρετικό ελεύθερο κείμενο, που τυπώνεται κάτω από την οδό και δίνεται στον courier.
      */
-  city: string
+  addressLine2?: string
   /**
-     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
+     * Όνομα πόλης. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό την πόλη του σημείου.
      */
-  zipcode: string
+  city?: string
+  /**
+     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά). Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτόν τον ταχυδρομικό κώδικα του σημείου.
+     */
+  zipcode?: string
   /**
      * Κωδικός χώρας alpha-2 (π.χ. 'GR', 'US')
      */
@@ -12649,7 +12703,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   expectedTotal: ExpectedTotalRequest
   /**
-     * Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής, τρόπος πληρωμής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
+     * Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
      */
   expectedCartDigest?: string
   /**
@@ -12698,6 +12752,10 @@ export type OrderDetailWritable = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -14214,6 +14272,10 @@ export type UserAddressWritable = {
      */
   streetNumber: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Πόλη
      */
   city: string
@@ -14269,6 +14331,10 @@ export type UserAddressDetailWritable = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Πόλη
      */
@@ -22299,6 +22365,7 @@ export type CreateOrderErrors = {
   404: ErrorResponse
   409: OrderCreateError
   500: ErrorResponse
+  503: ErrorResponse
 }
 
 export type CreateOrderError = CreateOrderErrors[keyof CreateOrderErrors]
@@ -22855,7 +22922,9 @@ export type CreateOrderCheckoutSessionErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  409: ErrorResponse
   500: ErrorResponse
+  503: ErrorResponse
 }
 
 export type CreateOrderCheckoutSessionError = CreateOrderCheckoutSessionErrors[keyof CreateOrderCheckoutSessionErrors]
@@ -27892,6 +27961,18 @@ export type ApiV1ShippingAcsStationsListData = {
   path?: never
   query?: {
     /**
+         * The station's branch, exactly; empty matches the station without one.
+         */
+    branch?: string
+    /**
+         * ISO 3166-1 alpha-2 country of the station.
+         */
+    countryCode?: string
+    /**
+         * The station's ACS code, exactly (an area code that several Smartpoints share: add branch for one).
+         */
+    externalId?: string
+    /**
          * Which field to use when ordering the results.
          */
     ordering?: string
@@ -27904,9 +27985,17 @@ export type ApiV1ShippingAcsStationsListData = {
          */
     pageSize?: string | number
     /**
+         * Postcode prefix (its first 5 characters).
+         */
+    postalCode?: string
+    /**
          * A search term.
          */
     search?: string
+    /**
+         * ACS shop kind. Default: the locker kinds of countryCode, or of every configured country.
+         */
+    shopKind?: string | number
   }
   url: '/api/v1/shipping/acs/stations'
 }
@@ -27970,9 +28059,17 @@ export type ListBoxNowLockerData = {
   path?: never
   query?: {
     /**
+         * Χώρα του locker κατά ISO 3166-1 alpha-2.
+         */
+    countryCode?: string
+    /**
          * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
+    /**
+         * Ο κωδικός BOX NOW του locker, ακριβώς.
+         */
+    externalId?: string
     /**
          * Κωδικός γλώσσας για μεταφράσεις (el, en)
          */

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { FormError } from '@nuxt/ui'
+
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
 const props = defineProps<{
@@ -25,6 +27,24 @@ const props = defineProps<{
    * disabled, so the step says why once, above them.
    */
   overWeight?: ShippingOverWeight | null
+  regionOptions: Array<{ label: string, value: string }>
+  /** The selected country's ``postalCodeExample``, the postcode placeholder. */
+  postcodeExample?: string
+  /** The ``Country`` row of ``formState.country``: whether a region applies. */
+  selectedCountry?: Country | null
+  /** Whether the store has an ACS contract (the address suggestion). */
+  acsEnabled: boolean
+  /** The store's ``b2bInvoicing`` feature: whether an invoice is offered. */
+  b2bInvoicingEnabled: boolean
+  /** ``saved``: the address came from the shopper's address book. */
+  mode?: 'saved' | 'new'
+  /** The picked saved address, whose fields this step marks if they fail. */
+  selectedSavedAddressId?: number | null
+  /**
+   * Django's field errors from a rejected order (the address, the pickup
+   * point, the invoice), shown under their inputs through ``setErrors``.
+   */
+  serverErrors?: FormError[]
 }>()
 
 const emit = defineEmits<{
@@ -37,7 +57,9 @@ const { t, n } = useStoreI18n('components/variants/webside/Checkout/StepShipping
 const localePath = useLocalePath()
 
 const formRef = useTemplateRef<{
+  submit: () => Promise<void>
   validate: (opts?: { name?: string | string[], silent?: boolean }) => Promise<unknown>
+  setErrors: (errors: FormError[]) => void
 }>('formRef')
 
 const {
@@ -55,8 +77,28 @@ const {
   partnerId: () => props.partnerId,
   optionsError: () => props.optionsError,
   form: formRef,
-  onNext: () => emit('next'),
 })
+
+const homeDelivery = computed(() => formState.value.shippingMethod === 'home_delivery')
+
+// The step mounts after a rejected order sends the shopper back here,
+// so apply on mount as well as on change.
+const applyServerErrors = () => {
+  if (props.serverErrors?.length) formRef.value?.setErrors(props.serverErrors)
+}
+onMounted(applyServerErrors)
+watch(() => props.serverErrors, applyServerErrors)
+
+// A picked saved address the delivery rules refuse (saved before a rule
+// existed): mark its fields on arrival rather than wait for «Continue».
+// Django's own messages, when an order came back rejected, are the ones
+// to show: validating those fields again would replace them.
+async function markSavedAddressErrors() {
+  if (!homeDelivery.value || props.selectedSavedAddressId == null || props.serverErrors?.length) return
+  await formRef.value?.validate({ name: [...DELIVERY_ADDRESS_FIELDS], silent: true })
+}
+onMounted(markSavedAddressErrors)
+watch(homeDelivery, markSavedAddressErrors, { flush: 'post' })
 
 // The sidebar CTA calls this to validate the step and move on.
 defineExpose({ submit })
@@ -94,14 +136,14 @@ defineExpose({ submit })
       ]"
     />
 
-    <!-- ``@submit`` is intentionally absent: the Continue button uses
-         ``type="button"`` + ``@click`` because the Zod
-         ``superRefine`` would otherwise abort submit on a missing
-         locker before our handler could pop the picker. The schema
-         still drives inline error rendering for the locker field via
-         the watcher below. -->
+    <!-- The sidebar CTA calls the exposed ``submit()``, which opens the
+         picker when no locker is picked yet (the Zod ``superRefine``
+         would otherwise only mark the field) and else submits this
+         form: the method, the point or a home delivery's address, and
+         the receipt or invoice. -->
     <UForm
       v-else ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError"
+      @submit="emit('next')"
     >
       <!-- No method can carry the cart (Django would refuse the order):
            each card names its own limit, this says what to do about it.
@@ -269,6 +311,25 @@ defineExpose({ submit })
             :country-code="formState.country"
           />
         </UFormField>
+      </template>
+
+      <!-- A home delivery's address; a pickup order is delivered to the
+           point and asks for none. -->
+      <template v-if="homeDelivery">
+        <USeparator />
+        <WebsideCheckoutDeliveryAddress
+          v-model:form-state="formState"
+          :region-options="regionOptions"
+          :postcode-example="postcodeExample"
+          :selected-country="selectedCountry"
+          :acs-enabled="acsEnabled"
+          :mode="mode"
+        />
+      </template>
+
+      <template v-if="b2bInvoicingEnabled">
+        <USeparator />
+        <WebsideCheckoutDocumentChoice v-model:form-state="formState" />
       </template>
 
       <!-- Footer navigation. Continue lives in the checkout sidebar

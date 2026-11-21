@@ -556,25 +556,69 @@ describe('useCheckoutForm', () => {
     })
   })
 
-  describe('step1Schema — region required only when the country hasRegions', () => {
+  describe('step2Schema — a home delivery\'s region, required only when the country hasRegions', () => {
     it('requires region for GR (has regions)', async () => {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ country: 'GR', region: '' }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ country: 'GR', region: '' }))
       expect(result.success).toBe(false)
       expect(result.error?.issues.some(i => i.path[0] === 'region')).toBe(true)
     })
 
     it('does not require region for a country with no regions', async () => {
       api.routes({ ...defaultRoutes(), '/api/countries': paginated([GR, REGIONLESS]) })
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ country: 'XX', region: '' }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ country: 'XX', region: '' }))
       expect(result.error?.issues.some(i => i.path[0] === 'region') ?? false).toBe(false)
     })
+  })
 
+  // #767: the address is the delivery step's, and a pickup order's has
+  // none (Django delivers it to the point).
+  describe('the address belongs to a home delivery', () => {
+    const ADDRESS_FIELDS = ['street', 'streetNumber', 'city', 'zipcode', 'region']
+    const blankAddress = { street: '', streetNumber: '', city: '', zipcode: '', region: '' }
+
+    it('step1Schema asks for no address', async () => {
+      const { step1Schema } = await setup()
+      const result = step1Schema.safeParse(baseAddress(blankAddress))
+      expect(result.success).toBe(true)
+    })
+
+    it('step2Schema requires every address field of a home delivery', async () => {
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress(blankAddress))
+      expect([...new Set(result.error?.issues.map(i => i.path[0]))].sort()).toEqual([...ADDRESS_FIELDS].sort())
+    })
+
+    it.each([
+      { shippingMethod: 'box_now_locker', boxnowLockerId: '4' },
+      { shippingMethod: 'acs_smartpoint', acsStationExternalId: 'AAT' },
+    ])('step2Schema asks a pickup order (%j) for no address', async (pickup) => {
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ ...blankAddress, ...pickup }))
+      expect(result.success).toBe(true)
+    })
+
+    it('a pickup invoice needs the company\'s address, "same as delivery" or not', async () => {
+      const { $i18n } = useNuxtApp()
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({
+        ...blankAddress,
+        ...invoice(),
+        billingSameAsShipping: true,
+        billingStreet: '',
+        shippingMethod: 'box_now_locker',
+        boxnowLockerId: '4',
+      }))
+      expect(result.error?.issues.map(i => [i.path[0], i.message])).toEqual([['billingStreet', $i18n.t('validation.required')]])
+    })
+  })
+
+  describe('step1Schema — the phone, against its country', () => {
     it('validates phone against the selected country\'s own metadata (CY, 8 digits)', async () => {
       const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '96123456' }))
-      expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((result.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
     })
 
     it('rejects a Greek-length phone number against CY\'s 8-digit metadata', async () => {
@@ -582,13 +626,13 @@ describe('useCheckoutForm', () => {
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '6912345678' }))
       // A bare 10-digit number gets CY's own dial code prepended (no '+'
       // typed), so it's checked as a CY national number and fails length.
-      expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(true)
+      expect((result.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(true)
     })
 
     it('accepts a foreign "+" phone regardless of the delivery country (GR shipping to CY)', async () => {
       const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '+306943413781' }))
-      expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((result.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
     })
 
     it('validates the phone against the PICKED phone country, not the delivery one', async () => {
@@ -598,7 +642,7 @@ describe('useCheckoutForm', () => {
       // Delivering to Cyprus with a Greek mobile: GR picked, so +30 is checked against GR.
       const address = { country: 'CY', region: 'NICOSIA', phoneCountry: 'GR' }
       const valid = step1Schema.safeParse(baseAddress({ ...address, phone: '+306912345678' }))
-      expect(valid.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((valid.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
 
       const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '+30123' }))
       const issue = invalid.error?.issues.find(i => i.path[0] === 'phone')
@@ -612,7 +656,7 @@ describe('useCheckoutForm', () => {
 
       const address = { country: 'CY', region: 'NICOSIA', phoneCountry: '' }
       const valid = step1Schema.safeParse(baseAddress({ ...address, phone: '+35796123456' }))
-      expect(valid.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((valid.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
 
       const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '+357123' }))
       const issue = invalid.error?.issues.find(i => i.path[0] === 'phone')
@@ -620,11 +664,11 @@ describe('useCheckoutForm', () => {
     })
   })
 
-  describe('step1Schema — save-address title and invoice requisites', () => {
+  describe('step2Schema — save-address title and invoice requisites', () => {
     /** The message of each issue on `field`, or [] when it passes. */
     async function issuesOn(field: string, overrides: Record<string, unknown>) {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress(overrides))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress(overrides))
       return result.error?.issues.filter(i => i.path[0] === field).map(i => i.message) ?? []
     }
 
@@ -672,14 +716,14 @@ describe('useCheckoutForm', () => {
     )
 
     it('a RECEIPT needs none of the invoice requisites', async () => {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ documentType: 'RECEIPT', billingSameAsShipping: false }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ documentType: 'RECEIPT', billingSameAsShipping: false }))
       expect(result.success).toBe(true)
     })
 
     it('a complete invoice with its own registered address passes', async () => {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ ...invoice(), billingSameAsShipping: false }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ ...invoice(), billingSameAsShipping: false }))
       expect(result.success).toBe(true)
     })
   })
@@ -690,7 +734,7 @@ describe('useCheckoutForm', () => {
       [{ shippingMethod: 'box_now_locker', boxnowLockerId: '4' }, null, null],
       [{ shippingMethod: 'acs_smartpoint', acsStationExternalId: '' }, 'acsStationExternalId', 'shipping.acs.required_error'],
       [{ shippingMethod: 'acs_smartpoint', acsStationExternalId: 'AAT' }, null, null],
-      [{ shippingMethod: 'home_delivery' }, null, null],
+      [baseAddress({ shippingMethod: 'home_delivery' }), null, null],
     ])('%j', async (input, field, key) => {
       const { $i18n } = useNuxtApp()
       const { step2Schema } = await setup()
@@ -974,6 +1018,18 @@ describe('useCheckoutForm', () => {
       })
     })
 
+    // Only its address is wrong, and the address is the delivery step's
+    // (a pickup order needs none): marked, kept picked, fixed there.
+    it('marks an address only a home delivery refuses, and keeps it picked', async () => {
+      api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([savedAddress({ zipcode: '' }), second]) })
+
+      const { addressEntryMode, addressIdsNeedingUpdate } = await setup()
+
+      expect(addressIdsNeedingUpdate.value).toEqual([1])
+      expect(addressEntryMode.value).toBe('saved')
+      expect(mockToastAdd).not.toHaveBeenCalled()
+    })
+
     it('marks no address when every one passes', async () => {
       const { addressIdsNeedingUpdate } = await setup()
 
@@ -1091,6 +1147,7 @@ function baseAddress(overrides: Record<string, unknown> = {}) {
     street: 'Main St',
     streetNumber: '1',
     documentType: 'RECEIPT',
+    shippingMethod: 'home_delivery',
     ...overrides,
   }
 }
