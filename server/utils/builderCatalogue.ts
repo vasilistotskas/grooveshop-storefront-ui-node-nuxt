@@ -51,8 +51,10 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
  * `contrast` rules and the `defaults` a new store of it starts with), and `templates` the page types the storefront's
  * static routes render (`STATIC_LAYOUT_ROUTES`): a layout of one is the
  * document `template:<pageType>`, any other the custom page
- * `page:<pageType>`, and a block's `templates` names these. Both are part of
- * the hash.
+ * `page:<pageType>`, and a block's `templates` names these. `icons` is the
+ * one list of icons the builder offers (`BUILDER_ICONS`), for the Django
+ * fields that hold one of them outside a block, such as a blog category's
+ * icon. All three are part of the hash.
  *
  * Refuses a set that contradicts itself: two blocks of one type, or a
  * block that names as a child a type that is missing or cannot be one.
@@ -61,6 +63,7 @@ export function buildBlockCatalogue(
   definitions: readonly BlockDefinition[],
   roots: Partial<Record<BuilderDocumentKind, DocumentRoot>> = BUILDER_DOCUMENT_ROOTS,
   templates: readonly string[] = Object.keys(STATIC_LAYOUT_ROUTES),
+  icons: readonly string[] = BUILDER_ICONS,
 ): BlockCatalogue {
   const byType = new Map<string, BlockDefinition>()
   for (const definition of definitions) {
@@ -89,8 +92,9 @@ export function buildBlockCatalogue(
   )
   const names = [...templates].sort()
   const dataLimits = { ...DATA_LIMITS }
-  const hash = createHash('sha256').update(JSON.stringify({ blocks, dataLimits, documentKinds, templates: names })).digest('hex').slice(0, 16)
-  return { hash, blocks, dataLimits, documentKinds, templates: names }
+  const iconNames = [...icons]
+  const hash = createHash('sha256').update(JSON.stringify({ blocks, dataLimits, documentKinds, templates: names, icons: iconNames })).digest('hex').slice(0, 16)
+  return { hash, blocks, dataLimits, documentKinds, templates: names, icons: iconNames }
 }
 
 /**
@@ -123,8 +127,8 @@ export function buildDesignCatalogue(definitions: readonly BlockDefinition[], de
 }
 
 function catalogueDocument(design?: string): BuilderCatalogueDocument {
-  const { hash, blocks, dataLimits, documentKinds, templates } = buildDesignCatalogue(blockList, design)
-  return { hash, json: JSON.stringify({ hash, blocks, dataLimits, documentKinds, templates }) }
+  const { hash, blocks, dataLimits, documentKinds, templates, icons } = buildDesignCatalogue(blockList, design)
+  return { hash, json: JSON.stringify({ hash, blocks, dataLimits, documentKinds, templates, icons }) }
 }
 
 /** The catalogue of the whole build, without a design: every block and every page type. */

@@ -1,5 +1,5 @@
 {
-  "hash": "4e2bfcaaecee7672",
+  "hash": "5a8ab1b57f3e456f",
   "blocks": [
     {
       "type": "blog_categories",
@@ -9074,5 +9074,45 @@
     "home",
     "products",
     "vision"
+  ],
+  "icons": [
+    "i-fa6-solid-desktop",
+    "i-fa6-solid-globe",
+    "i-fa6-solid-microchip",
+    "i-fa6-solid-mobile",
+    "i-fa6-solid-network-wired",
+    "i-fa6-solid-robot",
+    "i-fa6-solid-shield",
+    "i-fa6-solid-shuffle",
+    "i-heroicons-arrow-uturn-left",
+    "i-heroicons-briefcase",
+    "i-heroicons-building-storefront",
+    "i-heroicons-chat-bubble-left-right",
+    "i-heroicons-globe-europe-africa",
+    "i-heroicons-hand-raised",
+    "i-heroicons-information-circle",
+    "i-heroicons-lifebuoy",
+    "i-heroicons-light-bulb",
+    "i-heroicons-lock-closed",
+    "i-heroicons-rectangle-group",
+    "i-heroicons-shield-check",
+    "i-heroicons-shopping-bag",
+    "i-heroicons-sparkles",
+    "i-heroicons-sun",
+    "i-heroicons-truck",
+    "i-lucide-battery-charging",
+    "i-lucide-code",
+    "i-lucide-cpu",
+    "i-lucide-drafting-compass",
+    "i-lucide-gauge",
+    "i-lucide-graduation-cap",
+    "i-lucide-hard-hat",
+    "i-lucide-radio",
+    "i-lucide-shield",
+    "i-lucide-shield-check",
+    "i-lucide-sliders-horizontal",
+    "i-lucide-traffic-cone",
+    "i-lucide-wrench",
+    "i-lucide-zap"
   ]
 }

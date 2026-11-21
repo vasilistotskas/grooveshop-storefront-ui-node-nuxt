@@ -261,6 +261,12 @@ export interface BlockCatalogue {
    * `page:<pageType>`. A block's `templates` names these.
    */
   templates: string[]
+  /**
+   * Every icon the builder offers (`BUILDER_ICONS`), as the stores save
+   * them: what a Django field holding one icon outside a block (a blog
+   * category's) is validated against.
+   */
+  icons: string[]
 }
 
 /** A colour a contrast rule names: a pointer into the document's root settings, or a literal `#RRGGBB`. */
