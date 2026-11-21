@@ -193,22 +193,28 @@ export async function useBlogPostPage(options: {
 
   // The Article's images: the cover in the three shapes Google asks for,
   // each an ImageObject the graph names once. The 16:9 one is also the
-  // page's primary image, by reference, not as a second copy.
-  const coverPath = blogPost.value.mainImagePath
-  const articleImages = coverPath
-    ? ARTICLE_IMAGE_SIZES.map(size => ({
-        id: computed(() => `${canonicalUrl.value}#/schema/image/cover-${size.width}x${size.height}`),
-        url: computed(() => img(coverPath, {
-          ...size,
-          fit: 'cover',
-          position: BLOG_COVER_CROP_POSITION,
-          format: 'png',
-        }, {
-          provider: 'mediaStream',
-        })),
-      }))
-    : []
-  const primaryImage = articleImages[0]
+  // page's primary image, by reference, not as a second copy. Read from the
+  // post as it is now, so a refreshed post never keeps an old cover.
+  const coverPath = computed(() => blogPost.value?.mainImagePath)
+  const coverImageId = (size: { width: number, height: number }) =>
+    `${canonicalUrl.value}#/schema/image/cover-${size.width}x${size.height}`
+  const [PRIMARY_IMAGE_SIZE] = ARTICLE_IMAGE_SIZES
+  const articleImages = ARTICLE_IMAGE_SIZES.map(size => computed(() => {
+    const path = coverPath.value
+    return path
+      ? defineImage({
+          '@id': coverImageId(size),
+          'url': img(path, {
+            ...size,
+            fit: 'cover',
+            position: BLOG_COVER_CROP_POSITION,
+            format: 'png',
+          }, {
+            provider: 'mediaStream',
+          }),
+        })
+      : undefined
+  }))
 
   // The canonical and the hreflang set are built from the post's OWN
   // id+slug, never from route.path: the [slug] segment is decorative (the
@@ -243,22 +249,22 @@ export async function useBlogPostPage(options: {
   })
 
   useSchemaOrg([
-    ...articleImages.map(image => defineImage({ '@id': image.id, 'url': image.url })),
+    ...articleImages,
     // The post's cover, not the store's logo, which the schema module puts
     // there when the page names nothing.
     defineWebPage(computed(() => ({
-      primaryImageOfPage: primaryImage ? { '@id': primaryImage.id.value } : undefined,
+      primaryImageOfPage: coverPath.value ? { '@id': coverImageId(PRIMARY_IMAGE_SIZE) } : undefined,
     }))),
-    defineArticle({
+    defineArticle(computed(() => ({
       author: { '@id': authorPersonId.value },
       keywords: blogPostSeoKeywords.value ? [blogPostSeoKeywords.value] : undefined,
-      headline: () => blogPostSeoTitle.value,
-      description: () => blogPostDescription.value,
-      image: articleImages.length ? articleImages.map(image => ({ '@id': image.id })) : undefined,
-      datePublished: () => blogPost.value?.publishedAt || undefined,
-      dateModified: () => blogPost.value?.updatedAt || undefined,
+      headline: blogPostSeoTitle.value,
+      description: blogPostDescription.value,
+      image: coverPath.value ? ARTICLE_IMAGE_SIZES.map(size => ({ '@id': coverImageId(size) })) : undefined,
+      datePublished: blogPost.value?.publishedAt || undefined,
+      dateModified: blogPost.value?.updatedAt || undefined,
       articleSection: blogPostCategoryName.value ? [blogPostCategoryName.value] : undefined,
-    }),
+    }))),
   ])
   useFaqSchema(extractTranslated(blogPost.value, 'body', locale.value))
 

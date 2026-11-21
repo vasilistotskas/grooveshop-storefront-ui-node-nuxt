@@ -119,8 +119,11 @@ interface Head {
   graph: Record<string, unknown>[]
 }
 
-/** Mount the page under the real head pipeline and read what a crawler would. */
-async function headOf(page: Component): Promise<Head> {
+/**
+ * Mount the page under the real head pipeline and read what a crawler would.
+ * `afterMount` runs between the mount and the read (a refresh of the page's data).
+ */
+async function headOf(page: Component, afterMount?: () => Promise<void>): Promise<Head> {
   const head = injectHead()
   const before = new Set(head.entries.keys())
   const Harness = defineComponent({
@@ -131,6 +134,10 @@ async function headOf(page: Component): Promise<Head> {
   })
   const wrapper = await mountSuspended(Harness, { route: false })
   await flushPromises()
+  if (afterMount) {
+    await afterMount()
+    await flushPromises()
+  }
   vi.useFakeTimers({ toFake: ['setTimeout'] })
   try {
     head.render()
@@ -301,6 +308,28 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
       ['Guides', '/en/blog/category/2/guides'],
       ['Spring guide', '/en/blog/post/7/spring-guide'],
     ])
+  })
+
+  it('names the cover the post has now after its data is refreshed', async () => {
+    clearNuxtData(['blogCategory-2'])
+    const routes = (cover: string) => ({
+      '/api/blog/posts/7': { ...post(GREEK_AND_ENGLISH), mainImagePath: `media/shop/uploads/blog/${cover}` },
+      '/api/blog/categories/2': { ...post({}).category, translations: { en: { name: 'Guides' } } },
+      '/api/shipping/policy': [],
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+    api.routes(routes('old-cover.jpg'))
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    const head = await headOf(Component, async () => {
+      api.routes(routes('new-cover.jpg'))
+      await refreshNuxtData('blogPost7')
+    })
+
+    const covers = head.graph.filter(node => node['@type'] === 'ImageObject' && String(node.url).includes('/uploads/blog/'))
+    expect(covers.map(node => new URL(String(node.url)).pathname.split('/uploads/blog/')[1]?.split('/')[0]))
+      .toEqual(ARTICLE_IMAGE_SIZES.map(() => 'new-cover.jpg'))
+    expect(head.ogImage).toContain('/uploads/blog/new-cover.jpg/')
   })
 
   it('canonicalises to the Greek post, and offers no English version, when it is not written in English', async () => {
