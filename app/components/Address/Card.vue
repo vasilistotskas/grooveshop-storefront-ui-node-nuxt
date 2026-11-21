@@ -42,6 +42,7 @@ const lines = computed(() => {
   return [
     `${address.firstName} ${address.lastName}`.trim(),
     `${address.street} ${address.streetNumber}`.trim(),
+    address.addressLine2,
     [`${address.zipcode} ${address.city}`.trim(), countryName.value].filter(Boolean).join(', '),
     address.phone,
   ].filter(Boolean)

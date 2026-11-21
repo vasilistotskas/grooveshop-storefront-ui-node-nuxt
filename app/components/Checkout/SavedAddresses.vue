@@ -47,7 +47,8 @@ const items = computed<Item[]>(() => props.addresses.map(address => ({
   isMain: address.isMain ?? false,
   needsUpdate: props.needingUpdate.includes(address.id),
   recipient: `${address.firstName} ${address.lastName}`.trim(),
-  street: [address.street, address.streetNumber].filter(Boolean).join(' '),
+  // The street line, then what it leaves out (apartment, floor, building).
+  street: [[address.street, address.streetNumber].filter(Boolean).join(' '), address.addressLine2].filter(Boolean).join(', '),
   city: [address.zipcode, address.city].filter(Boolean).join(' '),
 })))
 

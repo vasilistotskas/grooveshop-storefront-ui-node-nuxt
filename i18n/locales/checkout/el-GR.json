@@ -162,6 +162,8 @@
     "street_number": "Αριθμός Οδού",
     "street_placeholder": "π.χ. Εγνατίας",
     "street_number_placeholder": "π.χ. 12",
+    "address_line_2": "Διαμέρισμα, όροφος, κτίριο",
+    "address_line_2_placeholder": "π.χ. 3ος όροφος, διαμ. 5",
     "zipcode_placeholder": "π.χ. {example}",
     "customer_notes": "Σημειώσεις",
     "customer_notes_help": "Προαιρετικές οδηγίες παράδοσης που θα τυπωθούν στο voucher του courier (π.χ. «χτυπήστε 2 φορές», «παράδοση στον θυρωρό»).",

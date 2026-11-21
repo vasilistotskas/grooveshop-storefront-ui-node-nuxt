@@ -65,6 +65,21 @@ describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tr
   }
   const newAddressButton = (wrapper: VueWrapper) => wrapper.findAll('button').find(button => button.text() === NEW_LABEL)!
 
+  // django-api #769: a saved address's line 2 is part of its summary.
+  it('summarises an address with its line 2 after the street', async () => {
+    const wrapper = await mountSuspended(C, {
+      route: false,
+      props: {
+        addresses: [makeAddress({ addressLine2: '3ος όροφος' })],
+        ...(tree === 'default' ? { needingUpdate: [] } : {}),
+        selectedId: 1,
+        mode: 'saved',
+      },
+    })
+
+    expect(wrapper.text()).toMatch(/Ερμού 12[\s\S]*3ος όροφος/)
+  })
+
   it.runIf(tree === 'webside')('offers every saved address, summarised, then a new-address card', async () => {
     const wrapper = await mount({ selectedId: 1, mode: 'saved' })
     // Nuxt UI's RadioGroup slot hooks.

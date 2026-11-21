@@ -43,6 +43,7 @@ const items = computed<Item[]>(() => {
     description: [
       `${address.firstName} ${address.lastName}`.trim(),
       [address.street, address.streetNumber].filter(Boolean).join(' '),
+      address.addressLine2,
       [address.zipcode, address.city].filter(Boolean).join(' '),
     ]
       .filter(Boolean)

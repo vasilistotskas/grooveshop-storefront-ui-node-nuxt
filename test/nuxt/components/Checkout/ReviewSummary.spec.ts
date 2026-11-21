@@ -44,6 +44,13 @@ describe('Checkout/ReviewSummary', () => {
     ])
   })
 
+  // django-api #769: what the street line leaves out, read back with it.
+  it('reads back the address line 2 between the street and the postcode', async () => {
+    const wrapper = await mountReview({ addressLine2: '3ος όροφος' })
+
+    expect(blocks(wrapper)[1]).toEqual(['Παράδοση', method('home_delivery'), 'Τσιμισκή 45, 3ος όροφος, 54622 Θεσσαλονίκη'])
+  })
+
   it('names the BOX NOW locker picked, not the home address', async () => {
     const wrapper = await mountReview({
       shippingMethod: 'box_now_locker',
