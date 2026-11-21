@@ -1,3 +1,10 @@
+## [3.348.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.348.0...v3.348.1) (2026-11-21)
+
+
+### Bug Fixes
+
+* **api:** accept the response shapes the next Django release declares ([#507](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/507)) ([c7b0468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c7b04689e2e47da08ba833968f241b01e12a0666)), closes [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [vasilistotskas/grooveshop-django-api#684](https://github.com/vasilistotskas/grooveshop-django-api/issues/684)
+
 # [3.348.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.347.0...v3.348.0) (2026-11-21)
 
 
