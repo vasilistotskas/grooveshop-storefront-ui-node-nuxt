@@ -49,7 +49,6 @@ const products = (ids: number[]) => ({
 /** The product page's strip: the engine answers products 5 and 6. */
 const suggestions = () => ({
   surface: 'pdp',
-  impressionId: '0f6d3d3e-6d2b-4c4e-9c2a-2a1f4b6c8d90',
   items: [5, 6].map(id => ({
     product: makeProduct({ id, translations: { el: { name: `Προϊόν ${id}`, description: '', seoTitle: '', seoDescription: '', seoKeywords: '' } } }),
     reason: { strategy: 'category', relationType: null, score: 1 },

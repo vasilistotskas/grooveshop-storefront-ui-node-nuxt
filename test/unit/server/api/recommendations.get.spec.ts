@@ -13,7 +13,6 @@ import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse } fro
 const route = '/api/recommendations'
 const suggestions = {
   surface: 'empty_cart',
-  impressionId: '0f8fad5b-d9cb-469f-a165-70867728950e',
   items: [{ product: makeProduct({ id: 7 }), reason: { strategy: 'popular', relationType: null, score: 0.5 } }],
 }
 
@@ -73,7 +72,7 @@ describe('GET /api/recommendations', () => {
   })
 
   it('answers 422 when the backend payload drifts from the contract', async () => {
-    backend.reply({ surface: 'empty_cart', items: [] })
+    backend.reply({ surface: 'empty_cart' })
 
     const response = await callRoute(handler, { route, url: '/api/recommendations?surface=empty_cart' })
 

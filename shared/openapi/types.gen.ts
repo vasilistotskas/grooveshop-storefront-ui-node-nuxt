@@ -9199,7 +9199,10 @@ export type RecommendationEventItemRequest = {
 export type RecommendationEventRequestKindEnum = 'impression' | 'click'
 
 export type RecommendationEventRequestRequest = {
-  impressionId: string
+  /**
+     * Το αναγνωριστικό της εμφάνισης, που φέρει ένα κλικ. Μια προβολή δεν έχει: η απόκρισή της αναφέρει το αναγνωριστικό που δημιουργήθηκε για αυτή την εμφάνιση, το οποίο φέρουν τα κλικ της και η προσθήκη στο καλάθι που ακολουθεί.
+     */
+  impressionId?: string
   surface: SurfaceEnum
   kind: RecommendationEventRequestKindEnum
   seedId?: number
@@ -9208,6 +9211,10 @@ export type RecommendationEventRequestRequest = {
 
 export type RecommendationEventResponse = {
   detail: string
+  /**
+     * Το αναγνωριστικό της εμφάνισης με το οποίο καταγράφηκε το συμβάν.
+     */
+  impressionId: string
 }
 
 export type RecommendationItem = {
@@ -9224,10 +9231,6 @@ export type RecommendationReason = {
 export type RecommendationResponse = {
   surface: SurfaceEnum
   readonly items: Array<RecommendationItem>
-  /**
-     * Στείλτε το ξανά στα συμβάντα κλικ, ώστε να μπορεί να αποδοθεί η προσθήκη.
-     */
-  impressionId: string
 }
 
 /**
@@ -13920,10 +13923,6 @@ export type RecommendationItemWritable = {
 
 export type RecommendationResponseWritable = {
   surface: SurfaceEnum
-  /**
-     * Στείλτε το ξανά στα συμβάντα κλικ, ώστε να μπορεί να αποδοθεί η προσθήκη.
-     */
-  impressionId: string
 }
 
 /**

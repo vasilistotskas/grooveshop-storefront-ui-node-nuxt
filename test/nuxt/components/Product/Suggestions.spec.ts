@@ -7,7 +7,10 @@ import type { SurfaceEnum } from '~~/shared/openapi/types.gen'
 import { makeProduct } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
-const IMPRESSION_ID = '0f6d3d3e-6d2b-4c4e-9c2a-2a1f4b6c8d90'
+// What Django answers the impression with: the id it minted for the showing
+// (the suggestions body names none).
+const SHOWING_ID = '7c4f1e2a-9b3d-4a5c-8e6f-1a2b3c4d5e6f'
+
 /** The strip's `useApi` key for `{ surface: 'pdp', seedId: 1 }`. */
 const PDP_KEY = 'recommendations:pdp:1:'
 
@@ -33,7 +36,6 @@ const SOIL = named(3, 'Χώμα', { price: 50, vatPercent: 24, priorPrice: 80, a
 
 const payload = () => ({
   surface: 'pdp',
-  impressionId: IMPRESSION_ID,
   items: [
     { product: POT, reason: { strategy: 'curated', relationType: 'complementary', score: 1 } },
     { product: SOIL, reason: { strategy: 'category', relationType: null, score: 0.8 } },
@@ -111,8 +113,9 @@ describe('webside Product/Suggestions', () => {
     setTenant()
     api.routes({
       '/api/products/1/recommendations': () => payload(),
-      '/api/products/9/recommendations': () => ({ surface: 'pdp', impressionId: IMPRESSION_ID, items: [] }),
+      '/api/products/9/recommendations': () => ({ surface: 'pdp', items: [] }),
       '/api/recommendations': () => ({ ...payload(), surface: 'empty_cart' }),
+      '/api/analytics/recommendation-event': () => ({ detail: 'ok', impressionId: SHOWING_ID }),
     })
   })
 
@@ -209,7 +212,6 @@ describe('webside Product/Suggestions', () => {
     expect(calls).toHaveLength(1)
     expect(calls[0]!.options).toMatchObject({ method: 'POST', keepalive: true })
     expect(calls[0]!.options.body).toEqual({
-      impressionId: IMPRESSION_ID,
       surface: 'pdp',
       kind: 'impression',
       seedId: 1,
@@ -233,15 +235,16 @@ describe('webside Product/Suggestions', () => {
     expect(api.callsTo('/api/products/1/recommendations')).toHaveLength(0)
   })
 
-  it('reports a click on a tile with its position and echoes the impression', async () => {
+  it('reports a click on a tile with its position, under the showing its impression was recorded as', async () => {
     const wrapper = await mountStrip()
     api.mockClear()
 
     await wrapper.findAll('article h3')[1]!.trigger('click')
+    await flushPromises()
 
     const calls = events()
     expect(calls).toHaveLength(1)
-    expect(calls[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'click' })
+    expect(calls[0]!.options.body).toMatchObject({ impressionId: SHOWING_ID, kind: 'click' })
     expect(calls[0]!.options.body.items).toEqual([{ productId: 3, strategy: 'category', position: 1 }])
   })
 
@@ -258,7 +261,7 @@ describe('webside Product/Suggestions', () => {
 
     expect(api.callsTo('/api/products/1/recommendations')).toHaveLength(1)
     expect(events()).toHaveLength(1)
-    expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'impression', seedId: 1 })
+    expect(events()[0]!.options.body).toMatchObject({ kind: 'impression', seedId: 1 })
   })
 
   it('asks the store-wide route without a seed and reports without one (the empty cart)', async () => {
@@ -272,7 +275,6 @@ describe('webside Product/Suggestions', () => {
     expect(wrapper.findAll('article')).toHaveLength(2)
     expect(events()).toHaveLength(1)
     expect(events()[0]!.options.body).toEqual({
-      impressionId: IMPRESSION_ID,
       surface: 'empty_cart',
       kind: 'impression',
       items: [
@@ -324,8 +326,9 @@ describe('default Product/Suggestions', () => {
     clearNuxtData()
     api.routes({
       '/api/products/1/recommendations': () => payload(),
-      '/api/products/9/recommendations': () => ({ surface: 'pdp', impressionId: IMPRESSION_ID, items: [] }),
+      '/api/products/9/recommendations': () => ({ surface: 'pdp', items: [] }),
       '/api/recommendations': () => ({ ...payload(), surface: 'empty_cart' }),
+      '/api/analytics/recommendation-event': () => ({ detail: 'ok', impressionId: SHOWING_ID }),
     })
   })
 
@@ -373,21 +376,22 @@ describe('default Product/Suggestions', () => {
       expect(names(wrapper)).toEqual(['Γλάστρα', 'Χώμα'])
       expect(api.callsTo('/api/products/1/recommendations')).toHaveLength(0)
       expect(events()).toHaveLength(1)
-      expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'impression', seedId: 1 })
+      expect(events()[0]!.options.body).toMatchObject({ kind: 'impression', seedId: 1 })
     }
     finally {
       nuxtApp.isHydrating = wasHydrating
     }
   })
 
-  it('reports a click on a card with its position and echoes the impression', async () => {
+  it('reports a click on a card with its position, under the showing its impression was recorded as', async () => {
     const wrapper = await mountGrid()
     api.mockClear()
 
     await wrapper.findAll('li.card h3')[1]!.trigger('click')
+    await flushPromises()
 
     expect(events()).toHaveLength(1)
-    expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'click' })
+    expect(events()[0]!.options.body).toMatchObject({ impressionId: SHOWING_ID, kind: 'click' })
     expect(events()[0]!.options.body.items).toEqual([{ productId: 3, strategy: 'category', position: 1 }])
   })
 
@@ -396,7 +400,7 @@ describe('default Product/Suggestions', () => {
 
     expect(api.callsTo('/api/products/1/recommendations')).toHaveLength(1)
     expect(events()).toHaveLength(1)
-    expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'impression', seedId: 1 })
+    expect(events()[0]!.options.body).toMatchObject({ kind: 'impression', seedId: 1 })
   })
 
   it('asks the store-wide route without a seed and reports without one (the empty cart)', async () => {

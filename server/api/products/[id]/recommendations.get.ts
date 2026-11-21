@@ -6,8 +6,8 @@ import { getQuery } from 'h3'
 // engine's answer for a product is shared by every viewer. What is
 // per viewer is applied elsewhere — wholesale prices by useB2BPricing
 // on the client, and the impression by the strip itself when it is
-// shown (``impressionId`` is only a correlation id; Django writes no
-// event on this read). Django's ``recommendations`` cache surface purges
+// shown: its beacon's answer names the showing's id, and the body cached
+// here names none (Django writes no event on this read). Django's ``recommendations`` cache surface purges
 // ``productRecommendations`` when a product, a curated relation or a slot
 // changes, so the TTL only bounds a missed purge.
 export default defineCachedRoute(async (event) => {

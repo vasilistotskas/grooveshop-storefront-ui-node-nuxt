@@ -17,13 +17,15 @@ export default defineEventHandler(async (event) => {
     // correlated against, so the event carries the same one the
     // basket does.
     const headers = await useCartSession(event).getCartHeaders()
-    await useBackendFetch(event)(`${config.apiBaseUrl}/recommendations/events`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/recommendations/events`, {
       method: 'POST',
       headers,
       body,
     })
     setResponseStatus(event, 202)
-    return null
+    // An impression goes out with no id and Django mints the showing's:
+    // the answer names it, for the strip's clicks and add-to-cart.
+    return await parseDataAs(response, zApiV1RecommendationsEventsCreateResponse)
   }
   catch (error) {
     return handleError(event, error)
