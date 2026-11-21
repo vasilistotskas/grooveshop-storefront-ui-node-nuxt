@@ -1,3 +1,10 @@
+# [3.347.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.346.1...v3.347.0) (2026-11-21)
+
+
+### Features
+
+* **checkout:** place an order only of the cart it was quoted for ([#504](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/504)) ([e0bab57](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e0bab5718652cd6d4d71cb595578a4bc295a6784))
+
 ## [3.346.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.346.0...v3.346.1) (2026-11-20)
 
 
