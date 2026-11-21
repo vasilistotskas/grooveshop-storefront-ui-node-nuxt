@@ -2346,7 +2346,7 @@ export type Cart = {
      * Uses annotated value if available (from optimized queryset),
      * otherwise calculates from items.
      */
-  readonly totalItems: number
+  totalItems: number | 0
   /**
      * Return the number of unique items in the cart.
      *
@@ -10536,7 +10536,17 @@ export type TaggedItem = {
      * ID αντικειμένου
      */
   objectId: number
-  contentObject: Product
+  /**
+     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
+     */
+  readonly contentObject: {
+    id?: number
+    name?: string
+    description?: string
+    price?: string
+    active?: boolean
+    [key: string]: unknown
+  }
   /**
      * Δημιουργήθηκε στις
      */
@@ -10563,7 +10573,17 @@ export type TaggedItemDetail = {
      * ID αντικειμένου
      */
   objectId: number
-  contentObject: Product
+  /**
+     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
+     */
+  readonly contentObject: {
+    id?: number
+    name?: string
+    description?: string
+    price?: string
+    active?: boolean
+    [key: string]: unknown
+  }
   /**
      * Δημιουργήθηκε στις
      */

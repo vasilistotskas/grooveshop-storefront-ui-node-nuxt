@@ -63458,7 +63458,17 @@
                         "description": "ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ."
                     },
                     "totalItems": {
-                        "type": "integer",
+                        "oneOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "enum": [
+                                    0
+                                ],
+                                "type": "integer"
+                            }
+                        ],
                         "description": "Return the total quantity of all items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise calculates from items.",
                         "readOnly": true
                     },
@@ -81959,11 +81969,31 @@
                         "title": "ID αντικειμένου"
                     },
                     "contentObject": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/Product"
+                        "type": "object",
+                        "description": "Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Sample Product"
+                            },
+                            "description": {
+                                "type": "string",
+                                "example": "Product description"
+                            },
+                            "price": {
+                                "type": "string",
+                                "example": "29.99"
+                            },
+                            "active": {
+                                "type": "boolean",
+                                "example": true
                             }
-                        ],
+                        },
+                        "additionalProperties": true,
                         "readOnly": true
                     },
                     "createdAt": {
@@ -82027,11 +82057,31 @@
                         "title": "ID αντικειμένου"
                     },
                     "contentObject": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/Product"
+                        "type": "object",
+                        "description": "Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Sample Product"
+                            },
+                            "description": {
+                                "type": "string",
+                                "example": "Product description"
+                            },
+                            "price": {
+                                "type": "string",
+                                "example": "29.99"
+                            },
+                            "active": {
+                                "type": "boolean",
+                                "example": true
                             }
-                        ],
+                        },
+                        "additionalProperties": true,
                         "readOnly": true
                     },
                     "createdAt": {
