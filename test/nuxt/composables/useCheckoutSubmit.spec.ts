@@ -15,6 +15,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { computed, defineComponent, nextTick } from 'vue'
 import { useCartStore } from '~/stores/cart'
@@ -968,6 +969,7 @@ describe('useCheckoutSubmit', () => {
     // digest does, and the order is not placed of a cart the page never showed.
     it('shows a cart that changed at the same total since the click instead of ordering it', async () => {
       q.priced = makeCartQuote({ cartDigest: 'digest-of-another-cart' })
+      api.routes({ '/api/cart': makeCart() })
       const { onSubmit } = setup(COD)
 
       await onSubmit()
@@ -977,6 +979,31 @@ describe('useCheckoutSubmit', () => {
         title: t('form.submit.error.cart_changed'),
         description: useNuxtApp().$i18n.t('form.submit.error.cart_changed_description', { total: money(63) }),
       })
+    })
+
+    // The quote names no lines: the cart is asked again with it, so the
+    // page shows the lines the next click orders.
+    it.each([
+      ['a cart that changed at the same total', makeCartQuote({ cartDigest: 'digest-of-another-cart' })],
+      ['a total that changed', NEW_TOTAL],
+    ])('asks for the cart and the quote again after %s', async (_case, priced) => {
+      q.priced = priced
+      api.routes({ '/api/cart': makeCart() })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      await vi.waitFor(() => expect(api.callsTo('/api/cart')).toHaveLength(1))
+      expect(q.refresh).toHaveBeenCalled()
+    })
+
+    it('asks for no cart when the quote is the one the shopper accepted', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/cart')).toEqual([])
     })
 
     // A click that lands while the page showed no total (the delivery
@@ -1024,7 +1051,7 @@ describe('useCheckoutSubmit', () => {
 
     it('orders at the new total once the shopper submits again with it on the page', async () => {
       q.priced = NEW_TOTAL
-      api.routes({ '/api/orders': orderCreated() })
+      api.routes({ '/api/orders': orderCreated(), '/api/cart': makeCart() })
       const { onSubmit } = setup(COD)
       await onSubmit()
 
@@ -1072,6 +1099,50 @@ describe('useCheckoutSubmit', () => {
           code: 'cart_changed',
         })
         expect(api.callsTo('/api/cart')).toHaveLength(1)
+      })
+
+      // The quote may come back before the cart's lines do: the order
+      // button waits for both, so nothing is ordered of lines not shown.
+      it('keeps the order button waiting until the cart is back, though the quote came back first', async () => {
+        let reloadCart: (cart: unknown) => void = () => {}
+        api.routes({
+          '/api/orders': cartChanged,
+          '/api/cart': () => new Promise((resolve) => {
+            reloadCart = resolve
+          }),
+        })
+        const { onSubmit, quotePending } = setup(COD)
+
+        await onSubmit()
+        await vi.waitFor(() => expect(q.refresh).toHaveBeenCalled())
+
+        expect(q.pending).toBe(false)
+        expect(quotePending.value).toBe(true)
+        reloadCart(makeCart())
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
+      })
+
+      it('places no order before the cart is back, and orders the cart now after it', async () => {
+        let orders = 0
+        let reloadCart: (cart: unknown) => void = () => {}
+        api.routes({
+          '/api/orders': () => (orders++ === 0 ? cartChanged : orderCreated())(),
+          '/api/cart': () => new Promise((resolve) => {
+            reloadCart = resolve
+          }),
+        })
+        const { onSubmit } = setup(COD)
+        await onSubmit()
+        q.shown = NEW_CART
+        q.priced = NEW_CART
+
+        const second = onSubmit()
+        await flushPromises()
+        expect(orderBodies()).toHaveLength(1)
+        reloadCart(makeCart())
+        await second
+
+        expect(orderBodies().map(body => body.expectedCartDigest)).toEqual([CART_DIGEST, 'digest-of-the-cart-now'])
       })
 
       it('orders the cart now once the shopper submits again with its quote on the page', async () => {
