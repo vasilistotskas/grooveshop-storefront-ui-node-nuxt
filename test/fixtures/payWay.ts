@@ -6,7 +6,7 @@ import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
  * `zPayWay` (proved by `test/unit/fixtures/payWay.spec.ts`).
  *
  * Defaults: id 1, active, free cash on delivery (key `PAY_ON_DELIVERY`) — the pay way Django
- * seeds first (`pay_way/migrations/0019_seed_default_pay_ways.py`:
+ * seeds first (`src/pay_way/migrations/0019_seed_default_pay_ways.py`:
  * provider `cash_on_delivery`, settled with the courier). `uuid` follows
  * `id`.
  *

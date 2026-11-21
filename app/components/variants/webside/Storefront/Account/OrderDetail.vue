@@ -102,8 +102,8 @@ const pricingItems = computed(() => {
 })
 
 // Happy-path order flow, aligned with Django's `OrderStatus` enum
-// (see order/enum/status.py + the allowed_transitions map in
-// order/services.py). Typed as `OrderStatus` so TS errors the moment
+// (see src/order/enum/status.py + the allowed_transitions map in
+// src/order/services.py). Typed as `OrderStatus` so TS errors the moment
 // the backend renames or removes one of these values. The remaining
 // enum members (CANCELED, RETURNED, REFUNDED) are off-path terminal
 // states surfaced via the alert banner / status badge, not the stepper.

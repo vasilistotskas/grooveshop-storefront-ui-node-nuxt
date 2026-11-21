@@ -6,11 +6,11 @@ import { z } from 'zod'
  * the send.
  *
  * `fields` mirrors what Django enforces so the visitor gets an inline hint
- * instead of an opaque 400 (`ContactWriteSerializer`, `contact/serializers.py`):
+ * instead of an opaque 400 (`ContactWriteSerializer`, `src/contact/serializers.py`):
  * the name and the message are measured trimmed, as DRF trims them before
  * `validate_name` / `validate_message` count them, and the message needs
  * five words, because Django's contact spam filter rejects anything
- * shorter (`contact/utils.py`, `detect_spam_patterns`). A drawing with more questions extends it
+ * shorter (`src/contact/utils.py`, `detect_spam_patterns`). A drawing with more questions extends it
  * (`fields.extend({ ... })`).
  *
  * `send(body)` posts the enquiry, toasts `t('success.title')` and resolves

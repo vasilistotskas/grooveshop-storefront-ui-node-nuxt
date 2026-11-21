@@ -67,7 +67,7 @@ export function builderTranslatedSettings(settings: Readonly<Record<string, unkn
  * already translated that setting; a new entry that only repeats the draft's
  * text is left out, since the setting falls back to that text anyway. Django
  * does the same when it writes the upgrades into what is stored
- * (`builder/block_upgrades.py`), held to `upgrade-cases.json`.
+ * (`src/builder/block_upgrades.py`), held to `upgrade-cases.json`.
  */
 export function upgradeNodeTranslations(
   node: BuilderNode,

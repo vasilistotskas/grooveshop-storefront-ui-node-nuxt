@@ -15,7 +15,7 @@ import type { ThemeSettings } from '../../shared/theme/settings'
  * the language and the store's tenant-config epoch (`dataCacheKey`). A
  * release is the only thing that changes the published theme, and Django's
  * `builder` surface moves that epoch when one is published or rolled back
- * (`invalidates_tenant_config`, `core/cache/surfaces.py`): every entry of the
+ * (`invalidates_tenant_config`, `src/builder/cache_surfaces.py`): every entry of the
  * store then sits under a key nobody reads again, so the new theme reaches the
  * next render with no purge of this name. `swr: false` is what gives those
  * entries a TTL (Nitro sets one only without `swr`, see `cachedRead`), or every

@@ -18,7 +18,7 @@ export type CartOverrides = Partial<Omit<Cart, 'items'>> & {
  *
  * Defaults: id 1, quantity 1 of `makeProduct()`, in cart 1. The line's
  * money fields are the product's, and the totals are quantity times the
- * unit values — as `cart/models/item.py` computes them for a retail
+ * unit values — as `src/cart/models/item.py` computes them for a retail
  * (non-B2B) cart. `weightInfo` follows the product's weight. `uuid`
  * follows `id`. An explicit override of a derived field wins.
  *
@@ -75,7 +75,7 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
  * The totals — `totalPrice`, `totalDiscountValue`, `totalVatValue`,
  * `totalItems`, `totalItemsUnique`, `totalWeightGrams` (item weights
  * taken as grams, the fixture default) — are sums over the items, as
- * `cart/models/cart.py` computes them, so a spec that changes an item's
+ * `src/cart/models/cart.py` computes them, so a spec that changes an item's
  * quantity gets a consistent cart. Promotion fields do NOT reduce
  * `totalPrice`: Django reports the promotion discount separately in
  * `promotionDiscount`. `freeThresholdValue` is what Django derives, the

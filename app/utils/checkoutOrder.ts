@@ -208,10 +208,11 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
   const cartMessages = Array.isArray(errorData?.cart) ? errorData.cart.join('. ') : ''
   // A refused pickup point is said in the storefront's words, under the
   // picker and in the alert alike.
-  const fieldErrors = apiFieldErrorsOf(errorData).map(error => error.code && PICKUP_POINT_REFUSALS.includes(error.code)
+  const isPickupRefusal = (error: DescribedFieldError) => Boolean(error.code && PICKUP_POINT_REFUSALS.includes(error.code))
+  const fieldErrors = apiFieldErrorsOf(errorData).map(error => isPickupRefusal(error)
     ? { ...error, message: t(`form.submit.error.${error.code}`) }
     : error)
-  const pickupPointRefused = fieldErrors.some(error => error.code && PICKUP_POINT_REFUSALS.includes(error.code))
+  const pickupPointRefused = fieldErrors.some(isPickupRefusal)
 
   // The first submit with this key is still being placed. Its answer
   // is not known yet, so nothing is wrong with the order: the key is
@@ -299,9 +300,13 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
   // this is the safety net for rules only Django knows about.
   else if (fieldErrors.length) {
     errorTitle = t(pickupPointRefused ? 'form.submit.error.pickup_point_refused' : 'form.submit.error.invalid_order_data')
-    errorDescription = pickupPointRefused
-      ? fieldErrors.filter(error => error.code && PICKUP_POINT_REFUSALS.includes(error.code)).map(error => error.message).join('\n')
-      : formatFieldErrors(fieldErrors, t)
+    // A refused pickup point leads, in its own words; every other field
+    // Django refused follows, so the alert never hides one.
+    const otherErrors = fieldErrors.filter(error => !isPickupRefusal(error))
+    errorDescription = [
+      ...fieldErrors.filter(isPickupRefusal).map(error => error.message),
+      ...(otherErrors.length ? [formatFieldErrors(otherErrors, t)] : []),
+    ].join('\n')
     // A field a step shows: the caller goes back to the first such step
     // and shows each message under its own input, not only in the alert.
     for (const { name, message } of fieldErrors) {

@@ -19,7 +19,7 @@ export const FEEDBACK_CATEGORIES = [
  * an opaque 400: the rating is required (undefined is "required"), the
  * email is optional and accepts an empty string (anonymous feedback), a
  * name, when given, has two characters, and the message needs ten and five
- * words, like the contact spam filter (`contact/utils.py`,
+ * words, like the contact spam filter (`src/contact/utils.py`,
  * `validate_feedback_content`, `detect_spam_patterns`). Name and message
  * are measured trimmed, as DRF trims them before Django counts them.
  *

@@ -971,6 +971,23 @@ describe('useCheckoutSubmit', () => {
       expect(q.request!()).toMatchObject({ payWayId: 1, shippingKind: 'home_delivery', email: 'test@example.com' })
     })
 
+    // The region is picked on the delivery step now (#767): a home
+    // delivery is quoted at the one picked there, so the price follows it,
+    // and a pickup point, which Django prices without one, sends none.
+    it('quotes a home delivery at the region picked on the delivery step, and a pickup with none', () => {
+      const formState = makeFormState({ region: 'I', regionId: 'I' })
+      const { currentStep } = setup(COD, { formState })
+      currentStep.value = 1
+
+      expect(q.request!()).toMatchObject({ regionId: 'I', shippingKind: 'home_delivery' })
+      formState.region = 'M'
+      formState.regionId = 'M'
+      expect(q.request!()).toMatchObject({ regionId: 'M' })
+      formState.shippingMethod = 'box_now_locker'
+      formState.boxnowLockerId = '4'
+      expect(q.request!().regionId).toBeUndefined()
+    })
+
     it('shows a total that changed since the click instead of ordering at it', async () => {
       q.priced = NEW_TOTAL
       const { onSubmit } = setup(COD)

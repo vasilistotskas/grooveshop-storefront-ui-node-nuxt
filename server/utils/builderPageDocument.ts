@@ -14,7 +14,7 @@ function isNotPublished(body: unknown): boolean {
  * for a page the store has not built.
  *
  * Cached as the function named `builderPageDocument`, which Django's purge
- * after a release names (`core/cache/surfaces.py`, the `builder` surface), so
+ * after a release names (`src/builder/cache_surfaces.py`, the `builder` surface), so
  * renaming it stops a publish reaching visitors until the TTL runs out. It
  * holds the page's own content and none of what the page shows from the
  * store's data: that is read for each request from its own, shorter cache
