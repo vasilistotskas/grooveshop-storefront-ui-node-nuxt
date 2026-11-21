@@ -621,7 +621,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/B2BErrorResponse'
+                anyOf:
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/B2BErrorResponse'
           description: ''
         '500':
           content:
@@ -660,7 +662,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/B2BErrorResponse'
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/B2BErrorResponse'
           description: ''
         '401':
           content:
@@ -11080,7 +11085,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CouponErrorResponse'
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/CouponErrorResponse'
           description: ''
         '401':
           content:
@@ -14088,7 +14096,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GiftCardErrorResponse'
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/GiftCardErrorResponse'
           description: ''
         '401':
           content:
@@ -14251,7 +14262,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GiftCardErrorResponse'
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/GiftCardErrorResponse'
           description: ''
         '401':
           content:
@@ -16458,7 +16472,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderCreateError'
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/OrderCreateError'
           description: ''
         '401':
           content:
@@ -17604,7 +17621,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderCancelError'
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+                  - $ref: '#/components/schemas/OrderCancelError'
           description: ''
         '401':
           content:
@@ -37826,11 +37846,7 @@ components:
           readOnly: true
           description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
         totalItems:
-          oneOf:
-            - type: integer
-            - enum:
-                - 0
-              type: integer
+          type: integer
           description: |-
             Return the total quantity of all items in the cart.
 
@@ -40266,6 +40282,7 @@ components:
           type: string
           format: email
           readOnly: true
+          nullable: true
           title: Email παραλήπτη
         recipientName:
           type: string
@@ -52353,25 +52370,8 @@ components:
           minimum: 0
           title: ID αντικειμένου
         contentObject:
-          type: object
-          description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-          properties:
-            id:
-              type: integer
-              example: 1
-            name:
-              type: string
-              example: Sample Product
-            description:
-              type: string
-              example: Product description
-            price:
-              type: string
-              example: '29.99'
-            active:
-              type: boolean
-              example: true
-          additionalProperties: true
+          allOf:
+            - $ref: '#/components/schemas/Product'
           readOnly: true
         createdAt:
           type: string
@@ -52420,25 +52420,8 @@ components:
           minimum: 0
           title: ID αντικειμένου
         contentObject:
-          type: object
-          description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-          properties:
-            id:
-              type: integer
-              example: 1
-            name:
-              type: string
-              example: Sample Product
-            description:
-              type: string
-              example: Product description
-            price:
-              type: string
-              example: '29.99'
-            active:
-              type: boolean
-              example: true
-          additionalProperties: true
+          allOf:
+            - $ref: '#/components/schemas/Product'
           readOnly: true
         createdAt:
           type: string
@@ -53952,10 +53935,14 @@ components:
         - code
     ApiValidationError:
       type: object
-      description: 'A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field''s messages with their codes. A field of a nested serializer holds the nested object.'
+      description: 'A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; when a field is itself named ``code``, that field''s messages instead) and ``fields``, each field''s messages with their codes. A field of a nested serializer holds the nested object.'
       properties:
         code:
-          type: string
+          anyOf:
+            - type: string
+            - type: array
+              items:
+                type: string
         fields:
           type: object
           additionalProperties:

@@ -1462,7 +1462,7 @@ export const zGiftCard = z.object({
   balance: z.number().gt(-1000000000).lt(1000000000).readonly(),
   status: zGiftCardStatusEnum,
   expiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  recipientEmail: z.email().readonly(),
+  recipientEmail: z.email().readonly().nullable(),
   recipientName: z.string().readonly(),
   senderName: z.string().readonly(),
   message: z.string().readonly(),
@@ -3935,10 +3935,7 @@ export const zCart = z.object({
   totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalVatValue: z.number().readonly(),
-  totalItems: z.union([
-    z.int(),
-    z.literal(0),
-  ]),
+  totalItems: z.int().readonly(),
   totalItemsUnique: z.int().readonly(),
   totalWeightGrams: z.int().readonly(),
   currency: z.string().readonly(),
@@ -5658,13 +5655,7 @@ export const zTaggedItem = z.object({
   contentType: z.int(),
   contentTypeName: z.string().readonly(),
   objectId: z.int().gte(0).lte(2147483647),
-  contentObject: z.object({
-    id: z.int().optional(),
-    name: z.string().optional(),
-    description: z.string().optional(),
-    price: z.string().optional(),
-    active: z.boolean().optional(),
-  }).readonly(),
+  contentObject: zProduct,
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -5689,13 +5680,7 @@ export const zTaggedItemDetail = z.object({
   contentType: z.int(),
   contentTypeName: z.string().readonly(),
   objectId: z.int().gte(0).lte(2147483647),
-  contentObject: z.object({
-    id: z.int().optional(),
-    name: z.string().optional(),
-    description: z.string().optional(),
-    price: z.string().optional(),
-    active: z.boolean().optional(),
-  }).readonly(),
+  contentObject: zProduct,
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -7195,10 +7180,13 @@ export const zApiError = z.object({
 })
 
 /**
- * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
+ * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; when a field is itself named ``code``, that field's messages instead) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
  */
 export const zApiValidationError = z.object({
-  code: z.string().optional(),
+  code: z.union([
+    z.string(),
+    z.array(z.string()),
+  ]).optional(),
   fields: z.record(z.string(), zApiFieldErrors),
 })
 
