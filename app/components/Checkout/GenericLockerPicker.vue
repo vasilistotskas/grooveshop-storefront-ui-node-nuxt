@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * Carrier-agnostic locker picker for any {@link ShippingCarrier} that
- * sets ``usesGenericPicker: true``: one search box and a "my location"
+ * exposes its catalogue (``fetchAll``): one search box and a "my location"
  * button above a map and a list of the carrier's catalogue. The logic is
  * `useLockerPicker`, shared with every design's copy.
  *

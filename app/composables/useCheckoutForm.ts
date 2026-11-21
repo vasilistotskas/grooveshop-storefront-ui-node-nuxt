@@ -41,7 +41,7 @@ export async function useCheckoutForm() {
     // Shipping method (Step 1 — new)
     shippingMethod: 'home_delivery' as ShippingMethodKey,
     boxnowLockerId: '' as string,
-    boxnowLocker: null as BoxNowSelectedLocker | null,
+    boxnowLocker: null as BoxNowPickedLocker | null,
     // ACS Smartpoint locker pickup (Phase 2). Picker UI is server-side
     // — we hold both the externalId and the AcsStation row so the
     // selected-locker card can render without a follow-up fetch.

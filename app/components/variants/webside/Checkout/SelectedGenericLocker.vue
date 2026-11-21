@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * Selected-locker wrapper card for any
- * {@link ShippingCarrier} with ``usesGenericPicker: true``. Reads
+ * {@link ShippingCarrier} (every carrier with lockers). Reads
  * the previously-picked locker from ``formState`` (via the
  * adapter's ``readSelectedLocker``), opens the
  * {@link CheckoutGenericLockerPicker} when the shopper clicks

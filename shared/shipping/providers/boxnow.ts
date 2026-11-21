@@ -1,44 +1,81 @@
 /**
- * BoxNow carrier adapter — escape hatch for the iframe widget.
+ * BOX NOW carrier adapter, a mirror of the Python
+ * ``shipping_boxnow/carrier.py::BoxNowCarrier``.
  *
- * BoxNow doesn't expose a queryable locker catalogue we can render
- * ourselves; instead they ship a ``widget-v5.boxnow.gr`` iframe
- * that handles the entire pick UX. So this adapter sets
- * ``usesGenericPicker: false`` and we route to the existing
- * ``CheckoutSelectedBoxNowLocker`` component which mounts the
- * widget. The registry still wins us symmetric dispatch in
- * {@link StepShipping} (no ``if (method === 'box_now_locker')``
- * branch survives) and a single source of truth for the form-state
- * keys this carrier writes.
+ * The checkout picks a BOX NOW locker in the generic picker, like any
+ * carrier with a catalogue: Django syncs BOX NOW's lockers daily
+ * (``BoxNowService.sync_lockers``) and the storefront reads them through
+ * ``/api/shipping/lockers/boxnow``. BOX NOW's own map widget is not used:
+ * its only control over which lockers it shows was the partner account's
+ * typical parcel size or an undocumented URL parameter.
  *
- * If/when BoxNow exposes a public locker API, flip
- * ``usesGenericPicker`` to ``true`` and wire ``fetchAll``;
- * the rest of the abstraction takes care of itself.
+ * Form-state contract: ``boxnowLockerId`` (the order's ``boxnowLockerId``)
+ * and ``boxnowLocker``, what the cards show (``BoxNowPickedLocker``).
  */
 import type { Locker, ShippingCarrier } from '../interfaces'
+
+/** A row of ``/api/shipping/lockers/boxnow`` (the route's normalised locker). */
+interface BoxNowCatalogueRow {
+  externalId: string
+  name: string
+  addressLine1: string
+  addressLine2: string
+  postalCode: string
+  countryCode: string
+  lat: number
+  lng: number
+  note: string
+}
+
+function _normalize(row: BoxNowCatalogueRow): Locker | null {
+  const id = row.externalId.trim()
+  if (!id) return null
+  return {
+    key: id,
+    id,
+    name: row.name || id,
+    addressLine1: row.addressLine1,
+    addressLine2: row.addressLine2 || null,
+    // BOX NOW's catalogue names no city: its address line and postcode do.
+    city: '',
+    postalCode: row.postalCode,
+    countryCode: (row.countryCode || 'GR').toUpperCase(),
+    lat: row.lat,
+    lng: row.lng,
+    workingHours: row.note || null,
+    raw: row,
+  }
+}
 
 const boxnowCarrier: ShippingCarrier = {
   code: 'boxnow',
   label: 'BOX NOW',
-  usesGenericPicker: false,
-  pickerComponentName: 'CheckoutSelectedBoxNowLocker',
   formFieldName: 'boxnowLockerId',
 
+  async fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]> {
+    const rows = await $fetch<BoxNowCatalogueRow[]>(
+      `/api/shipping/lockers/${this.code}`,
+      {
+        method: 'GET',
+        query: { country },
+        signal,
+      },
+    )
+    return (rows ?? []).map(_normalize).filter(Boolean) as Locker[]
+  },
+
   applyToFormState(formState: Record<string, unknown>, locker: Locker): void {
-    // The BoxNow widget already writes the BoxNow-shaped object to
-    // formState.boxnowLocker when it resolves; we expose the same
-    // hook so test code and future callers can drive selection
-    // without touching the widget.
     formState.boxnowLockerId = locker.id
-    formState.boxnowLocker = {
-      boxnowLockerId: locker.id,
-      boxnowLockerName: locker.name,
-      boxnowLockerAddressLine1: locker.addressLine1,
-      boxnowLockerAddressLine2: locker.addressLine2 ?? '',
-      boxnowLockerPostalCode: locker.postalCode,
-      boxnowLockerNote: locker.workingHours ?? '',
-      boxnowLockerCountryCode: locker.countryCode,
+    const picked: BoxNowPickedLocker = {
+      externalId: locker.id,
+      name: locker.name,
+      addressLine1: locker.addressLine1,
+      addressLine2: locker.addressLine2 ?? '',
+      postalCode: locker.postalCode,
+      countryCode: locker.countryCode,
+      note: locker.workingHours ?? '',
     }
+    formState.boxnowLocker = picked
   },
 
   readLockerId(formState: Record<string, unknown>): string | null {
@@ -58,38 +95,22 @@ const boxnowCarrier: ShippingCarrier = {
   },
 
   readSelectedLocker(formState: Record<string, unknown>): Locker | null {
-    const stored = formState.boxnowLocker as
-      | {
-        boxnowLockerId?: unknown
-        boxnowLockerName?: unknown
-        boxnowLockerAddressLine1?: unknown
-        boxnowLockerAddressLine2?: unknown
-        boxnowLockerPostalCode?: unknown
-        boxnowLockerNote?: unknown
-        boxnowLockerCountryCode?: unknown
-      }
-      | null
-      | undefined
+    const stored = formState.boxnowLocker as BoxNowPickedLocker | null | undefined
     if (!stored || typeof stored !== 'object') return null
-    const id = stored.boxnowLockerId
+    const id = stored.externalId
     if (typeof id !== 'string' || id.length === 0) return null
-    // The country of the widget map the locker was picked from; the
-    // picker only accepts a locker whose map matches the delivery
-    // country, so a stored locker without one is not a valid selection.
-    const countryCode = stored.boxnowLockerCountryCode
-    if (typeof countryCode !== 'string' || countryCode.length === 0) return null
     return {
       key: id,
       id,
-      name: typeof stored.boxnowLockerName === 'string' ? stored.boxnowLockerName : id,
-      addressLine1: typeof stored.boxnowLockerAddressLine1 === 'string' ? stored.boxnowLockerAddressLine1 : '',
-      addressLine2: typeof stored.boxnowLockerAddressLine2 === 'string' ? stored.boxnowLockerAddressLine2 : null,
+      name: stored.name || id,
+      addressLine1: stored.addressLine1,
+      addressLine2: stored.addressLine2 || null,
       city: '',
-      postalCode: typeof stored.boxnowLockerPostalCode === 'string' ? stored.boxnowLockerPostalCode : '',
-      countryCode,
+      postalCode: stored.postalCode,
+      countryCode: stored.countryCode,
       lat: null,
       lng: null,
-      workingHours: typeof stored.boxnowLockerNote === 'string' ? stored.boxnowLockerNote : null,
+      workingHours: stored.note || null,
       raw: stored,
     }
   },

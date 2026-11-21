@@ -13,9 +13,9 @@
  *
  * Provider routing: we expose this endpoint at
  * ``/api/shipping/lockers/<code>`` and switch on the path segment
- * so each carrier owns its own bulk-fetch contract upstream. Today
- * only ``acs`` is wired (BoxNow's iframe hides the catalogue from
- * us); adding ``elta`` / ``speedex`` / ``geniki`` later means
+ * so each carrier owns its own bulk-fetch contract upstream: ACS's
+ * stations and BOX NOW's lockers, both Django's daily-synced
+ * catalogues. Adding ``elta`` / ``speedex`` / ``geniki`` later means
  * extending the ``PROVIDER_FETCHERS`` table by one entry.
  */
 import type { $Fetch } from 'ofetch'
@@ -29,7 +29,8 @@ const zQuery = z.object({
 /** The largest page Django's API serves (`max_page_size`). */
 const STATIONS_PAGE_SIZE = 100
 
-interface NormalisedLocker {
+/** An ACS station as the picker reads it. */
+interface NormalisedStation {
   externalId: string
   branchCode: string | null
   shopKind: number
@@ -52,7 +53,22 @@ function _toNumber(
   return Number.isFinite(n) ? n : null
 }
 
-function _normalize(row: AcsStation): NormalisedLocker {
+/** A BOX NOW locker as the picker reads it. */
+interface NormalisedBoxNowLocker {
+  externalId: string
+  name: string
+  addressLine1: string
+  addressLine2: string
+  postalCode: string
+  countryCode: string
+  lat: number
+  lng: number
+  note: string
+}
+
+type NormalisedLocker = NormalisedStation | NormalisedBoxNowLocker
+
+function _normalize(row: AcsStation): NormalisedStation {
   return {
     externalId: row.externalId,
     branchCode: row.branchCode || null,
@@ -75,7 +91,7 @@ async function _fetchAcsStations(
   headers: Record<string, string>,
   country: string | undefined,
 ): Promise<NormalisedLocker[]> {
-  const collected: NormalisedLocker[] = []
+  const collected: NormalisedStation[] = []
   // The walk ends on the page Django names as the last, or on the first
   // page that is not full, whichever comes first: a `totalPages` that
   // cannot be right then cannot make it endless. A fixed page cap used to
@@ -105,6 +121,47 @@ async function _fetchAcsStations(
   return collected
 }
 
+async function _fetchBoxNowLockers(
+  backendFetch: $Fetch,
+  apiBaseUrl: string,
+  headers: Record<string, string>,
+  country: string | undefined,
+): Promise<NormalisedLocker[]> {
+  const collected: NormalisedBoxNowLocker[] = []
+  // The same walk as the ACS stations': the last page Django names, or
+  // the first page that is not full.
+  for (let page = 1; ; page += 1) {
+    const raw = await backendFetch(
+      `${apiBaseUrl}/shipping/boxnow/lockers`,
+      {
+        method: 'GET',
+        query: { page, pageSize: STATIONS_PAGE_SIZE, countryCode: country },
+        headers,
+      },
+    )
+    const response = await parseDataAs(raw, zPaginatedBoxNowLockerList)
+    const rows = response.results ?? []
+    // Django lists active lockers only (``BoxNowLockerViewSet``).
+    for (const row of rows) {
+      collected.push({
+        externalId: row.externalId,
+        // ``title`` is BOX NOW's public name for the locker; ``name``
+        // its internal one.
+        name: row.title || row.name,
+        addressLine1: row.addressLine1,
+        addressLine2: row.addressLine2,
+        postalCode: row.postalCode,
+        countryCode: row.countryCode,
+        lat: row.lat,
+        lng: row.lng,
+        note: row.note,
+      })
+    }
+    if (page >= (response.totalPages ?? 1) || rows.length < STATIONS_PAGE_SIZE) break
+  }
+  return collected
+}
+
 const PROVIDER_FETCHERS: Record<
   string,
   (
@@ -115,8 +172,7 @@ const PROVIDER_FETCHERS: Record<
   ) => Promise<NormalisedLocker[]>
 > = {
   acs: _fetchAcsStations,
-  // Future providers slot in here. ``boxnow`` deliberately omitted —
-  // its iframe widget owns the catalogue.
+  boxnow: _fetchBoxNowLockers,
 }
 
 export default defineCachedRoute(

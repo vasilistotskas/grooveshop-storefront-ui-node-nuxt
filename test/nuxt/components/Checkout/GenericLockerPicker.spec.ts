@@ -69,7 +69,6 @@ function fakeCarrier(overrides: Partial<ShippingCarrier> = {}): ShippingCarrier 
   return {
     code: 'acs',
     label: 'ACS Courier',
-    usesGenericPicker: true,
     formFieldName: 'acsStationExternalId',
     fetchAll: vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(CATALOGUE)),
     applyToFormState: vi.fn(),
@@ -353,12 +352,6 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     await openPicker(fakeCarrier({ fetchAll: vi.fn(() => Promise.reject(refusal)) }))
 
     expect(inBody('Δοκιμάστε ξανά σε 30 δευτερόλεπτα.')).toBe(true)
-  })
-
-  it('explains a carrier with no catalogue', async () => {
-    await openPicker(fakeCarrier({ fetchAll: undefined }))
-
-    expect(inBody(tp('unsupported'))).toBe(true)
   })
 
   it('closes from its close button', async () => {

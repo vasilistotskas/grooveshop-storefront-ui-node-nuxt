@@ -58,10 +58,7 @@
       "boxnow": {
         "label": "BOX NOW Lockers",
         "tagline": "Γρήγορη παράδοση, 24/7",
-        "description": "Παραλάβετε την παραγγελία σας από οποιοδήποτε locker της BOX NOW, οποιαδήποτε ώρα",
-        "unconfigured_title": "Η υπηρεσία BOX NOW δεν είναι ενεργή προσωρινά",
-        "unconfigured_description": "Η ενσωμάτωση με το δίκτυο BOX NOW δεν έχει ολοκληρωθεί ακόμη. Παρακαλούμε επιλέξτε παράδοση στη διεύθυνσή σας.",
-        "country_unsupported": "Η BOX NOW δεν εξυπηρετεί ακόμη τη χώρα παράδοσης που επιλέξατε."
+        "description": "Παραλάβετε την παραγγελία σας από οποιοδήποτε locker της BOX NOW, οποιαδήποτε ώρα"
       },
       "acs_smartpoint": {
         "label": "ACS Smartpoint Lockers",
@@ -77,35 +74,10 @@
       "options_error_description": "Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά."
     },
     "boxnow": {
-      "select_locker": "Επιλέξτε Locker",
-      "change_locker": "Αλλαγή Locker",
-      "modal_title": "Επιλέξτε ένα BOX NOW Locker",
-      "iframe_loading": "Φόρτωση χάρτη...",
-      "required_error": "Παρακαλώ επιλέξτε ένα locker για να συνεχίσετε",
-      "selected_locker": {
-        "title": "Επιλεγμένο Locker",
-        "id_label": "ID Locker"
-      }
+      "required_error": "Παρακαλώ επιλέξτε ένα locker για να συνεχίσετε"
     },
     "acs": {
-      "select_locker": "Επιλέξτε ACS Smartpoint",
-      "change_locker": "Αλλαγή Smartpoint",
-      "modal_title": "Επιλέξτε ένα ACS Smartpoint",
-      "select": "Επιλογή",
-      "postal_code": "Ταχυδρομικός Κώδικας",
-      "postal_code_placeholder": "π.χ. 11525",
-      "city": "Πόλη / Περιοχή",
-      "city_placeholder": "π.χ. Αθήνα",
       "required_error": "Παρακαλώ επιλέξτε ένα Smartpoint για να συνεχίσετε",
-      "search_error": "Δεν ήταν δυνατή η αναζήτηση Smartpoints. Δοκιμάστε ξανά.",
-      "empty_title": "Δεν βρέθηκαν Smartpoints",
-      "empty_description": "Δοκιμάστε διαφορετικό ταχυδρομικό κώδικα ή περιοχή.",
-      "idle_title": "Αναζητήστε ένα Smartpoint",
-      "idle_description": "Πληκτρολογήστε ταχυδρομικό κώδικα για να δείτε διαθέσιμα ACS Smartpoint lockers.",
-      "selected_locker": {
-        "title": "Επιλεγμένο Smartpoint",
-        "id_label": "ID Smartpoint"
-      },
       "address_suggestion": {
         "title": "Μήπως εννοείτε αυτή τη διεύθυνση;",
         "apply": "Εφαρμογή",
@@ -139,7 +111,6 @@
       "empty_description": "Δοκιμάστε μια περιοχή, ή μια διεύθυνση μαζί με την πόλη ή τον Τ.Κ., π.χ. «Καλαμά 25 Αθήνα».",
       "search_prompt_title": "Βρείτε σημείο παραλαβής",
       "search_prompt_description": "Αναζητήστε με περιοχή, οδό ή ταχυδρομικό κώδικα, ή πατήστε «Η θέση μου» για τα πιο κοντινά σημεία.",
-      "unsupported": "Αυτή η μεταφορική δεν υποστηρίζει αναζήτηση σημείων παραλαβής.",
       "tab_list": "Λίστα",
       "tab_map": "Χάρτης",
       "show_list": "Εμφάνιση λίστας",

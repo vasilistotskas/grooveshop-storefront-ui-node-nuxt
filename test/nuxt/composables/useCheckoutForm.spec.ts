@@ -31,6 +31,7 @@ import { makeCountry } from '~~/test/fixtures/country'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { makeBoxNowPickedLocker } from '~~/test/fixtures/boxnow'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const { mockToastAdd } = vi.hoisted(() => ({ mockToastAdd: vi.fn() }))
@@ -749,7 +750,7 @@ describe('useCheckoutForm', () => {
     it('clears boxnowLockerId/boxnowLocker and acsStation* fields', async () => {
       const { formState } = await setup()
       formState.boxnowLockerId = '4'
-      formState.boxnowLocker = { boxnowLockerId: '4', boxnowLockerPostalCode: '10563', boxnowLockerAddressLine1: 'Ermou 10' }
+      formState.boxnowLocker = makeBoxNowPickedLocker()
       formState.acsStationExternalId = 'AAT'
       formState.acsStationBranch = 'BR1'
       formState.acsStation = ACS_STATION

@@ -25,8 +25,6 @@ export interface CheckoutShippingStepInputs {
    * of a card's price; `null` until the quote has an answer.
    */
   quotedOptions: MaybeRefOrGetter<readonly QuoteShippingOption[] | null | undefined>
-  /** The tenant's BoxNow partner id; empty when BoxNow is not set up. */
-  partnerId: MaybeRefOrGetter<string>
   /** The options fetch failed: the step shows a retry prompt, not the cards. */
   optionsError: MaybeRefOrGetter<boolean | undefined>
   /**
@@ -52,7 +50,6 @@ type ShippingOptionItemBase = {
   icon: string
   taglineKey?: string
   taglineColor?: ShippingMethodMeta['taglineColor']
-  disabled?: boolean
 }
 
 export type ShippingOptionItem = ShippingOptionItemBase & {
@@ -68,6 +65,8 @@ export type ShippingOptionItem = ShippingOptionItemBase & {
   estimate: { min: number, max: number } | null
   /** Payment methods reachable ONLY by choosing this card. */
   exclusivePayWays: string[]
+  /** The cart is over the method's weight cap or too large for its parcels. */
+  disabled: boolean
   /** Why the card is disabled, shown inline next to the description. */
   disabledReason?: string
 }
@@ -97,36 +96,6 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     return row ? row.price : null
   }
 
-  // Without a partner id (the tenant has not set one; there is no platform
-  // fallback) the BoxNow card is disabled, so the shopper never reaches a
-  // picker that would throw "partnerId is required" from
-  // buildBoxNowIframeUrl.
-  const isBoxNowConfigured = computed(() => Boolean(toValue(inputs.partnerId)))
-
-  // BoxNow has no country-agnostic widget host: a country outside
-  // ``BOXNOW_WIDGET_COUNTRIES`` (shared/utils/boxnow-widget.ts) has nothing
-  // to embed, distinct from "partnerId not configured" above.
-  const isBoxNowCountrySupported = computed(() =>
-    !!boxNowWidgetCountry(formState.value.country))
-
-  // Whether BoxNow is a candidate at all, so the "BoxNow is unconfigured"
-  // alert only shows where the store serves BoxNow.
-  const boxnowAvailable = computed(() =>
-    apiOptions.value.some(o => o.providerCode === 'boxnow'),
-  )
-
-  // Pay-way compatibility is NOT decided here, deliberately. The server
-  // filters pay ways per (carrier, kind) — a BoxNow locker offers PAY ON THE
-  // GO but never courier cash-on-delivery (``BoxNowCarrier.supported_settlements``)
-  // — and ``useCheckoutForm`` refetches ``/api/pay-way`` on every method
-  // change, dropping a selection the server no longer offers. A client-side
-  // gate keyed on "is this pay way offline?" was tried and removed
-  // (``8fb8dcbc``): it disabled PAY ON THE GO, the very product it was meant
-  // to enable. So only a missing partner id or an unsupported delivery
-  // country disables the card.
-  const isBoxNowDisabled = computed(() =>
-    !isBoxNowConfigured.value || !isBoxNowCountrySupported.value)
-
   function buildBrandMeta(method: ShippingMethodKey) {
     const meta = getShippingMethodMeta(method)
     return {
@@ -151,7 +120,6 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
         value: 'box_now_locker',
         label: t('shipping.method.boxnow.label'),
         descriptionText: t('shipping.method.boxnow.description'),
-        disabled: isBoxNowDisabled.value,
         ...buildBrandMeta('box_now_locker'),
       },
       acs_smartpoint: {
@@ -240,9 +208,6 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
       const priced = methodCarrier(sameMethod, key) ?? option
       const overCap = Boolean(priced.exceedsMaxWeight)
       const tooLarge = !overCap && !optionFitsCart(priced)
-      const boxNowCountryUnsupported = key === 'box_now_locker'
-        && isBoxNowConfigured.value
-        && !isBoxNowCountrySupported.value
       ordered.push({
         ...baseItem,
         logo: resolveShippingLogo(option.logoPath),
@@ -253,16 +218,14 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
         exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
           .filter(name => name.length > 0)
           .map(name => getPaymentMethodName(name)),
-        disabled: baseItem.disabled || overCap || tooLarge,
+        disabled: overCap || tooLarge,
         disabledReason: overCap
           ? t('shipping.method.exceeds_max_weight', {
               maxWeight: n(Math.max(...sameMethod.map(o => o.maxWeightGrams ?? 0)) / 1000, 'weight'),
             })
           : tooLarge
             ? t('shipping.method.exceeds_parcel_size')
-            : boxNowCountryUnsupported
-              ? t('shipping.method.boxnow.country_unsupported')
-              : undefined,
+            : undefined,
       })
     }
     return ordered
@@ -281,10 +244,6 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   // Free for the chosen method: the quote prices it 0 only when a rate's
   // free-shipping threshold is met or a promotion waives it.
   const freeDeliveryApplied = computed(() => selectedOption.value?.price === 0)
-
-  const isBoxNow = computed(
-    () => formState.value.shippingMethod === 'box_now_locker',
-  )
 
   // The active carrier's picker modal. Only one carrier's picker renders at
   // a time, so one flag serves them all, and `submit` can open it when no
@@ -337,8 +296,8 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     // failed to load: nothing to validate or advance past yet.
     if (toValue(inputs.optionsError)) return
     // A method that is no longer offered, or whose card is disabled (over
-    // every carrier's weight cap, a country BoxNow does not serve), must
-    // not advance to payment on a stale selection.
+    // every carrier's weight cap, or the cart too large for its parcels),
+    // must not advance to payment on a stale selection.
     const selected = selectedOption.value
     if (!selected || selected.disabled) return
     // No locker picked yet: open the picker instead of failing silently.
@@ -354,12 +313,9 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   }
 
   return {
-    isBoxNowConfigured,
-    boxnowAvailable,
     shippingOptions,
     activeCarrier,
     freeDeliveryApplied,
-    isBoxNow,
     pickerOpen,
     submit,
   }

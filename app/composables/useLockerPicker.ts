@@ -1,7 +1,7 @@
 /**
  * The carrier-agnostic locker picker, apart from its drawing
  * (`Checkout/GenericLockerPicker` and the tenants' own), for any
- * {@link ShippingCarrier} that sets `usesGenericPicker: true`.
+ * {@link ShippingCarrier} (every carrier with lockers).
  *
  * Everything reads the carrier's whole catalogue (`fetchAll`), loaded
  * once per country while the picker is open: the one search box above
@@ -77,10 +77,6 @@ export function useLockerPicker(options: {
   const misses = reactive(new Set<string>())
 
   async function loadCatalogue(): Promise<void> {
-    if (!props.carrier.fetchAll) {
-      errorMessage.value = t('shipping.locker_picker.unsupported')
-      return
-    }
     // Once per country: the shopper may change the address's country
     // between two openings.
     const country = (props.countryCode ?? 'GR').toUpperCase()

@@ -84,11 +84,6 @@ export const useTenantStore = defineStore('tenant', () => {
   // MFA — empty string means Django uses its own default issuer
   const totpIssuer = computed(() => config.value?.totpIssuer ?? '')
 
-  // BoxNow delivery — tenant-only, no platform fallback. Empty string
-  // means the tenant hasn't configured BoxNow (checkout hides the
-  // locker-pickup option).
-  const boxNowPartnerId = computed(() => config.value?.boxNowPartnerId ?? '')
-
   // Social links — each empty string means "use platform fallback"
   const socials = computed(() => ({
     discord: config.value?.socialsDiscord ?? '',
@@ -159,7 +154,6 @@ export const useTenantStore = defineStore('tenant', () => {
     googleAdsAddPaymentInfoLabel,
     googleAdsPageViewLabel,
     totpIssuer,
-    boxNowPartnerId,
     socials,
     setConfig,
   }

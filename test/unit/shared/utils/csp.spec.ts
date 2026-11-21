@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { BOXNOW_FRAME_ORIGINS } from '~~/shared/utils/boxnow-widget'
 import { buildCspDirectives } from '~~/shared/utils/csp'
 import { EMBED_FRAME_ORIGINS } from '~~/shared/utils/embeds'
 
@@ -75,27 +74,12 @@ describe('third-party integrations the checkout and login actually load', () => 
 })
 
 describe('frame-src', () => {
-  it('lists every BoxNow widget origin, including the hosts its CDN redirects through', () => {
-    // BoxNow's CDN redirects the v5 iframe to widget-v4/widget mid-flight,
-    // and CSP validates every hop of a frame's redirect chain. The list
-    // is `BOXNOW_FRAME_ORIGINS` — one source of truth with the
-    // postMessage origin check (`boxnow-widget.spec.ts`).
+  // #204: BOX NOW's lockers are picked in our own picker; no BOX NOW
+  // page is framed any more, so no BOX NOW host may be.
+  it('frames no BOX NOW host', () => {
     const frameSrc = pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'frame-src')
 
-    expect(BOXNOW_FRAME_ORIGINS).toEqual(expect.arrayContaining([
-      'https://widget-v5.boxnow.gr',
-      'https://widget-v5.boxnow.cy',
-      'https://widget-v4.boxnow.gr',
-      'https://widget.boxnow.gr',
-    ]))
-    expect(BOXNOW_FRAME_ORIGINS.filter(origin => !frameSrc.includes(origin))).toEqual([])
-  })
-
-  it('drops the unverified BoxNow bg/hr origins', () => {
-    // Only GR and CY are confirmed live BoxNow markets for this store
-    // (verified 2026-09-27) — bg/hr were unverified guesses.
-    const frameSrc = pick(buildCspDirectives({ dev: false, frameAncestors: 'none' }), 'frame-src')
-    expect(frameSrc.filter(source => /boxnow\.(bg|hr)/.test(source))).toEqual([])
+    expect(frameSrc.filter(source => source.includes('boxnow'))).toEqual([])
   })
 
   it('lists every origin a rich-text video is framed from', () => {

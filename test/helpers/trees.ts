@@ -20,8 +20,8 @@ export interface TreeImpl {
   C: Component
   /**
    * The auto-import prefix of this tree's OWN components: a webside
-   * component renders `<WebsideCheckoutSelectedBoxNowLocker>` where the
-   * default renders `<CheckoutSelectedBoxNowLocker>`. Shared components
+   * component renders `<WebsideCheckoutSelectedGenericLocker>` where the
+   * default renders `<CheckoutSelectedGenericLocker>`. Shared components
    * (`U*`, `ImgWithFallback`, the locker pickers, …) carry no prefix in
    * either tree.
    */

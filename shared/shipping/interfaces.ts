@@ -80,19 +80,11 @@ export interface ShippingCarrier {
    *  User-facing labels live in i18n keys, not here. */
   readonly label: string
 
-  /**
-   * ``true`` → the {@link GenericLockerPicker} renders for this
-   *   carrier, which must then expose ``fetchAll``: the picker searches,
-   *   maps and measures distances over that catalogue (ACS).
-   * ``false`` → the carrier brings its own picker (BoxNow's iframe
-   *   widget). The generic UI sits this one out.
-   */
-  readonly usesGenericPicker: boolean
-
   /** Every active locker for the country in one call: what the
-   *  generic picker reads. Required when ``usesGenericPicker`` is true;
-   *  a carrier with its own picker leaves it out. */
-  fetchAll?(country: string, signal?: AbortSignal): Promise<Locker[]>
+   *  {@link GenericLockerPicker} reads, the one picker every carrier's
+   *  lockers are chosen in. It searches, maps and measures distances
+   *  over that catalogue. */
+  fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]>
 
   /** Place a free-text address with the carrier's own geocoder, so the
    *  picker can show the lockers nearest it. `null` when the carrier
@@ -114,11 +106,6 @@ export interface ShippingCarrier {
   /** Detail view used by the selected-locker card. The carrier
    *  knows where it stashed the previous selection. */
   readSelectedLocker(formState: Record<string, unknown>): Locker | null
-
-  /** When ``usesGenericPicker`` is false, the carrier provides its
-   *  own picker component. Resolved at component-render time so
-   *  the bundle is split correctly. */
-  pickerComponentName?: string
 
   /** Zod-schema field path used by ``UFormField`` to surface inline
    *  validation errors below the picker. Must match the field name

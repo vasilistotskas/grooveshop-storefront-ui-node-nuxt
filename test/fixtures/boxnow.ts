@@ -1,39 +1,21 @@
 import type { BoxNowLocker, BoxNowParcelEvent, BoxNowShipmentDetail } from '~~/shared/openapi/types.gen'
-import type { BoxNowSelectedLocker } from '~~/shared/utils/boxnow-widget'
+import type { BoxNowPickedLocker } from '~~/shared/types/checkout'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
- * The `window.postMessage` payload the BoxNow widget sends when the
- * shopper picks a locker (`functions/markerClicked.js`; see the header of
- * `shared/utils/boxnow-widget.ts`). Defaults: locker 4, Χαλάνδρι, on the
- * Greek map — `boxnowCountry` is the locker record's own ISO alpha-2.
- *
- * There is no generated schema for it; `test/unit/fixtures/boxnow.spec.ts`
- * proves the default survives `parseBoxNowSelectedLocker`, the parser the
- * picker runs on every message.
+ * The locker as checkout keeps it in `formState.boxnowLocker` once the
+ * shopper picks it: what `boxnowCarrier.applyToFormState` writes for the
+ * default `makeBoxNowLocker()` row (`test/unit/shared/shipping/providers/boxnow.spec.ts`).
  */
-export function boxNowWidgetMessage(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+export function makeBoxNowPickedLocker(overrides: Partial<BoxNowPickedLocker> = {}): BoxNowPickedLocker {
   return {
-    boxnowLockerId: '4',
-    boxnowLockerPostalCode: '15234',
-    boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
-    boxnowLockerName: 'Χαλάνδρι ΟΠΑΠ Play',
-    boxnowCountry: 'GR',
-    ...overrides,
-  }
-}
-
-/**
- * The locker as checkout keeps it in `formState.boxnowLocker` — what
- * `parseBoxNowSelectedLocker(boxNowWidgetMessage())` returns.
- */
-export function makeBoxNowSelectedLocker(overrides: Partial<BoxNowSelectedLocker> = {}): BoxNowSelectedLocker {
-  return {
-    boxnowLockerId: '4',
-    boxnowLockerPostalCode: '15234',
-    boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
-    boxnowLockerName: 'Χαλάνδρι ΟΠΑΠ Play',
-    boxnowLockerCountryCode: 'GR',
+    externalId: '4',
+    name: 'Χαλάνδρι ΟΠΑΠ Play',
+    addressLine1: 'Λεωφ. Πεντέλης 125',
+    addressLine2: '',
+    postalCode: '15234',
+    countryCode: 'GR',
+    note: '',
     ...overrides,
   }
 }

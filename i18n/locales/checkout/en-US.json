@@ -58,10 +58,7 @@
       "boxnow": {
         "label": "BOX NOW Lockers",
         "tagline": "Fast delivery, 24/7",
-        "description": "Collect your order from any BOX NOW locker, at any time",
-        "unconfigured_title": "BOX NOW is temporarily unavailable",
-        "unconfigured_description": "The integration with the BOX NOW network is not complete yet. Please choose delivery to your address.",
-        "country_unsupported": "BOX NOW does not serve the selected delivery country yet."
+        "description": "Collect your order from any BOX NOW locker, at any time"
       },
       "acs_smartpoint": {
         "label": "ACS Smartpoint Lockers",
@@ -77,35 +74,10 @@
       "options_error_description": "Check your connection and try again."
     },
     "boxnow": {
-      "select_locker": "Choose a Locker",
-      "change_locker": "Change Locker",
-      "modal_title": "Choose a BOX NOW Locker",
-      "iframe_loading": "Loading map...",
-      "required_error": "Please choose a locker to continue",
-      "selected_locker": {
-        "title": "Selected Locker",
-        "id_label": "Locker ID"
-      }
+      "required_error": "Please choose a locker to continue"
     },
     "acs": {
-      "select_locker": "Choose an ACS Smartpoint",
-      "change_locker": "Change Smartpoint",
-      "modal_title": "Choose an ACS Smartpoint",
-      "select": "Select",
-      "postal_code": "Postcode",
-      "postal_code_placeholder": "e.g. 11525",
-      "city": "City / Area",
-      "city_placeholder": "e.g. Athens",
       "required_error": "Please choose a Smartpoint to continue",
-      "search_error": "Smartpoints could not be searched. Please try again.",
-      "empty_title": "No Smartpoints found",
-      "empty_description": "Try a different postcode or area.",
-      "idle_title": "Search for a Smartpoint",
-      "idle_description": "Enter a postcode to see available ACS Smartpoint lockers.",
-      "selected_locker": {
-        "title": "Selected Smartpoint",
-        "id_label": "Smartpoint ID"
-      },
       "address_suggestion": {
         "title": "Did you mean this address?",
         "apply": "Apply",
@@ -139,7 +111,6 @@
       "empty_description": "Try an area, or an address with its city or postcode, e.g. “Kalama 25 Athens”.",
       "search_prompt_title": "Find a collection point",
       "search_prompt_description": "Search by area, street or postcode, or tap “My location” for the nearest points.",
-      "unsupported": "This carrier does not support collection point search.",
       "tab_list": "List",
       "tab_map": "Map",
       "show_list": "Show the list",

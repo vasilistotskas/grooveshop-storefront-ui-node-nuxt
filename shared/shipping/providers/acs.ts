@@ -60,7 +60,6 @@ function _normalize(row: AcsStation): Locker | null {
 const acsCarrier: ShippingCarrier = {
   code: 'acs',
   label: 'ACS Courier',
-  usesGenericPicker: true,
   formFieldName: 'acsStationExternalId',
 
   async fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]> {
