@@ -263,10 +263,17 @@ export interface BlockCatalogue {
   templates: string[]
   /**
    * Every icon the builder offers (`BUILDER_ICONS`), as the stores save
-   * them: what a Django field holding one icon outside a block (a blog
-   * category's) is validated against.
+   * them, with the name the editor gives it in each language: what a Django
+   * field holding one icon outside a block (a blog category's) is validated
+   * against and offers.
    */
-  icons: string[]
+  icons: CatalogueIcon[]
+}
+
+/** An icon of the catalogue: its name as saved, and its label in every language. */
+export interface CatalogueIcon {
+  name: string
+  labels: Record<SupportedLocale, string>
 }
 
 /** A colour a contrast rule names: a pointer into the document's root settings, or a literal `#RRGGBB`. */

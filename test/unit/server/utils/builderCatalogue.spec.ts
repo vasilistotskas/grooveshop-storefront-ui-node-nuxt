@@ -8,6 +8,8 @@ import { builderBlocks, builderCatalogueDocument, buildBlockCatalogue } from '~~
 import { fixtureBlocks, promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 import { BUILDER_PAGE_HEADING_MAX_LENGTH } from '~~/shared/constants/builder'
 import { BUILDER_ICONS } from '~~/shared/builder/icons'
+import elLabels from '~/builder/labels/el.json'
+import enLabels from '~/builder/labels/en.json'
 
 const blockOf = (type: string) => buildBlockCatalogue([promoBanner, promoItem]).blocks.find(block => block.type === type)!
 
@@ -212,8 +214,15 @@ describe('buildBlockCatalogue', () => {
   // Django holds one icon outside a block too (a blog category's): it is
   // validated against this list, the one the builder's icon settings offer.
   describe('icons', () => {
-    it('lists every icon the builder offers, as the stores save them', () => {
-      expect(buildBlockCatalogue([]).icons).toEqual([...BUILDER_ICONS])
+    it('lists every icon the builder offers, as the stores save them, named in every language', () => {
+      const { icons } = buildBlockCatalogue([])
+
+      expect(icons.map(icon => icon.name)).toEqual([...BUILDER_ICONS])
+      expect(icons.find(icon => icon.name === 'i-fa6-solid-robot')).toEqual({ name: 'i-fa6-solid-robot', labels: { el: elLabels.options.icon['i-fa6-solid-robot'], en: enLabels.options.icon['i-fa6-solid-robot'] } })
+    })
+
+    it('refuses an icon without a label, which Django would offer by its bare name', () => {
+      expect(() => buildBlockCatalogue([], undefined, undefined, ['i-lucide-unlabelled'])).toThrow(/"i-lucide-unlabelled" has no el label/)
     })
 
     it('is part of the hash', () => {
