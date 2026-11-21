@@ -523,5 +523,16 @@
   "feeds": {
     "store": "{name}: articles and products",
     "blog": "{name}: articles"
+  },
+  "socials": {
+    "discord": "Discord",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "pinterest": "Pinterest",
+    "reddit": "Reddit",
+    "tiktok": "TikTok",
+    "twitter": "X",
+    "youtube": "YouTube"
   }
 }

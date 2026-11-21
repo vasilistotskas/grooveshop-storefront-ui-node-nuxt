@@ -36,16 +36,20 @@ const { primary, secondary } = useFooterNavigation()
 const { logoLightUrl } = useTenantBranding()
 const { isModalActive } = useCookieControl()
 
-const SOCIALS = [
-  { key: 'facebook', icon: 'i-mdi-facebook' },
-  { key: 'instagram', icon: 'i-mdi-instagram' },
-  { key: 'youtube', icon: 'i-mdi-youtube' },
-  { key: 'tiktok', icon: 'i-ant-design-tik-tok-filled' },
-  { key: 'pinterest', icon: 'i-mdi-pinterest' },
-  { key: 'linkedin', icon: 'i-mdi-linkedin' },
-  { key: 'reddit', icon: 'i-mdi-reddit' },
-  { key: 'discord', icon: 'i-mdi-discord' },
-] as const
+/** The store's networks in the artboard's order (`useStoreSocials`). */
+const SOCIALS_ORDER = [
+  'facebook',
+  'instagram',
+  'youtube',
+  'tiktok',
+  'pinterest',
+  'linkedin',
+  'reddit',
+  'discord',
+  'twitter',
+] as const satisfies readonly SocialNetwork[]
+
+const { socials } = useStoreSocials(SOCIALS_ORDER)
 
 const year = new Date().getFullYear()
 
@@ -63,13 +67,6 @@ const hours = computed(() =>
         entry: group.entry,
       }))
     : [],
-)
-
-const socials = computed(() =>
-  SOCIALS.flatMap(({ key, icon }) => {
-    const url = tenantStore.socials[key]
-    return url ? [{ key, icon, url, label: t(`socials.${key}`) }] : []
-  }),
 )
 
 const pages = computed(() =>
@@ -360,15 +357,6 @@ el:
     fri: Παρασκευή
     sat: Σάββατο
     sun: Κυριακή
-  socials:
-    facebook: Facebook
-    instagram: Instagram
-    youtube: YouTube
-    tiktok: TikTok
-    pinterest: Pinterest
-    linkedin: LinkedIn
-    reddit: Reddit
-    discord: Discord
 en:
   invitation: Come and find us in Fytia.
   call: 'Call us · {phone}'
@@ -387,13 +375,4 @@ en:
     fri: Friday
     sat: Saturday
     sun: Sunday
-  socials:
-    facebook: Facebook
-    instagram: Instagram
-    youtube: YouTube
-    tiktok: TikTok
-    pinterest: Pinterest
-    linkedin: LinkedIn
-    reddit: Reddit
-    discord: Discord
 </i18n>

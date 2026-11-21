@@ -97,6 +97,30 @@ describe('Chrome/Footer', () => {
     expect(wrapper.findAll('a[href="mailto:hello@shop.test"]')).toHaveLength(2)
   })
 
+  // The design lost its social links in the Volt rebuild; every design
+  // draws the store's networks, X included, on the desk row and the phone.
+  it('links the store\'s social networks on the desk and the phone, and none it has not set', async () => {
+    setTenant({ socialsInstagram: 'https://instagram.com/store', socialsTwitter: 'https://x.com/store', socialsLinkedin: 'https://linkedin.com/company/store', socialsFacebook: '' })
+
+    const wrapper = await mountFooter()
+
+    const rows = wrapper.findAll('ul[aria-label="Κοινωνικά δίκτυα"]')
+    expect(rows).toHaveLength(2)
+    for (const row of rows) {
+      expect(row.findAll('a').map(link => [link.attributes('aria-label'), link.attributes('href'), link.attributes('target'), link.attributes('rel')])).toEqual([
+        ['Instagram', 'https://instagram.com/store', '_blank', 'noopener noreferrer'],
+        ['X', 'https://x.com/store', '_blank', 'noopener noreferrer'],
+        ['LinkedIn', 'https://linkedin.com/company/store', '_blank', 'noopener noreferrer'],
+      ])
+    }
+  })
+
+  it('draws no social row for a store that links no network', async () => {
+    setTenant({ socialsInstagram: '', socialsTwitter: '', socialsLinkedin: '', socialsFacebook: '', socialsDiscord: '', socialsPinterest: '', socialsReddit: '', socialsTiktok: '', socialsYoutube: '' })
+
+    expect((await mountFooter()).find('ul[aria-label="Κοινωνικά δίκτυα"]').exists()).toBe(false)
+  })
+
   it('mounts the legal identity', async () => {
     const wrapper = await mountFooter()
 
