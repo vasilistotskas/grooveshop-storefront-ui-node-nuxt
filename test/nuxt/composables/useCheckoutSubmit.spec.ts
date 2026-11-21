@@ -608,6 +608,17 @@ describe('useCheckoutSubmit', () => {
       })
     })
 
+    // #767: a pickup order is delivered to the point and has none of the
+    // shopper's address, so nothing goes to the address book.
+    it('saves nothing for a pickup order', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+
+      await setup(COD, { formState: Object.assign(saving('Home'), { shippingMethod: 'box_now_locker', boxnowLockerId: '4' }) }).onSubmit()
+
+      await vi.waitFor(() => expect(api.callsTo('/api/orders')).toHaveLength(1))
+      expect(api.callsTo('/api/user/addresses')).toEqual([])
+    })
+
     it('tells the shopper the order went through when only the save failed', async () => {
       api.routes({
         '/api/orders': orderCreated({ uuid: 'order-cod' }),
