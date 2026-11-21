@@ -1,3 +1,10 @@
+# [3.348.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.347.0...v3.348.0) (2026-11-21)
+
+
+### Features
+
+* **checkout:** ask a pickup order for no address ([#505](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/505)) ([3f2b56f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f2b56f39c7b188fe8a8e89d16241b9da39b71f2)), closes [#767](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/767)
+
 # [3.347.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.346.1...v3.347.0) (2026-11-21)
 
 
