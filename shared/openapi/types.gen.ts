@@ -1634,6 +1634,14 @@ export type BoxNowLocker = {
      */
   readonly note: string
   /**
+     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.
+     */
+  readonly compartmentSizes: Array<number>
+  /**
+     * Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
+     */
+  readonly limitedAvailability: boolean
+  /**
      * Ενεργό
      */
   readonly isActive: boolean
@@ -1714,6 +1722,14 @@ export type BoxNowLockerDetail = {
      * Σημείωση
      */
   readonly note: string
+  /**
+     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.
+     */
+  readonly compartmentSizes: Array<number>
+  /**
+     * Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
+     */
+  readonly limitedAvailability: boolean
   /**
      * Ενεργό
      */
@@ -2346,7 +2362,7 @@ export type Cart = {
      * Uses annotated value if available (from optimized queryset),
      * otherwise calculates from items.
      */
-  totalItems: number | 0
+  readonly totalItems: number
   /**
      * Return the number of unique items in the cart.
      *
@@ -9199,6 +9215,10 @@ export type QuoteShippingOption = {
      * Αληθές όταν το καλάθι δεν χωρά στα δέματα αυτού του μεταφορέα· η επιλογή του απορρίπτεται.
      */
   exceedsParcelSize: boolean
+  /**
+     * Το μέγεθος θυρίδας locker στο οποίο χωράει το καλάθι (1 μικρό, 2 μεσαίο, 3 μεγάλο) σε μια επιλογή παραλαβής BOX NOW· null αλλού και όταν το καλάθι δεν χωράει σε κανένα. Στείλτε το ως ``compartmentSize`` για να δείτε τα lockers που δέχονται αυτό το καλάθι.
+     */
+  compartmentSize: number | null
 }
 
 /**
@@ -12707,7 +12727,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   expectedCartDigest?: string
   /**
-     * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
+     * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Ένα ``client_ip_address`` που σταλεί εδώ αγνοείται: ο server το ορίζει από την επαληθευμένη διεύθυνση του edge. Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
      */
   meta?: {
     [key: string]: unknown
@@ -28058,6 +28078,14 @@ export type ListBoxNowLockerData = {
   body?: never
   path?: never
   query?: {
+    /**
+         * Μόνο lockers που έχουν θυρίδα αυτού του μεγέθους (1 μικρό, 2 μεσαίο, 3 μεγάλο), με ακριβή αντιστοίχιση όπως κάνει ο δικός της επιλογέας της BOX NOW. Ένα locker με άγνωστα μεγέθη δεν ταιριάζει ποτέ.
+         *
+         * * `1` - Μικρό
+         * * `2` - Μεσαίο
+         * * `3` - Μεγάλο
+         */
+    compartmentSize?: 1 | 2 | 3
     /**
          * Χώρα του locker κατά ISO 3166-1 alpha-2.
          */

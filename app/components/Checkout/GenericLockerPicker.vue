@@ -16,6 +16,8 @@ const props = defineProps<{
   initialPostalCode?: string
   initialCity?: string
   countryCode?: string
+  /** The cart's compartment size, for a carrier that sizes its lockers. */
+  compartmentSize?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -279,6 +281,16 @@ function onClose(): void {
                         >
                           <UIcon name="i-lucide-clock" class="-mt-0.5 size-3" />
                           {{ station.workingHours }}
+                        </span>
+                        <span
+                          v-if="station.limitedAvailability"
+                          class="mt-1 text-xs font-medium text-warning"
+                        >
+                          <UIcon
+                            name="i-lucide-triangle-alert"
+                            class="-mt-0.5 size-3"
+                          />
+                          {{ t('shipping.locker_picker.limited_availability') }}
                         </span>
                       </div>
                       <span

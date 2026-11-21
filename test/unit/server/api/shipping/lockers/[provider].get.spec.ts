@@ -124,11 +124,11 @@ describe('GET /api/shipping/lockers/[provider]', () => {
     // catalogue, in the same picker as ACS's.
     it('normalises each locker for the map, by its public title', async () => {
       backend.reply(page([
-        makeBoxNowLocker({ id: 1, externalId: '4', title: 'Χαλάνδρι ΟΠΑΠ Play', name: 'APM 4', note: 'Δίπλα στο περίπτερο' }),
+        makeBoxNowLocker({ id: 1, externalId: '4', title: 'Χαλάνδρι ΟΠΑΠ Play', name: 'APM 4', note: 'Δίπλα στο περίπτερο', limitedAvailability: true }),
         makeBoxNowLocker({ id: 2, externalId: '9', title: '', name: 'APM 9', countryCode: 'CY' }),
       ]))
 
-      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow?country=gr' })
+      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow?country=gr&compartmentSize=2' })
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual([{
@@ -141,9 +141,11 @@ describe('GET /api/shipping/lockers/[provider]', () => {
         lat: 38.02,
         lng: 23.8,
         note: 'Δίπλα στο περίπτερο',
+        limitedAvailability: true,
       }, expect.objectContaining({ externalId: '9', name: 'APM 9', countryCode: 'CY' })])
       expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/shipping/boxnow/lockers')
-      expect(backend.lastRequest.query).toEqual({ page: '1', pageSize: '100', countryCode: 'GR' })
+      // #204: Django lists only the lockers with a compartment of that size.
+      expect(backend.lastRequest.query).toEqual({ page: '1', pageSize: '100', countryCode: 'GR', compartmentSize: '2' })
     })
 
     it('reads every page Django declares', async () => {
@@ -151,7 +153,7 @@ describe('GET /api/shipping/lockers/[provider]', () => {
         ? page(Array.from({ length: 100 }, (_, index) => makeBoxNowLocker({ id: index + 1, externalId: String(index + 1) })), 1, 2)
         : page([makeBoxNowLocker({ id: 101, externalId: '101' })], 2, 2))
 
-      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow' })
+      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow?compartmentSize=1' })
 
       expect(response.body).toHaveLength(101)
       expect(backend.requests).toHaveLength(2)
@@ -160,9 +162,17 @@ describe('GET /api/shipping/lockers/[provider]', () => {
     it('refuses to answer (and so to cache) an empty catalogue', async () => {
       backend.reply(page([]))
 
-      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow' })
+      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow?compartmentSize=3' })
 
       expect(response.status).toBe(503)
+    })
+
+    // Unfiltered, the list would offer lockers the order cannot go to.
+    it.each([[''], ['?compartmentSize=4'], ['?compartmentSize=small']])('refuses a list without a valid compartment size (%s)', async (search) => {
+      const response = await callRoute(handler, { route, url: `/api/shipping/lockers/boxnow${search}` })
+
+      expect(response.status).toBe(400)
+      expect(backend.requests).toEqual([])
     })
   })
 
@@ -188,7 +198,15 @@ describe('GET /api/shipping/lockers/[provider]', () => {
 
       expect(gr).toBe(await options.getKey!(event('/api/shipping/lockers/acs?country=GR')))
       expect(gr).not.toBe(await options.getKey!(event('/api/shipping/lockers/acs?country=CY')))
-      expect(gr).toMatch(/^shop\.test__el__acs:GR_/)
+      expect(gr).toMatch(/^shop\.test__el__acs:GR:any_/)
+    })
+
+    it('keys each compartment size apart', async () => {
+      const boxnow = (url: string) => createTestEvent({ url, context: { params: { provider: 'boxnow' } } })
+      const small = await options.getKey!(boxnow('/api/shipping/lockers/boxnow?country=GR&compartmentSize=1'))
+
+      expect(small).not.toBe(await options.getKey!(boxnow('/api/shipping/lockers/boxnow?country=GR&compartmentSize=3')))
+      expect(small).toBe(await options.getKey!(boxnow('/api/shipping/lockers/boxnow?country=gr&compartmentSize=1')))
     })
 
     it('lets ops force a fresh catalogue with ?refresh=1', async () => {

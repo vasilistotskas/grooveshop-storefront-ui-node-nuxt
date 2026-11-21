@@ -116,7 +116,8 @@
       "show_list": "Show the list",
       "cluster_aria_label": "{count} collection points in this area",
       "map_unavailable": "The map is currently unavailable. Use the list to find a collection point.",
-      "no_results_in_area": "No collection points found in this area"
+      "no_results_in_area": "No collection points found in this area",
+      "limited_availability": "Few free compartments"
     }
   },
   "form": {
@@ -194,6 +195,7 @@
         "cart_changed_review": "Your cart changed while you were checking out. Check the items and the summary, then place the order again.",
         "pickup_point_refused": "Choose another pickup point",
         "pickup_point_unknown": "The pickup point you chose is no longer available. Choose another one.",
+        "pickup_point_too_small": "This locker has no compartment for your order’s size. Choose another one.",
         "pickup_point_required": "Choose a pickup point to continue.",
         "pickup_point_in_another_country": "That pickup point is in another country than your order's. Choose one in the delivery country.",
         "pickup_point_check_unavailable": "We could not check the pickup point",

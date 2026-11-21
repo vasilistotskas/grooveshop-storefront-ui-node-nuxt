@@ -28575,6 +28575,20 @@ paths:
       summary: Λίστα Lockers BoxNow
       parameters:
         - in: query
+          name: compartmentSize
+          schema:
+            type: string
+            enum:
+              - 1
+              - 2
+              - 3
+          description: |-
+            Μόνο lockers που έχουν θυρίδα αυτού του μεγέθους (1 μικρό, 2 μεσαίο, 3 μεγάλο), με ακριβή αντιστοίχιση όπως κάνει ο δικός της επιλογέας της BOX NOW. Ένα locker με άγνωστα μεγέθη δεν ταιριάζει ποτέ.
+
+            * `1` - Μικρό
+            * `2` - Μεσαίο
+            * `3` - Μεγάλο
+        - in: query
           name: countryCode
           schema:
             type: string
@@ -36852,6 +36866,16 @@ components:
           type: string
           readOnly: true
           title: Σημείωση
+        compartmentSizes:
+          type: array
+          items:
+            type: integer
+          readOnly: true
+          description: 'Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.'
+        limitedAvailability:
+          type: boolean
+          readOnly: true
+          description: Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
         isActive:
           type: boolean
           readOnly: true
@@ -36880,6 +36904,7 @@ components:
       required:
         - addressLine1
         - addressLine2
+        - compartmentSizes
         - countryCode
         - createdAt
         - externalId
@@ -36888,6 +36913,7 @@ components:
         - isActive
         - lastSyncedAt
         - lat
+        - limitedAvailability
         - lng
         - name
         - note
@@ -36970,6 +36996,16 @@ components:
           type: string
           readOnly: true
           title: Σημείωση
+        compartmentSizes:
+          type: array
+          items:
+            type: integer
+          readOnly: true
+          description: 'Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.'
+        limitedAvailability:
+          type: boolean
+          readOnly: true
+          description: Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
         isActive:
           type: boolean
           readOnly: true
@@ -36998,6 +37034,7 @@ components:
       required:
         - addressLine1
         - addressLine2
+        - compartmentSizes
         - countryCode
         - createdAt
         - externalId
@@ -37006,6 +37043,7 @@ components:
         - isActive
         - lastSyncedAt
         - lat
+        - limitedAvailability
         - lng
         - name
         - note
@@ -37882,11 +37920,7 @@ components:
           readOnly: true
           description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
         totalItems:
-          oneOf:
-            - type: integer
-            - enum:
-                - 0
-              type: integer
+          type: integer
           description: |-
             Return the total quantity of all items in the cart.
 
@@ -42093,7 +42127,7 @@ components:
           additionalProperties: {}
           writeOnly: true
           nullable: true
-          description: 'Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.'
+          description: 'Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Ένα ``client_ip_address`` που σταλεί εδώ αγνοείται: ο server το ορίζει από την επαληθευμένη διεύθυνση του edge. Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.'
         agentCheckout:
           type: string
           format: uuid
@@ -49942,7 +49976,12 @@ components:
         exceedsParcelSize:
           type: boolean
           description: Αληθές όταν το καλάθι δεν χωρά στα δέματα αυτού του μεταφορέα· η επιλογή του απορρίπτεται.
+        compartmentSize:
+          type: integer
+          nullable: true
+          description: Το μέγεθος θυρίδας locker στο οποίο χωράει το καλάθι (1 μικρό, 2 μεσαίο, 3 μεγάλο) σε μια επιλογή παραλαβής BOX NOW· null αλλού και όταν το καλάθι δεν χωράει σε κανένα. Στείλτε το ως ``compartmentSize`` για να δείτε τα lockers που δέχονται αυτό το καλάθι.
       required:
+        - compartmentSize
         - exceedsMaxWeight
         - exceedsParcelSize
         - kind

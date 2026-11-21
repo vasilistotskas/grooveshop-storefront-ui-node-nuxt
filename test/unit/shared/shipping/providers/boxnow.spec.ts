@@ -30,34 +30,37 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   lat: 38.02,
   lng: 23.8,
   note: '',
+  limitedAvailability: false,
   ...overrides,
 })
 
 describe('the BOX NOW adapter', () => {
-  it('names its code and the form field its locker lands in', () => {
+  it('names its code and the form field its locker lands in, and sizes its lockers', () => {
     expect(boxnowCarrier.code).toBe('boxnow')
     expect(boxnowCarrier.formFieldName).toBe('boxnowLockerId')
+    expect(boxnowCarrier.sizesLockers).toBe(true)
   })
 
   describe('fetchAll', () => {
-    it('reads the country\'s catalogue from its own route', async () => {
+    // #204: only the lockers with a compartment of the cart's size.
+    it('reads the country\'s lockers for the cart\'s compartment size from its own route', async () => {
       fetchMock.mockResolvedValue([])
       const signal = new AbortController().signal
 
-      await boxnowCarrier.fetchAll('CY', signal)
+      await boxnowCarrier.fetchAll({ country: 'CY', compartmentSize: 2 }, signal)
 
       expect(fetchMock).toHaveBeenCalledWith('/api/shipping/lockers/boxnow', {
         method: 'GET',
-        query: { country: 'CY' },
+        query: { country: 'CY', compartmentSize: 2 },
         signal,
       })
     })
 
     it('normalises each row into a locker', async () => {
-      const locker = row({ addressLine2: 'Είσοδος από την Αγίου Γεωργίου', note: 'Δίπλα στο περίπτερο' })
+      const locker = row({ addressLine2: 'Είσοδος από την Αγίου Γεωργίου', note: 'Δίπλα στο περίπτερο', limitedAvailability: true })
       fetchMock.mockResolvedValue([locker])
 
-      expect(await boxnowCarrier.fetchAll('GR')).toEqual([{
+      expect(await boxnowCarrier.fetchAll({ country: 'GR', compartmentSize: 1 })).toEqual([{
         key: '4',
         id: '4',
         name: 'Χαλάνδρι ΟΠΑΠ Play',
@@ -69,6 +72,7 @@ describe('the BOX NOW adapter', () => {
         lat: 38.02,
         lng: 23.8,
         workingHours: 'Δίπλα στο περίπτερο',
+        limitedAvailability: true,
         raw: locker,
       }])
     })
@@ -76,7 +80,7 @@ describe('the BOX NOW adapter', () => {
     it('names a locker by its id without a name, and drops one with no id', async () => {
       fetchMock.mockResolvedValue([row({ name: '', countryCode: '' }), row({ externalId: '  ' })])
 
-      expect(await boxnowCarrier.fetchAll('GR')).toEqual([
+      expect(await boxnowCarrier.fetchAll({ country: 'GR', compartmentSize: 1 })).toEqual([
         expect.objectContaining({ id: '4', name: '4', countryCode: 'GR', addressLine2: null, workingHours: null }),
       ])
     })
@@ -84,7 +88,7 @@ describe('the BOX NOW adapter', () => {
 
   it('writes the picked locker to the form, and reads it back', async () => {
     fetchMock.mockResolvedValue([row()])
-    const [locker] = await boxnowCarrier.fetchAll('GR')
+    const [locker] = await boxnowCarrier.fetchAll({ country: 'GR', compartmentSize: 1 })
     const form: Record<string, unknown> = {}
 
     boxnowCarrier.applyToFormState(form, locker!)

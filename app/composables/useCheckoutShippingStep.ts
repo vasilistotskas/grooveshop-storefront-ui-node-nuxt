@@ -237,6 +237,16 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     carrierForMethod(formState.value.shippingMethod),
   )
 
+  // The compartment size the quote says the cart packs into, for the
+  // chosen carrier's pickup (BOX NOW's lockers are listed by it); `null`
+  // while the quote has not answered, and for every other delivery.
+  const lockerCompartmentSize = computed(() => {
+    const carrier = activeCarrier.value
+    if (!carrier) return null
+    return toValue(inputs.quotedOptions)?.find(quoted =>
+      quoted.providerCode === carrier.code && quoted.kind === 'pickup_point')?.compartmentSize ?? null
+  })
+
   const selectedOption = computed(() =>
     shippingOptions.value.find(item => item.value === formState.value.shippingMethod),
   )
@@ -315,6 +325,7 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   return {
     shippingOptions,
     activeCarrier,
+    lockerCompartmentSize,
     freeDeliveryApplied,
     pickerOpen,
     submit,

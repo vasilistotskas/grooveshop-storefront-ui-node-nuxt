@@ -4,7 +4,8 @@
  * {@link ShippingCarrier} (every carrier with lockers).
  *
  * Everything reads the carrier's whole catalogue (`fetchAll`), loaded
- * once per country while the picker is open: the one search box above
+ * once per country (and cart size, for a carrier that sizes its lockers)
+ * while the picker is open: the one search box above
  * the map and the list, the map, and the distances. Closing aborts a
  * load in flight; a failed load is one line with a retry, never a toast.
  *
@@ -48,6 +49,9 @@ export function useLockerPicker(options: {
     initialPostalCode?: string
     initialCity?: string
     countryCode?: string
+    /** The compartment size the cart packs into, for a carrier that sizes
+     *  its lockers (`QuoteShippingOption.compartmentSize`). */
+    compartmentSize?: number | null
   }
   open: Ref<boolean>
 }) {
@@ -62,7 +66,9 @@ export function useLockerPicker(options: {
   const loading = ref(false)
   const errorMessage = ref<string | null>(null)
   let abort: AbortController | null = null
-  let loadedCountry: string | null = null
+  // What the lockers on screen were loaded for: a country, and the cart's
+  // size for a carrier that sizes its lockers.
+  let loadedFor: string | null = null
 
   const location = useShopperLocation()
 
@@ -77,27 +83,38 @@ export function useLockerPicker(options: {
   const misses = reactive(new Set<string>())
 
   async function loadCatalogue(): Promise<void> {
-    // Once per country: the shopper may change the address's country
-    // between two openings.
+    // Once per country and cart size: the shopper may change the
+    // address's country between two openings, and the cart's size can
+    // change with the cart.
     const country = (props.countryCode ?? 'GR').toUpperCase()
-    if (loadedCountry === country && lockers.value.length > 0) return
-    // Another country's lockers must never stay on screen, and stay
-    // choosable, while this one loads or after it failed.
-    if (loadedCountry !== country) {
+    const compartmentSize = props.carrier.sizesLockers ? props.compartmentSize ?? null : null
+    const wanted = `${country}:${compartmentSize ?? ''}`
+    if (loadedFor === wanted && lockers.value.length > 0) return
+    // Another country's lockers, or lockers for another size, must never
+    // stay on screen, and stay choosable, while these load or after they
+    // failed.
+    if (loadedFor !== wanted) {
       lockers.value = []
-      loadedCountry = null
+      loadedFor = null
     }
     abort?.abort()
+    errorMessage.value = null
+    // A carrier that sizes its lockers waits for the quote to name the
+    // cart's size: lockers without it could be ones the order cannot go to.
+    if (props.carrier.sizesLockers && compartmentSize === null) {
+      abort = null
+      loading.value = true
+      return
+    }
     const controller = new AbortController()
     abort = controller
     loading.value = true
-    errorMessage.value = null
     try {
-      const loaded = await props.carrier.fetchAll(country, controller.signal)
-      // A newer load (another country) owns the picker now.
+      const loaded = await props.carrier.fetchAll({ country, compartmentSize }, controller.signal)
+      // A newer load (another country or size) owns the picker now.
       if (abort !== controller) return
       lockers.value = loaded
-      loadedCountry = country
+      loadedFor = wanted
     }
     catch (err: unknown) {
       if (abort !== controller || (err instanceof DOMException && err.name === 'AbortError')) return
@@ -143,6 +160,11 @@ export function useLockerPicker(options: {
   // address checked late): the catalogue follows it.
   watch(() => props.countryCode, () => {
     if (open.value) void loadCatalogue()
+  })
+
+  // The cart's size arrives with the quote, and changes with the cart.
+  watch(() => props.compartmentSize, () => {
+    if (open.value && props.carrier.sizesLockers) void loadCatalogue()
   })
 
   onUnmounted(() => {

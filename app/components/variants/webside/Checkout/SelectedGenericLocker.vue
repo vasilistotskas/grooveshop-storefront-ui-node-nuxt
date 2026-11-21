@@ -20,6 +20,8 @@ const props = defineProps<{
   initialPostalCode?: string
   initialCity?: string
   countryCode?: string
+  /** The cart's compartment size, for a carrier that sizes its lockers. */
+  compartmentSize?: number | null
 }>()
 
 const { t } = useI18n()
@@ -125,6 +127,7 @@ function onSelected(picked: Locker): void {
       :initial-postal-code="initialPostalCode"
       :initial-city="initialCity"
       :country-code="countryCode"
+      :compartment-size="compartmentSize"
       @selected="onSelected"
     />
   </div>

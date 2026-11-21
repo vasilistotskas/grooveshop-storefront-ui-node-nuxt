@@ -40,6 +40,8 @@ export function makeBoxNowLocker(overrides: Partial<BoxNowLocker> = {}): BoxNowL
     postalCode: '15234',
     countryCode: 'GR',
     note: '',
+    compartmentSizes: [1, 2, 3],
+    limitedAvailability: false,
     isActive: true,
     lastSyncedAt: null,
     createdAt: FIXTURE_TIMESTAMP,

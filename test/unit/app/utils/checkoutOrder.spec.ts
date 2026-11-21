@@ -139,6 +139,7 @@ describe('classifyOrderError', () => {
   // own field: the delivery step's picker shows it.
   it.each([
     ['pickup_point_unknown', 'boxnowLockerId', 'boxnowLockerId'],
+    ['pickup_point_too_small', 'boxnowLockerId', 'boxnowLockerId'],
     ['pickup_point_in_another_country', 'acsStationExternalId', 'acsStationExternalId'],
     ['pickup_point_required', 'acsStationBranch', 'acsStationExternalId'],
   ])('tells a %s refusal on %s in the storefront\'s words, under the picker and in the alert', (code, field, name) => {

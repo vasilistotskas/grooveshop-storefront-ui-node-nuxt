@@ -19,7 +19,7 @@ describe('checkout quote fixtures', () => {
     const populated = makeCartQuote({
       appliedPromotions: [{ promotionId: 1, name: 'Φθινόπωρο', code: 'AUTUMN', amount: 10 }],
       blockingCoupon: { code: 'SAVE5', reason: 'discount_code_minimum_not_met' },
-      shippingOptions: [{ providerCode: 'acs', providerName: 'ACS', kind: 'home_delivery', price: 3, waivedBy: 'threshold', exceedsMaxWeight: false, exceedsParcelSize: false }],
+      shippingOptions: [{ providerCode: 'acs', providerName: 'ACS', kind: 'home_delivery', price: 3, waivedBy: 'threshold', exceedsMaxWeight: false, exceedsParcelSize: false, compartmentSize: null }],
       payWays: [{ id: 1, key: 'PAY_ON_DELIVERY', fee: 2, waived: false }],
     })
 

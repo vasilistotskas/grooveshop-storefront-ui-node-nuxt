@@ -68,6 +68,7 @@ const ORDER_FIELD_STEPS: Record<string, { step: CheckoutStep, name: string }> = 
  */
 const PICKUP_POINT_REFUSALS: readonly string[] = [
   'pickup_point_unknown',
+  'pickup_point_too_small',
   'pickup_point_required',
   'pickup_point_in_another_country',
 ]

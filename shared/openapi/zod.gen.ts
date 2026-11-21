@@ -3938,10 +3938,7 @@ export const zCart = z.object({
   totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalVatValue: z.number().readonly(),
-  totalItems: z.union([
-    z.int(),
-    z.literal(0),
-  ]),
+  totalItems: z.int().readonly(),
   totalItemsUnique: z.int().readonly(),
   totalWeightGrams: z.int().readonly(),
   currency: z.string().readonly(),
@@ -6123,6 +6120,8 @@ export const zBoxNowLocker = z.object({
   postalCode: z.string().readonly(),
   countryCode: z.string().readonly(),
   note: z.string().readonly(),
+  compartmentSizes: z.array(z.int()).readonly(),
+  limitedAvailability: z.boolean().readonly(),
   isActive: z.boolean().readonly(),
   lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -6150,6 +6149,8 @@ export const zBoxNowLockerDetail = z.object({
   postalCode: z.string().readonly(),
   countryCode: z.string().readonly(),
   note: z.string().readonly(),
+  compartmentSizes: z.array(z.int()).readonly(),
+  limitedAvailability: z.boolean().readonly(),
   isActive: z.boolean().readonly(),
   lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -7089,6 +7090,7 @@ export const zQuoteShippingOption = z.object({
   ]).nullable(),
   exceedsMaxWeight: z.boolean(),
   exceedsParcelSize: z.boolean(),
+  compartmentSize: z.int().nullable(),
 })
 
 /**
@@ -16813,6 +16815,11 @@ export const zFindNearestAcsStationsQuery = z.object({
 export const zFindNearestAcsStationsResponse = z.array(zAcsStation)
 
 export const zListBoxNowLockerQuery = z.object({
+  compartmentSize: z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+  ]).optional(),
   countryCode: z.string().optional(),
   cursor: z.string().optional(),
   externalId: z.string().optional(),

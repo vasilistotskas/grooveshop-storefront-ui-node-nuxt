@@ -13,7 +13,7 @@
  * keys on the checkout form. Renaming any of those is a breaking
  * change against persisted drafts and the order-create payload.
  */
-import type { GeocodedPlace, Locker, ShippingCarrier } from '../interfaces'
+import type { GeocodedPlace, Locker, LockerQuery, ShippingCarrier } from '../interfaces'
 
 function _toNumber(value: string | null | undefined): number | null {
   if (value === null || value === undefined || value === '') return null
@@ -61,8 +61,10 @@ const acsCarrier: ShippingCarrier = {
   code: 'acs',
   label: 'ACS Courier',
   formFieldName: 'acsStationExternalId',
+  // A Smartpoint takes any parcel the rate lets through.
+  sizesLockers: false,
 
-  async fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]> {
+  async fetchAll({ country }: LockerQuery, signal?: AbortSignal): Promise<Locker[]> {
     const rows = await $fetch<AcsStation[]>(
       `/api/shipping/lockers/${this.code}`,
       {

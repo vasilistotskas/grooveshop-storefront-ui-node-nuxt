@@ -9,10 +9,16 @@
  * its only control over which lockers it shows was the partner account's
  * typical parcel size or an undocumented URL parameter.
  *
+ * Only the lockers with a compartment of the cart's size are offered: the
+ * quote names the size (`QuoteShippingOption.compartmentSize`) and Django
+ * filters on it, the same exact match BOX NOW's own picker makes.
+ * `limitedAvailability` is BOX NOW's estimate that few compartments are
+ * free there today.
+ *
  * Form-state contract: ``boxnowLockerId`` (the order's ``boxnowLockerId``)
  * and ``boxnowLocker``, what the cards show (``BoxNowPickedLocker``).
  */
-import type { Locker, ShippingCarrier } from '../interfaces'
+import type { Locker, LockerQuery, ShippingCarrier } from '../interfaces'
 
 /** A row of ``/api/shipping/lockers/boxnow`` (the route's normalised locker). */
 interface BoxNowCatalogueRow {
@@ -25,6 +31,7 @@ interface BoxNowCatalogueRow {
   lat: number
   lng: number
   note: string
+  limitedAvailability: boolean
 }
 
 function _normalize(row: BoxNowCatalogueRow): Locker | null {
@@ -43,6 +50,7 @@ function _normalize(row: BoxNowCatalogueRow): Locker | null {
     lat: row.lat,
     lng: row.lng,
     workingHours: row.note || null,
+    limitedAvailability: row.limitedAvailability,
     raw: row,
   }
 }
@@ -51,13 +59,16 @@ const boxnowCarrier: ShippingCarrier = {
   code: 'boxnow',
   label: 'BOX NOW',
   formFieldName: 'boxnowLockerId',
+  // A locker has compartments of some of three sizes; the order fits
+  // only one with a compartment of its cart's size (#204).
+  sizesLockers: true,
 
-  async fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]> {
+  async fetchAll({ country, compartmentSize }: LockerQuery, signal?: AbortSignal): Promise<Locker[]> {
     const rows = await $fetch<BoxNowCatalogueRow[]>(
       `/api/shipping/lockers/${this.code}`,
       {
         method: 'GET',
-        query: { country },
+        query: { country, compartmentSize: compartmentSize ?? undefined },
         signal,
       },
     )

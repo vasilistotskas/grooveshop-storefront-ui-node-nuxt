@@ -24,7 +24,16 @@ import { createError, getRouterParam, getValidatedQuery, useRuntimeConfig } from
 
 const zQuery = z.object({
   country: z.string().length(2).optional(),
+  // The compartment size the cart packs into (`QuoteShippingOption.compartmentSize`):
+  // BOX NOW lists only the lockers with a compartment of that size.
+  compartmentSize: z.coerce.number().pipe(zCompartmentSizeEnum).optional(),
 })
+
+/** What a fetcher is asked for: the route's query, its country upper-cased. */
+interface FetchQuery {
+  country: string | undefined
+  compartmentSize: CompartmentSizeEnum | undefined
+}
 
 /** The largest page Django's API serves (`max_page_size`). */
 const STATIONS_PAGE_SIZE = 100
@@ -64,6 +73,7 @@ interface NormalisedBoxNowLocker {
   lat: number
   lng: number
   note: string
+  limitedAvailability: boolean
 }
 
 type NormalisedLocker = NormalisedStation | NormalisedBoxNowLocker
@@ -89,7 +99,7 @@ async function _fetchAcsStations(
   backendFetch: $Fetch,
   apiBaseUrl: string,
   headers: Record<string, string>,
-  country: string | undefined,
+  { country }: FetchQuery,
 ): Promise<NormalisedLocker[]> {
   const collected: NormalisedStation[] = []
   // The walk ends on the page Django names as the last, or on the first
@@ -125,8 +135,13 @@ async function _fetchBoxNowLockers(
   backendFetch: $Fetch,
   apiBaseUrl: string,
   headers: Record<string, string>,
-  country: string | undefined,
+  { country, compartmentSize }: FetchQuery,
 ): Promise<NormalisedLocker[]> {
+  // Without the cart's size the list would offer lockers the order cannot
+  // be sent to (Django refuses them, `pickup_point_too_small`).
+  if (compartmentSize === undefined) {
+    throw createError({ status: 400, statusText: 'BOX NOW lockers are listed for a compartmentSize' })
+  }
   const collected: NormalisedBoxNowLocker[] = []
   // The same walk as the ACS stations': the last page Django names, or
   // the first page that is not full.
@@ -135,7 +150,7 @@ async function _fetchBoxNowLockers(
       `${apiBaseUrl}/shipping/boxnow/lockers`,
       {
         method: 'GET',
-        query: { page, pageSize: STATIONS_PAGE_SIZE, countryCode: country },
+        query: { page, pageSize: STATIONS_PAGE_SIZE, countryCode: country, compartmentSize },
         headers,
       },
     )
@@ -155,6 +170,7 @@ async function _fetchBoxNowLockers(
         lat: row.lat,
         lng: row.lng,
         note: row.note,
+        limitedAvailability: row.limitedAvailability,
       })
     }
     if (page >= (response.totalPages ?? 1) || rows.length < STATIONS_PAGE_SIZE) break
@@ -168,7 +184,7 @@ const PROVIDER_FETCHERS: Record<
     backendFetch: $Fetch,
     apiBaseUrl: string,
     headers: Record<string, string>,
-    country: string | undefined,
+    query: FetchQuery,
   ) => Promise<NormalisedLocker[]>
 > = {
   acs: _fetchAcsStations,
@@ -193,7 +209,7 @@ export default defineCachedRoute(
         useBackendFetch(event),
         config.apiBaseUrl,
         headers,
-        query.country?.toUpperCase(),
+        { country: query.country?.toUpperCase(), compartmentSize: query.compartmentSize },
       )
       // Empty-poison guard: an empty upstream response (e.g. Django
       // pods came up before the AcsStation table was synced) used to
@@ -227,7 +243,10 @@ export default defineCachedRoute(
       const provider = getRouterParam(event, 'provider', { decode: true }) ?? 'unknown'
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const country = url.searchParams.get('country') ?? 'all'
-      return tenantCacheKey(event, `${provider}:${country.toUpperCase()}`)
+      // Each size is its own list; a carrier that does not size its
+      // lockers is asked without one.
+      const size = url.searchParams.get('compartmentSize') ?? 'any'
+      return tenantCacheKey(event, `${provider}:${country.toUpperCase()}:${size}`)
     },
   },
 )

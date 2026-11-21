@@ -196,6 +196,32 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       expect(picker.props('countryCode')).toBe('CY')
     })
 
+    // #204: BOX NOW's lockers are listed for the compartment size the
+    // quote says the cart packs into; until it has said, none.
+    it('hands the BOX NOW picker the compartment size the quote names for its pickup', async () => {
+      const boxNow = boxNowLockerOption()
+      const quotedRow = (compartmentSize: number | null): QuoteShippingOption => ({
+        providerCode: boxNow.providerCode,
+        providerName: boxNow.providerName,
+        kind: boxNow.kind,
+        price: 3.5,
+        waivedBy: null,
+        exceedsMaxWeight: false,
+        exceedsParcelSize: false,
+        compartmentSize,
+      })
+      const wrapper = await mount({
+        formState: makeFormState({ shippingMethod: 'box_now_locker' }),
+        apiOptions: [boxNow],
+        quotedOptions: [quotedRow(2)],
+      })
+      const picker = () => wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') })
+
+      expect(picker().props('compartmentSize')).toBe(2)
+      await wrapper.setProps({ quotedOptions: null })
+      expect(picker().props('compartmentSize')).toBeNull()
+    })
+
     it('hands an ACS Smartpoint choice to the generic picker, with the address typed so far', async () => {
       const wrapper = await mountSuspended(C, {
         route: false,
@@ -420,6 +446,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       waivedBy,
       exceedsMaxWeight: option.exceedsMaxWeight,
       exceedsParcelSize: option.exceedsParcelSize,
+      compartmentSize: null,
     })
 
     it('states the quote\'s price on each card, never the options list\'s, and "Free" only when it is 0', async () => {

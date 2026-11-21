@@ -65,6 +65,7 @@ const formRef = useTemplateRef<{
 const {
   shippingOptions,
   activeCarrier,
+  lockerCompartmentSize,
   freeDeliveryApplied,
   pickerOpen,
   submit,
@@ -303,6 +304,7 @@ defineExpose({ submit })
             :initial-postal-code="formState.zipcode"
             :initial-city="formState.city"
             :country-code="formState.country"
+            :compartment-size="lockerCompartmentSize"
           />
         </UFormField>
       </template>
