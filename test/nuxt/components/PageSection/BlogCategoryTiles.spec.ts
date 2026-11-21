@@ -23,7 +23,7 @@ const categories = (items: BlogCategory[]) => ({
 }) as ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 
 const ITEMS = [
-  makeBlogCategory({ id: 3, slug: 'ai', postCount: 26, translations: { el: { name: LONG } } as BlogCategory['translations'], mainImagePath: 'media/uploads/blog/robot-solid.svg' }),
+  makeBlogCategory({ id: 3, slug: 'ai', postCount: 26, translations: { el: { name: LONG } } as BlogCategory['translations'], mainImagePath: 'media/test/uploads/blog/robot-solid.svg' }),
   makeBlogCategory({ id: 4, slug: 'web', postCount: 1, translations: { el: { name: 'Web' } } as BlogCategory['translations'], mainImagePath: 'media/test/uploads/blog/web.png' }),
 ]
 
@@ -60,15 +60,27 @@ describe('PageSection/BlogCategoryTiles', () => {
     expect(tile.get('[data-slot="title"]').classes()).toContain('wrap-break-word')
   })
 
-  it('draws the inlined icon of a category that has one, and its picture otherwise', async () => {
+  // A store's SVG picture is its topic's icon, and topic icons are white
+  // glyphs that are not square (robot 640x512): drawn whole (`contain`)
+  // on the solid secondary fill, never stretched to the square (`fill`)
+  // or laid on the light tint they vanish on. A photograph keeps the
+  // rail's request and the tint.
+  it('draws an SVG picture whole on the secondary fill, and a photograph on the tint', async () => {
     const wrapper = await mountTiles()
 
     const [withIcon, withPicture] = wrapper.findAll('ul > li')
-    expect(withIcon!.find('img').exists()).toBe(false)
+    const icon = withIcon!.get('img')
+    expect(icon.attributes('src')).toContain('robot-solid.svg')
+    expect(icon.attributes('src')).toMatch(/\/contain\/[^/]+\/transparent\//)
+    expect(icon.attributes('srcset')).toMatch(/ 2x/)
+    expect(withIcon!.get('[data-slot="leading"]').classes()).toContain('bg-secondary')
     expect(withPicture!.get('img').attributes('src')).toContain('web.png')
+    expect(withPicture!.get('img').attributes('src')).toMatch(/\/fill\//)
     // On its own ground, not a white square: the tile follows the band's colour scheme.
     expect(withPicture!.get('img').attributes('src')).toMatch(/\/transparent\//)
+    expect(withPicture!.get('[data-slot="leading"]').classes()).toContain('bg-secondary/10')
     // The tile's name says what it is: the picture is decoration.
+    expect(icon.attributes('alt')).toBe('')
     expect(withPicture!.get('img').attributes('alt')).toBe('')
   })
 
@@ -102,6 +114,17 @@ describe('PageSection/BlogCategoryTiles', () => {
 describe('PageSection/BlogCategoryTiles in its bold look', () => {
   beforeEach(() => {
     setTenant()
+  })
+
+  it('draws an SVG picture whole on the secondary fill, and a photograph on the accent tint', async () => {
+    const wrapper = await mountTiles({ look: 'bold' })
+
+    const [withIcon, withPicture] = wrapper.findAll('ul > li')
+    const icon = withIcon!.get('img')
+    expect(icon.attributes('src')).toMatch(/robot-solid\.svg\/22\/22\/contain\/[^/]+\/transparent\//)
+    expect(icon.element.parentElement!.classList).toContain('bg-secondary')
+    expect(withPicture!.get('img').attributes('src')).toMatch(/web\.png\/25\/25\/fill\//)
+    expect(withPicture!.get('img').element.parentElement!.classList).toContain('bg-(--ds-accent-tint)')
   })
 
   it('draws each tile as one link, its icon beside the name and the count', async () => {

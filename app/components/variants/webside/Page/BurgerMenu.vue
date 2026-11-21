@@ -365,16 +365,11 @@ const onClickCookieSettings = () => {
                   text-highlighted
                 "
               >
-                <ImgWithFallback
+                <WebsidePageMenuPicture
                   v-if="category.imagePath"
                   :src="category.imagePath"
-                  alt=""
-                  :width="44"
-                  :height="44"
-                  fit="cover"
-                  loading="lazy"
-                  densities="x1 x2"
-                  class="size-11 shrink-0 rounded-lg bg-elevated object-cover"
+                  :size="44"
+                  class="size-11"
                 />
                 <span class="min-w-0 flex-1 truncate">{{ category.label }}</span>
                 <span class="text-sm font-medium text-muted">

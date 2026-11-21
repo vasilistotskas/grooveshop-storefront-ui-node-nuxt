@@ -3,7 +3,8 @@
  * The blog's categories as tiles in their bold look (`blog_categories` with
  * `layout: 'tiles'` and `look: 'bold'`, every design): the same tiles as
  * `PageSection/BlogCategoryTiles` (`useBlogCategoryTiles`), each one link with
- * the icon on an accent tint BESIDE the name and the count at every width
+ * the picture (an SVG icon on the secondary fill, a photograph on an accent
+ * tint) BESIDE the name and the count at every width
  * (36px on a phone, 44px from `sm`), a chevron on a desk; as many 280px
  * columns as fit on a desk, two on a phone. The band is the bold one
  * (`PageSection/BandBold`), and on a phone it shows neither the sub-line nor
@@ -62,20 +63,31 @@ const { tiles, ctaLabel } = useBlogCategoryTiles(props, count => props.texts('po
             sm:min-h-19 sm:gap-3.5 sm:px-4 sm:py-3.5
           "
         >
+          <!-- An SVG is the topic's icon: drawn whole, never stretched,
+               on the solid fill a store's (white) glyph reads on. -->
           <span
-            class="
-              grid size-9 shrink-0 place-items-center rounded-lg
-              bg-(--ds-accent-tint) text-accent
-              sm:size-11
-            "
+            :class="[
+              `
+                grid size-9 shrink-0 place-items-center rounded-lg
+                sm:size-11
+              `,
+              tile.isIcon ? 'bg-secondary' : 'bg-(--ds-accent-tint)',
+            ]"
           >
-            <UIcon
-              v-if="tile.icon"
-              :name="tile.icon"
+            <ImgWithFallback
+              v-if="tile.isIcon"
               class="
-                size-4.5
+                size-4.5 object-contain
                 sm:size-5.5
               "
+              alt=""
+              background="transparent"
+              fit="contain"
+              :height="22"
+              :src="tile.imagePath"
+              :width="22"
+              loading="lazy"
+              densities="x1 x2"
             />
             <ImgWithFallback
               v-else

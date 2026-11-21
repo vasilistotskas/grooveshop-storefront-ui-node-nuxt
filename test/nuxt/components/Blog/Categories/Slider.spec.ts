@@ -5,6 +5,7 @@ import BlogCategoriesSlider from '~/components/Blog/Categories/Slider.vue'
 import WebsideBlogCategoriesSlider from '~/components/variants/webside/Blog/Categories/Slider.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import type { Component } from 'vue'
 
 /**
  * The categories rail, in both designs. It renders the categories its band
@@ -62,5 +63,25 @@ describe('webside Blog/Categories/Slider', () => {
     await flushPromises()
 
     expect(wrapper.findAll('a')).toHaveLength(5)
+  })
+})
+
+// A topic's SVG picture is its icon, in every design and for every store:
+// drawn whole (`contain`), never stretched to the square, on the button's
+// secondary fill. No list of a store's icon names decides it.
+describe.each([
+  ['Blog/Categories/Slider', BlogCategoriesSlider],
+  ['webside Blog/Categories/Slider', WebsideBlogCategoriesSlider],
+] as [string, Component][])('%s icons', (_name, Slider) => {
+  it('draws a topic\'s SVG picture whole, crisp and named', async () => {
+    const topic = makeBlogCategory({ id: 9, translations: { el: { name: 'Gaming', description: '' } }, mainImagePath: 'media/test/uploads/blog/gamepad-solid.svg' })
+
+    const wrapper = await mountSuspended(Slider, { route: false, props: { categories: [topic] }, global: { stubs } })
+
+    const img = wrapper.get('img')
+    expect(img.attributes('src')).toMatch(/gamepad-solid\.svg\/25\/25\/contain\/[^/]+\/transparent\//)
+    expect(img.attributes('srcset')).toMatch(/ 2x/)
+    expect(img.attributes('alt')).toBe('Gaming')
+    expect(img.classes()).toContain('object-contain')
   })
 })

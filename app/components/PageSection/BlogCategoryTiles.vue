@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 /**
  * The blog's categories as tiles, the `tiles` layout of `blog_categories`
- * in every design: each category's icon (`deriveIconName`, else its
- * picture, the rail's rule), its whole name and how many posts it holds,
+ * in every design: each category's picture (an SVG drawn whole on the
+ * secondary fill, as the rail draws it), its whole name and how many posts it holds,
  * linking where the rail's buttons link. Two columns on a phone, four on a
  * desk; the heading, sub-line and call to action are the band's.
  *
@@ -64,7 +64,6 @@ const texts = (key: string, named: Record<string, unknown> = {}, plural?: number
         as="li"
         variant="outline"
         :to="tile.to"
-        :icon="tile.icon"
         :title="tile.name"
         :description="tile.posts"
         class="@container"
@@ -78,10 +77,10 @@ const texts = (key: string, named: Record<string, unknown> = {}, plural?: number
             sm:gap-3.5
             @min-[11rem]:flex-row @min-[11rem]:items-center
           `,
-          leading: `
-            mb-0 size-11 shrink-0 justify-center rounded-md bg-secondary/10
-          `,
-          leadingIcon: 'size-5.5 text-accent',
+          leading: [
+            'mb-0 size-11 shrink-0 justify-center rounded-md',
+            tile.isIcon ? 'bg-secondary' : 'bg-secondary/10',
+          ].join(' '),
           body: 'min-w-0',
           title: `
             text-sm/snug font-bold wrap-break-word
@@ -90,13 +89,25 @@ const texts = (key: string, named: Record<string, unknown> = {}, plural?: number
           description: 'text-[0.8125rem] text-muted',
         }"
       >
-        <template
-          v-if="!tile.icon"
-          #leading
-        >
-          <!-- The rail's picture, as the rail requests it; the tile's
-               name already says what it is. -->
+        <template #leading>
+          <!-- An SVG is the topic's icon: drawn whole, never stretched,
+               on the solid fill a store's (white) glyph reads on. The
+               tile's name already says what it is. -->
           <ImgWithFallback
+            v-if="tile.isIcon"
+            class="size-5.5 object-contain"
+            alt=""
+            background="transparent"
+            fit="contain"
+            :height="22"
+            :src="tile.imagePath"
+            :width="22"
+            loading="lazy"
+            densities="x1 x2"
+          />
+          <!-- A photograph, as the rail requests it. -->
+          <ImgWithFallback
+            v-else
             class="aspect-square size-6"
             alt=""
             fit="fill"

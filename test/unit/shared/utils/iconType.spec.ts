@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { iconMimeType } from '~~/shared/utils/iconType'
+import { iconMimeType, isSvgImage } from '~~/shared/utils/iconType'
 
 describe('iconMimeType', () => {
   it.each([
@@ -20,5 +20,23 @@ describe('iconMimeType', () => {
     ['an extension named like a prototype property', 'https://cdn.test/icon.constructor'],
   ])('declares none for %s, so the browser sniffs the file', (_case, url) => {
     expect(iconMimeType(url)).toBeUndefined()
+  })
+})
+
+describe('isSvgImage', () => {
+  it.each([
+    'media/webside/uploads/blog/robot-solid.svg',
+    'https://cdn.test/ICON.SVG?v=2#top',
+  ])('reads %s as a vector drawing', (url) => {
+    expect(isSvgImage(url)).toBe(true)
+  })
+
+  it.each([
+    'media/webside/uploads/categories/cables.png',
+    'https://cdn.test/icon.svg.png',
+    'https://cdn.test/icon?file=a.svg',
+    '',
+  ])('reads %s as no vector drawing', (url) => {
+    expect(isSvgImage(url)).toBe(false)
   })
 })
