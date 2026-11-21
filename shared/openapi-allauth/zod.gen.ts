@@ -541,6 +541,18 @@ export const zAllAuthRateLimitResponse = z.object({
 })
 
 /**
+ * A security control of the call cannot be checked right now, so it is refused. Try again shortly.
+ */
+export const zAllAuthUnavailableResponse = z.object({
+  status: z.literal(503),
+  errors: z.array(z.object({
+    code: z.enum(['temporarily_unavailable']),
+    message: z.string(),
+  })),
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
+})
+
+/**
  * The email verification key
  */
 export const zAllAuthParameterEmailVerificationKey = z.string()

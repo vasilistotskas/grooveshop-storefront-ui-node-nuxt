@@ -25,7 +25,7 @@ let track: MockInstance
 beforeEach(() => {
   setTenant()
   const cart = useCartStore()
-  refreshCart = vi.spyOn(cart, 'refreshCart').mockResolvedValue()
+  refreshCart = vi.spyOn(cart, 'refreshCart').mockResolvedValue(true)
   track = vi.spyOn(cart, 'trackCartQuantityChange').mockImplementation(() => {})
 })
 

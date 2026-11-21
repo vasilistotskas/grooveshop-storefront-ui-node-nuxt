@@ -684,6 +684,18 @@ export type AllAuthRateLimitResponse = {
 }
 
 /**
+ * A security control of the call cannot be checked right now, so it is refused. Try again shortly.
+ */
+export type AllAuthUnavailableResponse = {
+  status: 503
+  errors: Array<{
+    code: 'temporarily_unavailable'
+    message: string
+  }>
+  meta?: AllAuthBaseAuthenticationMeta
+}
+
+/**
  * The email verification key
  */
 export type AllAuthParameterEmailVerificationKey = string
@@ -832,6 +844,10 @@ export type GetAllauthAppV1ConfigErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1ConfigError = GetAllauthAppV1ConfigErrors[keyof GetAllauthAppV1ConfigErrors]
@@ -875,6 +891,10 @@ export type PostAllauthAppV1AuthLoginErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthLoginError = PostAllauthAppV1AuthLoginErrors[keyof PostAllauthAppV1AuthLoginErrors]
@@ -924,6 +944,10 @@ export type PostAllauthAppV1AuthSignupErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthSignupError = PostAllauthAppV1AuthSignupErrors[keyof PostAllauthAppV1AuthSignupErrors]
@@ -966,6 +990,10 @@ export type GetAllauthAppV1AuthEmailVerifyErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthEmailVerifyError = GetAllauthAppV1AuthEmailVerifyErrors[keyof GetAllauthAppV1AuthEmailVerifyErrors]
@@ -1013,6 +1041,10 @@ export type PostAllauthAppV1AuthEmailVerifyErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthEmailVerifyError = PostAllauthAppV1AuthEmailVerifyErrors[keyof PostAllauthAppV1AuthEmailVerifyErrors]
@@ -1054,6 +1086,10 @@ export type PostAllauthAppV1AuthEmailVerifyResendErrors = {
     status: 429
     meta?: AllAuthBaseAuthenticationMeta
   }
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthEmailVerifyResendError = PostAllauthAppV1AuthEmailVerifyResendErrors[keyof PostAllauthAppV1AuthEmailVerifyResendErrors]
@@ -1105,6 +1141,10 @@ export type PostAllauthAppV1AuthPhoneVerifyErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthPhoneVerifyError = PostAllauthAppV1AuthPhoneVerifyErrors[keyof PostAllauthAppV1AuthPhoneVerifyErrors]
@@ -1146,6 +1186,10 @@ export type PostAllauthAppV1AuthPhoneVerifyResendErrors = {
     status: 429
     meta?: AllAuthBaseAuthenticationMeta
   }
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthPhoneVerifyResendError = PostAllauthAppV1AuthPhoneVerifyResendErrors[keyof PostAllauthAppV1AuthPhoneVerifyResendErrors]
@@ -1189,6 +1233,10 @@ export type PostAllauthAppV1AuthReauthenticateErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthReauthenticateError = PostAllauthAppV1AuthReauthenticateErrors[keyof PostAllauthAppV1AuthReauthenticateErrors]
@@ -1227,6 +1275,10 @@ export type PostAllauthAppV1AuthPasswordRequestErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthPasswordRequestError = PostAllauthAppV1AuthPasswordRequestErrors[keyof PostAllauthAppV1AuthPasswordRequestErrors]
@@ -1272,6 +1324,10 @@ export type GetAllauthAppV1AuthPasswordResetErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthPasswordResetError = GetAllauthAppV1AuthPasswordResetErrors[keyof GetAllauthAppV1AuthPasswordResetErrors]
@@ -1316,6 +1372,10 @@ export type PostAllauthAppV1AuthPasswordResetErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthPasswordResetError = PostAllauthAppV1AuthPasswordResetErrors[keyof PostAllauthAppV1AuthPasswordResetErrors]
@@ -1362,6 +1422,10 @@ export type PostAllauthAppV1AuthProviderTokenErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthProviderTokenError = PostAllauthAppV1AuthProviderTokenErrors[keyof PostAllauthAppV1AuthProviderTokenErrors]
@@ -1392,6 +1456,10 @@ export type GetAllauthAppV1AuthProviderSignupErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthProviderSignupError = GetAllauthAppV1AuthProviderSignupErrors[keyof GetAllauthAppV1AuthProviderSignupErrors]
@@ -1447,6 +1515,10 @@ export type PostAllauthAppV1AuthProviderSignupErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthProviderSignupError = PostAllauthAppV1AuthProviderSignupErrors[keyof PostAllauthAppV1AuthProviderSignupErrors]
@@ -1487,6 +1559,10 @@ export type PostAllauthAppV1Auth2FaAuthenticateErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1Auth2FaAuthenticateError = PostAllauthAppV1Auth2FaAuthenticateErrors[keyof PostAllauthAppV1Auth2FaAuthenticateErrors]
@@ -1524,6 +1600,10 @@ export type PostAllauthAppV1Auth2FaReauthenticateErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1Auth2FaReauthenticateError = PostAllauthAppV1Auth2FaReauthenticateErrors[keyof PostAllauthAppV1Auth2FaReauthenticateErrors]
@@ -1557,6 +1637,10 @@ export type GetAllauthAppV1AuthWebauthnAuthenticateErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthWebauthnAuthenticateError = GetAllauthAppV1AuthWebauthnAuthenticateErrors[keyof GetAllauthAppV1AuthWebauthnAuthenticateErrors]
@@ -1600,6 +1684,10 @@ export type PostAllauthAppV1AuthWebauthnAuthenticateErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthWebauthnAuthenticateError = PostAllauthAppV1AuthWebauthnAuthenticateErrors[keyof PostAllauthAppV1AuthWebauthnAuthenticateErrors]
@@ -1632,6 +1720,10 @@ export type GetAllauthAppV1AuthWebauthnReauthenticateErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthWebauthnReauthenticateError = GetAllauthAppV1AuthWebauthnReauthenticateErrors[keyof GetAllauthAppV1AuthWebauthnReauthenticateErrors]
@@ -1675,6 +1767,10 @@ export type PostAllauthAppV1AuthWebauthnReauthenticateErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthWebauthnReauthenticateError = PostAllauthAppV1AuthWebauthnReauthenticateErrors[keyof PostAllauthAppV1AuthWebauthnReauthenticateErrors]
@@ -1707,6 +1803,10 @@ export type GetAllauthAppV1AuthWebauthnLoginErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthWebauthnLoginError = GetAllauthAppV1AuthWebauthnLoginErrors[keyof GetAllauthAppV1AuthWebauthnLoginErrors]
@@ -1755,6 +1855,10 @@ export type PostAllauthAppV1AuthWebauthnLoginErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthWebauthnLoginError = PostAllauthAppV1AuthWebauthnLoginErrors[keyof PostAllauthAppV1AuthWebauthnLoginErrors]
@@ -1792,6 +1896,10 @@ export type GetAllauthAppV1AuthWebauthnSignupErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthWebauthnSignupError = GetAllauthAppV1AuthWebauthnSignupErrors[keyof GetAllauthAppV1AuthWebauthnSignupErrors]
@@ -1851,6 +1959,10 @@ export type PostAllauthAppV1AuthWebauthnSignupErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthWebauthnSignupError = PostAllauthAppV1AuthWebauthnSignupErrors[keyof PostAllauthAppV1AuthWebauthnSignupErrors]
@@ -1888,6 +2000,10 @@ export type PutAllauthAppV1AuthWebauthnSignupErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PutAllauthAppV1AuthWebauthnSignupError = PutAllauthAppV1AuthWebauthnSignupErrors[keyof PutAllauthAppV1AuthWebauthnSignupErrors]
@@ -1925,6 +2041,10 @@ export type PostAllauthAppV1AuthCodeRequestErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthCodeRequestError = PostAllauthAppV1AuthCodeRequestErrors[keyof PostAllauthAppV1AuthCodeRequestErrors]
@@ -1955,6 +2075,10 @@ export type PostAllauthAppV1AuthCodeConfirmErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthCodeConfirmError = PostAllauthAppV1AuthCodeConfirmErrors[keyof PostAllauthAppV1AuthCodeConfirmErrors]
@@ -1997,6 +2121,10 @@ export type PostAllauthAppV1AuthCodeResendErrors = {
     status: 429
     meta?: AllAuthBaseAuthenticationMeta
   }
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AuthCodeResendError = PostAllauthAppV1AuthCodeResendErrors[keyof PostAllauthAppV1AuthCodeResendErrors]
@@ -2037,6 +2165,10 @@ export type DeleteAllauthAppV1AccountProvidersErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type DeleteAllauthAppV1AccountProvidersError = DeleteAllauthAppV1AccountProvidersErrors[keyof DeleteAllauthAppV1AccountProvidersErrors]
@@ -2074,6 +2206,10 @@ export type GetAllauthAppV1AccountProvidersErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountProvidersError = GetAllauthAppV1AccountProvidersErrors[keyof GetAllauthAppV1AccountProvidersErrors]
@@ -2115,6 +2251,10 @@ export type DeleteAllauthAppV1AccountEmailErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type DeleteAllauthAppV1AccountEmailError = DeleteAllauthAppV1AccountEmailErrors[keyof DeleteAllauthAppV1AccountEmailErrors]
@@ -2156,6 +2296,10 @@ export type GetAllauthAppV1AccountEmailErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountEmailError = GetAllauthAppV1AccountEmailErrors[keyof GetAllauthAppV1AccountEmailErrors]
@@ -2197,6 +2341,10 @@ export type PatchAllauthAppV1AccountEmailErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PatchAllauthAppV1AccountEmailError = PatchAllauthAppV1AccountEmailErrors[keyof PatchAllauthAppV1AccountEmailErrors]
@@ -2248,6 +2396,10 @@ export type PostAllauthAppV1AccountEmailErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AccountEmailError = PostAllauthAppV1AccountEmailErrors[keyof PostAllauthAppV1AccountEmailErrors]
@@ -2294,6 +2446,10 @@ export type PutAllauthAppV1AccountEmailErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PutAllauthAppV1AccountEmailError = PutAllauthAppV1AccountEmailErrors[keyof PutAllauthAppV1AccountEmailErrors]
@@ -2334,6 +2490,10 @@ export type GetAllauthAppV1AccountPhoneErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountPhoneError = GetAllauthAppV1AccountPhoneErrors[keyof GetAllauthAppV1AccountPhoneErrors]
@@ -2381,6 +2541,10 @@ export type PostAllauthAppV1AccountPhoneErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AccountPhoneError = PostAllauthAppV1AccountPhoneErrors[keyof PostAllauthAppV1AccountPhoneErrors]
@@ -2422,6 +2586,10 @@ export type GetAllauthAppV1AccountAuthenticatorsErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountAuthenticatorsError = GetAllauthAppV1AccountAuthenticatorsErrors[keyof GetAllauthAppV1AccountAuthenticatorsErrors]
@@ -2464,6 +2632,10 @@ export type DeleteAllauthAppV1AccountAuthenticatorsTotpErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type DeleteAllauthAppV1AccountAuthenticatorsTotpError = DeleteAllauthAppV1AccountAuthenticatorsTotpErrors[keyof DeleteAllauthAppV1AccountAuthenticatorsTotpErrors]
@@ -2510,6 +2682,10 @@ export type GetAllauthAppV1AccountAuthenticatorsTotpErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountAuthenticatorsTotpError = GetAllauthAppV1AccountAuthenticatorsTotpErrors[keyof GetAllauthAppV1AccountAuthenticatorsTotpErrors]
@@ -2566,6 +2742,10 @@ export type PostAllauthAppV1AccountAuthenticatorsTotpErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AccountAuthenticatorsTotpError = PostAllauthAppV1AccountAuthenticatorsTotpErrors[keyof PostAllauthAppV1AccountAuthenticatorsTotpErrors]
@@ -2621,6 +2801,10 @@ export type GetAllauthAppV1AccountAuthenticatorsRecoveryCodesErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountAuthenticatorsRecoveryCodesError = GetAllauthAppV1AccountAuthenticatorsRecoveryCodesErrors[keyof GetAllauthAppV1AccountAuthenticatorsRecoveryCodesErrors]
@@ -2667,6 +2851,10 @@ export type PostAllauthAppV1AccountAuthenticatorsRecoveryCodesErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AccountAuthenticatorsRecoveryCodesError = PostAllauthAppV1AccountAuthenticatorsRecoveryCodesErrors[keyof PostAllauthAppV1AccountAuthenticatorsRecoveryCodesErrors]
@@ -2709,6 +2897,10 @@ export type DeleteAllauthAppV1AccountAuthenticatorsWebauthnErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type DeleteAllauthAppV1AccountAuthenticatorsWebauthnError = DeleteAllauthAppV1AccountAuthenticatorsWebauthnErrors[keyof DeleteAllauthAppV1AccountAuthenticatorsWebauthnErrors]
@@ -2762,6 +2954,10 @@ export type GetAllauthAppV1AccountAuthenticatorsWebauthnErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountAuthenticatorsWebauthnError = GetAllauthAppV1AccountAuthenticatorsWebauthnErrors[keyof GetAllauthAppV1AccountAuthenticatorsWebauthnErrors]
@@ -2808,6 +3004,10 @@ export type PostAllauthAppV1AccountAuthenticatorsWebauthnErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AccountAuthenticatorsWebauthnError = PostAllauthAppV1AccountAuthenticatorsWebauthnErrors[keyof PostAllauthAppV1AccountAuthenticatorsWebauthnErrors]
@@ -2855,6 +3055,10 @@ export type PutAllauthAppV1AccountAuthenticatorsWebauthnErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PutAllauthAppV1AccountAuthenticatorsWebauthnError = PutAllauthAppV1AccountAuthenticatorsWebauthnErrors[keyof PutAllauthAppV1AccountAuthenticatorsWebauthnErrors]
@@ -2896,6 +3100,10 @@ export type DeleteAllauthAppV1AuthSessionErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type DeleteAllauthAppV1AuthSessionError = DeleteAllauthAppV1AuthSessionErrors[keyof DeleteAllauthAppV1AuthSessionErrors]
@@ -2928,6 +3136,10 @@ export type GetAllauthAppV1AuthSessionErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthSessionError = GetAllauthAppV1AuthSessionErrors[keyof GetAllauthAppV1AuthSessionErrors]
@@ -2957,6 +3169,10 @@ export type PostAllauthAppV1TokensRefreshErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1TokensRefreshError = PostAllauthAppV1TokensRefreshErrors[keyof PostAllauthAppV1TokensRefreshErrors]
@@ -3004,6 +3220,10 @@ export type PostAllauthAppV1AccountPasswordChangeErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type PostAllauthAppV1AccountPasswordChangeError = PostAllauthAppV1AccountPasswordChangeErrors[keyof PostAllauthAppV1AccountPasswordChangeErrors]
@@ -3031,6 +3251,10 @@ export type DeleteAllauthAppV1AuthSessionsErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type DeleteAllauthAppV1AuthSessionsError = DeleteAllauthAppV1AuthSessionsErrors[keyof DeleteAllauthAppV1AuthSessionsErrors]
@@ -3068,6 +3292,10 @@ export type GetAllauthAppV1AuthSessionsErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AuthSessionsError = GetAllauthAppV1AuthSessionsErrors[keyof GetAllauthAppV1AuthSessionsErrors]
@@ -3109,6 +3337,10 @@ export type GetAllauthAppV1AccountAuthenticatorsTotpSvgErrors = {
      * Too many requests.
      */
   429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
 }
 
 export type GetAllauthAppV1AccountAuthenticatorsTotpSvgError = GetAllauthAppV1AccountAuthenticatorsTotpSvgErrors[keyof GetAllauthAppV1AccountAuthenticatorsTotpSvgErrors]

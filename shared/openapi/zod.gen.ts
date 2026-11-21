@@ -4651,10 +4651,14 @@ export const zShippingKind = z.enum(['home_delivery', 'pickup_point'])
  * be asked before the shopper has chosen a delivery or a pay way, and
  * the rows that depend on a missing choice come back null. A delivery
  * is priced once both ``shipping_kind`` and ``country_id`` are given.
- * Send what the order-create body will carry, the email included, so
- * the quote is the total that order is created at.
+ * Send what the order-create body will carry, the email and the pickup
+ * point included, so the quote is the total that order is created at
+ * and its ``cartDigest`` the cart that order is made of.
  */
 export const zCartQuoteRequestRequest = z.object({
+  boxnowLockerId: z.string().max(64).optional(),
+  acsStationExternalId: z.string().max(32).optional(),
+  acsStationBranch: z.string().max(32).optional(),
   payWayId: z.int().gte(1).optional(),
   shippingKind: zShippingKind.optional(),
   shippingProviderCode: z.string().max(32).optional(),
@@ -4708,13 +4712,16 @@ export const zFreeShippingInfo = z.object({
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
  */
 export const zOrderCreateFromCartRequest = z.object({
+  boxnowLockerId: z.string().max(64).optional(),
+  acsStationExternalId: z.string().max(32).optional(),
+  acsStationBranch: z.string().max(32).optional(),
   payWayId: z.int(),
   paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150),
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
   street: z.string().min(1).max(255),
-  streetNumber: z.string().min(1).max(50),
+  streetNumber: z.string().max(50).optional(),
   city: z.string().min(1).max(100),
   zipcode: z.string().min(1).max(20),
   countryId: z.string().min(1),
@@ -4741,14 +4748,11 @@ export const zOrderCreateFromCartRequest = z.object({
   billingZipcode: z.string().max(20).optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).optional(),
-  boxnowLockerId: z.string().max(64).optional(),
   shippingProviderCode: z.union([
     z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
     z.string().max(0),
   ]).optional(),
   shippingKind: zShippingKind.optional(),
-  acsStationExternalId: z.string().max(32).optional(),
-  acsStationBranch: z.string().max(32).optional(),
   acsChargeType: zAcsChargeType.optional(),
   acsItemQuantity: z.int().gte(1).lte(20).optional(),
 })
@@ -6306,6 +6310,7 @@ export const zOrderDetail = z.object({
   paymentHoldExpiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   paymentDecidedBy: z.iso.datetime({ offset: true }).readonly().nullable(),
   paymentAwaitsReview: z.boolean().readonly(),
+  agentCheckout: z.uuid().readonly().nullable(),
 })
 
 export const zPaginatedBoxNowLockerList = z.object({
@@ -7024,6 +7029,7 @@ export const zCheckoutQuote = z.object({
   amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
   currency: z.string(),
   expectedTotal: zExpectedTotal.nullable(),
+  cartDigest: z.string().nullable(),
 })
 
 export const zOrderCreateErrorDetail = z.object({
@@ -7042,9 +7048,10 @@ export const zOrderCreateErrorDetail = z.object({
  * 409 is ``legal_document_unavailable`` (a checkout legal text the
  * store cannot show in the order's language) or ``total_changed``
  * (the request's ``expectedTotal`` is not the amount due computed
- * now). Tell ``total_changed`` by ``code`` and the status: its
- * ``error.type`` is ``invalid_order_data`` until every client lists
- * the new value.
+ * now) or ``cart_changed`` (its ``expectedCartDigest`` is not the
+ * cart digest computed now). Tell those two by ``code`` and the
+ * status: their ``error.type`` is ``invalid_order_data`` until every
+ * client lists the new values.
  *
  * A refusal the order service understands carries ``error.type``; a
  * malformed payload is DRF's field-error map instead (``{field:
@@ -7093,6 +7100,7 @@ export const zCartQuote = z.object({
   amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
   currency: z.string(),
   expectedTotal: zExpectedTotal.nullable(),
+  cartDigest: z.string().nullable(),
   shippingOptions: z.array(zQuoteShippingOption).readonly().nullable(),
   payWays: z.array(zQuotePayWayOption).readonly(),
 })
@@ -7662,13 +7670,16 @@ export const zNotificationUserDetailWritable = z.object({
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
  */
 export const zOrderCreateFromCartRequestWritable = z.object({
+  boxnowLockerId: z.string().max(64).optional(),
+  acsStationExternalId: z.string().max(32).optional(),
+  acsStationBranch: z.string().max(32).optional(),
   payWayId: z.int(),
   paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150),
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
   street: z.string().min(1).max(255),
-  streetNumber: z.string().min(1).max(50),
+  streetNumber: z.string().max(50).optional(),
   city: z.string().min(1).max(100),
   zipcode: z.string().min(1).max(20),
   countryId: z.string().min(1),
@@ -7695,18 +7706,17 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   billingZipcode: z.string().max(20).optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).optional(),
-  boxnowLockerId: z.string().max(64).optional(),
   shippingProviderCode: z.union([
     z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
     z.string().max(0),
   ]).optional(),
   shippingKind: zShippingKind.optional(),
-  acsStationExternalId: z.string().max(32).optional(),
-  acsStationBranch: z.string().max(32).optional(),
   acsChargeType: zAcsChargeType.optional(),
   acsItemQuantity: z.int().gte(1).lte(20).optional(),
-  expectedTotal: zExpectedTotalRequest.optional(),
+  expectedTotal: zExpectedTotalRequest,
+  expectedCartDigest: z.string().min(1).max(64).optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
+  agentCheckout: z.uuid().optional(),
   attribution: zOrderAttributionInputRequest.optional(),
   termsAccepted: z.boolean(),
 })
@@ -8709,6 +8719,7 @@ export const zCartQuoteWritable = z.object({
   amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
   currency: z.string(),
   expectedTotal: zExpectedTotal.nullable(),
+  cartDigest: z.string().nullable(),
 })
 
 /**
@@ -8733,6 +8744,7 @@ export const zCheckoutQuoteWritable = z.object({
   amountDue: z.number().gt(-1000000000).lt(1000000000).nullable(),
   currency: z.string(),
   expectedTotal: zExpectedTotal.nullable(),
+  cartDigest: z.string().nullable(),
 })
 
 export const zOrderCreateErrorDetailWritable = z.object({
@@ -8751,9 +8763,10 @@ export const zOrderCreateErrorDetailWritable = z.object({
  * 409 is ``legal_document_unavailable`` (a checkout legal text the
  * store cannot show in the order's language) or ``total_changed``
  * (the request's ``expectedTotal`` is not the amount due computed
- * now). Tell ``total_changed`` by ``code`` and the status: its
- * ``error.type`` is ``invalid_order_data`` until every client lists
- * the new value.
+ * now) or ``cart_changed`` (its ``expectedCartDigest`` is not the
+ * cart digest computed now). Tell those two by ``code`` and the
+ * status: their ``error.type`` is ``invalid_order_data`` until every
+ * client lists the new values.
  *
  * A refusal the order service understands carries ``error.type``; a
  * malformed payload is DRF's field-error map instead (``{field:

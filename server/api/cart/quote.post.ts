@@ -5,7 +5,8 @@ import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/se
  * so far: Django's `POST /api/v1/cart/quote`, the computation order
  * creation and the payment intent run too (`docs/order/creation.md`
  * §3.0 in the Django repo). Its `expectedTotal` goes back with the order,
- * which Django then creates only at that total.
+ * which Django then creates only at that total, and its `cartDigest` as
+ * `expectedCartDigest`, which it then creates only of that cart.
  *
  * The cart is named as order creation names it (`getCartHeaders`: the
  * guest cart's `X-Cart-Id` and the shopper's access token), never by an

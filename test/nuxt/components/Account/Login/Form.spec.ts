@@ -45,13 +45,13 @@ const MISMATCH = asProxiedError(makeBadResponse({ code: 'email_password_mismatch
 
 const SIGNED_IN = makeSessionResponse()
 
-let refreshCart: MockInstance<() => Promise<void>>
+let refreshCart: MockInstance<() => Promise<boolean>>
 
 beforeEach(() => {
   // A store with customer accounts: every page under /account names its gate (`customer-accounts-enabled`).
   setTenant()
   login.mockResolvedValue(SIGNED_IN)
-  refreshCart = vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue()
+  refreshCart = vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue(true)
   useAuthStore().session = undefined
 })
 

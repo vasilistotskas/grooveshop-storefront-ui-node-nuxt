@@ -2,7 +2,8 @@
  * What checkout charges, from Django's quote (`POST /api/cart/quote`,
  * `server/api/cart/quote.post.ts`): the one computation order creation
  * runs too, so the summary, the «Pay …» button and the order's
- * `expectedTotal` are the same figures. Nothing here adds up a total.
+ * `expectedTotal` are the same figures, and its `cartDigest` is the cart
+ * the order is made of. Nothing here adds up a total.
  *
  * Asked again whenever what it prices changes: the request, compared as a
  * value so a keystroke in a field it does not carry asks nothing, and the

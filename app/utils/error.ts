@@ -1,41 +1,21 @@
 /**
- * DRF serializer validation errors arrive as a flat map of
- * ``{ field: ["message", ...] }`` (field names camelCased by the API
- * renderer, e.g. ``{"phone": ["Enter a valid phone number."]}``).
- * Callers should handle shapes with dedicated keys (``detail``,
- * ``error``, ``cart``) in their own branches before this check.
+ * Django's field errors (`apiFieldErrorsOf`) for a toast or an alert: one
+ * line per field, its messages after its label from the shared `form.*`
+ * i18n namespace (`Τηλέφωνο: …`), else after the raw field name, so an
+ * unknown field still surfaces instead of vanishing. Errors that belong to
+ * no field (`nonFieldErrors`) are shown bare.
  */
-export function isDrfFieldErrorMap(
-  data: unknown,
-): data is Record<string, string[]> {
-  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
-    return false
-  }
-  const entries = Object.entries(data)
-  return entries.length > 0 && entries.every(
-    ([, messages]) =>
-      Array.isArray(messages)
-      && messages.length > 0
-      && messages.every(message => typeof message === 'string'),
-  )
-}
-
-/**
- * Format a DRF field-error map for a toast description — one line per
- * field, labelled from the shared ``form.*`` i18n namespace when a
- * translation exists (``Τηλέφωνο: …``), falling back to the raw field
- * name so unknown fields still surface instead of vanishing.
- */
-export function formatDrfFieldErrors(
-  errors: Record<string, string[]>,
+export function formatFieldErrors(
+  errors: readonly DescribedFieldError[],
   t: (key: string) => string,
 ): string {
-  return Object.entries(errors)
+  const byField = new Map<string, string[]>()
+  for (const { name, message } of errors) {
+    byField.set(name, [...(byField.get(name) ?? []), message])
+  }
+  return [...byField]
     .map(([field, messages]) => {
-      // Non-field errors carry no useful label — show the messages bare.
-      if (field === 'nonFieldErrors' || field === 'detail') {
-        return messages.join(' ')
-      }
+      if (field === 'nonFieldErrors' || field === '') return messages.join(' ')
       const labelKey = `form.${field.replace(/[A-Z]/g, char => `_${char.toLowerCase()}`)}`
       const label = t(labelKey)
       return `${label === labelKey ? field : label}: ${messages.join(' ')}`

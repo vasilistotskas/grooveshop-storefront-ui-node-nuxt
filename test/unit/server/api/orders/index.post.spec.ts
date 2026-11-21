@@ -26,6 +26,8 @@ const orderBody = {
   countryId: 'GR',
   phone: '+306900000000',
   termsAccepted: true,
+  expectedTotal: { amount: 6300, currency: 'EUR' },
+  expectedCartDigest: 'digest-of-the-cart',
 }
 
 /** The order Django creates: a first order, paid on delivery. */
@@ -191,6 +193,16 @@ describe('POST /api/orders', () => {
 
   it('rejects a body the order schema refuses without calling the backend', async () => {
     const response = await placeOrder({ body: { ...orderBody, email: 'not-an-email' } })
+
+    expect(response.status).toBe(400)
+    expect(backend.requests).toEqual([])
+  })
+
+  // Django creates an order only at a total the shopper was shown; the
+  // route refuses one without it, before a request is spent on it.
+  it('rejects an order without the expected total without calling the backend', async () => {
+    const { expectedTotal: _total, ...withoutTotal } = orderBody
+    const response = await placeOrder({ body: withoutTotal })
 
     expect(response.status).toBe(400)
     expect(backend.requests).toEqual([])

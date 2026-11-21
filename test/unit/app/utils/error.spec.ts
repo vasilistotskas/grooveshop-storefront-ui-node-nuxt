@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
-  formatDrfFieldErrors,
+  formatFieldErrors,
   isAllAuthClientError,
-  isDrfFieldErrorMap,
   isConflictClientError,
   isRateLimitedClientError,
 } from '~/utils/error'
@@ -78,39 +77,11 @@ describe('isConflictClientError', () => {
   })
 })
 
-describe('isDrfFieldErrorMap', () => {
-  it('recognizes a DRF field-error map', () => {
-    expect(isDrfFieldErrorMap({ phone: ['Enter a valid phone number.'] })).toBe(true)
-    expect(isDrfFieldErrorMap({
-      phone: ['Enter a valid phone number.'],
-      firstName: ['This field is required.', 'Too short.'],
-    })).toBe(true)
-  })
-
-  it('rejects non-field-error shapes', () => {
-    expect(isDrfFieldErrorMap({ detail: 'Not found.' })).toBe(false)
-    expect(isDrfFieldErrorMap({ error: { type: 'invalid_order_data' } })).toBe(false)
-    expect(isDrfFieldErrorMap({ phone: [] })).toBe(false)
-    expect(isDrfFieldErrorMap({ phone: [42] })).toBe(false)
-    expect(isDrfFieldErrorMap({})).toBe(false)
-    expect(isDrfFieldErrorMap([])).toBe(false)
-    expect(isDrfFieldErrorMap(null)).toBe(false)
-    expect(isDrfFieldErrorMap('phone')).toBe(false)
-  })
-
-  it('rejects maps where only some values are message arrays', () => {
-    expect(isDrfFieldErrorMap({
-      phone: ['Enter a valid phone number.'],
-      meta: { fbp: 'x' },
-    })).toBe(false)
-  })
-})
-
-describe('formatDrfFieldErrors', () => {
+describe('formatFieldErrors', () => {
   const t = (key: string) => (key === 'form.phone' ? 'Τηλέφωνο' : key)
 
   it('labels fields via the form.* i18n namespace', () => {
-    expect(formatDrfFieldErrors({ phone: ['Enter a valid phone number.'] }, t))
+    expect(formatFieldErrors([{ name: 'phone', message: 'Enter a valid phone number.' }], t))
       .toBe('Τηλέφωνο: Enter a valid phone number.')
   })
 
@@ -121,7 +92,7 @@ describe('formatDrfFieldErrors', () => {
       return key
     }
 
-    expect(formatDrfFieldErrors({ firstName: ['Too short.'] }, recording)).toBe('firstName: Too short.')
+    expect(formatFieldErrors([{ name: 'firstName', message: 'Too short.' }], recording)).toBe('firstName: Too short.')
     expect(asked).toEqual(['form.first_name'])
   })
 
@@ -133,18 +104,19 @@ describe('formatDrfFieldErrors', () => {
       return key
     }
 
-    expect(formatDrfFieldErrors({
-      nonFieldErrors: ['Passwords do not match.', 'Try again.'],
-      detail: ['Throttled.'],
-    }, recording)).toBe('Passwords do not match. Try again.\nThrottled.')
+    expect(formatFieldErrors([
+      { name: 'nonFieldErrors', message: 'Passwords do not match.' },
+      { name: 'nonFieldErrors', message: 'Try again.' },
+    ], recording)).toBe('Passwords do not match. Try again.')
     expect(asked).toEqual([])
   })
 
-  it('joins multiple fields and messages', () => {
-    expect(formatDrfFieldErrors({
-      phone: ['Enter a valid phone number.'],
-      firstName: ['This field is required.', 'Too short.'],
-    }, t)).toBe(
+  it('joins multiple fields, each field\'s messages on its one line', () => {
+    expect(formatFieldErrors([
+      { name: 'phone', message: 'Enter a valid phone number.' },
+      { name: 'firstName', message: 'This field is required.' },
+      { name: 'firstName', message: 'Too short.' },
+    ], t)).toBe(
       'Τηλέφωνο: Enter a valid phone number.\nfirstName: This field is required. Too short.',
     )
   })

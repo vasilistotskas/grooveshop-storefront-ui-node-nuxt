@@ -236,6 +236,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/login:
     post:
       tags:
@@ -288,6 +294,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/signup:
     post:
       tags:
@@ -353,6 +365,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/email/verify:
     get:
       tags:
@@ -394,6 +412,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Authentication: Account'
@@ -452,6 +476,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/email/verify/resend:
     post:
       tags:
@@ -477,6 +507,12 @@ paths:
                 $ref: '#/components/schemas/ConflictResponse'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/phone/verify:
     post:
       tags:
@@ -521,6 +557,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/phone/verify/resend:
     post:
       tags:
@@ -546,6 +588,12 @@ paths:
                 $ref: '#/components/schemas/ConflictResponse'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/reauthenticate:
     post:
       tags:
@@ -587,6 +635,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/password/request:
     post:
       summary: Request password
@@ -638,6 +692,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/password/reset:
     get:
       summary: Get password reset information
@@ -686,6 +746,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       summary: Reset password
       description: 'Perform the password reset, by handing over the password reset
@@ -734,6 +800,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/provider/token:
     post:
       tags:
@@ -794,6 +866,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/provider/signup:
     get:
       tags:
@@ -830,6 +908,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Authentication: Providers'
@@ -889,6 +973,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/2fa/authenticate:
     post:
       tags:
@@ -927,6 +1017,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/2fa/reauthenticate:
     post:
       tags:
@@ -970,6 +1066,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/webauthn/authenticate:
     get:
       tags:
@@ -995,6 +1097,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Authentication: WebAuthn: Login'
@@ -1021,6 +1129,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/webauthn/reauthenticate:
     get:
       tags:
@@ -1046,6 +1160,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Authentication: WebAuthn: Login'
@@ -1072,6 +1192,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/webauthn/login:
     get:
       tags:
@@ -1095,6 +1221,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Authentication: WebAuthn: Login'
@@ -1139,6 +1271,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/webauthn/signup:
     post:
       tags:
@@ -1207,6 +1345,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     get:
       tags:
       - 'Authentication: WebAuthn: Signup'
@@ -1235,6 +1379,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     put:
       tags:
       - 'Authentication: WebAuthn: Signup'
@@ -1282,6 +1432,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/code/request:
     post:
       tags:
@@ -1319,6 +1475,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/code/confirm:
     post:
       tags:
@@ -1366,6 +1528,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/code/resend:
     post:
       tags:
@@ -1391,6 +1559,12 @@ paths:
                 $ref: '#/components/schemas/ConflictResponse'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/providers:
     get:
       tags:
@@ -1407,6 +1581,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     delete:
       tags:
       - 'Account: Providers'
@@ -1446,6 +1626,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/email:
     get:
       tags:
@@ -1467,6 +1653,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Account: Email'
@@ -1513,6 +1705,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     put:
       tags:
       - 'Account: Email'
@@ -1555,6 +1753,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     patch:
       tags:
       - 'Account: Email'
@@ -1587,6 +1791,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     delete:
       tags:
       - 'Account: Email'
@@ -1616,6 +1826,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/phone:
     get:
       tags:
@@ -1640,6 +1856,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Account: Phone'
@@ -1687,6 +1909,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/authenticators:
     get:
       tags:
@@ -1707,6 +1935,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/authenticators/totp:
     get:
       tags:
@@ -1731,6 +1965,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Account: 2FA'
@@ -1768,6 +2008,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     delete:
       tags:
       - 'Account: 2FA'
@@ -1791,6 +2037,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/authenticators/recovery-codes:
     get:
       tags:
@@ -1814,6 +2066,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Account: 2FA'
@@ -1840,6 +2098,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/authenticators/webauthn:
     get:
       tags:
@@ -1868,6 +2132,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     put:
       tags:
       - 'Account: WebAuthn'
@@ -1897,6 +2167,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     delete:
       tags:
       - 'Account: WebAuthn'
@@ -1918,6 +2194,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     post:
       tags:
       - 'Account: WebAuthn'
@@ -1941,6 +2223,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/session:
     get:
       tags:
@@ -1968,6 +2256,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     delete:
       tags:
       - 'Authentication: Current Session'
@@ -1986,6 +2280,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/tokens/refresh:
     post:
       tags:
@@ -2015,6 +2315,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/password/change:
     post:
       tags:
@@ -2045,6 +2351,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/auth/sessions:
     get:
       tags:
@@ -2061,6 +2373,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
     delete:
       tags:
       - Sessions
@@ -2080,6 +2398,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
   /_allauth/app/v1/account/authenticators/totp/svg:
     get:
       tags:
@@ -2104,6 +2428,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateLimitResponse'
+        '503':
+          description: Temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailableResponse'
 components:
   examples:
     User:
@@ -3898,6 +4228,34 @@ components:
           $ref: '#/components/schemas/BaseAuthenticationMeta'
       required:
       - status
+    UnavailableResponse:
+      type: object
+      description: A security control of the call cannot be checked right now, so
+        it is refused. Try again shortly.
+      properties:
+        status:
+          type: integer
+          enum:
+          - 503
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                enum:
+                - temporarily_unavailable
+              message:
+                type: string
+            required:
+            - code
+            - message
+        meta:
+          $ref: '#/components/schemas/BaseAuthenticationMeta'
+      required:
+      - status
+      - errors
   parameters:
     EmailVerificationKey:
       in: header

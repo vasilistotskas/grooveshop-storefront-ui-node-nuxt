@@ -8,7 +8,7 @@ import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from './product'
  * Defaults: order 1 for Maria Papadopoulou in Athens, retail, no items,
  * PENDING, unpaid, delivered outside any carrier (the legacy shape), earning
  * no points, a free cash-on-delivery pay way (id 1, like
- * `makePayWay()`), nothing discounted, no shipment, EUR. `uuid` follows
+ * `makePayWay()`), nothing discounted, no shipment, no agent checkout, EUR. `uuid` follows
  * `id`. The money fields are all 0 and are NOT derived from each other —
  * a spec that shows totals sets the ones it reads.
  */
@@ -84,6 +84,7 @@ export function makeOrder(overrides: Partial<OrderDetail> = {}): OrderDetail {
     paymentHoldExpiresAt: null,
     paymentDecidedBy: null,
     paymentAwaitsReview: false,
+    agentCheckout: null,
     ...overrides,
   }
 }

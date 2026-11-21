@@ -77,6 +77,27 @@ describe('useNewsletterSignup', () => {
     expect(signup.failure.value).toEqual({ kind: 'rate_limited' })
   })
 
+  // Django's body for a serializer error (`core/api/exception_handler.py`):
+  // the field keys, plus `code` and `fields`.
+  it('reads a field rejection from Django\'s own body', async () => {
+    api.routes({
+      [NEWSLETTER_URL]: failWith(400, {
+        email: ['Enter a valid email address.'],
+        code: 'invalid',
+        fields: { email: [{ message: 'Enter a valid email address.', code: 'invalid' }] },
+      }),
+    })
+    const signup = await setup()
+
+    await signup.subscribe(BODY)
+    await flushPromises()
+
+    expect(signup.failure.value).toEqual({
+      kind: 'fields',
+      errors: [{ name: 'email', message: 'Enter a valid email address.', code: 'invalid' }],
+    })
+  })
+
   it('clears the failure when a retry is accepted', async () => {
     api.routes({ [NEWSLETTER_URL]: failWith(502, 'Bad Gateway') })
     const signup = await setup()

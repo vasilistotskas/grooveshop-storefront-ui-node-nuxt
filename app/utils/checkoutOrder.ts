@@ -59,6 +59,16 @@ const IDEMPOTENCY_IN_FLIGHT = 'idempotency_in_flight'
  */
 const TOTAL_CHANGED = 'total_changed'
 
+/**
+ * The `code` of the 409 Django answers when the order's
+ * `expectedCartDigest` is not the digest of the cart under the lock: the
+ * order would be made of something else than the shopper was shown (a
+ * line, a quantity, a promotion or the pickup point), whatever its
+ * total. `error.quote` is the quote of the cart now. Told by `code` alone,
+ * as `TOTAL_CHANGED`.
+ */
+const CART_CHANGED = 'cart_changed'
+
 type Translate = (key: string, params?: Record<string, unknown>) => string
 type FormatNumber = (value: number, format: string) => string
 
@@ -73,10 +83,29 @@ export interface OrderErrorInfo {
   /** Django field errors the address step owns, one per input. */
   addressStepErrors: FormError[]
   /**
-   * Django priced the order at another total than the one sent: the
-   * caller shows the new quote, and the shopper's next submit sends it.
+   * Django refused the order for what it is now (`total_changed`,
+   * `cart_changed`) and sent the quote it would be placed at: the caller
+   * shows the cart and that quote, and the shopper's next submit accepts it.
    */
-  totalChanged: boolean
+  quoteChanged: boolean
+}
+
+/**
+ * What the shopper accepts with a click: the quote's `expectedTotal` and
+ * `cartDigest` as Django sent them (never converted here). The order is
+ * created only at that total and of that cart. The digest is `null` while
+ * the quote has no delivery and pay way to digest.
+ */
+export interface AcceptedQuote {
+  expectedTotal: ExpectedTotal
+  cartDigest: string | null
+}
+
+/** What a quote lets the shopper accept, `null` while it has no total. */
+export function acceptedQuoteOf(quote: Pick<CheckoutQuote, 'expectedTotal' | 'cartDigest'> | null | undefined): AcceptedQuote | null {
+  return quote?.expectedTotal
+    ? { expectedTotal: quote.expectedTotal, cartDigest: quote.cartDigest }
+    : null
 }
 
 /**
@@ -108,16 +137,32 @@ export function describeTotalChange(amountDue: number | null, t: Translate, n: F
 }
 
 /**
+ * What to tell the shopper when the cart changed before the order was
+ * placed (`cart_changed`, or a quote whose digest is not the one on the
+ * page): its lines, which the summary now shows, the amount due now, and
+ * that placing the order again accepts them. Without a total, only that.
+ */
+export function describeCartChange(amountDue: number | null, t: Translate, n: FormatNumber): { title: string, description: string } {
+  return {
+    title: t('form.submit.error.cart_changed'),
+    description: amountDue === null
+      ? t('form.submit.error.cart_changed_review')
+      : t('form.submit.error.cart_changed_description', { total: n(amountDue, 'currency') }),
+  }
+}
+
+/**
  * What to tell the shopper about a rejected `POST /api/orders`, from the
  * error body Django sent (`response._data`).
  *
  * First an order still being placed under the same idempotency key, then
- * a total that changed (`TOTAL_CHANGED`, its new amount from the quote
- * Django sent). Then branches on Django's stable `error.type` (`OrderCreateErrorType` in
+ * a total or a cart that changed (`TOTAL_CHANGED`, `CART_CHANGED`, the
+ * amount due now from the quote Django sent). Then branches on Django's stable `error.type` (`OrderCreateErrorType` in
  * the OpenAPI contract), never on `detail` / `cart` TEXT: Django answers
  * in the page's language, so a message match works in one language at
- * most. Then a `cart` field error (a missing or empty cart), then a DRF
- * field-error map (each message under its translated label), then any
+ * most. Then a `cart` field error (a missing or empty cart), then
+ * Django's field errors (`apiFieldErrorsOf`: each message under its
+ * translated label, and the address step's under their inputs), then any
  * `detail`, then the generic title.
  */
 export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber): OrderErrorInfo {
@@ -127,6 +172,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
 
   const errorType = errorData?.error?.type as OrderCreateErrorType | undefined
   const cartMessages = Array.isArray(errorData?.cart) ? errorData.cart.join('. ') : ''
+  const fieldErrors = apiFieldErrorsOf(errorData)
 
   // The first submit with this key is still being placed. Its answer
   // is not known yet, so nothing is wrong with the order: the key is
@@ -137,16 +183,19 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       description: t('form.submit.error.order_in_progress_description'),
       shouldRetry: false,
       addressStepErrors,
-      totalChanged: false,
+      quoteChanged: false,
     }
   }
-  if (errorData?.code === TOTAL_CHANGED) {
+  if (errorData?.code === TOTAL_CHANGED || errorData?.code === CART_CHANGED) {
     const quote = zCheckoutQuote.safeParse(errorData?.error?.quote)
+    const amountDue = quote.success ? quote.data.amountDue : null
     return {
-      ...describeTotalChange(quote.success ? quote.data.amountDue : null, t, n),
+      ...(errorData.code === CART_CHANGED
+        ? describeCartChange(amountDue, t, n)
+        : describeTotalChange(amountDue, t, n)),
       shouldRetry: false,
       addressStepErrors,
-      totalChanged: true,
+      quoteChanged: true,
     }
   }
   if (errorType === 'reservation_unavailable') {
@@ -155,7 +204,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       description: t('form.submit.error.reservation_expired_description'),
       shouldRetry: true,
       addressStepErrors,
-      totalChanged: false,
+      quoteChanged: false,
     }
   }
   else if (errorType === 'invalid_order_data') {
@@ -193,20 +242,19 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
     errorTitle = t('form.submit.error.inventory')
     errorDescription = cartMessages
   }
-  // DRF serializer field errors: { field: ["msg", ...] } — e.g.
-  // {"phone": ["Enter a valid phone number."]}. Surface every message
-  // under its translated form label so the customer sees exactly what
-  // to fix instead of the generic failure toast. Field-level Zod
-  // validation should catch these first — this is the safety net for
-  // rules only Django knows about.
-  else if (isDrfFieldErrorMap(errorData)) {
+  // Django's field errors (`fields`, e.g. `street_number_is_postcode` on
+  // `streetNumber`). Surface every message under its translated form
+  // label so the customer sees exactly what to fix instead of the generic
+  // failure toast. Field-level Zod validation should catch these first —
+  // this is the safety net for rules only Django knows about.
+  else if (fieldErrors.length) {
     errorTitle = t('form.submit.error.invalid_order_data')
-    errorDescription = formatDrfFieldErrors(errorData, t)
+    errorDescription = formatFieldErrors(fieldErrors, t)
     // A field the address step owns: the caller goes back there and
     // shows each message under its own input, not only in the toast.
-    addressStepErrors = Object.entries(errorData).flatMap(([field, messages]) => {
-      const name = ADDRESS_STEP_FIELDS[field]
-      return name ? messages.map(message => ({ name, message })) : []
+    addressStepErrors = fieldErrors.flatMap(({ name, message }) => {
+      const field = ADDRESS_STEP_FIELDS[name]
+      return field ? [{ name: field, message }] : []
     })
   }
   // Fallback to detail
@@ -215,7 +263,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
     errorDescription = errorData.detail
   }
 
-  return { title: errorTitle, description: errorDescription, shouldRetry: false, addressStepErrors, totalChanged: false }
+  return { title: errorTitle, description: errorDescription, shouldRetry: false, addressStepErrors, quoteChanged: false }
 }
 
 /** The checkout state an order body is built from, besides the form. */
@@ -228,13 +276,10 @@ export interface OrderCreateBodyContext {
   meta: Record<string, unknown> | null
   /** Where this tab's visit came from, `null` when nothing was captured. */
   attribution: Omit<OrderAttributionInputRequest, 'agentProtocol'> | null
-  /**
-   * The quote's `expectedTotal` the shopper was shown, copied as Django
-   * sent it (cents and currency, never converted here): the order is then
-   * created only at that total. `null` builds a body to quote from.
-   */
-  expectedTotal: ExpectedTotal | null
 }
+
+/** An order body before the quote it is placed at (`placeOrderAt`). */
+export type OrderChoices = Omit<OrderCreateFromCartRequestWritable, 'expectedTotal' | 'expectedCartDigest'>
 
 /**
  * The `POST /api/orders` body for the checkout form.
@@ -248,7 +293,7 @@ export interface OrderCreateBodyContext {
 export function buildOrderCreateBody(
   formState: Record<string, any>,
   ctx: OrderCreateBodyContext,
-): OrderCreateFromCartRequestWritable {
+): OrderChoices {
   const carrier = carrierForMethod(formState.shippingMethod)
   const shippingKind = formState.shippingMethod === 'home_delivery'
     ? 'home_delivery'
@@ -315,7 +360,20 @@ export function buildOrderCreateBody(
     ...carrierPayload,
     ...(ctx.meta ? { meta: ctx.meta } : {}),
     ...(ctx.attribution ? { attribution: ctx.attribution } : {}),
-    ...(ctx.expectedTotal ? { expectedTotal: ctx.expectedTotal } : {}),
+  }
+}
+
+/**
+ * The order body placed at the quote the shopper accepted: Django creates
+ * it only at that `expectedTotal` and, once the quote digested a delivery
+ * and a pay way, only of that cart (`expectedCartDigest`; a 409
+ * `cart_changed` otherwise).
+ */
+export function placeOrderAt(choices: OrderChoices, accepted: AcceptedQuote): OrderCreateFromCartRequestWritable {
+  return {
+    ...choices,
+    expectedTotal: accepted.expectedTotal,
+    ...(accepted.cartDigest ? { expectedCartDigest: accepted.cartDigest } : {}),
   }
 }
 
@@ -336,7 +394,7 @@ export interface QuotedChoices {
  * read, once the address step validated it) until the delivery step,
  * the pay way until the payment step.
  */
-export function quoteRequestOf(order: OrderCreateFromCartRequestWritable, chosen: QuotedChoices): CartQuoteRequestRequest {
+export function quoteRequestOf(order: OrderChoices, chosen: QuotedChoices): CartQuoteRequestRequest {
   return {
     countryId: order.countryId || undefined,
     regionId: order.regionId || undefined,
@@ -347,6 +405,11 @@ export function quoteRequestOf(order: OrderCreateFromCartRequestWritable, chosen
           shippingKind: order.shippingKind,
           shippingProviderCode: order.shippingProviderCode || undefined,
           email: order.email || undefined,
+          // The pickup point, as the order carries it: Django prices none,
+          // but the quote's `cartDigest` covers it, so the order's matches.
+          boxnowLockerId: order.boxnowLockerId,
+          acsStationExternalId: order.acsStationExternalId,
+          acsStationBranch: order.acsStationBranch,
         }
       : {}),
     ...(chosen.payWay ? { payWayId: order.payWayId } : {}),
@@ -356,6 +419,16 @@ export function quoteRequestOf(order: OrderCreateFromCartRequestWritable, chosen
 /** Whether two expected totals are the same amount in the same currency. */
 export function sameExpectedTotal(a: ExpectedTotal | null | undefined, b: ExpectedTotal | null | undefined): boolean {
   return Boolean(a && b && a.amount === b.amount && a.currency === b.currency)
+}
+
+/**
+ * How the quote an order would be placed at differs from the one the
+ * shopper accepted: `total` when the amount moved, `cart` when only what
+ * the order is made of did (the digest), `null` when it is the same.
+ */
+export function acceptedQuoteChange(priced: AcceptedQuote, accepted: AcceptedQuote | null): 'total' | 'cart' | null {
+  if (!sameExpectedTotal(priced.expectedTotal, accepted?.expectedTotal)) return 'total'
+  return priced.cartDigest === accepted?.cartDigest ? null : 'cart'
 }
 
 /** What a refused `$api` call got back: ofetch's `FetchError.response`. */

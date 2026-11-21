@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { apiErrorBodyOf, describeApiErrorWith } from '~/utils/apiError'
+import { apiErrorBodyOf, apiFieldErrorsOf, describeApiErrorWith } from '~/utils/apiError'
 
 const MESSAGES: Record<string, string> = {
   'error.default': 'Σφάλμα',
@@ -44,6 +44,38 @@ describe('apiErrorBodyOf', () => {
     ['null', null],
   ])('finds no body in %s', (_label, error) => {
     expect(apiErrorBodyOf(error)).toBeUndefined()
+  })
+})
+
+describe('apiFieldErrorsOf', () => {
+  // What Django's exception handler answers for a serializer error
+  // (`core/api/exception_handler.py`): the field keys DRF gave, plus
+  // `code` and `fields`. The body is no plain `{ field: string[] }` map.
+  const MESSAGE = 'Add the street number after the street name, for example Ermou 12, or enter it in the street number field.'
+  const djangoBody = {
+    street: [MESSAGE],
+    code: 'street_number_missing',
+    fields: { street: [{ message: MESSAGE, code: 'street_number_missing' }] },
+  }
+
+  it('reads each field error once, from `fields`, with its code', () => {
+    expect(apiFieldErrorsOf(djangoBody)).toEqual([
+      { name: 'street', message: MESSAGE, code: 'street_number_missing' },
+    ])
+  })
+
+  it('reads a body from before `fields` by its field keys, skipping the others', () => {
+    expect(apiFieldErrorsOf({ phone: ['Enter a valid phone number.'], detail: 'x', code: 'invalid' })).toEqual([
+      { name: 'phone', message: 'Enter a valid phone number.' },
+    ])
+  })
+
+  it('names no field for anything else', () => {
+    expect(apiFieldErrorsOf({ detail: 'Not found.', code: 'not_found' })).toEqual([])
+    expect(apiFieldErrorsOf({ error: { type: 'invalid_order_data' } })).toEqual([])
+    expect(apiFieldErrorsOf(null)).toEqual([])
+    expect(apiFieldErrorsOf('phone')).toEqual([])
+    expect(apiFieldErrorsOf([])).toEqual([])
   })
 })
 

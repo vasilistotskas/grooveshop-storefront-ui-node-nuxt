@@ -19,7 +19,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { computed, defineComponent, nextTick } from 'vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
-import { makeCartQuote, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
+import { CART_DIGEST, makeCartQuote, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
 import { makeOrder } from '~~/test/fixtures/order'
 import { makePayWay } from '~~/test/fixtures/payWay'
@@ -928,13 +928,14 @@ describe('useCheckoutSubmit', () => {
       ['cash on delivery', COD],
       ['Viva Wallet', VIVA],
       ['Stripe', STRIPE],
-    ])('sends the total the shopper was shown with a %s order, as the quote stated it', async (_label, payWay) => {
+    ])('sends the total and the cart the shopper was shown with a %s order, as the quote stated them', async (_label, payWay) => {
       api.routes({ '/api/orders': orderCreated() })
       const { onSubmit } = setup(payWay)
 
       await onSubmit()
 
       expect(orderBodies()[0].expectedTotal).toEqual({ amount: 6300, currency: 'EUR' })
+      expect(orderBodies()[0].expectedCartDigest).toBe(CART_DIGEST)
     })
 
     it('quotes the choices the shopper has reached, and every one on the payment step', () => {
@@ -961,6 +962,47 @@ describe('useCheckoutSubmit', () => {
         description: useNuxtApp().$i18n.t('form.submit.error.total_changed_description', { total: money(70) }),
       })
       expect(m.releaseReservations).toHaveBeenCalledWith([42])
+    })
+
+    // A line swapped for one at the same price: the total cannot tell, the
+    // digest does, and the order is not placed of a cart the page never showed.
+    it('shows a cart that changed at the same total since the click instead of ordering it', async () => {
+      q.priced = makeCartQuote({ cartDigest: 'digest-of-another-cart' })
+      api.routes({ '/api/cart': makeCart() })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders')).toEqual([])
+      expect(lastFailure()).toMatchObject({
+        title: t('form.submit.error.cart_changed'),
+        description: useNuxtApp().$i18n.t('form.submit.error.cart_changed_description', { total: money(63) }),
+      })
+    })
+
+    // The quote names no lines: the cart is asked again with it, so the
+    // page shows the lines the next click orders.
+    it.each([
+      ['a cart that changed at the same total', makeCartQuote({ cartDigest: 'digest-of-another-cart' })],
+      ['a total that changed', NEW_TOTAL],
+    ])('asks for the cart and the quote again after %s', async (_case, priced) => {
+      q.priced = priced
+      api.routes({ '/api/cart': makeCart() })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      await vi.waitFor(() => expect(api.callsTo('/api/cart')).toHaveLength(1))
+      expect(q.refresh).toHaveBeenCalled()
+    })
+
+    it('asks for no cart when the quote is the one the shopper accepted', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/cart')).toEqual([])
     })
 
     // A click that lands while the page showed no total (the delivery
@@ -1008,9 +1050,11 @@ describe('useCheckoutSubmit', () => {
 
     it('orders at the new total once the shopper submits again with it on the page', async () => {
       q.priced = NEW_TOTAL
-      api.routes({ '/api/orders': orderCreated() })
-      const { onSubmit } = setup(COD)
+      api.routes({ '/api/orders': orderCreated(), '/api/cart': makeCart() })
+      const { onSubmit, quotePending } = setup(COD)
       await onSubmit()
+      // The page offers the order again once the cart and the quote are back.
+      await vi.waitFor(() => expect(quotePending.value).toBe(false))
 
       q.shown = NEW_TOTAL
       await onSubmit()
@@ -1032,6 +1076,131 @@ describe('useCheckoutSubmit', () => {
       expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.total_unavailable'),
         description: 'Ο τρόπος πληρωμής δεν είναι διαθέσιμος.',
+      })
+    })
+
+    describe('refused by Django because the cart changed', () => {
+      const NEW_CART = makeCartQuote({ cartDigest: 'digest-of-the-cart-now' })
+      const cartChanged = orderRejected(409, {
+        detail: 'Your cart has changed since its total was shown.',
+        code: 'cart_changed',
+        error: { type: 'invalid_order_data', quote: makeCheckoutQuote({ cartDigest: 'digest-of-the-cart-now' }) },
+      })
+
+      it('says the cart changed, with the amount due now, and asks Django for the cart and the quote again', async () => {
+        api.routes({ '/api/orders': cartChanged, '/api/cart': makeCart() })
+        const { onSubmit } = setup(COD)
+
+        await onSubmit()
+        await vi.waitFor(() => expect(q.refresh).toHaveBeenCalled())
+
+        expect(lastFailure()).toMatchObject({
+          title: t('form.submit.error.cart_changed'),
+          description: useNuxtApp().$i18n.t('form.submit.error.cart_changed_description', { total: money(63) }),
+          code: 'cart_changed',
+        })
+        expect(api.callsTo('/api/cart')).toHaveLength(1)
+      })
+
+      // The quote may come back before the cart's lines do: the order
+      // button waits for both, so nothing is ordered of lines not shown.
+      it('keeps the order button waiting until the cart is back, though the quote came back first', async () => {
+        let reloadCart: (cart: unknown) => void = () => {}
+        api.routes({
+          '/api/orders': cartChanged,
+          '/api/cart': () => new Promise((resolve) => {
+            reloadCart = resolve
+          }),
+        })
+        const { onSubmit, quotePending } = setup(COD)
+
+        await onSubmit()
+        await vi.waitFor(() => expect(q.refresh).toHaveBeenCalled())
+
+        expect(q.pending).toBe(false)
+        expect(quotePending.value).toBe(true)
+        reloadCart(makeCart())
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
+      })
+
+      // A submit by keyboard while the cart is still on its way: nothing
+      // to accept yet, so nothing happens and the shopper keeps the notice.
+      // Once the cart is back, the next submit orders the cart now.
+      it('ignores a submit before the cart is back, and orders the cart now after it', async () => {
+        let orders = 0
+        let reloadCart: (cart: unknown) => void = () => {}
+        api.routes({
+          '/api/orders': () => (orders++ === 0 ? cartChanged : orderCreated())(),
+          '/api/cart': () => new Promise((resolve) => {
+            reloadCart = resolve
+          }),
+        })
+        const { onSubmit, quotePending } = setup(COD)
+        await onSubmit()
+        q.shown = NEW_CART
+        q.priced = NEW_CART
+
+        await onSubmit()
+        expect(orderBodies()).toHaveLength(1)
+        expect(lastFailure()?.title).toBe(t('form.submit.error.cart_changed'))
+
+        reloadCart(makeCart())
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
+        await onSubmit()
+
+        expect(orderBodies().map(body => body.expectedCartDigest)).toEqual([CART_DIGEST, 'digest-of-the-cart-now'])
+      })
+
+      // The cart could not be read again: the page may show lines the
+      // quote is not for, so a click asks again instead of ordering, and
+      // the click after the cart is back orders.
+      it('orders nothing while the cart could not be read again, and reads it on the next click', async () => {
+        let orders = 0
+        let carts = 0
+        api.routes({
+          '/api/orders': () => (orders++ === 0 ? cartChanged : orderCreated())(),
+          '/api/cart': () => {
+            if (carts++ === 0) throw new Error('502')
+            return makeCart()
+          },
+        })
+        const { onSubmit, quotePending } = setup(COD)
+        await onSubmit()
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
+        q.shown = NEW_CART
+        q.priced = NEW_CART
+
+        await onSubmit()
+
+        expect(orderBodies()).toHaveLength(1)
+        expect(lastFailure()).toMatchObject({
+          title: t('form.submit.error.cart_unread'),
+          description: t('form.submit.error.cart_unread_description'),
+        })
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
+        expect(api.callsTo('/api/cart')).toHaveLength(2)
+
+        await onSubmit()
+
+        expect(orderBodies().map(body => body.expectedCartDigest)).toEqual([CART_DIGEST, 'digest-of-the-cart-now'])
+      })
+
+      it('orders the cart now once the shopper submits again with its quote on the page', async () => {
+        let orders = 0
+        api.routes({
+          '/api/orders': () => (orders++ === 0 ? cartChanged : orderCreated())(),
+          '/api/cart': makeCart(),
+        })
+        const { onSubmit, quotePending } = setup(COD)
+        await onSubmit()
+        // The page offers the order again once the cart and the quote are back.
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
+
+        q.shown = NEW_CART
+        q.priced = NEW_CART
+        await onSubmit()
+
+        expect(orderBodies().map(body => body.expectedCartDigest)).toEqual([CART_DIGEST, 'digest-of-the-cart-now'])
       })
     })
 
@@ -1093,8 +1262,10 @@ describe('useCheckoutSubmit', () => {
           '/api/orders': () => (orders++ === 0 ? totalChanged : orderCreated())(),
           '/api/cart': makeCart(),
         })
-        const { onSubmit } = setup(STRIPE)
+        const { onSubmit, quotePending } = setup(STRIPE)
         await onSubmit()
+        // The page offers the order again once the cart and the quote are back.
+        await vi.waitFor(() => expect(quotePending.value).toBe(false))
 
         q.shown = NEW_TOTAL
         q.priced = NEW_TOTAL

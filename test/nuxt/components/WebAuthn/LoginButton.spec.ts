@@ -36,7 +36,7 @@ const REQUEST_OPTIONS = { challenge: 'Y2hhbGxlbmdl', rpId: 'test.local' }
 const CREDENTIAL_JSON = { id: 'cred-1', type: 'public-key' }
 const SIGNED_IN = { status: 200, data: { user: { id: 7 }, methods: [] }, meta: { is_authenticated: true } }
 
-let refreshCart: MockInstance<() => Promise<void>>
+let refreshCart: MockInstance<() => Promise<boolean>>
 
 beforeEach(() => {
   getWebAuthnRequestOptionsForLogin.mockResolvedValue({ status: 200, data: { request_options: { publicKey: REQUEST_OPTIONS } } })
@@ -46,7 +46,7 @@ beforeEach(() => {
   // A getter spy on happy-dom's `navigator.credentials`: `restoreMocks`
   // puts the real one back after every test.
   vi.spyOn(window.navigator, 'credentials', 'get').mockReturnValue({ get: credentialsGet } as Partial<CredentialsContainer> as CredentialsContainer)
-  refreshCart = vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue()
+  refreshCart = vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue(true)
   useAuthStore().session = undefined
 })
 

@@ -70,13 +70,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // Django field errors for the address step, handed to its ``UForm``
   // (``setErrors``) when a rejected order sends the shopper back there.
   const addressStepErrors = ref<FormError[]>([])
-  // The quote's `expectedTotal` the submit in progress places its order
-  // at: the total the shopper was shown (`onSubmit`, step 2b).
-  let pricedTotal: ExpectedTotal | null = null
-  // The total the shopper's click accepted, carried into the automatic
+  // The quote the submit in progress places its order at: the total and
+  // the cart the shopper was shown (`onSubmit`, step 2b).
+  let accepted: AcceptedQuote | null = null
+  // The quote the shopper's click accepted, carried into the automatic
   // retry of an expired stock hold: the retry may only place the order
-  // at it, never at a total the quote reached since without a click.
-  let retryAcceptedTotal: ExpectedTotal | null = null
+  // at it, never at a quote reached since without a click.
+  let retryAccepted: AcceptedQuote | null = null
 
   // Meta Pixel event_ids for browser↔server deduplication. Minted at
   // the moment the customer enters checkout (InitiateCheckout) and
@@ -200,14 +200,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // The only retryable error is an expired hold: drop the dead
     // reservation ids so the retry re-reserves stock.
     if (errorInfo.shouldRetry) reservationIds.value = []
-    // Django priced the order at another total: show the cart's lines at
-    // their prices now and the quote the shopper's next submit sends.
-    // Both are asked at once, so the quote is pending (and the page's
-    // order button with it) from the refusal on, never showing the old
-    // total as current while the cart reloads.
-    if (errorInfo.totalChanged) {
-      void Promise.all([cartStore.refreshCart(), checkoutQuote.refresh()])
-    }
+    // Django refused the order for a total or a cart that changed: show
+    // the cart's lines at their prices now and the quote the shopper's
+    // next submit accepts.
+    if (errorInfo.quoteChanged) void reloadCartAndQuote()
     // A field the address step owns: go back there and show each
     // message under its own input, not only in the toast.
     if (errorInfo.addressStepErrors.length) {
@@ -221,7 +217,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   }
 
   const buildOrderValues = () => {
-    if (!formState.payWayId) {
+    if (!formState.payWayId || !accepted) {
       failCheckout({ title: t('form.submit.error.general') })
       return
     }
@@ -231,14 +227,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // ``plugins/attribution.client.ts``; Django classifies the source.
     const attribution = orderAttribution.read()
 
-    return buildOrderCreateBody(formState, {
+    return placeOrderAt(buildOrderCreateBody(formState, {
       selectedCountry: selectedCountry.value,
       loyaltyDiscount: loyaltyDiscount.value,
       giftCards: giftCards.value,
       meta: metaPayload,
       attribution,
-      expectedTotal: pricedTotal,
-    })
+    }), accepted)
   }
 
   /**
@@ -301,7 +296,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         return
       }
       retryCount.value++
-      retryAcceptedTotal = pricedTotal
+      retryAccepted = accepted
       // Keep isSubmitting true during the retry window to block double-submit,
       // then release it right before re-entering onSubmit — otherwise the
       // re-entrant call hits the `if (isSubmitting.value) return` guard and the
@@ -340,24 +335,24 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     body,
     // Django prices the intent at the quote's amount due: a total that
     // moved (a price edit the cart does not carry) needs a fresh intent.
-    expectedTotal: pricedTotal,
+    expectedTotal: accepted?.expectedTotal ?? null,
     ...cartPricedFrom(),
   })
 
   /**
    * What an order submit is made of: the order body and the cart it is
    * priced from. Left out: the Meta ``meta`` ids (a fresh Purchase id is
-   * minted per submit) and the ``expectedTotal``, which guards the order
-   * rather than making it. While an attempt's outcome is unknown (no
+   * minted per submit), the ``expectedTotal`` and the
+   * ``expectedCartDigest``, which guard the order rather than make it. While an attempt's outcome is unknown (no
    * answer, a 5xx, the same key still in flight) its retry must reuse its
    * key, so Django answers with the order if the first request made one:
    * a quote refreshed meanwhile must not mint a new key and place a second
    * order. A refusal settles the attempt (``rejectionSettlesAttempt``),
-   * so a ``total_changed`` 409 still sends the revised total under a new
-   * key.
+   * so a ``total_changed`` or ``cart_changed`` 409 still sends the revised
+   * quote under a new key.
    */
   const orderFingerprint = (orderValues: OrderCreateFromCartRequestWritable) => JSON.stringify({
-    order: { ...orderValues, meta: undefined, expectedTotal: undefined },
+    order: { ...orderValues, meta: undefined, expectedTotal: undefined, expectedCartDigest: undefined },
     ...cartPricedFrom(),
   })
 
@@ -383,9 +378,40 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     if (rejectionSettlesAttempt(error)) orderAttempt.value = null
   }
 
+  // The cart and its quote being asked again after a quote changed under
+  // the shopper (`reloadCartAndQuote`): the order button waits for both.
+  const cartReload = shallowRef<Promise<void> | null>(null)
+  // The last reload could not read the cart: the page may still show
+  // lines the quote is no longer for, so no quote can be accepted until a
+  // reload reads it.
+  const cartUnread = ref(false)
+
+  /**
+   * Asks Django for the cart's lines and the quote again, at once, so the
+   * quote is pending from the change on, never showing the old one as
+   * current. The page offers no order until BOTH answered
+   * (`quotePending`), and a submit meanwhile does nothing (`onSubmit`):
+   * the quote names no lines, so a click accepted while only the quote had
+   * come back would place an order of lines the page did not show yet.
+   * A reload that could not read the cart leaves `cartUnread`, and the
+   * next submit reloads instead of ordering.
+   */
+  const reloadCartAndQuote = (): Promise<void> => {
+    const reload = Promise.all([cartStore.refreshCart(), checkoutQuote.refresh()])
+      .then(([cartRead]) => {
+        cartUnread.value = !cartRead
+      })
+      .finally(() => {
+        if (cartReload.value === reload) cartReload.value = null
+      })
+    cartReload.value = reload
+    return reload
+  }
+
   // What checkout charges: Django's quote of the order this form would
   // place, with the choices the shopper has reached (`quoteRequestOf`).
-  // The summary and «Pay …» show it; the order sends its `expectedTotal`.
+  // The summary and «Pay …» show it; the order sends its `expectedTotal`
+  // and `cartDigest`.
   const checkoutQuote = useCheckoutQuote({
     request: () => quoteRequestOf(
       buildOrderCreateBody(formState, {
@@ -394,7 +420,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         giftCards: giftCards.value,
         meta: null,
         attribution: null,
-        expectedTotal: null,
       }),
       {
         delivery: currentStep.value >= 1 && Boolean(formState.shippingMethod),
@@ -676,6 +701,21 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     }
 
     if (isSubmitting.value) return
+    // The cart and its quote are being asked again after a change: the
+    // page does not show yet what an order would be made of, so there is
+    // nothing to accept (the order button waits on `quotePending`; this
+    // also stops a submit by keyboard). What the shopper was told stays.
+    if (cartReload.value) return
+    // The cart could not be read after the change: say so and ask again;
+    // the click after the cart is back may order.
+    if (cartUnread.value) {
+      failCheckout({
+        title: t('form.submit.error.cart_unread'),
+        description: t('form.submit.error.cart_unread_description'),
+      })
+      void reloadCartAndQuote()
+      return
+    }
 
     isSubmitting.value = true
 
@@ -684,14 +724,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // placed must not drop what the active submit accepted, which its own
     // automatic retry still needs.
     submitError.value = null
-    // The total the shopper accepts: the one on the page as they clicked,
+    // The quote the shopper accepts: the one on the page as they clicked,
     // or, for the automatic retry of an expired hold, the one the click
     // that started it accepted.
-    const shownTotal = wasRetry
-      ? retryAcceptedTotal
-      : checkoutQuote.quote.value?.expectedTotal ?? null
-    pricedTotal = null
-    retryAcceptedTotal = null
+    const shown = wasRetry
+      ? retryAccepted
+      : acceptedQuoteOf(checkoutQuote.quote.value)
+    accepted = null
+    retryAccepted = null
 
     if (!wasRetry) retryCount.value = 0
 
@@ -769,32 +809,40 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         return
       }
 
-      // Step 2b: the order is placed at the total the shopper was shown,
-      // sent as the quote's `expectedTotal`. A quote still in flight is
-      // waited for; one that differs from the total on the page when they
-      // clicked (a price, an offer or a rate changed meanwhile, or the
-      // refetch above moved the delivery) is shown first, and their next
-      // click accepts it.
-      const { quote: priced, error: quoteError } = await checkoutQuote.current()
-      if (!priced?.expectedTotal) {
+      // Step 2b: the order is placed at the quote the shopper was shown,
+      // sent as its `expectedTotal` and `cartDigest`. A quote still in
+      // flight is waited for; one that differs from the quote on the page
+      // when they clicked (a price, an offer, a rate or the cart changed
+      // meanwhile, or the refetch above moved the delivery) is shown
+      // first, and their next click accepts it.
+      const { quote: pricedQuote, error: quoteError } = await checkoutQuote.current()
+      const priced = acceptedQuoteOf(pricedQuote)
+      if (!pricedQuote || !priced) {
         failCheckoutWith(quoteError, {
           title: t('form.submit.error.total_unavailable'),
           fallback: t('form.submit.error.total_unavailable_description'),
         })
         return
       }
-      // No order without a total the shopper saw and accepted. One the
+      // No order without a quote the shopper saw and accepted. One the
       // page never showed is shown now (the order button waits while a
       // quote is asked for and has no total to accept, so a click lands
-      // here only through a race); a different one is shown as changed.
-      // Either way the next click accepts it.
-      if (!sameExpectedTotal(priced.expectedTotal, shownTotal)) {
-        failCheckout(shownTotal === null
-          ? describeTotalToConfirm(priced.amountDue, t, n)
-          : describeTotalChange(priced.amountDue, t, n))
+      // here only through a race); a different one is shown as changed:
+      // its total, or its cart at the same total. Either way the next
+      // click accepts it.
+      // A changed one is what the cart is now, so its lines are asked
+      // again with it: the page then shows what the next click orders.
+      const change = acceptedQuoteChange(priced, shown)
+      if (change) {
+        failCheckout(shown === null
+          ? describeTotalToConfirm(pricedQuote.amountDue, t, n)
+          : change === 'cart'
+            ? describeCartChange(pricedQuote.amountDue, t, n)
+            : describeTotalChange(pricedQuote.amountDue, t, n))
+        if (shown !== null) void reloadCartAndQuote()
         return
       }
-      pricedTotal = priced.expectedTotal
+      accepted = priced
 
       // Step 2c: Set selected payment way
       payWays.value?.results?.forEach((pw) => {
@@ -1070,8 +1118,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // Asks for the quote again with the same choices, after a refusal.
     retryQuote: checkoutQuote.refresh,
     // The page's order button waits while the quote is being asked for,
+    // or the cart and the quote again after a change (`reloadCartAndQuote`),
     // and the summary says why when Django refuses one.
-    quotePending: checkoutQuote.pending,
+    quotePending: computed(() => checkoutQuote.pending.value || cartReload.value !== null),
     quoteRefusal: checkoutQuote.refusal,
     submitError,
     checkoutMode,

@@ -7,9 +7,13 @@ import type { CartQuote, CheckoutQuote } from '~~/shared/openapi/types.gen'
  *
  * Defaults: a 60,00 € cart, no offer, delivered for 3,00 € and paid by
  * a pay way without a fee, nothing redeemed: 63,00 € due, stated back
- * as 6300 cents. A quote asked before a choice was made has that row
- * null, and with it the rows that need both (`unpricedQuote`).
+ * as 6300 cents, and the cart's digest (`CART_DIGEST`). A quote asked
+ * before a choice was made has that row null, and with it the rows that
+ * need both and the digest (`unpricedQuote`).
  */
+/** The `cartDigest` of the default quote: opaque, as Django's HMAC is. */
+export const CART_DIGEST = 'digest-of-the-default-cart'
+
 export function makeCartQuote(overrides: Partial<CartQuote> = {}): CartQuote {
   return {
     itemsSubtotal: 60,
@@ -25,6 +29,7 @@ export function makeCartQuote(overrides: Partial<CartQuote> = {}): CartQuote {
     amountDue: 63,
     currency: 'EUR',
     expectedTotal: { amount: 6300, currency: 'EUR' },
+    cartDigest: CART_DIGEST,
     shippingOptions: [],
     payWays: [],
     ...overrides,
@@ -40,13 +45,14 @@ export function unpricedQuote(overrides: Partial<CartQuote> = {}): CartQuote {
     grandTotal: null,
     amountDue: null,
     expectedTotal: null,
+    cartDigest: null,
     shippingOptions: null,
     ...overrides,
   })
 }
 
 /**
- * The quote a 409 `total_changed` carries under `error.quote`: the
+ * The quote a 409 `total_changed` or `cart_changed` carries under `error.quote`: the
  * rows alone, without the priced lists.
  */
 export function makeCheckoutQuote(overrides: Partial<CheckoutQuote> = {}): CheckoutQuote {

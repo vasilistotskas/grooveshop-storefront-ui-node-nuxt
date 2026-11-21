@@ -42,10 +42,10 @@ export interface AttachmentError {
   code: AttachmentErrorCode
   /**
    * The server's parsed body, for `rejected` only. Passed through
-   * untouched so the component can render it with the same
-   * `isDrfFieldErrorMap` / `formatDrfFieldErrors` pair the enquiry's
-   * own failures use — the server owns the wording of "that type is
-   * not accepted", and it already knows the store's allow-list.
+   * untouched so the component reads its field errors as every Django
+   * error is read (`apiFieldErrorsOf`, shown by `formatFieldErrors`) —
+   * the server owns the wording of "that type is not accepted", and it
+   * already knows the store's allow-list.
    */
   data?: unknown
 }

@@ -361,12 +361,12 @@ describe('Cart Store', () => {
   })
 
   describe('refreshCart', () => {
-    it('replaces the cart with the server\'s', async () => {
+    it('replaces the cart with the server\'s, and says it read it', async () => {
       const cart = twoLineCart({ quantity1: 4 })
       store.cart = twoLineCart()
       api.routes({ '/api/cart': cart })
 
-      await store.refreshCart()
+      await expect(store.refreshCart()).resolves.toBe(true)
 
       expect(store.cart).toEqual(cart)
     })
@@ -374,12 +374,12 @@ describe('Cart Store', () => {
     it.each([
       ['an empty response', () => null],
       ['a failure', () => { throw new Error('502') }],
-    ])('keeps the previous cart on %s', async (_case, answer) => {
+    ])('keeps the previous cart on %s, and says it read none', async (_case, answer) => {
       const cart = twoLineCart()
       store.cart = cart
       api.routes({ '/api/cart': answer })
 
-      await expect(store.refreshCart()).resolves.toBeUndefined()
+      await expect(store.refreshCart()).resolves.toBe(false)
       expect(store.cart).toEqual(cart)
     })
   })

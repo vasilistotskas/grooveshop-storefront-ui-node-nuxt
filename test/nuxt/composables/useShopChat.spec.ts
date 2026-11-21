@@ -583,7 +583,7 @@ data: {"message":"Η συνομιλία διακόπηκε.",${members}}
   })
 
   it('reset forgets that the last turn changed the cart', async () => {
-    vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue()
+    vi.spyOn(useCartStore(), 'refreshCart').mockResolvedValue(true)
     stubStream('event: done\ndata: {"conversationId":"c1","cartId":"abc","cartMutated":true}\n\n')
 
     const chat = useShopChat()
