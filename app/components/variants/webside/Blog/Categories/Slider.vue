@@ -62,18 +62,11 @@ const categoryResults = computed(() => props.categories.slice(0, props.max))
         size="xl"
       >
         <template #leading>
-          <!-- An SVG picture is the topic's icon: drawn whole on the
-               button's secondary fill, never stretched to the square. -->
-          <ImgWithFallback
-            v-if="isSvgImage(item?.mainImagePath ?? '')"
-            class="size-[25px] object-contain"
-            :alt="extractTranslated(item, 'name', locale)"
-            background="transparent"
-            fit="contain"
-            :height="25"
-            :src="item?.mainImagePath"
-            :width="25"
-            densities="x1 x2"
+          <UIcon
+            v-if="deriveIconName(item?.mainImagePath)"
+            :name="deriveIconName(item?.mainImagePath)!"
+            class="size-[25px] text-primary-100"
+            :aria-label="extractTranslated(item, 'name', locale)"
           />
           <ImgWithFallback
             v-else
