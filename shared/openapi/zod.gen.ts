@@ -1462,7 +1462,7 @@ export const zGiftCard = z.object({
   balance: z.number().gt(-1000000000).lt(1000000000).readonly(),
   status: zGiftCardStatusEnum,
   expiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  recipientEmail: z.email().readonly(),
+  recipientEmail: z.email().readonly().nullable(),
   recipientName: z.string().readonly(),
   senderName: z.string().readonly(),
   message: z.string().readonly(),
@@ -7204,10 +7204,13 @@ export const zApiError = z.object({
 })
 
 /**
- * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
+ * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; when a field is itself named ``code``, that field's messages instead) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
  */
 export const zApiValidationError = z.object({
-  code: z.string().optional(),
+  code: z.union([
+    z.string(),
+    z.array(z.string()),
+  ]).optional(),
   fields: z.record(z.string(), zApiFieldErrors),
 })
 
