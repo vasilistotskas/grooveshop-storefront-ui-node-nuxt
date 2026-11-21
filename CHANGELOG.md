@@ -1,3 +1,10 @@
+# [3.349.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.348.1...v3.349.0) (2026-11-21)
+
+
+### Features
+
+* **checkout:** an address line 2, at checkout and in the address book ([#506](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/506)) ([7588c8f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7588c8fb3d25edfaf3fd308cf8222f99650d439d)), closes [#767](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/767) [#769](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/769)
+
 ## [3.348.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.348.0...v3.348.1) (2026-11-21)
 
 
