@@ -88,7 +88,7 @@ useHead({
         :width="960"
         :height="600"
         :alt="storeName"
-        sizes="xs:320px sm:640px md:480px lg:480px xl:560px xxl:600px 2xl:600px"
+        sizes="xs:320px sm:640px md:480px lg:480px xl:560px xxl:600px"
         loading="eager"
         quality="80"
         format="webp"

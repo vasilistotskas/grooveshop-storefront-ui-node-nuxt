@@ -105,3 +105,18 @@ export const AuthChangeEvent = Object.freeze({
 // A page states these as og:image:width/height only when the og:image really
 // is this rendition (never for the tenant logo fallback, whose size is unknown).
 export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const
+
+// Where the media service cuts a blog post's cover to a shape: the page's
+// cover in every design, its og:image and its schema.org images ask for the
+// same one, so every rendition shows the same part of the photograph.
+export const BLOG_COVER_CROP_POSITION = 'attention'
+
+// The Article's images, in the order Google lists the shapes it asks for
+// (16:9, 4:3, 1:1). The first is the page's primary image. No width or
+// height is stated: Google's Article doc asks for none, and the media
+// service never enlarges a source, so a narrow original is served narrower.
+export const ARTICLE_IMAGE_SIZES = [
+  { width: 1200, height: 675 },
+  { width: 1200, height: 900 },
+  { width: 1200, height: 1200 },
+] as const

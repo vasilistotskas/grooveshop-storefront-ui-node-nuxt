@@ -184,11 +184,31 @@ export async function useBlogPostPage(options: {
     return img(post.mainImagePath, {
       ...OG_IMAGE_SIZE,
       fit: 'cover',
+      position: BLOG_COVER_CROP_POSITION,
       format: 'png',
     }, {
       provider: 'mediaStream',
     })
   })
+
+  // The Article's images: the cover in the three shapes Google asks for,
+  // each an ImageObject the graph names once. The 16:9 one is also the
+  // page's primary image, by reference, not as a second copy.
+  const coverPath = blogPost.value.mainImagePath
+  const articleImages = coverPath
+    ? ARTICLE_IMAGE_SIZES.map(size => ({
+        id: computed(() => `${canonicalUrl.value}#/schema/image/cover-${size.width}x${size.height}`),
+        url: computed(() => img(coverPath, {
+          ...size,
+          fit: 'cover',
+          position: BLOG_COVER_CROP_POSITION,
+          format: 'png',
+        }, {
+          provider: 'mediaStream',
+        })),
+      }))
+    : []
+  const primaryImage = articleImages[0]
 
   // The canonical and the hreflang set are built from the post's OWN
   // id+slug, never from route.path: the [slug] segment is decorative (the
@@ -223,15 +243,18 @@ export async function useBlogPostPage(options: {
   })
 
   useSchemaOrg([
-    // The post's cover, the Article's image, not the store's logo, which
-    // the schema module puts there when the page names nothing.
-    defineWebPage(computed(() => ({ primaryImageOfPage: ogImage.value || undefined }))),
+    ...articleImages.map(image => defineImage({ '@id': image.id, 'url': image.url })),
+    // The post's cover, not the store's logo, which the schema module puts
+    // there when the page names nothing.
+    defineWebPage(computed(() => ({
+      primaryImageOfPage: primaryImage ? { '@id': primaryImage.id.value } : undefined,
+    }))),
     defineArticle({
       author: { '@id': authorPersonId.value },
       keywords: blogPostSeoKeywords.value ? [blogPostSeoKeywords.value] : undefined,
       headline: () => blogPostSeoTitle.value,
       description: () => blogPostDescription.value,
-      image: () => ogImage.value || undefined,
+      image: articleImages.length ? articleImages.map(image => ({ '@id': image.id })) : undefined,
       datePublished: () => blogPost.value?.publishedAt || undefined,
       dateModified: () => blogPost.value?.updatedAt || undefined,
       articleSection: blogPostCategoryName.value ? [blogPostCategoryName.value] : undefined,
