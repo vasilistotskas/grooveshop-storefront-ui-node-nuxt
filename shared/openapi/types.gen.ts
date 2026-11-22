@@ -896,6 +896,8 @@ export type BlogCategory = {
      */
   readonly hasChildren: boolean
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -944,6 +946,8 @@ export type BlogCategoryDetail = {
      */
   readonly hasChildren: boolean
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -1247,6 +1251,8 @@ export type BlogPost = {
      */
   readonly updatedAt: string
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly readingTime: number
   readonly contentPreview: string
 }
@@ -1316,6 +1322,8 @@ export type BlogPostDetail = {
      */
   readonly updatedAt: string
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly readingTime: number
   readonly contentPreview: string
   readonly likes: Array<number>
@@ -2346,7 +2354,7 @@ export type Cart = {
      * Uses annotated value if available (from optimized queryset),
      * otherwise calculates from items.
      */
-  totalItems: number | 0
+  readonly totalItems: number
   /**
      * Return the number of unique items in the cart.
      *
@@ -7407,6 +7415,8 @@ export type Product = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -7568,6 +7578,8 @@ export type ProductCard = {
   readonly announcedDiscountPercent: number | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Return the average review rating for this product.
      */
@@ -7916,6 +7928,8 @@ export type ProductDetail = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8029,6 +8043,8 @@ export type ProductDetailResponse = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8197,6 +8213,8 @@ export type ProductFeed = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8260,6 +8278,8 @@ export type ProductImage = {
     }
   }
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -8301,15 +8321,12 @@ export type ProductImageDetail = {
     }
   }
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
-  readonly imageDimensions: {
-    width?: number
-    height?: number
-    aspectRatio?: number
-  }
   readonly imageFormat: string
   readonly usageContext: {
     isMain?: boolean
@@ -8649,6 +8666,8 @@ export type ProductRetrieve = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -10224,7 +10243,7 @@ export type StoreFeatureStates = {
 
 /**
  * Each optional feature's effective state for the store: its plan
- * flag AND its store settings (``tenant/features.py``), so a client reads
+ * flag AND its store settings (``src/tenant/features.py``), so a client reads
  * one answer instead of combining the two tiers and copying defaults.
  */
 export type StoreFeatures = {
@@ -10287,7 +10306,7 @@ export type StoreOfficeOverride = {
 }
 
 /**
- * Each store preference's state (``tenant/features.py``): a switch the
+ * Each store preference's state (``src/tenant/features.py``): a switch the
  * API does not refuse on, served here so a client learns it from the
  * tenant payload instead of a settings read that can fail.
  */
@@ -11213,6 +11232,8 @@ export type UserPublic = {
      * Διαδρομή avatar ή κενή συμβολοσειρά
      */
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 export type UserSubscription = {
@@ -12743,7 +12764,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   expectedCartDigest?: string
   /**
-     * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
+     * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Ένα ``client_ip_address`` που σταλεί εδώ αγνοείται: ο server το ορίζει από την επαληθευμένη διεύθυνση του edge. Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
      */
   meta?: {
     [key: string]: unknown
@@ -21196,6 +21217,200 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses]
 
+export type ListAllCountriesData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Φίλτρο ανά ακριβή διψήφιο κωδικό χώρας
+         */
+    alpha2?: string
+    /**
+         * Φίλτρο ανά διψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+         */
+    alpha2_Icontains?: string
+    alpha2_Iexact?: string
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    alpha2_In?: string | Array<string>
+    /**
+         * Φίλτρο ανά ακριβή τριψήφιο κωδικό χώρας
+         */
+    alpha3?: string
+    /**
+         * Φίλτρο ανά τριψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+         */
+    alpha3_Icontains?: string
+    alpha3_Iexact?: string
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    alpha3_In?: string | Array<string>
+    /**
+         * Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)
+         *
+         * * `AF` - Africa
+         * * `AS` - Asia
+         * * `EU` - Europe
+         * * `NA` - North America
+         * * `OC` - Oceania
+         * * `SA` - South America
+         * * `AN` - Antarctica
+         */
+    continent?: 'AF' | 'AN' | 'AS' | 'EU' | 'NA' | 'OC' | 'SA'
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο χωρών με πλήρη δεδομένα (ISO, κλήση, σημαία, όνομα)
+         */
+    hasAllData?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς εικόνα σημαίας
+         */
+    hasFlagImage?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς κωδικό ISO
+         */
+    hasIsoCc?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς μετάφραση ονόματος
+         */
+    hasName?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς κωδικό κλήσης
+         */
+    hasPhoneCode?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών μελών ΕΕ
+         */
+    isEu?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβή ISO κωδικό χώρας
+         */
+    isoCc?: string | number
+    isoCc_Gte?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    isoCc_In?: string | Array<number>
+    isoCc_Lte?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό ISO μικρότερο ή ίσο με
+         */
+    isoCcMax?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό ISO μεγαλύτερο ή ίσο με
+         */
+    isoCcMin?: string | number
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en)
+         */
+    languageCode?: 'el' | 'en'
+    /**
+         * Φίλτρο ανά πολλαπλούς κωδικούς χωρών (διαχωρισμένους με κόμμα, alpha-2 ή alpha-3)
+         */
+    multipleCodes?: string
+    /**
+         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
+         */
+    name?: string
+    /**
+         * Φίλτρο ανά ακριβές όνομα χώρας
+         */
+    name_Exact?: string
+    /**
+         * Φίλτρο χωρών με όνομα που ξεκινά με
+         */
+    name_Startswith?: string
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name
+         */
+    ordering?: string
+    /**
+         * Φίλτρο ανά ακριβή κωδικό κλήσης
+         */
+    phoneCode?: string | number
+    phoneCode_Gte?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    phoneCode_In?: string | Array<number>
+    phoneCode_Lte?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό κλήσης μικρότερο ή ίσο με
+         */
+    phoneCodeMax?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό κλήσης μεγαλύτερο ή ίσο με
+         */
+    phoneCodeMin?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+    /**
+         * Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
+    sortOrder?: string | number
+    sortOrder_Gte?: string | number
+    sortOrder_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+  }
+  url: '/api/v1/country/all'
+}
+
+export type ListAllCountriesErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListAllCountriesError = ListAllCountriesErrors[keyof ListAllCountriesErrors]
+
+export type ListAllCountriesResponses = {
+  200: Array<Country>
+}
+
+export type ListAllCountriesResponse = ListAllCountriesResponses[keyof ListAllCountriesResponses]
+
 export type ConfirmUnsubscribeFromEmailData = {
   body?: never
   path: {
@@ -21342,6 +21557,34 @@ export type ListMyGiftCardsResponses = {
 }
 
 export type ListMyGiftCardsResponse = ListMyGiftCardsResponses[keyof ListMyGiftCardsResponses]
+
+export type ListAllMyGiftCardsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en)
+         */
+    languageCode?: 'el' | 'en'
+  }
+  url: '/api/v1/giftcard/mine/all'
+}
+
+export type ListAllMyGiftCardsErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListAllMyGiftCardsError = ListAllMyGiftCardsErrors[keyof ListAllMyGiftCardsErrors]
+
+export type ListAllMyGiftCardsResponses = {
+  200: Array<GiftCard>
+}
+
+export type ListAllMyGiftCardsResponse = ListAllMyGiftCardsResponses[keyof ListAllMyGiftCardsResponses]
 
 export type PurchaseGiftCardData = {
   body: GiftCardPurchaseRequestRequest

@@ -24326,6 +24326,781 @@
                 }
             }
         },
+        "/api/v1/country/all": {
+            "get": {
+                "operationId": "listAllCountries",
+                "description": "Ολόκληρη η λίστα χωρών σε έναν πίνακα, φιλτραρισμένη και ταξινομημένη όπως η σελιδοποιημένη λίστα: για έναν επιλογέα που χρειάζεται κάθε γραμμή.",
+                "summary": "Όλες οι χώρες, σε μία λίστα",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "alpha2",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά ακριβή διψήφιο κωδικό χώρας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "alpha2_Icontains",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά διψήφιο κωδικό χώρας (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "alpha2_Iexact",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "alpha2_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "alpha3",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά ακριβή τριψήφιο κωδικό χώρας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "alpha3_Icontains",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά τριψήφιο κωδικό χώρας (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "alpha3_Iexact",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "alpha3_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "continent",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "AF",
+                                "AN",
+                                "AS",
+                                "EU",
+                                "NA",
+                                "OC",
+                                "SA"
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)\n\n* `AF` - Africa\n* `AS` - Asia\n* `EU` - Europe\n* `NA` - North America\n* `OC` - Oceania\n* `SA` - South America\n* `AN` - Antarctica"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasAllData",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με πλήρη δεδομένα (ISO, κλήση, σημαία, όνομα)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasFlagImage",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με/χωρίς εικόνα σημαίας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasIsoCc",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με/χωρίς κωδικό ISO"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasName",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με/χωρίς μετάφραση ονόματος"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasPhoneCode",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με/χωρίς κωδικό κλήσης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isEu",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών μελών ΕΕ"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isoCc",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ακριβή ISO κωδικό χώρας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isoCc_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "isoCc_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isoCc_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "isoCcMax",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με κωδικό ISO μικρότερο ή ίσο με"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isoCcMin",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με κωδικό ISO μεγαλύτερο ή ίσο με"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "multipleCodes",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά πολλαπλούς κωδικούς χωρών (διαχωρισμένους με κόμμα, alpha-2 ή alpha-3)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "name_Exact",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά ακριβές όνομα χώρας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "name_Startswith",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο χωρών με όνομα που ξεκινά με"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "required": false,
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^(?:alpha2|\\-alpha2|alpha3|\\-alpha3|isoCc|\\-isoCc|phoneCode|\\-phoneCode|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|translations_Name|\\-translations_Name)(?:,(?:alpha2|\\-alpha2|alpha3|\\-alpha3|isoCc|\\-isoCc|phoneCode|\\-phoneCode|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|translations_Name|\\-translations_Name))*$"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "phoneCode",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ακριβή κωδικό κλήσης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "phoneCode_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "phoneCode_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "phoneCode_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "phoneCodeMax",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με κωδικό κλήσης μικρότερο ή ίσο με"
+                    },
+                    {
+                        "in": "query",
+                        "name": "phoneCodeMin",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο χωρών με κωδικό κλήσης μεγαλύτερο ή ίσο με"
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "shippable",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία."
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrder",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ακριβή σειρά"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrder_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrder_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrderMax",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrderMin",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Φίλτρο ανά ακριβές UUID"
+                    }
+                ],
+                "tags": [
+                    "Countries"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Country"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/emails/unsubscribe/{token}": {
             "get": {
                 "operationId": "confirmUnsubscribeFromEmail",
@@ -24790,6 +25565,108 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PaginatedGiftCardList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/giftcard/mine/all": {
+            "get": {
+                "operationId": "listAllMyGiftCards",
+                "description": "Όλες οι δωροκάρτες που είναι συνδεδεμένες με τον λογαριασμό μου, σε μία λίστα",
+                "summary": "Όλες οι δωροκάρτες που είναι συνδεδεμένες με τον λογαριασμό μου, σε μία λίστα",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en)"
+                    }
+                ],
+                "tags": [
+                    "Gift Cards"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/GiftCard"
+                                    }
                                 }
                             }
                         },
@@ -52314,7 +53191,7 @@
         "/api/v1/tenant/memberships/mine": {
             "get": {
                 "operationId": "api_v1_tenant_memberships_mine_retrieve",
-                "description": "List the tenants the authenticated STAFF user has access to.\n\nUsed to build the operator's tenant switcher and decide which admin\nlinks to render (OWNER/ADMIN/STAFF unlock different surfaces).\n\nAnswers only in the public schema. Memberships are a platform-wide\ntable keyed by a PUBLIC user id, while a request on a tenant host\nauthenticates against that tenant's OWN user table — where the same\nid belongs to a different person. Filtering by that id would list\nstores the caller has nothing to do with. Customers hold no\nmemberships at all (see ``tenant/membership.py``), so an empty list\nis the correct answer for every shopper.",
+                "description": "List the tenants the authenticated STAFF user has access to.\n\nUsed to build the operator's tenant switcher and decide which admin\nlinks to render (OWNER/ADMIN/STAFF unlock different surfaces).\n\nAnswers only in the public schema. Memberships are a platform-wide\ntable keyed by a PUBLIC user id, while a request on a tenant host\nauthenticates against that tenant's OWN user table — where the same\nid belongs to a different person. Filtering by that id would list\nstores the caller has nothing to do with. Customers hold no\nmemberships at all (see ``src/tenant/membership.py``), so an empty list\nis the correct answer for every shopper.",
                 "tags": [
                     "Tenant"
                 ],
@@ -60792,6 +61669,16 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -60810,7 +61697,9 @@
                     "hasChildren",
                     "id",
                     "level",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "postCount",
                     "slug",
                     "sortOrder",
@@ -60887,6 +61776,16 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -60948,7 +61847,9 @@
                     "hasChildren",
                     "id",
                     "level",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "postCount",
                     "recursivePostCount",
                     "siblingsCount",
@@ -61585,6 +62486,16 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "readingTime": {
                         "type": "integer",
                         "readOnly": true
@@ -61602,7 +62513,9 @@
                     "createdAt",
                     "id",
                     "likesCount",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "publishedAt",
                     "readingTime",
                     "slug",
@@ -61757,6 +62670,16 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "readingTime": {
                         "type": "integer",
                         "readOnly": true
@@ -61786,7 +62709,9 @@
                     "id",
                     "likes",
                     "likesCount",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "publishedAt",
                     "readingTime",
                     "slug",
@@ -63608,17 +64533,7 @@
                         "description": "ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ."
                     },
                     "totalItems": {
-                        "oneOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "enum": [
-                                    0
-                                ],
-                                "type": "integer"
-                            }
-                        ],
+                        "type": "integer",
                         "description": "Return the total quantity of all items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise calculates from items.",
                         "readOnly": true
                     },
@@ -68710,7 +69625,7 @@
                         "additionalProperties": {},
                         "writeOnly": true,
                         "nullable": true,
-                        "description": "Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή."
+                        "description": "Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Ένα ``client_ip_address`` που σταλεί εδώ αγνοείται: ο server το ορίζει από την επαληθευμένη διεύθυνση του edge. Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή."
                     },
                     "agentCheckout": {
                         "type": "string",
@@ -73022,7 +73937,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -74301,7 +75216,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -74367,6 +75282,16 @@
                     "mainImagePath": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "imagePaths": {
                         "type": "array",
@@ -74447,7 +75372,9 @@
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "mpn",
                     "potentialPoints",
                     "price",
@@ -74793,6 +75720,16 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "reviewAverage": {
                         "type": "number",
                         "format": "double",
@@ -74832,7 +75769,9 @@
                     "finalPrice",
                     "id",
                     "lowStockThreshold",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "potentialPoints",
                     "priorPrice",
                     "reviewAverage",
@@ -75584,7 +76523,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -75650,6 +76589,16 @@
                     "mainImagePath": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "imagePaths": {
                         "type": "array",
@@ -75736,7 +76685,9 @@
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "mpn",
                     "potentialPoints",
                     "price",
@@ -75902,7 +76853,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -75968,6 +76919,16 @@
                     "mainImagePath": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "imagePaths": {
                         "type": "array",
@@ -76054,7 +77015,9 @@
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "mpn",
                     "potentialPoints",
                     "price",
@@ -76389,7 +77352,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -76455,6 +77418,16 @@
                     "mainImagePath": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "imagePaths": {
                         "type": "array",
@@ -76543,7 +77516,9 @@
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "mpn",
                     "potentialPoints",
                     "price",
@@ -76627,6 +77602,16 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -76639,7 +77624,9 @@
                     "createdAt",
                     "id",
                     "image",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "product",
                     "sortOrder",
                     "translations",
@@ -76712,26 +77699,21 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Δημιουργήθηκε στις"
-                    },
-                    "imageDimensions": {
-                        "type": "object",
-                        "properties": {
-                            "width": {
-                                "type": "number"
-                            },
-                            "height": {
-                                "type": "number"
-                            },
-                            "aspectRatio": {
-                                "type": "number"
-                            }
-                        },
-                        "readOnly": true
                     },
                     "imageFormat": {
                         "type": "string",
@@ -76767,9 +77749,10 @@
                     "createdAt",
                     "id",
                     "image",
-                    "imageDimensions",
                     "imageFormat",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "product",
                     "sortOrder",
                     "translations",
@@ -77443,7 +78426,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -77509,6 +78492,16 @@
                     "mainImagePath": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "imagePaths": {
                         "type": "array",
@@ -77602,7 +78595,9 @@
                     "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "mpn",
                     "potentialPoints",
                     "price",
@@ -78246,7 +79241,7 @@
                         },
                         "example": {
                             "unit": "kg",
-                            "value": 1
+                            "value": 1.0
                         },
                         "nullable": true
                     },
@@ -81499,7 +82494,7 @@
             },
             "StoreFeatures": {
                 "type": "object",
-                "description": "Each optional feature's effective state for the store: its plan\nflag AND its store settings (``tenant/features.py``), so a client reads\none answer instead of combining the two tiers and copying defaults.",
+                "description": "Each optional feature's effective state for the store: its plan\nflag AND its store settings (``src/tenant/features.py``), so a client reads\none answer instead of combining the two tiers and copying defaults.",
                 "properties": {
                     "customerAccounts": {
                         "type": "boolean",
@@ -81675,7 +82670,7 @@
             },
             "StorePreferences": {
                 "type": "object",
-                "description": "Each store preference's state (``tenant/features.py``): a switch the\nAPI does not refuse on, served here so a client learns it from the\ntenant payload instead of a settings read that can fail.",
+                "description": "Each store preference's state (``src/tenant/features.py``): a switch the\nAPI does not refuse on, served here so a client learns it from the\ntenant payload instead of a settings read that can fail.",
                 "properties": {
                     "mobileBottomNav": {
                         "type": "boolean",
@@ -83476,13 +84471,25 @@
                         "type": "string",
                         "description": "Διαδρομή avatar ή κενή συμβολοσειρά",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
                     "firstName",
                     "id",
                     "lastName",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "username"
                 ]
             },

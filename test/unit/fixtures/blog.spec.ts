@@ -29,8 +29,8 @@ describe('makeBlogCommentDetail', () => {
     const reply = makeBlogCommentDetail({ id: 5 })
 
     expect(problems(zBlogCommentDetail, reply)).toEqual([])
-    expect(Object.keys(reply.parentComment!.user!).sort()).toEqual(['firstName', 'id', 'lastName', 'mainImagePath', 'username'])
-    expect(Object.keys(reply.ancestorsPath[0]!.user!).sort()).toEqual(['firstName', 'id', 'lastName', 'mainImagePath', 'username'])
+    expect(Object.keys(reply.parentComment!.user!).sort()).toEqual(['firstName', 'id', 'lastName', 'mainImageHeight', 'mainImagePath', 'mainImageWidth', 'username'])
+    expect(Object.keys(reply.ancestorsPath[0]!.user!).sort()).toEqual(['firstName', 'id', 'lastName', 'mainImageHeight', 'mainImagePath', 'mainImageWidth', 'username'])
   })
 })
 
