@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/shipping/product/[productId].get'
 import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse } from '~~/test/helpers/nitro'
+import { makeProductShipping } from '~~/test/fixtures/productShipping'
 
 const route = '/api/shipping/product/:productId'
-const priced = {
-  estimate: { countryCode: 'GR', price: 1.99, currency: 'EUR', free: false, freeShippingThreshold: 39.9 },
-}
+const priced = makeProductShipping()
 
 describe('GET /api/shipping/product/[productId]', () => {
   it('asks Django what shipping one product costs, on the request\'s store', async () => {
@@ -24,12 +23,12 @@ describe('GET /api/shipping/product/[productId]', () => {
   })
 
   it('passes on a product Django has no price for', async () => {
-    backend.reply({ estimate: null })
+    backend.reply(makeProductShipping(null))
 
     const response = await callRoute(handler, { route, url: '/api/shipping/product/2' })
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ estimate: null })
+    expect(response.body).toEqual(makeProductShipping(null))
   })
 
   it('rejects a non-numeric product id without calling the backend', async () => {

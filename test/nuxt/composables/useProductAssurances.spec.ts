@@ -110,6 +110,15 @@ describe('useProductAssurances', () => {
     expect(assurances.coversFreeShipping.value).toBe(true)
   })
 
+  // The amounts are Django's money: they carry their own currency.
+  it('states the amounts in the currency Django priced them in', async () => {
+    data.estimate = { countryCode: 'GB', price: 4.5, currency: 'GBP', free: false, freeShippingThreshold: 60 }
+
+    const assurances = await load()
+
+    expect(assurances.rows.value[0]!.note).toBe('Μεταφορικά από 4,50\u00A0£ · δωρεάν άνω των 60,00\u00A0£')
+  })
+
   it('says the product ships free when it does on its own', async () => {
     data.estimate = { countryCode: 'GR', price: 0, currency: 'EUR', free: true, freeShippingThreshold: 39.9 }
 

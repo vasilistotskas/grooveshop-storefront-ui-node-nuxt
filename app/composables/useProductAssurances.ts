@@ -68,12 +68,14 @@ export async function useProductAssurances(productId: MaybeRefOrGetter<number | 
     const estimate = shipping.value?.estimate
     if (!estimate || cartHasProgress.value) return undefined
     if (estimate.free) return $i18n.t('product_assurances.ships_free')
-    const price = $i18n.n(estimate.price, 'currency')
+    // Django's money carries its currency: format in it, not the page's.
+    const money = (value: number) => $i18n.n(value, { key: 'currency', currency: estimate.currency })
+    const price = money(estimate.price)
     return estimate.freeShippingThreshold === null
       ? $i18n.t('product_assurances.shipping_from', { price })
       : $i18n.t('product_assurances.shipping_from_free_over', {
           price,
-          amount: $i18n.n(estimate.freeShippingThreshold, 'currency'),
+          amount: money(estimate.freeShippingThreshold),
         })
   })
 

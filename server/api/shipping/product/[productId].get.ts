@@ -14,8 +14,9 @@ import { getRouterParam, useRuntimeConfig } from 'nuxt/server'
  * The file is named for `productId`, the param Django's
  * `<int:product_id>` converter gives the generated path schema.
  *
- * The same answer for every visitor, so cached per store and product, with
- * no language: the payload carries no prose. Django's `shipping`,
+ * The same answer for every visitor, so cached per store and product
+ * (and per language, as `tenantCacheKey` keys every route, though the
+ * payload carries no prose). Django's `shipping`,
  * `products` and `promotions` surfaces all purge `shipping.product`, since
  * a rate, the product and a promotion each move it; the TTL is the
  * backstop.
