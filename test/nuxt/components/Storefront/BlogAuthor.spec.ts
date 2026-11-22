@@ -2,10 +2,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { defineComponent, h, onErrorCaptured } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { injectHead } from '#imports'
 import BlogAuthor from '~/components/Storefront/BlogAuthor.vue'
 import WebsideBlogAuthor from '~/components/variants/webside/Storefront/BlogAuthor.vue'
 import { makeBlogAuthor } from '~~/test/fixtures/blog'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
+import { OG_IMAGE_BOX } from '~~/shared/constants'
 
 /**
  * The author page body. The default tree was redesigned (an identity
@@ -340,5 +344,62 @@ describe('Storefront/BlogAuthor', () => {
       const withPosts = await mount()
       expect(withPosts.findComponent({ name: 'Ordering' }).exists()).toBe(true)
     })
+  })
+})
+
+describe.each(trees(BlogAuthor, WebsideBlogAuthor))('og:image of the author page ($tree tree)', ({ C }) => {
+  beforeEach(() => {
+    setTenant()
+    author.reset()
+    posts.reset()
+    posts.data.value = { results: [], count: 0 }
+    posts.status.value = 'success'
+  })
+
+  /** The og:image and its stated size, as the rendered head carries them. */
+  async function ogMeta() {
+    const head = injectHead()
+    const before = new Set(head.entries.keys())
+    const wrapper = await mountSuspended(C, {
+      route: false,
+      global: { stubs: { BlogPostCard: CardStub, WebsideBlogPostCardMobile: CardStub, WebsideBlogPostCardDesktop: CardStub } },
+    })
+    await flushPromises()
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    try {
+      head.render()
+      vi.runOnlyPendingTimers()
+    }
+    finally {
+      vi.useRealTimers()
+    }
+    const read = (property: string) => document.querySelector(`meta[property="${property}"]`)?.getAttribute('content') ?? null
+    const painted = { image: read('og:image'), width: read('og:image:width'), height: read('og:image:height') }
+    wrapper.unmount()
+    for (const key of head.entries.keys()) {
+      if (!before.has(key)) head.entries.delete(key)
+    }
+    return painted
+  }
+
+  const photo = { id: 7, username: null, firstName: 'Mike', lastName: 'Ganos', mainImagePath: 'media/shop/uploads/users/mike.jpg' }
+
+  it('states the size the author\'s photo is served at', async () => {
+    // A 600x800 portrait: the 1200x630 box is cut from it at 600x315.
+    author.data.value = makeAuthor({ user: { ...photo, mainImageWidth: 600, mainImageHeight: 800 } })
+
+    const og = await ogMeta()
+
+    expect(og.image).toContain(`/mike.jpg/${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}/cover/`)
+    expect([og.width, og.height]).toEqual(['600', '315'])
+  })
+
+  it('states no size when the photo was not measured', async () => {
+    author.data.value = makeAuthor({ user: { ...photo, mainImageWidth: null, mainImageHeight: null } })
+
+    const og = await ogMeta()
+
+    expect(og.image).toContain('/mike.jpg/')
+    expect([og.width, og.height]).toEqual([null, null])
   })
 })
