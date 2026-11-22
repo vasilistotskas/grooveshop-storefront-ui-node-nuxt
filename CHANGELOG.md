@@ -1,3 +1,10 @@
+# [3.352.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.351.0...v3.352.0) (2026-11-22)
+
+
+### Features
+
+* **builder:** publish the builder's icon list in the catalogue ([#512](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/512)) ([6ad2b59](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6ad2b59f8966985dfd0d23693511d0b9ab7b4098))
+
 # [3.351.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.350.0...v3.351.0) (2026-11-22)
 
 
