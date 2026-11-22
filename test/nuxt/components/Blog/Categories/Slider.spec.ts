@@ -20,6 +20,9 @@ const named = (id: number, name: string) => makeBlogCategory({ id, translations:
 const CATEGORIES = [named(1, 'Νέα'), named(2, 'Συνταγές')]
 const stubs = { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } }
 
+// A category with an icon (`BlogCategory.icon`) draws it, picture or not.
+const ROBOT = makeBlogCategory({ id: 6, translations: { el: { name: 'AI', description: '' } }, mainImagePath: 'media/test/uploads/blog/robot-solid.svg', icon: 'i-fa6-solid-robot' })
+
 beforeEach(() => {
   setTenant()
   setTenantFeatures({ blog: true })
@@ -42,6 +45,22 @@ describe('Blog/Categories/Slider', () => {
     const wrapper = await mountSuspended(BlogCategoriesSlider, { route: false, props: { categories: [pictured] }, global: { stubs } })
 
     expect(wrapper.get('img').attributes('src')).toMatch(/web\.png.*\/transparent\//)
+  })
+})
+
+describe('a category icon in the rail', () => {
+  it('is drawn instead of the picture in the default design', async () => {
+    const wrapper = await mountSuspended(BlogCategoriesSlider, { route: false, props: { categories: [ROBOT] }, global: { stubs } })
+
+    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.get('.iconify').classes()).toContain('i-fa6-solid:robot')
+  })
+
+  it('is drawn instead of the picture in webside\'s design', async () => {
+    const wrapper = await mountSuspended(WebsideBlogCategoriesSlider, { route: false, props: { categories: [ROBOT] }, global: { stubs } })
+
+    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.get('.iconify').classes()).toContain('i-fa6-solid:robot')
   })
 })
 

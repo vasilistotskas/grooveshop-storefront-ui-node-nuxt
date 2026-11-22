@@ -1,7 +1,7 @@
 /**
  * The tiles of `blog_categories`' `tiles` layout, whatever their look
  * (`PageSection/BlogCategoryTiles`, `PageSection/BlogCategoryTilesBold`): each
- * category's icon (`deriveIconName`, else its picture), name, post count and
+ * category's icon (`BlogCategory.icon`, else its picture), name, post count and
  * page; and the link's text with `{count}` read as how many posts the
  * categories hold between them («Όλα τα {count} άρθρα»), so the figure never
  * goes stale.
@@ -16,7 +16,7 @@ export function useBlogCategoryTiles(
   const tiles = computed(() => props.categories.items.map(category => ({
     id: category.id,
     name: extractTranslated(category, 'name', locale.value) ?? '',
-    icon: deriveIconName(category.mainImagePath) ?? undefined,
+    icon: category.icon || undefined,
     imagePath: category.mainImagePath,
     posts: postsLabel(category.postCount),
     to: localePath({ name: 'blog-category-id-slug', params: { id: category.id, slug: category.slug } }),

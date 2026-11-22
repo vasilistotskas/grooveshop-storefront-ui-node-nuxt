@@ -16,6 +16,8 @@ export interface BlogCategoryMenuEntry {
   label: string
   /** The topic's page, before the locale prefix. */
   to: string
+  /** One of the page builder's icons, `''` for none: drawn instead of the picture. */
+  icon: string
   imagePath: string
   /** Published posts in the topic. */
   postCount: number

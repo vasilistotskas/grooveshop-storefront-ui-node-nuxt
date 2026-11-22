@@ -69,7 +69,7 @@ const CHARGING: CategoryMenuEntry = {
   productCount: 5,
   children: [],
 }
-const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }
+const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', icon: '', imagePath: '', postCount: 26 }
 
 /** The menu's own copy, which the global `$i18n` cannot reach. */
 const COPY = {

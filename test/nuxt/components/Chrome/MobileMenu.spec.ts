@@ -171,7 +171,7 @@ describe('Chrome/MobileMenu', () => {
   })
 
   it('lists the blog\'s topics, "all articles" first, in place of the Blog entry', async () => {
-    topics.value = [{ id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }]
+    topics.value = [{ id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', icon: '', imagePath: '', postCount: 26 }]
     const items: NavigationMenuItem[] = [
       { label: 'Κατάστημα', to: '/products', children: [{ label: 'Φόρτιση', to: CHARGING.to }] },
       { label: 'Προσφορές', to: '/offers' },

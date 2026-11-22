@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * The blog's categories as tiles, the `tiles` layout of `blog_categories`
- * in every design: each category's icon (`deriveIconName`, else its
+ * in every design: each category's icon (`BlogCategory.icon`, else its
  * picture, the rail's rule), its whole name and how many posts it holds,
  * linking where the rail's buttons link. Two columns on a phone, four on a
  * desk; the heading, sub-line and call to action are the band's.

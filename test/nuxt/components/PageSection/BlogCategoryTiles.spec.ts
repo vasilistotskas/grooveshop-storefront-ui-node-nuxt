@@ -23,7 +23,7 @@ const categories = (items: BlogCategory[]) => ({
 }) as ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 
 const ITEMS = [
-  makeBlogCategory({ id: 3, slug: 'ai', postCount: 26, translations: { el: { name: LONG } } as BlogCategory['translations'], mainImagePath: 'media/uploads/blog/robot-solid.svg' }),
+  makeBlogCategory({ id: 3, slug: 'ai', postCount: 26, translations: { el: { name: LONG } } as BlogCategory['translations'], mainImagePath: 'media/uploads/blog/robot-solid.svg', icon: 'i-fa6-solid-robot' }),
   makeBlogCategory({ id: 4, slug: 'web', postCount: 1, translations: { el: { name: 'Web' } } as BlogCategory['translations'], mainImagePath: 'media/test/uploads/blog/web.png' }),
 ]
 
@@ -60,7 +60,7 @@ describe('PageSection/BlogCategoryTiles', () => {
     expect(tile.get('[data-slot="title"]').classes()).toContain('wrap-break-word')
   })
 
-  it('draws the inlined icon of a category that has one, and its picture otherwise', async () => {
+  it('draws the icon of a category that has one (`BlogCategory.icon`), and its picture otherwise', async () => {
     const wrapper = await mountTiles()
 
     const [withIcon, withPicture] = wrapper.findAll('ul > li')

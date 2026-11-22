@@ -41,12 +41,12 @@ describe('useBlogCategoryMenu', () => {
     setTenantFeatures({ blog: true })
   })
 
-  it('lists the top-level topics with their page, picture and post count', async () => {
+  it('lists the top-level topics with their page, icon, picture and post count', async () => {
     api.routes({
       [CATEGORIES_URL]: page([
         makeBlogCategory({ id: 1, slug: 'mobile', postCount: 26, mainImagePath: 'media/uploads/blog/mobile.png', translations: { el: { name: 'Κινητό' } } }),
         makeBlogCategory({ id: 2, slug: 'android', parent: 1, level: 1 }),
-        makeBlogCategory({ id: 3, slug: 'ai', postCount: 14, translations: { el: { name: 'AI' } } }),
+        makeBlogCategory({ id: 3, slug: 'ai', postCount: 14, icon: 'i-fa6-solid-robot', translations: { el: { name: 'AI' } } }),
       ]),
     })
 
@@ -54,8 +54,8 @@ describe('useBlogCategoryMenu', () => {
 
     expect(hasBlogCategories.value).toBe(true)
     expect(blogCategories.value).toEqual([
-      { id: 1, label: 'Κινητό', to: '/blog/category/1/mobile', imagePath: 'media/uploads/blog/mobile.png', postCount: 26 },
-      { id: 3, label: 'AI', to: '/blog/category/3/ai', imagePath: '', postCount: 14 },
+      { id: 1, label: 'Κινητό', to: '/blog/category/1/mobile', icon: '', imagePath: 'media/uploads/blog/mobile.png', postCount: 26 },
+      { id: 3, label: 'AI', to: '/blog/category/3/ai', icon: 'i-fa6-solid-robot', imagePath: '', postCount: 14 },
     ])
   })
 

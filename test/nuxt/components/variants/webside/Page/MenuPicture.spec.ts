@@ -9,8 +9,8 @@ import { setTenant } from '~~/test/helpers/tenant'
  * photograph fills its tile. Every store's pictures go through it, so the
  * rule is the picture's type, never a store's file names.
  */
-const mountPicture = (src: string, size = 96) =>
-  mountSuspended(MenuPicture, { route: false, props: { src, size }, attrs: { class: 'size-24' } })
+const mountPicture = (src: string, size = 96, icon?: string) =>
+  mountSuspended(MenuPicture, { route: false, props: { src, size, icon }, attrs: { class: 'size-24' } })
 
 describe('webside Page/MenuPicture', () => {
   beforeEach(() => {
@@ -30,6 +30,18 @@ describe('webside Page/MenuPicture', () => {
     expect(img.attributes('srcset')).toMatch(/\/116\/116\/contain\/.* 2x/)
     expect(img.classes()).toEqual(expect.arrayContaining(['size-3/5', 'object-contain']))
     expect(img.attributes('alt')).toBe('')
+  })
+
+  // A blog topic's icon (`BlogCategory.icon`) wins over its picture: a crisp
+  // glyph in the fill's own foreground, and no image request.
+  it('draws a category\'s icon on the secondary fill instead of its picture', async () => {
+    const wrapper = await mountPicture('media/test/uploads/blog/robot-solid.svg', 96, 'i-fa6-solid-robot')
+
+    const tile = wrapper.get('span')
+    expect(tile.classes()).toEqual(expect.arrayContaining(['size-24', 'bg-secondary', 'place-items-center']))
+    expect(wrapper.find('img').exists()).toBe(false)
+    const glyph = tile.get('.iconify')
+    expect(glyph.classes()).toEqual(expect.arrayContaining(['size-3/5', 'text-(--ui-on-secondary)']))
   })
 
   it('crops a photograph to fill its tile', async () => {
