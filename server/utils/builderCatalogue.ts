@@ -16,7 +16,8 @@ const ICON_LABELS: Record<SupportedLocale, Readonly<Record<string, string>>> = {
 function catalogueIcons(icons: readonly string[]): CatalogueIcon[] {
   return icons.map((name) => {
     const labels = Object.fromEntries(SUPPORTED_LOCALES.map((locale) => {
-      const label = ICON_LABELS[locale][name]
+      const localeLabels = ICON_LABELS[locale]
+      const label = Object.hasOwn(localeLabels, name) ? localeLabels[name] : undefined
       if (!label) throw new Error(`The icon "${name}" has no ${locale} label (app/builder/labels/${locale}.json, options.icon)`)
       return [locale, label]
     })) as Record<SupportedLocale, string>

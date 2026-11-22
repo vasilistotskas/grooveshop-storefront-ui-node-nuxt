@@ -225,6 +225,10 @@ describe('buildBlockCatalogue', () => {
       expect(() => buildBlockCatalogue([], undefined, undefined, ['i-lucide-unlabelled'])).toThrow(/"i-lucide-unlabelled" has no el label/)
     })
 
+    it('takes no inherited property of a label file for a label', () => {
+      expect(() => buildBlockCatalogue([], undefined, undefined, ['toString'])).toThrow(/"toString" has no el label/)
+    })
+
     it('is part of the hash', () => {
       expect(buildBlockCatalogue([], undefined, undefined, ['i-lucide-zap']).hash).not.toBe(buildBlockCatalogue([]).hash)
     })
