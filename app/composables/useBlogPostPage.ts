@@ -18,6 +18,7 @@ export async function useBlogPostPage(options: {
   const route = useRoute(`blog-post-id-slug___${locale.value}`)
   const siteConfig = useSiteConfig()
   const img = useMediaStreamImage()
+  const ogImageOf = useOgImage()
   // Before the first await, like every composable here: it reads a Pinia
   // store, and after an await the server has lost the injection context
   // Pinia needs. Called below it, the post page answered 500 ("reading
@@ -177,25 +178,17 @@ export async function useBlogPostPage(options: {
     return `${author.user.firstName || ''} ${author.user.lastName || ''}`.trim()
   })
 
-  const ogImage = computed(() => {
-    const post = blogPost.value
-    if (!post?.mainImagePath) return ''
-
-    return img(post.mainImagePath, {
-      ...OG_IMAGE_SIZE,
-      fit: 'cover',
-      position: BLOG_COVER_CROP_POSITION,
-      format: 'png',
-    }, {
-      provider: 'mediaStream',
-    })
-  })
-
-  // The Article's images: the cover in the three shapes Google asks for,
-  // each an ImageObject the graph names once. The 16:9 one is also the
-  // page's primary image, by reference, not as a second copy. Read from the
-  // post as it is now, so a refreshed post never keeps an old cover.
+  // The og:image and the Article's images: the cover in the three shapes
+  // Google asks for, each an ImageObject the graph names once, each stating
+  // the size it is served at. The 16:9 one is also the page's primary image,
+  // by reference, not as a second copy. Read from the post as it is now, so a
+  // refreshed post never keeps an old cover.
   const coverPath = computed(() => blogPost.value?.mainImagePath)
+  const coverSize = computed(() => ({
+    width: blogPost.value?.mainImageWidth,
+    height: blogPost.value?.mainImageHeight,
+  }))
+  const ogImage = computed(() => ogImageOf(coverPath.value, coverSize.value, BLOG_COVER_CROP_POSITION))
   const coverImageId = (size: { width: number, height: number }) =>
     `${canonicalUrl.value}#/schema/image/cover-${size.width}x${size.height}`
   const [PRIMARY_IMAGE_SIZE] = ARTICLE_IMAGE_SIZES
@@ -204,6 +197,7 @@ export async function useBlogPostPage(options: {
     return path
       ? defineImage({
           '@id': coverImageId(size),
+          ...servedCoverSize(coverSize.value, size),
           'url': img(path, {
             ...size,
             fit: 'cover',
@@ -236,9 +230,9 @@ export async function useBlogPostPage(options: {
     title: () => blogPostDocumentTitle.value,
     description: () => blogPostDescription.value,
     ogDescription: () => blogPostDescription.value,
-    ogImageWidth: OG_IMAGE_SIZE.width,
-    ogImageHeight: OG_IMAGE_SIZE.height,
-    ogImage: () => ogImage.value,
+    ogImage: () => ogImage.value?.url,
+    ogImageWidth: () => ogImage.value?.width,
+    ogImageHeight: () => ogImage.value?.height,
     ogType: 'article',
     ogUrl: () => canonicalUrl.value,
     twitterCard: 'summary_large_image',

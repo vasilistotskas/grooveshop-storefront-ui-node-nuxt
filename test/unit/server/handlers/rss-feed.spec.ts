@@ -111,6 +111,16 @@ describe('GET /rss.xml', () => {
     expect(xml).not.toContain('assets.platform.test')
   })
 
+  it('states no size for an item\'s image, which the media service may serve smaller than asked', async () => {
+    djangoServesTheCatalogue()
+
+    const xml: string = (await feed()).body
+
+    const media = xml.match(/<media:content [^>]*>/g) ?? []
+    expect(media.length).toBeGreaterThan(0)
+    expect(media.filter(tag => / (width|height)=/.test(tag))).toEqual([])
+  })
+
   // A product with no category is a card Django serves as `category: null`.
   it('lists a product without a category and reads no category for it', async () => {
     djangoServesTheCatalogue([{ ...onSale, category: null }])
