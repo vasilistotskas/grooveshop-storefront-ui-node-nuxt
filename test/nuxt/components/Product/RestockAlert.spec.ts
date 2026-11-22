@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import RestockAlert from '~/components/Product/RestockAlert.vue'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { makeProductAlert, makeProductAlertPage } from '~~/test/fixtures/product'
 import { DATA_MAX_PAGE_SIZE } from '~~/shared/constants/builder'
 
 /**
@@ -47,7 +47,7 @@ describe('Product/RestockAlert', () => {
     clearNuxtData()
     session.loggedIn.value = false
     session.user.value = null
-    api.routes({ [ALERTS]: () => ({ results: [], count: 0 }) })
+    api.routes({ [ALERTS]: () => makeProductAlertPage([]) })
   })
 
   it('opens the restock alert for the product, mounting the dialog on the first open', async () => {
@@ -88,10 +88,7 @@ describe('Product/RestockAlert', () => {
   // the alert is read then, never in the server render.
   it('looks up no guest, and says the alert is on once the shopper is signed in', async () => {
     api.routes({
-      [ALERTS]: () => ({
-        results: [{ id: 5, uuid: fixtureUuid(8, 5), kind: 'restock', product: 7, user: 3, email: '', targetPrice: null, isActive: true, notifiedAt: null, createdAt: FIXTURE_TIMESTAMP, updatedAt: FIXTURE_TIMESTAMP }],
-        count: 1,
-      }),
+      [ALERTS]: () => makeProductAlertPage([makeProductAlert({ product: 7, user: 3 })]),
     })
     const wrapper = await mountAlert()
     expect(api.callsTo(ALERTS)).toHaveLength(0)

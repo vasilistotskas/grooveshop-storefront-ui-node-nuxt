@@ -5,7 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import type { ProductAlert, ProductAlertKindEnum } from '~~/shared/openapi/types.gen'
 import NotifyMe from '~/components/Product/NotifyMe.vue'
 import WebsideNotifyMe from '~/components/variants/webside/Product/NotifyMe.vue'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { makeProductAlert, makeProductAlertPage } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
 import { DATA_MAX_PAGE_SIZE } from '~~/shared/constants/builder'
@@ -31,24 +31,8 @@ mockNuxtImport('useUserSession', () => () => ({
 
 const ALERTS = '/api/products/alerts'
 
-function makeAlert(overrides: Partial<ProductAlert> = {}): ProductAlert {
-  return {
-    id: 5,
-    uuid: fixtureUuid(8, 5),
-    kind: 'restock',
-    product: 3,
-    user: 7,
-    email: '',
-    targetPrice: null,
-    isActive: true,
-    notifiedAt: null,
-    createdAt: FIXTURE_TIMESTAMP,
-    updatedAt: FIXTURE_TIMESTAMP,
-    ...overrides,
-  }
-}
-
-const page = (results: ProductAlert[]) => ({ results, count: results.length })
+const makeAlert = makeProductAlert
+const page = (results: ProductAlert[]) => makeProductAlertPage(results)
 // The modal's own open/close behaviour is Nuxt UI's; this stub keeps
 // the component's contract observable in place: the trigger asks to
 // open, and the form is rendered only while `open` is true.

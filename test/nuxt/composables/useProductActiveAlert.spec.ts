@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
-import type { ProductAlert, ProductAlertKindEnum } from '~~/shared/openapi/types.gen'
+import type { ProductAlertKindEnum } from '~~/shared/openapi/types.gen'
 import { DATA_MAX_PAGE_SIZE } from '~~/shared/constants/builder'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { makeProductAlert, makeProductAlertPage } from '~~/test/fixtures/product'
 
 /**
  * The shopper's active alert on a product, as every trigger and dialog on a
@@ -29,19 +29,7 @@ mockNuxtImport('useUserSession', () => () => ({
 
 const ALERTS = '/api/products/alerts'
 
-const alert = (product: number, kind: ProductAlertKindEnum = 'restock', id = product): ProductAlert => ({
-  id,
-  uuid: fixtureUuid(8, id),
-  kind,
-  product,
-  user: 7,
-  email: '',
-  targetPrice: null,
-  isActive: true,
-  notifiedAt: null,
-  createdAt: FIXTURE_TIMESTAMP,
-  updatedAt: FIXTURE_TIMESTAMP,
-})
+const alert = (product: number, kind: ProductAlertKindEnum = 'restock') => makeProductAlert({ id: product, product, kind })
 
 /** A reader that records what each of its renders drew. */
 function reader(renders: string[] = []) {
@@ -68,7 +56,7 @@ describe('useProductActiveAlert', () => {
     clearNuxtData()
     session.loggedIn.value = false
     session.user.value = null
-    api.routes({ [ALERTS]: () => ({ results: [], count: 0 }) })
+    api.routes({ [ALERTS]: () => makeProductAlertPage([]) })
   })
 
   it('looks up no guest', async () => {
@@ -83,7 +71,7 @@ describe('useProductActiveAlert', () => {
   // its first render is the hydration of the guest HTML it was sent.
   it('draws no alert before it has mounted, even when the page\'s list already holds one', async () => {
     signIn()
-    api.routes({ [ALERTS]: () => ({ results: [alert(3)], count: 1 }) })
+    api.routes({ [ALERTS]: () => makeProductAlertPage([alert(3)]) })
     const first = await mountSuspended(reader(), { props: { productId: 3 }, route: false })
     await flushPromises()
     expect(first.text()).toBe('on')
@@ -98,7 +86,7 @@ describe('useProductActiveAlert', () => {
 
   it('reads the list once for every reader on the page, a reader mounted later included', async () => {
     signIn()
-    api.routes({ [ALERTS]: () => ({ results: [alert(3), alert(4, 'price_drop')], count: 2 }) })
+    api.routes({ [ALERTS]: () => makeProductAlertPage([alert(3), alert(4, 'price_drop')]) })
     const Page = defineComponent({
       setup: () => () => [3, 4, 5].map(productId => h(reader(), { productId })),
     })
@@ -113,12 +101,38 @@ describe('useProductActiveAlert', () => {
     expect(later.text()).toBe('on')
   })
 
+  // Another shopper signs in on the same tab while the first one's read is
+  // on its way: that read must not leave the first shopper's alerts on the
+  // page.
+  it('never shows the alerts of the shopper signed in before', async () => {
+    signIn()
+    let releaseFirst: (() => void) | undefined
+    api.routes({
+      [ALERTS]: () => (api.callsTo(ALERTS).length === 1
+        ? new Promise((resolve) => {
+            releaseFirst = () => resolve(makeProductAlertPage([alert(3)]))
+          })
+        : makeProductAlertPage([])),
+    })
+    const wrapper = await mountSuspended(reader(), { props: { productId: 3 }, route: false })
+    await flushPromises()
+    expect(releaseFirst).toBeDefined()
+
+    session.user.value = { id: 8, email: 'nikos@example.com' }
+    await flushPromises()
+    releaseFirst!()
+    await flushPromises()
+
+    expect(api.callsTo(ALERTS)).toHaveLength(2)
+    expect(wrapper.text()).toBe('off')
+  })
+
   it('reads every page of a long list', async () => {
     signIn()
     api.routes({
       [ALERTS]: (_url: string, options: { query: { page: number } }) => (options.query.page === 1
-        ? { results: [alert(3)], count: 2, links: { next: `https://api.example.com${ALERTS}?page=2` } }
-        : { results: [alert(9)], count: 2, links: { next: null } }),
+        ? makeProductAlertPage([alert(3)], `https://api.example.com${ALERTS}?page=2`)
+        : makeProductAlertPage([alert(9)])),
     })
     const wrapper = await mountSuspended(reader(), { props: { productId: 9 }, route: false })
     await flushPromises()

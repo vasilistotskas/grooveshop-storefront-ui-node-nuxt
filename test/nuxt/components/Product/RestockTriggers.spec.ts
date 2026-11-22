@@ -2,11 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
-import type { ProductAlert } from '~~/shared/openapi/types.gen'
 import ProductCard from '~/components/Product/Card.vue'
 import WebsideProductCard from '~/components/variants/webside/Product/Card.vue'
 import Spotlight from '~/components/Product/Spotlight.vue'
-import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct, makeProductCard } from '~~/test/fixtures/product'
+import { makeProduct, makeProductAlert, makeProductAlertPage, makeProductCard } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
@@ -35,19 +34,7 @@ mockNuxtImport('useB2BPricing', () => () => ({ register: () => {}, priceFor: () 
 
 const ALERTS = '/api/products/alerts'
 
-const restockAlert = (product: number): ProductAlert => ({
-  id: product,
-  uuid: fixtureUuid(8, product),
-  kind: 'restock',
-  product,
-  user: 7,
-  email: '',
-  targetPrice: null,
-  isActive: true,
-  notifiedAt: null,
-  createdAt: FIXTURE_TIMESTAMP,
-  updatedAt: FIXTURE_TIMESTAMP,
-})
+const restockAlert = (product: number) => makeProductAlert({ id: product, product })
 
 const signIn = () => {
   session.loggedIn.value = true
@@ -67,7 +54,7 @@ describe.each(trees(ProductCard, WebsideProductCard))('$tree sold-out cards in a
     session.user.value = null
     setTenant()
     setTenantFeatures({ productAlerts: true })
-    api.routes({ [ALERTS]: () => ({ results: [restockAlert(12)], count: 1 }) })
+    api.routes({ [ALERTS]: () => makeProductAlertPage([restockAlert(12)]) })
   })
 
   const mountListing = async () => {
@@ -106,7 +93,7 @@ describe('default Product/Spotlight, sold out', () => {
     session.user.value = null
     setTenant()
     setTenantFeatures({ cart: true, productAlerts: true })
-    api.routes({ [ALERTS]: () => ({ results: [restockAlert(7)], count: 1 }) })
+    api.routes({ [ALERTS]: () => makeProductAlertPage([restockAlert(7)]) })
   })
 
   const mountSpotlight = async () => {

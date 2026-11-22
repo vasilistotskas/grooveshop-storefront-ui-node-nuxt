@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zProduct, zProductCard, zProductCategory, zProductReview } from '~~/shared/openapi/zod.gen'
-import { makeProduct, makeProductCard, makeProductCategory, makeProductReview } from '~~/test/fixtures/product'
+import { zPaginatedProductAlertList, zProduct, zProductAlert, zProductCard, zProductCategory, zProductReview } from '~~/shared/openapi/zod.gen'
+import { makeProduct, makeProductAlert, makeProductAlertPage, makeProductCard, makeProductCategory, makeProductReview } from '~~/test/fixtures/product'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -91,5 +91,19 @@ describe('makeProductCategory', () => {
     expect(problems(zProductCategory, second)).toEqual([])
     expect(second.slug).not.toBe(first.slug)
     expect(second.uuid).not.toBe(first.uuid)
+  })
+})
+
+describe('makeProductAlert', () => {
+  it('builds an active alert that parses through zProductAlert', () => {
+    expect(problems(zProductAlert, makeProductAlert())).toEqual([])
+    expect(problems(zProductAlert, makeProductAlert({ id: 6, kind: 'price_drop', targetPrice: 15 }))).toEqual([])
+  })
+
+  it('builds a page of the alerts list that parses through zPaginatedProductAlertList', () => {
+    const page = makeProductAlertPage([makeProductAlert()], 'https://api.example.com/api/v1/product/alert?page=2')
+
+    expect(problems(zPaginatedProductAlertList, page)).toEqual([])
+    expect(problems(zPaginatedProductAlertList, makeProductAlertPage([]))).toEqual([])
   })
 })

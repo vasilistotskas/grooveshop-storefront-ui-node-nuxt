@@ -1,4 +1,4 @@
-import type { Product, ProductCategory, ProductReview } from '~~/shared/openapi/types.gen'
+import type { PaginatedProductAlertList, Product, ProductAlert, ProductCategory, ProductReview } from '~~/shared/openapi/types.gen'
 
 /** The timestamp every fixture carries; fixed so snapshots never drift. */
 export const FIXTURE_TIMESTAMP = '2026-01-01T00:00:00Z'
@@ -200,4 +200,39 @@ export function makeProductReview(overrides: Partial<ProductReview> = {}): Produ
     translations: { el: { comment: `Κριτική ${id}` } },
     ...overrides,
   }
+}
+
+/**
+ * A signed-in shopper's active `ProductAlert`, as the alerts list serialises
+ * it, valid against the generated `zProductAlert` (proved by
+ * `test/unit/fixtures/product.spec.ts`).
+ *
+ * Defaults: id 5, a restock alert on product 3 for user 7, active and not
+ * yet sent. `uuid` follows `id`.
+ */
+export function makeProductAlert(overrides: Partial<ProductAlert> = {}): ProductAlert {
+  const id = overrides.id ?? 5
+  return {
+    id,
+    uuid: fixtureUuid(33, id),
+    kind: 'restock',
+    product: 3,
+    user: 7,
+    email: null,
+    targetPrice: null,
+    isActive: true,
+    notifiedAt: null,
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
+    ...overrides,
+  }
+}
+
+/**
+ * One page of the alerts list (`GET /api/products/alerts`), valid against the
+ * generated `zPaginatedProductAlertList`. `next` is the next page's URL, or
+ * none on the last page.
+ */
+export function makeProductAlertPage(results: ProductAlert[], next: string | null = null): PaginatedProductAlertList {
+  return { links: { next, previous: null }, count: results.length, results }
 }

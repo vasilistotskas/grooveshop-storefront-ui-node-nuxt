@@ -169,7 +169,8 @@ export function useProductAlert(options: {
  * guest's empty list in the payload. And no reader draws an alert before it
  * has mounted: a card hydrated lazily, after another reader filled the list,
  * would otherwise draw the shopper's alert over the guest HTML it was sent.
- * A sign-in, a sign-out or another shopper reads again.
+ * A sign-in, a sign-out or another shopper reads again, and a read that
+ * was on its way for the shopper before is read again for the new one.
  *
  * `reread` follows a change the shopper made (an alert created, found to
  * exist, or turned off): it cancels a read already on its way, which started
@@ -182,31 +183,48 @@ export function useProductActiveAlert(options: {
   const { loggedIn, user } = useUserSession()
   const route = useRoute()
   const mounted = useMounted()
-  const shopper = computed(() => (loggedIn.value ? user.value?.id ?? null : null))
+  // The shopper the list is read for, from the session itself: the read
+  // outlives the reader whose call registered it.
+  const shopperNow = () => (loggedIn.value ? user.value?.id ?? null : null)
+  const shopper = computed(shopperNow)
 
+  async function readFor(reading: number | null): Promise<ProductAlert[]> {
+    if (reading === null) return []
+    try {
+      const alerts: ProductAlert[] = []
+      let page = 1
+      let more = false
+      do {
+        const response = await $api('/api/products/alerts', {
+          method: 'GET',
+          query: { isActive: true, page, pageSize: DATA_MAX_PAGE_SIZE },
+        })
+        alerts.push(...response.results)
+        more = Boolean(response.links?.next)
+        page += 1
+      } while (more)
+      return alerts
+    }
+    catch (error) {
+      log.warn({ tag: 'product:notify-me', message: 'lookup failed', error })
+      return []
+    }
+  }
+
+  // A change of shopper while a read is on its way joins that read (one
+  // request for every reader); the read then sees the shopper changed and
+  // reads again for the one signed in now, so no shopper is shown the
+  // alerts of the one before.
   const { data: activeAlerts, refresh } = useAsyncData<ProductAlert[]>(
     `product-alerts:active:${route.path}`,
     async () => {
-      if (!loggedIn.value) return []
-      try {
-        const alerts: ProductAlert[] = []
-        let page = 1
-        let more = false
-        do {
-          const response = await $api('/api/products/alerts', {
-            method: 'GET',
-            query: { isActive: true, page, pageSize: DATA_MAX_PAGE_SIZE },
-          })
-          alerts.push(...response.results)
-          more = Boolean(response.links?.next)
-          page += 1
-        } while (more)
-        return alerts
+      let reading = shopperNow()
+      let alerts = await readFor(reading)
+      while (shopperNow() !== reading) {
+        reading = shopperNow()
+        alerts = await readFor(reading)
       }
-      catch (error) {
-        log.warn({ tag: 'product:notify-me', message: 'lookup failed', error })
-        return []
-      }
+      return alerts
     },
     { watch: [shopper], default: () => [], server: false, lazy: true, dedupe: 'defer', getCachedData: payloadCachedData },
   )
