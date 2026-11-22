@@ -65,7 +65,7 @@ const {
   variantGroupSchema,
 } = await useProductDetail(productId, t)
 await categoriesReady
-const assurances = await useProductAssurances()
+const assurances = await useProductAssurances(productId)
 const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
 const formatProductPrice = (price?: number) => {

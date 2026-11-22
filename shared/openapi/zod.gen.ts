@@ -3312,6 +3312,24 @@ export const zProductPriceHistory = z.object({
 })
 
 /**
+ * The cheapest delivery of one product bought on its own.
+ */
+export const zProductShippingEstimate = z.object({
+  countryCode: z.string().max(2),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  currency: z.string().max(3),
+  free: z.boolean(),
+  freeShippingThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
+})
+
+/**
+ * Response payload of the product shipping endpoint.
+ */
+export const zProductShipping = z.object({
+  estimate: zProductShippingEstimate.nullable(),
+})
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductWriteRequest = z.object({
@@ -16917,6 +16935,15 @@ export const zListShippingOptionsQuery = z.object({
 export const zListShippingOptionsResponse = z.array(zShippingOption)
 
 export const zGetShippingPolicyResponse = z.array(zShippingPolicyEntry)
+
+export const zGetProductShippingPath = z.object({
+  productId: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetProductShippingResponse = zProductShipping
 
 export const zApiV1ShippingProvidersListQuery = z.object({
   search: z.string().optional(),
