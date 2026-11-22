@@ -60747,6 +60747,16 @@
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Ενημερώθηκε στις"
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -60759,7 +60769,9 @@
                     "slug",
                     "sortOrder",
                     "translations",
-                    "updatedAt"
+                    "updatedAt",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogCategoryDetail": {
@@ -60881,6 +60893,16 @@
                         "type": "string",
                         "format": "uuid",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -60901,7 +60923,9 @@
                     "translations",
                     "treeId",
                     "updatedAt",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogCategoryReorderItemRequest": {
@@ -61536,6 +61560,16 @@
                     "contentPreview": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -61555,7 +61589,9 @@
                     "translations",
                     "updatedAt",
                     "uuid",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogPostDetail": {
@@ -61719,6 +61755,16 @@
                     "userHasLiked": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -61740,7 +61786,9 @@
                     "updatedAt",
                     "userHasLiked",
                     "uuid",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogPostFeed": {
@@ -74374,6 +74422,16 @@
                         "type": "string",
                         "nullable": true,
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -74409,7 +74467,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductAlert": {
@@ -74764,6 +74824,16 @@
                         "type": "string",
                         "format": "uuid",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -74785,7 +74855,9 @@
                     "stock",
                     "translations",
                     "updatedAt",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductCategory": {
@@ -75663,6 +75735,16 @@
                         "readOnly": true,
                         "title": "Ειδοποιήσεις πτώσης τιμής",
                         "description": "Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU."
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -75699,7 +75781,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductDetailResponse": {
@@ -75981,6 +76065,16 @@
                         "readOnly": true,
                         "title": "Ειδοποιήσεις πτώσης τιμής",
                         "description": "Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU."
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76017,7 +76111,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductFavourite": {
@@ -76469,6 +76565,16 @@
                             "type": "string"
                         },
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76505,7 +76611,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductImage": {
@@ -76576,6 +76684,16 @@
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Δημιουργήθηκε στις"
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76587,7 +76705,9 @@
                     "product",
                     "sortOrder",
                     "translations",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductImageDetail": {
@@ -76662,21 +76782,6 @@
                         "readOnly": true,
                         "title": "Δημιουργήθηκε στις"
                     },
-                    "imageDimensions": {
-                        "type": "object",
-                        "properties": {
-                            "width": {
-                                "type": "number"
-                            },
-                            "height": {
-                                "type": "number"
-                            },
-                            "aspectRatio": {
-                                "type": "number"
-                            }
-                        },
-                        "readOnly": true
-                    },
                     "imageFormat": {
                         "type": "string",
                         "readOnly": true
@@ -76704,6 +76809,16 @@
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Ενημερώθηκε στις"
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76711,7 +76826,6 @@
                     "createdAt",
                     "id",
                     "image",
-                    "imageDimensions",
                     "imageFormat",
                     "mainImagePath",
                     "product",
@@ -76719,7 +76833,9 @@
                     "translations",
                     "updatedAt",
                     "usageContext",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductImageWriteRequest": {
@@ -77529,6 +77645,16 @@
                             "$ref": "#/components/schemas/RatingDistribution"
                         },
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -77566,7 +77692,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductReview": {
@@ -83356,6 +83484,16 @@
                         "type": "string",
                         "description": "Διαδρομή avatar ή κενή συμβολοσειρά",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -83363,7 +83501,9 @@
                     "id",
                     "lastName",
                     "mainImagePath",
-                    "username"
+                    "username",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "UserSubscription": {
