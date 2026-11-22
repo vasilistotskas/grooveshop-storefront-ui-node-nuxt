@@ -157,7 +157,11 @@ describe('webside Product/Card in a narrow container', () => {
     expect(pill.element.parentElement!.classList).toContain('@max-3xs/card:bottom-1.5')
   })
 
-  it('offers the restock alert beside the price when sold out, sized for a phone\'s narrow card', async () => {
+  // Design A (owner, 2026-11-22): the full sentence wrapped to three lines
+  // in a 208px card. The restock alert is the buy button's twin instead: a
+  // short label and a bell, its size and its narrow-card rules, the
+  // sentence kept as its name.
+  it('offers the restock alert in the buy button\'s place when sold out, at its size', async () => {
     setTenantFeatures({ productAlerts: true })
     const wrapper = await mountSuspended(WebsideProductCard, {
       props: { product: makeProduct({ id: 8, stock: 0 }) },
@@ -166,15 +170,17 @@ describe('webside Product/Card in a narrow container', () => {
     })
 
     const restock = await vi.waitFor(() => {
-      const found = wrapper.findAll('button').find(button => button.text() === 'Ειδοποίησέ με όταν γίνει διαθέσιμο')
-      expect(found).toBeDefined()
-      return found!
+      const found = wrapper.find('button[aria-label="Ειδοποίηση όταν γίνει διαθέσιμο"]')
+      expect(found.exists()).toBe(true)
+      return found
     })
-    const queries = restock.classes().filter(name => name.startsWith('@'))
-    // Its own phone sizing, and the card's: the whole row below a 138px card.
-    expect(queries).toEqual(expect.arrayContaining(['@max-3xs/card:px-2', '@max-3xs/card:text-sm', '@max-[8.625rem]/card:w-full']))
-    // A 44px target on a phone, here and on the product page.
-    expect(restock.classes()).toContain('max-sm:min-h-11')
+    expect(restock.find('[data-slot="label"]').text()).toBe('Ειδοποίηση')
+    expect(restock.classes()).toEqual(expect.arrayContaining([
+      'ml-auto', 'shrink-0', 'min-h-11', 'px-3.5', 'text-sm',
+      '@max-3xs/card:size-11', '@max-3xs/card:p-0', '@max-3xs/card:*:data-[slot=label]:sr-only',
+      '@max-[8.625rem]/card:w-full',
+    ]))
+    expect(wrapper.find('button[aria-label^="Στο καλάθι"]').exists()).toBe(false)
     expect(wrapper.text()).toContain('Εξαντλήθηκε')
   })
 

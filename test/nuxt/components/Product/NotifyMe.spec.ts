@@ -353,3 +353,67 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
     })
   })
 })
+
+/**
+ * webside's card trigger (`compact`): the buy button's twin, a short label
+ * and a bell. Set or not, it opens the dialog, and an active alert is shown
+ * and turned off THERE: a whole alert does not fit in a card.
+ */
+describe('webside Product/NotifyMe on a card', () => {
+  const mountCompact = async () => {
+    const wrapper = await mountSuspended(WebsideNotifyMe, {
+      props: { productId: 3, compact: true },
+      attrs: { class: 'ml-auto' },
+      global: { stubs: { UModal } },
+      route: false,
+    })
+    await flushPromises()
+    return wrapper
+  }
+  const trigger = (wrapper: Mounted) => wrapper.get('[data-testid="trigger"] button')
+
+  beforeEach(() => {
+    clearNuxtData()
+    session.loggedIn.value = false
+    session.user.value = null
+    api.routes({ [ALERTS]: () => page([]) })
+  })
+
+  it('is a short button named by the whole sentence, placed by the card', async () => {
+    const wrapper = await mountCompact()
+
+    expect(trigger(wrapper).text()).toBe('Ειδοποίηση')
+    expect(trigger(wrapper).attributes('aria-label')).toBe('Ειδοποίηση όταν γίνει διαθέσιμο')
+    expect(trigger(wrapper).classes()).toContain('ml-auto')
+
+    await trigger(wrapper).trigger('click')
+    expect(wrapper.find('[data-testid="modal"] form').exists()).toBe(true)
+  })
+
+  it('says a signed-in shopper\'s alert is on, and shows and turns it off in the dialog', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7, email: 'maria@example.com' }
+    let active = [makeAlert()]
+    api.routes({
+      [ALERTS]: () => page(active),
+      [`${ALERTS}/5`]: () => { active = [] },
+    })
+    const wrapper = await mountCompact()
+
+    expect(trigger(wrapper).text()).toBe('Ενεργή')
+    expect(trigger(wrapper).attributes('aria-label')).toBe('Ενεργή ειδοποίηση διαθεσιμότητας')
+    // No alert in the card itself.
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
+
+    await trigger(wrapper).trigger('click')
+    expect(wrapper.get('[data-testid="modal"]').text()).toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
+    expect(wrapper.find('[data-testid="modal"] form').exists()).toBe(false)
+
+    await wrapper.get('[data-testid="modal"]').findAll('button').find(button => button.text() === 'Απενεργοποίηση ειδοποίησης')!.trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo(`${ALERTS}/5`)).toEqual([{ url: `${ALERTS}/5`, options: expect.objectContaining({ method: 'DELETE' }) }])
+    expect(trigger(wrapper).text()).toBe('Ειδοποίηση')
+  })
+})

@@ -32,10 +32,9 @@ export interface ProductAlertToast {
  * `messages` are the drawing's own toasts and failure headlines;
  * `onCreated` runs once Django has answered (the drawing closes its
  * dialog). A 409 means the alert exists already: it is read so the
- * drawing shows it.
- * Call it where `await` is allowed: the lookup is read before it returns.
+ * drawing shows it. The active alert is `useProductActiveAlert`'s.
  */
-export async function useProductAlert(options: {
+export function useProductAlert(options: {
   productId: () => number
   kind: () => ProductAlertKindEnum
   currentPrice: () => number | null | undefined
@@ -86,26 +85,7 @@ export async function useProductAlert(options: {
     targetPrice: undefined,
   })
 
-  const { data: activeAlerts, refresh: refreshAlerts } = await useAsyncData<ProductAlert[]>(
-    `product-alerts:${options.productId()}`,
-    async () => {
-      if (!loggedIn.value) return []
-      try {
-        const response = await $api('/api/products/alerts', {
-          method: 'GET',
-          query: { product: options.productId(), isActive: true, pageSize: 2 },
-        })
-        return response?.results ?? []
-      }
-      catch (error) {
-        log.warn({ tag: 'product:notify-me', message: 'lookup failed', error })
-        return []
-      }
-    },
-    { watch: [loggedIn], default: () => [] },
-  )
-
-  const activeAlert = computed(() => activeAlerts.value.find(alert => alert.kind === options.kind()))
+  const { activeAlert, refresh: refreshAlerts } = useProductActiveAlert({ productId: options.productId, kind: options.kind })
 
   async function onSubmit() {
     if (submitting.value) return
@@ -166,4 +146,51 @@ export async function useProductAlert(options: {
   }
 
   return { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit, cancelAlert }
+}
+
+/**
+ * The signed-in shopper's active alert of `kind` on a product: what the
+ * "notify me" trigger shows (set or not) and what the dialog replaces its
+ * form with.
+ *
+ * Read in the browser, after mount (`server: false`, `lazy`): product pages
+ * and listings are served from a cache that knows no shopper
+ * (`shared/constants/prerender.ts`), so a server read would only ever store
+ * a guest's empty list in the payload, and a component hydrated lazily would
+ * either keep it or draw the shopper's alert over the guest HTML. Here every
+ * render starts as the guest's, like the cached page, and the alert appears
+ * once the lookup answers; a sign-in or sign-out reads again. Guests are not
+ * looked up: they cannot be identified before they give an email.
+ *
+ * One key per product, so a card's trigger and the dialog it opens share the
+ * answer, and a change made in the dialog shows on the trigger.
+ */
+export function useProductActiveAlert(options: {
+  productId: () => number
+  kind: () => ProductAlertKindEnum
+}) {
+  const { loggedIn } = useUserSession()
+
+  const { data: activeAlerts, refresh } = useAsyncData<ProductAlert[]>(
+    `product-alerts:${options.productId()}`,
+    async () => {
+      if (!loggedIn.value) return []
+      try {
+        const response = await $api('/api/products/alerts', {
+          method: 'GET',
+          query: { product: options.productId(), isActive: true, pageSize: 2 },
+        })
+        return response?.results ?? []
+      }
+      catch (error) {
+        log.warn({ tag: 'product:notify-me', message: 'lookup failed', error })
+        return []
+      }
+    },
+    { watch: [loggedIn], default: () => [], server: false, lazy: true, dedupe: 'defer' },
+  )
+
+  const activeAlert = computed(() => activeAlerts.value.find(alert => alert.kind === options.kind()))
+
+  return { activeAlert, refresh }
 }

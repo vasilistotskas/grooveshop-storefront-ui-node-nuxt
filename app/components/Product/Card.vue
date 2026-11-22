@@ -14,7 +14,8 @@ import type { PropType } from 'vue'
  * price, where the shopper is deciding. The buy button is ALWAYS visible, not revealed on hover —
  * a hover-only control does not exist on a touch screen: an "Add" pill
  * on the photograph from `sm` up, an icon button beside the price on a
- * phone, as the design draws them.
+ * phone, as the design draws them. A sold-out product offers the restock
+ * alert in both places instead, when the store sends alerts.
  *
  * Renders only the fields the payload has: a product without a brand or
  * reviews shows no brand line or stars. Search hits carry the same
@@ -104,6 +105,9 @@ const { displayFinalPrice, wasPrice, announcement } = useShopperPrice(productId,
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 
 const lowStockCount = computed(() => lowStockLeft(product.value))
+
+// Sold out, with the store's alerts on: the way to hear when it is back.
+const restockAlert = computed(() => outOfStock.value && productAlertsEnabled.value)
 
 const isNew = computed(() => {
   const createdAt = (product.value as { createdAt?: string })?.createdAt
@@ -207,8 +211,20 @@ const onFavouriteDelete = () => emit('favourite-delete')
         />
       </ClientOnly>
 
+      <!-- Sold out, the restock alert takes the add-to-cart button's
+           places: this pill, and the icon beside the price on a phone. -->
+      <ProductRestockAlert
+        v-if="restockAlert"
+        :product-id="productId"
+        :product-name="productName ?? ''"
+        :product-image="product.mainImagePath"
+        class="
+          absolute inset-e-2.5 bottom-2.5 z-10 hidden
+          sm:inline-flex
+        "
+      />
       <LazyButtonProductAddToCart
-        v-if="showAddToCartButton"
+        v-else-if="showAddToCartButton"
         :product="product"
         :quantity="1"
         :text="addToCartName"
@@ -284,8 +300,19 @@ const onFavouriteDelete = () => emit('favourite-delete')
             {{ $i18n.n(wasPrice, 'currency') }}
           </s>
         </div>
+        <ProductRestockAlert
+          v-if="restockAlert"
+          :product-id="productId"
+          :product-name="productName ?? ''"
+          :product-image="product.mainImagePath"
+          icon-only
+          class="
+            relative z-10 min-w-11 shrink-0
+            sm:hidden
+          "
+        />
         <LazyButtonProductAddToCart
-          v-if="showAddToCartButton"
+          v-else-if="showAddToCartButton"
           :product="product"
           :quantity="1"
           :text="addToCartName"
@@ -306,15 +333,6 @@ const onFavouriteDelete = () => emit('favourite-delete')
       >
         {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
       </p>
-      <!-- Opens the restock alert in place, above the card's stretched
-           link. -->
-      <ProductRestockAlert
-        v-if="outOfStock && productAlertsEnabled"
-        :product-id="productId"
-        :product-name="productName ?? ''"
-        :product-image="product.mainImagePath"
-        class="relative z-10 self-start"
-      />
     </div>
   </component>
 </template>

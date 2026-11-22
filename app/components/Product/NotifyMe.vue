@@ -45,7 +45,7 @@ const kinds = computed(() => [
   ...(props.priceDrop ? [{ value: 'price_drop' as const, label: t('price_drop.option') }] : []),
 ])
 
-const { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit, cancelAlert } = await useProductAlert({
+const { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit, cancelAlert } = useProductAlert({
   productId: () => props.productId,
   kind: () => kind.value,
   currentPrice: () => props.currentPrice,
