@@ -35,7 +35,8 @@ const accessibleName = computed(() => (activeAlert.value ? t('active_name') : t(
 
 <template>
   <!-- A 44px target on a phone (WCAG 2.5.5), as the design draws it from
-       `sm` up. -->
+       `sm` up. Outlined in both states: it sits on the photograph's tile,
+       where a soft fill would vanish. -->
   <UButton
     v-bind="$attrs"
     :icon="activeAlert ? 'i-lucide-bell-ring' : 'i-lucide-bell'"
@@ -44,7 +45,7 @@ const accessibleName = computed(() => (activeAlert.value ? t('active_name') : t(
     :title="iconOnly ? accessibleName : undefined"
     :square="iconOnly"
     color="neutral"
-    :variant="activeAlert ? 'soft' : 'outline'"
+    variant="outline"
     size="sm"
     class="
       min-h-11
