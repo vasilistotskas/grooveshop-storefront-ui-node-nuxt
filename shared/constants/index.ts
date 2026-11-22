@@ -101,10 +101,11 @@ export const AuthChangeEvent = Object.freeze({
   FLOW_UPDATED: 'FLOW_UPDATED',
 })
 
-// The social-card rendition every og:image body asks the media service for.
-// A page states these as og:image:width/height only when the og:image really
-// is this rendition (never for the tenant logo fallback, whose size is unknown).
-export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const
+// The box of the social-card rendition every og:image of an uploaded image
+// asks the media service for (`useOgImage`), a contract size the service
+// answers exactly. The size a page states is the one it is served at
+// (`servedCoverSize`): smaller than the box when the source is.
+export const OG_IMAGE_BOX = { width: 1200, height: 630 } as const
 
 // Where the media service cuts a blog post's cover to a shape: the page's
 // cover in every design, its og:image and its schema.org images ask for the
@@ -112,9 +113,9 @@ export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const
 export const BLOG_COVER_CROP_POSITION = 'attention'
 
 // The Article's images, in the order Google lists the shapes it asks for
-// (16:9, 4:3, 1:1). The first is the page's primary image. No width or
-// height is stated: Google's Article doc asks for none, and the media
-// service never enlarges a source, so a narrow original is served narrower.
+// (16:9, 4:3, 1:1): the boxes asked for, contract sizes of the media service.
+// The first is the page's primary image. Each ImageObject states the size it
+// is served at (`servedCoverSize`), narrower than its box when the cover is.
 export const ARTICLE_IMAGE_SIZES = [
   { width: 1200, height: 675 },
   { width: 1200, height: 900 },

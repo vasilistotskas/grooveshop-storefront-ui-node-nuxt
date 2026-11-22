@@ -16,7 +16,7 @@ export function makeBlogComment(overrides: Partial<BlogComment> = {}): BlogComme
   return {
     id,
     translations: { el: { content } },
-    user: { id: 1, username: 'user1', firstName: 'Μαρία', lastName: 'Παπαδοπούλου', mainImagePath: '' },
+    user: { id: 1, username: 'user1', firstName: 'Μαρία', lastName: 'Παπαδοπούλου', mainImagePath: '', mainImageWidth: null, mainImageHeight: null },
     contentPreview: content,
     isReply: false,
     parent: null,
@@ -41,7 +41,7 @@ export function makeBlogComment(overrides: Partial<BlogComment> = {}): BlogComme
  * Defaults: a reply (comment `id`, by user 1) to comment 1, which has
  * the public author `makeBlogComment` has, and is itself a root: the
  * `parentComment` and every `ancestorsPath` entry carry the PUBLIC author
- * (`id`, `username`, `firstName`, `lastName`, `mainImagePath`), never the
+ * (`id`, `username`, `firstName`, `lastName`, `mainImagePath` and its size), never the
  * account's email or role flags (Django's `comment_response_contract` test).
  * An explicit override wins.
  */
@@ -90,6 +90,8 @@ export function makeBlogPost(overrides: Partial<BlogPost> = {}): BlogPost {
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     mainImagePath: '',
+    mainImageWidth: null,
+    mainImageHeight: null,
     readingTime: 5,
     contentPreview: '',
     ...overrides,
@@ -116,6 +118,8 @@ export function makeBlogCategory(overrides: Partial<BlogCategory> = {}): BlogCat
     postCount: 1,
     hasChildren: false,
     mainImagePath: '',
+    mainImageWidth: null,
+    mainImageHeight: null,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     ...overrides,
@@ -160,7 +164,7 @@ export function makeBlogAuthor(overrides: Partial<BlogAuthorDetail> = {}): BlogA
     id,
     uuid: fixtureUuid(32, id),
     translations: { el: { bio: '' } },
-    user: { id, username: null, firstName: 'Νίκος', lastName: `Συντάκτης ${id}`, mainImagePath: '' },
+    user: { id, username: null, firstName: 'Νίκος', lastName: `Συντάκτης ${id}`, mainImagePath: '', mainImageWidth: null, mainImageHeight: null },
     website: null,
     sameAs: [],
     createdAt: FIXTURE_TIMESTAMP,

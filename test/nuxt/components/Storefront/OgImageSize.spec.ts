@@ -7,13 +7,14 @@ import { injectHead } from '#imports'
 import ProductsCategory from '~/components/Storefront/ProductsCategory.vue'
 import WebsideProductsCategory from '~/components/variants/webside/Storefront/ProductsCategory.vue'
 import { setTenant } from '~~/test/helpers/tenant'
+import { OG_IMAGE_BOX } from '~~/shared/constants'
 
 /**
- * A page that sets its own og:image states the size of the 1200x630
- * rendition it asked the media service for, and states nothing for the
- * tenant-logo fallback, whose size is unknown. @nuxtjs/seo 6 no longer
- * fills og:image:width/height from a site default, so a page that omits
- * them ships an image with no size.
+ * A product category's og:image is the first product's social-card
+ * rendition, or the tenant logo. Neither states a size: a search result
+ * carries no image size, and the logo's is unknown, so no size is truer
+ * than the box asked for, which the media service serves smaller when the
+ * photo is.
  */
 const state = vi.hoisted(() => ({ products: [] as Array<{ mainImagePath: string }> }))
 
@@ -61,14 +62,14 @@ describe.each([
     setTenant({ logoLightUrl: 'https://shop.test/logo.png', isPlatformStorefront: false })
   })
 
-  it('states 1200x630 when the og:image is the rendition of the first product', async () => {
+  it('states no size for the rendition of the first product', async () => {
     state.products = [{ mainImagePath: 'media/uploads/products/a.png' }]
 
     const og = await ogMeta(component)
 
-    expect(og.image).toContain('1200/630')
-    expect(og.width).toBe('1200')
-    expect(og.height).toBe('630')
+    expect(og.image).toContain(`${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}`)
+    expect(og.width).toBeNull()
+    expect(og.height).toBeNull()
   })
 
   it('states no size when the og:image is the tenant logo', async () => {

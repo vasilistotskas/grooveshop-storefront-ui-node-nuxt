@@ -1,3 +1,10 @@
+# [3.353.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.352.0...v3.353.0) (2026-11-22)
+
+
+### Features
+
+* **seo:** state the size the media service serves each og and Article image at ([#514](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/514)) ([f083c99](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f083c9949785c19008ee7014268ded17253479bb))
+
 # [3.352.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.351.0...v3.352.0) (2026-11-22)
 
 

@@ -16,6 +16,7 @@ export async function useBlogAuthorPage(options: {
   const { locale, t } = useI18n({ useScope: 'global' })
   const route = useRoute()
   const img = useMediaStreamImage()
+  const ogImageOf = useOgImage()
   const tenantStore = useTenantStore()
   const { blogAuthorUrl } = useUrls()
   const { sanitize } = useHtmlContent()
@@ -126,15 +127,8 @@ export async function useBlogAuthorPage(options: {
   const orderingOptions = computed(() => useOrdering(entityOrdering.value))
 
   const ogImage = computed(() => {
-    const path = author.value?.user?.mainImagePath
-    if (!path) return ''
-    return img(path, {
-      ...OG_IMAGE_SIZE,
-      format: 'png',
-      fit: 'cover',
-    }, {
-      provider: 'mediaStream',
-    })
+    const user = author.value?.user
+    return ogImageOf(user?.mainImagePath, { width: user?.mainImageWidth, height: user?.mainImageHeight })
   })
 
   // No decorative [slug] segment here, unlike the category and product
@@ -157,9 +151,9 @@ export async function useBlogAuthorPage(options: {
     ogUrl: () => canonicalUrl.value,
     description: () => metaDescription.value,
     ogDescription: () => metaDescription.value,
-    ogImage: ogImage.value,
-    ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
-    ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
+    ogImage: () => ogImage.value?.url,
+    ogImageWidth: () => ogImage.value?.width,
+    ogImageHeight: () => ogImage.value?.height,
   })
 
   useHead({
