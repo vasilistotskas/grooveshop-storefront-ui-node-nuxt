@@ -1,3 +1,10 @@
+# [3.351.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.350.0...v3.351.0) (2026-11-22)
+
+
+### Features
+
+* **blog:** article images in three shapes and responsive covers ([#511](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/511)) ([1030fd5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1030fd556f6927bc34f2c707012f14efac75cff5))
+
 # [3.350.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.349.0...v3.350.0) (2026-11-21)
 
 
