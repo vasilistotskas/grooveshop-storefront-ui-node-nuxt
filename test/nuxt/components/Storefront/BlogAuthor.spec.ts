@@ -356,8 +356,11 @@ describe.each(trees(BlogAuthor, WebsideBlogAuthor))('og:image of the author page
     posts.status.value = 'success'
   })
 
-  /** The og:image and its stated size, as the rendered head carries them. */
-  async function ogMeta() {
+  /**
+   * The og:image and its stated size, as the rendered head carries them.
+   * `afterMount` runs between the mount and the read (the author's data changing).
+   */
+  async function ogMeta(afterMount?: () => void) {
     const head = injectHead()
     const before = new Set(head.entries.keys())
     const wrapper = await mountSuspended(C, {
@@ -365,6 +368,10 @@ describe.each(trees(BlogAuthor, WebsideBlogAuthor))('og:image of the author page
       global: { stubs: { BlogPostCard: CardStub, WebsideBlogPostCardMobile: CardStub, WebsideBlogPostCardDesktop: CardStub } },
     })
     await flushPromises()
+    if (afterMount) {
+      afterMount()
+      await flushPromises()
+    }
     vi.useFakeTimers({ toFake: ['setTimeout'] })
     try {
       head.render()
@@ -392,6 +399,19 @@ describe.each(trees(BlogAuthor, WebsideBlogAuthor))('og:image of the author page
 
     expect(og.image).toContain(`/mike.jpg/${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}/cover/`)
     expect([og.width, og.height]).toEqual(['600', '315'])
+  })
+
+  it('states the new photo\'s size when the author\'s data changes', async () => {
+    author.data.value = makeAuthor({ user: { ...photo, mainImageWidth: 600, mainImageHeight: 800 } })
+
+    const og = await ogMeta(() => {
+      author.data.value = makeAuthor({
+        user: { ...photo, mainImagePath: 'media/shop/uploads/users/mike-new.jpg', mainImageWidth: 1080, mainImageHeight: 720 },
+      })
+    })
+
+    expect(og.image).toContain('/mike-new.jpg/')
+    expect([og.width, og.height]).toEqual(['1080', '567'])
   })
 
   it('states no size when the photo was not measured', async () => {
