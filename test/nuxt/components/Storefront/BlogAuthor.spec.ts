@@ -26,7 +26,7 @@ mockNuxtImport('useRoute', () => () => ({
 
 const makeAuthor = (overrides: Partial<BlogAuthorDetail> = {}) => makeBlogAuthor({
   id: 2,
-  user: { id: 7, username: null, firstName: 'Mike', lastName: 'Ganos', mainImagePath: '', mainImageWidth: null, mainImageHeight: null },
+  user: { id: 7, username: null, firstName: 'Mike', lastName: 'Ganos', mainImagePath: '' },
   website: '',
   translations: { el: {} },
   ...overrides,
@@ -298,7 +298,7 @@ describe('Storefront/BlogAuthor', () => {
     })
 
     it('falls back to the full name for an author without a first name', async () => {
-      author.data.value = makeAuthor({ user: { id: 7, username: null, firstName: '', lastName: 'Ganos', mainImagePath: '', mainImageWidth: null, mainImageHeight: null } })
+      author.data.value = makeAuthor({ user: { id: 7, username: null, firstName: '', lastName: 'Ganos', mainImagePath: '' } })
 
       const wrapper = await mount()
 

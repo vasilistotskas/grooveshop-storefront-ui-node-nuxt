@@ -29,7 +29,7 @@ const PRODUCT = makeProduct({ id: 1 })
 const REVIEW: ProductReviewDetail = {
   id: 9,
   product: PRODUCT,
-  user: { id: 7, username: null, firstName: 'Μαρία', lastName: 'Παπαδοπούλου', mainImagePath: '', mainImageWidth: null, mainImageHeight: null },
+  user: { id: 7, username: null, firstName: 'Μαρία', lastName: 'Παπαδοπούλου', mainImagePath: '' },
   rate: 6,
   isVerifiedPurchase: false,
   status: 'TRUE',
