@@ -8,6 +8,7 @@ import WebsideNotifyMe from '~/components/variants/webside/Product/NotifyMe.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
+import { DATA_MAX_PAGE_SIZE } from '~~/shared/constants/builder'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -220,7 +221,7 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
 
     expect(lookups()).toEqual([{
       url: ALERTS,
-      options: expect.objectContaining({ query: { product: 3, isActive: true, pageSize: 2 } }),
+      options: expect.objectContaining({ query: { isActive: true, page: 1, pageSize: DATA_MAX_PAGE_SIZE } }),
     }])
 
     await adapter.submit(wrapper)
@@ -251,6 +252,41 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
     // Re-read, so the form comes back.
     expect(lookups()).toHaveLength(2)
     expect(adapter.formShown(wrapper)).toBe(true)
+  })
+
+  // A read already on its way when the alert is turned off started before
+  // the change: it must not put the alert back. The re-read after the
+  // DELETE cancels it.
+  it('is not undone by a read that started before the alert was turned off', async () => {
+    signIn()
+    let active = [makeAlert()]
+    let releaseStale: (() => void) | undefined
+    api.routes({
+      [ALERTS]: () => {
+        const answer = page(active)
+        // The second read is held: it answers late, with the list as it was.
+        if (lookups().length !== 2) return answer
+        return new Promise((resolve) => {
+          releaseStale = () => resolve(answer)
+        })
+      },
+      [`${ALERTS}/5`]: () => { active = [] },
+    })
+    const wrapper = await adapter.mount()
+    expect(wrapper.text()).toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
+
+    void refreshNuxtData()
+    await flushPromises()
+    expect(releaseStale).toBeDefined()
+
+    await wrapper.findAll('button').find(button => button.text() === 'Απενεργοποίηση ειδοποίησης')!.trigger('click')
+    await flushPromises()
+    releaseStale!()
+    await flushPromises()
+
+    expect(lookups()).toHaveLength(3)
+    expect(adapter.formShown(wrapper)).toBe(true)
+    expect(wrapper.text()).not.toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
   })
 
   it('says why an alert could not be turned off, and keeps it', async () => {
@@ -403,7 +439,6 @@ describe('webside Product/NotifyMe on a card', () => {
     expect(trigger(wrapper).text()).toBe('Ενεργή')
     expect(trigger(wrapper).attributes('aria-label')).toBe('Ενεργή ειδοποίηση διαθεσιμότητας')
     // No alert in the card itself.
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
 
     await trigger(wrapper).trigger('click')

@@ -3,6 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import RestockAlert from '~/components/Product/RestockAlert.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { DATA_MAX_PAGE_SIZE } from '~~/shared/constants/builder'
 
 /**
  * The platform's "notify me when it's back": a compact button that opens
@@ -70,6 +71,8 @@ describe('Product/RestockAlert', () => {
     const icon = await mountAlert({ iconOnly: true })
     expect(icon.get('button').text()).toBe('')
     expect(icon.get('button').attributes('aria-label')).toBe('Ειδοποίηση όταν ξαναέρθει')
+    // The caller widens it to a 44px target: the bell stays in the middle.
+    expect(icon.get('button').classes()).toContain('justify-center')
   })
 
   // The classes are the contract: a phone's tap target is at least 44px
@@ -98,7 +101,7 @@ describe('Product/RestockAlert', () => {
     session.user.value = { id: 3, email: 'maria@example.com' }
     await flushPromises()
 
-    expect(api.callsTo(ALERTS)).toEqual([{ url: ALERTS, options: expect.objectContaining({ query: { product: 7, isActive: true, pageSize: 2 } }) }])
+    expect(api.callsTo(ALERTS)).toEqual([{ url: ALERTS, options: expect.objectContaining({ query: { isActive: true, page: 1, pageSize: DATA_MAX_PAGE_SIZE } }) }])
     expect(wrapper.get('button').text()).toBe('Ενεργή')
     expect(wrapper.get('button').attributes('aria-label')).toBe('Ενεργή ειδοποίηση διαθεσιμότητας')
   })

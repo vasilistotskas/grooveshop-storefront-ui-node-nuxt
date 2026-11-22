@@ -44,6 +44,7 @@ const accessibleName = computed(() => (activeAlert.value ? t('active_name') : t(
     :aria-label="accessibleName"
     :title="iconOnly ? accessibleName : undefined"
     :square="iconOnly"
+    :ui="iconOnly ? { base: 'justify-center' } : undefined"
     color="neutral"
     variant="outline"
     size="sm"

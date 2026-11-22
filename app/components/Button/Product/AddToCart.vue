@@ -175,6 +175,7 @@ function announceAdded() {
     :icon="icon"
     :size="size"
     square
+    :ui="{ base: 'justify-center' }"
     loading-auto
     :color="buttonColor"
     :variant="buttonVariant"
