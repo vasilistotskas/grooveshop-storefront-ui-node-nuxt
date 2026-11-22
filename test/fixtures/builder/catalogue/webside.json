@@ -1,5 +1,5 @@
 {
-  "hash": "9da65827952323e2",
+  "hash": "1750e6a5b0dcc89d",
   "blocks": [
     {
       "type": "about_content",
@@ -923,6 +923,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -1812,6 +1813,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -2680,6 +2682,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -5663,6 +5666,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -7606,6 +7610,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -7713,6 +7718,7 @@
             "type": "string",
             "enum": [
               "i-fa6-solid-desktop",
+              "i-fa6-solid-gamepad",
               "i-fa6-solid-globe",
               "i-fa6-solid-microchip",
               "i-fa6-solid-mobile",
@@ -9260,5 +9266,280 @@
     "vision",
     "what-is-microlearning",
     "why-microlearning"
+  ],
+  "icons": [
+    {
+      "name": "i-fa6-solid-desktop",
+      "labels": {
+        "el": "Οθόνη υπολογιστή",
+        "en": "Desktop computer"
+      }
+    },
+    {
+      "name": "i-fa6-solid-gamepad",
+      "labels": {
+        "el": "Χειριστήριο παιχνιδιών",
+        "en": "Game controller"
+      }
+    },
+    {
+      "name": "i-fa6-solid-globe",
+      "labels": {
+        "el": "Υδρόγειος",
+        "en": "Globe"
+      }
+    },
+    {
+      "name": "i-fa6-solid-microchip",
+      "labels": {
+        "el": "Μικροτσίπ",
+        "en": "Microchip"
+      }
+    },
+    {
+      "name": "i-fa6-solid-mobile",
+      "labels": {
+        "el": "Κινητό τηλέφωνο",
+        "en": "Mobile phone"
+      }
+    },
+    {
+      "name": "i-fa6-solid-network-wired",
+      "labels": {
+        "el": "Ενσύρματο δίκτυο",
+        "en": "Wired network"
+      }
+    },
+    {
+      "name": "i-fa6-solid-robot",
+      "labels": {
+        "el": "Ρομπότ",
+        "en": "Robot"
+      }
+    },
+    {
+      "name": "i-fa6-solid-shield",
+      "labels": {
+        "el": "Ασπίδα, συμπαγής",
+        "en": "Shield, solid"
+      }
+    },
+    {
+      "name": "i-fa6-solid-shuffle",
+      "labels": {
+        "el": "Ανακάτεμα",
+        "en": "Shuffle"
+      }
+    },
+    {
+      "name": "i-heroicons-arrow-uturn-left",
+      "labels": {
+        "el": "Βέλος επιστροφής",
+        "en": "Return arrow"
+      }
+    },
+    {
+      "name": "i-heroicons-briefcase",
+      "labels": {
+        "el": "Χαρτοφύλακας",
+        "en": "Briefcase"
+      }
+    },
+    {
+      "name": "i-heroicons-building-storefront",
+      "labels": {
+        "el": "Κατάστημα",
+        "en": "Storefront"
+      }
+    },
+    {
+      "name": "i-heroicons-chat-bubble-left-right",
+      "labels": {
+        "el": "Συζήτηση",
+        "en": "Conversation"
+      }
+    },
+    {
+      "name": "i-heroicons-globe-europe-africa",
+      "labels": {
+        "el": "Υδρόγειος, Ευρώπη",
+        "en": "Globe, Europe"
+      }
+    },
+    {
+      "name": "i-heroicons-hand-raised",
+      "labels": {
+        "el": "Σηκωμένο χέρι",
+        "en": "Raised hand"
+      }
+    },
+    {
+      "name": "i-heroicons-information-circle",
+      "labels": {
+        "el": "Πληροφορίες",
+        "en": "Information"
+      }
+    },
+    {
+      "name": "i-heroicons-lifebuoy",
+      "labels": {
+        "el": "Σωσίβιο",
+        "en": "Lifebuoy"
+      }
+    },
+    {
+      "name": "i-heroicons-light-bulb",
+      "labels": {
+        "el": "Λάμπα",
+        "en": "Light bulb"
+      }
+    },
+    {
+      "name": "i-heroicons-lock-closed",
+      "labels": {
+        "el": "Λουκέτο",
+        "en": "Padlock"
+      }
+    },
+    {
+      "name": "i-heroicons-rectangle-group",
+      "labels": {
+        "el": "Ενότητες",
+        "en": "Sections"
+      }
+    },
+    {
+      "name": "i-heroicons-shield-check",
+      "labels": {
+        "el": "Ασπίδα με τικ, στρογγυλή",
+        "en": "Shield with check, rounded"
+      }
+    },
+    {
+      "name": "i-heroicons-shopping-bag",
+      "labels": {
+        "el": "Τσάντα αγορών",
+        "en": "Shopping bag"
+      }
+    },
+    {
+      "name": "i-heroicons-sparkles",
+      "labels": {
+        "el": "Λάμψεις",
+        "en": "Sparkles"
+      }
+    },
+    {
+      "name": "i-heroicons-sun",
+      "labels": {
+        "el": "Ήλιος",
+        "en": "Sun"
+      }
+    },
+    {
+      "name": "i-heroicons-truck",
+      "labels": {
+        "el": "Φορτηγάκι",
+        "en": "Truck"
+      }
+    },
+    {
+      "name": "i-lucide-battery-charging",
+      "labels": {
+        "el": "Φόρτιση μπαταρίας",
+        "en": "Battery charging"
+      }
+    },
+    {
+      "name": "i-lucide-code",
+      "labels": {
+        "el": "Κώδικας",
+        "en": "Code"
+      }
+    },
+    {
+      "name": "i-lucide-cpu",
+      "labels": {
+        "el": "Επεξεργαστής",
+        "en": "Processor"
+      }
+    },
+    {
+      "name": "i-lucide-drafting-compass",
+      "labels": {
+        "el": "Διαβήτης",
+        "en": "Drafting compass"
+      }
+    },
+    {
+      "name": "i-lucide-gauge",
+      "labels": {
+        "el": "Μετρητής",
+        "en": "Gauge"
+      }
+    },
+    {
+      "name": "i-lucide-graduation-cap",
+      "labels": {
+        "el": "Καπέλο αποφοίτησης",
+        "en": "Graduation cap"
+      }
+    },
+    {
+      "name": "i-lucide-hard-hat",
+      "labels": {
+        "el": "Κράνος εργασίας",
+        "en": "Hard hat"
+      }
+    },
+    {
+      "name": "i-lucide-radio",
+      "labels": {
+        "el": "Ραδιόφωνο",
+        "en": "Radio"
+      }
+    },
+    {
+      "name": "i-lucide-shield",
+      "labels": {
+        "el": "Ασπίδα",
+        "en": "Shield"
+      }
+    },
+    {
+      "name": "i-lucide-shield-check",
+      "labels": {
+        "el": "Ασπίδα με τικ",
+        "en": "Shield with check"
+      }
+    },
+    {
+      "name": "i-lucide-sliders-horizontal",
+      "labels": {
+        "el": "Ρυθμιστικά",
+        "en": "Sliders"
+      }
+    },
+    {
+      "name": "i-lucide-traffic-cone",
+      "labels": {
+        "el": "Κώνος",
+        "en": "Traffic cone"
+      }
+    },
+    {
+      "name": "i-lucide-wrench",
+      "labels": {
+        "el": "Κλειδί εργαλείων",
+        "en": "Wrench"
+      }
+    },
+    {
+      "name": "i-lucide-zap",
+      "labels": {
+        "el": "Κεραυνός",
+        "en": "Lightning"
+      }
+    }
   ]
 }
