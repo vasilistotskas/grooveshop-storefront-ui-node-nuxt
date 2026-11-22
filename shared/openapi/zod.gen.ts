@@ -291,6 +291,8 @@ export const zBlogCategory = z.object({
   mainImagePath: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 /**
@@ -325,6 +327,8 @@ export const zBlogCategoryDetail = z.object({
   categoryPath: z.string().readonly(),
   treeId: z.int().readonly(),
   uuid: z.uuid().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 export const zBlogCategoryReorderItemRequest = z.object({
@@ -416,6 +420,8 @@ export const zBlogPost = z.object({
   mainImagePath: z.string().readonly(),
   readingTime: z.int().readonly(),
   contentPreview: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 /**
@@ -2933,6 +2939,8 @@ export const zProductCard = z.object({
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 export const zPaginatedProductCardList = z.object({
@@ -3189,6 +3197,8 @@ export const zProductImage = z.object({
   }),
   mainImagePath: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 export const zPaginatedProductImageList = z.object({
@@ -3299,6 +3309,24 @@ export const zProductPriceSpell = z.object({
 export const zProductPriceHistory = z.object({
   currency: z.string().readonly(),
   spells: z.array(zProductPriceSpell).readonly(),
+})
+
+/**
+ * The cheapest delivery of one product bought on its own.
+ */
+export const zProductShippingEstimate = z.object({
+  countryCode: z.string().max(2),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  currency: z.string().max(3),
+  free: z.boolean(),
+  freeShippingThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
+})
+
+/**
+ * Response payload of the product shipping endpoint.
+ */
+export const zProductShipping = z.object({
+  estimate: zProductShippingEstimate.nullable(),
 })
 
 /**
@@ -3904,6 +3932,8 @@ export const zProduct = z.object({
     zNullEnum,
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 export const zCartItem = z.object({
@@ -4152,6 +4182,8 @@ export const zProductDetail = z.object({
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 /**
@@ -4217,6 +4249,8 @@ export const zProductDetailResponse = z.object({
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 export const zProductFavourite = z.object({
@@ -4318,6 +4352,8 @@ export const zProductFeed = z.object({
   ]).nullish(),
   variantGroupTitle: z.string().readonly().nullable(),
   highlights: z.array(z.string()).readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 export const zPaginatedProductFeedList = z.object({
@@ -4354,11 +4390,6 @@ export const zProductImageDetail = z.object({
   }),
   mainImagePath: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
-  imageDimensions: z.object({
-    width: z.number().optional(),
-    height: z.number().optional(),
-    aspectRatio: z.number().optional(),
-  }).readonly(),
   imageFormat: z.string().readonly(),
   usageContext: z.object({
     isMain: z.boolean().optional(),
@@ -4367,6 +4398,8 @@ export const zProductImageDetail = z.object({
     recommendedFor: z.string().optional(),
   }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 /**
@@ -4437,6 +4470,8 @@ export const zProductRetrieve = z.object({
   variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
   ratingDistribution: z.array(zRatingDistribution).readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 /**
@@ -6537,6 +6572,8 @@ export const zUserPublic = z.object({
   firstName: z.string().readonly(),
   lastName: z.string().readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 /**
@@ -6681,6 +6718,8 @@ export const zBlogPostDetail = z.object({
   contentPreview: z.string().readonly(),
   likes: z.array(z.int()).readonly(),
   userHasLiked: z.boolean().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 export const zPaginatedBlogCommentList = z.object({
@@ -16896,6 +16935,15 @@ export const zListShippingOptionsQuery = z.object({
 export const zListShippingOptionsResponse = z.array(zShippingOption)
 
 export const zGetShippingPolicyResponse = z.array(zShippingPolicyEntry)
+
+export const zGetProductShippingPath = z.object({
+  productId: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetProductShippingResponse = zProductShipping
 
 export const zApiV1ShippingProvidersListQuery = z.object({
   search: z.string().optional(),

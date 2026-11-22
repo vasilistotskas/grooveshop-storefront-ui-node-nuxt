@@ -423,6 +423,9 @@ async function processProducts(
   return items
 }
 
+// No width or height: the variant is the box asked for, not the size served.
+// The media service never enlarges a source, and 472x311 is not one of its
+// contract sizes, so it may also be snapped up its width ladder.
 function mediaContent(url: string): Record<string, unknown> {
   return {
     'media:content': {
@@ -430,8 +433,6 @@ function mediaContent(url: string): Record<string, unknown> {
         url,
         type: RSS_IMAGE_TYPE,
         medium: 'image',
-        width: String(RSS_IMAGE_VARIANT.width),
-        height: String(RSS_IMAGE_VARIANT.height),
       },
     },
   }

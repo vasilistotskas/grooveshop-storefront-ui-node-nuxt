@@ -63,7 +63,7 @@ describe('useBlogAuthorPerson', () => {
 
   it('names the author and links their public profiles and website as sameAs', async () => {
     const { person } = await personOf(makeBlogAuthor({
-      user: { id: 3, username: null, firstName: 'Νάρεκ', lastName: 'Αμπραχαμιάν', mainImagePath: '' },
+      user: { id: 3, username: null, firstName: 'Νάρεκ', lastName: 'Αμπραχαμιάν', mainImagePath: '', mainImageWidth: null, mainImageHeight: null },
       sameAs: ['https://www.linkedin.com/in/narek', 'https://x.com/narek'],
       website: 'https://narek.example',
     }), 'Γράφει για κινητά.')
@@ -101,7 +101,7 @@ describe('useBlogAuthorPerson', () => {
   it('serves the photo as an absolute URL on the store\'s media host', async () => {
     setTenant({ assetsDomain: 'assets.shop.test' })
     const { person } = await personOf(makeBlogAuthor({
-      user: { id: 3, username: null, firstName: 'Νάρεκ', lastName: 'Α', mainImagePath: 'media/webside/uploads/users/narek.png' },
+      user: { id: 3, username: null, firstName: 'Νάρεκ', lastName: 'Α', mainImagePath: 'media/webside/uploads/users/narek.png', mainImageWidth: null, mainImageHeight: null },
     }))
 
     // Square, cropped, as PNG: the media service's path segments.

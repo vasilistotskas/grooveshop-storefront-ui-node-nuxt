@@ -15,7 +15,7 @@ export async function useBlogCategoryPage(options: {
 }) {
   const { locale, t } = useI18n({ useScope: 'global' })
   const route = useRoute()
-  const img = useMediaStreamImage()
+  const ogImageOf = useOgImage()
   const { declare, canonicalUrl } = useDocumentLocales()
 
   const paginationType = PaginationTypeEnum.PAGE_NUMBER
@@ -101,19 +101,10 @@ export async function useBlogCategoryPage(options: {
     return useOrdering(entityOrdering.value)
   })
 
-  const ogImage = computed(() => {
-    if (!category || !category.value || !category.value.mainImagePath) {
-      return ''
-    }
-
-    return img(category.value.mainImagePath, {
-      ...OG_IMAGE_SIZE,
-      format: 'png',
-      fit: 'cover',
-    }, {
-      provider: 'mediaStream',
-    })
-  })
+  const ogImage = computed(() => ogImageOf(category.value?.mainImagePath, {
+    width: category.value?.mainImageWidth,
+    height: category.value?.mainImageHeight,
+  }))
 
   // The canonical and the hreflang set are built from the entity's OWN
   // id+slug, never from route.path: the [slug] segment is decorative (the
@@ -140,9 +131,9 @@ export async function useBlogCategoryPage(options: {
     ogUrl: () => canonicalUrl.value,
     description: () => categoryDescription.value,
     ogDescription: () => categoryDescription.value,
-    ogImage: ogImage.value,
-    ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
-    ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
+    ogImage: () => ogImage.value?.url,
+    ogImageWidth: () => ogImage.value?.width,
+    ogImageHeight: () => ogImage.value?.height,
   })
 
   useHead({

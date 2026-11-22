@@ -50116,6 +50116,62 @@
                 }
             }
         },
+        "/api/v1/shipping/product/{product_id}": {
+            "get": {
+                "operationId": "getProductShipping",
+                "description": "The cheapest delivery checkout would charge a cart holding this product alone, to the store's first shipping country: after the free-shipping threshold and the automatic promotions such a cart gets, leaving out every delivery that cannot carry the product (weight cap, parcel size). ``estimate`` is null when the store ships nowhere or no delivery can take the product. Returns 404 when the product does not exist or is not active.",
+                "summary": "What shipping one product costs",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "productId",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Shipping"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductShipping"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/shipping/providers": {
             "get": {
                 "operationId": "api_v1_shipping_providers_list",
@@ -60747,6 +60803,16 @@
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Ενημερώθηκε στις"
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -60759,7 +60825,9 @@
                     "slug",
                     "sortOrder",
                     "translations",
-                    "updatedAt"
+                    "updatedAt",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogCategoryDetail": {
@@ -60881,6 +60949,16 @@
                         "type": "string",
                         "format": "uuid",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -60901,7 +60979,9 @@
                     "translations",
                     "treeId",
                     "updatedAt",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogCategoryReorderItemRequest": {
@@ -61536,6 +61616,16 @@
                     "contentPreview": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -61555,7 +61645,9 @@
                     "translations",
                     "updatedAt",
                     "uuid",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogPostDetail": {
@@ -61719,6 +61811,16 @@
                     "userHasLiked": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -61740,7 +61842,9 @@
                     "updatedAt",
                     "userHasLiked",
                     "uuid",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "BlogPostFeed": {
@@ -74374,6 +74478,16 @@
                         "type": "string",
                         "nullable": true,
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -74409,7 +74523,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductAlert": {
@@ -74764,6 +74880,16 @@
                         "type": "string",
                         "format": "uuid",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -74785,7 +74911,9 @@
                     "stock",
                     "translations",
                     "updatedAt",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductCategory": {
@@ -75663,6 +75791,16 @@
                         "readOnly": true,
                         "title": "Ειδοποιήσεις πτώσης τιμής",
                         "description": "Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU."
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -75699,7 +75837,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductDetailResponse": {
@@ -75981,6 +76121,16 @@
                         "readOnly": true,
                         "title": "Ειδοποιήσεις πτώσης τιμής",
                         "description": "Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU."
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76017,7 +76167,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductFavourite": {
@@ -76469,6 +76621,16 @@
                             "type": "string"
                         },
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76505,7 +76667,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductImage": {
@@ -76576,6 +76740,16 @@
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Δημιουργήθηκε στις"
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76587,7 +76761,9 @@
                     "product",
                     "sortOrder",
                     "translations",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductImageDetail": {
@@ -76662,21 +76838,6 @@
                         "readOnly": true,
                         "title": "Δημιουργήθηκε στις"
                     },
-                    "imageDimensions": {
-                        "type": "object",
-                        "properties": {
-                            "width": {
-                                "type": "number"
-                            },
-                            "height": {
-                                "type": "number"
-                            },
-                            "aspectRatio": {
-                                "type": "number"
-                            }
-                        },
-                        "readOnly": true
-                    },
                     "imageFormat": {
                         "type": "string",
                         "readOnly": true
@@ -76704,6 +76865,16 @@
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Ενημερώθηκε στις"
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -76711,7 +76882,6 @@
                     "createdAt",
                     "id",
                     "image",
-                    "imageDimensions",
                     "imageFormat",
                     "mainImagePath",
                     "product",
@@ -76719,7 +76889,9 @@
                     "translations",
                     "updatedAt",
                     "usageContext",
-                    "uuid"
+                    "uuid",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductImageWriteRequest": {
@@ -77529,6 +77701,16 @@
                             "$ref": "#/components/schemas/RatingDistribution"
                         },
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -77566,7 +77748,9 @@
                     "vat",
                     "vatPercent",
                     "vatValue",
-                    "viewCount"
+                    "viewCount",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "ProductReview": {
@@ -77832,6 +78016,70 @@
                     "product",
                     "rate",
                     "translations"
+                ]
+            },
+            "ProductShipping": {
+                "type": "object",
+                "description": "Response payload of the product shipping endpoint.",
+                "properties": {
+                    "estimate": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ProductShippingEstimate"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Null όταν το κατάστημα δεν αποστέλλει πουθενά ή όταν καμία αποστολή που προσφέρει δεν μπορεί να πάρει αυτό το προϊόν."
+                    }
+                },
+                "required": [
+                    "estimate"
+                ]
+            },
+            "ProductShippingEstimate": {
+                "type": "object",
+                "description": "The cheapest delivery of one product bought on its own.",
+                "properties": {
+                    "countryCode": {
+                        "type": "string",
+                        "description": "Η χώρα για την οποία υπολογίστηκε η τιμή: η πρώτη χώρα αποστολής του καταστήματος, αυτή που προεπιλέγει η ολοκλήρωση αγοράς.",
+                        "maxLength": 2
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "Η φθηνότερη αποστολή που θα χρέωνε η ολοκλήρωση αγοράς σε ένα καλάθι μόνο με αυτό το προϊόν, μετά το όριο δωρεάν αποστολής και τις προωθήσεις δωρεάν αποστολής."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Νόμισμα των ``price`` και ``free_shipping_threshold``.",
+                        "maxLength": 3
+                    },
+                    "free": {
+                        "type": "boolean",
+                        "description": "Το προϊόν αποστέλλεται δωρεάν και μόνο του: το ``price`` είναι 0."
+                    },
+                    "freeShippingThreshold": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "Το χαμηλότερο υποσύνολο προϊόντων, μετά τις εκπτώσεις, από το οποίο μια μεταφορική που μπορεί να πάρει αυτό το προϊόν το αποστέλλει δωρεάν. Null όταν καμία δεν το κάνει ποτέ."
+                    }
+                },
+                "required": [
+                    "countryCode",
+                    "currency",
+                    "free",
+                    "freeShippingThreshold",
+                    "price"
                 ]
             },
             "ProductVariant": {
@@ -83356,6 +83604,16 @@
                         "type": "string",
                         "description": "Διαδρομή avatar ή κενή συμβολοσειρά",
                         "readOnly": true
+                    },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -83363,7 +83621,9 @@
                     "id",
                     "lastName",
                     "mainImagePath",
-                    "username"
+                    "username",
+                    "mainImageWidth",
+                    "mainImageHeight"
                 ]
             },
             "UserSubscription": {
