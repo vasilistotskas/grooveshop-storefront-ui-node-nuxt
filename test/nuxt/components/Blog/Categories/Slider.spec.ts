@@ -5,6 +5,7 @@ import BlogCategoriesSlider from '~/components/Blog/Categories/Slider.vue'
 import WebsideBlogCategoriesSlider from '~/components/variants/webside/Blog/Categories/Slider.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The categories rail, in both designs. It renders the categories its band
@@ -48,16 +49,9 @@ describe('Blog/Categories/Slider', () => {
   })
 })
 
-describe('a category icon in the rail', () => {
-  it('is drawn instead of the picture in the default design', async () => {
-    const wrapper = await mountSuspended(BlogCategoriesSlider, { route: false, props: { categories: [ROBOT] }, global: { stubs } })
-
-    expect(wrapper.find('img').exists()).toBe(false)
-    expect(wrapper.get('.iconify').classes()).toContain('i-fa6-solid:robot')
-  })
-
-  it('is drawn instead of the picture in webside\'s design', async () => {
-    const wrapper = await mountSuspended(WebsideBlogCategoriesSlider, { route: false, props: { categories: [ROBOT] }, global: { stubs } })
+describe.each(trees(BlogCategoriesSlider, WebsideBlogCategoriesSlider))('$tree Blog/Categories/Slider with a category icon', ({ C }) => {
+  it('draws the icon instead of the picture', async () => {
+    const wrapper = await mountSuspended(C, { route: false, props: { categories: [ROBOT] }, global: { stubs } })
 
     expect(wrapper.find('img').exists()).toBe(false)
     expect(wrapper.get('.iconify').classes()).toContain('i-fa6-solid:robot')
