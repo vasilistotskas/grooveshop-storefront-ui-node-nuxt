@@ -2,9 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { computed, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ChromeFooter from '~/components/Chrome/Footer.vue'
+import footerSocialsSource from '~/components/Chrome/FooterSocials.vue?raw'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { componentTexts } from '~~/test/helpers/componentTexts'
 
 /**
  * The default footer. What it must get right:
@@ -59,6 +61,8 @@ const mountFooter = () => mountSuspended(ChromeFooter, { route: false, global: {
 
 /** The footer's own copy (el), which the global `$i18n` cannot reach. */
 const COPY = { giftCard: 'Δωροκάρτα', agentReady: 'Έτοιμο για AI agents', cookieSettings: 'Ρυθμίσεις cookies' }
+/** The social row's name, from `FooterSocials`' own texts. */
+const SOCIAL_ROW = `ul[aria-label="${componentTexts(footerSocialsSource, 'FooterSocials.vue').t('label')}"]`
 
 describe('Chrome/Footer', () => {
   beforeEach(() => {
@@ -95,6 +99,30 @@ describe('Chrome/Footer', () => {
     // The desk row's link and the phone's button — one each per channel.
     expect(wrapper.findAll('a[href="tel:+302310000000"]')).toHaveLength(2)
     expect(wrapper.findAll('a[href="mailto:hello@shop.test"]')).toHaveLength(2)
+  })
+
+  // The design lost its social links in the Volt rebuild; every design
+  // draws the store's networks, X included, on the desk row and the phone.
+  it('links the store\'s social networks on the desk and the phone, and none it has not set', async () => {
+    setTenant({ socialsInstagram: 'https://instagram.com/store', socialsTwitter: 'https://x.com/store', socialsLinkedin: 'https://linkedin.com/company/store', socialsFacebook: '' })
+
+    const wrapper = await mountFooter()
+
+    const rows = wrapper.findAll(SOCIAL_ROW)
+    expect(rows).toHaveLength(2)
+    for (const row of rows) {
+      expect(row.findAll('a').map(link => [link.attributes('aria-label'), link.attributes('href'), link.attributes('target'), link.attributes('rel')])).toEqual([
+        ['Instagram', 'https://instagram.com/store', '_blank', 'noopener noreferrer'],
+        ['X', 'https://x.com/store', '_blank', 'noopener noreferrer'],
+        ['LinkedIn', 'https://linkedin.com/company/store', '_blank', 'noopener noreferrer'],
+      ])
+    }
+  })
+
+  it('draws no social row for a store that links no network', async () => {
+    setTenant({ socialsInstagram: '', socialsTwitter: '', socialsLinkedin: '', socialsFacebook: '', socialsDiscord: '', socialsPinterest: '', socialsReddit: '', socialsTiktok: '', socialsYoutube: '' })
+
+    expect((await mountFooter()).find(SOCIAL_ROW).exists()).toBe(false)
   })
 
   it('mounts the legal identity', async () => {

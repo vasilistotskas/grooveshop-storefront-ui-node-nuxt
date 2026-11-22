@@ -122,7 +122,7 @@ describe('Chrome/variants/ekfyseosfyteias/Footer', () => {
   })
 
   it('links only the social networks the tenant has, each by name', async () => {
-    setTenant({ socialsFacebook: 'https://facebook.com/fyteia', socialsInstagram: 'https://instagram.com/fyteia' })
+    setTenant({ socialsFacebook: 'https://facebook.com/fyteia', socialsInstagram: 'https://instagram.com/fyteia', socialsTwitter: 'https://x.com/fyteia' })
 
     const wrapper = await mountFooter()
 
@@ -130,6 +130,7 @@ describe('Chrome/variants/ekfyseosfyteias/Footer', () => {
     expect(socials.map(link => [link.attributes('aria-label'), link.attributes('href')])).toEqual([
       ['Facebook', 'https://facebook.com/fyteia'],
       ['Instagram', 'https://instagram.com/fyteia'],
+      ['X', 'https://x.com/fyteia'],
     ])
     expect(socials.every(link => link.attributes('rel') === 'noopener noreferrer')).toBe(true)
   })

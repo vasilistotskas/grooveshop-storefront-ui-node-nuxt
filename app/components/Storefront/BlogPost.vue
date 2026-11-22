@@ -2,7 +2,8 @@
 const { t, locale } = useStoreI18n('components/Storefront/BlogPost')
 const localePath = useLocalePath()
 const { blogAuthorUrl, blogCategoryUrl } = useUrls()
-const { isMobileOrTablet } = useDevice()
+const img = useMediaStreamImage()
+const { screens } = useImage().options
 
 const {
   canonicalUrl,
@@ -42,6 +43,74 @@ const hasBeenUpdatedSincePublish = computed(() => {
   if (Number.isNaN(published) || Number.isNaN(updated)) return false
 
   return updated - published > UPDATED_AFTER_PUBLISH_THRESHOLD_MS
+})
+
+// The cover is cut to two shapes: 4:3 on a phone, 21:9 from `sm` up (the
+// frame's `aspect-*` classes), each cut by the media service at the post's
+// crop position. The browser picks the cut by its viewport through
+// `<picture>`; the HTML is the same for every visitor. @nuxt/image's
+// `<NuxtPicture>` takes no media sources (nuxt/image#309), so each cut is a
+// native `<source>`, and the `<img>` inside carries the alt text and the
+// placeholder an image that fails to load falls back to.
+//
+// `sizes` is the browser's own here. A phone's frame is the screen less the
+// container's gutter (`px-4`). From `sm` it is the container, the screen
+// less its gutter up to the store's page width (a theme setting,
+// `CONTAINER_MAP`), so the screen's width is claimed: never less than the
+// frame, and the media service serves no wider than the original. The
+// widths are steps of the media service's rendition ladder
+// (grooveshop-media-stream `RENDITION_WIDTHS`), which it serves as asked,
+// from a 1x phone to a 2x desktop (its widest rendition, 2048).
+const COVER_WIDE_MEDIA = `(min-width: ${screens.sm}px)`
+const COVER_CUTS = [
+  {
+    frame: { width: 780, height: 585 },
+    media: `not all and ${COVER_WIDE_MEDIA}`,
+    sizes: 'calc(100vw - 2rem)',
+    widths: [368, 464, 592, 752, 960, 1232],
+  },
+  {
+    frame: { width: 1280, height: 549 },
+    media: COVER_WIDE_MEDIA,
+    sizes: '100vw',
+    widths: [672, 848, 1088, 1232, 1392, 1760, 2048],
+  },
+] as const
+const [PHONE_CUT] = COVER_CUTS
+
+// An `<img>` that failed draws the placeholder; the sources would keep the
+// broken cut on screen, so they go with it.
+const coverFailed = ref(false)
+
+const coverSources = computed(() => {
+  const path = blogPost.value?.mainImagePath
+  if (!path || coverFailed.value) return []
+  return COVER_CUTS.map(({ frame, media, sizes, widths }) => ({
+    media,
+    sizes,
+    width: frame.width,
+    height: frame.height,
+    srcset: widths.map(width => `${img(path, {
+      width,
+      height: Math.round(width * frame.height / frame.width),
+      fit: 'cover',
+      position: BLOG_COVER_CROP_POSITION,
+      background: 'transparent',
+    }, { provider: 'mediaStream' })} ${width}w`).join(', '),
+  }))
+})
+
+// The cover is the page's largest paint, so each cut is preloaded for the
+// screens that draw it: a screen downloads one.
+useHead({
+  link: computed(() => coverSources.value.map(source => ({
+    rel: 'preload' as const,
+    as: 'image' as const,
+    imagesrcset: source.srcset,
+    imagesizes: source.sizes,
+    media: source.media,
+    fetchpriority: 'high' as const,
+  }))),
 })
 
 // The headings get anchors, and the table of contents links to them.
@@ -251,22 +320,31 @@ onReactivated(async () => {
         sm:aspect-21/9
       "
     >
-      <ImgWithFallback
-        id="blog-post-image"
-        :alt="blogPostTitle"
-        background="transparent"
-        fit="cover"
-        :height="isMobileOrTablet ? 585 : 549"
-        :src="blogPost.mainImagePath"
-        :width="isMobileOrTablet ? 780 : 1280"
-        :modifiers="{ position: 'attention' }"
-        sizes="(max-width: 640px) 780px, 1280px"
-        class="size-full object-cover"
-        densities="x1"
-        loading="eager"
-        fetchpriority="high"
-        preload
-      />
+      <picture class="block size-full">
+        <source
+          v-for="source in coverSources"
+          :key="source.media"
+          :media="source.media"
+          :srcset="source.srcset"
+          :sizes="source.sizes"
+          :width="source.width"
+          :height="source.height"
+        >
+        <ImgWithFallback
+          id="blog-post-image"
+          :alt="blogPostTitle"
+          background="transparent"
+          fit="cover"
+          :height="PHONE_CUT.frame.height"
+          :src="blogPost.mainImagePath"
+          :width="PHONE_CUT.frame.width"
+          :modifiers="{ position: BLOG_COVER_CROP_POSITION }"
+          class="size-full object-cover"
+          loading="eager"
+          fetchpriority="high"
+          @error="() => { coverFailed = true }"
+        />
+      </picture>
     </div>
 
     <div

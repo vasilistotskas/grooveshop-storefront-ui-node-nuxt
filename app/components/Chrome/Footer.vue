@@ -4,15 +4,15 @@ import type { FooterColumn } from '@nuxt/ui'
 /**
  * The storefront footer — light and editorial.
  *
- * Desk: the store (logo, its line, whether it is open, phone and email)
- * beside the newsletter card; then the Shop and Help columns beside the
+ * Desk: the store (logo, its line, whether it is open, phone and email,
+ * its social networks) beside the newsletter card; then the Shop and Help columns beside the
  * ways to pay; then a bottom bar with the company and legal links in one
  * row, the seller's legal identity and the language and colour-mode
  * controls.
  *
  * Phone: the newsletter card, Shop and Help as a two-column grid, the
  * company and legal links folded into one row, call and email buttons,
- * the opening state, the ways to pay, the legal identity and the
+ * the social networks, the opening state, the ways to pay, the legal identity and the
  * controls. The footer keeps clear of the floating tab bar by its own
  * bottom padding.
  *
@@ -198,6 +198,7 @@ const storeName = computed(() => tenantStore.storeName || '')
                 />{{ identity.email }}
               </a>
             </div>
+            <ChromeFooterSocials />
           </div>
           <ChromeFooterNewsletter />
         </div>
@@ -346,6 +347,8 @@ const storeName = computed(() => tenantStore.storeName || '')
               "
             />
           </div>
+
+          <ChromeFooterSocials />
 
           <FooterHoursBadge />
 

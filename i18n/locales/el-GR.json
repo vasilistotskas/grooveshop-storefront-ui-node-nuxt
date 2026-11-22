@@ -525,5 +525,16 @@
   "feeds": {
     "store": "{name}: άρθρα και προϊόντα",
     "blog": "{name}: άρθρα"
+  },
+  "socials": {
+    "discord": "Discord",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "pinterest": "Pinterest",
+    "reddit": "Reddit",
+    "tiktok": "TikTok",
+    "twitter": "X",
+    "youtube": "YouTube"
   }
 }

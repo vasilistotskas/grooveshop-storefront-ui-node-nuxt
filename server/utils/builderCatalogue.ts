@@ -1,5 +1,29 @@
 import { createHash } from 'node:crypto'
 import blockList from '#builder-blocks'
+import { SUPPORTED_LOCALES } from '~~/i18n/locales'
+import type { SupportedLocale } from '~~/i18n/locales'
+import el from '~~/app/builder/labels/el.json'
+import en from '~~/app/builder/labels/en.json'
+
+/** The editor's name of each icon, per language (`app/builder/labels/<locale>.json`, `options.icon`). */
+const ICON_LABELS: Record<SupportedLocale, Readonly<Record<string, string>>> = { el: el.options.icon, en: en.options.icon }
+
+/**
+ * The catalogue's icons: each name with its label in every language. A name
+ * without a label in one of them is refused, as a contradictory block set
+ * is: Django would offer a merchant the bare name.
+ */
+function catalogueIcons(icons: readonly string[]): CatalogueIcon[] {
+  return icons.map((name) => {
+    const labels = Object.fromEntries(SUPPORTED_LOCALES.map((locale) => {
+      const localeLabels = ICON_LABELS[locale]
+      const label = Object.hasOwn(localeLabels, name) ? localeLabels[name] : undefined
+      if (!label) throw new Error(`The icon "${name}" has no ${locale} label (app/builder/labels/${locale}.json, options.icon)`)
+      return [locale, label]
+    })) as Record<SupportedLocale, string>
+    return { name, labels }
+  })
+}
 
 /** What `GET /api/builder/catalogue` serves: the catalogue and its hash, as the body and the ETag. */
 export interface BuilderCatalogueDocument {
@@ -51,8 +75,11 @@ function catalogueBlock(definition: BlockDefinition): CatalogueBlock {
  * `contrast` rules and the `defaults` a new store of it starts with), and `templates` the page types the storefront's
  * static routes render (`STATIC_LAYOUT_ROUTES`): a layout of one is the
  * document `template:<pageType>`, any other the custom page
- * `page:<pageType>`, and a block's `templates` names these. Both are part of
- * the hash.
+ * `page:<pageType>`, and a block's `templates` names these. `icons` is the
+ * one list of icons the builder offers (`BUILDER_ICONS`), each with the
+ * editor's label in every language, for the Django fields that hold one of
+ * them outside a block, such as a blog category's icon. All three are part
+ * of the hash.
  *
  * Refuses a set that contradicts itself: two blocks of one type, or a
  * block that names as a child a type that is missing or cannot be one.
@@ -61,6 +88,7 @@ export function buildBlockCatalogue(
   definitions: readonly BlockDefinition[],
   roots: Partial<Record<BuilderDocumentKind, DocumentRoot>> = BUILDER_DOCUMENT_ROOTS,
   templates: readonly string[] = Object.keys(STATIC_LAYOUT_ROUTES),
+  icons: readonly string[] = BUILDER_ICONS,
 ): BlockCatalogue {
   const byType = new Map<string, BlockDefinition>()
   for (const definition of definitions) {
@@ -89,8 +117,9 @@ export function buildBlockCatalogue(
   )
   const names = [...templates].sort()
   const dataLimits = { ...DATA_LIMITS }
-  const hash = createHash('sha256').update(JSON.stringify({ blocks, dataLimits, documentKinds, templates: names })).digest('hex').slice(0, 16)
-  return { hash, blocks, dataLimits, documentKinds, templates: names }
+  const iconList = catalogueIcons(icons)
+  const hash = createHash('sha256').update(JSON.stringify({ blocks, dataLimits, documentKinds, templates: names, icons: iconList })).digest('hex').slice(0, 16)
+  return { hash, blocks, dataLimits, documentKinds, templates: names, icons: iconList }
 }
 
 /**
@@ -123,8 +152,8 @@ export function buildDesignCatalogue(definitions: readonly BlockDefinition[], de
 }
 
 function catalogueDocument(design?: string): BuilderCatalogueDocument {
-  const { hash, blocks, dataLimits, documentKinds, templates } = buildDesignCatalogue(blockList, design)
-  return { hash, json: JSON.stringify({ hash, blocks, dataLimits, documentKinds, templates }) }
+  const { hash, blocks, dataLimits, documentKinds, templates, icons } = buildDesignCatalogue(blockList, design)
+  return { hash, json: JSON.stringify({ hash, blocks, dataLimits, documentKinds, templates, icons }) }
 }
 
 /** The catalogue of the whole build, without a design: every block and every page type. */

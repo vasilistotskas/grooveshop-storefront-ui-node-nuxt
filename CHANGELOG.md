@@ -1,3 +1,24 @@
+# [3.352.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.351.0...v3.352.0) (2026-11-22)
+
+
+### Features
+
+* **builder:** publish the builder's icon list in the catalogue ([#512](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/512)) ([6ad2b59](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6ad2b59f8966985dfd0d23693511d0b9ab7b4098))
+
+# [3.351.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.350.0...v3.351.0) (2026-11-22)
+
+
+### Features
+
+* **blog:** article images in three shapes and responsive covers ([#511](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/511)) ([1030fd5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1030fd556f6927bc34f2c707012f14efac75cff5))
+
+# [3.350.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.349.0...v3.350.0) (2026-11-21)
+
+
+### Features
+
+* **footer:** social links in every design; webside menu icons and product text size ([#509](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/509)) ([8bd070b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8bd070b72df89293dcbf7d79abadfc0860f75852))
+
 # [3.349.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.348.1...v3.349.0) (2026-11-21)
 
 

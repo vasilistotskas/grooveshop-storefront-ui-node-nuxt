@@ -12,6 +12,7 @@ import { makeBlogAuthor } from '~~/test/fixtures/blog'
 import { makeBuilderPage } from '~~/test/fixtures/builderPage'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { ARTICLE_IMAGE_SIZES, BLOG_COVER_CROP_POSITION, OG_IMAGE_SIZE } from '~~/shared/constants'
 
 /**
  * The head of an ENGLISH entity page: its canonical and hreflang set
@@ -113,12 +114,16 @@ interface Head {
   canonicals: string[]
   alternates: Record<string, string>
   author: string | null | undefined
+  ogImage: string | null | undefined
   /** The schema.org graph's nodes. */
   graph: Record<string, unknown>[]
 }
 
-/** Mount the page under the real head pipeline and read what a crawler would. */
-async function headOf(page: Component): Promise<Head> {
+/**
+ * Mount the page under the real head pipeline and read what a crawler would.
+ * `afterMount` runs between the mount and the read (a refresh of the page's data).
+ */
+async function headOf(page: Component, afterMount?: () => Promise<void>): Promise<Head> {
   const head = injectHead()
   const before = new Set(head.entries.keys())
   const Harness = defineComponent({
@@ -129,6 +134,10 @@ async function headOf(page: Component): Promise<Head> {
   })
   const wrapper = await mountSuspended(Harness, { route: false })
   await flushPromises()
+  if (afterMount) {
+    await afterMount()
+    await flushPromises()
+  }
   vi.useFakeTimers({ toFake: ['setTimeout'] })
   try {
     head.render()
@@ -149,6 +158,7 @@ async function headOf(page: Component): Promise<Head> {
       ]),
     ),
     author: document.querySelector('meta[name="author"]')?.getAttribute('content'),
+    ogImage: document.querySelector('meta[property="og:image"]')?.getAttribute('content'),
     graph: [...document.querySelectorAll('script[type="application/ld+json"]')]
       .flatMap(script => (JSON.parse(script.textContent || '{}')['@graph'] ?? []) as Record<string, unknown>[]),
   }
@@ -269,13 +279,25 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
 
     const head = await headOf(Component)
 
-    // The cover, the image the Article names, not the store's logo.
+    // The cover in Google's three shapes, each one ImageObject cut where
+    // the page's cover is, with no size stated, all three the Article's
+    // images. The page's primary image is the 16:9 one by reference, not the
+    // store's logo or a second copy.
     const webPage = head.graph.find(node => [node['@type']].flat().includes('WebPage'))
     const article = head.graph.find(node => node['@type'] === 'Article')
-    const primary = (webPage?.primaryImageOfPage as { url: string }).url
-    const articleImage = head.graph.find(node => node['@id'] === (article?.image as { '@id': string })['@id'])
-    expect(primary).toContain('/media/shop/uploads/blog/cover.jpg/')
-    expect(articleImage?.url).toBe(primary)
+    const covers = head.graph.filter(node => node['@type'] === 'ImageObject' && String(node.url).includes('/cover.jpg/'))
+    const coverOf = ({ width, height }: { width: number, height: number }) =>
+      covers.find(node => String(node.url).includes(`/cover.jpg/${width}/${height}/cover/${BLOG_COVER_CROP_POSITION}/`))
+    const expected = ARTICLE_IMAGE_SIZES.map(coverOf)
+    expect(covers).toHaveLength(ARTICLE_IMAGE_SIZES.length)
+    expect(expected.every(node => node && !('width' in node) && !('height' in node))).toBe(true)
+    // A set: this harness renders every mount of the file into one head, and
+    // the second tree's Article is merged with an earlier one, which repeats
+    // its arrays (`articleSection` too). A server render names each once.
+    expect(new Set((article?.image as { '@id'?: string }[]).map(ref => ref['@id']).filter(Boolean)))
+      .toEqual(new Set(expected.map(node => node?.['@id'])))
+    expect(webPage?.primaryImageOfPage).toEqual({ '@id': expected[0]?.['@id'] })
+    expect(head.ogImage).toContain(`/cover.jpg/${OG_IMAGE_SIZE.width}/${OG_IMAGE_SIZE.height}/cover/${BLOG_COVER_CROP_POSITION}/`)
 
     const list = head.graph.find(node => node['@type'] === 'BreadcrumbList')
     const crumbs = (list?.itemListElement as { name: string, item?: string }[])
@@ -286,6 +308,28 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
       ['Guides', '/en/blog/category/2/guides'],
       ['Spring guide', '/en/blog/post/7/spring-guide'],
     ])
+  })
+
+  it('names the cover the post has now after its data is refreshed', async () => {
+    clearNuxtData(['blogCategory-2'])
+    const routes = (cover: string) => ({
+      '/api/blog/posts/7': { ...post(GREEK_AND_ENGLISH), mainImagePath: `media/shop/uploads/blog/${cover}` },
+      '/api/blog/categories/2': { ...post({}).category, translations: { en: { name: 'Guides' } } },
+      '/api/shipping/policy': [],
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+    api.routes(routes('old-cover.jpg'))
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    const head = await headOf(Component, async () => {
+      api.routes(routes('new-cover.jpg'))
+      await refreshNuxtData('blogPost7')
+    })
+
+    const covers = head.graph.filter(node => node['@type'] === 'ImageObject' && String(node.url).includes('/uploads/blog/'))
+    expect(covers.map(node => new URL(String(node.url)).pathname.split('/uploads/blog/')[1]?.split('/')[0]))
+      .toEqual(ARTICLE_IMAGE_SIZES.map(() => 'new-cover.jpg'))
+    expect(head.ogImage).toContain('/uploads/blog/new-cover.jpg/')
   })
 
   it('canonicalises to the Greek post, and offers no English version, when it is not written in English', async () => {

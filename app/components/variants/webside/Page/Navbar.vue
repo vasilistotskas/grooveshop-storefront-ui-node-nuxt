@@ -353,18 +353,11 @@ const items = computed(() => [
                         motion-reduce:transition-none
                       "
                     >
-                      <ImgWithFallback
+                      <WebsidePageMenuPicture
                         v-if="tile.imagePath"
                         :src="tile.imagePath"
-                        alt=""
-                        :width="96"
-                        :height="96"
-                        fit="cover"
-                        loading="lazy"
-                        densities="x1 x2"
-                        class="
-                          size-24 shrink-0 rounded-lg bg-elevated object-cover
-                        "
+                        :size="96"
+                        class="size-24"
                       />
                       <span class="flex min-w-0 flex-col gap-1">
                         <span class="text-lg font-bold">{{ tile.label }}</span>
