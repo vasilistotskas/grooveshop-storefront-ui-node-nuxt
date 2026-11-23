@@ -1,3 +1,10 @@
+# [3.358.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.357.1...v3.358.0) (2026-11-23)
+
+
+### Features
+
+* **checkout:** place the Stripe order first and pay it on the hosted page ([#519](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/519)) ([aaf7acf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aaf7acfdae341db246911993aa69454320aeea37)), closes [vasilistotskas/grooveshop-django-api#818](https://github.com/vasilistotskas/grooveshop-django-api/issues/818)
+
 ## [3.357.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.357.0...v3.357.1) (2026-11-23)
 
 
