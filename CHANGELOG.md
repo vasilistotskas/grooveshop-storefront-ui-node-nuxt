@@ -1,3 +1,10 @@
+# [3.355.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.354.0...v3.355.0) (2026-11-23)
+
+
+### Features
+
+* **product:** a compact restock button on product cards ([#513](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/513)) ([91aba95](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91aba95991e409ef09d7dd436dc3d4d1b8eb91cf))
+
 # [3.354.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.353.0...v3.354.0) (2026-11-22)
 
 
