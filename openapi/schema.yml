@@ -53208,8 +53208,25 @@ components:
           minimum: 0
           title: ID αντικειμένου
         contentObject:
-          allOf:
-            - $ref: '#/components/schemas/Product'
+          type: object
+          description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: Sample Product
+            description:
+              type: string
+              example: Product description
+            price:
+              type: string
+              example: '29.99'
+            active:
+              type: boolean
+              example: true
+          additionalProperties: true
           readOnly: true
         createdAt:
           type: string
@@ -53258,8 +53275,25 @@ components:
           minimum: 0
           title: ID αντικειμένου
         contentObject:
-          allOf:
-            - $ref: '#/components/schemas/Product'
+          type: object
+          description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: Sample Product
+            description:
+              type: string
+              example: Product description
+            price:
+              type: string
+              example: '29.99'
+            active:
+              type: boolean
+              example: true
+          additionalProperties: true
           readOnly: true
         createdAt:
           type: string

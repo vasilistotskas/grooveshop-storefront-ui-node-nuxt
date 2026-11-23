@@ -10666,7 +10666,17 @@ export type TaggedItem = {
      * ID αντικειμένου
      */
   objectId: number
-  contentObject: Product
+  /**
+     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
+     */
+  readonly contentObject: {
+    id?: number
+    name?: string
+    description?: string
+    price?: string
+    active?: boolean
+    [key: string]: unknown
+  }
   /**
      * Δημιουργήθηκε στις
      */
@@ -10693,7 +10703,17 @@ export type TaggedItemDetail = {
      * ID αντικειμένου
      */
   objectId: number
-  contentObject: Product
+  /**
+     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
+     */
+  readonly contentObject: {
+    id?: number
+    name?: string
+    description?: string
+    price?: string
+    active?: boolean
+    [key: string]: unknown
+  }
   /**
      * Δημιουργήθηκε στις
      */
