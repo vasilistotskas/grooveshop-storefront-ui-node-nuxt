@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { acceptedQuoteChange, acceptedQuoteOf, billingSharesDelivery, buildOrderCreateBody, CHECKOUT_STEP, classifyOrderError, describeCartChange, describeTotalChange, describeTotalToConfirm, failedStatusOf, placeOrderAt, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
+import { acceptedQuoteChange, acceptedQuoteOf, billingSharesDelivery, buildOrderCreateBody, CHECKOUT_STEP, classifyOrderError, clearPickupPoint, describeCartChange, describeTotalChange, describeTotalToConfirm, failedStatusOf, placeOrderAt, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
 import { PICKUP_POINT_CHECK_UNAVAILABLE } from '~~/shared/constants/orderRefusals'
 import { CART_DIGEST, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
@@ -18,6 +18,7 @@ describe('classifyOrderError', () => {
       shouldRetry: true,
       stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -30,6 +31,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -56,6 +58,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
     expect(withoutDetail.description).toBe(`form.submit.error.${fallback}`)
   })
@@ -102,6 +105,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: { [CHECKOUT_STEP.delivery]: [{ name: 'streetNumber', message }] },
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -140,6 +144,7 @@ describe('classifyOrderError', () => {
   it.each([
     ['pickup_point_unknown', 'boxnowLockerId', 'boxnowLockerId'],
     ['pickup_point_too_small', 'boxnowLockerId', 'boxnowLockerId'],
+    ['pickup_point_size_unknown', 'boxnowLockerId', 'boxnowLockerId'],
     ['pickup_point_in_another_country', 'acsStationExternalId', 'acsStationExternalId'],
     ['pickup_point_required', 'acsStationBranch', 'acsStationExternalId'],
   ])('tells a %s refusal on %s in the storefront\'s words, under the picker and in the alert', (code, field, name) => {
@@ -150,6 +155,7 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.pickup_point_refused',
       description: `form.submit.error.${code}`,
       stepErrors: { [CHECKOUT_STEP.delivery]: [{ name, message: `form.submit.error.${code}` }] },
+      pickupPointRefused: true,
     })
   })
 
@@ -187,6 +193,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -197,6 +204,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -216,6 +224,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: {},
       quoteChanged: true,
+      pickupPointRefused: false,
     })
   })
 
@@ -234,6 +243,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: {},
       quoteChanged: true,
+      pickupPointRefused: false,
     })
   })
 
@@ -259,6 +269,7 @@ describe('classifyOrderError', () => {
       shouldRetry: false,
       stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 })
@@ -701,5 +712,45 @@ describe('setDocumentType', () => {
     setDocumentType(form, 'INVOICE')
 
     expect(form).toEqual(invoice())
+  })
+})
+
+describe('clearPickupPoint', () => {
+  it('empties the method\'s own pickup-point fields and leaves every other field', () => {
+    const formState: Record<string, unknown> = {
+      boxnowLockerId: '4352',
+      boxnowLocker: { id: '4352' },
+      acsStationExternalId: 'GR123',
+      acsStationBranch: 'B1',
+      acsStation: { id: 'GR123' },
+      zipcode: '15341',
+    }
+
+    clearPickupPoint(formState, 'box_now_locker')
+
+    expect(formState).toEqual({
+      boxnowLockerId: '',
+      boxnowLocker: null,
+      acsStationExternalId: 'GR123',
+      acsStationBranch: 'B1',
+      acsStation: { id: 'GR123' },
+      zipcode: '15341',
+    })
+  })
+
+  it('empties ACS\'s id, branch and station together', () => {
+    const formState: Record<string, unknown> = { acsStationExternalId: 'GR123', acsStationBranch: 'B1', acsStation: { id: 'GR123' } }
+
+    clearPickupPoint(formState, 'acs_smartpoint')
+
+    expect(formState).toEqual({ acsStationExternalId: '', acsStationBranch: '', acsStation: null })
+  })
+
+  it('changes nothing for a method without pickup points', () => {
+    const formState: Record<string, unknown> = { boxnowLockerId: '4352', zipcode: '15341' }
+
+    clearPickupPoint(formState, 'home_delivery')
+
+    expect(formState).toEqual({ boxnowLockerId: '4352', zipcode: '15341' })
   })
 })

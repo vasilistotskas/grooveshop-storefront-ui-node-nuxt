@@ -202,6 +202,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // the cart's lines at their prices now and the quote the shopper's
     // next submit accepts.
     if (errorInfo.quoteChanged) void reloadCartAndQuote()
+    // A refused pickup point cannot take the order: it is dropped, and the
+    // message under the picker asks for another.
+    if (errorInfo.pickupPointRefused) clearPickupPoint(formState, formState.shippingMethod)
     // Fields a step shows: go back to the first of those steps and show
     // each message under its own input, not only in the alert.
     const firstErrorStep = Math.min(...Object.keys(errorInfo.stepErrors).map(Number))

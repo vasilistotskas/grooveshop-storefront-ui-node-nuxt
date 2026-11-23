@@ -3907,10 +3907,7 @@ export type GiftCard = {
      * Προεπιλογή: GIFT_CARD_VALIDITY_DAYS μετά την έκδοση (ελληνική νομοθεσία: 5 έτη)· κενό σημαίνει ότι δεν λήγει ποτέ
      */
   readonly expiresAt: string | null
-  /**
-     * Email παραλήπτη
-     */
-  readonly recipientEmail: string
+  readonly recipientEmail: string | null
   /**
      * Όνομα παραλήπτη
      */
@@ -10669,17 +10666,7 @@ export type TaggedItem = {
      * ID αντικειμένου
      */
   objectId: number
-  /**
-     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-     */
-  readonly contentObject: {
-    id?: number
-    name?: string
-    description?: string
-    price?: string
-    active?: boolean
-    [key: string]: unknown
-  }
+  contentObject: Product
   /**
      * Δημιουργήθηκε στις
      */
@@ -10706,17 +10693,7 @@ export type TaggedItemDetail = {
      * ID αντικειμένου
      */
   objectId: number
-  /**
-     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-     */
-  readonly contentObject: {
-    id?: number
-    name?: string
-    description?: string
-    price?: string
-    active?: boolean
-    [key: string]: unknown
-  }
+  contentObject: Product
   /**
      * Δημιουργήθηκε στις
      */
@@ -11679,10 +11656,10 @@ export type ApiError = {
 }
 
 /**
- * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
+ * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; when a field is itself named ``code``, that field's messages instead) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
  */
 export type ApiValidationError = {
-  code?: string
+  code?: string | Array<string>
   fields: {
     [key: string]: ApiFieldErrors
   }
@@ -14940,7 +14917,7 @@ export type GetB2bProfileErrors = {
   400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
-  404: B2bErrorResponse
+  404: ApiError | B2bErrorResponse
   500: ErrorResponse
 }
 
@@ -14960,7 +14937,7 @@ export type SubmitB2bProfileData = {
 }
 
 export type SubmitB2bProfileErrors = {
-  400: B2bErrorResponse
+  400: ApiValidationError | ApiError | B2bErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19933,7 +19910,7 @@ export type ApplyCartCouponData = {
 }
 
 export type ApplyCartCouponErrors = {
-  400: CouponErrorResponse
+  400: ApiValidationError | ApiError | CouponErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21535,7 +21512,7 @@ export type CheckGiftCardData = {
 }
 
 export type CheckGiftCardErrors = {
-  400: GiftCardErrorResponse
+  400: ApiValidationError | ApiError | GiftCardErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21638,7 +21615,7 @@ export type PurchaseGiftCardData = {
 }
 
 export type PurchaseGiftCardErrors = {
-  400: GiftCardErrorResponse
+  400: ApiValidationError | ApiError | GiftCardErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22682,7 +22659,7 @@ export type CreateOrderData = {
 }
 
 export type CreateOrderErrors = {
-  400: OrderCreateError
+  400: ApiValidationError | ApiError | OrderCreateError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23180,7 +23157,7 @@ export type CancelOrderData = {
 }
 
 export type CancelOrderErrors = {
-  400: OrderCancelError
+  400: ApiValidationError | ApiError | OrderCancelError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse

@@ -71,17 +71,6 @@ export type ShippingOptionItem = ShippingOptionItemBase & {
   disabledReason?: string
 }
 
-// Each carrier's locker fields, cleared when the shopper switches to a
-// method that does not own them, so no orphan locker id reaches the order.
-const PROVIDER_FORM_KEYS: Record<string, string[]> = {
-  acs_smartpoint: [
-    'acsStationExternalId',
-    'acsStationBranch',
-    'acsStation',
-  ],
-  box_now_locker: ['boxnowLockerId', 'boxnowLocker'],
-}
-
 export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   const { formState } = inputs
   const { t, n } = useI18n({ useScope: 'global' })
@@ -291,12 +280,10 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   watch(
     () => formState.value.shippingMethod,
     (method) => {
-      for (const [owningMethod, keys] of Object.entries(PROVIDER_FORM_KEYS)) {
-        if (method === owningMethod) continue
-        for (const key of keys) {
-          formState.value[key]
-            = key.endsWith('Id') || key.endsWith('Branch') ? '' : null
-        }
+      // A method's pickup point is cleared when the shopper switches to
+      // a method that does not own it, so no orphan id reaches the order.
+      for (const owningMethod of Object.keys(PICKUP_FORM_KEYS)) {
+        if (method !== owningMethod) clearPickupPoint(formState.value, owningMethod)
       }
     },
   )

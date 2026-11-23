@@ -1389,12 +1389,15 @@ describe('useCheckoutSubmit', () => {
           fields: { boxnowLockerId: [{ message, code: 'pickup_point_unknown' }] },
         }),
       })
-      const { onSubmit, currentStep, stepErrors } = setup(COD)
+      const formState = makeFormState({ shippingMethod: 'box_now_locker', boxnowLockerId: '4', boxnowLocker: { id: '4' } })
+      const { onSubmit, currentStep, stepErrors } = setup(COD, { formState })
       currentStep.value = 2
 
       await onSubmit()
 
       expect(currentStep.value).toBe(1)
+      // The refused locker is dropped: the shopper chooses another.
+      expect(formState).toMatchObject({ boxnowLockerId: '', boxnowLocker: null })
       expect(stepErrors.value).toEqual({ 1: [{ name: 'boxnowLockerId', message: t('form.submit.error.pickup_point_unknown') }] })
       expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.pickup_point_refused'),
