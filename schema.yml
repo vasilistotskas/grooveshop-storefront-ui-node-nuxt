@@ -53532,9 +53532,6 @@ components:
         socialsYoutube:
           type: string
           readOnly: true
-        boxNowPartnerId:
-          type: string
-          readOnly: true
       required:
         - agentCommerceEnabled
         - agentHostedPaymentEnabled
@@ -53545,7 +53542,6 @@ components:
         - assetsDomain
         - b2bEnabled
         - blogEnabled
-        - boxNowPartnerId
         - defaultCurrency
         - defaultLocale
         - faviconUrl

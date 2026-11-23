@@ -5833,7 +5833,6 @@ export const zTenantConfig = z.object({
   socialsLinkedin: z.string().readonly(),
   socialsTwitter: z.string().readonly(),
   socialsYoutube: z.string().readonly(),
-  boxNowPartnerId: z.string().readonly(),
 })
 
 /**
