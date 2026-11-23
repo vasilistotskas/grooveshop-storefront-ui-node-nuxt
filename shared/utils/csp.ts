@@ -311,7 +311,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
   const gsiConnectSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
   const gsiFrameSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
 
-  // Stripe.js. ``StripePayment.vue`` calls ``confirmCardPayment``, which
+  // Stripe.js. The gift-card purchase's card form calls ``confirmCardPayment``, which
   // performs 3-D Secure in an iframe served from ``hooks.stripe.com`` —
   // absent from frame-src, so every SCA challenge was blocked. Under EU
   // SCA that is most card payments, not an edge case. ``*.js.stripe.com``

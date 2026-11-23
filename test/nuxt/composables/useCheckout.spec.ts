@@ -5,8 +5,6 @@ import { failWith } from '~~/test/helpers/api'
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 
-const PAYMENT_INTENT_ARGS: CartCreatePaymentIntentRequestRequest = { payWayId: 2, shippingKind: 'home_delivery', countryId: 'GR' }
-
 describe('useCheckout', () => {
   describe('reserveStock', () => {
     it('reserves the cart and returns the reservation ids', async () => {
@@ -44,30 +42,6 @@ describe('useCheckout', () => {
       })
 
       await expect(useCheckout().reserveStock(1)).rejects.toBe(outage)
-    })
-  })
-
-  describe('createPaymentIntentFromCart', () => {
-    it('sends the idempotency key as a header and returns the intent', async () => {
-      api.routes({
-        '/api/cart/create-payment-intent': { clientSecret: 'cs_1', paymentIntentId: 'pi_1', amount: 1000, currency: 'EUR' },
-      })
-
-      await expect(useCheckout().createPaymentIntentFromCart(PAYMENT_INTENT_ARGS, 'idem-1'))
-        .resolves.toEqual({ clientSecret: 'cs_1', paymentIntentId: 'pi_1' })
-      expect(api.callsTo('/api/cart/create-payment-intent')[0]!.options).toEqual({
-        method: 'POST',
-        body: PAYMENT_INTENT_ARGS,
-        headers: { 'Idempotency-Key': 'idem-1' },
-      })
-    })
-
-    it('sends no headers without a key', async () => {
-      api.routes({ '/api/cart/create-payment-intent': { clientSecret: 'cs', paymentIntentId: 'pi' } })
-
-      await useCheckout().createPaymentIntentFromCart(PAYMENT_INTENT_ARGS)
-
-      expect(api.callsTo('/api/cart/create-payment-intent')[0]!.options.headers).toBeUndefined()
     })
   })
 

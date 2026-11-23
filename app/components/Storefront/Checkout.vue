@@ -79,12 +79,10 @@ const {
   isStripePayment,
   isVivaWalletPayment,
   isOnlinePayment,
-  useHostedCheckout,
   onSubmit,
   nextStep,
   prevStep,
   backToForm,
-  onPaymentSuccess,
   onPaymentError,
   onLoyaltyRedeemed,
   onLoyaltyCleared,
@@ -241,8 +239,6 @@ useSeoMeta({
               :selected-pay-way="selectedPayWay!"
               :is-stripe-payment="isStripePayment"
               :is-viva-wallet-payment="isVivaWalletPayment"
-              :use-hosted-checkout="useHostedCheckout"
-              @payment-success="onPaymentSuccess"
               @payment-error="onPaymentError"
               @back-to-form="backToForm"
             />
@@ -294,7 +290,6 @@ useSeoMeta({
               :schema="step3Schema"
               :pay-way-options="quotedPayWayOptions"
               :is-submitting="isSubmitting"
-              :use-hosted-checkout="useHostedCheckout"
               @submit="onSubmit"
             />
 

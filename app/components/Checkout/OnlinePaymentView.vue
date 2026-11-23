@@ -4,14 +4,9 @@ defineProps<{
   selectedPayWay: PayWay
   isStripePayment: boolean
   isVivaWalletPayment: boolean
-  useHostedCheckout: boolean
 }>()
 
-// Persist Stripe clientSecret across re-mounts to avoid orphan payment intents
-const stripeClientSecret = ref<string | null>(null)
-
 const emit = defineEmits<{
-  'payment-success': []
   'payment-error': [error: string]
   'back-to-form': []
 }>()
@@ -86,7 +81,7 @@ const onRedirecting = () => {
     />
 
     <!-- Stripe Hosted Checkout -->
-    <ClientOnly v-else-if="isStripePayment && useHostedCheckout">
+    <ClientOnly v-else-if="isStripePayment">
       <StripeCheckout
         :order="createdOrder"
         :pay-way="selectedPayWay"
@@ -94,17 +89,6 @@ const onRedirecting = () => {
         @redirecting="onRedirecting"
       />
     </ClientOnly>
-
-    <!-- Stripe Embedded Payment -->
-    <StripePayment
-      v-else-if="isStripePayment"
-      :order="createdOrder"
-      :pay-way="selectedPayWay"
-      :initial-client-secret="stripeClientSecret"
-      @success="emit('payment-success')"
-      @error="(error: string) => emit('payment-error', error)"
-      @update:client-secret="(val) => stripeClientSecret = val"
-    />
   </section>
 </template>
 
