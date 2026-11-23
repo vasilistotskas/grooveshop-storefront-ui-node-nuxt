@@ -14,6 +14,8 @@ const props = defineProps<{
    * this cart, the only price a card states (``useCheckoutShippingStep``).
    */
   quotedOptions: readonly QuoteShippingOption[] | null
+  /** A new quote is on its way: the locker picker waits for its size. */
+  quotePending?: boolean
   /**
    * Set when the live ``/api/v1/shipping/options`` fetch failed.
    * There is no local flat-rate fallback price anymore, so the whole
@@ -73,6 +75,7 @@ const {
   formState,
   apiOptions: () => props.apiOptions,
   quotedOptions: () => props.quotedOptions,
+  quotePending: () => props.quotePending,
   optionsError: () => props.optionsError,
   form: formRef,
 })

@@ -64,10 +64,14 @@ export function useLockerPicker(options: {
 
   const lockers = shallowRef<Locker[]>([])
   const loading = ref(false)
+  // A carrier that sizes its lockers is waiting for the quote to name the
+  // cart's size: the list shows as loading, yet nothing is in flight, so
+  // the shopper may close the picker.
+  const waitingForSize = ref(false)
   const errorMessage = ref<string | null>(null)
   let abort: AbortController | null = null
-  // What the lockers on screen were loaded for: a country, and the cart's
-  // size for a carrier that sizes its lockers.
+  // What the lockers on screen were loaded for: a carrier and a country,
+  // and the cart's size for a carrier that sizes its lockers.
   let loadedFor: string | null = null
 
   const location = useShopperLocation()
@@ -88,11 +92,11 @@ export function useLockerPicker(options: {
     // change with the cart.
     const country = (props.countryCode ?? 'GR').toUpperCase()
     const compartmentSize = props.carrier.sizesLockers ? props.compartmentSize ?? null : null
-    const wanted = `${country}:${compartmentSize ?? ''}`
+    const wanted = `${props.carrier.code}:${country}:${compartmentSize ?? ''}`
     if (loadedFor === wanted && lockers.value.length > 0) return
-    // Another country's lockers, or lockers for another size, must never
-    // stay on screen, and stay choosable, while these load or after they
-    // failed.
+    // Another carrier's or country's lockers, or lockers for another size,
+    // must never stay on screen, and stay choosable, while these load or
+    // after they failed.
     if (loadedFor !== wanted) {
       lockers.value = []
       loadedFor = null
@@ -101,7 +105,8 @@ export function useLockerPicker(options: {
     errorMessage.value = null
     // A carrier that sizes its lockers waits for the quote to name the
     // cart's size: lockers without it could be ones the order cannot go to.
-    if (props.carrier.sizesLockers && compartmentSize === null) {
+    waitingForSize.value = Boolean(props.carrier.sizesLockers) && compartmentSize === null
+    if (waitingForSize.value) {
       abort = null
       loading.value = true
       return
@@ -146,6 +151,7 @@ export function useLockerPicker(options: {
     abort?.abort()
     abort = null
     loading.value = false
+    waitingForSize.value = false
     stopPlacing()
     location.cancel()
   }, { immediate: true })
@@ -401,6 +407,9 @@ export function useLockerPicker(options: {
     searching,
     lockers,
     loading,
+    // Not dismissible while a load is in flight, as before. Waiting for
+    // the quote's size loads nothing, so the shopper may close it then.
+    dismissible: computed(() => !loading.value || waitingForSize.value),
     errorMessage,
     retry,
     results,

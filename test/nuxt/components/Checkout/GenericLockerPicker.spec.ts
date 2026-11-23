@@ -388,6 +388,37 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
       await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe('1'))
     })
 
+    // A UModal's `dismissible` is the contract here: whether a click
+    // outside or Escape may close the picker.
+    const dismissible = (wrapper: VueWrapper) => wrapper.findComponent({ name: 'UModal' }).props('dismissible')
+
+    it('may be closed while it waits for the quote to name the size, not while lockers load', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => new Promise<Locker[]>(() => {}))
+      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: null })
+
+      expect(dismissible(wrapper)).toBe(true)
+
+      await wrapper.setProps({ compartmentSize: 2 })
+      await flushPromises()
+
+      expect(fetchAll).toHaveBeenCalledOnce()
+      expect(dismissible(wrapper)).toBe(false)
+    })
+
+    it('never leaves another carrier\'s lockers choosable', async () => {
+      const wrapper = await openPicker(fakeCarrier())
+      await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
+      await wrapper.setProps({ open: false })
+
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
+      await wrapper.setProps({ carrier: fakeCarrier({ code: 'boxnow', sizesLockers: true, fetchAll }), compartmentSize: null })
+      await wrapper.setProps({ open: true })
+      await flushPromises()
+
+      expect(fetchAll).not.toHaveBeenCalled()
+      expect(mapStub().attributes('data-count')).toBe('0')
+    })
+
     it('says which lockers have few free compartments', async () => {
       const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve([
         { ...KIFISIA, limitedAvailability: true },

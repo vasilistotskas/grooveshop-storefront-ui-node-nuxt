@@ -25,6 +25,11 @@ export interface CheckoutShippingStepInputs {
    * of a card's price; `null` until the quote has an answer.
    */
   quotedOptions: MaybeRefOrGetter<readonly QuoteShippingOption[] | null | undefined>
+  /**
+   * A new quote is on its way (`useCheckoutSubmit`'s `quotePending`): the
+   * last one is still shown, but its locker size may be the old cart's.
+   */
+  quotePending: MaybeRefOrGetter<boolean | undefined>
   /** The options fetch failed: the step shows a retry prompt, not the cards. */
   optionsError: MaybeRefOrGetter<boolean | undefined>
   /**
@@ -229,9 +234,11 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   // The compartment size the quote says the cart packs into, for the
   // chosen carrier's pickup (BOX NOW's lockers are listed by it); `null`
   // while the quote has not answered, and for every other delivery.
+  // While a new quote is on its way the last one may name the old cart's
+  // size, so the picker waits for the new one.
   const lockerCompartmentSize = computed(() => {
     const carrier = activeCarrier.value
-    if (!carrier) return null
+    if (!carrier || toValue(inputs.quotePending)) return null
     return toValue(inputs.quotedOptions)?.find(quoted =>
       quoted.providerCode === carrier.code && quoted.kind === 'pickup_point')?.compartmentSize ?? null
   })

@@ -35,6 +35,7 @@ const {
   placing,
   lockers,
   loading,
+  dismissible,
   errorMessage,
   retry,
   results,
@@ -62,7 +63,7 @@ function onClose(): void {
 <template>
   <UModal
     v-model:open="open"
-    :dismissible="!loading"
+    :dismissible="dismissible"
     :ui="{
       // ``dvh``, not ``h-screen``/100vh: on mobile 100vh is the
       // viewport with the browser chrome HIDDEN, so a modal sized to

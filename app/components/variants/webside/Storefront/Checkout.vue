@@ -343,6 +343,7 @@ useSeoMeta({
             :schema="step2Schema"
             :api-options="shippingOptions"
             :quoted-options="quote?.shippingOptions ?? null"
+            :quote-pending="quotePending"
             :options-error="shippingOptionsError"
             :over-weight="shippingOverWeight"
             :region-options="regionOptions"

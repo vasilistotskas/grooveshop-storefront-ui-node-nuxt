@@ -16,6 +16,7 @@ import {
 } from '~~/test/fixtures/shippingOptions'
 import { setTenant } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { makeQuoteShippingOption } from '~~/test/fixtures/checkoutQuote'
 
 /**
  * The shipping step of checkout: one radio card per delivery method the
@@ -200,14 +201,11 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     // quote says the cart packs into; until it has said, none.
     it('hands the BOX NOW picker the compartment size the quote names for its pickup', async () => {
       const boxNow = boxNowLockerOption()
-      const quotedRow = (compartmentSize: number | null): QuoteShippingOption => ({
+      const quotedRow = (compartmentSize: number | null): QuoteShippingOption => makeQuoteShippingOption({
         providerCode: boxNow.providerCode,
         providerName: boxNow.providerName,
         kind: boxNow.kind,
         price: 3.5,
-        waivedBy: null,
-        exceedsMaxWeight: false,
-        exceedsParcelSize: false,
         compartmentSize,
       })
       const wrapper = await mount({
@@ -220,6 +218,12 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       expect(picker().props('compartmentSize')).toBe(2)
       await wrapper.setProps({ quotedOptions: null })
       expect(picker().props('compartmentSize')).toBeNull()
+
+      // A new quote on its way: the last one may name the old cart's size.
+      await wrapper.setProps({ quotedOptions: [quotedRow(2)], quotePending: true })
+      expect(picker().props('compartmentSize')).toBeNull()
+      await wrapper.setProps({ quotedOptions: [quotedRow(3)], quotePending: false })
+      expect(picker().props('compartmentSize')).toBe(3)
     })
 
     it('hands an ACS Smartpoint choice to the generic picker, with the address typed so far', async () => {
@@ -438,7 +442,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     const price = (wrapper: VueWrapper, value: string) => card(wrapper, value).text().replace(/\u00A0/g, ' ')
 
     /** The quote's row for a carrier's delivery, at `price`. */
-    const quoted = (option: ShippingOption, rowPrice: number, waivedBy: QuoteShippingOption['waivedBy'] = null): QuoteShippingOption => ({
+    const quoted = (option: ShippingOption, rowPrice: number, waivedBy: QuoteShippingOption['waivedBy'] = null): QuoteShippingOption => makeQuoteShippingOption({
       providerCode: option.providerCode,
       providerName: option.providerName,
       kind: option.kind,
@@ -446,7 +450,6 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       waivedBy,
       exceedsMaxWeight: option.exceedsMaxWeight,
       exceedsParcelSize: option.exceedsParcelSize,
-      compartmentSize: null,
     })
 
     it('states the quote\'s price on each card, never the options list\'s, and "Free" only when it is 0', async () => {
