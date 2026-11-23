@@ -29,7 +29,7 @@ const headingId = useId()
 const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
 // The tiers in the order a shopper climbs them.
-const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
+const ladder = computed(() => (tiers.value ?? []).toSorted((a, b) => a.requiredLevel - b.requiredLevel))
 
 // The shopper's rung on that ladder, -1 without a tier (or one the
 // ladder does not hold).

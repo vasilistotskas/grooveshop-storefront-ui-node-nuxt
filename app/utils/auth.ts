@@ -199,7 +199,7 @@ export const sortAuthenticatorTypes = <T extends string>(types: readonly T[] | u
     const index = AUTHENTICATOR_TYPE_PRIORITY.findIndex(priority => priority === type)
     return index === -1 ? Number.MAX_SAFE_INTEGER : index
   }
-  return [...(types ?? [])].sort((a, b) => rank(a) - rank(b))
+  return (types ?? []).toSorted((a, b) => rank(a) - rank(b))
 }
 
 export const pathForFlow = (flow: AllAuthFlow, authenticatorType?: string) => {

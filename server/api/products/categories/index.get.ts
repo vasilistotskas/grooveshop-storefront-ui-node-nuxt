@@ -44,7 +44,7 @@ export default defineCachedRoute(async (event) => {
     // pattern as products/index.get.ts: drop empties, sort keys.
     const filtered = Object.entries(query)
       .filter(([, v]) => v !== undefined && v !== null && v !== '')
-      .map(([k, v]) => `${k}=${Array.isArray(v) ? v.slice().sort().join(',') : v}`)
+      .map(([k, v]) => `${k}=${Array.isArray(v) ? v.toSorted().join(',') : v}`)
       .sort()
       .join('&')
     return tenantCacheKey(event, `categories:${filtered || 'default'}`)
