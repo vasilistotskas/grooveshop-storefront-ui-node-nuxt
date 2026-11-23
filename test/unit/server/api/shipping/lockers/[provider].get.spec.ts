@@ -8,7 +8,8 @@ import { backend, cacheOptionsOf, callRoute, createTestEvent } from '~~/test/hel
 /**
  * GET /api/shipping/lockers/[provider]: the checkout map's whole locker
  * catalogue for one carrier, normalised and fetched page by page. An
- * EMPTY catalogue is refused with a 503 so the hour-long cache never
+ * EMPTY catalogue (asked for no compartment size) is refused with a 503
+ * so the hour-long cache never
  * stores a blank map.
  */
 
@@ -162,13 +163,34 @@ describe('GET /api/shipping/lockers/[provider]', () => {
     it('refuses to answer (and so to cache) an empty catalogue', async () => {
       backend.reply(page([]))
 
-      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow?compartmentSize=3' })
+      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow' })
 
       expect(response.status).toBe(503)
     })
 
-    // Unfiltered, the list would offer lockers the order cannot go to.
-    it.each([[''], ['?compartmentSize=4'], ['?compartmentSize=small']])('refuses a list without a valid compartment size (%s)', async (search) => {
+    // No locker in the country has that size: an answer, not an outage.
+    it('answers an empty list of one compartment size', async () => {
+      backend.reply(page([]))
+
+      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow?compartmentSize=3' })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual([])
+    })
+
+    // A store on BOX NOW's stage network has no sizes: the quote names
+    // none, and every locker is listed.
+    it('lists every locker when asked for no size', async () => {
+      backend.reply(page([makeBoxNowLocker({ id: 1, externalId: '4' })]))
+
+      const response = await callRoute(handler, { route, url: '/api/shipping/lockers/boxnow?country=gr' })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toHaveLength(1)
+      expect(backend.lastRequest.query).toEqual({ page: '1', pageSize: '100', countryCode: 'GR' })
+    })
+
+    it.each([['?compartmentSize=4'], ['?compartmentSize=small']])('refuses a compartment size that is not one (%s)', async (search) => {
       const response = await callRoute(handler, { route, url: `/api/shipping/lockers/boxnow${search}` })
 
       expect(response.status).toBe(400)

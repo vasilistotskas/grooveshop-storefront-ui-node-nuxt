@@ -363,16 +363,35 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
 
     it('waits, loading, for the quote to name the size, then asks', async () => {
       const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
-      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: null })
+      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: null, awaitingSize: true })
 
       expect(fetchAll).not.toHaveBeenCalled()
       expect(inBody(tp('error'))).toBe(false)
 
-      await wrapper.setProps({ compartmentSize: 1 })
+      await wrapper.setProps({ compartmentSize: 1, awaitingSize: false })
       await flushPromises()
 
       expect(fetchAll).toHaveBeenCalledExactlyOnceWith({ country: 'GR', compartmentSize: 1 }, expect.any(AbortSignal))
       await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
+    })
+
+    // On BOX NOW's stage network the quote names no size: every locker.
+    it('lists every locker when the quote names no size', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
+
+      await openPicker(sized(fetchAll), { compartmentSize: null, awaitingSize: false })
+
+      expect(fetchAll).toHaveBeenCalledExactlyOnceWith({ country: 'GR', compartmentSize: null }, expect.any(AbortSignal))
+      await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
+    })
+
+    it('says no locker fits when none has a compartment of the cart\'s size', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve([] as Locker[]))
+      await openPicker(sized(fetchAll), { compartmentSize: 3 })
+      await showList()
+
+      await vi.waitFor(() => expect(inBody(tp('none_fit_title'))).toBe(true))
+      expect(inBody(tp('error'))).toBe(false)
     })
 
     it('asks again when the cart\'s size changes, and drops the other size\'s lockers', async () => {
@@ -394,11 +413,11 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
 
     it('may be closed while it waits for the quote to name the size, not while lockers load', async () => {
       const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => new Promise<Locker[]>(() => {}))
-      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: null })
+      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: null, awaitingSize: true })
 
       expect(dismissible(wrapper)).toBe(true)
 
-      await wrapper.setProps({ compartmentSize: 2 })
+      await wrapper.setProps({ compartmentSize: 2, awaitingSize: false })
       await flushPromises()
 
       expect(fetchAll).toHaveBeenCalledOnce()
@@ -411,7 +430,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
       await wrapper.setProps({ open: false })
 
       const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
-      await wrapper.setProps({ carrier: fakeCarrier({ code: 'boxnow', sizesLockers: true, fetchAll }), compartmentSize: null })
+      await wrapper.setProps({ carrier: fakeCarrier({ code: 'boxnow', sizesLockers: true, fetchAll }), compartmentSize: null, awaitingSize: true })
       await wrapper.setProps({ open: true })
       await flushPromises()
 

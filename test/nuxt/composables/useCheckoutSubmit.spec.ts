@@ -75,6 +75,7 @@ const q = await vi.hoisted(async () => {
     shown: null as CheckoutQuote | null,
     priced: null as CheckoutQuote | null,
     error: null as unknown,
+    refusalCode: null as string | null,
     pending: false,
     request: null as null | (() => CartQuoteRequestRequest),
     refresh: vi.fn(() => Promise.resolve()),
@@ -87,6 +88,7 @@ mockNuxtImport('useCheckoutQuote', () => ({ request }: { request: () => CartQuot
     quotedFor: computed(() => null),
     pending: computed(() => q.pending),
     refusal: computed(() => null),
+    refusalCode: computed(() => q.refusalCode),
     current: () => Promise.resolve({ quote: q.priced, error: q.error }),
     refresh: q.refresh,
   }
@@ -176,6 +178,7 @@ beforeEach(() => {
   q.shown = makeCartQuote()
   q.priced = makeCartQuote()
   q.error = null
+  q.refusalCode = null
   q.pending = false
   window.sessionStorage.clear()
   window.localStorage.clear()
@@ -1403,6 +1406,35 @@ describe('useCheckoutSubmit', () => {
         title: t('form.submit.error.pickup_point_refused'),
         description: t('form.submit.error.pickup_point_unknown'),
       })
+    })
+
+    // The quote itself refuses the locker (it was picked from a list of
+    // another size, or BOX NOW dropped it): no order is ever asked for,
+    // so the quote's refusal drops it and says why under the picker.
+    it('drops a pickup point the quote refuses and sends the shopper back to choose another', async () => {
+      const formState = makeFormState({ shippingMethod: 'box_now_locker', boxnowLockerId: '4', boxnowLocker: { id: '4' } })
+      const { currentStep, stepErrors } = setup(COD, { formState })
+      currentStep.value = 2
+
+      q.refusalCode = 'pickup_point_too_small'
+      await nextTick()
+
+      expect(formState).toMatchObject({ boxnowLockerId: '', boxnowLocker: null })
+      expect(currentStep.value).toBe(1)
+      expect(stepErrors.value).toEqual({ 1: [{ name: 'boxnowLockerId', message: t('form.submit.error.pickup_point_too_small') }] })
+    })
+
+    it('keeps the pickup point when the quote is refused for anything else', async () => {
+      const formState = makeFormState({ shippingMethod: 'box_now_locker', boxnowLockerId: '4', boxnowLocker: { id: '4' } })
+      const { currentStep, stepErrors } = setup(COD, { formState })
+      currentStep.value = 2
+
+      q.refusalCode = 'shipping_unavailable'
+      await nextTick()
+
+      expect(formState).toMatchObject({ boxnowLockerId: '4' })
+      expect(currentStep.value).toBe(2)
+      expect(stepErrors.value).toEqual({})
     })
 
     it('leaves the step alone for a field no step shows', async () => {

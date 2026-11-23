@@ -231,17 +231,22 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     carrierForMethod(formState.value.shippingMethod),
   )
 
-  // The compartment size the quote says the cart packs into, for the
-  // chosen carrier's pickup (BOX NOW's lockers are listed by it); `null`
-  // while the quote has not answered, and for every other delivery.
-  // While a new quote is on its way the last one may name the old cart's
-  // size, so the picker waits for the new one.
-  const lockerCompartmentSize = computed(() => {
+  // The quote's row for the chosen carrier's pickup: the compartment size
+  // the cart packs into (BOX NOW's lockers are listed by it).
+  const quotedPickup = computed(() => {
     const carrier = activeCarrier.value
-    if (!carrier || toValue(inputs.quotePending)) return null
+    if (!carrier) return null
     return toValue(inputs.quotedOptions)?.find(quoted =>
-      quoted.providerCode === carrier.code && quoted.kind === 'pickup_point')?.compartmentSize ?? null
+      quoted.providerCode === carrier.code && quoted.kind === 'pickup_point') ?? null
   })
+  // Until the quote has a row for that pickup, and while a new quote is on
+  // its way (the last one may name the old cart's size), the picker waits.
+  const lockerSizePending = computed(() =>
+    Boolean(toValue(inputs.quotePending)) || quotedPickup.value === null)
+  // The size, `null` when the row names none: a store on BOX NOW's stage
+  // network has no sizes, and every locker is listed.
+  const lockerCompartmentSize = computed(() =>
+    lockerSizePending.value ? null : quotedPickup.value?.compartmentSize ?? null)
 
   const selectedOption = computed(() =>
     shippingOptions.value.find(item => item.value === formState.value.shippingMethod),
@@ -320,6 +325,7 @@ export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
     shippingOptions,
     activeCarrier,
     lockerCompartmentSize,
+    lockerSizePending,
     freeDeliveryApplied,
     pickerOpen,
     submit,

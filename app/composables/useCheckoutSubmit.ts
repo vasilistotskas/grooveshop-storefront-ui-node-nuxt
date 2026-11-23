@@ -434,6 +434,24 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     cartVersion: () => JSON.stringify(cartPricedFrom()),
   })
 
+  // Django's quote refuses the pickup point the form names (a locker
+  // without a compartment of the cart's size, one whose sizes are not
+  // known, one gone or in another country): it is dropped, as an order's
+  // refusal drops it, so the next quote prices the delivery without it,
+  // and the delivery step says why under the picker.
+  watch(checkoutQuote.refusalCode, (code) => {
+    if (!code || !PICKUP_POINT_REFUSALS.includes(code)) return
+    const method = formState.shippingMethod
+    const field = PICKUP_FORM_KEYS[method]?.[0]
+    if (!field) return
+    clearPickupPoint(formState, method)
+    stepErrors.value = {
+      ...stepErrors.value,
+      [CHECKOUT_STEP.delivery]: [{ name: field, message: t(`form.submit.error.${code}`) }],
+    }
+    if (currentStep.value > CHECKOUT_STEP.delivery) currentStep.value = CHECKOUT_STEP.delivery
+  })
+
   /**
    * Posts the order and answers it, or `null` when Django refused it: the
    * refusal is then classified for the shopper (`handleOrderError`), ends

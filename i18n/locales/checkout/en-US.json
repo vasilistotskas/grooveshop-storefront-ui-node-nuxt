@@ -117,6 +117,8 @@
       "cluster_aria_label": "{count} collection points in this area",
       "map_unavailable": "The map is currently unavailable. Use the list to find a collection point.",
       "no_results_in_area": "No collection points found in this area",
+      "none_fit_title": "No locker fits this order",
+      "none_fit_description": "None of these lockers has a compartment for your order’s size. Choose another delivery method.",
       "limited_availability": "Few free compartments"
     }
   },

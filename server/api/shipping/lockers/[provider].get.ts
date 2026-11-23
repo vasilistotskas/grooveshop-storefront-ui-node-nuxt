@@ -25,7 +25,9 @@ import { createError, getRouterParam, getValidatedQuery, useRuntimeConfig } from
 const zQuery = z.object({
   country: z.string().length(2).optional(),
   // The compartment size the cart packs into (`QuoteShippingOption.compartmentSize`):
-  // BOX NOW lists only the lockers with a compartment of that size.
+  // BOX NOW lists only the lockers with a compartment of that size, and
+  // without one every locker (a store on BOX NOW's stage network has no
+  // sizes; Django ignores the filter there).
   compartmentSize: z.coerce.number().pipe(zCompartmentSizeEnum).optional(),
 })
 
@@ -137,11 +139,6 @@ async function _fetchBoxNowLockers(
   headers: Record<string, string>,
   { country, compartmentSize }: FetchQuery,
 ): Promise<NormalisedLocker[]> {
-  // Without the cart's size the list would offer lockers the order cannot
-  // be sent to (Django refuses them, `pickup_point_too_small`).
-  if (compartmentSize === undefined) {
-    throw createError({ status: 400, statusText: 'BOX NOW lockers are listed for a compartmentSize' })
-  }
   const collected: NormalisedBoxNowLocker[] = []
   // The same walk as the ACS stations': the last page Django names, or
   // the first page that is not full.
@@ -218,7 +215,9 @@ export default defineCachedRoute(
       // so the Nitro cache wrapper does NOT store the empty result:
       // the picker shows its error with a retry, and the first request
       // after the sync fills the cache.
-      if (rows.length === 0) {
+      // A list of one compartment size may be empty for real (no locker in
+      // the country has that size): that is the answer, not an outage.
+      if (rows.length === 0 && query.compartmentSize === undefined) {
         throw createError({
           status: 503,
           statusText: `Bulk locker catalogue for provider '${provider}' is currently empty — refusing to cache.`,

@@ -68,7 +68,7 @@ const ORDER_FIELD_STEPS: Record<string, { step: CheckoutStep, name: string }> = 
  * to choose another point. A point Django could not check at all is the
  * 503 ``PICKUP_POINT_CHECK_UNAVAILABLE`` instead, which says to try again.
  */
-const PICKUP_POINT_REFUSALS: readonly string[] = [
+export const PICKUP_POINT_REFUSALS: readonly string[] = [
   'pickup_point_unknown',
   'pickup_point_too_small',
   'pickup_point_size_unknown',

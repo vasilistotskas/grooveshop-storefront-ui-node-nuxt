@@ -22,6 +22,8 @@ const props = defineProps<{
   countryCode?: string
   /** The cart's compartment size, for a carrier that sizes its lockers. */
   compartmentSize?: number | null
+  /** The quote has not named the size yet: a sizing carrier's picker waits. */
+  awaitingSize?: boolean
 }>()
 
 const { t } = useI18n()
@@ -128,6 +130,7 @@ function onSelected(picked: Locker): void {
       :initial-city="initialCity"
       :country-code="countryCode"
       :compartment-size="compartmentSize"
+      :awaiting-size="awaitingSize"
       @selected="onSelected"
     />
   </div>

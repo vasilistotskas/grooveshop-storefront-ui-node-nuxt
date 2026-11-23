@@ -50,8 +50,11 @@ export function useLockerPicker(options: {
     initialCity?: string
     countryCode?: string
     /** The compartment size the cart packs into, for a carrier that sizes
-     *  its lockers (`QuoteShippingOption.compartmentSize`). */
+     *  its lockers (`QuoteShippingOption.compartmentSize`); `null` lists
+     *  them all (a store on BOX NOW's stage network has no sizes). */
     compartmentSize?: number | null
+    /** The quote has not named the size yet: a sizing carrier waits. */
+    awaitingSize?: boolean
   }
   open: Ref<boolean>
 }) {
@@ -92,8 +95,10 @@ export function useLockerPicker(options: {
     // change with the cart.
     const country = (props.countryCode ?? 'GR').toUpperCase()
     const compartmentSize = props.carrier.sizesLockers ? props.compartmentSize ?? null : null
-    const wanted = `${props.carrier.code}:${country}:${compartmentSize ?? ''}`
-    if (loadedFor === wanted && lockers.value.length > 0) return
+    const waiting = Boolean(props.carrier.sizesLockers && props.awaitingSize)
+    // Waiting matches no list: nothing loaded before stays choosable.
+    const wanted = waiting ? null : `${props.carrier.code}:${country}:${compartmentSize ?? ''}`
+    if (wanted !== null && loadedFor === wanted && lockers.value.length > 0) return
     // Another carrier's or country's lockers, or lockers for another size,
     // must never stay on screen, and stay choosable, while these load or
     // after they failed.
@@ -105,8 +110,8 @@ export function useLockerPicker(options: {
     errorMessage.value = null
     // A carrier that sizes its lockers waits for the quote to name the
     // cart's size: lockers without it could be ones the order cannot go to.
-    waitingForSize.value = Boolean(props.carrier.sizesLockers) && compartmentSize === null
-    if (waitingForSize.value) {
+    waitingForSize.value = waiting
+    if (waiting) {
       abort = null
       loading.value = true
       return
@@ -169,7 +174,7 @@ export function useLockerPicker(options: {
   })
 
   // The cart's size arrives with the quote, and changes with the cart.
-  watch(() => props.compartmentSize, () => {
+  watch([() => props.compartmentSize, () => props.awaitingSize], () => {
     if (open.value && props.carrier.sizesLockers) void loadCatalogue()
   })
 

@@ -215,15 +215,23 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       })
       const picker = () => wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') })
 
-      expect(picker().props('compartmentSize')).toBe(2)
+      const size = () => ({ size: picker().props('compartmentSize'), waits: picker().props('awaitingSize') })
+      expect(size()).toEqual({ size: 2, waits: false })
+
+      // No answer yet: the picker waits for one.
       await wrapper.setProps({ quotedOptions: null })
-      expect(picker().props('compartmentSize')).toBeNull()
+      expect(size()).toEqual({ size: null, waits: true })
 
       // A new quote on its way: the last one may name the old cart's size.
       await wrapper.setProps({ quotedOptions: [quotedRow(2)], quotePending: true })
-      expect(picker().props('compartmentSize')).toBeNull()
+      expect(size()).toEqual({ size: null, waits: true })
       await wrapper.setProps({ quotedOptions: [quotedRow(3)], quotePending: false })
-      expect(picker().props('compartmentSize')).toBe(3)
+      expect(size()).toEqual({ size: 3, waits: false })
+
+      // A store on BOX NOW's stage network: the row names no size, and
+      // the picker lists every locker instead of waiting.
+      await wrapper.setProps({ quotedOptions: [quotedRow(null)] })
+      expect(size()).toEqual({ size: null, waits: false })
     })
 
     it('hands an ACS Smartpoint choice to the generic picker, with the address typed so far', async () => {

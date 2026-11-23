@@ -68,6 +68,7 @@ const {
   shippingOptions,
   activeCarrier,
   lockerCompartmentSize,
+  lockerSizePending,
   freeDeliveryApplied,
   pickerOpen,
   submit,
@@ -308,6 +309,7 @@ defineExpose({ submit })
             :initial-city="formState.city"
             :country-code="formState.country"
             :compartment-size="lockerCompartmentSize"
+            :awaiting-size="lockerSizePending"
           />
         </UFormField>
       </template>

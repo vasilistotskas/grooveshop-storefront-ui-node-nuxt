@@ -67,6 +67,7 @@ const {
   shippingOptions,
   activeCarrier,
   lockerCompartmentSize,
+  lockerSizePending,
   pickerOpen,
   submit,
 } = useCheckoutShippingStep({
@@ -284,6 +285,7 @@ defineExpose({ submit })
             :initial-city="formState.city"
             :country-code="formState.country"
             :compartment-size="lockerCompartmentSize"
+            :awaiting-size="lockerSizePending"
           />
         </UFormField>
       </template>
