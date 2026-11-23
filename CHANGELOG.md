@@ -1,3 +1,10 @@
+# [3.356.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.355.0...v3.356.0) (2026-11-23)
+
+
+### Features
+
+* **blog:** draw a blog category's icon from its own data ([#515](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/515)) ([5bf60e2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5bf60e2ec645517b97155b09e155785471bb58a6))
+
 # [3.355.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.354.0...v3.355.0) (2026-11-23)
 
 
