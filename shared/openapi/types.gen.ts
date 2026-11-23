@@ -10812,7 +10812,6 @@ export type TenantConfig = {
   readonly socialsLinkedin: string
   readonly socialsTwitter: string
   readonly socialsYoutube: string
-  readonly boxNowPartnerId: string
 }
 
 /**
