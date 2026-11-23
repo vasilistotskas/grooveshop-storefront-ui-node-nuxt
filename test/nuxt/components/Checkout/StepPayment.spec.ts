@@ -356,13 +356,10 @@ describe('Checkout/StepPayment (redesign)', () => {
       expect(card(wrapper, 6).textContent).toContain('ασφαλή σελίδα της Viva Wallet')
     })
 
-    it.each([
-      [true, 'ασφαλή σελίδα της Stripe'],
-      [false, 'χωρίς να φύγεις από τη σελίδα'],
-    ])('describes Stripe for hosted checkout = %s', async (useHostedCheckout, line) => {
-      const { wrapper } = await mountStep({ useHostedCheckout }, { payWay: 8 })
+    it('says Stripe finishes on its own secure page', async () => {
+      const { wrapper } = await mountStep({}, { payWay: 8 })
 
-      expect(card(wrapper, 8).textContent).toContain(line)
+      expect(card(wrapper, 8).textContent).toContain('ασφαλή σελίδα της Stripe')
     })
 
     it('says nothing extra for a method that settles with the courier', async () => {
@@ -375,7 +372,6 @@ describe('Checkout/StepPayment (redesign)', () => {
       const { wrapper } = await mountStep({}, { payWay: 6 })
 
       expect(card(wrapper, 8).textContent).not.toContain('ασφαλή σελίδα')
-      expect(card(wrapper, 8).textContent).not.toContain('χωρίς να φύγεις από τη σελίδα')
     })
   })
 

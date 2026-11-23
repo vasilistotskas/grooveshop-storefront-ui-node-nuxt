@@ -199,7 +199,7 @@ Components in `app/components/` organized by domain:
 - **User** — Avatar, NotificationsBell
 - **Page** — Breadcrumb, SectionsShell, Title, Wrapper
 - **UI/Layout** — Pagination (PageNumber, LimitOffset, Cursor), Ordering, Quantity Selector, ReadMore, Empty state, LoadingIndicator, DesktopOnly, MobileOrTabletOnly, Socials, Anchor, ImgWithFallback, Error
-- **Integrations** — StripePayment, StripeCheckout, VivaWalletCheckout (at the components root), `WebAuthn/`, `Language/Switcher`, Logout Button
+- **Integrations** — StripeCheckout, VivaWalletCheckout (at the components root), `WebAuthn/`, `Language/Switcher`, Logout Button
 
 ## UI & Styling
 

@@ -148,6 +148,18 @@ export interface OrderErrorInfo {
    * caller drops it, and the shopper chooses another.
    */
   pickupPointRefused: boolean
+  /**
+   * Django refused the loyalty points the order redeems
+   * (`loyaltyPointsToRedeem`): the caller drops the local redemption, so the
+   * next attempt prices without it.
+   */
+  loyaltyRefused?: boolean
+}
+
+/** The loyalty program's reason, when Django refused the redeemed points. */
+function loyaltyRefusalOf(errorData: any): string | undefined {
+  const reasons = errorData?.fieldErrors?.loyaltyPointsToRedeem
+  return Array.isArray(reasons) && typeof reasons[0] === 'string' ? reasons[0] : undefined
 }
 
 /**
@@ -239,6 +251,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
     ? { ...error, message: t(`form.submit.error.${error.code}`) }
     : error)
   const pickupPointRefused = fieldErrors.some(isPickupRefusal)
+  const loyaltyReason = loyaltyRefusalOf(errorData)
 
   // The first submit with this key is still being placed. Its answer
   // is not known yet, so nothing is wrong with the order: the key is
@@ -288,6 +301,20 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       pickupPointRefused: false,
     }
   }
+  // The points the shopper redeems cannot be redeemed (spent in another tab,
+  // a tier that changed): Django refuses the order with the program's own
+  // reason under `loyaltyPointsToRedeem`, and the caller drops the redemption.
+  else if (errorType === 'invalid_order_data' && loyaltyReason) {
+    return {
+      title: t('form.submit.error.loyalty_redemption_invalid'),
+      description: loyaltyReason,
+      shouldRetry: false,
+      stepErrors,
+      quoteChanged: false,
+      pickupPointRefused: false,
+      loyaltyRefused: true,
+    }
+  }
   else if (errorType === 'invalid_order_data') {
     errorTitle = t('form.submit.error.invalid_order_data')
     errorDescription = errorData?.detail || t('form.submit.error.invalid_order_data_description')
@@ -299,16 +326,6 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
   else if (errorType === 'cart_invalid') {
     errorTitle = t('form.submit.error.inventory')
     errorDescription = cartMessages || errorData?.detail
-  }
-  else if (errorType === 'payment_not_found' || errorType === 'payment_verification') {
-    errorTitle = t('form.submit.error.payment_verification')
-    errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
-  }
-  // The paid intent no longer matches the order Django priced: the
-  // cart or its prices changed after the intent was created.
-  else if (errorType === 'payment_amount_mismatch' || errorType === 'payment_currency_mismatch') {
-    errorTitle = t('form.submit.error.payment_mismatch')
-    errorDescription = errorData?.detail || t('form.submit.error.payment_mismatch_description')
   }
   else if (errorType === 'invalid_coupon') {
     errorTitle = t('form.submit.error.invalid_coupon')

@@ -7,8 +7,8 @@ import { makePayWay } from '~~/test/fixtures/payWay'
 
 /**
  * Shown once the order exists, for Stripe and Viva: which provider's
- * component takes over (Viva's redirect, Stripe's hosted page or the
- * embedded card form), and what is forwarded from it. The providers' own
+ * component takes over (Viva's redirect or Stripe's hosted page), and
+ * what is forwarded from it. The providers' own
  * flows are specced with them; here each is a button that fires its events.
  */
 mockComponent('VivaWalletCheckout', {
@@ -19,15 +19,10 @@ mockComponent('StripeCheckout', {
   emits: ['error', 'redirecting'],
   template: '<button data-provider="stripe-hosted" @click="$emit(\'error\', \'hosted failed\')">hosted</button>',
 })
-mockComponent('StripePayment', {
-  props: ['initialClientSecret'],
-  emits: ['success', 'error', 'update:clientSecret'],
-  template: '<button data-provider="stripe-inline" @click="$emit(\'success\')">inline</button>',
-})
 
 const order = makeOrder({ id: 4812 })
 
-const mountView = (flags: { stripe?: boolean, viva?: boolean, hosted?: boolean }) =>
+const mountView = (flags: { stripe?: boolean, viva?: boolean }) =>
   mountSuspended(OnlinePaymentView, {
     route: false,
     props: {
@@ -35,7 +30,6 @@ const mountView = (flags: { stripe?: boolean, viva?: boolean, hosted?: boolean }
       selectedPayWay: makePayWay({ providerCode: flags.viva ? 'viva_wallet' : 'stripe', settlement: 'online' }),
       isStripePayment: flags.stripe ?? false,
       isVivaWalletPayment: flags.viva ?? false,
-      useHostedCheckout: flags.hosted ?? false,
     },
   })
 
@@ -56,20 +50,12 @@ describe('Checkout/OnlinePaymentView', () => {
     expect(wrapper.emitted('payment-error')).toEqual([['viva failed']])
   })
 
-  it('hands a Stripe order to the hosted page when checkout is hosted', async () => {
-    const wrapper = await mountView({ stripe: true, hosted: true })
+  it('hands a Stripe order to its hosted page and forwards its failure', async () => {
+    const wrapper = await mountView({ stripe: true })
 
     await vi.waitFor(() => expect(providers(wrapper)).toEqual(['stripe-hosted']))
     await wrapper.get('[data-provider="stripe-hosted"]').trigger('click')
     expect(wrapper.emitted('payment-error')).toEqual([['hosted failed']])
-  })
-
-  it('shows the embedded card form when checkout is not hosted, and reports its success', async () => {
-    const wrapper = await mountView({ stripe: true, hosted: false })
-
-    expect(providers(wrapper)).toEqual(['stripe-inline'])
-    await wrapper.get('[data-provider="stripe-inline"]').trigger('click')
-    expect(wrapper.emitted('payment-success')).toHaveLength(1)
   })
 
   it('shows no provider for an order that is not paid online', async () => {

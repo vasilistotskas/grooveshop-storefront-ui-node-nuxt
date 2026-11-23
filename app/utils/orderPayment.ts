@@ -155,3 +155,12 @@ export function forgetAwaitingPaymentOrder(uuid: string): void {
     dropKeptOrder()
   }
 }
+
+/**
+ * Whether the order is already paid when it is placed: the deductions (gift
+ * cards, a promotion, points) covered the whole total, so Django settled it
+ * at creation and there is nothing to pay on the provider's page.
+ */
+export function isOrderPaid(order: Pick<OrderDetail, 'paymentStatus'>): boolean {
+  return order.paymentStatus === zPaymentStatusEnum.enum.COMPLETED
+}

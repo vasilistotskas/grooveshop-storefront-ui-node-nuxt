@@ -47,7 +47,6 @@ mockNuxtImport('useUserSession', () => () => ({
 mockNuxtImport('useCheckout', () => () => ({
   reserveStock: m.reserveStock,
   releaseReservations: m.releaseReservations,
-  createPaymentIntentFromCart: vi.fn(),
 }))
 mockNuxtImport('useCookieControl', () => () => ({ cookiesEnabledIds: m.consent }))
 mockNuxtImport('useMetaPixel', () => () => ({ newEventId: () => 'e', trackInitiateCheckout: () => 'e', trackAddPaymentInfo: () => 'e' }))

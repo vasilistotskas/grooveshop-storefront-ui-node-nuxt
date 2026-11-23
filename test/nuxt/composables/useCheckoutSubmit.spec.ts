@@ -1,12 +1,12 @@
 /**
  * The checkout submit orchestration: stock holds, the payment-provider
- * branch (Stripe intent / Viva / offline), retries, idempotency, and
+ * branch (Stripe and Viva order-first / offline), retries, idempotency, and
  * where the shopper lands. What the order body contains and how a
  * rejected order is worded are pure functions with their own unit specs
  * (`test/unit/app/utils/checkoutOrder.spec.ts`,
  * `checkoutAnalytics.spec.ts`); here they run for real inside the flow.
  *
- * `useCheckout` is the HTTP boundary for holds and intents (it has its
+ * `useCheckout` is the HTTP boundary for stock holds (it has its
  * own spec) and is mocked; `/api/orders` and everything else go through
  * the `$api` mock. The cart is the REAL cart store in a fresh Pinia.
  *
@@ -34,8 +34,6 @@ const m = vi.hoisted(() => ({
   sessionFetch: vi.fn(() => Promise.resolve()),
   reserveStock: vi.fn(() => Promise.resolve([42])),
   releaseReservations: vi.fn(() => Promise.resolve()),
-  createPaymentIntentFromCart: vi.fn((_request: CartCreatePaymentIntentRequestRequest, _idempotencyKey?: string) =>
-    Promise.resolve({ clientSecret: 'cs_1', paymentIntentId: 'pi_1' })),
   consent: { value: [] as string[] },
   meta: {
     newEventId: vi.fn(() => 'purchase-id'),
@@ -55,7 +53,6 @@ mockNuxtImport('useUserSession', () => () => ({ fetch: m.sessionFetch }))
 mockNuxtImport('useCheckout', () => () => ({
   reserveStock: m.reserveStock,
   releaseReservations: m.releaseReservations,
-  createPaymentIntentFromCart: m.createPaymentIntentFromCart,
 }))
 mockNuxtImport('useCookieControl', () => () => ({ cookiesEnabledIds: m.consent }))
 mockNuxtImport('useMetaPixel', () => () => m.meta)
@@ -191,28 +188,19 @@ afterEach(() => {
 
 describe('useCheckoutSubmit', () => {
   describe('Stripe', () => {
-    it('prices an intent for the chosen shipping, then posts the order under one idempotency key', async () => {
+    it('posts the order with no payment intent, under one idempotency key, and waits for the payment', async () => {
       api.routes({ '/api/orders': orderCreated({ uuid: 'order-stripe' }) })
       const { onSubmit, createdOrder } = setup(STRIPE)
 
       await onSubmit()
 
-      // Home delivery is provider-agnostic: no provider code on either
-      // request, so both price shipping by the same generic rule.
-      expect(m.createPaymentIntentFromCart).toHaveBeenCalledWith({
-        payWayId: 1,
-        shippingKind: 'home_delivery',
-        shippingProviderCode: undefined,
-        countryId: 1,
-        regionId: undefined,
-        email: 'test@example.com',
-        giftCardCodes: undefined,
-        loyaltyPointsToRedeem: undefined,
-      }, '0000-idem-key')
       const [order] = api.callsTo('/api/orders')
       expect(order!.options.method).toBe('POST')
       expect(order!.options.headers['Idempotency-Key']).toBe('0000-idem-key')
-      expect(order!.options.body).toMatchObject({ paymentIntentId: 'pi_1', shippingKind: 'home_delivery' })
+      expect(order!.options.body).toMatchObject({ payWayId: 1, shippingKind: 'home_delivery' })
+      expect(order!.options.body).not.toHaveProperty('paymentIntentId')
+      // The order is the only request: nothing prices or opens a payment first.
+      expect(api.callsTo('/api/cart/create-payment-intent')).toEqual([])
       expect(createdOrder.value).toEqual({ uuid: 'order-stripe' })
       expect(lastToast()).toMatchObject({ title: t('order_created_payment_required'), color: 'info' })
       // The shopper still has to pay: the cart stays, nothing navigates.
@@ -233,7 +221,7 @@ describe('useCheckoutSubmit', () => {
       expect(orderBodies()[0].phone).toBe('+306912345678')
     })
 
-    it('redeems the applied gift cards on both the intent and the order, once per code', async () => {
+    it('redeems the applied gift cards on the order, once per code', async () => {
       api.routes({ '/api/orders': orderCreated() })
       const { onSubmit, onGiftCardApplied, onGiftCardRemoved } = setup(STRIPE)
 
@@ -247,151 +235,75 @@ describe('useCheckoutSubmit', () => {
 
       await onSubmit()
 
-      expect(m.createPaymentIntentFromCart.mock.calls[0]![0]).toMatchObject({ giftCardCodes: ['GC-1', 'GC-2'] })
       expect(orderBodies()[0].giftCardCodes).toEqual(['GC-1', 'GC-2'])
     })
 
-    it.each(['gift_card_covers_total', 'nothing_to_charge'])(
-      'orders without an intent when the deductions cover everything (%s), then finishes like an offline order',
-      async (reason) => {
-        m.createPaymentIntentFromCart.mockRejectedValue(Object.assign(new Error('400'), { data: { reason } }))
-        api.routes({ '/api/orders': orderCreated({ uuid: 'order-free' }) })
-        const { onSubmit } = setup(STRIPE)
+    it('leaves an order the gift cards only partly cover to be paid for the rest', async () => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-part', paymentStatus: 'PENDING' }) })
+      const { onSubmit, onGiftCardApplied, createdOrder } = setup(STRIPE)
+      onGiftCardApplied({ code: 'GC-1', balance: 10 })
 
-        await onSubmit()
+      await onSubmit()
 
-        expect(orderBodies()).toHaveLength(1)
-        expect(orderBodies()[0]).not.toHaveProperty('paymentIntentId')
-        // Once: `cleanCartState()` clears the server-side cart itself.
-        expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
-        expect(cart.cart).toBeNull()
-        expect(m.sessionFetch).toHaveBeenCalled()
-        expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success' })
-        expect(readCheckoutArrival()).toEqual({ orderUuid: 'order-free', placed: true })
-        expect(m.toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: t('order_created_payment_required') }))
-      },
-    )
+      expect(createdOrder.value).toMatchObject({ uuid: 'order-part' })
+      expect(lastToast()).toMatchObject({ title: t('order_created_payment_required') })
+      expect(cart.cart).not.toBeNull()
+      expect(m.navigateTo).not.toHaveBeenCalled()
+    })
 
-    it('asks a guest redeeming points to sign in, and orders nothing', async () => {
-      m.createPaymentIntentFromCart.mockRejectedValue(
-        Object.assign(new Error('400'), { data: { reason: 'loyalty_requires_authentication' } }),
-      )
+    it('finishes like an offline order when the deductions cover everything and Django settled it', async () => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-free', paymentStatus: 'COMPLETED' }) })
       const { onSubmit } = setup(STRIPE)
 
       await onSubmit()
 
-      expect(lastFailure()).toMatchObject({ title: t('form.submit.error.loyalty_requires_authentication') })
-      expect(orderBodies()).toEqual([])
+      expect(orderBodies()).toHaveLength(1)
+      // Once: `cleanCartState()` clears the server-side cart itself.
+      expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
+      expect(cart.cart).toBeNull()
+      expect(m.sessionFetch).toHaveBeenCalled()
+      expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success' })
+      expect(readCheckoutArrival()).toEqual({ orderUuid: 'order-free', placed: true })
+      expect(m.toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: t('order_created_payment_required') }))
     })
 
-    it('drops a redemption the backend no longer honours, and orders nothing', async () => {
-      m.createPaymentIntentFromCart.mockRejectedValue(
-        Object.assign(new Error('400'), { data: { reason: 'loyalty_redemption_invalid', detail: 'Not enough points.' } }),
-      )
-      const { onSubmit, onLoyaltyRedeemed, loyaltyDiscount } = setup(STRIPE)
+    it('drops a redemption Django refuses at the order, and says why', async () => {
+      api.routes({
+        '/api/orders': orderRejected(400, {
+          detail: 'Invalid order data',
+          error: { type: 'invalid_order_data' },
+          code: 'invalid_order_data',
+          fieldErrors: { loyaltyPointsToRedeem: ['Not enough points.'] },
+        }),
+      })
+      const { onSubmit, onLoyaltyRedeemed, loyaltyDiscount, createdOrder } = setup(STRIPE)
       onLoyaltyRedeemed({ amount: 5, currency: 'EUR', points: 500 })
 
       await onSubmit()
 
       expect(loyaltyDiscount.value).toBeNull()
+      expect(createdOrder.value).toBeNull()
       expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.loyalty_redemption_invalid'),
         description: 'Not enough points.',
       })
-      expect(orderBodies()).toEqual([])
     })
 
-    it('reports any other intent failure as a payment error, and orders nothing', async () => {
-      m.createPaymentIntentFromCart.mockRejectedValue(
-        Object.assign(new Error('400'), { data: { reason: 'provider_down', detail: 'Stripe is unavailable.' } }),
-      )
+    it('reports an order request that got no answer, and releases the holds', async () => {
+      api.routes({
+        '/api/orders': () => {
+          throw new TypeError('fetch failed')
+        },
+      })
       const { onSubmit } = setup(STRIPE)
 
       await onSubmit()
 
-      expect(lastFailure()).toMatchObject({ title: t('payment_intent_error'), description: 'Stripe is unavailable.' })
-      expect(orderBodies()).toEqual([])
+      expect(lastFailure()).toMatchObject({ title: t('payment_intent_error') })
+      expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
     })
 
-    /**
-     * An intent is priced at creation. Any change to what is deducted
-     * after that makes it stale, and order-create would reject it on
-     * the amount — so the next submit must price a new one.
-     */
-    describe('a deduction change after the intent was priced', () => {
-      async function submitOnceWithoutAnOrder(formState = makeFormState()) {
-        // The order POST fails at the network: the intent survives it.
-        api.routes({
-          '/api/orders': () => {
-            throw new TypeError('fetch failed')
-          },
-        })
-        const submit = setup(STRIPE, { formState })
-        await submit.onSubmit()
-        expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
-        api.routes({ '/api/orders': orderCreated() })
-        return submit
-      }
-
-      it('reuses the intent when nothing changed', async () => {
-        const { onSubmit } = await submitOnceWithoutAnOrder()
-
-        await onSubmit()
-
-        expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
-        expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_1' })
-      })
-
-      // A cart refresh (quantity edits elsewhere, the chat, a stock check)
-      // replaces the cart object without changing what is deducted; the
-      // intent and its idempotency key must survive it, or a retry mints
-      // an orphaned PaymentIntent and loses the duplicate-order guard.
-      it('reuses the intent and its idempotency key across a cart refresh that changes no deduction', async () => {
-        const { onSubmit } = await submitOnceWithoutAnOrder()
-        const firstKey = api.callsTo('/api/orders').at(0)!.options.headers
-
-        cart.cart = { ...cart.cart!, appliedCouponCodes: [...cart.cart!.appliedCouponCodes] }
-        await nextTick()
-        await onSubmit()
-
-        expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
-        expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_1' })
-        expect(api.callsTo('/api/orders').at(-1)!.options.headers).toEqual(firstKey)
-      })
-
-      it.each([
-        ['loyalty points are redeemed', (s: ReturnType<typeof setup>) => s.onLoyaltyRedeemed({ amount: 5, currency: 'EUR', points: 500 })],
-        ['a gift card is applied', (s: ReturnType<typeof setup>) => s.onGiftCardApplied({ code: 'GC-1', balance: 10 })],
-        ['a coupon is applied', () => { cart.cart = { ...cart.cart!, appliedCouponCodes: ['SAVE5'] } }],
-        ['the promotion discount moves', () => { cart.cart = { ...cart.cart!, promotionDiscount: 3 } }],
-        // Not deductions, but the intent is priced from them too.
-        ['a line quantity changes the total', () => {
-          const [line, ...rest] = cart.cart!.items
-          cart.cart = { ...cart.cart!, items: [{ ...line!, quantity: 99 }, ...rest], totalPrice: cart.cart!.totalPrice + 10 }
-        }],
-        ['the shopper changes the email', (_s: ReturnType<typeof setup>, form: Record<string, any>) => { form.email = 'other@example.com' }],
-        ['the quoted total moves, as a price edit the cart does not carry would', () => {
-          const moved = makeCartQuote({ amountDue: 70, expectedTotal: { amount: 7000, currency: 'EUR' } })
-          q.shown = moved
-          q.priced = moved
-        }],
-      ])('prices a fresh intent when %s', async (_case, change: (s: ReturnType<typeof setup>, form: Record<string, any>) => void) => {
-        const form = makeFormState()
-        const submit = await submitOnceWithoutAnOrder(form)
-        m.createPaymentIntentFromCart.mockResolvedValue({ clientSecret: 'cs_2', paymentIntentId: 'pi_2' })
-
-        change(submit, form)
-        await nextTick()
-        await submit.onSubmit()
-
-        expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(2)
-        expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_2' })
-      })
-    })
-
-    it('backToForm releases the holds, resyncs the cart, and a resubmit mints a FRESH intent', async () => {
-      // The resync finds the cart unchanged, so nothing but backToForm
-      // itself can drop the intent.
+    it('backToForm releases the holds, resyncs the cart, and a resubmit places a fresh order', async () => {
       api.routes({ '/api/orders': orderCreated(), '/api/cart': null })
       const { onSubmit, backToForm, currentStep, createdOrder } = setup(STRIPE)
       await onSubmit()
@@ -403,13 +315,6 @@ describe('useCheckoutSubmit', () => {
       expect(api.callsTo('/api/cart')).toHaveLength(1)
       expect(createdOrder.value).toBeNull()
       expect(currentStep.value).toBe(2)
-
-      // Reusing the intent bound to the abandoned order had produced an
-      // orphaned PENDING order.
-      m.createPaymentIntentFromCart.mockResolvedValue({ clientSecret: 'cs_2', paymentIntentId: 'pi_2' })
-      await onSubmit()
-      expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(2)
-      expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_2' })
     })
   })
 
@@ -484,7 +389,6 @@ describe('useCheckoutSubmit', () => {
       // offline ones navigate to the success page.
       expect(isOnlinePayment.value).toBe(online)
       expect(createdOrder.value !== null && m.navigateTo.mock.calls.length === 0).toBe(online)
-      expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(providerCode === 'stripe' && online ? 1 : 0)
     })
 
     it('refuses an online pay way whose provider has no checkout flow, ordering nothing', async () => {
@@ -771,32 +675,7 @@ describe('useCheckoutSubmit', () => {
     })
   })
 
-  describe('after the provider confirms or refuses the payment', () => {
-    it('clears the cart and lands on the success page once the payment succeeded', async () => {
-      api.routes({ '/api/orders': orderCreated({ uuid: 'order-paid' }) })
-      const { onSubmit, onPaymentSuccess } = setup(STRIPE)
-      await onSubmit()
-
-      await onPaymentSuccess()
-
-      expect(lastToast()).toMatchObject({ title: t('payment_successful'), color: 'success' })
-      expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
-      expect(cart.cart).toBeNull()
-      expect(m.sessionFetch).toHaveBeenCalled()
-      expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success' })
-      expect(readCheckoutArrival()).toEqual({ orderUuid: 'order-paid' })
-    })
-
-    it('does nothing on a success with no order behind it', async () => {
-      const { onPaymentSuccess } = setup(STRIPE)
-
-      await onPaymentSuccess()
-
-      expect(m.toastAdd).not.toHaveBeenCalled()
-      expect(cart.cart).not.toBeNull()
-      expect(m.navigateTo).not.toHaveBeenCalled()
-    })
-
+  describe('after the provider refuses the payment', () => {
     it('shows a refused payment and releases the holds', async () => {
       api.routes({ '/api/orders': orderCreated() })
       const { onSubmit, onPaymentError } = setup(STRIPE)
@@ -1297,7 +1176,7 @@ describe('useCheckoutSubmit', () => {
         await vi.waitFor(() => expect(quotePending.value).toBe(false))
       })
 
-      it('drops the intent priced at the old total, so the next submit prices a fresh one', async () => {
+      it('places the next order at the revised total', async () => {
         let orders = 0
         api.routes({
           '/api/orders': () => (orders++ === 0 ? totalChanged : orderCreated())(),
@@ -1312,7 +1191,6 @@ describe('useCheckoutSubmit', () => {
         q.priced = NEW_TOTAL
         await onSubmit()
 
-        expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(2)
         expect(orderBodies().at(-1)!.expectedTotal).toEqual({ amount: 7000, currency: 'EUR' })
       })
     })
@@ -1574,16 +1452,6 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(orderKeys()).toEqual(['0000-idem-key', '1111-idem-key'])
-    })
-
-    it('goes to the payment intent request as well, under the same key as the order', async () => {
-      api.routes({ '/api/orders': orderCreated() })
-      const { onSubmit } = setup(STRIPE)
-
-      await onSubmit()
-
-      expect(m.createPaymentIntentFromCart.mock.calls[0]![1]).toBe('0000-idem-key')
-      expect(orderKeys()).toEqual(['0000-idem-key'])
     })
   })
 

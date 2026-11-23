@@ -35,16 +35,39 @@ describe('classifyOrderError', () => {
     })
   })
 
+  // Points that cannot be redeemed come back as an invalid order with the
+  // program's own reason under `loyaltyPointsToRedeem`: the redemption is
+  // dropped (`loyaltyRefused`) and the reason is shown.
+  it('names a refused loyalty redemption by its field, with the program\'s reason', () => {
+    const info = classifyOrderError({
+      error: { type: 'invalid_order_data' },
+      detail: 'Invalid order data',
+      fieldErrors: { loyaltyPointsToRedeem: ['Not enough points.'] },
+    }, t, n)
+
+    expect(info).toEqual({
+      title: 'form.submit.error.loyalty_redemption_invalid',
+      description: 'Not enough points.',
+      shouldRetry: false,
+      stepErrors: {},
+      quoteChanged: false,
+      pickupPointRefused: false,
+      loyaltyRefused: true,
+    })
+  })
+
+  it('does not drop the redemption for another invalid order', () => {
+    const info = classifyOrderError({ error: { type: 'invalid_order_data' }, fieldErrors: { street: ['x'] } }, t, n)
+
+    expect(info.loyaltyRefused).toBeUndefined()
+  })
+
   /**
    * Each `OrderCreateErrorType`: its title, Django's `detail` when sent,
    * else the type's own description.
    */
   it.each([
     ['invalid_order_data', 'invalid_order_data', 'invalid_order_data_description'],
-    ['payment_not_found', 'payment_verification', 'payment_verification_description'],
-    ['payment_verification', 'payment_verification', 'payment_verification_description'],
-    ['payment_amount_mismatch', 'payment_mismatch', 'payment_mismatch_description'],
-    ['payment_currency_mismatch', 'payment_mismatch', 'payment_mismatch_description'],
     ['invalid_coupon', 'invalid_coupon', 'invalid_coupon_description'],
     ['invalid_gift_card', 'invalid_gift_card', 'invalid_gift_card_description'],
     ['insufficient_stock', 'insufficient_stock', 'insufficient_stock_description'],
