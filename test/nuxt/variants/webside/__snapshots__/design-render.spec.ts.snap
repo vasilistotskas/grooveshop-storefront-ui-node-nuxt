@@ -1048,6 +1048,35 @@ exports[`webside design render > product card skeleton 1`] = `
 </li>"
 `;
 
+exports[`webside design render > product card, sold out 1`] = `
+"<li data-v-X="" class="product-card group relative w-full max-w-full max-sm:@container/card">
+  <div data-v-X="" class="flex size-full flex-col gap-3 rounded-lg border border-neutral-200 bg-white px-2.5 pt-2.5 pb-3.5 transition-colors focus-within:ring-1 focus-within:ring-primary hover:border-neutral-300 @max-3xs/card:gap-2 @max-3xs/card:rounded-none @max-3xs/card:border-0 @max-3xs/card:bg-transparent @max-3xs/card:p-0 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 @max-3xs/card:dark:bg-transparent">
+    <div data-v-X="" class="relative aspect-square overflow-hidden rounded-md bg-neutral-100 @max-3xs/card:rounded-lg"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block size-full"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif 1x" class="size-full object-cover opacity-60 grayscale" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/cover/entropy/transparent/0/100.avif"></a>
+      <div data-v-X="" class="pointer-events-none absolute top-2 left-2 flex flex-col items-start gap-1.5 @max-3xs/card:top-auto @max-3xs/card:bottom-1.5 @max-3xs/card:left-1.5 @max-3xs/card:gap-1"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 bg-error/10 text-error w-fit rounded-full font-bold"><!--v-if--> -16% <!--v-if--></span><span data-v-X="" class="inline-flex min-h-6.5 items-center rounded-full bg-neutral-900 px-2.5 text-xs font-bold text-white @max-3xs/card:min-h-6 @max-3xs/card:px-2 @max-3xs/card:text-[0.6875rem] @max-[8.625rem]/card:px-1.5 @max-[8.625rem]/card:text-[10px]">Εξαντλήθηκε</span></div><button data-v-X="" type="button" data-slot="base" aria-label="Αγαπημένο: Mini Power Bank 5000mAh" aria-pressed="false" title="Προσθήκη στα αγαπημένα" class="font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-2 ring ring-inset ring-accented active:bg-accented/75 disabled:bg-elevated aria-disabled:bg-elevated outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-2 cursor-pointer absolute top-1.5 right-1.5 size-11 justify-center rounded-full bg-white/90 text-neutral-900 after:absolute after:-inset-1.5 hover:bg-white @max-3xs/card:top-2 @max-3xs/card:right-2 @max-3xs/card:size-8"><span class="iconify i-heroicons:heart shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+        <!--v-if-->
+        <!--v-if-->
+      </button>
+    </div>
+    <div data-v-X="" class="flex flex-1 flex-col gap-1 px-1 @max-3xs/card:px-0"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
+        <h3 data-v-X="" class="line-clamp-2 text-base/[1.35] font-semibold wrap-anywhere text-neutral-900 transition-colors group-hover/link:text-accent @max-3xs/card:text-sm/[1.3] dark:text-white">Mini Power Bank 5000mAh</h3>
+      </a>
+      <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 @max-3xs/card:hidden"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
+        <!--v-if--></span></span></span><span aria-hidden="true" class="text-[0.8125rem] font-semibold text-muted">4,0 · 3</span>
+        <!--v-if-->
+      </div>
+    </div>
+    <div data-v-X="" class="mt-auto flex flex-wrap items-center justify-between gap-x-2.5 gap-y-2 px-1 @max-3xs/card:gap-x-1.5 @max-3xs/card:px-0">
+      <div data-v-X="" class="flex flex-col @max-[8.625rem]/card:basis-full"><span data-v-X="" class="inline-flex flex-wrap items-baseline gap-x-1.5"><s class="text-xs text-neutral-700 dark:text-neutral-300">20,00&nbsp;€</s><span class="text-xs text-muted">Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση</span></span><span data-v-X="" class="text-xl font-extrabold whitespace-nowrap text-neutral-900 tabular-nums @max-3xs/card:text-[1.0625rem] dark:text-white">16,63&nbsp;€</span></div>
+      <!----><button type="button" data-slot="base" aria-haspopup="dialog" aria-expanded="false" data-state="closed" aria-label="Ειδοποίηση όταν γίνει διαθέσιμο" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press py-2 gap-2 ring ring-inset ring-secondary/50 hover:bg-secondary/10 active:bg-secondary/10 disabled:bg-transparent aria-disabled:bg-transparent dark:disabled:bg-transparent dark:aria-disabled:bg-transparent outline-secondary/25 focus-visible:outline-3 focus-visible:ring-secondary text-(--ui-secondary-text) place-content-center place-items-center ml-auto min-h-11 shrink-0 px-3.5 text-sm font-semibold @max-3xs/card:size-11 @max-3xs/card:p-0 @max-3xs/card:*:data-[slot=label]:sr-only @max-[8.625rem]/card:w-full"><span class="iconify i-heroicons:bell shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Ειδοποίηση</span>
+        <!--v-if-->
+      </button>
+      <!--teleport start-->
+      <!--teleport end-->
+    </div>
+  </div>
+</li>"
+`;
+
 exports[`webside design render > section blog_categories 1`] = `
 "<div class="grid min-w-0 gap-2 md:flex w-full md:p-0!">
   <div role="region" aria-roledescription="καρουζέλ" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none overflow-hidden md:w-full" aria-label="Κατηγορίες">

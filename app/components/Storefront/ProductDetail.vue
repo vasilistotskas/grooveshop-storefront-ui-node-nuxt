@@ -126,8 +126,9 @@ const priceDropOffered = computed(() =>
 )
 
 /**
- * The alerts dialog, mounted on its first open: the shopper's alerts
- * are looked up only for a shopper who asked.
+ * The alerts dialog, mounted on its first open. The shopper's alerts are
+ * one read per page (`useProductActiveAlert`): unless a sold-out card on
+ * the page has read them already, they are read then.
  */
 const notify = reactive({ mounted: false, open: false, kind: 'restock' as ProductAlertKindEnum })
 

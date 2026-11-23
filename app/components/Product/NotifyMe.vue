@@ -16,8 +16,9 @@
  * not start on submit: Django emails them a link, and the alert is on
  * once they confirm it, so the dialog closes on "check your inbox".
  *
- * The parent mounts this on the first open, so the lookup happens only
- * for a shopper who asked.
+ * The parent mounts this on the first open. The shopper's alerts are read
+ * once per page, for every trigger and dialog on it
+ * (`useProductActiveAlert`), so opening the dialog asks nothing new.
  */
 const props = withDefaults(defineProps<{
   productId: number
@@ -45,7 +46,7 @@ const kinds = computed(() => [
   ...(props.priceDrop ? [{ value: 'price_drop' as const, label: t('price_drop.option') }] : []),
 ])
 
-const { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit, cancelAlert } = await useProductAlert({
+const { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit, cancelAlert } = useProductAlert({
   productId: () => props.productId,
   kind: () => kind.value,
   currentPrice: () => props.currentPrice,

@@ -435,6 +435,14 @@ describe('webside design render', () => {
     await expectSnapshot(ProductCard, { props: { product: PRODUCT_CARD } })
   })
 
+  // Design A (owner, 2026-11-22): sold out, the restock alert is the buy
+  // button's twin, a bell and a short label (the fixture store sends alerts).
+  it('product card, sold out', async () => {
+    await expectSnapshot(ProductCard, { props: { product: { ...PRODUCT_CARD, stock: 0 } } }, (html) => {
+      expect(html).toContain('aria-label="Ειδοποίηση όταν γίνει διαθέσιμο"')
+    })
+  })
+
   it('product card skeleton', async () => {
     await expectSnapshot(ProductCardSkeleton)
   })
