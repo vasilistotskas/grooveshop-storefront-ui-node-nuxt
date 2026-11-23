@@ -32,8 +32,8 @@ export const DELIVERY_ADDRESS_FIELDS: readonly string[] = [
 
 // Django's order-create field names (camelCased by the API), mapped to
 // the step that renders each and its ``UFormField`` name there. A
-// refused pickup point (``pickup_point_unknown``, ``_required``,
-// ``_in_another_country``) is an error on the carrier's own field, the
+// refused pickup point (``pickup_point_unknown``, ``_too_small``,
+// ``_size_unknown``, ``_required``, ``_in_another_country``) is an error on the carrier's own field, the
 // one its picker sits in.
 const ORDER_FIELD_STEPS: Record<string, { step: CheckoutStep, name: string }> = {
   firstName: { step: CHECKOUT_STEP.details, name: 'firstName' },
@@ -68,11 +68,32 @@ const ORDER_FIELD_STEPS: Record<string, { step: CheckoutStep, name: string }> = 
  * to choose another point. A point Django could not check at all is the
  * 503 ``PICKUP_POINT_CHECK_UNAVAILABLE`` instead, which says to try again.
  */
-const PICKUP_POINT_REFUSALS: readonly string[] = [
+export const PICKUP_POINT_REFUSALS: readonly string[] = [
   'pickup_point_unknown',
+  'pickup_point_too_small',
+  'pickup_point_size_unknown',
   'pickup_point_required',
   'pickup_point_in_another_country',
 ]
+
+/**
+ * Each carrier's pickup-point fields on the checkout form, by shipping
+ * method: the id the order sends and the picked row the picker shows.
+ */
+export const PICKUP_FORM_KEYS: Readonly<Record<string, readonly string[]>> = {
+  acs_smartpoint: ['acsStationExternalId', 'acsStationBranch', 'acsStation'],
+  box_now_locker: ['boxnowLockerId', 'boxnowLocker'],
+}
+
+/**
+ * Empties a shipping method's pickup-point fields (ids to `''`, the picked
+ * row to `null`), so no point the order cannot go to stays chosen.
+ */
+export function clearPickupPoint(formState: Record<string, unknown>, method: string): void {
+  for (const key of PICKUP_FORM_KEYS[method] ?? []) {
+    formState[key] = key.endsWith('Id') || key.endsWith('Branch') ? '' : null
+  }
+}
 
 /** Django's field errors by the step whose form shows each under its input. */
 export type StepFieldErrors = Partial<Record<CheckoutStep, FormError[]>>
@@ -122,6 +143,11 @@ export interface OrderErrorInfo {
    * shows the cart and that quote, and the shopper's next submit accepts it.
    */
   quoteChanged: boolean
+  /**
+   * Django refused the order's pickup point (`PICKUP_POINT_REFUSALS`): the
+   * caller drops it, and the shopper chooses another.
+   */
+  pickupPointRefused: boolean
 }
 
 /**
@@ -224,6 +250,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       shouldRetry: false,
       stepErrors,
       quoteChanged: false,
+      pickupPointRefused: false,
     }
   }
   // The carrier's catalogue could not be asked: the point may be right,
@@ -235,6 +262,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       shouldRetry: false,
       stepErrors,
       quoteChanged: false,
+      pickupPointRefused: false,
     }
   }
   if (errorData?.code === TOTAL_CHANGED || errorData?.code === CART_CHANGED) {
@@ -247,6 +275,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       shouldRetry: false,
       stepErrors,
       quoteChanged: true,
+      pickupPointRefused: false,
     }
   }
   if (errorType === 'reservation_unavailable') {
@@ -256,6 +285,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       shouldRetry: true,
       stepErrors,
       quoteChanged: false,
+      pickupPointRefused: false,
     }
   }
   else if (errorType === 'invalid_order_data') {
@@ -320,7 +350,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
     errorDescription = errorData.detail
   }
 
-  return { title: errorTitle, description: errorDescription, shouldRetry: false, stepErrors, quoteChanged: false }
+  return { title: errorTitle, description: errorDescription, shouldRetry: false, stepErrors, quoteChanged: false, pickupPointRefused }
 }
 
 /** The checkout state an order body is built from, besides the form. */

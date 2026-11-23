@@ -141,12 +141,13 @@ describe('useCheckoutQuote', () => {
     const body = { detail: 'Δεν γίνεται αποστολή.', reason: 'shipping_unavailable', code: 'shipping_unavailable' }
     api.routes({ '/api/cart/quote': failWith(400, body) })
 
-    const { quote, current, refusal } = setup()
+    const { quote, current, refusal, refusalCode } = setup()
     await flushPromises()
 
     expect(quote.value).toBeNull()
     // Said on the page, where the total would be.
     expect(refusal.value).toBe('Δεν γίνεται αποστολή.')
+    expect(refusalCode.value).toBe('shipping_unavailable')
     const { quote: priced, error } = await current()
     expect(priced).toBeNull()
     expect(apiErrorBodyOf(error)).toEqual(body)

@@ -1,97 +1,115 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import boxnowCarrier from '~~/shared/shipping/providers/boxnow'
-import type { Locker } from '~~/shared/shipping/interfaces'
+import { makeBoxNowPickedLocker } from '~~/test/fixtures/boxnow'
 
 /**
- * BoxNow has no locker catalogue to query: its own iframe widget does
- * the picking and posts the choice back. So the adapter opts out of the
- * generic picker, names the component that mounts the widget, and owns
- * the form keys that choice lands in — which the order-create payload
- * sends verbatim.
+ * The BOX NOW adapter turns the rows of `/api/shipping/lockers/boxnow`
+ * (Django's synced catalogue, normalised by that route) into the
+ * carrier-neutral `Locker` the generic picker renders, and writes the
+ * chosen one back onto the checkout form: `boxnowLockerId` is what the
+ * order sends, `boxnowLocker` what the cards show.
+ *
+ * `$fetch` is a global in the code this runs in, so the spec swaps the
+ * global for a spy.
  */
-const LOCKER: Locker = {
-  key: '4',
-  id: '4',
-  name: 'Χαλάνδρι Locker',
+const fetchMock = vi.fn()
+
+beforeEach(() => {
+  fetchMock.mockReset()
+  vi.stubGlobal('$fetch', fetchMock)
+})
+
+/** A row of the route, for the default `makeBoxNowLocker()`. */
+const row = (overrides: Record<string, unknown> = {}) => ({
+  externalId: '4',
+  name: 'Χαλάνδρι ΟΠΑΠ Play',
   addressLine1: 'Λεωφ. Πεντέλης 125',
-  addressLine2: null,
-  city: '',
+  addressLine2: '',
   postalCode: '15234',
   countryCode: 'GR',
-  lat: null,
-  lng: null,
-  workingHours: 'Δίπλα στο περίπτερο',
-  raw: {},
-}
+  lat: 38.02,
+  lng: 23.8,
+  note: '',
+  limitedAvailability: false,
+  ...overrides,
+})
 
-describe('the BoxNow adapter', () => {
-  it('hands the picking to its own widget', () => {
+describe('the BOX NOW adapter', () => {
+  it('names its code and the form field its locker lands in, and sizes its lockers', () => {
     expect(boxnowCarrier.code).toBe('boxnow')
-    expect(boxnowCarrier.usesGenericPicker).toBe(false)
-    expect(boxnowCarrier.pickerComponentName).toBe('CheckoutSelectedBoxNowLocker')
     expect(boxnowCarrier.formFieldName).toBe('boxnowLockerId')
+    expect(boxnowCarrier.sizesLockers).toBe(true)
   })
 
-  it('writes the locker in the widget\'s own shape', () => {
+  describe('fetchAll', () => {
+    // #204: only the lockers with a compartment of the cart's size.
+    it('reads the country\'s lockers for the cart\'s compartment size from its own route', async () => {
+      fetchMock.mockResolvedValue([])
+      const signal = new AbortController().signal
+
+      await boxnowCarrier.fetchAll({ country: 'CY', compartmentSize: 2 }, signal)
+
+      expect(fetchMock).toHaveBeenCalledWith('/api/shipping/lockers/boxnow', {
+        method: 'GET',
+        query: { country: 'CY', compartmentSize: 2 },
+        signal,
+      })
+    })
+
+    it('normalises each row into a locker', async () => {
+      const locker = row({ addressLine2: 'Είσοδος από την Αγίου Γεωργίου', note: 'Δίπλα στο περίπτερο', limitedAvailability: true })
+      fetchMock.mockResolvedValue([locker])
+
+      expect(await boxnowCarrier.fetchAll({ country: 'GR', compartmentSize: 1 })).toEqual([{
+        key: '4',
+        id: '4',
+        name: 'Χαλάνδρι ΟΠΑΠ Play',
+        addressLine1: 'Λεωφ. Πεντέλης 125',
+        addressLine2: 'Είσοδος από την Αγίου Γεωργίου',
+        city: '',
+        postalCode: '15234',
+        countryCode: 'GR',
+        lat: 38.02,
+        lng: 23.8,
+        workingHours: 'Δίπλα στο περίπτερο',
+        limitedAvailability: true,
+        raw: locker,
+      }])
+    })
+
+    it('names a locker by its id without a name, and drops one with no id', async () => {
+      fetchMock.mockResolvedValue([row({ name: '', countryCode: '' }), row({ externalId: '  ' })])
+
+      expect(await boxnowCarrier.fetchAll({ country: 'GR', compartmentSize: 1 })).toEqual([
+        expect.objectContaining({ id: '4', name: '4', countryCode: 'GR', addressLine2: null, workingHours: null }),
+      ])
+    })
+  })
+
+  it('writes the picked locker to the form, and reads it back', async () => {
+    fetchMock.mockResolvedValue([row()])
+    const [locker] = await boxnowCarrier.fetchAll({ country: 'GR', compartmentSize: 1 })
     const form: Record<string, unknown> = {}
 
-    boxnowCarrier.applyToFormState(form, LOCKER)
+    boxnowCarrier.applyToFormState(form, locker!)
 
-    expect(form).toEqual({
-      boxnowLockerId: '4',
-      boxnowLocker: {
-        boxnowLockerId: '4',
-        boxnowLockerName: 'Χαλάνδρι Locker',
-        boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
-        boxnowLockerAddressLine2: '',
-        boxnowLockerPostalCode: '15234',
-        boxnowLockerNote: 'Δίπλα στο περίπτερο',
-        boxnowLockerCountryCode: 'GR',
-      },
-    })
+    expect(form).toEqual({ boxnowLockerId: '4', boxnowLocker: makeBoxNowPickedLocker() })
     expect(boxnowCarrier.readLockerId(form)).toBe('4')
-  })
-
-  it('reads the chosen locker back, with the country of the widget map it came from', () => {
-    const stored = {
-      boxnowLockerId: '9',
-      boxnowLockerName: 'Λευκωσία Locker',
-      boxnowLockerAddressLine1: 'Λεωφόρος Μακαρίου 1',
-      boxnowLockerPostalCode: '1010',
-      boxnowLockerCountryCode: 'CY',
-    }
-
-    // The delivery country is GR; the CY locker's own country must win.
-    expect(boxnowCarrier.readSelectedLocker!({ country: 'GR', boxnowLockerId: '9', boxnowLocker: stored })).toEqual({
-      key: '9',
-      id: '9',
-      name: 'Λευκωσία Locker',
-      addressLine1: 'Λεωφόρος Μακαρίου 1',
-      addressLine2: null,
-      city: '',
-      postalCode: '1010',
-      countryCode: 'CY',
-      lat: null,
-      lng: null,
-      workingHours: null,
-      raw: stored,
+    expect(boxnowCarrier.readSelectedLocker(form)).toMatchObject({
+      key: locker!.key,
+      id: '4',
+      name: 'Χαλάνδρι ΟΠΑΠ Play',
+      addressLine1: 'Λεωφ. Πεντέλης 125',
+      postalCode: '15234',
+      countryCode: 'GR',
     })
   })
 
   it.each([
-    // The picker only accepts a locker whose map matches the delivery
-    // country; without the map's country the selection cannot be checked.
-    ['a stored locker whose map country is unknown', { boxnowLocker: { boxnowLockerId: '4', boxnowLockerName: 'Χαλάνδρι Locker' } }],
-    ['a stored locker without an id', { boxnowLocker: { boxnowLockerId: '', boxnowLockerCountryCode: 'GR' } }],
+    ['a stored locker without an id', { boxnowLocker: makeBoxNowPickedLocker({ externalId: '' }) }],
     ['nothing stored', {}],
   ])('has no selection for %s', (_case, form) => {
-    expect(boxnowCarrier.readSelectedLocker!(form)).toBeNull()
-  })
-
-  it('names the locker by its id when the widget gave no name', () => {
-    const locker = boxnowCarrier.readSelectedLocker!({ boxnowLocker: { boxnowLockerId: '4', boxnowLockerCountryCode: 'GR' } })
-
-    expect(locker).toMatchObject({ id: '4', name: '4', addressLine1: '', postalCode: '' })
+    expect(boxnowCarrier.readSelectedLocker(form)).toBeNull()
   })
 
   it.each([[''], [undefined], [4]])('has no locker id for %j', (id) => {

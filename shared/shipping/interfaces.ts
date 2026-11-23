@@ -53,12 +53,25 @@ export interface Locker {
   lng: number | null
   /** Free-text working hours (provider-specific format). */
   workingHours?: string | null
+  /** The carrier expects few free compartments here today (BOX NOW's
+   *  own estimate); the picker says so. Absent or false otherwise. */
+  limitedAvailability?: boolean
   /** Optional max parcel weight enforced at the provider's locker
    *  (kg). Used by the picker to filter when the cart exceeds it. */
   maxWeightKg?: number | null
   /** Original provider response — kept on the locker so consumers
    *  that need provider-specific fields don't need a second fetch. */
   raw: unknown
+}
+
+/** Which lockers a picker asks a carrier for. */
+export interface LockerQuery {
+  /** ISO-2 country code, upper-case. */
+  country: string
+  /** The compartment size the cart packs into (`QuoteShippingOption.compartmentSize`),
+   *  for a carrier that {@link ShippingCarrier.sizesLockers | sizes its lockers};
+   *  `null` while the quote has not said. */
+  compartmentSize: number | null
 }
 
 /** A place a carrier's own geocoder found for an address. */
@@ -80,19 +93,17 @@ export interface ShippingCarrier {
    *  User-facing labels live in i18n keys, not here. */
   readonly label: string
 
-  /**
-   * ``true`` → the {@link GenericLockerPicker} renders for this
-   *   carrier, which must then expose ``fetchAll``: the picker searches,
-   *   maps and measures distances over that catalogue (ACS).
-   * ``false`` → the carrier brings its own picker (BoxNow's iframe
-   *   widget). The generic UI sits this one out.
-   */
-  readonly usesGenericPicker: boolean
+  /** The carrier's lockers come in compartment sizes and an order fits
+   *  only the ones with a compartment its cart packs into (BOX NOW). The
+   *  picker then waits for the cart's size before it asks for any. */
+  readonly sizesLockers: boolean
 
-  /** Every active locker for the country in one call: what the
-   *  generic picker reads. Required when ``usesGenericPicker`` is true;
-   *  a carrier with its own picker leaves it out. */
-  fetchAll?(country: string, signal?: AbortSignal): Promise<Locker[]>
+  /** Every active locker for the country in one call (only those with
+   *  the cart's compartment size, for a carrier that sizes its lockers):
+   *  what the {@link GenericLockerPicker} reads, the one picker every
+   *  carrier's lockers are chosen in. It searches, maps and measures
+   *  distances over that catalogue. */
+  fetchAll(query: LockerQuery, signal?: AbortSignal): Promise<Locker[]>
 
   /** Place a free-text address with the carrier's own geocoder, so the
    *  picker can show the lockers nearest it. `null` when the carrier
@@ -114,11 +125,6 @@ export interface ShippingCarrier {
   /** Detail view used by the selected-locker card. The carrier
    *  knows where it stashed the previous selection. */
   readSelectedLocker(formState: Record<string, unknown>): Locker | null
-
-  /** When ``usesGenericPicker`` is false, the carrier provides its
-   *  own picker component. Resolved at component-render time so
-   *  the bundle is split correctly. */
-  pickerComponentName?: string
 
   /** Zod-schema field path used by ``UFormField`` to surface inline
    *  validation errors below the picker. Must match the field name

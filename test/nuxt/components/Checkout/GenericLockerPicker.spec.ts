@@ -4,7 +4,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import CheckoutGenericLockerPicker from '~/components/Checkout/GenericLockerPicker.vue'
 import WebsideCheckoutGenericLockerPicker from '~/components/variants/webside/Checkout/GenericLockerPicker.vue'
-import type { Locker, ShippingCarrier } from '~~/shared/shipping/interfaces'
+import type { Locker, LockerQuery, ShippingCarrier } from '~~/shared/shipping/interfaces'
 import { acsLockerKey } from '~~/shared/shipping/providers/acs'
 import { LOCKER_LIST_LIMIT } from '~/composables/useLockerPicker'
 import { trees } from '~~/test/helpers/trees'
@@ -69,9 +69,9 @@ function fakeCarrier(overrides: Partial<ShippingCarrier> = {}): ShippingCarrier 
   return {
     code: 'acs',
     label: 'ACS Courier',
-    usesGenericPicker: true,
     formFieldName: 'acsStationExternalId',
-    fetchAll: vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(CATALOGUE)),
+    sizesLockers: false,
+    fetchAll: vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE)),
     applyToFormState: vi.fn(),
     readLockerId: () => null,
     readSelectedLocker: () => null,
@@ -165,7 +165,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(tab(tp('tab_map')).attributes('aria-selected')).toBe('true')
     expect(searchInput().exists()).toBe(true)
     expect(carrier.fetchAll).toHaveBeenCalledTimes(1)
-    expect(carrier.fetchAll).toHaveBeenCalledWith('CY', expect.any(AbortSignal))
+    expect(carrier.fetchAll).toHaveBeenCalledWith({ country: 'CY', compartmentSize: null }, expect.any(AbortSignal))
     await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
   })
 
@@ -183,7 +183,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
   })
 
   it('loads the catalogue again after a close cut the first load short', async () => {
-    const fetchAll = vi.fn((_country: string, signal?: AbortSignal) => new Promise<Locker[]>((resolve, reject) => {
+    const fetchAll = vi.fn((_query: LockerQuery, signal?: AbortSignal) => new Promise<Locker[]>((resolve, reject) => {
       if (fetchAll.mock.calls.length > 1) return resolve(CATALOGUE)
       signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
     }))
@@ -299,7 +299,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
   })
 
   it('shows the error with a retry that loads the catalogue again', async () => {
-    const fetchAll = vi.fn((_country: string, _signal?: AbortSignal) =>
+    const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) =>
       fetchAll.mock.calls.length === 1 ? Promise.reject(new Error('503')) : Promise.resolve(CATALOGUE))
     await openPicker(fakeCarrier({ fetchAll }))
     expect(inBody(tp('error'))).toBe(true)
@@ -312,7 +312,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
   })
 
   it('drops another country\'s lockers when the new country\'s catalogue fails to load', async () => {
-    const fetchAll = vi.fn((country: string, _signal?: AbortSignal) =>
+    const fetchAll = vi.fn(({ country }: LockerQuery, _signal?: AbortSignal) =>
       country === 'GR' ? Promise.resolve(CATALOGUE) : Promise.reject(new Error('503')))
     const wrapper = await openPicker(fakeCarrier({ fetchAll }))
     await wrapper.setProps({ open: false })
@@ -324,7 +324,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     await showList()
     await search('smartpoint')
 
-    expect(fetchAll).toHaveBeenLastCalledWith('CY', expect.any(AbortSignal))
+    expect(fetchAll).toHaveBeenLastCalledWith({ country: 'CY', compartmentSize: null }, expect.any(AbortSignal))
     expect(inBody(tp('error'))).toBe(true)
     expect(rowNames()).toEqual([])
     expect(mapStub().attributes('data-count')).toBe('0')
@@ -333,7 +333,7 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
   it('follows a country change while it is open, and an older answer cannot bring the old lockers back', async () => {
     let answerGreece: (rows: Locker[]) => void = () => {}
     const cyprus = [locker('CY-1', 'Smartpoint Λευκωσία', { city: 'Λευκωσία', postalCode: '1010', lat: 35.17, lng: 33.36 })]
-    const fetchAll = vi.fn((country: string, _signal?: AbortSignal) =>
+    const fetchAll = vi.fn(({ country }: LockerQuery, _signal?: AbortSignal) =>
       country === 'GR' ? new Promise<Locker[]>((resolve) => { answerGreece = resolve }) : Promise.resolve(cyprus))
     const wrapper = await openPicker(fakeCarrier({ fetchAll }))
 
@@ -344,8 +344,113 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     await showList()
     await search('smartpoint')
 
-    expect(fetchAll).toHaveBeenLastCalledWith('CY', expect.any(AbortSignal))
+    expect(fetchAll).toHaveBeenLastCalledWith({ country: 'CY', compartmentSize: null }, expect.any(AbortSignal))
     expect(rowNames()).toEqual(['Smartpoint Λευκωσία'])
+  })
+
+  // #204: a carrier that sizes its lockers (BOX NOW) lists only the ones
+  // with a compartment of the cart's size, which the quote names.
+  describe('a carrier that sizes its lockers', () => {
+    const sized = (fetchAll: ShippingCarrier['fetchAll']) => fakeCarrier({ sizesLockers: true, fetchAll })
+
+    it('asks for the lockers of the cart\'s size', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
+
+      await openPicker(sized(fetchAll), { compartmentSize: 2 })
+
+      expect(fetchAll).toHaveBeenCalledWith({ country: 'GR', compartmentSize: 2 }, expect.any(AbortSignal))
+    })
+
+    it('waits, loading, for the quote to name the size, then asks', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
+      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: null, awaitingSize: true })
+
+      expect(fetchAll).not.toHaveBeenCalled()
+      expect(inBody(tp('error'))).toBe(false)
+
+      await wrapper.setProps({ compartmentSize: 1, awaitingSize: false })
+      await flushPromises()
+
+      expect(fetchAll).toHaveBeenCalledExactlyOnceWith({ country: 'GR', compartmentSize: 1 }, expect.any(AbortSignal))
+      await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
+    })
+
+    // On BOX NOW's stage network the quote names no size: every locker.
+    it('lists every locker when the quote names no size', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
+
+      await openPicker(sized(fetchAll), { compartmentSize: null, awaitingSize: false })
+
+      expect(fetchAll).toHaveBeenCalledExactlyOnceWith({ country: 'GR', compartmentSize: null }, expect.any(AbortSignal))
+      await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
+    })
+
+    it('says no locker fits when none has a compartment of the cart\'s size', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve([] as Locker[]))
+      await openPicker(sized(fetchAll), { compartmentSize: 3 })
+      await showList()
+
+      await vi.waitFor(() => expect(inBody(tp('none_fit_title'))).toBe(true))
+      expect(inBody(tp('error'))).toBe(false)
+    })
+
+    it('asks again when the cart\'s size changes, and drops the other size\'s lockers', async () => {
+      const large = [locker('L-1', 'Locker μεγάλο', { lat: 37.98, lng: 23.73 })]
+      const fetchAll = vi.fn(({ compartmentSize }: LockerQuery, _signal?: AbortSignal) =>
+        Promise.resolve(compartmentSize === 3 ? large : CATALOGUE))
+      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: 1 })
+
+      await wrapper.setProps({ compartmentSize: 3 })
+      await flushPromises()
+
+      expect(fetchAll).toHaveBeenLastCalledWith({ country: 'GR', compartmentSize: 3 }, expect.any(AbortSignal))
+      await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe('1'))
+    })
+
+    // A UModal's `dismissible` is the contract here: whether a click
+    // outside or Escape may close the picker.
+    const dismissible = (wrapper: VueWrapper) => wrapper.findComponent({ name: 'UModal' }).props('dismissible')
+
+    it('may be closed while it waits for the quote to name the size, not while lockers load', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => new Promise<Locker[]>(() => {}))
+      const wrapper = await openPicker(sized(fetchAll), { compartmentSize: null, awaitingSize: true })
+
+      expect(dismissible(wrapper)).toBe(true)
+
+      await wrapper.setProps({ compartmentSize: 2, awaitingSize: false })
+      await flushPromises()
+
+      expect(fetchAll).toHaveBeenCalledOnce()
+      expect(dismissible(wrapper)).toBe(false)
+    })
+
+    it('never leaves another carrier\'s lockers choosable', async () => {
+      const wrapper = await openPicker(fakeCarrier())
+      await vi.waitFor(() => expect(mapStub().attributes('data-count')).toBe(String(CATALOGUE.length)))
+      await wrapper.setProps({ open: false })
+
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve(CATALOGUE))
+      await wrapper.setProps({ carrier: fakeCarrier({ code: 'boxnow', sizesLockers: true, fetchAll }), compartmentSize: null, awaitingSize: true })
+      await wrapper.setProps({ open: true })
+      await flushPromises()
+
+      expect(fetchAll).not.toHaveBeenCalled()
+      expect(mapStub().attributes('data-count')).toBe('0')
+    })
+
+    it('says which lockers have few free compartments', async () => {
+      const fetchAll = vi.fn((_query: LockerQuery, _signal?: AbortSignal) => Promise.resolve([
+        { ...KIFISIA, limitedAvailability: true },
+        THESSALONIKI,
+      ]))
+      await openPicker(sized(fetchAll), { compartmentSize: 1 })
+      await showList()
+      await search('smartpoint')
+
+      const limited = useNuxtApp().$i18n.t('shipping.locker_picker.limited_availability')
+      expect(rowButton(KIFISIA.name)!.text()).toContain(limited)
+      expect(rowButton(THESSALONIKI.name)!.text()).not.toContain(limited)
+    })
   })
 
   it('shows the server\'s reason when it refuses the catalogue', async () => {
@@ -353,12 +458,6 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     await openPicker(fakeCarrier({ fetchAll: vi.fn(() => Promise.reject(refusal)) }))
 
     expect(inBody('Δοκιμάστε ξανά σε 30 δευτερόλεπτα.')).toBe(true)
-  })
-
-  it('explains a carrier with no catalogue', async () => {
-    await openPicker(fakeCarrier({ fetchAll: undefined }))
-
-    expect(inBody(tp('unsupported'))).toBe(true)
   })
 
   it('closes from its close button', async () => {

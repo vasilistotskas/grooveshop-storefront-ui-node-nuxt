@@ -170,6 +170,7 @@ function openPopup(instance: MapLibreMap, locker: PlacedLocker): void {
   line(locker.addressLine1, 'text-toned')
   line(`${locker.postalCode} ${locker.city}`, 'text-xs text-toned')
   if (locker.workingHours) line(locker.workingHours, 'mt-1 text-xs text-muted')
+  if (locker.limitedAvailability) line(t('shipping.locker_picker.limited_availability'), 'mt-1 text-xs font-medium text-warning')
   const choose = document.createElement('button')
   choose.type = 'button'
   choose.className = 'mt-2 w-full cursor-pointer rounded-md bg-primary px-3 py-2 text-sm font-semibold text-inverted hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'

@@ -1,4 +1,4 @@
-import type { CartQuote, CheckoutQuote } from '~~/shared/openapi/types.gen'
+import type { CartQuote, CheckoutQuote, QuoteShippingOption } from '~~/shared/openapi/types.gen'
 
 /**
  * A `CartQuote` as Django's `POST /api/v1/cart/quote` answers it, valid
@@ -32,6 +32,25 @@ export function makeCartQuote(overrides: Partial<CartQuote> = {}): CartQuote {
     cartDigest: CART_DIGEST,
     shippingOptions: [],
     payWays: [],
+    ...overrides,
+  }
+}
+
+/**
+ * A row of the quote's `shippingOptions`: ACS home delivery at 3,00 €,
+ * not waived, within every cap, and no locker size (only a BOX NOW pickup
+ * row names one).
+ */
+export function makeQuoteShippingOption(overrides: Partial<QuoteShippingOption> = {}): QuoteShippingOption {
+  return {
+    providerCode: 'acs',
+    providerName: 'ACS',
+    kind: 'home_delivery',
+    price: 3,
+    waivedBy: null,
+    exceedsMaxWeight: false,
+    exceedsParcelSize: false,
+    compartmentSize: null,
     ...overrides,
   }
 }

@@ -72,6 +72,10 @@ export function useCheckoutQuote({ request, cartVersion }: {
   const refusal = computed<string | null>(() =>
     status.value === 'error' ? describeApiError(error.value).description : null)
 
+  /** The stable `code` of Django's refusal of the quote, `null` while it answers. */
+  const refusalCode = computed<string | null>(() =>
+    status.value === 'error' ? describeApiError(error.value).code ?? null : null)
+
   /**
    * The quote for the request as it stands, what an order is placed at:
    * a request in flight is waited for, and one that failed is asked again
@@ -93,6 +97,7 @@ export function useCheckoutQuote({ request, cartVersion }: {
     quotedFor,
     pending,
     refusal,
+    refusalCode,
     current,
     /** Asks again with the same choices: after a refusal, or a total Django changed. */
     refresh: () => refresh(),

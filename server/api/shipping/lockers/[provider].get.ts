@@ -13,9 +13,9 @@
  *
  * Provider routing: we expose this endpoint at
  * ``/api/shipping/lockers/<code>`` and switch on the path segment
- * so each carrier owns its own bulk-fetch contract upstream. Today
- * only ``acs`` is wired (BoxNow's iframe hides the catalogue from
- * us); adding ``elta`` / ``speedex`` / ``geniki`` later means
+ * so each carrier owns its own bulk-fetch contract upstream: ACS's
+ * stations and BOX NOW's lockers, both Django's daily-synced
+ * catalogues. Adding ``elta`` / ``speedex`` / ``geniki`` later means
  * extending the ``PROVIDER_FETCHERS`` table by one entry.
  */
 import type { $Fetch } from 'ofetch'
@@ -24,12 +24,24 @@ import { createError, getRouterParam, getValidatedQuery, useRuntimeConfig } from
 
 const zQuery = z.object({
   country: z.string().length(2).optional(),
+  // The compartment size the cart packs into (`QuoteShippingOption.compartmentSize`):
+  // BOX NOW lists only the lockers with a compartment of that size, and
+  // without one every locker (a store on BOX NOW's stage network has no
+  // sizes; Django ignores the filter there).
+  compartmentSize: z.coerce.number().pipe(zCompartmentSizeEnum).optional(),
 })
+
+/** What a fetcher is asked for: the route's query, its country upper-cased. */
+interface FetchQuery {
+  country: string | undefined
+  compartmentSize: CompartmentSizeEnum | undefined
+}
 
 /** The largest page Django's API serves (`max_page_size`). */
 const STATIONS_PAGE_SIZE = 100
 
-interface NormalisedLocker {
+/** An ACS station as the picker reads it. */
+interface NormalisedStation {
   externalId: string
   branchCode: string | null
   shopKind: number
@@ -52,7 +64,23 @@ function _toNumber(
   return Number.isFinite(n) ? n : null
 }
 
-function _normalize(row: AcsStation): NormalisedLocker {
+/** A BOX NOW locker as the picker reads it. */
+interface NormalisedBoxNowLocker {
+  externalId: string
+  name: string
+  addressLine1: string
+  addressLine2: string
+  postalCode: string
+  countryCode: string
+  lat: number
+  lng: number
+  note: string
+  limitedAvailability: boolean
+}
+
+type NormalisedLocker = NormalisedStation | NormalisedBoxNowLocker
+
+function _normalize(row: AcsStation): NormalisedStation {
   return {
     externalId: row.externalId,
     branchCode: row.branchCode || null,
@@ -73,9 +101,9 @@ async function _fetchAcsStations(
   backendFetch: $Fetch,
   apiBaseUrl: string,
   headers: Record<string, string>,
-  country: string | undefined,
+  { country }: FetchQuery,
 ): Promise<NormalisedLocker[]> {
-  const collected: NormalisedLocker[] = []
+  const collected: NormalisedStation[] = []
   // The walk ends on the page Django names as the last, or on the first
   // page that is not full, whichever comes first: a `totalPages` that
   // cannot be right then cannot make it endless. A fixed page cap used to
@@ -105,18 +133,59 @@ async function _fetchAcsStations(
   return collected
 }
 
+async function _fetchBoxNowLockers(
+  backendFetch: $Fetch,
+  apiBaseUrl: string,
+  headers: Record<string, string>,
+  { country, compartmentSize }: FetchQuery,
+): Promise<NormalisedLocker[]> {
+  const collected: NormalisedBoxNowLocker[] = []
+  // The same walk as the ACS stations': the last page Django names, or
+  // the first page that is not full.
+  for (let page = 1; ; page += 1) {
+    const raw = await backendFetch(
+      `${apiBaseUrl}/shipping/boxnow/lockers`,
+      {
+        method: 'GET',
+        query: { page, pageSize: STATIONS_PAGE_SIZE, countryCode: country, compartmentSize },
+        headers,
+      },
+    )
+    const response = await parseDataAs(raw, zPaginatedBoxNowLockerList)
+    const rows = response.results ?? []
+    // Django lists active lockers only (``BoxNowLockerViewSet``).
+    for (const row of rows) {
+      collected.push({
+        externalId: row.externalId,
+        // ``title`` is BOX NOW's public name for the locker; ``name``
+        // its internal one.
+        name: row.title || row.name,
+        addressLine1: row.addressLine1,
+        addressLine2: row.addressLine2,
+        postalCode: row.postalCode,
+        countryCode: row.countryCode,
+        lat: row.lat,
+        lng: row.lng,
+        note: row.note,
+        limitedAvailability: row.limitedAvailability,
+      })
+    }
+    if (page >= (response.totalPages ?? 1) || rows.length < STATIONS_PAGE_SIZE) break
+  }
+  return collected
+}
+
 const PROVIDER_FETCHERS: Record<
   string,
   (
     backendFetch: $Fetch,
     apiBaseUrl: string,
     headers: Record<string, string>,
-    country: string | undefined,
+    query: FetchQuery,
   ) => Promise<NormalisedLocker[]>
 > = {
   acs: _fetchAcsStations,
-  // Future providers slot in here. ``boxnow`` deliberately omitted —
-  // its iframe widget owns the catalogue.
+  boxnow: _fetchBoxNowLockers,
 }
 
 export default defineCachedRoute(
@@ -137,7 +206,7 @@ export default defineCachedRoute(
         useBackendFetch(event),
         config.apiBaseUrl,
         headers,
-        query.country?.toUpperCase(),
+        { country: query.country?.toUpperCase(), compartmentSize: query.compartmentSize },
       )
       // Empty-poison guard: an empty upstream response (e.g. Django
       // pods came up before the AcsStation table was synced) used to
@@ -146,7 +215,9 @@ export default defineCachedRoute(
       // so the Nitro cache wrapper does NOT store the empty result:
       // the picker shows its error with a retry, and the first request
       // after the sync fills the cache.
-      if (rows.length === 0) {
+      // A list of one compartment size may be empty for real (no locker in
+      // the country has that size): that is the answer, not an outage.
+      if (rows.length === 0 && query.compartmentSize === undefined) {
         throw createError({
           status: 503,
           statusText: `Bulk locker catalogue for provider '${provider}' is currently empty — refusing to cache.`,
@@ -171,7 +242,10 @@ export default defineCachedRoute(
       const provider = getRouterParam(event, 'provider', { decode: true }) ?? 'unknown'
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const country = url.searchParams.get('country') ?? 'all'
-      return tenantCacheKey(event, `${provider}:${country.toUpperCase()}`)
+      // Each size is its own list; a carrier that does not size its
+      // lockers is asked without one.
+      const size = url.searchParams.get('compartmentSize') ?? 'any'
+      return tenantCacheKey(event, `${provider}:${country.toUpperCase()}:${size}`)
     },
   },
 )

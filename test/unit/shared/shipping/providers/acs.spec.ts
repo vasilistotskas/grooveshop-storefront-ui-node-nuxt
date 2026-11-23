@@ -58,7 +58,7 @@ describe('the ACS adapter', () => {
   it('tells apart two lockers of one area, and writes the picked pair to the form', async () => {
     fetchMock.mockResolvedValue([station({ branchCode: '001' }), station({ branchCode: '002', name: 'Smartpoint Γλυφάδα 2' })])
 
-    const [first, second] = await acsCarrier.fetchAll!('GR')
+    const [first, second] = await acsCarrier.fetchAll({ country: 'GR', compartmentSize: null })
 
     expect(first!.id).toBe(second!.id)
     expect(first!.key).not.toBe(second!.key)
@@ -72,10 +72,10 @@ describe('the ACS adapter', () => {
     expect(acsLockerKey('A:B', 'C')).not.toBe(acsLockerKey('A', 'B:C'))
   })
 
-  it('uses the generic locker picker', () => {
+  it('names its code and the form field its locker lands in, and does not size its lockers', () => {
     expect(acsCarrier.code).toBe('acs')
-    expect(acsCarrier.usesGenericPicker).toBe(true)
     expect(acsCarrier.formFieldName).toBe('acsStationExternalId')
+    expect(acsCarrier.sizesLockers).toBe(false)
   })
 
   describe('fetchAll', () => {
@@ -83,7 +83,7 @@ describe('the ACS adapter', () => {
       const row = station()
       fetchMock.mockResolvedValue([row])
 
-      expect(await acsCarrier.fetchAll!('GR')).toEqual([{ ...LOCKER, raw: row }])
+      expect(await acsCarrier.fetchAll({ country: 'GR', compartmentSize: null })).toEqual([{ ...LOCKER, raw: row }])
     })
 
     it('fills what a station leaves out, and drops one with no id', async () => {
@@ -99,7 +99,7 @@ describe('the ACS adapter', () => {
       })
       fetchMock.mockResolvedValue([station({ externalId: '   ' }), bare])
 
-      expect(await acsCarrier.fetchAll!('GR')).toEqual([{
+      expect(await acsCarrier.fetchAll({ country: 'GR', compartmentSize: null })).toEqual([{
         ...LOCKER,
         key: acsLockerKey('ATH2', null),
         id: 'ATH2',
@@ -116,7 +116,7 @@ describe('the ACS adapter', () => {
     it('treats an empty answer as no stations', async () => {
       fetchMock.mockResolvedValue(null)
 
-      expect(await acsCarrier.fetchAll!('GR')).toEqual([])
+      expect(await acsCarrier.fetchAll({ country: 'GR', compartmentSize: null })).toEqual([])
     })
   })
 
@@ -124,7 +124,7 @@ describe('the ACS adapter', () => {
     fetchMock.mockResolvedValue([station()])
     const signal = new AbortController().signal
 
-    const lockers = await acsCarrier.fetchAll!('CY', signal)
+    const lockers = await acsCarrier.fetchAll({ country: 'CY', compartmentSize: null }, signal)
 
     expect(fetchMock).toHaveBeenCalledWith('/api/shipping/lockers/acs', { method: 'GET', query: { country: 'CY' }, signal })
     expect(lockers.map(l => l.id)).toEqual(['ATH'])

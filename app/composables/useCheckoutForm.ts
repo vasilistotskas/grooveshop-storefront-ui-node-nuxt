@@ -44,7 +44,7 @@ export async function useCheckoutForm() {
     // Shipping method (Step 1 — new)
     shippingMethod: 'home_delivery' as ShippingMethodKey,
     boxnowLockerId: '' as string,
-    boxnowLocker: null as BoxNowSelectedLocker | null,
+    boxnowLocker: null as BoxNowPickedLocker | null,
     // ACS Smartpoint locker pickup (Phase 2). Picker UI is server-side
     // — we hold both the externalId and the AcsStation row so the
     // selected-locker card can render without a follow-up fetch.
@@ -416,17 +416,12 @@ export async function useCheckoutForm() {
     () => formState.country,
     async (newCountry, oldCountry) => {
       if (newCountry === oldCountry) return
-      // A picked locker belongs to the PREVIOUS country's network —
-      // BoxNow's widget and ACS's Smartpoint catalogue are both
-      // per-country, so a locker id from one means nothing against
-      // the other's map. Clear every carrier's locker state so the
-      // shipping step can never submit a locker that doesn't match
-      // the new delivery country.
-      formState.boxnowLockerId = ''
-      formState.boxnowLocker = null
-      formState.acsStationExternalId = ''
-      formState.acsStationBranch = ''
-      formState.acsStation = null
+      // A picked locker belongs to the PREVIOUS country's network: every
+      // carrier's catalogue is per country, so a locker id from one means
+      // nothing in the other. Clear every carrier's pickup point so the
+      // shipping step can never submit one that does not match the new
+      // delivery country.
+      for (const method of Object.keys(PICKUP_FORM_KEYS)) clearPickupPoint(formState, method)
       if (newCountry && countries.value?.results) {
         const selectedCountry = countries.value.results.find(
           c => c.alpha2 === newCountry,

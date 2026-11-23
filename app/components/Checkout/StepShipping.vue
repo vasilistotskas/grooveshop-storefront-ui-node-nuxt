@@ -5,7 +5,6 @@ const formState = defineModel<Record<string, any>>('formState', { required: true
 
 const props = defineProps<{
   schema: any
-  partnerId: string
   // Live, priority-sorted carrier options from
   // ``/api/v1/shipping/options``; the cards follow their order
   // (``useCheckoutShippingStep``).
@@ -15,6 +14,8 @@ const props = defineProps<{
    * this cart, the only price a card states (``useCheckoutShippingStep``).
    */
   quotedOptions: readonly QuoteShippingOption[] | null
+  /** A new quote is on its way: the locker picker waits for its size. */
+  quotePending?: boolean
   /**
    * Set when the live ``/api/v1/shipping/options`` fetch failed.
    * There is no local flat-rate fallback price anymore, so the whole
@@ -64,19 +65,18 @@ const formRef = useTemplateRef<{
 }>('formRef')
 
 const {
-  isBoxNowConfigured,
-  boxnowAvailable,
   shippingOptions,
   activeCarrier,
+  lockerCompartmentSize,
+  lockerSizePending,
   freeDeliveryApplied,
-  isBoxNow,
   pickerOpen,
   submit,
 } = useCheckoutShippingStep({
   formState,
   apiOptions: () => props.apiOptions,
   quotedOptions: () => props.quotedOptions,
-  partnerId: () => props.partnerId,
+  quotePending: () => props.quotePending,
   optionsError: () => props.optionsError,
   form: formRef,
 })
@@ -267,11 +267,9 @@ defineExpose({ submit })
                   {{ payWay }}
                 </UBadge>
               </span>
-              <!-- Why this row can't be picked right now — an
-                   over-cap cart, or (BoxNow only) a delivery country
-                   the widget has no map for. Kept separate from the
-                   "unconfigured" alert below, which only covers a
-                   missing partner id. -->
+              <!-- Why this row can't be picked right now: a cart over
+                   the method's weight cap, or too large for its
+                   parcels. -->
               <span
                 v-if="item.disabledReason"
                 class="mt-1 text-sm text-toned"
@@ -298,33 +296,10 @@ defineExpose({ submit })
         </template>
       </URadioGroup>
 
-      <!-- Configuration explainer — only in dev when BoxNow partnerId is
-           missing AND BoxNow is supposed to be visible. -->
-      <UAlert
-        v-if="!isBoxNowConfigured && boxnowAvailable"
-        color="info"
-        variant="subtle"
-        icon="i-lucide-info"
-        :title="t('shipping.method.boxnow.unconfigured_title')"
-        :description="t('shipping.method.boxnow.unconfigured_description')"
-      />
-
-      <!-- Provider-aware locker picker dispatch.
-           BoxNow keeps its iframe widget (``usesGenericPicker:false``).
-           Every other carrier with ``usesGenericPicker:true`` mounts
-           the generic picker — no provider-specific branch survives
-           in this template. -->
-      <template v-if="activeCarrier && !activeCarrier.usesGenericPicker && isBoxNow">
-        <UFormField :name="activeCarrier.formFieldName" class="mt-0">
-          <CheckoutSelectedBoxNowLocker
-            v-model:formState="formState"
-            v-model:open="pickerOpen"
-            :partner-id="props.partnerId"
-          />
-        </UFormField>
-      </template>
-
-      <template v-else-if="activeCarrier?.usesGenericPicker">
+      <!-- The chosen carrier's locker picker: one for every carrier,
+           fed by Django's catalogue (``fetchAll``). Home delivery has
+           no carrier here and no picker. -->
+      <template v-if="activeCarrier">
         <UFormField :name="activeCarrier.formFieldName" class="mt-0">
           <CheckoutSelectedGenericLocker
             v-model:formState="formState"
@@ -333,6 +308,8 @@ defineExpose({ submit })
             :initial-postal-code="formState.zipcode"
             :initial-city="formState.city"
             :country-code="formState.country"
+            :compartment-size="lockerCompartmentSize"
+            :awaiting-size="lockerSizePending"
           />
         </UFormField>
       </template>

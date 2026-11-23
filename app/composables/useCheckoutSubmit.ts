@@ -202,6 +202,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // the cart's lines at their prices now and the quote the shopper's
     // next submit accepts.
     if (errorInfo.quoteChanged) void reloadCartAndQuote()
+    // A refused pickup point cannot take the order: it is dropped, and the
+    // message under the picker asks for another.
+    if (errorInfo.pickupPointRefused) clearPickupPoint(formState, formState.shippingMethod)
     // Fields a step shows: go back to the first of those steps and show
     // each message under its own input, not only in the alert.
     const firstErrorStep = Math.min(...Object.keys(errorInfo.stepErrors).map(Number))
@@ -429,6 +432,24 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       },
     ),
     cartVersion: () => JSON.stringify(cartPricedFrom()),
+  })
+
+  // Django's quote refuses the pickup point the form names (a locker
+  // without a compartment of the cart's size, one whose sizes are not
+  // known, one gone or in another country): it is dropped, as an order's
+  // refusal drops it, so the next quote prices the delivery without it,
+  // and the delivery step says why under the picker.
+  watch(checkoutQuote.refusalCode, (code) => {
+    if (!code || !PICKUP_POINT_REFUSALS.includes(code)) return
+    const method = formState.shippingMethod
+    const field = PICKUP_FORM_KEYS[method]?.[0]
+    if (!field) return
+    clearPickupPoint(formState, method)
+    stepErrors.value = {
+      ...stepErrors.value,
+      [CHECKOUT_STEP.delivery]: [{ name: field, message: t(`form.submit.error.${code}`) }],
+    }
+    if (currentStep.value > CHECKOUT_STEP.delivery) currentStep.value = CHECKOUT_STEP.delivery
   })
 
   /**

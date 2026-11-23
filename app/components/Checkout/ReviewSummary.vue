@@ -32,7 +32,7 @@ const deliveryTitle = computed(() => {
 const deliveryDetail = computed(() => {
   const { shippingMethod, boxnowLocker, acsStation, street, streetNumber, addressLine2, zipcode, city } = props.formState
   if (shippingMethod === 'box_now_locker') {
-    return join([boxnowLocker?.boxnowLockerName, boxnowLocker?.boxnowLockerAddressLine1], ' · ')
+    return join([boxnowLocker?.name, boxnowLocker?.addressLine1], ' · ')
   }
   if (shippingMethod === 'acs_smartpoint') {
     return join([acsStation?.name, acsStation?.addressLine1], ' · ')

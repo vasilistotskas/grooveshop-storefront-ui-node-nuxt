@@ -4,12 +4,6 @@ const localePath = useLocalePath()
 const { t, n } = useI18n()
 const route = useRoute()
 const toast = useToast()
-const tenantStore = useTenantStore()
-// BoxNow is tenant-only — no platform env fallback. Tenants that
-// haven't configured a partner id simply don't get the locker-pickup
-// option (StepShipping/BoxNowLockerPicker already disable/hide it when
-// partnerId is empty).
-const boxnowPartnerId = computed(() => tenantStore.boxNowPartnerId)
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
@@ -275,9 +269,9 @@ useSeoMeta({
               ref="stepRef"
               v-model:form-state="formState"
               :schema="step2Schema"
-              :partner-id="boxnowPartnerId"
               :api-options="shippingOptions"
               :quoted-options="quote?.shippingOptions ?? null"
+              :quote-pending="quotePending"
               :options-error="shippingOptionsError"
               :over-weight="shippingOverWeight"
               :region-options="regionOptions"
