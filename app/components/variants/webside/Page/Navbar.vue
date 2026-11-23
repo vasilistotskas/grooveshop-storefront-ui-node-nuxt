@@ -64,6 +64,8 @@ interface MenuTile {
   label: string
   /** Its page, before the locale prefix. */
   to: string
+  /** A blog topic's icon, drawn instead of the picture. */
+  icon?: string
   imagePath: string
   count: string
 }
@@ -108,6 +110,7 @@ const panels = computed<MenuPanel[]>(() => {
         id: topic.id,
         label: topic.label,
         to: topic.to,
+        icon: topic.icon,
         imagePath: topic.imagePath,
         count: t('articles_count', topic.postCount),
       })),
@@ -354,8 +357,9 @@ const items = computed(() => [
                       "
                     >
                       <WebsidePageMenuPicture
-                        v-if="tile.imagePath"
+                        v-if="tile.icon || tile.imagePath"
                         :src="tile.imagePath"
+                        :icon="tile.icon"
                         :size="96"
                         class="size-24"
                       />

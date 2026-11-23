@@ -120,6 +120,7 @@ export function makeBlogCategory(overrides: Partial<BlogCategory> = {}): BlogCat
     mainImagePath: '',
     mainImageWidth: null,
     mainImageHeight: null,
+    icon: '',
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     ...overrides,

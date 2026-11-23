@@ -289,6 +289,7 @@ export const zBlogCategory = z.object({
   postCount: z.int().readonly(),
   hasChildren: z.boolean().readonly(),
   mainImagePath: z.string().readonly(),
+  icon: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   mainImageWidth: z.int().readonly().nullable(),
@@ -317,6 +318,7 @@ export const zBlogCategoryDetail = z.object({
   postCount: z.int().readonly(),
   hasChildren: z.boolean().readonly(),
   mainImagePath: z.string().readonly(),
+  icon: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   children: z.array(zBlogCategory).readonly(),
@@ -362,6 +364,7 @@ export const zBlogCategoryWriteRequest = z.object({
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   parent: z.int().nullish(),
   image: z.string().nullish(),
+  icon: z.string().max(100).optional(),
 })
 
 export const zBlogCommentLikedCommentsRequestRequest = z.object({
@@ -2200,6 +2203,7 @@ export const zPatchedBlogCategoryWriteRequest = z.object({
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   parent: z.int().nullish(),
   image: z.string().nullish(),
+  icon: z.string().max(100).optional(),
 })
 
 /**

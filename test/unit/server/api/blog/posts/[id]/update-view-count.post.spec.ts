@@ -45,6 +45,7 @@ const postDetail = {
     mainImagePath: '',
     mainImageWidth: null,
     mainImageHeight: null,
+    icon: '',
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
     children: [],

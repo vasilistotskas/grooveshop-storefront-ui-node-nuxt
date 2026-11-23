@@ -63,8 +63,8 @@ const categoryResults = computed(() => props.categories.slice(0, props.max))
       >
         <template #leading>
           <UIcon
-            v-if="deriveIconName(item?.mainImagePath)"
-            :name="deriveIconName(item?.mainImagePath)!"
+            v-if="item?.icon"
+            :name="item.icon"
             class="size-[25px] text-primary-100"
             :aria-label="extractTranslated(item, 'name', locale)"
           />

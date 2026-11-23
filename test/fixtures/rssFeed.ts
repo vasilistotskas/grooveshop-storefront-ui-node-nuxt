@@ -39,6 +39,7 @@ export const rssBlogCategory = {
   mainImagePath: '',
   mainImageWidth: null,
   mainImageHeight: null,
+  icon: '',
   createdAt: TIMESTAMP,
   updatedAt: TIMESTAMP,
   children: [],

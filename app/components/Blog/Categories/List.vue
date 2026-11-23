@@ -39,7 +39,21 @@ const { categories, status, pagination } = await useBlogCategoriesPage({
           bg-default ring ring-default
         "
       >
-        <div class="aspect-4/3 overflow-hidden bg-elevated">
+        <!-- A category's icon on the accent tint the category tiles draw
+             it on; without one, its picture. -->
+        <div
+          v-if="category.icon"
+          class="grid aspect-4/3 place-items-center bg-secondary/10"
+        >
+          <UIcon
+            :name="category.icon"
+            class="size-1/3 text-accent"
+          />
+        </div>
+        <div
+          v-else
+          class="aspect-4/3 overflow-hidden bg-elevated"
+        >
           <ImgWithFallback
             :src="category.mainImagePath"
             :width="640"

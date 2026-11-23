@@ -897,6 +897,12 @@ export type BlogCategory = {
   readonly hasChildren: boolean
   readonly mainImagePath: string
   /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  readonly icon: string
+  /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
@@ -946,6 +952,12 @@ export type BlogCategoryDetail = {
      */
   readonly hasChildren: boolean
   readonly mainImagePath: string
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  readonly icon: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -1018,6 +1030,12 @@ export type BlogCategoryWriteRequest = {
      * Εικόνα
      */
   image?: Blob | File | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  icon?: string
 }
 
 /**
@@ -6247,6 +6265,12 @@ export type PatchedBlogCategoryWriteRequest = {
      * Εικόνα
      */
   image?: Blob | File | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  icon?: string
 }
 
 /**

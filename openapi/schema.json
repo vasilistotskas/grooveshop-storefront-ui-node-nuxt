@@ -60792,6 +60792,12 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "icon": {
+                        "type": "string",
+                        "readOnly": true,
+                        "title": "Εικονίδιο",
+                        "description": "Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων."
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -60818,6 +60824,7 @@
                 "required": [
                     "createdAt",
                     "hasChildren",
+                    "icon",
                     "id",
                     "level",
                     "mainImagePath",
@@ -60899,6 +60906,12 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "icon": {
+                        "type": "string",
+                        "readOnly": true,
+                        "title": "Εικονίδιο",
+                        "description": "Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων."
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -60968,6 +60981,7 @@
                     "createdAt",
                     "descendantsCount",
                     "hasChildren",
+                    "icon",
                     "id",
                     "level",
                     "mainImagePath",
@@ -61080,6 +61094,12 @@
                         "format": "binary",
                         "nullable": true,
                         "title": "Εικόνα"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "title": "Εικονίδιο",
+                        "description": "Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.",
+                        "maxLength": 100
                     }
                 },
                 "required": [
@@ -72239,6 +72259,12 @@
                         "format": "binary",
                         "nullable": true,
                         "title": "Εικόνα"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "title": "Εικονίδιο",
+                        "description": "Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.",
+                        "maxLength": 100
                     }
                 }
             },

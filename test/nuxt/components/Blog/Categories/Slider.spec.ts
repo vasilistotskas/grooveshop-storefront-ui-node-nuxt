@@ -5,6 +5,7 @@ import BlogCategoriesSlider from '~/components/Blog/Categories/Slider.vue'
 import WebsideBlogCategoriesSlider from '~/components/variants/webside/Blog/Categories/Slider.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The categories rail, in both designs. It renders the categories its band
@@ -19,6 +20,11 @@ mockNuxtImport('$fetch', () => api)
 const named = (id: number, name: string) => makeBlogCategory({ id, translations: { el: { name, description: '' } } })
 const CATEGORIES = [named(1, 'Νέα'), named(2, 'Συνταγές')]
 const stubs = { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } }
+
+// A category with an icon (`BlogCategory.icon`) draws it, picture or not:
+// the icon differs from what the picture's file name suggests, so the test
+// proves it comes from the field.
+const ICONED = makeBlogCategory({ id: 6, translations: { el: { name: 'AI', description: '' } }, mainImagePath: 'media/test/uploads/blog/robot-solid.svg', icon: 'i-fa6-solid-gamepad' })
 
 beforeEach(() => {
   setTenant()
@@ -42,6 +48,15 @@ describe('Blog/Categories/Slider', () => {
     const wrapper = await mountSuspended(BlogCategoriesSlider, { route: false, props: { categories: [pictured] }, global: { stubs } })
 
     expect(wrapper.get('img').attributes('src')).toMatch(/web\.png.*\/transparent\//)
+  })
+})
+
+describe.each(trees(BlogCategoriesSlider, WebsideBlogCategoriesSlider))('$tree Blog/Categories/Slider with a category icon', ({ C }) => {
+  it('draws the icon instead of the picture', async () => {
+    const wrapper = await mountSuspended(C, { route: false, props: { categories: [ICONED] }, global: { stubs } })
+
+    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.get('.iconify').classes()).toContain('i-fa6-solid:gamepad')
   })
 })
 
