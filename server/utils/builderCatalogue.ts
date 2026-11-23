@@ -115,7 +115,7 @@ export function buildBlockCatalogue(
         : []
     }),
   )
-  const names = [...templates].sort()
+  const names = templates.toSorted()
   const dataLimits = { ...DATA_LIMITS }
   const iconList = catalogueIcons(icons)
   const hash = createHash('sha256').update(JSON.stringify({ blocks, dataLimits, documentKinds, templates: names, icons: iconList })).digest('hex').slice(0, 16)

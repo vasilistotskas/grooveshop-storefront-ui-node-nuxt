@@ -23,7 +23,7 @@ const loyaltyOn = useStoreFeature('loyalty')
 
 const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
-const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
+const ladder = computed(() => (tiers.value ?? []).toSorted((a, b) => a.requiredLevel - b.requiredLevel))
 
 const currentTier = computed(() => summary.value?.tier ?? null)
 
