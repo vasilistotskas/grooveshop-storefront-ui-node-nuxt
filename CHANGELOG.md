@@ -1,3 +1,10 @@
+## [3.357.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.357.0...v3.357.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* **api:** stop requiring the BOX NOW partner id in the store config ([#518](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/518)) ([e97f2d8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e97f2d814397b408fd955048f8bca4c7c67d8fce))
+
 # [3.357.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.356.0...v3.357.0) (2026-11-23)
 
 
