@@ -910,6 +910,8 @@ export type BlogCategory = {
      * Ενημερώθηκε στις
      */
   readonly updatedAt: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -972,6 +974,8 @@ export type BlogCategoryDetail = {
   readonly categoryPath: string
   readonly treeId: number
   readonly uuid: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 export type BlogCategoryReorderItemRequest = {
@@ -1267,6 +1271,8 @@ export type BlogPost = {
   readonly mainImagePath: string
   readonly readingTime: number
   readonly contentPreview: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -1338,6 +1344,8 @@ export type BlogPostDetail = {
   readonly contentPreview: string
   readonly likes: Array<number>
   readonly userHasLiked: boolean
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -7456,6 +7464,8 @@ export type Product = {
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
   readonly variantGroupTitle: string | null
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 export type ProductAlert = {
@@ -7609,6 +7619,8 @@ export type ProductCard = {
      */
   readonly updatedAt: string
   readonly uuid: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -7971,6 +7983,8 @@ export type ProductDetail = {
      * Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
      */
   readonly priceDropAlertsEnabled: boolean
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -8084,6 +8098,8 @@ export type ProductDetailResponse = {
      * Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
      */
   readonly priceDropAlertsEnabled: boolean
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 export type ProductFavourite = {
@@ -8247,6 +8263,8 @@ export type ProductFeed = {
   offerKind?: OfferKindEnum | NullEnum | null
   readonly variantGroupTitle: string | null
   readonly highlights: Array<string>
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -8288,6 +8306,8 @@ export type ProductImage = {
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -8329,11 +8349,6 @@ export type ProductImageDetail = {
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
-  readonly imageDimensions: {
-    width?: number
-    height?: number
-    aspectRatio?: number
-  }
   readonly imageFormat: string
   readonly usageContext: {
     isMain?: boolean
@@ -8345,6 +8360,8 @@ export type ProductImageDetail = {
      * Ενημερώθηκε στις
      */
   readonly updatedAt: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -8705,6 +8722,8 @@ export type ProductRetrieve = {
      */
   readonly priceDropAlertsEnabled: boolean
   readonly ratingDistribution: Array<RatingDistribution>
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 /**
@@ -8810,6 +8829,42 @@ export type ProductReviewWriteRequest = {
       comment?: string
     }
   }
+}
+
+/**
+ * Response payload of the product shipping endpoint.
+ */
+export type ProductShipping = {
+  /**
+     * Null όταν το κατάστημα δεν αποστέλλει πουθενά ή όταν καμία αποστολή που προσφέρει δεν μπορεί να πάρει αυτό το προϊόν.
+     */
+  estimate: ProductShippingEstimate | null
+}
+
+/**
+ * The cheapest delivery of one product bought on its own.
+ */
+export type ProductShippingEstimate = {
+  /**
+     * Η χώρα για την οποία υπολογίστηκε η τιμή: η πρώτη χώρα αποστολής του καταστήματος, αυτή που προεπιλέγει η ολοκλήρωση αγοράς.
+     */
+  countryCode: string
+  /**
+     * Η φθηνότερη αποστολή που θα χρέωνε η ολοκλήρωση αγοράς σε ένα καλάθι μόνο με αυτό το προϊόν, μετά το όριο δωρεάν αποστολής και τις προωθήσεις δωρεάν αποστολής.
+     */
+  price: number
+  /**
+     * Νόμισμα των ``price`` και ``free_shipping_threshold``.
+     */
+  currency: string
+  /**
+     * Το προϊόν αποστέλλεται δωρεάν και μόνο του: το ``price`` είναι 0.
+     */
+  free: boolean
+  /**
+     * Το χαμηλότερο υποσύνολο προϊόντων, μετά τις εκπτώσεις, από το οποίο μια μεταφορική που μπορεί να πάρει αυτό το προϊόν το αποστέλλει δωρεάν. Null όταν καμία δεν το κάνει ποτέ.
+     */
+  freeShippingThreshold: number | null
 }
 
 /**
@@ -11201,6 +11256,8 @@ export type UserPublic = {
      * Διαδρομή avatar ή κενή συμβολοσειρά
      */
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 export type UserSubscription = {
@@ -28347,6 +28404,27 @@ export type GetShippingPolicyResponses = {
 }
 
 export type GetShippingPolicyResponse = GetShippingPolicyResponses[keyof GetShippingPolicyResponses]
+
+export type GetProductShippingData = {
+  body?: never
+  path: {
+    productId: string | number
+  }
+  query?: never
+  url: '/api/v1/shipping/product/{product_id}'
+}
+
+export type GetProductShippingErrors = {
+  404: ErrorResponse
+}
+
+export type GetProductShippingError = GetProductShippingErrors[keyof GetProductShippingErrors]
+
+export type GetProductShippingResponses = {
+  200: ProductShipping
+}
+
+export type GetProductShippingResponse = GetProductShippingResponses[keyof GetProductShippingResponses]
 
 export type ApiV1ShippingProvidersListData = {
   body?: never

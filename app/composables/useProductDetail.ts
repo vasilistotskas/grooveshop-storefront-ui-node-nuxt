@@ -22,7 +22,7 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
   const productReviewsEnabled = useStoreFeature('productReviews')
   const { getFavouriteIdByProductId } = useUserStore()
   const { transformImages } = useHtmlContent()
-  const img = useMediaStreamImage()
+  const ogImageOf = useOgImage()
   const localePath = useLocalePath()
   const { productUrl } = useUrls()
   const mediaStreamBaseUrl = useMediaStreamBaseUrl()
@@ -147,17 +147,10 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
     .filter((path): path is string => Boolean(path))
     .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT)))
 
-  const ogImage = computed(() => {
-    if (!product.value?.mainImagePath) return ''
-
-    return img(product.value.mainImagePath, {
-      ...OG_IMAGE_SIZE,
-      fit: 'cover',
-      format: 'png',
-    }, {
-      provider: 'mediaStream',
-    })
-  })
+  const ogImage = computed(() => ogImageOf(product.value?.mainImagePath, {
+    width: product.value?.mainImageWidth,
+    height: product.value?.mainImageHeight,
+  }))
 
   // Meta/TikTok/OpenAI pixels and GA4 report the view once per page
   // mount, on the client only, so the prerender pass never produces a

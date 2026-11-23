@@ -24,6 +24,8 @@ export const rssPost = {
   createdAt: TIMESTAMP,
   updatedAt: TIMESTAMP,
   mainImagePath: 'uploads/blog/summer.jpg',
+  mainImageWidth: 1600,
+  mainImageHeight: 900,
 }
 
 export const rssBlogCategory = {
@@ -35,6 +37,8 @@ export const rssBlogCategory = {
   postCount: 1,
   hasChildren: false,
   mainImagePath: '',
+  mainImageWidth: null,
+  mainImageHeight: null,
   icon: '',
   createdAt: TIMESTAMP,
   updatedAt: TIMESTAMP,

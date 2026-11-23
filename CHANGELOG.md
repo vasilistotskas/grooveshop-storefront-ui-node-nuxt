@@ -1,3 +1,24 @@
+# [3.355.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.354.0...v3.355.0) (2026-11-23)
+
+
+### Features
+
+* **product:** a compact restock button on product cards ([#513](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/513)) ([91aba95](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91aba95991e409ef09d7dd436dc3d4d1b8eb91cf))
+
+# [3.354.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.353.0...v3.354.0) (2026-11-22)
+
+
+### Features
+
+* **product:** say what shipping the product costs on its delivery row ([#510](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/510)) ([88aef78](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/88aef788a6307f24f803b471df9812cdcc7e799e)), closes [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#507](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/507) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#507](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/507) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793)
+
+# [3.353.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.352.0...v3.353.0) (2026-11-22)
+
+
+### Features
+
+* **seo:** state the size the media service serves each og and Article image at ([#514](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/514)) ([f083c99](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f083c9949785c19008ee7014268ded17253479bb))
+
 # [3.352.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.351.0...v3.352.0) (2026-11-22)
 
 

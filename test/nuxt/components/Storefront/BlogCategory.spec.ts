@@ -11,6 +11,7 @@ import type { BlogCategory as BlogCategory_, BlogPost } from '~~/shared/openapi/
 import { makeBlogCategory, makeBlogPost } from '~~/test/fixtures/blog'
 import { failWith } from '~~/test/helpers/api'
 import { setTenant } from '~~/test/helpers/tenant'
+import { OG_IMAGE_BOX } from '~~/shared/constants'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
@@ -158,12 +159,24 @@ describe('Storefront/BlogCategory', () => {
       return painted
     }
 
-    it('states 1200x630 when the og:image is the category image rendition', async () => {
-      const og = await ogMeta({ ...CATEGORY, mainImagePath: 'media/uploads/blog/odigoi.png' })
+    it('states the size the category image rendition is served at', async () => {
+      const og = await ogMeta({ ...CATEGORY, mainImagePath: 'media/uploads/blog/odigoi.png', mainImageWidth: 1600, mainImageHeight: 900 })
 
-      expect(og.image).toContain('1200/630')
-      expect(og.width).toBe('1200')
-      expect(og.height).toBe('630')
+      expect(og.image).toContain(`${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}`)
+      expect([og.width, og.height]).toEqual([String(OG_IMAGE_BOX.width), String(OG_IMAGE_BOX.height)])
+    })
+
+    it('states the smaller size a narrow category image is served at', async () => {
+      const og = await ogMeta({ ...CATEGORY, mainImagePath: 'media/uploads/blog/odigoi.png', mainImageWidth: 1080, mainImageHeight: 720 })
+
+      expect([og.width, og.height]).toEqual(['1080', '567'])
+    })
+
+    it('states no size when the category image was not measured', async () => {
+      const og = await ogMeta({ ...CATEGORY, mainImagePath: 'media/uploads/blog/odigoi.svg', mainImageWidth: null, mainImageHeight: null })
+
+      expect(og.image).toContain('odigoi.svg')
+      expect([og.width, og.height]).toEqual([null, null])
     })
 
     it('states no size when the category has no image', async () => {

@@ -5,9 +5,10 @@ import type { VueWrapper } from '@vue/test-utils'
 import type { ProductAlert, ProductAlertKindEnum } from '~~/shared/openapi/types.gen'
 import NotifyMe from '~/components/Product/NotifyMe.vue'
 import WebsideNotifyMe from '~/components/variants/webside/Product/NotifyMe.vue'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { makeProductAlert, makeProductAlertPage } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
+import { DATA_MAX_PAGE_SIZE } from '~~/shared/constants/builder'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -30,24 +31,8 @@ mockNuxtImport('useUserSession', () => () => ({
 
 const ALERTS = '/api/products/alerts'
 
-function makeAlert(overrides: Partial<ProductAlert> = {}): ProductAlert {
-  return {
-    id: 5,
-    uuid: fixtureUuid(8, 5),
-    kind: 'restock',
-    product: 3,
-    user: 7,
-    email: '',
-    targetPrice: null,
-    isActive: true,
-    notifiedAt: null,
-    createdAt: FIXTURE_TIMESTAMP,
-    updatedAt: FIXTURE_TIMESTAMP,
-    ...overrides,
-  }
-}
-
-const page = (results: ProductAlert[]) => ({ results, count: results.length })
+const makeAlert = makeProductAlert
+const page = (results: ProductAlert[]) => makeProductAlertPage(results)
 // The modal's own open/close behaviour is Nuxt UI's; this stub keeps
 // the component's contract observable in place: the trigger asks to
 // open, and the form is rendered only while `open` is true.
@@ -220,7 +205,7 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
 
     expect(lookups()).toEqual([{
       url: ALERTS,
-      options: expect.objectContaining({ query: { product: 3, isActive: true, pageSize: 2 } }),
+      options: expect.objectContaining({ query: { isActive: true, page: 1, pageSize: DATA_MAX_PAGE_SIZE } }),
     }])
 
     await adapter.submit(wrapper)
@@ -251,6 +236,41 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
     // Re-read, so the form comes back.
     expect(lookups()).toHaveLength(2)
     expect(adapter.formShown(wrapper)).toBe(true)
+  })
+
+  // A read already on its way when the alert is turned off started before
+  // the change: it must not put the alert back. The re-read after the
+  // DELETE cancels it.
+  it('is not undone by a read that started before the alert was turned off', async () => {
+    signIn()
+    let active = [makeAlert()]
+    let releaseStale: (() => void) | undefined
+    api.routes({
+      [ALERTS]: () => {
+        const answer = page(active)
+        // The second read is held: it answers late, with the list as it was.
+        if (lookups().length !== 2) return answer
+        return new Promise((resolve) => {
+          releaseStale = () => resolve(answer)
+        })
+      },
+      [`${ALERTS}/5`]: () => { active = [] },
+    })
+    const wrapper = await adapter.mount()
+    expect(wrapper.text()).toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
+
+    void refreshNuxtData()
+    await flushPromises()
+    expect(releaseStale).toBeDefined()
+
+    await wrapper.findAll('button').find(button => button.text() === 'Απενεργοποίηση ειδοποίησης')!.trigger('click')
+    await flushPromises()
+    releaseStale!()
+    await flushPromises()
+
+    expect(lookups()).toHaveLength(3)
+    expect(adapter.formShown(wrapper)).toBe(true)
+    expect(wrapper.text()).not.toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
   })
 
   it('says why an alert could not be turned off, and keeps it', async () => {
@@ -351,5 +371,68 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
       expect(both.findAll('[role="radio"]').map(radio => radio.element.closest('[data-slot="item"]')!.textContent!.trim()))
         .toEqual(['Επαναφορά αποθέματος', 'Πτώση τιμής'])
     })
+  })
+})
+
+/**
+ * webside's card trigger (`compact`): the buy button's twin, a short label
+ * and a bell. Set or not, it opens the dialog, and an active alert is shown
+ * and turned off THERE: a whole alert does not fit in a card.
+ */
+describe('webside Product/NotifyMe on a card', () => {
+  const mountCompact = async () => {
+    const wrapper = await mountSuspended(WebsideNotifyMe, {
+      props: { productId: 3, compact: true },
+      attrs: { class: 'ml-auto' },
+      global: { stubs: { UModal } },
+      route: false,
+    })
+    await flushPromises()
+    return wrapper
+  }
+  const trigger = (wrapper: Mounted) => wrapper.get('[data-testid="trigger"] button')
+
+  beforeEach(() => {
+    clearNuxtData()
+    session.loggedIn.value = false
+    session.user.value = null
+    api.routes({ [ALERTS]: () => page([]) })
+  })
+
+  it('is a short button named by the whole sentence, placed by the card', async () => {
+    const wrapper = await mountCompact()
+
+    expect(trigger(wrapper).text()).toBe('Ειδοποίηση')
+    expect(trigger(wrapper).attributes('aria-label')).toBe('Ειδοποίηση όταν γίνει διαθέσιμο')
+    expect(trigger(wrapper).classes()).toContain('ml-auto')
+
+    await trigger(wrapper).trigger('click')
+    expect(wrapper.find('[data-testid="modal"] form').exists()).toBe(true)
+  })
+
+  it('says a signed-in shopper\'s alert is on, and shows and turns it off in the dialog', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7, email: 'maria@example.com' }
+    let active = [makeAlert()]
+    api.routes({
+      [ALERTS]: () => page(active),
+      [`${ALERTS}/5`]: () => { active = [] },
+    })
+    const wrapper = await mountCompact()
+
+    expect(trigger(wrapper).text()).toBe('Ενεργή')
+    expect(trigger(wrapper).attributes('aria-label')).toBe('Ενεργή ειδοποίηση διαθεσιμότητας')
+    // No alert in the card itself.
+    expect(wrapper.text()).not.toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
+
+    await trigger(wrapper).trigger('click')
+    expect(wrapper.get('[data-testid="modal"]').text()).toContain('Η ειδοποίηση διαθεσιμότητας είναι ενεργή')
+    expect(wrapper.find('[data-testid="modal"] form').exists()).toBe(false)
+
+    await wrapper.get('[data-testid="modal"]').findAll('button').find(button => button.text() === 'Απενεργοποίηση ειδοποίησης')!.trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo(`${ALERTS}/5`)).toEqual([{ url: `${ALERTS}/5`, options: expect.objectContaining({ method: 'DELETE' }) }])
+    expect(trigger(wrapper).text()).toBe('Ειδοποίηση')
   })
 })
