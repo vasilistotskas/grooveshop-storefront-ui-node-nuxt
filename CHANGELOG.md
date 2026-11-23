@@ -1,3 +1,10 @@
+# [3.357.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.356.0...v3.357.0) (2026-11-23)
+
+
+### Features
+
+* **checkout:** pick BOX NOW lockers in the shared picker, only those that fit the order ([#517](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/517)) ([340b9a1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/340b9a1f88ea1f8d41c0158182a879206a65eeee)), closes [#767](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/767) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#507](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/507)
+
 # [3.356.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.355.0...v3.356.0) (2026-11-23)
 
 
