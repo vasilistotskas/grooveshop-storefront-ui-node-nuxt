@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended, mockComponent } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
+import type { Component } from 'vue'
 import OnlinePaymentView from '~/components/Checkout/OnlinePaymentView.vue'
+import WebsideOnlinePaymentView from '~/components/variants/webside/Checkout/OnlinePaymentView.vue'
+import { trees } from '~~/test/helpers/trees'
 import { makeOrder } from '~~/test/fixtures/order'
 import { makePayWay } from '~~/test/fixtures/payWay'
 
@@ -22,8 +25,8 @@ mockComponent('StripeCheckout', {
 
 const order = makeOrder({ id: 4812 })
 
-const mountView = (flags: { stripe?: boolean, viva?: boolean }) =>
-  mountSuspended(OnlinePaymentView, {
+const mountView = (C: Component, flags: { stripe?: boolean, viva?: boolean }) =>
+  mountSuspended(C, {
     route: false,
     props: {
       createdOrder: order,
@@ -35,15 +38,15 @@ const mountView = (flags: { stripe?: boolean, viva?: boolean }) =>
 
 const providers = (wrapper: VueWrapper) => wrapper.findAll('[data-provider]').map(node => node.attributes('data-provider'))
 
-describe('Checkout/OnlinePaymentView', () => {
+describe.each(trees(OnlinePaymentView, WebsideOnlinePaymentView))('$tree Checkout/OnlinePaymentView', ({ C }) => {
   it('names the order it is collecting for', async () => {
-    const wrapper = await mountView({ viva: true })
+    const wrapper = await mountView(C, { viva: true })
 
     expect(wrapper.text()).toContain('#4812')
   })
 
   it('hands a Viva order to Viva and forwards its failure', async () => {
-    const wrapper = await mountView({ viva: true })
+    const wrapper = await mountView(C, { viva: true })
 
     expect(providers(wrapper)).toEqual(['viva'])
     await wrapper.get('[data-provider="viva"]').trigger('click')
@@ -51,7 +54,7 @@ describe('Checkout/OnlinePaymentView', () => {
   })
 
   it('hands a Stripe order to its hosted page and forwards its failure', async () => {
-    const wrapper = await mountView({ stripe: true })
+    const wrapper = await mountView(C, { stripe: true })
 
     await vi.waitFor(() => expect(providers(wrapper)).toEqual(['stripe-hosted']))
     await wrapper.get('[data-provider="stripe-hosted"]').trigger('click')
@@ -59,13 +62,13 @@ describe('Checkout/OnlinePaymentView', () => {
   })
 
   it('shows no provider for an order that is not paid online', async () => {
-    const wrapper = await mountView({})
+    const wrapper = await mountView(C, {})
 
     expect(providers(wrapper)).toEqual([])
   })
 
   it('goes back to the form', async () => {
-    const wrapper = await mountView({ viva: true })
+    const wrapper = await mountView(C, { viva: true })
 
     await wrapper.findAll('button').find(button => button.text() === 'Επιστροφή')!.trigger('click')
 

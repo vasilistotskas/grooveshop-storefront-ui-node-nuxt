@@ -189,7 +189,7 @@ afterEach(() => {
 describe('useCheckoutSubmit', () => {
   describe('Stripe', () => {
     it('posts the order with no payment intent, under one idempotency key, and waits for the payment', async () => {
-      api.routes({ '/api/orders': orderCreated({ uuid: 'order-stripe' }) })
+      api.routes({ '/api/orders': orderCreated(makeOrder({ uuid: 'order-stripe' })) })
       const { onSubmit, createdOrder } = setup(STRIPE)
 
       await onSubmit()
@@ -201,7 +201,7 @@ describe('useCheckoutSubmit', () => {
       expect(order!.options.body).not.toHaveProperty('paymentIntentId')
       // The order is the only request: nothing prices or opens a payment first.
       expect(api.callsTo('/api/cart/create-payment-intent')).toEqual([])
-      expect(createdOrder.value).toEqual({ uuid: 'order-stripe' })
+      expect(createdOrder.value).toMatchObject({ uuid: 'order-stripe' })
       expect(lastToast()).toMatchObject({ title: t('order_created_payment_required'), color: 'info' })
       // The shopper still has to pay: the cart stays, nothing navigates.
       expect(cart.cart).not.toBeNull()
@@ -239,7 +239,7 @@ describe('useCheckoutSubmit', () => {
     })
 
     it('leaves an order the gift cards only partly cover to be paid for the rest', async () => {
-      api.routes({ '/api/orders': orderCreated({ uuid: 'order-part', paymentStatus: 'PENDING' }) })
+      api.routes({ '/api/orders': orderCreated(makeOrder({ uuid: 'order-part', paymentStatus: 'PENDING' })) })
       const { onSubmit, onGiftCardApplied, createdOrder } = setup(STRIPE)
       onGiftCardApplied({ code: 'GC-1', balance: 10 })
 
@@ -252,7 +252,7 @@ describe('useCheckoutSubmit', () => {
     })
 
     it('finishes like an offline order when the deductions cover everything and Django settled it', async () => {
-      api.routes({ '/api/orders': orderCreated({ uuid: 'order-free', paymentStatus: 'COMPLETED' }) })
+      api.routes({ '/api/orders': orderCreated(makeOrder({ uuid: 'order-free', paymentStatus: 'COMPLETED' })) })
       const { onSubmit } = setup(STRIPE)
 
       await onSubmit()
