@@ -24,6 +24,7 @@ export const SAVED_ADDRESS_FIELDS: readonly string[] = [
 export const DELIVERY_ADDRESS_FIELDS: readonly string[] = [
   'street',
   'streetNumber',
+  'addressLine2',
   'city',
   'zipcode',
   'region',
@@ -46,6 +47,7 @@ const ORDER_FIELD_STEPS: Record<string, { step: CheckoutStep, name: string }> = 
   zipcode: { step: CHECKOUT_STEP.delivery, name: 'zipcode' },
   street: { step: CHECKOUT_STEP.delivery, name: 'street' },
   streetNumber: { step: CHECKOUT_STEP.delivery, name: 'streetNumber' },
+  addressLine2: { step: CHECKOUT_STEP.delivery, name: 'addressLine2' },
   boxnowLockerId: { step: CHECKOUT_STEP.delivery, name: 'boxnowLockerId' },
   acsStationExternalId: { step: CHECKOUT_STEP.delivery, name: 'acsStationExternalId' },
   acsStationBranch: { step: CHECKOUT_STEP.delivery, name: 'acsStationExternalId' },
@@ -371,6 +373,7 @@ export function buildOrderCreateBody(
           regionId: formState.regionId,
           street: formState.street,
           streetNumber: formState.streetNumber,
+          addressLine2: formState.addressLine2?.trim() || undefined,
           city: formState.city,
           // Canonical form, the same one Django stores.
           zipcode: normalizePostcode(formState.zipcode),

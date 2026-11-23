@@ -153,7 +153,8 @@ const arrowButton = {
               :height="320"
               fit="contain"
               :background="'transparent'"
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 260px"
+              sizes="xs:50vw md:33vw lg:25vw xl:300px"
+              densities="x1 x2"
               loading="lazy"
               class="
                 size-full object-contain transition-transform duration-200

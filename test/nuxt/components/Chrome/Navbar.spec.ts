@@ -243,7 +243,7 @@ describe('Chrome/Navbar', () => {
 
   /** The blog's own copy, which the global `$i18n` cannot reach. */
   const BLOG_COPY = { allArticles: 'Όλα τα άρθρα', articles: '26 άρθρα' }
-  const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }
+  const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', icon: '', imagePath: '', postCount: 26 }
 
   it('opens the blog\'s topics from Blog, "all articles" first, each with its post count', async () => {
     setTenantFeatures({ blog: true })
@@ -568,7 +568,7 @@ describe('Chrome/Navbar', () => {
   ])('marks the dropdown entry of the section the visitor is in, on $at, as the $mark', async ({ at, current, mark }) => {
     setTenantFeatures({ blog: true })
     categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', imageAlt: '', productCount: 0, children: [] }]
-    topics.value = [{ id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }]
+    topics.value = [{ id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', icon: '', imagePath: '', postCount: 26 }]
 
     const wrapper = await mountNavbar(at)
 

@@ -66,7 +66,18 @@ const { categories, status, pagination } = await useBlogCategoriesPage({
               >
                 {{ extractTranslated(category, 'name', locale) }}
               </h2>
+              <!-- A category's icon, in the theme's own blue, as wide as the
+                   picture is drawn (200px, less on a narrow card); without
+                   one, its picture, recoloured to that blue. -->
+              <UIcon
+                v-if="category.icon"
+                :name="category.icon"
+                class="
+                  mx-auto aspect-square h-auto w-full max-w-50 text-secondary
+                "
+              />
               <ImgWithFallback
+                v-else
                 class="max-h-79 bg-transparent"
                 :style="{
                   contentVisibility: 'auto',

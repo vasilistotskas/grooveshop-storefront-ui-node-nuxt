@@ -84,7 +84,8 @@ export const useTenantStore = defineStore('tenant', () => {
   // MFA — empty string means Django uses its own default issuer
   const totpIssuer = computed(() => config.value?.totpIssuer ?? '')
 
-  // Social links — each empty string means "use platform fallback"
+  // Social links — tenant-only; an empty string means the store links
+  // no account on that network, and every design leaves it out.
   const socials = computed(() => ({
     discord: config.value?.socialsDiscord ?? '',
     facebook: config.value?.socialsFacebook ?? '',

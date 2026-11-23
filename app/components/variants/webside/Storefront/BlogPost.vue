@@ -36,6 +36,15 @@ const { sections: bandSections } = await useBuilderPage('blog-post', { placement
 // same-day correction.
 const UPDATED_AFTER_PUBLISH_THRESHOLD_MS = 60_000
 
+// The cover spans the article column (`max-w-2xl`), the same HTML for every
+// visitor: a phone draws it narrower at the same shape. `sizes` is
+// @nuxt/image's `breakpoint:width` list (a media-query string is not read):
+// up to `sm` the column is the screen less its gutter, at most
+// `PHONE_COVER_WIDTH`; from `sm` it is the column.
+const COVER_SIZE = { width: WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH, height: 340 } as const
+const PHONE_COVER_WIDTH = 400
+const COVER_SIZES = `xs:${PHONE_COVER_WIDTH}px sm:${COVER_SIZE.width}px`
+
 const hasBeenUpdatedSincePublish = computed(() => {
   const post = blogPost.value
   if (!post?.publishedAt || !post?.updatedAt) return false
@@ -257,13 +266,13 @@ onReactivated(async () => {
                 :alt="blogPostTitle"
                 :background="'transparent'"
                 fit="cover"
-                :height="isMobileOrTablet ? 200 : 340"
+                :height="COVER_SIZE.height"
                 :src="blogPost.mainImagePath"
-                :width="isMobileOrTablet ? 400 : 672"
-                :modifiers="{ position: 'attention' }"
-                :sizes="'(max-width: 640px) 400px, 672px'"
+                :width="COVER_SIZE.width"
+                :modifiers="{ position: BLOG_COVER_CROP_POSITION }"
+                :sizes="COVER_SIZES"
                 class="rounded-lg bg-primary-100"
-                densities="x1"
+                densities="x1 x2"
                 loading="eager"
                 fetchpriority="high"
                 preload

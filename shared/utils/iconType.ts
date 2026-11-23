@@ -23,3 +23,13 @@ export function iconMimeType(url: string): string | undefined {
   const dot = file.lastIndexOf('.')
   return dot === -1 ? undefined : ICON_TYPES.get(file.slice(dot + 1).toLowerCase())
 }
+
+/**
+ * Whether an image is a vector drawing (`.svg`), by the same reading of
+ * its extension. A store's category pictures are photographs or SVG
+ * icons, and the two are drawn differently: a photograph is cropped to
+ * fill its tile, an icon is shown whole on a fill it reads on.
+ */
+export function isSvgImage(url: string): boolean {
+  return iconMimeType(url) === 'image/svg+xml'
+}

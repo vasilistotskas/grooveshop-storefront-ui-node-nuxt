@@ -926,6 +926,18 @@ describe('useCheckoutForm', () => {
       })
     })
 
+    // django-api #769: a saved address's line 2 comes with it, and a pick
+    // without one clears the last address's.
+    it('applies a saved address\'s line 2, and clears it for one without', async () => {
+      api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([savedAddress({ addressLine2: '3ος όροφος' }), second]) })
+      const { formState, selectSavedAddress } = await setup()
+      expect(formState.addressLine2).toBe('3ος όροφος')
+
+      await selectSavedAddress(2)
+
+      expect(formState.addressLine2).toBe('')
+    })
+
     it('picking another saved address applies it and stays in saved mode', async () => {
       const { formState, addressEntryMode, selectSavedAddress } = await setup()
 
@@ -956,6 +968,7 @@ describe('useCheckoutForm', () => {
         phone: '',
         street: '',
         streetNumber: '',
+        addressLine2: '',
         city: '',
         zipcode: '',
         region: '',

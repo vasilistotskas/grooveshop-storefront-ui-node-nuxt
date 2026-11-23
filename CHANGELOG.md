@@ -1,3 +1,73 @@
+# [3.356.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.355.0...v3.356.0) (2026-11-23)
+
+
+### Features
+
+* **blog:** draw a blog category's icon from its own data ([#515](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/515)) ([5bf60e2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5bf60e2ec645517b97155b09e155785471bb58a6))
+
+# [3.355.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.354.0...v3.355.0) (2026-11-23)
+
+
+### Features
+
+* **product:** a compact restock button on product cards ([#513](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/513)) ([91aba95](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91aba95991e409ef09d7dd436dc3d4d1b8eb91cf))
+
+# [3.354.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.353.0...v3.354.0) (2026-11-22)
+
+
+### Features
+
+* **product:** say what shipping the product costs on its delivery row ([#510](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/510)) ([88aef78](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/88aef788a6307f24f803b471df9812cdcc7e799e)), closes [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#507](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/507) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#507](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/507) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793)
+
+# [3.353.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.352.0...v3.353.0) (2026-11-22)
+
+
+### Features
+
+* **seo:** state the size the media service serves each og and Article image at ([#514](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/514)) ([f083c99](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f083c9949785c19008ee7014268ded17253479bb))
+
+# [3.352.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.351.0...v3.352.0) (2026-11-22)
+
+
+### Features
+
+* **builder:** publish the builder's icon list in the catalogue ([#512](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/512)) ([6ad2b59](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6ad2b59f8966985dfd0d23693511d0b9ab7b4098))
+
+# [3.351.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.350.0...v3.351.0) (2026-11-22)
+
+
+### Features
+
+* **blog:** article images in three shapes and responsive covers ([#511](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/511)) ([1030fd5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1030fd556f6927bc34f2c707012f14efac75cff5))
+
+# [3.350.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.349.0...v3.350.0) (2026-11-21)
+
+
+### Features
+
+* **footer:** social links in every design; webside menu icons and product text size ([#509](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/509)) ([8bd070b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8bd070b72df89293dcbf7d79abadfc0860f75852))
+
+# [3.349.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.348.1...v3.349.0) (2026-11-21)
+
+
+### Features
+
+* **checkout:** an address line 2, at checkout and in the address book ([#506](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/506)) ([7588c8f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7588c8fb3d25edfaf3fd308cf8222f99650d439d)), closes [#767](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/767) [#769](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/769)
+
+## [3.348.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.348.0...v3.348.1) (2026-11-21)
+
+
+### Bug Fixes
+
+* **api:** accept the response shapes the next Django release declares ([#507](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/507)) ([c7b0468](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c7b04689e2e47da08ba833968f241b01e12a0666)), closes [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [vasilistotskas/grooveshop-django-api#684](https://github.com/vasilistotskas/grooveshop-django-api/issues/684)
+
+# [3.348.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.347.0...v3.348.0) (2026-11-21)
+
+
+### Features
+
+* **checkout:** ask a pickup order for no address ([#505](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/505)) ([3f2b56f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f2b56f39c7b188fe8a8e89d16241b9da39b71f2)), closes [#767](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/767)
+
 # [3.347.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.346.1...v3.347.0) (2026-11-21)
 
 

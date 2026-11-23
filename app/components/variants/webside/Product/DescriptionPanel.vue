@@ -22,9 +22,12 @@ const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
       md:py-4
     "
   >
+    <!-- The blog body's reading size (`.article-lg`), over the
+         accordion body's `text-sm`; the specifications panel beside it
+         stays compact. -->
     <div
       v-if="hasHtml"
-      class="article"
+      class="article article-lg"
       v-html="sanitizedHtml"
     />
     <p

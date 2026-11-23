@@ -23,7 +23,7 @@ const categories = (items: BlogCategory[]) => ({
 }) as ResolvedQuery<BlogCategory, DataDescriptor<'blogCategory'>>
 
 const ITEMS = [
-  makeBlogCategory({ id: 3, slug: 'ai', postCount: 26, translations: { el: { name: LONG } } as BlogCategory['translations'], mainImagePath: 'media/uploads/blog/robot-solid.svg' }),
+  makeBlogCategory({ id: 3, slug: 'ai', postCount: 26, translations: { el: { name: LONG } } as BlogCategory['translations'], mainImagePath: 'media/uploads/blog/robot-solid.svg', icon: 'i-fa6-solid-gamepad' }),
   makeBlogCategory({ id: 4, slug: 'web', postCount: 1, translations: { el: { name: 'Web' } } as BlogCategory['translations'], mainImagePath: 'media/test/uploads/blog/web.png' }),
 ]
 
@@ -60,11 +60,13 @@ describe('PageSection/BlogCategoryTiles', () => {
     expect(tile.get('[data-slot="title"]').classes()).toContain('wrap-break-word')
   })
 
-  it('draws the inlined icon of a category that has one, and its picture otherwise', async () => {
+  it('draws the icon of a category that has one (`BlogCategory.icon`), and its picture otherwise', async () => {
     const wrapper = await mountTiles()
 
     const [withIcon, withPicture] = wrapper.findAll('ul > li')
     expect(withIcon!.find('img').exists()).toBe(false)
+    // The field's icon, not one guessed from the picture's file name (robot-solid.svg).
+    expect(withIcon!.get('.iconify').classes()).toContain('i-fa6-solid:gamepad')
     expect(withPicture!.get('img').attributes('src')).toContain('web.png')
     // On its own ground, not a white square: the tile follows the band's colour scheme.
     expect(withPicture!.get('img').attributes('src')).toMatch(/\/transparent\//)

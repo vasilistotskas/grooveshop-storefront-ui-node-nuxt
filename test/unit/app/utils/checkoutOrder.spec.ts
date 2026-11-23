@@ -319,6 +319,14 @@ describe('buildOrderCreateBody', () => {
     })
   })
 
+  // django-api #769: a home delivery's line 2, trimmed; a blank one is absent.
+  it.each([
+    ['  3ος όροφος ', '3ος όροφος'],
+    ['   ', undefined],
+  ])('sends the address line 2 %j as %j', (addressLine2, sent) => {
+    expect(buildOrderCreateBody(form({ addressLine2 }), ctx()).addressLine2).toBe(sent)
+  })
+
   it('sends the terms consent as the shopper left it, for Django to record', () => {
     expect(buildOrderCreateBody(form({ termsAccepted: false }), ctx()).termsAccepted).toBe(false)
   })
@@ -390,9 +398,9 @@ describe('buildOrderCreateBody', () => {
   // Django delivers a pickup order to the point and keeps none of the
   // shopper's address (#767): the form's leftovers are not sent.
   it('sends no address and no region for a pickup order, whatever the form still holds', () => {
-    const body = buildOrderCreateBody(form({ shippingMethod: 'box_now_locker', boxnowLockerId: 'L-42' }), ctx())
+    const body = buildOrderCreateBody(form({ shippingMethod: 'box_now_locker', boxnowLockerId: 'L-42', addressLine2: '3ος όροφος' }), ctx())
 
-    for (const field of ['street', 'streetNumber', 'city', 'zipcode', 'regionId']) {
+    for (const field of ['street', 'streetNumber', 'addressLine2', 'city', 'zipcode', 'regionId']) {
       expect(body).not.toHaveProperty(field)
     }
     expect(body).toMatchObject({ firstName: 'Maria', email: 'maria@example.com', phone: '+306912345678', countryId: 1 })

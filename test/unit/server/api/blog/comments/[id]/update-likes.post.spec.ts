@@ -13,7 +13,7 @@ const route = '/api/blog/comments/9/update-likes'
 describe('POST /api/blog/comments/:id/update-likes', () => {
   it('answers a reply of a reply with its ancestors\' public authors', async () => {
     testSession.set({ user: { id: 9 }, secure: { accessToken: 'knox-1' } })
-    const author = (id: number) => ({ id, username: `user${id}`, firstName: 'Μαρία', lastName: 'Ιωάννου', mainImagePath: '' })
+    const author = (id: number) => ({ id, username: `user${id}`, firstName: 'Μαρία', lastName: 'Ιωάννου', mainImagePath: '', mainImageWidth: null, mainImageHeight: null })
     const nested = makeBlogCommentDetail({
       id: 9,
       parent: 5,

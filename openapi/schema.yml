@@ -13944,6 +13944,456 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/country/all:
+    get:
+      operationId: listAllCountries
+      description: 'Ολόκληρη η λίστα χωρών σε έναν πίνακα, φιλτραρισμένη και ταξινομημένη όπως η σελιδοποιημένη λίστα: για έναν επιλογέα που χρειάζεται κάθε γραμμή.'
+      summary: Όλες οι χώρες, σε μία λίστα
+      parameters:
+        - in: query
+          name: alpha2
+          schema:
+            type: string
+          description: Φίλτρο ανά ακριβή διψήφιο κωδικό χώρας
+        - in: query
+          name: alpha2_Icontains
+          schema:
+            type: string
+          description: Φίλτρο ανά διψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+        - in: query
+          name: alpha2_Iexact
+          schema:
+            type: string
+        - in: query
+          name: alpha2_In
+          schema:
+            oneOf:
+              - type: string
+                description: Τιμές διαχωρισμένες με κόμμα
+              - type: array
+                items:
+                  type: string
+          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          explode: false
+          style: form
+        - in: query
+          name: alpha3
+          schema:
+            type: string
+          description: Φίλτρο ανά ακριβή τριψήφιο κωδικό χώρας
+        - in: query
+          name: alpha3_Icontains
+          schema:
+            type: string
+          description: Φίλτρο ανά τριψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+        - in: query
+          name: alpha3_Iexact
+          schema:
+            type: string
+        - in: query
+          name: alpha3_In
+          schema:
+            oneOf:
+              - type: string
+                description: Τιμές διαχωρισμένες με κόμμα
+              - type: array
+                items:
+                  type: string
+          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          explode: false
+          style: form
+        - in: query
+          name: continent
+          schema:
+            type: string
+            enum:
+              - AF
+              - AN
+              - AS
+              - EU
+              - NA
+              - OC
+              - SA
+          description: |-
+            Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)
+
+            * `AF` - Africa
+            * `AS` - Asia
+            * `EU` - Europe
+            * `NA` - North America
+            * `OC` - Oceania
+            * `SA` - South America
+            * `AN` - Antarctica
+        - in: query
+          name: createdAfter
+          schema:
+            type: string
+            format: date-time
+          description: Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+        - in: query
+          name: createdAt_Date
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: createdAt_Gte
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: createdAt_Lte
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: createdBefore
+          schema:
+            type: string
+            format: date-time
+          description: Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+        - in: query
+          name: hasAllData
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Φίλτρο χωρών με πλήρη δεδομένα (ISO, κλήση, σημαία, όνομα)
+        - in: query
+          name: hasFlagImage
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Φίλτρο χωρών με/χωρίς εικόνα σημαίας
+        - in: query
+          name: hasIsoCc
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Φίλτρο χωρών με/χωρίς κωδικό ISO
+        - in: query
+          name: hasName
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Φίλτρο χωρών με/χωρίς μετάφραση ονόματος
+        - in: query
+          name: hasPhoneCode
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Φίλτρο χωρών με/χωρίς κωδικό κλήσης
+        - in: query
+          name: isEu
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Φίλτρο χωρών μελών ΕΕ
+        - in: query
+          name: isoCc
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο ανά ακριβή ISO κωδικό χώρας
+        - in: query
+          name: isoCc_Gte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - in: query
+          name: isoCc_In
+          schema:
+            oneOf:
+              - type: string
+                description: Τιμές διαχωρισμένες με κόμμα
+              - type: array
+                items:
+                  type: integer
+          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          explode: false
+          style: form
+        - in: query
+          name: isoCc_Lte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - in: query
+          name: isoCcMax
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο χωρών με κωδικό ISO μικρότερο ή ίσο με
+        - in: query
+          name: isoCcMin
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο χωρών με κωδικό ISO μεγαλύτερο ή ίσο με
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
+        - in: query
+          name: multipleCodes
+          schema:
+            type: string
+          description: Φίλτρο ανά πολλαπλούς κωδικούς χωρών (διαχωρισμένους με κόμμα, alpha-2 ή alpha-3)
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
+        - in: query
+          name: name_Exact
+          schema:
+            type: string
+          description: Φίλτρο ανά ακριβές όνομα χώρας
+        - in: query
+          name: name_Startswith
+          schema:
+            type: string
+          description: Φίλτρο χωρών με όνομα που ξεκινά με
+        - name: ordering
+          in: query
+          required: false
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name'
+          schema:
+            type: string
+            pattern: ^(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name)(?:,(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name))*$
+        - in: query
+          name: phoneCode
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο ανά ακριβή κωδικό κλήσης
+        - in: query
+          name: phoneCode_Gte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - in: query
+          name: phoneCode_In
+          schema:
+            oneOf:
+              - type: string
+                description: Τιμές διαχωρισμένες με κόμμα
+              - type: array
+                items:
+                  type: integer
+          description: Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+          explode: false
+          style: form
+        - in: query
+          name: phoneCode_Lte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - in: query
+          name: phoneCodeMax
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο χωρών με κωδικό κλήσης μικρότερο ή ίσο με
+        - in: query
+          name: phoneCodeMin
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο χωρών με κωδικό κλήσης μεγαλύτερο ή ίσο με
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: shippable
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία.
+        - in: query
+          name: sortOrder
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο ανά ακριβή σειρά
+        - in: query
+          name: sortOrder_Gte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - in: query
+          name: sortOrder_Lte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - in: query
+          name: sortOrderMax
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+        - in: query
+          name: sortOrderMin
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+        - in: query
+          name: updatedAfter
+          schema:
+            type: string
+            format: date-time
+          description: Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+        - in: query
+          name: updatedAt_Date
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: updatedAt_Gte
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: updatedAt_Lte
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: updatedBefore
+          schema:
+            type: string
+            format: date-time
+          description: Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: Φίλτρο ανά ακριβές UUID
+      tags:
+        - Countries
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Country'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/emails/unsubscribe/{token}:
     get:
       operationId: confirmUnsubscribeFromEmail
@@ -14185,6 +14635,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedGiftCardList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ApiValidationError'
+                  - $ref: '#/components/schemas/ApiError'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/giftcard/mine/all:
+    get:
+      operationId: listAllMyGiftCards
+      description: Όλες οι δωροκάρτες που είναι συνδεδεμένες με τον λογαριασμό μου, σε μία λίστα
+      summary: Όλες οι δωροκάρτες που είναι συνδεδεμένες με τον λογαριασμό μου, σε μία λίστα
+      parameters:
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
+      tags:
+        - Gift Cards
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GiftCard'
           description: ''
         '400':
           content:
@@ -28577,17 +29087,11 @@ paths:
         - in: query
           name: compartmentSize
           schema:
-            type: string
-            enum:
-              - 1
-              - 2
-              - 3
-          description: |-
-            Μόνο lockers που έχουν θυρίδα αυτού του μεγέθους (1 μικρό, 2 μεσαίο, 3 μεγάλο), με ακριβή αντιστοίχιση όπως κάνει ο δικός της επιλογέας της BOX NOW. Ένα locker με άγνωστα μεγέθη δεν ταιριάζει ποτέ.
-
-            * `1` - Μικρό
-            * `2` - Μεσαίο
-            * `3` - Μεγάλο
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Μόνο lockers που έχουν θυρίδα αυτού του μεγέθους (1 μικρό, 2 μεσαίο, 3 μεγάλο), με ακριβή αντιστοίχιση όπως κάνει ο δικός της επιλογέας της BOX NOW. Ένα locker με άγνωστα μεγέθη δεν ταιριάζει ποτέ. Αγνοείται σε κατάστημα που δεν είναι στο live δίκτυο της BOX NOW, όπου κανένα locker δεν έχει μέγεθος.
         - in: query
           name: countryCode
           schema:
@@ -29004,6 +29508,38 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ShippingPolicyEntry'
+          description: ''
+  /api/v1/shipping/product/{product_id}:
+    get:
+      operationId: getProductShipping
+      description: 'The cheapest delivery checkout would charge a cart holding this product alone, to the store''s first shipping country: after the free-shipping threshold and the automatic promotions such a cart gets, leaving out every delivery that cannot carry the product (weight cap, parcel size). ``estimate`` is null when the store ships nowhere or no delivery can take the product. Returns 404 when the product does not exist or is not active.'
+      summary: What shipping one product costs
+      parameters:
+        - in: path
+          name: productId
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+      tags:
+        - Shipping
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductShipping'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
   /api/v1/shipping/providers:
     get:
@@ -30268,7 +30804,7 @@ paths:
         authenticates against that tenant's OWN user table — where the same
         id belongs to a different person. Filtering by that id would list
         stores the caller has nothing to do with. Customers hold no
-        memberships at all (see ``tenant/membership.py``), so an empty list
+        memberships at all (see ``src/tenant/membership.py``), so an empty list
         is the correct answer for every shopper.
       tags:
         - Tenant
@@ -35658,6 +36194,19 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
+        icon:
+          type: string
+          readOnly: true
+          title: Εικονίδιο
+          description: Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
         createdAt:
           type: string
           format: date-time
@@ -35671,9 +36220,12 @@ components:
       required:
         - createdAt
         - hasChildren
+        - icon
         - id
         - level
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - postCount
         - slug
         - sortOrder
@@ -35736,6 +36288,19 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
+        icon:
+          type: string
+          readOnly: true
+          title: Εικονίδιο
+          description: Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
         createdAt:
           type: string
           format: date-time
@@ -35782,9 +36347,12 @@ components:
         - createdAt
         - descendantsCount
         - hasChildren
+        - icon
         - id
         - level
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - postCount
         - recursivePostCount
         - siblingsCount
@@ -35863,6 +36431,11 @@ components:
           format: binary
           nullable: true
           title: Εικόνα
+        icon:
+          type: string
+          title: Εικονίδιο
+          description: Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+          maxLength: 100
       required:
         - slug
         - translations
@@ -36249,6 +36822,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         readingTime:
           type: integer
           readOnly: true
@@ -36263,7 +36844,9 @@ components:
         - createdAt
         - id
         - likesCount
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - publishedAt
         - readingTime
         - slug
@@ -36375,6 +36958,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         readingTime:
           type: integer
           readOnly: true
@@ -36398,7 +36989,9 @@ components:
         - id
         - likes
         - likesCount
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - publishedAt
         - readingTime
         - slug
@@ -36871,11 +37464,11 @@ components:
           items:
             type: integer
           readOnly: true
-          description: 'Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.'
+          description: 'Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: σε κατάστημα στο live δίκτυο της BOX NOW το locker τότε δεν δέχεται καμία παραγγελία· ένα κατάστημα στο δίκτυο stage της BOX NOW δεν έχει μεγέθη και δεν ελέγχει κανένα.'
         limitedAvailability:
           type: boolean
           readOnly: true
-          description: Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
+          description: True όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· false όταν δεν είναι γνωστή.
         isActive:
           type: boolean
           readOnly: true
@@ -37001,11 +37594,11 @@ components:
           items:
             type: integer
           readOnly: true
-          description: 'Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.'
+          description: 'Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: σε κατάστημα στο live δίκτυο της BOX NOW το locker τότε δεν δέχεται καμία παραγγελία· ένα κατάστημα στο δίκτυο stage της BOX NOW δεν έχει μεγέθη και δεν ελέγχει κανένα.'
         limitedAvailability:
           type: boolean
           readOnly: true
-          description: Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
+          description: True όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· false όταν δεν είναι γνωστή.
         isActive:
           type: boolean
           readOnly: true
@@ -44755,6 +45348,11 @@ components:
           format: binary
           nullable: true
           title: Εικόνα
+        icon:
+          type: string
+          title: Εικονίδιο
+          description: Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+          maxLength: 100
     PatchedBlogCommentWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -46421,6 +47019,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         imagePaths:
           type: array
           items:
@@ -46482,7 +47088,9 @@ components:
         - imagePaths
         - likesCount
         - lowStockThreshold
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - mpn
         - potentialPoints
         - price
@@ -46760,6 +47368,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         reviewAverage:
           type: number
           format: double
@@ -46793,7 +47409,9 @@ components:
         - finalPrice
         - id
         - lowStockThreshold
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - potentialPoints
         - priorPrice
         - reviewAverage
@@ -47398,6 +48016,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         imagePaths:
           type: array
           items:
@@ -47464,7 +48090,9 @@ components:
         - imagePaths
         - likesCount
         - lowStockThreshold
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - mpn
         - potentialPoints
         - price
@@ -47649,6 +48277,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         imagePaths:
           type: array
           items:
@@ -47715,7 +48351,9 @@ components:
         - imagePaths
         - likesCount
         - lowStockThreshold
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - mpn
         - potentialPoints
         - price
@@ -48026,6 +48664,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         imagePaths:
           type: array
           items:
@@ -48093,7 +48739,9 @@ components:
         - imagePaths
         - likesCount
         - lowStockThreshold
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - mpn
         - potentialPoints
         - price
@@ -48163,6 +48811,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -48173,7 +48829,9 @@ components:
         - createdAt
         - id
         - image
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - product
         - sortOrder
         - translations
@@ -48229,21 +48887,19 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         createdAt:
           type: string
           format: date-time
           readOnly: true
           title: Δημιουργήθηκε στις
-        imageDimensions:
-          type: object
-          properties:
-            width:
-              type: number
-            height:
-              type: number
-            aspectRatio:
-              type: number
-          readOnly: true
         imageFormat:
           type: string
           readOnly: true
@@ -48269,9 +48925,10 @@ components:
         - createdAt
         - id
         - image
-        - imageDimensions
         - imageFormat
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - product
         - sortOrder
         - translations
@@ -48873,6 +49530,14 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
         imagePaths:
           type: array
           items:
@@ -48944,7 +49609,9 @@ components:
         - imagePaths
         - likesCount
         - lowStockThreshold
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - mpn
         - potentialPoints
         - price
@@ -49146,6 +49813,55 @@ components:
         - product
         - rate
         - translations
+    ProductShipping:
+      type: object
+      description: Response payload of the product shipping endpoint.
+      properties:
+        estimate:
+          allOf:
+            - $ref: '#/components/schemas/ProductShippingEstimate'
+          nullable: true
+          description: Null όταν το κατάστημα δεν αποστέλλει πουθενά ή όταν καμία αποστολή που προσφέρει δεν μπορεί να πάρει αυτό το προϊόν.
+      required:
+        - estimate
+    ProductShippingEstimate:
+      type: object
+      description: The cheapest delivery of one product bought on its own.
+      properties:
+        countryCode:
+          type: string
+          description: 'Η χώρα για την οποία υπολογίστηκε η τιμή: η πρώτη χώρα αποστολής του καταστήματος, αυτή που προεπιλέγει η ολοκλήρωση αγοράς.'
+          maxLength: 2
+        price:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          description: Η φθηνότερη αποστολή που θα χρέωνε η ολοκλήρωση αγοράς σε ένα καλάθι μόνο με αυτό το προϊόν, μετά το όριο δωρεάν αποστολής και τις προωθήσεις δωρεάν αποστολής.
+        currency:
+          type: string
+          description: Νόμισμα των ``price`` και ``free_shipping_threshold``.
+          maxLength: 3
+        free:
+          type: boolean
+          description: 'Το προϊόν αποστέλλεται δωρεάν και μόνο του: το ``price`` είναι 0.'
+        freeShippingThreshold:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+          description: Το χαμηλότερο υποσύνολο προϊόντων, μετά τις εκπτώσεις, από το οποίο μια μεταφορική που μπορεί να πάρει αυτό το προϊόν το αποστέλλει δωρεάν. Null όταν καμία δεν το κάνει ποτέ.
+      required:
+        - countryCode
+        - currency
+        - free
+        - freeShippingThreshold
+        - price
     ProductVariant:
       type: object
       description: |-
@@ -51899,7 +52615,7 @@ components:
       type: object
       description: |-
         Each optional feature's effective state for the store: its plan
-        flag AND its store settings (``tenant/features.py``), so a client reads
+        flag AND its store settings (``src/tenant/features.py``), so a client reads
         one answer instead of combining the two tiers and copying defaults.
       properties:
         customerAccounts:
@@ -52039,7 +52755,7 @@ components:
     StorePreferences:
       type: object
       description: |-
-        Each store preference's state (``tenant/features.py``): a switch the
+        Each store preference's state (``src/tenant/features.py``): a switch the
         API does not refuse on, served here so a client learns it from the
         tenant payload instead of a settings read that can fail.
       properties:
@@ -53475,11 +54191,21 @@ components:
           type: string
           description: Διαδρομή avatar ή κενή συμβολοσειρά
           readOnly: true
+        mainImageWidth:
+          type: integer
+          readOnly: true
+          nullable: true
+        mainImageHeight:
+          type: integer
+          readOnly: true
+          nullable: true
       required:
         - firstName
         - id
         - lastName
+        - mainImageHeight
         - mainImagePath
+        - mainImageWidth
         - username
     UserSubscription:
       type: object

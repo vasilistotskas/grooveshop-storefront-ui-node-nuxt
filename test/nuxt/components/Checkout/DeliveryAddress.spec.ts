@@ -107,6 +107,18 @@ describe.each(trees(DeliveryAddress, WebsideDeliveryAddress))('$tree Checkout/De
       expect(streetNumber.attributes('inputmode')).toBeUndefined()
     })
 
+    // django-api #769: what the street line leaves out, optional.
+    it('offers an optional address line 2, filled in by autofill', async () => {
+      const formState = makeFormState()
+      const wrapper = await mount({ formState })
+
+      const line2 = wrapper.get('input[autocomplete="address-line2"]')
+      expect(line2.attributes('name')).toBe('addressLine2')
+      expect(line2.attributes('required')).toBeUndefined()
+      await line2.setValue('3ος όροφος')
+      expect(formState.addressLine2).toBe('3ος όροφος')
+    })
+
     it('shows the selected country\'s postcode example as the placeholder', async () => {
       const wrapper = await mount()
 

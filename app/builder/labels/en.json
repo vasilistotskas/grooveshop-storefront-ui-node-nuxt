@@ -550,6 +550,7 @@
     },
     "icon": {
       "i-fa6-solid-desktop": "Desktop computer",
+      "i-fa6-solid-gamepad": "Game controller",
       "i-fa6-solid-globe": "Globe",
       "i-fa6-solid-microchip": "Microchip",
       "i-fa6-solid-mobile": "Mobile phone",

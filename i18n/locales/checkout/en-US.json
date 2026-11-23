@@ -134,6 +134,8 @@
     "street_number": "Street Number",
     "street_placeholder": "e.g. Egnatias",
     "street_number_placeholder": "e.g. 12",
+    "address_line_2": "Apartment, floor, building",
+    "address_line_2_placeholder": "e.g. 3rd floor, apt. 5",
     "zipcode_placeholder": "e.g. {example}",
     "customer_notes": "Notes",
     "customer_notes_help": "Optional delivery instructions printed on the courier voucher (e.g. \"ring twice\", \"leave with the concierge\").",

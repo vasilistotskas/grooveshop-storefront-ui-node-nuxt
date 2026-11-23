@@ -30,14 +30,14 @@ const deliveryTitle = computed(() => {
 
 // Where it goes: the picked locker, or the street address for a courier.
 const deliveryDetail = computed(() => {
-  const { shippingMethod, boxnowLocker, acsStation, street, streetNumber, zipcode, city } = props.formState
+  const { shippingMethod, boxnowLocker, acsStation, street, streetNumber, addressLine2, zipcode, city } = props.formState
   if (shippingMethod === 'box_now_locker') {
     return join([boxnowLocker?.name, boxnowLocker?.addressLine1], ' · ')
   }
   if (shippingMethod === 'acs_smartpoint') {
     return join([acsStation?.name, acsStation?.addressLine1], ' · ')
   }
-  return join([join([street, streetNumber], ' '), join([zipcode, city], ' ')], ', ')
+  return join([join([street, streetNumber], ' '), addressLine2, join([zipcode, city], ' ')], ', ')
 })
 
 const isInvoice = computed(() => props.formState.documentType === 'INVOICE')

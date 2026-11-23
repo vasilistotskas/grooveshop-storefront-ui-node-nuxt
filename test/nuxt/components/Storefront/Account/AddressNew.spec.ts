@@ -309,6 +309,21 @@ describe.each(trees(NewAddressPage, WebsideNewAddressPage))('$tree account/addre
       expect(navigateToMock).toHaveBeenCalledExactlyOnceWith(useLocalePath()('account-addresses'))
     })
 
+    // django-api #769: the saved address keeps what its street line leaves out.
+    it('saves the address line 2 typed in its own optional field', async () => {
+      mockApi.mockReset().mockResolvedValue({})
+      const wrapper = await mountSuspended(C)
+      await flushPromises()
+      const line2 = wrapper.find('input[autocomplete="address-line2"]')
+      expect(line2.attributes('required')).toBeUndefined()
+
+      await line2.setValue('3ος όροφος, διαμ. 5')
+      await submitValid(wrapper)
+
+      const call = mockApi.mock.calls.find(([url]) => url === '/api/user/addresses')
+      expect(call?.[1]).toMatchObject({ method: 'POST', body: { addressLine2: '3ος όροφος, διαμ. 5' } })
+    })
+
     it('puts the field errors Django names under their inputs and stays', async () => {
       mockApi.mockReset().mockImplementation(failWith(400, { fields: { title: [{ message: 'Ο τίτλος υπάρχει ήδη.', code: 'unique' }] } }))
       const wrapper = await mountSuspended(C)

@@ -896,6 +896,14 @@ export type BlogCategory = {
      */
   readonly hasChildren: boolean
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  readonly icon: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -944,6 +952,14 @@ export type BlogCategoryDetail = {
      */
   readonly hasChildren: boolean
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  readonly icon: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -1014,6 +1030,12 @@ export type BlogCategoryWriteRequest = {
      * Εικόνα
      */
   image?: Blob | File | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  icon?: string
 }
 
 /**
@@ -1247,6 +1269,8 @@ export type BlogPost = {
      */
   readonly updatedAt: string
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly readingTime: number
   readonly contentPreview: string
 }
@@ -1316,6 +1340,8 @@ export type BlogPostDetail = {
      */
   readonly updatedAt: string
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly readingTime: number
   readonly contentPreview: string
   readonly likes: Array<number>
@@ -1634,11 +1660,11 @@ export type BoxNowLocker = {
      */
   readonly note: string
   /**
-     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.
+     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: σε κατάστημα στο live δίκτυο της BOX NOW το locker τότε δεν δέχεται καμία παραγγελία· ένα κατάστημα στο δίκτυο stage της BOX NOW δεν έχει μεγέθη και δεν ελέγχει κανένα.
      */
   readonly compartmentSizes: Array<number>
   /**
-     * Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
+     * True όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· false όταν δεν είναι γνωστή.
      */
   readonly limitedAvailability: boolean
   /**
@@ -1723,11 +1749,11 @@ export type BoxNowLockerDetail = {
      */
   readonly note: string
   /**
-     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: το locker τότε δεν ταιριάζει σε καμία παραγγελία.
+     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: σε κατάστημα στο live δίκτυο της BOX NOW το locker τότε δεν δέχεται καμία παραγγελία· ένα κατάστημα στο δίκτυο stage της BOX NOW δεν έχει μεγέθη και δεν ελέγχει κανένα.
      */
   readonly compartmentSizes: Array<number>
   /**
-     * Αληθές όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· ψευδές όταν δεν είναι γνωστή.
+     * True όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· false όταν δεν είναι γνωστή.
      */
   readonly limitedAvailability: boolean
   /**
@@ -6255,6 +6281,12 @@ export type PatchedBlogCategoryWriteRequest = {
      * Εικόνα
      */
   image?: Blob | File | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  icon?: string
 }
 
 /**
@@ -7423,6 +7455,8 @@ export type Product = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -7584,6 +7618,8 @@ export type ProductCard = {
   readonly announcedDiscountPercent: number | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Return the average review rating for this product.
      */
@@ -7932,6 +7968,8 @@ export type ProductDetail = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8045,6 +8083,8 @@ export type ProductDetailResponse = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8213,6 +8253,8 @@ export type ProductFeed = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8276,6 +8318,8 @@ export type ProductImage = {
     }
   }
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -8317,15 +8361,12 @@ export type ProductImageDetail = {
     }
   }
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
-  readonly imageDimensions: {
-    width?: number
-    height?: number
-    aspectRatio?: number
-  }
   readonly imageFormat: string
   readonly usageContext: {
     isMain?: boolean
@@ -8665,6 +8706,8 @@ export type ProductRetrieve = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8802,6 +8845,42 @@ export type ProductReviewWriteRequest = {
       comment?: string
     }
   }
+}
+
+/**
+ * Response payload of the product shipping endpoint.
+ */
+export type ProductShipping = {
+  /**
+     * Null όταν το κατάστημα δεν αποστέλλει πουθενά ή όταν καμία αποστολή που προσφέρει δεν μπορεί να πάρει αυτό το προϊόν.
+     */
+  estimate: ProductShippingEstimate | null
+}
+
+/**
+ * The cheapest delivery of one product bought on its own.
+ */
+export type ProductShippingEstimate = {
+  /**
+     * Η χώρα για την οποία υπολογίστηκε η τιμή: η πρώτη χώρα αποστολής του καταστήματος, αυτή που προεπιλέγει η ολοκλήρωση αγοράς.
+     */
+  countryCode: string
+  /**
+     * Η φθηνότερη αποστολή που θα χρέωνε η ολοκλήρωση αγοράς σε ένα καλάθι μόνο με αυτό το προϊόν, μετά το όριο δωρεάν αποστολής και τις προωθήσεις δωρεάν αποστολής.
+     */
+  price: number
+  /**
+     * Νόμισμα των ``price`` και ``free_shipping_threshold``.
+     */
+  currency: string
+  /**
+     * Το προϊόν αποστέλλεται δωρεάν και μόνο του: το ``price`` είναι 0.
+     */
+  free: boolean
+  /**
+     * Το χαμηλότερο υποσύνολο προϊόντων, μετά τις εκπτώσεις, από το οποίο μια μεταφορική που μπορεί να πάρει αυτό το προϊόν το αποστέλλει δωρεάν. Null όταν καμία δεν το κάνει ποτέ.
+     */
+  freeShippingThreshold: number | null
 }
 
 /**
@@ -10208,7 +10287,7 @@ export type StoreFeatureStates = {
 
 /**
  * Each optional feature's effective state for the store: its plan
- * flag AND its store settings (``tenant/features.py``), so a client reads
+ * flag AND its store settings (``src/tenant/features.py``), so a client reads
  * one answer instead of combining the two tiers and copying defaults.
  */
 export type StoreFeatures = {
@@ -10271,7 +10350,7 @@ export type StoreOfficeOverride = {
 }
 
 /**
- * Each store preference's state (``tenant/features.py``): a switch the
+ * Each store preference's state (``src/tenant/features.py``): a switch the
  * API does not refuse on, served here so a client learns it from the
  * tenant payload instead of a settings read that can fail.
  */
@@ -11197,6 +11276,8 @@ export type UserPublic = {
      * Διαδρομή avatar ή κενή συμβολοσειρά
      */
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 export type UserSubscription = {
@@ -21180,6 +21261,200 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses]
 
+export type ListAllCountriesData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Φίλτρο ανά ακριβή διψήφιο κωδικό χώρας
+         */
+    alpha2?: string
+    /**
+         * Φίλτρο ανά διψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+         */
+    alpha2_Icontains?: string
+    alpha2_Iexact?: string
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    alpha2_In?: string | Array<string>
+    /**
+         * Φίλτρο ανά ακριβή τριψήφιο κωδικό χώρας
+         */
+    alpha3?: string
+    /**
+         * Φίλτρο ανά τριψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+         */
+    alpha3_Icontains?: string
+    alpha3_Iexact?: string
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    alpha3_In?: string | Array<string>
+    /**
+         * Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)
+         *
+         * * `AF` - Africa
+         * * `AS` - Asia
+         * * `EU` - Europe
+         * * `NA` - North America
+         * * `OC` - Oceania
+         * * `SA` - South America
+         * * `AN` - Antarctica
+         */
+    continent?: 'AF' | 'AN' | 'AS' | 'EU' | 'NA' | 'OC' | 'SA'
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο χωρών με πλήρη δεδομένα (ISO, κλήση, σημαία, όνομα)
+         */
+    hasAllData?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς εικόνα σημαίας
+         */
+    hasFlagImage?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς κωδικό ISO
+         */
+    hasIsoCc?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς μετάφραση ονόματος
+         */
+    hasName?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς κωδικό κλήσης
+         */
+    hasPhoneCode?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών μελών ΕΕ
+         */
+    isEu?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβή ISO κωδικό χώρας
+         */
+    isoCc?: string | number
+    isoCc_Gte?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    isoCc_In?: string | Array<number>
+    isoCc_Lte?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό ISO μικρότερο ή ίσο με
+         */
+    isoCcMax?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό ISO μεγαλύτερο ή ίσο με
+         */
+    isoCcMin?: string | number
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en)
+         */
+    languageCode?: 'el' | 'en'
+    /**
+         * Φίλτρο ανά πολλαπλούς κωδικούς χωρών (διαχωρισμένους με κόμμα, alpha-2 ή alpha-3)
+         */
+    multipleCodes?: string
+    /**
+         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
+         */
+    name?: string
+    /**
+         * Φίλτρο ανά ακριβές όνομα χώρας
+         */
+    name_Exact?: string
+    /**
+         * Φίλτρο χωρών με όνομα που ξεκινά με
+         */
+    name_Startswith?: string
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name
+         */
+    ordering?: string
+    /**
+         * Φίλτρο ανά ακριβή κωδικό κλήσης
+         */
+    phoneCode?: string | number
+    phoneCode_Gte?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    phoneCode_In?: string | Array<number>
+    phoneCode_Lte?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό κλήσης μικρότερο ή ίσο με
+         */
+    phoneCodeMax?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό κλήσης μεγαλύτερο ή ίσο με
+         */
+    phoneCodeMin?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+    /**
+         * Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
+    sortOrder?: string | number
+    sortOrder_Gte?: string | number
+    sortOrder_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+  }
+  url: '/api/v1/country/all'
+}
+
+export type ListAllCountriesErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListAllCountriesError = ListAllCountriesErrors[keyof ListAllCountriesErrors]
+
+export type ListAllCountriesResponses = {
+  200: Array<Country>
+}
+
+export type ListAllCountriesResponse = ListAllCountriesResponses[keyof ListAllCountriesResponses]
+
 export type ConfirmUnsubscribeFromEmailData = {
   body?: never
   path: {
@@ -21326,6 +21601,34 @@ export type ListMyGiftCardsResponses = {
 }
 
 export type ListMyGiftCardsResponse = ListMyGiftCardsResponses[keyof ListMyGiftCardsResponses]
+
+export type ListAllMyGiftCardsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en)
+         */
+    languageCode?: 'el' | 'en'
+  }
+  url: '/api/v1/giftcard/mine/all'
+}
+
+export type ListAllMyGiftCardsErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListAllMyGiftCardsError = ListAllMyGiftCardsErrors[keyof ListAllMyGiftCardsErrors]
+
+export type ListAllMyGiftCardsResponses = {
+  200: Array<GiftCard>
+}
+
+export type ListAllMyGiftCardsResponse = ListAllMyGiftCardsResponses[keyof ListAllMyGiftCardsResponses]
 
 export type PurchaseGiftCardData = {
   body: GiftCardPurchaseRequestRequest
@@ -28079,13 +28382,9 @@ export type ListBoxNowLockerData = {
   path?: never
   query?: {
     /**
-         * Μόνο lockers που έχουν θυρίδα αυτού του μεγέθους (1 μικρό, 2 μεσαίο, 3 μεγάλο), με ακριβή αντιστοίχιση όπως κάνει ο δικός της επιλογέας της BOX NOW. Ένα locker με άγνωστα μεγέθη δεν ταιριάζει ποτέ.
-         *
-         * * `1` - Μικρό
-         * * `2` - Μεσαίο
-         * * `3` - Μεγάλο
+         * Μόνο lockers που έχουν θυρίδα αυτού του μεγέθους (1 μικρό, 2 μεσαίο, 3 μεγάλο), με ακριβή αντιστοίχιση όπως κάνει ο δικός της επιλογέας της BOX NOW. Ένα locker με άγνωστα μεγέθη δεν ταιριάζει ποτέ. Αγνοείται σε κατάστημα που δεν είναι στο live δίκτυο της BOX NOW, όπου κανένα locker δεν έχει μέγεθος.
          */
-    compartmentSize?: 1 | 2 | 3
+    compartmentSize?: string | number
     /**
          * Χώρα του locker κατά ISO 3166-1 alpha-2.
          */
@@ -28351,6 +28650,27 @@ export type GetShippingPolicyResponses = {
 }
 
 export type GetShippingPolicyResponse = GetShippingPolicyResponses[keyof GetShippingPolicyResponses]
+
+export type GetProductShippingData = {
+  body?: never
+  path: {
+    productId: string | number
+  }
+  query?: never
+  url: '/api/v1/shipping/product/{product_id}'
+}
+
+export type GetProductShippingErrors = {
+  404: ErrorResponse
+}
+
+export type GetProductShippingError = GetProductShippingErrors[keyof GetProductShippingErrors]
+
+export type GetProductShippingResponses = {
+  200: ProductShipping
+}
+
+export type GetProductShippingResponse = GetProductShippingResponses[keyof GetProductShippingResponses]
 
 export type ApiV1ShippingProvidersListData = {
   body?: never

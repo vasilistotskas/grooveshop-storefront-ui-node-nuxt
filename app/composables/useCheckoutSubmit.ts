@@ -257,6 +257,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       phone: normalizePhone(formState.phone, selectedCountry.value),
       street: formState.street,
       streetNumber: formState.streetNumber,
+      addressLine2: formState.addressLine2?.trim() || undefined,
       city: formState.city,
       zipcode: normalizePostcode(formState.zipcode),
       country: formState.country,

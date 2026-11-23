@@ -82,6 +82,7 @@ export async function useAddressForm(options: {
     lastName: address?.lastName,
     street: address?.street,
     streetNumber: address?.streetNumber,
+    addressLine2: address?.addressLine2,
     city: address?.city,
     zipcode: address?.zipcode,
     // Stored as E.164 (e.g. "+306912345678"); the phone field parses it back

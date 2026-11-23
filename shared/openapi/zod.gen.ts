@@ -289,6 +289,9 @@ export const zBlogCategory = z.object({
   postCount: z.int().readonly(),
   hasChildren: z.boolean().readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
+  icon: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
 })
@@ -315,6 +318,9 @@ export const zBlogCategoryDetail = z.object({
   postCount: z.int().readonly(),
   hasChildren: z.boolean().readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
+  icon: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   children: z.array(zBlogCategory).readonly(),
@@ -358,6 +364,7 @@ export const zBlogCategoryWriteRequest = z.object({
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   parent: z.int().nullish(),
   image: z.string().nullish(),
+  icon: z.string().max(100).optional(),
 })
 
 export const zBlogCommentLikedCommentsRequestRequest = z.object({
@@ -414,6 +421,8 @@ export const zBlogPost = z.object({
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   readingTime: z.int().readonly(),
   contentPreview: z.string().readonly(),
 })
@@ -2194,6 +2203,7 @@ export const zPatchedBlogCategoryWriteRequest = z.object({
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   parent: z.int().nullish(),
   image: z.string().nullish(),
+  icon: z.string().max(100).optional(),
 })
 
 /**
@@ -2928,6 +2938,8 @@ export const zProductCard = z.object({
   announcedDiscountPercent: z.int().readonly().nullable(),
   potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -3188,6 +3200,8 @@ export const zProductImage = z.object({
     }).optional(),
   }),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
 })
 
@@ -3299,6 +3313,24 @@ export const zProductPriceSpell = z.object({
 export const zProductPriceHistory = z.object({
   currency: z.string().readonly(),
   spells: z.array(zProductPriceSpell).readonly(),
+})
+
+/**
+ * The cheapest delivery of one product bought on its own.
+ */
+export const zProductShippingEstimate = z.object({
+  countryCode: z.string().max(2),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  currency: z.string().max(3),
+  free: z.boolean(),
+  freeShippingThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
+})
+
+/**
+ * Response payload of the product shipping endpoint.
+ */
+export const zProductShipping = z.object({
+  estimate: zProductShippingEstimate.nullable(),
 })
 
 /**
@@ -3891,6 +3923,8 @@ export const zProduct = z.object({
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
@@ -4135,6 +4169,8 @@ export const zProductDetail = z.object({
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
@@ -4200,6 +4236,8 @@ export const zProductDetailResponse = z.object({
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
@@ -4301,6 +4339,8 @@ export const zProductFeed = z.object({
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
@@ -4350,12 +4390,9 @@ export const zProductImageDetail = z.object({
     }).optional(),
   }),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
-  imageDimensions: z.object({
-    width: z.number().optional(),
-    height: z.number().optional(),
-    aspectRatio: z.number().optional(),
-  }).readonly(),
   imageFormat: z.string().readonly(),
   usageContext: z.object({
     isMain: z.boolean().optional(),
@@ -4419,6 +4456,8 @@ export const zProductRetrieve = z.object({
   reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   potentialPoints: z.int().gte(0).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
@@ -5433,7 +5472,7 @@ export const zBuilderFeatures = z.object({
 
 /**
  * Each optional feature's effective state for the store: its plan
- * flag AND its store settings (``tenant/features.py``), so a client reads
+ * flag AND its store settings (``src/tenant/features.py``), so a client reads
  * one answer instead of combining the two tiers and copying defaults.
  */
 export const zStoreFeatures = z.object({
@@ -5491,7 +5530,7 @@ export const zStoreOffice = z.object({
 })
 
 /**
- * Each store preference's state (``tenant/features.py``): a switch the
+ * Each store preference's state (``src/tenant/features.py``): a switch the
  * API does not refuse on, served here so a client learns it from the
  * tenant payload instead of a settings read that can fail.
  */
@@ -6538,6 +6577,8 @@ export const zUserPublic = z.object({
   firstName: z.string().readonly(),
   lastName: z.string().readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
 })
 
 /**
@@ -6678,6 +6719,8 @@ export const zBlogPostDetail = z.object({
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   mainImagePath: z.string().readonly(),
+  mainImageWidth: z.int().readonly().nullable(),
+  mainImageHeight: z.int().readonly().nullable(),
   readingTime: z.int().readonly(),
   contentPreview: z.string().readonly(),
   likes: z.array(z.int()).readonly(),
@@ -13080,6 +13123,169 @@ export const zUpdateCountryQuery = z.object({
 
 export const zUpdateCountryResponse = zCountryDetail
 
+export const zListAllCountriesQuery = z.object({
+  alpha2: z.string().optional(),
+  alpha2_Icontains: z.string().optional(),
+  alpha2_Iexact: z.string().optional(),
+  alpha2_In: z.union([
+    z.string(),
+    z.array(z.string()),
+  ]).optional(),
+  alpha3: z.string().optional(),
+  alpha3_Icontains: z.string().optional(),
+  alpha3_Iexact: z.string().optional(),
+  alpha3_In: z.union([
+    z.string(),
+    z.array(z.string()),
+  ]).optional(),
+  continent: z.enum([
+    'AF',
+    'AN',
+    'AS',
+    'EU',
+    'NA',
+    'OC',
+    'SA',
+  ]).optional(),
+  createdAfter: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Date: z.iso.date().optional(),
+  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).optional(),
+  hasAllData: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasFlagImage: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasIsoCc: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasName: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasPhoneCode: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  isEu: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  isoCc: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  isoCc_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  isoCc_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  isoCc_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  isoCcMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  isoCcMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
+  multipleCodes: z.string().optional(),
+  name: z.string().optional(),
+  name_Exact: z.string().optional(),
+  name_Startswith: z.string().optional(),
+  ordering: z.string().regex(/^(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name)(?:,(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name))*$/).optional(),
+  phoneCode: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  phoneCode_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  phoneCode_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  phoneCode_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  phoneCodeMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  phoneCodeMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().optional(),
+  shippable: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  sortOrder: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrder_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrder_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Date: z.iso.date().optional(),
+  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).optional(),
+  uuid: z.uuid().optional(),
+})
+
+export const zListAllCountriesResponse = z.array(zCountry)
+
 export const zConfirmUnsubscribeFromEmailPath = z.object({
   token: z.string(),
 })
@@ -13121,6 +13327,12 @@ export const zListMyGiftCardsQuery = z.object({
 })
 
 export const zListMyGiftCardsResponse = zPaginatedGiftCardList
+
+export const zListAllMyGiftCardsQuery = z.object({
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
+})
+
+export const zListAllMyGiftCardsResponse = z.array(zGiftCard)
 
 export const zPurchaseGiftCardBody = zGiftCardPurchaseRequestRequest
 
@@ -16816,9 +17028,8 @@ export const zFindNearestAcsStationsResponse = z.array(zAcsStation)
 
 export const zListBoxNowLockerQuery = z.object({
   compartmentSize: z.union([
-    z.literal(1),
-    z.literal(2),
-    z.literal(3),
+    z.string().regex(/^-?\d+$/),
+    z.int(),
   ]).optional(),
   countryCode: z.string().optional(),
   cursor: z.string().optional(),
@@ -16900,6 +17111,15 @@ export const zListShippingOptionsQuery = z.object({
 export const zListShippingOptionsResponse = z.array(zShippingOption)
 
 export const zGetShippingPolicyResponse = z.array(zShippingPolicyEntry)
+
+export const zGetProductShippingPath = z.object({
+  productId: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetProductShippingResponse = zProductShipping
 
 export const zApiV1ShippingProvidersListQuery = z.object({
   search: z.string().optional(),

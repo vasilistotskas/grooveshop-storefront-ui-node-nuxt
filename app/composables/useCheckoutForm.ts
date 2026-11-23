@@ -37,6 +37,9 @@ export async function useCheckoutForm() {
     zipcode: '',
     street: '',
     streetNumber: '',
+    // What the street line leaves out (apartment, floor, building):
+    // optional, printed under the street for the courier.
+    addressLine2: '',
     customerNotes: '',
     // Shipping method (Step 1 — new)
     shippingMethod: 'home_delivery' as ShippingMethodKey,
@@ -199,6 +202,7 @@ export async function useCheckoutForm() {
     phoneCountry: '',
     street: address.street,
     streetNumber: address.streetNumber,
+    addressLine2: address.addressLine2 ?? '',
     city: address.city,
     zipcode: address.zipcode,
     country: address.country,
@@ -372,6 +376,7 @@ export async function useCheckoutForm() {
     formState.phoneCountry = ''
     formState.street = ''
     formState.streetNumber = ''
+    formState.addressLine2 = ''
     formState.city = ''
     formState.zipcode = ''
     formState.region = ''
@@ -858,6 +863,7 @@ export async function useCheckoutForm() {
     // Django allows a blank street number; the courier voucher needs
     // one, so requiring it here is deliberately stricter.
     streetNumber: z.string().max(50, { error: t('validation.max', { max: 50 }) }).optional(),
+    addressLine2: z.string().max(255, { error: t('validation.max', { max: 255 }) }).optional(),
     saveAddress: z.boolean().optional(),
     // Optional label ("Home" / "Office" etc.) — only meaningful when
     // saveAddress is true. The pairing requirement is enforced in

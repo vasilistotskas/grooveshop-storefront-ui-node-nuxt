@@ -64,7 +64,7 @@ const {
   variantGroupSchema,
 } = await useProductDetail(productId, t)
 await categoriesReady
-const assurances = await useProductAssurances()
+const assurances = await useProductAssurances(productId)
 const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
 const formatProductPrice = (price?: number) => {
@@ -126,8 +126,9 @@ const priceDropOffered = computed(() =>
 )
 
 /**
- * The alerts dialog, mounted on its first open: the shopper's alerts
- * are looked up only for a shopper who asked.
+ * The alerts dialog, mounted on its first open. The shopper's alerts are
+ * one read per page (`useProductActiveAlert`): unless a sold-out card on
+ * the page has read them already, they are read then.
  */
 const notify = reactive({ mounted: false, open: false, kind: 'restock' as ProductAlertKindEnum })
 
@@ -160,9 +161,9 @@ useSeoMeta({
 
   ogTitle: () => productTitle.value,
   ogDescription: () => productDescription.value,
-  ogImage: () => ogImage.value,
-  ogImageWidth: OG_IMAGE_SIZE.width,
-  ogImageHeight: OG_IMAGE_SIZE.height,
+  ogImage: () => ogImage.value?.url,
+  ogImageWidth: () => ogImage.value?.width,
+  ogImageHeight: () => ogImage.value?.height,
   ogImageAlt: () => productTitle.value,
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,

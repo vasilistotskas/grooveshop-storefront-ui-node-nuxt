@@ -64,6 +64,8 @@ interface MenuTile {
   label: string
   /** Its page, before the locale prefix. */
   to: string
+  /** A blog topic's icon, drawn instead of the picture. */
+  icon?: string
   imagePath: string
   count: string
 }
@@ -108,6 +110,7 @@ const panels = computed<MenuPanel[]>(() => {
         id: topic.id,
         label: topic.label,
         to: topic.to,
+        icon: topic.icon,
         imagePath: topic.imagePath,
         count: t('articles_count', topic.postCount),
       })),
@@ -353,18 +356,12 @@ const items = computed(() => [
                         motion-reduce:transition-none
                       "
                     >
-                      <ImgWithFallback
-                        v-if="tile.imagePath"
+                      <WebsidePageMenuPicture
+                        v-if="tile.icon || tile.imagePath"
                         :src="tile.imagePath"
-                        alt=""
-                        :width="96"
-                        :height="96"
-                        fit="cover"
-                        loading="lazy"
-                        densities="x1 x2"
-                        class="
-                          size-24 shrink-0 rounded-lg bg-elevated object-cover
-                        "
+                        :icon="tile.icon"
+                        :size="96"
+                        class="size-24"
                       />
                       <span class="flex min-w-0 flex-col gap-1">
                         <span class="text-lg font-bold">{{ tile.label }}</span>

@@ -315,7 +315,9 @@
     "label": "Delivery, payment and returns",
     "delivery_range": "Delivery in {min}–{max} business days after dispatch",
     "delivery_days": "Delivery in {count} business day after dispatch | Delivery in {count} business days after dispatch",
-    "free_shipping_over": "Free shipping over {amount}",
+    "shipping_from": "Shipping from {price}",
+    "shipping_from_free_over": "Shipping from {price} · free over {amount}",
+    "ships_free": "Free shipping",
     "payment_card": "card",
     "payment_cash_on_delivery": "cash on delivery",
     "payment_bank_transfer": "bank transfer",
@@ -523,5 +525,16 @@
   "feeds": {
     "store": "{name}: articles and products",
     "blog": "{name}: articles"
+  },
+  "socials": {
+    "discord": "Discord",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "pinterest": "Pinterest",
+    "reddit": "Reddit",
+    "tiktok": "TikTok",
+    "twitter": "X",
+    "youtube": "YouTube"
   }
 }

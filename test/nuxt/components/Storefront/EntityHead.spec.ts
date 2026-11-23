@@ -12,6 +12,7 @@ import { makeBlogAuthor } from '~~/test/fixtures/blog'
 import { makeBuilderPage } from '~~/test/fixtures/builderPage'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { ARTICLE_IMAGE_SIZES, BLOG_COVER_CROP_POSITION, OG_IMAGE_BOX } from '~~/shared/constants'
 
 /**
  * The head of an ENGLISH entity page: its canonical and hreflang set
@@ -113,12 +114,17 @@ interface Head {
   canonicals: string[]
   alternates: Record<string, string>
   author: string | null | undefined
+  ogImage: string | null | undefined
+  ogImageSize: (string | null | undefined)[]
   /** The schema.org graph's nodes. */
   graph: Record<string, unknown>[]
 }
 
-/** Mount the page under the real head pipeline and read what a crawler would. */
-async function headOf(page: Component): Promise<Head> {
+/**
+ * Mount the page under the real head pipeline and read what a crawler would.
+ * `afterMount` runs between the mount and the read (a refresh of the page's data).
+ */
+async function headOf(page: Component, afterMount?: () => Promise<void>): Promise<Head> {
   const head = injectHead()
   const before = new Set(head.entries.keys())
   const Harness = defineComponent({
@@ -129,6 +135,10 @@ async function headOf(page: Component): Promise<Head> {
   })
   const wrapper = await mountSuspended(Harness, { route: false })
   await flushPromises()
+  if (afterMount) {
+    await afterMount()
+    await flushPromises()
+  }
   vi.useFakeTimers({ toFake: ['setTimeout'] })
   try {
     head.render()
@@ -149,6 +159,11 @@ async function headOf(page: Component): Promise<Head> {
       ]),
     ),
     author: document.querySelector('meta[name="author"]')?.getAttribute('content'),
+    ogImage: document.querySelector('meta[property="og:image"]')?.getAttribute('content'),
+    ogImageSize: [
+      document.querySelector('meta[property="og:image:width"]')?.getAttribute('content'),
+      document.querySelector('meta[property="og:image:height"]')?.getAttribute('content'),
+    ],
     graph: [...document.querySelectorAll('script[type="application/ld+json"]')]
       .flatMap(script => (JSON.parse(script.textContent || '{}')['@graph'] ?? []) as Record<string, unknown>[]),
   }
@@ -260,7 +275,13 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
     // An earlier test's category is still cached under its key.
     clearNuxtData(['blogCategory-2'])
     api.routes({
-      '/api/blog/posts/7': { ...post(GREEK_AND_ENGLISH), mainImagePath: 'media/shop/uploads/blog/cover.jpg' },
+      // A 440x300 cover: narrower than every box, so each is served smaller.
+      '/api/blog/posts/7': {
+        ...post(GREEK_AND_ENGLISH),
+        mainImagePath: 'media/shop/uploads/blog/cover.jpg',
+        mainImageWidth: 440,
+        mainImageHeight: 300,
+      },
       '/api/blog/categories/2': { ...post({}).category, translations: { en: { name: 'Guides' } } },
       '/api/shipping/policy': [],
       '/api/*': { count: 0, next: null, previous: null, results: [] },
@@ -269,13 +290,26 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
 
     const head = await headOf(Component)
 
-    // The cover, the image the Article names, not the store's logo.
+    // The cover in Google's three shapes, each one ImageObject cut where
+    // the page's cover is, stating the size the media service serves it at
+    // from a 440x300 source, all three the Article's images. The page's primary image is the 16:9 one by reference, not the
+    // store's logo or a second copy.
     const webPage = head.graph.find(node => [node['@type']].flat().includes('WebPage'))
     const article = head.graph.find(node => node['@type'] === 'Article')
-    const primary = (webPage?.primaryImageOfPage as { url: string }).url
-    const articleImage = head.graph.find(node => node['@id'] === (article?.image as { '@id': string })['@id'])
-    expect(primary).toContain('/media/shop/uploads/blog/cover.jpg/')
-    expect(articleImage?.url).toBe(primary)
+    const covers = head.graph.filter(node => node['@type'] === 'ImageObject' && String(node.url).includes('/cover.jpg/'))
+    const coverOf = ({ width, height }: { width: number, height: number }) =>
+      covers.find(node => String(node.url).includes(`/cover.jpg/${width}/${height}/cover/${BLOG_COVER_CROP_POSITION}/`))
+    const expected = ARTICLE_IMAGE_SIZES.map(coverOf)
+    expect(covers).toHaveLength(ARTICLE_IMAGE_SIZES.length)
+    expect(expected.map(node => [node?.width, node?.height])).toEqual([[440, 247], [400, 300], [300, 300]])
+    // A set: this harness renders every mount of the file into one head, and
+    // the second tree's Article is merged with an earlier one, which repeats
+    // its arrays (`articleSection` too). A server render names each once.
+    expect(new Set((article?.image as { '@id'?: string }[]).map(ref => ref['@id']).filter(Boolean)))
+      .toEqual(new Set(expected.map(node => node?.['@id'])))
+    expect(webPage?.primaryImageOfPage).toEqual({ '@id': expected[0]?.['@id'] })
+    expect(head.ogImage).toContain(`/cover.jpg/${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}/cover/${BLOG_COVER_CROP_POSITION}/`)
+    expect(head.ogImageSize).toEqual(['440', '231'])
 
     const list = head.graph.find(node => node['@type'] === 'BreadcrumbList')
     const crumbs = (list?.itemListElement as { name: string, item?: string }[])
@@ -286,6 +320,52 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
       ['Guides', '/en/blog/category/2/guides'],
       ['Spring guide', '/en/blog/post/7/spring-guide'],
     ])
+  })
+
+  it('states no size for a cover that was not measured', async () => {
+    clearNuxtData(['blogCategory-2'])
+    api.routes({
+      '/api/blog/posts/7': {
+        ...post(GREEK_AND_ENGLISH),
+        mainImagePath: 'media/shop/uploads/blog/cover.svg',
+        mainImageWidth: null,
+        mainImageHeight: null,
+      },
+      '/api/blog/categories/2': { ...post({}).category, translations: { en: { name: 'Guides' } } },
+      '/api/shipping/policy': [],
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    const head = await headOf(Component)
+
+    const covers = head.graph.filter(node => node['@type'] === 'ImageObject' && String(node.url).includes('/cover.svg/'))
+    expect(covers).toHaveLength(ARTICLE_IMAGE_SIZES.length)
+    expect(covers.every(node => !('width' in node) && !('height' in node))).toBe(true)
+    expect(head.ogImage).toContain('/cover.svg/')
+    expect(head.ogImageSize).toEqual([undefined, undefined])
+  })
+
+  it('names the cover the post has now after its data is refreshed', async () => {
+    clearNuxtData(['blogCategory-2'])
+    const routes = (cover: string) => ({
+      '/api/blog/posts/7': { ...post(GREEK_AND_ENGLISH), mainImagePath: `media/shop/uploads/blog/${cover}` },
+      '/api/blog/categories/2': { ...post({}).category, translations: { en: { name: 'Guides' } } },
+      '/api/shipping/policy': [],
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+    api.routes(routes('old-cover.jpg'))
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    const head = await headOf(Component, async () => {
+      api.routes(routes('new-cover.jpg'))
+      await refreshNuxtData('blogPost7')
+    })
+
+    const covers = head.graph.filter(node => node['@type'] === 'ImageObject' && String(node.url).includes('/uploads/blog/'))
+    expect(covers.map(node => new URL(String(node.url)).pathname.split('/uploads/blog/')[1]?.split('/')[0]))
+      .toEqual(ARTICLE_IMAGE_SIZES.map(() => 'new-cover.jpg'))
+    expect(head.ogImage).toContain('/uploads/blog/new-cover.jpg/')
   })
 
   it('canonicalises to the Greek post, and offers no English version, when it is not written in English', async () => {
@@ -308,10 +388,10 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('head of an English pr
   })
 
   /** Serve the product, and the empty answer to everything else the page asks. */
-  function serve(translations: Record<string, unknown>) {
+  function serve(translations: Record<string, unknown>, image: Record<string, unknown> = {}) {
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
-      '/api/products/123': product(translations),
+      '/api/products/123': { ...product(translations), ...image },
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
@@ -348,6 +428,25 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('head of an English pr
       { path: '/en/products/123/bluetooth-speaker', query: {}, hash: '' },
       { redirectCode: 301, replace: true },
     ]])
+  })
+
+  it('states the size its og:image is served at, and none when the photo was not measured', async () => {
+    const photo = { mainImagePath: 'media/shop/uploads/products/speaker.jpg' }
+    serve(makeProduct({ id: 123 }).translations, { ...photo, mainImageWidth: 1000, mainImageHeight: 1000 })
+    visit('/en/products/123/bluetooth-speaker', 'products-id-slug___en', { id: '123', slug: 'bluetooth-speaker' })
+
+    const measured = await headOf(Component)
+
+    expect(measured.ogImage).toContain(`/speaker.jpg/${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}/cover/`)
+    expect(measured.ogImageSize).toEqual(['1000', '525'])
+
+    clearNuxtData()
+    serve(makeProduct({ id: 123 }).translations, { ...photo, mainImageWidth: null, mainImageHeight: null })
+
+    const unmeasured = await headOf(Component)
+
+    expect(unmeasured.ogImage).toContain('/speaker.jpg/')
+    expect(unmeasured.ogImageSize).toEqual([undefined, undefined])
   })
 
   it('canonicalises to the Greek product, and offers no English version, when it has no English name', async () => {

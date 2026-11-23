@@ -24,93 +24,45 @@ defineProps({
   },
 })
 
-const { t } = useStoreI18n('components/variants/webside/Socials')
-const tenantStore = useTenantStore()
+/**
+ * The store's networks in webside's order: LinkedIn last, as the store
+ * asked (2026-11-21).
+ */
+const ORDER = [
+  'instagram',
+  'tiktok',
+  'reddit',
+  'youtube',
+  'pinterest',
+  'facebook',
+  'twitter',
+  'discord',
+  'linkedin',
+] as const satisfies readonly SocialNetwork[]
 
-interface SocialItem {
-  key: string
-  to?: string
-  icon: string
-  label: string
-  /** Tailwind arbitrary-value hex — hover/focus color only. */
-  colorClass: string
+/** Tailwind arbitrary-value hex — hover/focus color only. */
+const BRAND_COLOR_CLASS: Record<SocialNetwork, string> = {
+  instagram: 'hover:text-[#E4405F] focus-visible:text-[#E4405F]',
+  tiktok: 'hover:text-[#010101] focus-visible:text-[#010101] dark:hover:text-white dark:focus-visible:text-white',
+  reddit: 'hover:text-[#FF4500] focus-visible:text-[#FF4500]',
+  youtube: 'hover:text-[#FF0000] focus-visible:text-[#FF0000]',
+  pinterest: 'hover:text-[#E60023] focus-visible:text-[#E60023]',
+  facebook: 'hover:text-[#1877F2] focus-visible:text-[#1877F2]',
+  twitter: 'hover:text-[#010101] focus-visible:text-[#010101] dark:hover:text-white dark:focus-visible:text-white',
+  discord: 'hover:text-[#5865F2] focus-visible:text-[#5865F2]',
+  linkedin: 'hover:text-[#0A66C2] focus-visible:text-[#0A66C2]',
 }
 
-// Tenant-only — no platform/env fallback (each tenant links its own
-// social accounts; a shared link would misattribute traffic).
-function socialUrl(key: string): string | undefined {
-  return (tenantStore.socials as Record<string, string>)[key] || undefined
-}
-
-const socials = computed<SocialItem[]>(() => [
-  {
-    key: 'instagram',
-    to: socialUrl('instagram'),
-    icon: 'i-mdi-instagram',
-    label: t('instagram'),
-    colorClass: 'hover:text-[#E4405F] focus-visible:text-[#E4405F]',
-  },
-  {
-    key: 'tiktok',
-    to: socialUrl('tiktok'),
-    icon: 'i-ant-design-tik-tok-filled',
-    label: t('tiktok'),
-    colorClass: 'hover:text-[#010101] focus-visible:text-[#010101] dark:hover:text-white dark:focus-visible:text-white',
-  },
-  {
-    key: 'reddit',
-    to: socialUrl('reddit'),
-    icon: 'i-mdi-reddit',
-    label: t('reddit'),
-    colorClass: 'hover:text-[#FF4500] focus-visible:text-[#FF4500]',
-  },
-  {
-    key: 'youtube',
-    to: socialUrl('youtube'),
-    icon: 'i-mdi-youtube',
-    label: t('youtube'),
-    colorClass: 'hover:text-[#FF0000] focus-visible:text-[#FF0000]',
-  },
-  {
-    key: 'pinterest',
-    to: socialUrl('pinterest'),
-    icon: 'i-mdi-pinterest',
-    label: t('pinterest'),
-    colorClass: 'hover:text-[#E60023] focus-visible:text-[#E60023]',
-  },
-  {
-    key: 'linkedin',
-    to: socialUrl('linkedin'),
-    icon: 'i-mdi-linkedin',
-    label: t('linkedin'),
-    colorClass: 'hover:text-[#0A66C2] focus-visible:text-[#0A66C2]',
-  },
-  {
-    key: 'facebook',
-    to: socialUrl('facebook'),
-    icon: 'i-mdi-facebook',
-    label: t('facebook'),
-    colorClass: 'hover:text-[#1877F2] focus-visible:text-[#1877F2]',
-  },
-  {
-    key: 'discord',
-    to: socialUrl('discord'),
-    icon: 'i-mdi-discord',
-    label: t('discord'),
-    colorClass: 'hover:text-[#5865F2] focus-visible:text-[#5865F2]',
-  },
-])
-
-const visible = computed(() => socials.value.filter(s => !!s.to))
+const { socials } = useStoreSocials(ORDER)
 </script>
 
 <template>
   <UButton
-    v-for="s in visible"
+    v-for="s in socials"
     :key="s.key"
     :external="true"
     :size="buttonSize"
-    :to="s.to"
+    :to="s.url"
     color="neutral"
     target="_blank"
     rel="noopener noreferrer"
@@ -122,31 +74,10 @@ const visible = computed(() => socials.value.filter(s => !!s.to))
         transition-colors
         motion-reduce:transition-none
       `,
-      s.colorClass,
+      BRAND_COLOR_CLASS[s.key],
     ]"
   >
     <UIcon :name="s.icon" :class="iconClass" />
     <span class="sr-only">{{ s.label }}</span>
   </UButton>
 </template>
-
-<i18n lang="yaml">
-el:
-  instagram: Instagram
-  linkedin: LinkedIn
-  tiktok: TikTok
-  reddit: Reddit
-  youtube: YouTube
-  pinterest: Pinterest
-  facebook: Facebook
-  discord: Discord
-en:
-  instagram: Instagram
-  linkedin: LinkedIn
-  tiktok: TikTok
-  reddit: Reddit
-  youtube: YouTube
-  pinterest: Pinterest
-  facebook: Facebook
-  discord: Discord
-</i18n>

@@ -97,6 +97,14 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     })
   })
 
+  // The default card widens the square button to a 44px target
+  // (`min-w-11`): the icon stays in the middle of it.
+  it.runIf(tree === 'default')('centres the icon of the square button in the width its caller gives it', async () => {
+    const wrapper = await mount({ product: makeProduct(), iconOnly: true })
+
+    expect(wrapper.get('button').classes()).toContain('justify-center')
+  })
+
   describe('availability', () => {
     it.each([
       { case: 'an inactive product', product: { active: false }, quantity: 1, lines: [] },

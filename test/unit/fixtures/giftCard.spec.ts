@@ -10,6 +10,7 @@ describe('gift card fixtures', () => {
     ['makeGiftCard', makeGiftCard()],
     ['makeGiftCard, part-spent and expiring', makeGiftCard({ id: 2, balance: 12.5, expiresAt: '2027-01-01T00:00:00Z' })],
     ['makeGiftCard, disabled', makeGiftCard({ id: 3, status: 'DISABLED' })],
+    ['makeGiftCard, issued with no recipient', makeGiftCard({ id: 4, recipientEmail: null, recipientName: '' })],
   ] as const)('%s parses strictly', (_name, value) => {
     expect(problems(zGiftCard, value)).toEqual([])
   })

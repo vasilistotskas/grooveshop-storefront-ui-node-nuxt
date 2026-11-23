@@ -76,7 +76,7 @@ export function useProductCategoryRouteId() {
  */
 export async function useProductCategoryPage(categoryId: string | undefined, t: ReturnType<typeof useI18n>['t']) {
   const { locale } = useI18n({ useScope: 'global' })
-  const img = useMediaStreamImage()
+  const ogImageOf = useOgImage()
   const { ogImageUrl } = useTenantBranding()
   const baseUrl = useSiteConfig().url
   // Before the first await, like every composable here: it reads Pinia
@@ -136,23 +136,12 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
   // ProductCategoryDetail has no image field — use the first product image
   // from the SEO prefetch if available, otherwise fall back to the
   // tenant's logo (matches setups.ts:17) so OG previews carry the tenant
-  // brand, not the platform logo. Final fallback to the platform logo.
-  const ogImage = computed(() => {
-    const firstProduct = seoProducts.value?.results?.[0]
-    if (firstProduct?.mainImagePath) {
-      return img(firstProduct.mainImagePath, {
-        ...OG_IMAGE_SIZE,
-        fit: 'cover',
-        format: 'png',
-      }, {
-        provider: 'mediaStream',
-      })
-    }
-    return ogImageUrl.value
-  })
-
-  // Only the rendition has a known size; the logo fallback does not.
-  const ogImageIsRendition = computed(() => !!seoProducts.value?.results?.[0]?.mainImagePath)
+  // brand, not the platform logo. A search result carries no image size, so
+  // neither image states one.
+  const ogImage = computed(() =>
+    ogImageOf(seoProducts.value?.results?.[0]?.mainImagePath, { width: null, height: null })?.url
+    ?? ogImageUrl.value,
+  )
 
   // The canonical and the hreflang set are built from the entity's OWN
   // id+slug, never from route.path: the [slug] segment is decorative (the
@@ -186,8 +175,6 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
     ogDescription: () => categoryDescription.value,
     ogType: 'website',
     ogImage: () => ogImage.value,
-    ogImageWidth: () => ogImageIsRendition.value ? OG_IMAGE_SIZE.width : undefined,
-    ogImageHeight: () => ogImageIsRendition.value ? OG_IMAGE_SIZE.height : undefined,
     ogImageAlt: () => categoryName.value || t('title'),
   })
 

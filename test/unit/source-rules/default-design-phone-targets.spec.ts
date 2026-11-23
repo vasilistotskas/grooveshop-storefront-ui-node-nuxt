@@ -54,6 +54,7 @@ const TARGETS: Target[] = [
   { file: 'Pagination/PageNumber.vue', tag: 'UPagination', has: 'total', where: 'ui', kind: 'size' },
   { file: 'Pagination/Cursor.vue', tag: 'UButton', has: 'load.more', where: 'class', kind: 'height' },
   { file: 'Chrome/Footer.vue', tag: 'UColorModeSelect', has: 'neutral', where: 'ui', kind: 'height' },
+  { file: 'Chrome/FooterSocials.vue', tag: 'UButton', has: 'social.icon', where: 'class', kind: 'size' },
   { file: 'variants/webside/Cart/ItemCard.vue', tag: 'UButton', has: 'i-fa6-solid-trash', where: 'class', kind: 'size' },
   { file: 'variants/webside/Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'increment', kind: 'size' },
   { file: 'variants/webside/Quantity/Selector.vue', tag: 'UInputNumber', has: 'optimisticQuantity', where: 'decrement', kind: 'size' },
