@@ -192,6 +192,8 @@ export function makeProductSearchHit(overrides: Partial<ProductMeiliSearchResult
     master: id,
     slug: `product-${id}`,
     mainImagePath: '',
+    mainImageWidth: null,
+    mainImageHeight: null,
     matchesPosition: null,
     rankingScore: null,
     formatted: null,

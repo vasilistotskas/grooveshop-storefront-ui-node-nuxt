@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import handler from '~~/server/api/shipping/product/[productId].get'
+import handler from '~~/server/api/shipping/product/[product_id].get'
 import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse } from '~~/test/helpers/nitro'
 import { makeProductShipping } from '~~/test/fixtures/productShipping'
 
-const route = '/api/shipping/product/:productId'
+const route = '/api/shipping/product/:product_id'
 const priced = makeProductShipping()
 
-describe('GET /api/shipping/product/[productId]', () => {
+describe('GET /api/shipping/product/[product_id]', () => {
   it('asks Django what shipping one product costs, on the request\'s store', async () => {
     backend.reply(priced)
 
@@ -59,7 +59,7 @@ describe('GET /api/shipping/product/[productId]', () => {
     const { name, getKey } = cacheOptionsOf(handler)
     const keyFor = (productId: string) => getKey!(createTestEvent({
       url: `/api/shipping/product/${productId}`,
-      context: { params: { productId } },
+      context: { params: { product_id: productId } },
     }))
 
     expect(name).toBe('shipping.product')

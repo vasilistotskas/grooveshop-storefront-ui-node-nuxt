@@ -134,14 +134,17 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
   )
 
   // ProductCategoryDetail has no image field — use the first product image
-  // from the SEO prefetch if available, otherwise fall back to the
-  // tenant's logo (matches setups.ts:17) so OG previews carry the tenant
-  // brand, not the platform logo. A search result carries no image size, so
-  // neither image states one.
-  const ogImage = computed(() =>
-    ogImageOf(seoProducts.value?.results?.[0]?.mainImagePath, { width: null, height: null })?.url
-    ?? ogImageUrl.value,
-  )
+  // from the SEO prefetch if available, with the size it is served at,
+  // otherwise fall back to the tenant's logo (matches setups.ts:17) so OG
+  // previews carry the tenant brand, not the platform logo. The logo's size
+  // is not known, so it states none.
+  const ogImage = computed(() => {
+    const first = seoProducts.value?.results?.[0]
+    return ogImageOf(first?.mainImagePath, {
+      width: first?.mainImageWidth,
+      height: first?.mainImageHeight,
+    }) ?? { url: ogImageUrl.value }
+  })
 
   // The canonical and the hreflang set are built from the entity's OWN
   // id+slug, never from route.path: the [slug] segment is decorative (the
@@ -174,7 +177,9 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
     ogTitle: () => categoryName.value || t('title'),
     ogDescription: () => categoryDescription.value,
     ogType: 'website',
-    ogImage: () => ogImage.value,
+    ogImage: () => ogImage.value.url,
+    ogImageWidth: () => ogImage.value.width,
+    ogImageHeight: () => ogImage.value.height,
     ogImageAlt: () => categoryName.value || t('title'),
   })
 

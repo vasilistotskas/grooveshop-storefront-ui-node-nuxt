@@ -17836,7 +17836,7 @@
                     },
                     {
                         "in": "path",
-                        "name": "pageKey",
+                        "name": "page_key",
                         "schema": {
                             "type": "string"
                         },
@@ -18181,7 +18181,7 @@
                     },
                     {
                         "in": "path",
-                        "name": "pageKey",
+                        "name": "page_key",
                         "schema": {
                             "type": "string"
                         },
@@ -23928,7 +23928,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "alpha2",
+                        "name": "alpha_2",
                         "schema": {
                             "type": "string",
                             "title": "Κωδικός Χώρας (Alpha 2)"
@@ -24019,7 +24019,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "alpha2",
+                        "name": "alpha_2",
                         "schema": {
                             "type": "string",
                             "title": "Κωδικός Χώρας (Alpha 2)"
@@ -24146,7 +24146,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "alpha2",
+                        "name": "alpha_2",
                         "schema": {
                             "type": "string",
                             "title": "Κωδικός Χώρας (Alpha 2)"
@@ -24272,7 +24272,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "alpha2",
+                        "name": "alpha_2",
                         "schema": {
                             "type": "string",
                             "title": "Κωδικός Χώρας (Alpha 2)"
@@ -47853,7 +47853,7 @@
                     },
                     {
                         "in": "path",
-                        "name": "productId",
+                        "name": "product_id",
                         "schema": {
                             "oneOf": [
                                 {
@@ -49853,7 +49853,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "pickupListNo",
+                        "name": "pickup_list_no",
                         "schema": {
                             "type": "string"
                         },
@@ -49927,7 +49927,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "voucherNo",
+                        "name": "voucher_no",
                         "schema": {
                             "type": "string"
                         },
@@ -49972,7 +49972,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "voucherNo",
+                        "name": "voucher_no",
                         "schema": {
                             "type": "string"
                         },
@@ -50016,7 +50016,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "voucherNo",
+                        "name": "voucher_no",
                         "schema": {
                             "type": "string"
                         },
@@ -50725,7 +50725,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "parcelId",
+                        "name": "parcel_id",
                         "schema": {
                             "type": "string"
                         },
@@ -50770,7 +50770,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "parcelId",
+                        "name": "parcel_id",
                         "schema": {
                             "type": "string"
                         },
@@ -51017,7 +51017,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "productId",
+                        "name": "product_id",
                         "schema": {
                             "oneOf": [
                                 {
@@ -54554,7 +54554,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "exportId",
+                        "name": "export_id",
                         "schema": {
                             "oneOf": [
                                 {
@@ -77957,6 +77957,14 @@
                     "mainImagePath": {
                         "type": "string"
                     },
+                    "mainImageWidth": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "mainImageHeight": {
+                        "type": "integer",
+                        "nullable": true
+                    },
                     "matchesPosition": {},
                     "rankingScore": {
                         "type": "number",
@@ -78056,7 +78064,9 @@
                     "languageCode",
                     "likesCount",
                     "lowStockThreshold",
+                    "mainImageHeight",
                     "mainImagePath",
+                    "mainImageWidth",
                     "master",
                     "matchesPosition",
                     "name",
@@ -83279,31 +83289,11 @@
                         "title": "ID αντικειμένου"
                     },
                     "contentObject": {
-                        "type": "object",
-                        "description": "Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου",
-                        "properties": {
-                            "id": {
-                                "type": "integer",
-                                "example": 1
-                            },
-                            "name": {
-                                "type": "string",
-                                "example": "Sample Product"
-                            },
-                            "description": {
-                                "type": "string",
-                                "example": "Product description"
-                            },
-                            "price": {
-                                "type": "string",
-                                "example": "29.99"
-                            },
-                            "active": {
-                                "type": "boolean",
-                                "example": true
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Product"
                             }
-                        },
-                        "additionalProperties": true,
+                        ],
                         "readOnly": true
                     },
                     "createdAt": {
@@ -83367,31 +83357,11 @@
                         "title": "ID αντικειμένου"
                     },
                     "contentObject": {
-                        "type": "object",
-                        "description": "Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου",
-                        "properties": {
-                            "id": {
-                                "type": "integer",
-                                "example": 1
-                            },
-                            "name": {
-                                "type": "string",
-                                "example": "Sample Product"
-                            },
-                            "description": {
-                                "type": "string",
-                                "example": "Product description"
-                            },
-                            "price": {
-                                "type": "string",
-                                "example": "29.99"
-                            },
-                            "active": {
-                                "type": "boolean",
-                                "example": true
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Product"
                             }
-                        },
-                        "additionalProperties": true,
+                        ],
                         "readOnly": true
                     },
                     "createdAt": {

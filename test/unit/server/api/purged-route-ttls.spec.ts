@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import recommendations from '~~/server/api/products/[id]/recommendations.get'
 import reviews from '~~/server/api/products/[id]/reviews.get'
 import relatedPosts from '~~/server/api/blog/posts/[id]/related-posts.get'
-import promotions from '~~/server/api/promotions/product/[productId].get'
+import promotions from '~~/server/api/promotions/product/[product_id].get'
 import variants from '~~/server/api/products/[id]/variants.get'
 import { cacheOptionsOf } from '~~/test/helpers/nitro'
 
