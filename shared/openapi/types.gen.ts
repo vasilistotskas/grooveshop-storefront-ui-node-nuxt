@@ -10980,6 +10980,10 @@ export type UserAddress = {
      */
   region: string | null
   /**
+     * Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
+     */
+  readonly shippable: boolean
+  /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
@@ -11050,6 +11054,10 @@ export type UserAddressDetail = {
      * Κωδικός περιφέρειας
      */
   region: string | null
+  /**
+     * Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
+     */
+  readonly shippable: boolean
   /**
      * Δημιουργήθηκε στις
      */
@@ -27614,6 +27622,10 @@ export type ListRegionData = {
          */
     search?: string
     /**
+         * true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Φίλτρο ανά ακριβή σειρά
          */
     sortOrder?: string | number
@@ -27837,6 +27849,10 @@ export type ListRegionsByCountryData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en)
          */
     languageCode?: 'el' | 'en'
+    /**
+         * true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
   }
   url: '/api/v1/region/{alpha}/get_regions_by_country_alpha_2'
 }
@@ -28613,6 +28629,10 @@ export type ListShippingOptionsData = {
          * Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit.
          */
     orderValueAmount?: string | number
+    /**
+         * The delivery region's code, once chosen. A home delivery is priced by the shipping zone of the region; without one, by the zone covering the whole country.
+         */
+    regionId?: string
     /**
          * Total cart weight in grams. Threaded into the ACS live quote so the displayed price matches the weight-banded tariff bracket the voucher mint will charge. Optional; defaults to ACS's 500g minimum.
          */

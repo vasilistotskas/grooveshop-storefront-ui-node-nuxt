@@ -502,9 +502,12 @@
   },
   "errors": {
     "codes": {
+      "country_not_served": "We do not deliver to this country.",
       "must_have_purchased": "You can only review products you have bought.",
       "order_not_payable": "This order can no longer be paid: it has already been paid or was closed.",
-      "payment_window_expired": "The time to pay for this order has run out. To buy these items, place a new order."
+      "payment_window_expired": "The time to pay for this order has run out. To buy these items, place a new order.",
+      "region_not_served": "We do not deliver to this region. Choose another region, or a pickup point where we offer one.",
+      "shipping_region_unavailable": "This delivery method does not reach your region. Choose another one."
     }
   },
   "maps": {

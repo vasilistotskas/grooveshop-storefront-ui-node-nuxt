@@ -33,6 +33,15 @@ describe.each(trees(AddressCard, WebsideAddressCard))('$tree Address/Card', ({ t
   const button = (wrapper: Awaited<ReturnType<typeof mountCard>>, name: string) =>
     wrapper.findAll('button, a').find(control => control.text() === name || control.attributes('aria-label') === name)
 
+  // django-api #222: kept from before the store stopped delivering there.
+  it('says the store no longer delivers to an address it does not serve', async () => {
+    const served = await mountCard()
+    const unserved = await mountCard(makeUserAddress({ shippable: false }))
+
+    expect(served.text()).not.toContain('Δεν παραδίδουμε πια')
+    expect(unserved.text()).toContain('Δεν παραδίδουμε πια σε αυτή τη διεύθυνση')
+  })
+
   it('deletes it, says so, then reports the change', async () => {
     api.routes({ '/api/user/addresses/5': {} })
     const wrapper = await mountCard()

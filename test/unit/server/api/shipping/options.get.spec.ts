@@ -6,7 +6,7 @@ import { backend, cacheOptionsOf, callRoute, createTestEvent, log, testSession }
 
 /**
  * GET /api/shipping/options: the checkout's per-carrier shipping prices,
- * quoted for the cart's country, value, currency and weight — each of
+ * quoted for the cart's country, region, value, currency and weight — each of
  * which therefore keys the one-minute cache. Django also flags the
  * options the visitor's cart does not fit, so the request names the
  * cart, and a request that names one is never served from or stored in
@@ -107,7 +107,15 @@ describe('GET /api/shipping/options', () => {
     expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation:response' }))
   })
 
-  it.each(['countryCode=CY', 'orderValueAmount=99', 'currency=USD', 'weightGrams=5000'])(
+  it('asks Django for the region\'s zone, once the shopper has chosen one', async () => {
+    backend.reply([option])
+
+    await callRoute(handler, { route, url: `${route}?${query}&regionId=GR-M` })
+
+    expect(backend.lastRequest.query).toMatchObject({ countryCode: 'GR', regionId: 'GR-M' })
+  })
+
+  it.each(['countryCode=CY', 'orderValueAmount=99', 'currency=USD', 'weightGrams=5000', 'regionId=GR-M'])(
     'gives a quote differing only in %s its own cache entry',
     async (param) => {
       const { getKey } = cacheOptionsOf(handler)

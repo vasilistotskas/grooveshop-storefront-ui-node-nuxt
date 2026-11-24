@@ -6399,6 +6399,7 @@ export const zUserAddress = z.object({
   user: z.int().readonly(),
   country: z.string(),
   region: z.string().nullable(),
+  shippable: z.boolean().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -6441,6 +6442,7 @@ export const zUserAddressDetail = z.object({
   user: z.int().readonly(),
   country: z.string(),
   region: z.string().nullable(),
+  shippable: z.boolean().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -16756,6 +16758,13 @@ export const zListRegionQuery = z.object({
     'pageNumber',
   ]).optional().default('pageNumber'),
   search: z.string().optional(),
+  shippable: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -16840,6 +16849,13 @@ export const zListRegionsByCountryPath = z.object({
 
 export const zListRegionsByCountryQuery = z.object({
   languageCode: z.enum(['el', 'en']).optional().default('el'),
+  shippable: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
 })
 
 export const zListRegionsByCountryResponse = z.array(zRegion)
@@ -17104,6 +17120,7 @@ export const zListShippingOptionsQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  regionId: z.string().optional(),
   weightGrams: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),

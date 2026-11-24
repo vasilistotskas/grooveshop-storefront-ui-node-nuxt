@@ -157,6 +157,10 @@ export async function useCheckoutForm() {
         query: {
           country: countryValue || undefined,
           languageCode: locale.value,
+          // The regions a home delivery of this store reaches (its
+          // shipping zones): the region belongs to the address a home
+          // delivery goes to, and Django refuses any other.
+          shippable: true,
         },
       })
       if (request !== regionsRequest) return false
@@ -340,13 +344,16 @@ export async function useCheckoutForm() {
    * the personal-info + address sections collapse into the card summary.
    */
   const selectSavedAddress = async (addressId: number | null) => {
-    selectedSavedAddressId.value = addressId
     if (addressId === null) {
+      selectedSavedAddressId.value = null
       addressEntryMode.value = 'new'
       return
     }
     const address = savedAddresses.value.find(a => a.id === addressId)
-    if (!address) return
+    // An address the store no longer delivers to at home is shown, not
+    // chosen: its card says why (``SavedAddresses``).
+    if (!address?.shippable) return
+    selectedSavedAddressId.value = addressId
     applyAddressToFormState(address)
     addressEntryMode.value = 'saved'
     // Superseded when the address is in another country: the country
@@ -605,7 +612,7 @@ export async function useCheckoutForm() {
   // Live shipping options from the backend — the SOLE source of truth
   // for per-(provider, kind) pricing (a resolved ``ShippingRate``, or
   // a live carrier quote when dynamic pricing is on). Keyed on
-  // (country, total, weight) so the cache invalidates when the
+  // (country, region, total, weight) so the cache invalidates when the
   // shopper changes country or adds/removes items. A fetch failure
   // sets ``shippingOptionsError`` — there is no local flat-rate
   // fallback price anymore, so the step blocks advancing instead of
@@ -648,6 +655,9 @@ export async function useCheckoutForm() {
       const country = formState.countryId
         ? String(formState.countryId).toUpperCase()
         : undefined
+      // A home delivery is priced by the shipping zone of the address's
+      // region; without one, Django answers for the whole country.
+      const regionId = formState.regionId || undefined
       if (!country) {
         // The options endpoint requires a country — nothing to quote
         // yet (guest whose country hasn't resolved). Not an error.
@@ -668,6 +678,7 @@ export async function useCheckoutForm() {
             // currency it does not sell in.
             currency: cart.value?.currency ?? tenantStore.defaultCurrency,
             weightGrams,
+            regionId,
           },
           headers: useRequestHeaders(),
         },
@@ -706,6 +717,9 @@ export async function useCheckoutForm() {
       () => cart.value?.freeThresholdValue,
       () => cart.value?.totalWeightGrams,
       () => formState.countryId,
+      // The region picks the zone a home delivery is priced by: the
+      // islands' own rate, or none where the store does not deliver.
+      () => formState.regionId,
       () => cart.value?.items.map(item => `${item.id}:${item.quantity}`).join(),
     ],
     async () => {
@@ -1061,8 +1075,11 @@ export async function useCheckoutForm() {
   // so a shopper whose addresses carry no main flag was dropped into the
   // blank guest form with their saved addresses one click away and
   // nothing selected.
-  const mainAddress = savedAddresses.value.find(a => a.isMain)
-    ?? savedAddresses.value[0]
+  // Only an address the store still delivers to at home (its shipping
+  // zones) is picked for the shopper: one it no longer serves is listed,
+  // marked, and cannot be chosen.
+  const deliverable = savedAddresses.value.filter(a => a.shippable)
+  const mainAddress = deliverable.find(a => a.isMain) ?? deliverable[0]
   if (mainAddress) {
     applyAddressToFormState(mainAddress)
     selectedSavedAddressId.value = mainAddress.id ?? null

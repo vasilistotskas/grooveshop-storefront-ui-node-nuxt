@@ -14,7 +14,7 @@ import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
  * carrier's parcels (``exceedsParcelSize``), so the request names the
  * cart the way every cart route does (``getCartIdentityHeaders``).
  *
- * Cached briefly per (country, total, currency, weight) tuple — the
+ * Cached briefly per (country, total, currency, weight, region) tuple — the
  * upstream ACS quote is already cached 5 min on the backend, but a
  * thin Nitro layer keeps duplicate calls during reactive dep churn
  * cheap. Only a request that names no cart is cached: its answer is
@@ -43,6 +43,7 @@ export default defineCachedRoute(
             orderValueAmount: query.orderValueAmount,
             currency: query.currency,
             weightGrams: query.weightGrams,
+            regionId: query.regionId,
           },
           headers,
         },
@@ -77,6 +78,8 @@ export default defineCachedRoute(
         p.get('orderValueAmount') ?? '',
         p.get('currency') ?? '',
         p.get('weightGrams') ?? '',
+        // The region picks the shipping zone, so its own price.
+        p.get('regionId') ?? '',
       ].join('|')
       return tenantCacheKey(event, paramsKey)
     },

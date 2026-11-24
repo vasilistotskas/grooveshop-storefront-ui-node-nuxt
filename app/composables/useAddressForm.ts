@@ -118,6 +118,9 @@ export async function useAddressForm(options: {
       query: computed(() => ({
         country: state.country,
         languageCode: locale.value,
+        // A saved address is one a home delivery reaches: only the
+        // regions the store's shipping zones serve.
+        shippable: true,
       })),
     },
   )

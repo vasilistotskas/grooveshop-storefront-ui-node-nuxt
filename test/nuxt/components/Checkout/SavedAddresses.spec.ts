@@ -34,6 +34,7 @@ function makeAddress(overrides: Partial<UserAddressDetail> = {}): UserAddressDet
     user: 1,
     country: 'GR',
     region: 'GR-I',
+    shippable: true,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(5, id),
@@ -64,6 +65,28 @@ describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tr
     return radios(wrapper)[index]!
   }
   const newAddressButton = (wrapper: VueWrapper) => wrapper.findAll('button').find(button => button.text() === NEW_LABEL)!
+
+  // django-api #222: an address the store no longer delivers to (its
+  // shipping zones) is listed, says so, and cannot be picked.
+  it('lists an address the store no longer delivers to, marked and not pickable', async () => {
+    const wrapper = await mountSuspended(C, {
+      route: false,
+      props: {
+        addresses: [ADDRESSES[0]!, makeAddress({ id: 3, title: 'Κρήτη', shippable: false })],
+        ...(tree === 'default' ? { needingUpdate: [] } : {}),
+        selectedId: 1,
+        mode: 'saved',
+      },
+    })
+
+    const crete = radioFor(wrapper, 'Κρήτη')
+    expect(crete.attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain('Δεν παραδίδουμε πια εδώ')
+
+    await crete.trigger('click')
+
+    expect(wrapper.emitted('select')).toBeUndefined()
+  })
 
   // django-api #769: a saved address's line 2 is part of its summary.
   it('summarises an address with its line 2 after the street', async () => {

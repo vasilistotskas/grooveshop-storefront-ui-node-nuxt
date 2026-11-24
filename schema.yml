@@ -27916,6 +27916,18 @@ paths:
           schema:
             type: string
         - in: query
+          name: shippable
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: 'true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.'
+        - in: query
           name: sortOrder
           schema:
             oneOf:
@@ -28352,6 +28364,18 @@ paths:
               - en
             default: el
           description: Κωδικός γλώσσας για μεταφράσεις (el, en)
+        - in: query
+          name: shippable
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: 'true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.'
       tags:
         - Geography
       security:
@@ -29474,6 +29498,11 @@ paths:
                 pattern: ^-?\d+(\.\d+)?$
               - type: number
           description: Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit.
+        - in: query
+          name: regionId
+          schema:
+            type: string
+          description: The delivery region's code, once chosen. A home delivery is priced by the shipping zone of the region; without one, by the zone covering the whole country.
         - in: query
           name: weightGrams
           schema:
@@ -53781,6 +53810,10 @@ components:
           type: string
           title: Κωδικός περιφέρειας
           nullable: true
+        shippable:
+          type: boolean
+          readOnly: true
+          description: Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
         createdAt:
           type: string
           format: date-time
@@ -53804,6 +53837,7 @@ components:
         - lastName
         - phone
         - region
+        - shippable
         - street
         - streetNumber
         - title
@@ -53879,6 +53913,10 @@ components:
           type: string
           title: Κωδικός περιφέρειας
           nullable: true
+        shippable:
+          type: boolean
+          readOnly: true
+          description: Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
         createdAt:
           type: string
           format: date-time
@@ -53902,6 +53940,7 @@ components:
         - lastName
         - phone
         - region
+        - shippable
         - street
         - streetNumber
         - title

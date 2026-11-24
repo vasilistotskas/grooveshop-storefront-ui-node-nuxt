@@ -145,6 +145,7 @@ function savedAddress(overrides: Record<string, unknown> = {}) {
     zipcode: '10563',
     country: 'GR',
     region: 'ATTIKI',
+    shippable: true,
     ...overrides,
   }
 }
@@ -217,6 +218,13 @@ describe('useCheckoutForm', () => {
     expect(countries?.options.query).toMatchObject({ shippable: true })
   })
 
+  it('lists only the regions the store delivers to at home', async () => {
+    await setup()
+
+    const [regions] = api.callsTo('/api/regions')
+    expect(regions?.options.query).toMatchObject({ country: 'GR', shippable: true })
+  })
+
   it('also fetches EVERY dial code, unpaginated, for the phone field', async () => {
     await setup()
 
@@ -265,6 +273,18 @@ describe('useCheckoutForm', () => {
         currency: 'USD',
         weightGrams: cart!.totalWeightGrams,
       })
+    })
+
+    it('asks for the chosen region\'s zone, and again when the region changes', async () => {
+      const { formState } = await setup()
+      const before = api.callsTo('/api/shipping/options').length
+
+      formState.region = 'ATTIKI'
+      await flushPromises()
+
+      const calls = api.callsTo('/api/shipping/options')
+      expect(calls.length).toBe(before + 1)
+      expect(calls.at(-1)?.options.query).toMatchObject({ countryCode: 'GR', regionId: 'ATTIKI' })
     })
 
     it('prices home delivery from the first carrier that can carry the cart', async () => {
@@ -936,6 +956,44 @@ describe('useCheckoutForm', () => {
       await selectSavedAddress(2)
 
       expect(formState.addressLine2).toBe('')
+    })
+
+    it('does not pick an address the store no longer delivers to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress({ shippable: false }), second]),
+      })
+
+      const { selectedSavedAddressId, addressEntryMode } = await setup()
+
+      // The main one is no longer served: the next one is picked.
+      expect(selectedSavedAddressId.value).toBe(2)
+      expect(addressEntryMode.value).toBe('saved')
+    })
+
+    it('starts a new address when no saved one is delivered to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress({ shippable: false })]),
+      })
+
+      const { selectedSavedAddressId, addressEntryMode } = await setup()
+
+      expect(selectedSavedAddressId.value).toBeNull()
+      expect(addressEntryMode.value).toBe('new')
+    })
+
+    it('ignores a pick of an address the store no longer delivers to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress(), { ...second, shippable: false }]),
+      })
+      const { formState, selectedSavedAddressId, selectSavedAddress } = await setup()
+
+      await selectSavedAddress(2)
+
+      expect(formState.street).toBe('Ermou')
+      expect(selectedSavedAddressId.value).toBe(1)
     })
 
     it('picking another saved address applies it and stays in saved mode', async () => {
