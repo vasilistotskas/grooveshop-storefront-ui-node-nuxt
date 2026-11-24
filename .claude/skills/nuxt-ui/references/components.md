@@ -122,7 +122,7 @@ None of them may set `:overlay="false"` (see [SKILL.md](../SKILL.md#overlays)).
 
 ## Page
 
-Used by the store's page sections and pages; examples are in
+Used by the page-builder sections and a few webside pages; where each is used is in
 [layouts/page.md](layouts/page.md).
 
 | Component | Use |
