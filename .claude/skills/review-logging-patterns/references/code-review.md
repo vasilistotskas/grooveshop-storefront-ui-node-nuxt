@@ -53,7 +53,9 @@ catch (error) {
 
 - Does every route's `catch` end with `return handleError(event, error)` (or
   one of the helpers that wrap it: `handleAllAuthError`,
-  `forwardUpstreamDocumentedError`)?
+  `forwardUpstreamDocumentedError`)? An allauth route that can return a pending
+  flow (MFA, multi-step login) catches with `forwardAllAuthFlow` first: it syncs
+  the session and returns the envelope allauth clients read.
 - Is an error the storefront raises itself a thrown `createError({ status, statusText })`
   from `nuxt/server`?
 - On the client, is the failure shown with `useApiError().notify` and caught in

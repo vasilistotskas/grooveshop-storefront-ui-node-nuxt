@@ -100,8 +100,10 @@ catch (error) {
 
 - The `action` names the operation; the `error` is nested in the event. The
   ingest (`server/plugins/evlog-client-context.ts`) reduces a nested response
-  body to an allowlist (`server/utils/clientEventRedaction.ts`), so what the
-  customer typed never reaches the log.
+  body to an allowlist (`server/utils/clientEventRedaction.ts`): every value but a
+  field name, an identifier-shaped `code` / `reason` / `type` / `param` and an HTTP
+  status is replaced. The error's own `message` is kept, and so is an identifier-shaped
+  value, so never put customer text in a `message`, `code` or `reason` you raise.
 - `requestId: requestIdOf(error)` (`shared/utils/error.ts`) joins the browser
   line to the server and Django lines of the same request.
 - A connection failure (a chunk the browser could not download, a `fetch` with

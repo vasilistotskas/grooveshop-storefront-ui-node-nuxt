@@ -2,7 +2,9 @@
 
 A wide event is one log entry that carries all the context of one operation,
 usually a request. evlog creates one per request (except the paths in
-`evlog.exclude`), and prints it when the request ends.
+`evlog.exclude`), and prints it when the request ends. Production sampling
+(`evlog.sampling` in `nuxt.config.ts`) decides which printed events are kept: a fast,
+successful request outside the `keep` rules is kept at the `info` rate only.
 
 ## Why Wide Events?
 
@@ -91,8 +93,10 @@ export default defineEventHandler(async (event) => {
 - Set what identifies the operation (`cart.item.productId`, `order.created`,
   the shape of a search) as soon as it is known, so a request that fails
   half-way still carries it.
-- `handleError` logs the failure and evlog records the thrown error on the
-  wide event; the route adds no `log.error` of its own.
+- `handleError` logs the failure with its own `log.*` line. Where it throws, evlog
+  records the thrown error on the wide event; where it returns an upstream 4xx body,
+  nothing is thrown, so the helper's line is the record. The route adds no
+  `log.error` of its own.
 - `event.context.log` is typed as optional (`shared/types/request-context.d.ts`):
   call it with `?.`.
 
@@ -128,9 +132,10 @@ wideLog?.set({ cart: { item: { productId: body.product, quantity: body.quantity 
 postal addresses, phone numbers, card data, a raw User-Agent, an OS version, or
 any text a customer typed. Log ids, not people.
 
-Browser events are redacted by an allowlist at the ingest
-(`server/utils/clientEventRedaction.ts`); server events are not, so a route's
-own fields are the only guard there.
+A browser error's response body is reduced by an allowlist at the ingest
+(`server/utils/clientEventRedaction.ts`), and INP reports have their own; other
+browser fields are not filtered, so a call site picks safe fields itself. Server
+events are not redacted at all: a route's own fields are the only guard there.
 
 See [code-review.md](code-review.md) for the full review checklist.
 

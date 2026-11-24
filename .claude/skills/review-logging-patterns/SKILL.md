@@ -169,7 +169,7 @@ client, a failed call is shown with `useApiError().notify` (or
 |--------------|-----|
 | `console.*` outside `scripts/` | `log.*`, or `event.context.log?.set(...)` for request context; `no-console` fails lint |
 | Several `log.*` lines about one request | One wide event: `wideLog?.set({ ... })` |
-| `console.error(e); throw e` or `log.error(e); throw e` in a route | `return handleError(event, error)` in the route's `catch` |
+| `console.error(e); throw e` or `log.error(e); throw e` in a route | `return handleError(event, error)` in the route's `catch`. It logs upstream, Zod, request and h3 errors, but turns a plain `Error` into a generic 500 without logging it: such a failure is fixed where it is thrown, as a typed error |
 | `handleError(event, error)` without `return` | `return handleError(event, error)` |
 | `return createError(...)` | `throw createError(...)` (from `nuxt/server`) |
 | No context on a request handler | `event.context.log?.set({ ... })` with grouped fields |

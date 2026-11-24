@@ -21,6 +21,8 @@ const shown = toast.add({
   actions: [{ label: t('undo'), onClick: () => undo() }],
 })
 
+// `add` queues the toast until the next tick: update, remove and clear
+// act on it from a later callback (an event, a timer), not on the next line
 toast.update(shown.id, { description: t('savedAgain') })
 toast.remove(shown.id)
 toast.clear()
@@ -53,8 +55,10 @@ const confirm = overlay.create(ConfirmDialog)
 // the component emits as `close`: emit('close', true)
 const confirmed = await confirm.open({ title: t('deleteTitle') }).result
 
+// While the overlay is open, from another callback (the await above
+// settles only after it closes):
 confirm.close()          // close from outside
-confirm.patch({ title }) // change props while open
+confirm.patch({ title }) // change props
 ```
 
 The overlay instance also has `overlay.closeAll()`, `overlay.isOpen(id)` and
@@ -108,4 +112,6 @@ by name in `app/utils/uiLocales.ts`, never as a namespace, which would bundle al
 
 `defineLocale({ name, code, dir, messages })` creates a locale and
 `extendLocale(locale, { messages })` overrides part of one; pass the result to
-`UApp`'s `locale` prop.
+`UApp`'s `locale` prop. That prop wins over the locale `@nuxtjs/i18n` supplies, so a
+fixed locale there stops Nuxt UI's messages following a language switch: this repo
+passes none.

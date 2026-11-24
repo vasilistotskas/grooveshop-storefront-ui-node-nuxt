@@ -112,9 +112,11 @@ import type { FormSubmitEvent } from '#ui/types'
 
 const { t } = useStoreI18n('components/Example/SignInForm')
 
+// `t()` runs inside the error callbacks, at validation time, so store text
+// overrides that arrive later are used (see `useAuthEmailSchema()`)
 const schema = z.object({
-  email: z.email(t('emailInvalid')),
-  password: z.string().min(8, t('passwordShort')),
+  email: z.email({ error: () => t('emailInvalid') }),
+  password: z.string().min(8, { error: () => t('passwordShort') }),
 })
 type Schema = z.output<typeof schema>
 
