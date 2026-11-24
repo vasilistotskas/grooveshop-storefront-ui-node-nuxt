@@ -12953,6 +12953,13 @@ export const zListCountryQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  homeDelivery: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   isEu: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -13175,6 +13182,13 @@ export const zListAllCountriesQuery = z.object({
     z.boolean(),
   ]).optional(),
   hasPhoneCode: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  homeDelivery: z.union([
     z.literal('true'),
     z.literal('false'),
     z.literal('1'),
