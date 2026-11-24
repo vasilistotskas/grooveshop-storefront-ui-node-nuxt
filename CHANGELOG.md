@@ -1,3 +1,10 @@
+# [3.359.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.358.1...v3.359.0) (2026-11-24)
+
+
+### Features
+
+* **seo:** a category page states its og:image size; regenerate from Django v3.270.1 ([#521](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/521)) ([222a313](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/222a313e221adea8ce60ef04e1d9827756a2c799)), closes [vasilistotskas/grooveshop-django-api#813](https://github.com/vasilistotskas/grooveshop-django-api/issues/813) [#793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/793) [#825](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/825)
+
 ## [3.358.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.358.0...v3.358.1) (2026-11-24)
 
 
