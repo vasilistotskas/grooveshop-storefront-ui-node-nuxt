@@ -1,3 +1,10 @@
+## [3.358.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.358.0...v3.358.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **checkout:** an order the deductions cover whole goes straight to success ([#520](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/520)) ([ddddc98](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ddddc98a7a3b433d32b45dde179e5fd48fdb8217))
+
 # [3.358.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.357.1...v3.358.0) (2026-11-23)
 
 
