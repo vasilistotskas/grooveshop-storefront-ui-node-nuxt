@@ -165,6 +165,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     return selectedPayWay.value?.settlement === zSettlementEnum.enum.online
   })
 
+  // The provider's payment step is for an order placed to be paid there.
+  // An order the deductions (gift cards, a promotion, points) cover whole
+  // comes back paid: Django refuses it a payment session
+  // (`order_not_payable`), and the flow goes on to the success page.
+  const awaitsOnlinePayment = computed(() => {
+    const order = createdOrder.value
+    return order !== null && isOnlinePayment.value && !isOrderPaid(order)
+  })
+
   // Functions
   const handleOrderError = (response: RefusedResponse) => {
     const errorData = response._data
@@ -996,6 +1005,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     isStripePayment,
     isVivaWalletPayment,
     isOnlinePayment,
+    awaitsOnlinePayment,
     onSubmit,
     nextStep,
     prevStep,
