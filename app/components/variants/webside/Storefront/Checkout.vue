@@ -76,7 +76,7 @@ const {
   submitError,
   isStripePayment,
   isVivaWalletPayment,
-  isOnlinePayment,
+  awaitsOnlinePayment,
   onSubmit,
   nextStep,
   prevStep,
@@ -194,7 +194,7 @@ const sidebarCtaDisabled = computed(() =>
 )
 // Hide the sidebar CTA while the online-payment view owns the main
 // column — that view ships its own Pay / Back controls.
-const showSidebarCta = computed(() => !(createdOrder.value && isOnlinePayment.value))
+const showSidebarCta = computed(() => !awaitsOnlinePayment.value)
 
 const onSidebarCta = async () => {
   if (currentStep.value === 2) {
@@ -305,7 +305,7 @@ useSeoMeta({
         <NuxtErrorBoundary @error="onBoundaryError">
           <!-- Online Payment View (Stripe or Viva Wallet) -->
           <WebsideCheckoutOnlinePaymentView
-            v-if="createdOrder && isOnlinePayment"
+            v-if="awaitsOnlinePayment && createdOrder"
             :created-order="createdOrder"
             :selected-pay-way="selectedPayWay!"
             :is-stripe-payment="isStripePayment"
