@@ -95,6 +95,7 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
     isStripePayment: ref(false),
     isVivaWalletPayment: ref(state.online),
     isOnlinePayment: ref(state.online),
+    awaitsOnlinePayment: ref(state.online && state.orderCreated),
     onSubmit: vi.fn(),
     nextStep: vi.fn(),
     prevStep,

@@ -79,6 +79,7 @@ const {
   isStripePayment,
   isVivaWalletPayment,
   isOnlinePayment,
+  awaitsOnlinePayment,
   onSubmit,
   nextStep,
   prevStep,
@@ -128,7 +129,7 @@ const ctaLabel = computed(() => {
 
 // The online-payment view owns the main column once the order exists:
 // it has its own Pay / Back controls.
-const showNavigation = computed(() => !(createdOrder.value && isOnlinePayment.value))
+const showNavigation = computed(() => !awaitsOnlinePayment.value)
 
 const onCta = async () => {
   await stepRef.value?.submit()
@@ -234,7 +235,7 @@ useSeoMeta({
           <NuxtErrorBoundary @error="onBoundaryError">
             <!-- Stripe or Viva Wallet, once the order exists. -->
             <CheckoutOnlinePaymentView
-              v-if="createdOrder && isOnlinePayment"
+              v-if="awaitsOnlinePayment && createdOrder"
               :created-order="createdOrder"
               :selected-pay-way="selectedPayWay!"
               :is-stripe-payment="isStripePayment"

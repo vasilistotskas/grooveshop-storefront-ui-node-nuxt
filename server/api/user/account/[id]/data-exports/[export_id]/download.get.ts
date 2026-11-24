@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     // ``arrayBuffer`` rather than ``blob``: Nitro JSON-stringifies a
     // returned ``Blob`` (see the ACS label route).
     const response = await useBackendFetch(event).raw<ArrayBuffer, 'arrayBuffer'>(
-      `${config.apiBaseUrl}/user/account/${params.id}/data_exports/${params.exportId}/download`,
+      `${config.apiBaseUrl}/user/account/${params.id}/data_exports/${params.export_id}/download`,
       {
         method: 'GET',
         headers: {
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     }
 
     event.res.headers.set('Content-Type', 'application/json')
-    event.res.headers.set('Content-Disposition', `attachment; filename="data-export-${params.exportId}.json"`)
+    event.res.headers.set('Content-Disposition', `attachment; filename="data-export-${params.export_id}.json"`)
     return Buffer.from(response._data)
   }
   catch (error) {

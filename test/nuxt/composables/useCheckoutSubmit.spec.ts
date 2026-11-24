@@ -190,10 +190,11 @@ describe('useCheckoutSubmit', () => {
   describe('Stripe', () => {
     it('posts the order with no payment intent, under one idempotency key, and waits for the payment', async () => {
       api.routes({ '/api/orders': orderCreated(makeOrder({ uuid: 'order-stripe' })) })
-      const { onSubmit, createdOrder } = setup(STRIPE)
+      const { onSubmit, createdOrder, awaitsOnlinePayment } = setup(STRIPE)
 
       await onSubmit()
 
+      expect(awaitsOnlinePayment.value).toBe(true)
       const [order] = api.callsTo('/api/orders')
       expect(order!.options.method).toBe('POST')
       expect(order!.options.headers['Idempotency-Key']).toBe('0000-idem-key')
@@ -253,9 +254,12 @@ describe('useCheckoutSubmit', () => {
 
     it('finishes like an offline order when the deductions cover everything and Django settled it', async () => {
       api.routes({ '/api/orders': orderCreated(makeOrder({ uuid: 'order-free', paymentStatus: 'COMPLETED' })) })
-      const { onSubmit } = setup(STRIPE)
+      const { onSubmit, awaitsOnlinePayment } = setup(STRIPE)
 
       await onSubmit()
+
+      // No payment step: Django refuses a paid order a payment session.
+      expect(awaitsOnlinePayment.value).toBe(false)
 
       expect(orderBodies()).toHaveLength(1)
       // Once: `cleanCartState()` clears the server-side cart itself.

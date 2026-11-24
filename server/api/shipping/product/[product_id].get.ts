@@ -11,8 +11,8 @@ import { getRouterParam, useRuntimeConfig } from 'nuxt/server'
  * is `null` when the store ships nowhere or no delivery can take it; 404
  * for a missing or inactive product.
  *
- * The file is named for `productId`, the param Django's
- * `<int:product_id>` converter gives the generated path schema.
+ * The file is named for `product_id`, the URL template expression the
+ * generated path schema names its param after.
  *
  * The same answer for every visitor, so cached per store and product
  * (and per language, as `tenantCacheKey` keys every route, though the
@@ -26,7 +26,7 @@ export default defineCachedRoute(async (event) => {
   try {
     const params = await parseRouterParams(event, zGetProductShippingPath)
     const response = await useBackendFetch(event)(
-      `${config.apiBaseUrl}/shipping/product/${params.productId}`,
+      `${config.apiBaseUrl}/shipping/product/${params.product_id}`,
       {
         method: 'GET',
         headers: createHeaders(event, null, null),
@@ -45,6 +45,6 @@ export default defineCachedRoute(async (event) => {
   getKey: event =>
     tenantCacheKey(
       event,
-      `shipping-product:${getRouterParam(event, 'productId', { decode: true })}`,
+      `shipping-product:${getRouterParam(event, 'product_id', { decode: true })}`,
     ),
 })
