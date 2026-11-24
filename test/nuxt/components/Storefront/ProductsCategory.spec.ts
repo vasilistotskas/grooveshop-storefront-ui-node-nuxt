@@ -12,6 +12,7 @@ import { failWith } from '~~/test/helpers/api'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 import { setTenant } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { OG_IMAGE_BOX } from '~~/shared/constants'
 
 /**
  * A category's products page. Which category it is, the 404 or 503 for one
@@ -85,11 +86,11 @@ describe.each(trees(ProductsCategory, WebsideProductsCategory))('$tree Storefron
     serve()
   })
 
-  function serve(category: unknown = CATEGORY) {
+  function serve(category: unknown = CATEGORY, hits = HITS) {
     api.routes({
       '/api/products/categories/5': category,
       '/api/products/categories/all': [],
-      '/api/products/search': makeProductSearchResponse({ results: HITS }),
+      '/api/products/search': makeProductSearchResponse({ results: hits }),
     })
   }
 
@@ -135,6 +136,24 @@ describe.each(trees(ProductsCategory, WebsideProductsCategory))('$tree Storefron
     expect(seo.value.title()).toBe(MESSAGES[tree].page.title.replace('{name}', 'Φορτιστές'))
     expect(seo.value.ogTitle()).toBe('Φορτιστές')
     expect(seo.value.description()).toBe('Όλοι οι φορτιστές.')
+  })
+
+  it('shares the first product\'s photo at the size it is served at, and states none when it was not measured', async () => {
+    const photo = { id: 11, master: 5, slug: 'charger', mainImagePath: 'media/shop/uploads/products/charger.jpg' }
+    serve(CATEGORY, [makeProductSearchHit({ ...photo, mainImageWidth: 1000, mainImageHeight: 1000 })])
+    await mount()
+
+    const measured = seo.value.ogImage()
+    expect(measured.url).toContain(`/charger.jpg/${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}/cover/`)
+    expect([measured.width, measured.height]).toEqual([1000, 525])
+
+    clearNuxtData()
+    serve(CATEGORY, [makeProductSearchHit({ ...photo, mainImageWidth: null, mainImageHeight: null })])
+    await mount()
+
+    const unmeasured = seo.value.ogImage()
+    expect(unmeasured.url).toContain('/charger.jpg/')
+    expect([unmeasured.width, unmeasured.height]).toEqual([undefined, undefined])
   })
 
   it('draws the store\'s text below the products, as rich text', async () => {

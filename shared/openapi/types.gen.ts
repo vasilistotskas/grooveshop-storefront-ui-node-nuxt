@@ -8443,6 +8443,8 @@ export type ProductMeiliSearchResult = {
   master: number
   slug: string
   mainImagePath: string
+  mainImageWidth: number | null
+  mainImageHeight: number | null
   matchesPosition: unknown
   rankingScore: number | null
   formatted: unknown

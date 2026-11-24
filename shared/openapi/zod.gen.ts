@@ -3243,6 +3243,8 @@ export const zProductMeiliSearchResult = z.object({
   master: z.int(),
   slug: z.string(),
   mainImagePath: z.string(),
+  mainImageWidth: z.int().nullable(),
+  mainImageHeight: z.int().nullable(),
   matchesPosition: z.unknown(),
   rankingScore: z.number().nullable(),
   formatted: z.unknown(),
