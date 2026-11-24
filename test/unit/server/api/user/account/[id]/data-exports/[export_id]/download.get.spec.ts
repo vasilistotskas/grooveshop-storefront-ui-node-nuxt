@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import handler from '~~/server/api/user/account/[id]/data-exports/[exportId]/download.get'
+import handler from '~~/server/api/user/account/[id]/data-exports/[export_id]/download.get'
 import { backend, callRoute, jsonResponse, testSession } from '~~/test/helpers/nitro'
 
 /**
- * GET /api/user/account/:id/data-exports/:exportId/download: Django streams a
+ * GET /api/user/account/:id/data-exports/:export_id/download: Django streams a
  * shopper's data export to its owner; the route passes the bytes on as an
  * attachment, with the token from the session, and keeps Django's refusals.
  */
@@ -12,12 +12,12 @@ const BUNDLE = '{"profile":"theirs"}'
 
 function download(id: number | string = 7, exportId: number | string = 3) {
   return callRoute(handler, {
-    route: '/api/user/account/:id/data-exports/:exportId/download',
+    route: '/api/user/account/:id/data-exports/:export_id/download',
     url: `/api/user/account/${id}/data-exports/${exportId}/download`,
   })
 }
 
-describe('GET /api/user/account/:id/data-exports/:exportId/download', () => {
+describe('GET /api/user/account/:id/data-exports/:export_id/download', () => {
   it('sends Django\'s bundle as an attachment, with the session\'s token', async () => {
     testSession.set({ user: { id: 7 }, secure: { accessToken: 'knox-1' } })
     backend.reply(new Response(BUNDLE, { status: 200, headers: { 'content-type': 'application/json' } }))

@@ -5701,13 +5701,7 @@ export const zTaggedItem = z.object({
   contentType: z.int(),
   contentTypeName: z.string().readonly(),
   objectId: z.int().gte(0).lte(2147483647),
-  contentObject: z.object({
-    id: z.int().optional(),
-    name: z.string().optional(),
-    description: z.string().optional(),
-    price: z.string().optional(),
-    active: z.boolean().optional(),
-  }).readonly(),
+  contentObject: zProduct,
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -5732,13 +5726,7 @@ export const zTaggedItemDetail = z.object({
   contentType: z.int(),
   contentTypeName: z.string().readonly(),
   objectId: z.int().gte(0).lte(2147483647),
-  contentObject: z.object({
-    id: z.int().optional(),
-    name: z.string().optional(),
-    description: z.string().optional(),
-    price: z.string().optional(),
-    active: z.boolean().optional(),
-  }).readonly(),
+  contentObject: zProduct,
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -12243,7 +12231,7 @@ export const zApiV1BuilderPreviewMediaRetrieveQuery = z.object({
 export const zApiV1BuilderPreviewMediaRetrieveResponse = zResolvedMedia
 
 export const zApiV1BuilderPreviewRetrievePath = z.object({
-  pageKey: z.string(),
+  page_key: z.string(),
   token: z.string(),
 })
 
@@ -12272,7 +12260,7 @@ export const zBuilderPublishedIndexQuery = z.object({
 export const zBuilderPublishedIndexResponse = zPublishedIndex
 
 export const zApiV1BuilderPublishedRetrievePath = z.object({
-  pageKey: z.string(),
+  page_key: z.string(),
 })
 
 export const zApiV1BuilderPublishedRetrieveQuery = z.object({
@@ -13085,7 +13073,7 @@ export const zCreateCountryQuery = z.object({
 export const zCreateCountryResponse = zCountryDetail
 
 export const zDestroyCountryPath = z.object({
-  alpha2: z.string(),
+  alpha_2: z.string(),
 })
 
 /**
@@ -13094,7 +13082,7 @@ export const zDestroyCountryPath = z.object({
 export const zDestroyCountryResponse = z.void()
 
 export const zRetrieveCountryPath = z.object({
-  alpha2: z.string(),
+  alpha_2: z.string(),
 })
 
 export const zRetrieveCountryQuery = z.object({
@@ -13106,7 +13094,7 @@ export const zRetrieveCountryResponse = zCountryDetail
 export const zPartialUpdateCountryBody = zPatchedCountryWriteRequest
 
 export const zPartialUpdateCountryPath = z.object({
-  alpha2: z.string(),
+  alpha_2: z.string(),
 })
 
 export const zPartialUpdateCountryQuery = z.object({
@@ -13118,7 +13106,7 @@ export const zPartialUpdateCountryResponse = zCountryDetail
 export const zUpdateCountryBody = zCountryWriteRequest
 
 export const zUpdateCountryPath = z.object({
-  alpha2: z.string(),
+  alpha_2: z.string(),
 })
 
 export const zUpdateCountryQuery = z.object({
@@ -16694,7 +16682,7 @@ export const zListPublicPromotionsQuery = z.object({
 export const zListPublicPromotionsResponse = z.array(zPublicPromotion)
 
 export const zListProductPromotionsPath = z.object({
-  productId: z.union([
+  product_id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
@@ -16960,7 +16948,7 @@ export const zValidateAcsAddressBody = zAcsAddressValidationRequestRequest
 export const zValidateAcsAddressResponse = zAcsAddressValidationResponse
 
 export const zGetAcsPickupListManifestPath = z.object({
-  pickupListNo: z.string(),
+  pickup_list_no: z.string(),
 })
 
 export const zGetAcsPickupListManifestResponse = z.string()
@@ -16971,17 +16959,17 @@ export const zIssueAcsPickupListResponse = z.union([
 ])
 
 export const zCancelAcsShipmentPath = z.object({
-  voucherNo: z.string(),
+  voucher_no: z.string(),
 })
 
 export const zGetAcsLabelPath = z.object({
-  voucherNo: z.string(),
+  voucher_no: z.string(),
 })
 
 export const zGetAcsLabelResponse = z.string()
 
 export const zGetAcsTrackingPath = z.object({
-  voucherNo: z.string(),
+  voucher_no: z.string(),
 })
 
 export const zGetAcsTrackingResponse = zAcsShipmentDetail
@@ -17078,11 +17066,11 @@ export const zNearestBoxNowLockerHeaders = z.object({
 export const zNearestBoxNowLockerResponse = zBoxNowNearestLockerResponse
 
 export const zCancelBoxNowShipmentPath = z.object({
-  parcelId: z.string(),
+  parcel_id: z.string(),
 })
 
 export const zGetBoxNowLabelPath = z.object({
-  parcelId: z.string(),
+  parcel_id: z.string(),
 })
 
 export const zGetBoxNowLabelResponse = z.string()
@@ -17117,7 +17105,7 @@ export const zListShippingOptionsResponse = z.array(zShippingOption)
 export const zGetShippingPolicyResponse = z.array(zShippingPolicyEntry)
 
 export const zGetProductShippingPath = z.object({
-  productId: z.union([
+  product_id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
@@ -17621,7 +17609,7 @@ export const zListUserAccountDataExportsQuery = z.object({
 export const zListUserAccountDataExportsResponse = zPaginatedUserDataExportList
 
 export const zDownloadUserAccountDataExportPath = z.object({
-  exportId: z.union([
+  export_id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),

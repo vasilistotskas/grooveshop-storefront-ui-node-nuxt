@@ -10172,7 +10172,7 @@ paths:
             type: string
           description: Language to resolve the content in; unknown or omitted means the store's default language.
         - in: path
-          name: pageKey
+          name: page_key
           schema:
             type: string
           required: true
@@ -10369,7 +10369,7 @@ paths:
             type: string
           description: Language to resolve the content in; unknown or omitted means the store's default language.
         - in: path
-          name: pageKey
+          name: page_key
           schema:
             type: string
           required: true
@@ -13713,7 +13713,7 @@ paths:
       summary: Ανάκτηση Χώρα
       parameters:
         - in: path
-          name: alpha2
+          name: alpha_2
           schema:
             type: string
             title: Κωδικός Χώρας (Alpha 2)
@@ -13770,7 +13770,7 @@ paths:
       summary: Ενημέρωση Χώρα
       parameters:
         - in: path
-          name: alpha2
+          name: alpha_2
           schema:
             type: string
             title: Κωδικός Χώρας (Alpha 2)
@@ -13846,7 +13846,7 @@ paths:
       summary: Μερική ενημέρωση Χώρα
       parameters:
         - in: path
-          name: alpha2
+          name: alpha_2
           schema:
             type: string
             title: Κωδικός Χώρας (Alpha 2)
@@ -13921,7 +13921,7 @@ paths:
       summary: Διαγραφή Χώρα
       parameters:
         - in: path
-          name: alpha2
+          name: alpha_2
           schema:
             type: string
             title: Κωδικός Χώρας (Alpha 2)
@@ -27666,7 +27666,7 @@ paths:
             default: el
           description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: path
-          name: productId
+          name: product_id
           schema:
             oneOf:
               - type: string
@@ -28841,7 +28841,7 @@ paths:
       summary: Download ACS pickup-list manifest PDF
       parameters:
         - in: path
-          name: pickupListNo
+          name: pickup_list_no
           schema:
             type: string
           required: true
@@ -28886,7 +28886,7 @@ paths:
       summary: Cancel an ACS voucher
       parameters:
         - in: path
-          name: voucherNo
+          name: voucher_no
           schema:
             type: string
           required: true
@@ -28914,7 +28914,7 @@ paths:
       summary: Download ACS voucher label PDF
       parameters:
         - in: path
-          name: voucherNo
+          name: voucher_no
           schema:
             type: string
           required: true
@@ -28941,7 +28941,7 @@ paths:
       summary: Read ACS shipment tracking snapshot
       parameters:
         - in: path
-          name: voucherNo
+          name: voucher_no
           schema:
             type: string
           required: true
@@ -29362,7 +29362,7 @@ paths:
       summary: Cancel a BoxNow parcel
       parameters:
         - in: path
-          name: parcelId
+          name: parcel_id
           schema:
             type: string
           required: true
@@ -29390,7 +29390,7 @@ paths:
       summary: Download BoxNow parcel label PDF
       parameters:
         - in: path
-          name: parcelId
+          name: parcel_id
           schema:
             type: string
           required: true
@@ -29536,7 +29536,7 @@ paths:
       summary: What shipping one product costs
       parameters:
         - in: path
-          name: productId
+          name: product_id
           schema:
             oneOf:
               - type: string
@@ -31614,7 +31614,7 @@ paths:
       summary: Λήψη εξαγωγής δεδομένων GDPR
       parameters:
         - in: path
-          name: exportId
+          name: export_id
           schema:
             oneOf:
               - type: string
@@ -53216,25 +53216,8 @@ components:
           minimum: 0
           title: ID αντικειμένου
         contentObject:
-          type: object
-          description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-          properties:
-            id:
-              type: integer
-              example: 1
-            name:
-              type: string
-              example: Sample Product
-            description:
-              type: string
-              example: Product description
-            price:
-              type: string
-              example: '29.99'
-            active:
-              type: boolean
-              example: true
-          additionalProperties: true
+          allOf:
+            - $ref: '#/components/schemas/Product'
           readOnly: true
         createdAt:
           type: string
@@ -53283,25 +53266,8 @@ components:
           minimum: 0
           title: ID αντικειμένου
         contentObject:
-          type: object
-          description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-          properties:
-            id:
-              type: integer
-              example: 1
-            name:
-              type: string
-              example: Sample Product
-            description:
-              type: string
-              example: Product description
-            price:
-              type: string
-              example: '29.99'
-            active:
-              type: boolean
-              example: true
-          additionalProperties: true
+          allOf:
+            - $ref: '#/components/schemas/Product'
           readOnly: true
         createdAt:
           type: string

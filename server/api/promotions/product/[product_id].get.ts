@@ -15,9 +15,10 @@ import { getQuery } from 'h3'
  * renders nothing rather than an error — a store with promotions
  * disabled is indistinguishable from one that never had the route.
  *
- * The file is named for ``productId``, not ``id``, so the generated
+ * The file is named for ``product_id``, not ``id``, so the generated
  * ``zListProductPromotionsPath`` validates the router params directly
- * — the param name comes from Django's ``<int:product_id>`` converter.
+ * — the param name is Django's URL template expression
+ * (``/promotion/product/{product_id}``), which the schema keeps as is.
  *
  * ``languageCode`` rides along for the same reason as the sibling
  * listing: Django resolves the offer's name and description
@@ -40,7 +41,7 @@ export default defineCachedRoute(async (event) => {
     )
     const query = await getValidatedQuery(event, zLocalizedQuery)
     const response = await useBackendFetch(event)(
-      `${config.apiBaseUrl}/promotion/product/${params.productId}`,
+      `${config.apiBaseUrl}/promotion/product/${params.product_id}`,
       { method: 'GET', query },
     )
     return await parseDataAs(response, zListProductPromotionsResponse)
@@ -59,7 +60,7 @@ export default defineCachedRoute(async (event) => {
   getKey: event =>
     tenantCacheKey(
       event,
-      `promotions:product:${getRouterParam(event, 'productId', { decode: true })}`
+      `promotions:product:${getRouterParam(event, 'product_id', { decode: true })}`
       + `:${getQuery(event).languageCode ?? ''}`,
     ),
 })

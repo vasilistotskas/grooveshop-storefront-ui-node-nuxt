@@ -10668,17 +10668,7 @@ export type TaggedItem = {
      * ID αντικειμένου
      */
   objectId: number
-  /**
-     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-     */
-  readonly contentObject: {
-    id?: number
-    name?: string
-    description?: string
-    price?: string
-    active?: boolean
-    [key: string]: unknown
-  }
+  contentObject: Product
   /**
      * Δημιουργήθηκε στις
      */
@@ -10705,17 +10695,7 @@ export type TaggedItemDetail = {
      * ID αντικειμένου
      */
   objectId: number
-  /**
-     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-     */
-  readonly contentObject: {
-    id?: number
-    name?: string
-    description?: string
-    price?: string
-    active?: boolean
-    [key: string]: unknown
-  }
+  contentObject: Product
   /**
      * Δημιουργήθηκε στις
      */
@@ -19384,7 +19364,7 @@ export type ApiV1BuilderPreviewMediaRetrieveResponse = ApiV1BuilderPreviewMediaR
 export type ApiV1BuilderPreviewRetrieveData = {
   body?: never
   path: {
-    pageKey: string
+    page_key: string
     token: string
   }
   query?: {
@@ -19494,7 +19474,7 @@ export type BuilderPublishedIndexResponse = BuilderPublishedIndexResponses[keyof
 export type ApiV1BuilderPublishedRetrieveData = {
   body?: never
   path: {
-    pageKey: string
+    page_key: string
   }
   query?: {
     /**
@@ -21132,7 +21112,7 @@ export type DestroyCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: never
   url: '/api/v1/country/{alpha_2}'
@@ -21163,7 +21143,7 @@ export type RetrieveCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: {
     /**
@@ -21197,7 +21177,7 @@ export type PartialUpdateCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: {
     /**
@@ -21232,7 +21212,7 @@ export type UpdateCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: {
     /**
@@ -27464,7 +27444,7 @@ export type ListPublicPromotionsResponse = ListPublicPromotionsResponses[keyof L
 export type ListProductPromotionsData = {
   body?: never
   path: {
-    productId: string | number
+    product_id: string | number
   }
   query?: {
     /**
@@ -28154,7 +28134,7 @@ export type ValidateAcsAddressResponse = ValidateAcsAddressResponses[keyof Valid
 export type GetAcsPickupListManifestData = {
   body?: never
   path: {
-    pickupListNo: string
+    pickup_list_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/pickup-lists/{pickup_list_no}/manifest.pdf'
@@ -28200,7 +28180,7 @@ export type IssueAcsPickupListResponse = IssueAcsPickupListResponses[keyof Issue
 export type CancelAcsShipmentData = {
   body?: never
   path: {
-    voucherNo: string
+    voucher_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/shipments/{voucher_no}/cancel'
@@ -28239,7 +28219,7 @@ export type CancelAcsShipmentResponses = {
 export type GetAcsLabelData = {
   body?: never
   path: {
-    voucherNo: string
+    voucher_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/shipments/{voucher_no}/label.pdf'
@@ -28265,7 +28245,7 @@ export type GetAcsLabelResponse = GetAcsLabelResponses[keyof GetAcsLabelResponse
 export type GetAcsTrackingData = {
   body?: never
   path: {
-    voucherNo: string
+    voucher_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/shipments/{voucher_no}/tracking'
@@ -28505,7 +28485,7 @@ export type NearestBoxNowLockerResponse = NearestBoxNowLockerResponses[keyof Nea
 export type CancelBoxNowShipmentData = {
   body?: never
   path: {
-    parcelId: string
+    parcel_id: string
   }
   query?: never
   url: '/api/v1/shipping/boxnow/parcels/{parcel_id}/cancel'
@@ -28544,7 +28524,7 @@ export type CancelBoxNowShipmentResponses = {
 export type GetBoxNowLabelData = {
   body?: never
   path: {
-    parcelId: string
+    parcel_id: string
   }
   query?: never
   url: '/api/v1/shipping/boxnow/parcels/{parcel_id}/label.pdf'
@@ -28652,7 +28632,7 @@ export type GetShippingPolicyResponse = GetShippingPolicyResponses[keyof GetShip
 export type GetProductShippingData = {
   body?: never
   path: {
-    productId: string | number
+    product_id: string | number
   }
   query?: never
   url: '/api/v1/shipping/product/{product_id}'
@@ -29632,7 +29612,7 @@ export type ListUserAccountDataExportsResponse = ListUserAccountDataExportsRespo
 export type DownloadUserAccountDataExportData = {
   body?: never
   path: {
-    exportId: string | number
+    export_id: string | number
     id: string | number
   }
   query?: never
