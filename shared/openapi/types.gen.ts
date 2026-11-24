@@ -28600,7 +28600,7 @@ export type ListShippingOptionsData = {
   path?: never
   query: {
     /**
-         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.
+         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` belongs to a zone of one country.
          */
     countryCode: string
     /**

@@ -50923,7 +50923,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.",
+                        "description": "ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` belongs to a zone of one country.",
                         "required": true
                     },
                     {
