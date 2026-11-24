@@ -143,7 +143,7 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
     return ogImageOf(first?.mainImagePath, {
       width: first?.mainImageWidth,
       height: first?.mainImageHeight,
-    }) ?? ogImageUrl.value
+    }) ?? { url: ogImageUrl.value }
   })
 
   // The canonical and the hreflang set are built from the entity's OWN
@@ -177,7 +177,9 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
     ogTitle: () => categoryName.value || t('title'),
     ogDescription: () => categoryDescription.value,
     ogType: 'website',
-    ogImage: () => ogImage.value,
+    ogImage: () => ogImage.value.url,
+    ogImageWidth: () => ogImage.value.width,
+    ogImageHeight: () => ogImage.value.height,
     ogImageAlt: () => categoryName.value || t('title'),
   })
 

@@ -143,17 +143,15 @@ describe.each(trees(ProductsCategory, WebsideProductsCategory))('$tree Storefron
     serve(CATEGORY, [makeProductSearchHit({ ...photo, mainImageWidth: 1000, mainImageHeight: 1000 })])
     await mount()
 
-    const measured = seo.value.ogImage()
-    expect(measured.url).toContain(`/charger.jpg/${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}/cover/`)
-    expect([measured.width, measured.height]).toEqual([1000, 525])
+    expect(seo.value.ogImage()).toContain(`/charger.jpg/${OG_IMAGE_BOX.width}/${OG_IMAGE_BOX.height}/cover/`)
+    expect([seo.value.ogImageWidth(), seo.value.ogImageHeight()]).toEqual([1000, 525])
 
     clearNuxtData()
     serve(CATEGORY, [makeProductSearchHit({ ...photo, mainImageWidth: null, mainImageHeight: null })])
     await mount()
 
-    const unmeasured = seo.value.ogImage()
-    expect(unmeasured.url).toContain('/charger.jpg/')
-    expect([unmeasured.width, unmeasured.height]).toEqual([undefined, undefined])
+    expect(seo.value.ogImage()).toContain('/charger.jpg/')
+    expect([seo.value.ogImageWidth(), seo.value.ogImageHeight()]).toEqual([undefined, undefined])
   })
 
   it('draws the store\'s text below the products, as rich text', async () => {
