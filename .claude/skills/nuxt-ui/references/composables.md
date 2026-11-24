@@ -1,127 +1,111 @@
 # Composables
 
+All of these are auto-imported. Signatures are in
+`node_modules/@nuxt/ui/dist/runtime/composables/*.d.ts`; the docs list the rest
+(`useFormField`, `useScrollspy`, `useFileUpload`, …):
+[ui.nuxt.com/docs/composables](https://ui.nuxt.com/docs/composables).
+
 ## useToast
 
-Show notifications. Requires `<UApp>` wrapper.
+Needs the `UApp` wrapper (it renders the toaster).
 
 ```ts
 const toast = useToast()
 
-toast.add({
-  title: 'Success',
-  description: 'Item saved',
-  color: 'success',       // primary, success, error, warning, info
+const shown = toast.add({
+  title: t('saved'),
+  description: t('savedHint'),
+  color: 'success',         // any semantic colour
   icon: 'i-lucide-check-circle',
-  duration: 5000,         // 0 = never dismiss
-  actions: [{ label: 'Undo', onClick: () => {} }]
+  duration: 5000,           // 0 keeps it open
+  actions: [{ label: t('undo'), onClick: () => undo() }],
 })
 
-toast.remove('toast-id')
+toast.update(shown.id, { description: t('savedAgain') })
+toast.remove(shown.id)
 toast.clear()
+
+// One toast across a promise: loading, then success or error
+await toast.promise(save(), {
+  loading: t('saving'),
+  success: t('saved'),
+  error: t('notSaved'),
+})
 ```
+
+A toast with the same `id` as an open one pulses it instead of stacking a second.
+A failed API call is never toasted by hand: `useApiError().notify(id, error, { title })`
+toasts Django's reason in the page's language (`ui-and-pages.md`, Failed calls).
 
 ## useOverlay
 
-Programmatically create modals, slideovers, drawers.
+Opens a component as an overlay from script. The storefront has no caller: its
+overlays are declarative (`v-model:open`, see [SKILL.md](../SKILL.md#overlays)).
+When one is needed:
 
 ```ts
 const overlay = useOverlay()
 
-// create() returns a reusable instance with open(), close(), patch()
-const modal = overlay.create(MyComponent)
+// create() takes the component object and returns a reusable instance
+const confirm = overlay.create(ConfirmDialog)
 
-// open() accepts props and returns an object with .result (a Promise)
-const { result } = modal.open({ title: 'Confirm' })
+// open() takes the component's props; its result settles with the value
+// the component emits as `close`: emit('close', true)
+const confirmed = await confirm.open({ title: t('deleteTitle') }).result
 
-if (await result) {
-  // User confirmed
-}
-
-// Inside the overlay component, emit close with a value:
-// emit('close', true) or emit('close', false)
-
-// You can also close from outside:
-modal.close(false)
+confirm.close()          // close from outside
+confirm.patch({ title }) // change props while open
 ```
+
+The overlay instance also has `overlay.closeAll()`, `overlay.isOpen(id)` and
+`overlay.unmount(id)`.
 
 ## defineShortcuts
 
-Define keyboard shortcuts.
-
 ```ts
 defineShortcuts({
-  meta_k: () => openSearch(),        // Cmd+K (Mac) / Ctrl+K (Win)
-  meta_shift_p: () => openPalette(), // Cmd+Shift+P
+  meta_k: () => openSearch(),   // Cmd+K on macOS, Ctrl+K elsewhere
   escape: () => close(),
-  ctrl_s: () => save(),
-
-  // With condition
+  'g-p': () => goToProducts(),  // a chain: G, then P
   meta_enter: {
     handler: () => submit(),
-    whenever: [isFormValid]
-  }
+    usingInput: true,           // also fires while an input is focused
+  },
 })
 ```
 
-| Key | Meaning |
+| Key part | Meaning |
 |---|---|
-| `meta` | Cmd (Mac) / Ctrl (Windows) |
-| `ctrl` | Ctrl key |
-| `alt` | Alt / Option key |
-| `shift` | Shift key |
-| `_` | Key separator |
+| `meta` | Cmd on macOS, Ctrl elsewhere |
+| `ctrl`, `alt`, `shift` | Those modifiers |
+| `_` | Joins the keys of one combination (`meta_shift_p`) |
+| `-` | Separates the steps of a chain (`g-p`) |
 
-## defineLocale / extendLocale
-
-i18n locale definition.
-
-```ts
-import { fr } from '@nuxt/ui/locale'
-
-// Use a built-in locale (50+ available)
-// <UApp :locale="fr">
-
-// Define custom locale
-const locale = defineLocale({
-  name: 'Español',
-  code: 'es',
-  dir: 'ltr',
-  messages: {
-    select: { placeholder: 'Seleccionar...' }
-  }
-})
-
-// Extend existing locale
-import { en } from '@nuxt/ui/locale'
-
-const customEn = extendLocale(en, {
-  messages: { commandPalette: { placeholder: 'Search a component...' } }
-})
-```
-
-```vue
-<UApp :locale="fr"><NuxtPage /></UApp>
-```
+The config may be a `computed` to switch shortcuts on and off (`app/components/Builder/Editor.vue`).
+The options argument takes `chainDelay` (ms between chain steps) and `layoutIndependent`.
 
 ## extractShortcuts
 
-Extract shortcut keys from a list of items (e.g., dropdown menu items) into a shortcuts map for `defineShortcuts`.
+Builds a `defineShortcuts` map from menu items that have `kbds` and `onSelect` (or
+`onClick`), nested `children` and `items` included:
 
 ```ts
 const items = [
-  { label: 'New file', kbds: ['meta', 'n'], onSelect: () => newFile() },
-  { label: 'Save', kbds: ['meta', 's'], onSelect: () => save() }
+  { label: t('newPage'), kbds: ['meta', 'n'], onSelect: () => createPage() },
+  { label: t('save'), kbds: ['meta', 's'], onSelect: () => save() },
 ]
 
 defineShortcuts(extractShortcuts(items))
 ```
 
-## Quick reference
+## Locales: defineLocale, extendLocale
 
-| Composable | Purpose |
-|---|---|
-| `useToast` | Show notifications |
-| `useOverlay` | Programmatic modals/slideovers |
-| `defineShortcuts` | Keyboard shortcuts |
-| `defineLocale` / `extendLocale` | i18n locale |
-| `extractShortcuts` | Parse shortcut definitions |
+`UApp` follows the `@nuxtjs/i18n` locale and loads Nuxt UI's messages for the
+locales `i18n.locales` lists, so the storefront passes no `locale` prop. Nuxt UI
+`Locale` objects (`{ name, code, dir, messages }`, from `@nuxt/ui/locale`) are needed
+only where a component takes them, such as `ULocaleSelect`; the repo imports them
+by name in `app/utils/uiLocales.ts`, never as a namespace, which would bundle all of them.
+
+`defineLocale({ name, code, dir, messages })` creates a locale and
+`extendLocale(locale, { messages })` overrides part of one; pass the result to
+`UApp`'s `locale` prop.
