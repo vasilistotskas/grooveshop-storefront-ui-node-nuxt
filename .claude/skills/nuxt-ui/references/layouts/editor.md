@@ -1,168 +1,34 @@
 # Editor Layout
 
-Build a rich text editor with toolbars, slash commands, mentions, and drag-and-drop.
+The page editor's rich text field is `app/components/Builder/RichTextField.vue`,
+a `UEditor` (TipTap) with a `UEditorToolbar`. It is the only editor in the
+storefront; read it before changing it.
 
 ## Component tree
 
 ```
-UApp
-├── UHeader
-├── UMain
-│   └── NuxtPage
-│       └── UContainer
-│           └── UEditor
-│               ├── UEditorToolbar (fixed / bubble / floating)
-│               ├── UEditorDragHandle
-│               ├── UEditorSuggestionMenu
-│               ├── UEditorMentionMenu
-│               └── UEditorEmojiMenu
-└── UFooter
+UEditor  content-type="html", v-model as HTML
+└── UEditorToolbar  items from the field, a #link slot with a UPopover
 ```
 
-## Page
+## Rules
 
-```vue [pages/editor.vue]
-<script setup lang="ts">
-const content = ref({
-  type: 'doc',
-  content: [
-    {
-      type: 'heading',
-      attrs: { level: 1 },
-      content: [{ type: 'text', text: 'Hello World' }]
-    },
-    {
-      type: 'paragraph',
-      content: [{ type: 'text', text: 'Start writing...' }]
-    }
-  ]
-})
-</script>
+- The value is HTML (`content-type="html"`), and the editor may write only
+  markup the store's sanitiser keeps (`src/core/utils/sanitize.py` in Django).
+  So the `starter-kit` option turns off code blocks and inline code, limits
+  headings to `BUILDER_RICH_TEXT_HEADING_LEVELS` and keeps links from opening
+  on click; `:image="false"` and `:mention="false"`. A new node or mark needs
+  the sanitiser to keep it first.
+- The toolbar is built from `EditorToolbarItem[][]` groups. Every button has an
+  `aria-label` and a tooltip from `t()`.
+- The field's `aria-label` and `role="textbox"` go through `editor-props`.
+- An emptied editor still holds an empty paragraph: the field reports `undefined`
+  when TipTap's `isEmpty` is true, so a setting is removed instead of saved empty.
+- Styling goes through the `ui` prop (`root`, `content`, `base`), with token
+  classes (`ring-accented`, `border-default`).
 
-<template>
-  <UPage>
-    <UPageHeader title="Editor">
-      <template #actions>
-        <UButton label="Save" icon="i-lucide-save" />
-      </template>
-    </UPageHeader>
+## Props
 
-    <UPageBody>
-      <UEditor v-slot="{ editor }" v-model="content">
-        <UEditorToolbar :editor="editor" />
-        <UEditorSuggestionMenu :editor="editor" />
-        <UEditorMentionMenu
-          :editor="editor"
-          :items="[
-            { label: 'Benjamin', avatar: { src: 'https://github.com/benjamincanac.png' } },
-            { label: 'Sébastien', avatar: { src: 'https://github.com/atinux.png' } }
-          ]"
-        />
-        <UEditorEmojiMenu :editor="editor" />
-        <UEditorDragHandle :editor="editor" />
-      </UEditor>
-    </UPageBody>
-  </UPage>
-</template>
-```
-
-> If you encounter prosemirror-related errors, add prosemirror packages to `vite.optimizeDeps.include` in `nuxt.config.ts`.
-
-## Key components
-
-- `UEditor` — Rich text editor (`v-model` accepts JSON, HTML, or markdown via `content-type` prop)
-- `UEditorToolbar` — Toolbar with `layout`: `'fixed'` (default), `'bubble'` (on selection), `'floating'` (on empty lines)
-- `UEditorDragHandle` — Block drag-and-drop handle
-- `UEditorSuggestionMenu` — Slash command menu
-- `UEditorMentionMenu` — @ mention menu
-- `UEditorEmojiMenu` — Emoji picker
-
-## Toolbar modes
-
-```vue
-<!-- Fixed (default) -->
-<UEditor v-model="content">
-  <UEditorToolbar />
-</UEditor>
-
-<!-- Bubble (appears on text selection) -->
-<UEditor v-model="content">
-  <UEditorToolbar layout="bubble" />
-</UEditor>
-
-<!-- Floating (appears on empty lines) -->
-<UEditor v-model="content">
-  <UEditorToolbar layout="floating" />
-</UEditor>
-```
-
-## Content types
-
-```vue
-<!-- JSON (default) -->
-<UEditor v-model="jsonContent" />
-
-<!-- HTML -->
-<UEditor v-model="htmlContent" content-type="html" />
-
-<!-- Markdown -->
-<UEditor v-model="markdownContent" content-type="markdown" />
-```
-
-## With document sidebar
-
-Combine with Dashboard components for a multi-document editor with a sidebar.
-
-```vue [layouts/editor.vue]
-<template>
-  <UDashboardGroup>
-    <UDashboardSidebar collapsible resizable>
-      <template #header>
-        <UButton icon="i-lucide-plus" label="New document" block />
-      </template>
-
-      <template #default>
-        <UNavigationMenu
-          :items="documents.map(doc => ({
-            label: doc.title,
-            to: `/editor/${doc.id}`,
-            icon: 'i-lucide-file-text'
-          }))"
-          orientation="vertical"
-        />
-      </template>
-    </UDashboardSidebar>
-
-    <slot />
-  </UDashboardGroup>
-</template>
-```
-
-```vue [pages/editor/[id].vue]
-<script setup lang="ts">
-definePageMeta({ layout: 'editor' })
-
-const content = ref({ type: 'doc', content: [] })
-</script>
-
-<template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Editor">
-        <template #right>
-          <UButton label="Save" icon="i-lucide-save" />
-        </template>
-      </UDashboardNavbar>
-    </template>
-
-    <UContainer class="py-8">
-      <UEditor v-slot="{ editor }" v-model="content">
-        <UEditorToolbar :editor="editor" />
-        <UEditorSuggestionMenu :editor="editor" />
-        <UEditorEmojiMenu :editor="editor" />
-        <UEditorDragHandle :editor="editor" />
-      </UEditor>
-    </UContainer>
-  </UDashboardPanel>
-</template>
-```
+`UEditor` and `UEditorToolbar` props, slots and the toolbar item kinds are in
+`node_modules/@nuxt/ui/dist/runtime/components/Editor.vue.d.ts` and
+`EditorToolbar.vue.d.ts`.
