@@ -87,14 +87,16 @@ export async function useProductAssurances(productId: MaybeRefOrGetter<number | 
     }
 
     const { min, max } = days
-    return {
-      kind: 'delivery',
-      icon: 'i-lucide-truck',
-      text: min === max
+    // A delivery the store makes only to some regions says which.
+    const regions = new Intl.ListFormat($i18n.locale.value, { type: 'conjunction' }).format(days.regions)
+    const text = days.regions.length
+      ? min === max
+        ? $i18n.t('product_assurances.delivery_days_in', { count: min, regions }, min)
+        : $i18n.t('product_assurances.delivery_range_in', { min, max, regions })
+      : min === max
         ? $i18n.t('product_assurances.delivery_days', { count: min }, min)
-        : $i18n.t('product_assurances.delivery_range', { min, max }),
-      note: shipping,
-    }
+        : $i18n.t('product_assurances.delivery_range', { min, max })
+    return { kind: 'delivery', icon: 'i-lucide-truck', text, note: shipping }
   })
 
   const payment = computed<ProductAssuranceRow | null>(() => {

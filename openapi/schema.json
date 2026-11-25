@@ -64382,7 +64382,7 @@
                             "countryCode": {
                                 "type": "string",
                                 "nullable": true,
-                                "description": "The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects"
+                                "description": "The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects, at the rates of its shipping zone covering the whole country, or of each region zone of a country served only in some regions (a cart knows no region; a region zone's own threshold applies once checkout prices the address)"
                             }
                         },
                         "required": [
@@ -65262,7 +65262,7 @@
             },
             "CartQuoteRequestRequest": {
                 "type": "object",
-                "description": "Request body for ``POST /api/v1/cart/quote``.\n\nThe checkout's choices, each optional: a quote may be asked before\nthe shopper has chosen a delivery or a pay way, and the rows that\ndepend on a missing choice come back null. A delivery is priced once\nboth ``shipping_kind`` and ``country_id`` are given. Send what the\norder-create body will carry, the email and the pickup point\nincluded, so the quote is the total that order is created at and its\n``cartDigest`` the cart that order is made of.",
+                "description": "Request body for ``POST /api/v1/cart/quote``.\n\nThe checkout's choices, each optional: a quote may be asked before\nthe shopper has chosen a delivery or a pay way, and the rows that\ndepend on a missing choice come back null. A delivery is priced once\nboth ``shipping_kind`` and ``country_id`` are given. Send what the\norder-create body will carry, the email and the pickup point\nincluded, so the quote is the total that order is created at and its\n``cartDigest`` the cart that order is made of. Send that\n``cartDigest`` back as ``expectedCartDigest`` on ``POST /api/v1/order``:\nonly then is the order refused when the cart changed since the quote\n(409 ``cart_changed``, nothing created), a change at the same total\nincluded.",
                 "properties": {
                     "boxnowLockerId": {
                         "type": "string",
@@ -67055,7 +67055,7 @@
                     "countryCode": {
                         "type": "string",
                         "nullable": true,
-                        "description": "Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.",
+                        "description": "Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Τα όρια είναι της ζώνης αποστολής που καλύπτει ολόκληρη τη χώρα: το όριο μιας ζώνης περιοχών ισχύει μόλις η ολοκλήρωση αγοράς τιμολογήσει διεύθυνση σε αυτήν. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.",
                         "maxLength": 2
                     }
                 },
@@ -69062,7 +69062,7 @@
             },
             "OrderCreateFromCartRequest": {
                 "type": "object",
-                "description": "Serializer for creating orders from cart.\n\nEvery pay way creates the order before any payment, whatever its\n``settlement``:\n1. ``online``: the shopper pays the balance left after deductions\n   (gift cards, promotions, loyalty points) afterwards, on the\n   provider's hosted page (Viva Wallet, Stripe). Deductions that\n   cover the whole total settle the order at once, with no provider\n   charge.\n2. Any other settlement (courier cash, carrier terminal, offline\n   transfer): money is collected later.\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
+                "description": "Serializer for creating orders from cart.\n\nEvery pay way creates the order before any payment, whatever its\n``settlement``:\n1. ``online``: the balance left after deductions (gift cards,\n   promotions, loyalty points) is paid afterwards. In storefront\n   checkout the shopper pays it on the provider's hosted page (Viva\n   Wallet, Stripe); an agent order with delegated Stripe payments is\n   charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``\n   (``confirmAgentPaymentForOrder``). Either way, deductions that\n   cover the whole total settle the order at once, with no provider\n   charge.\n2. Any other settlement (courier cash, carrier terminal, offline\n   transfer): money is collected later.\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
                 "properties": {
                     "boxnowLockerId": {
                         "type": "string",
@@ -81049,6 +81049,13 @@
                         "description": "Χώρα προορισμού (ISO 3166-1 alpha-2).",
                         "maxLength": 2
                     },
+                    "regionCodes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Οι περιοχές της χώρας στις οποίες ισχύει αυτή η γραμμή· κενό όταν ισχύει για ολόκληρη τη χώρα. Ένα κατάστημα που παραδίδει μόνο σε ορισμένες περιοχές μιας χώρας τις αναφέρει εδώ."
+                    },
                     "kind": {
                         "$ref": "#/components/schemas/ShippingKind"
                     },
@@ -81065,7 +81072,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "description": "Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, χώρα, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι."
+                        "description": "Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, ζώνη, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι."
                     },
                     "currency": {
                         "type": "string",
@@ -81108,7 +81115,8 @@
                     "maxWeightGrams",
                     "price",
                     "providerCode",
-                    "providerName"
+                    "providerName",
+                    "regionCodes"
                 ]
             },
             "ShippingProvider": {

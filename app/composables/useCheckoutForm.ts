@@ -429,6 +429,17 @@ export async function useCheckoutForm() {
       // shipping step can never submit one that does not match the new
       // delivery country.
       for (const method of Object.keys(PICKUP_FORM_KEYS)) clearPickupPoint(formState, method)
+      // A region the loaded list places in another country is the
+      // previous country's: cleared now, with the country, so neither the
+      // shipping options nor the quote ask for the new country with it
+      // (Django refuses that: `region_country_mismatch`). A region the
+      // list does not know is a saved address's, set with its country,
+      // and is judged once the new country's list has loaded.
+      const known = regions.value?.results?.find(region => region.alpha === formState.region)
+      if (known && known.country !== newCountry) {
+        formState.region = ''
+        formState.regionId = undefined
+      }
       if (newCountry && countries.value?.results) {
         const selectedCountry = countries.value.results.find(
           c => c.alpha2 === newCountry,

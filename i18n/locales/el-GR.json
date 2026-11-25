@@ -314,7 +314,9 @@
   "product_assurances": {
     "label": "Παράδοση, πληρωμή και επιστροφές",
     "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες ημέρες από την αποστολή",
+    "delivery_range_in": "Παράδοση σε {min}–{max} εργάσιμες ημέρες από την αποστολή, για {regions}",
     "delivery_days": "Παράδοση σε {count} εργάσιμη ημέρα από την αποστολή | Παράδοση σε {count} εργάσιμες ημέρες από την αποστολή",
+    "delivery_days_in": "Παράδοση σε {count} εργάσιμη ημέρα από την αποστολή, για {regions} | Παράδοση σε {count} εργάσιμες ημέρες από την αποστολή, για {regions}",
     "shipping_from": "Μεταφορικά από {price}",
     "shipping_from_free_over": "Μεταφορικά από {price} · δωρεάν άνω των {amount}",
     "ships_free": "Δωρεάν μεταφορικά",
@@ -325,10 +327,13 @@
   },
   "store_assurances": {
     "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες",
+    "delivery_range_in": "Παράδοση σε {min}–{max} εργάσιμες για {regions}",
     "delivery_days": "Παράδοση σε {count} εργάσιμη | Παράδοση σε {count} εργάσιμες",
+    "delivery_days_in": "Παράδοση σε {count} εργάσιμη για {regions} | Παράδοση σε {count} εργάσιμες για {regions}",
     "dispatch_cutoff": "Παραγγελίες έως {time} φεύγουν την ίδια εργάσιμη",
     "free_shipping_from": "Δωρεάν μεταφορικά από {amount}",
     "carrier_price": "{carrier} {price}",
+    "carrier_price_in": "{carrier} {price} για {regions}",
     "returns": "Επιστροφή σε {count} ημέρα | Επιστροφή σε {count} ημέρες"
   },
   "tracking": {

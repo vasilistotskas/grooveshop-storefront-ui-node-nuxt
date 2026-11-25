@@ -5,6 +5,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart, makeFreeShippingProgress } from '~~/test/fixtures/cart'
 import { makePublicValues } from '~~/test/fixtures/publicValues'
+import { makeRegion, makeShippingPolicyRow } from '~~/test/fixtures/shippingPolicy'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
@@ -17,7 +18,7 @@ import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/help
  */
 const data = vi.hoisted(() => ({
   freeShipping: { minThreshold: 40 as number | null, countryCode: 'GR' as string | null },
-  policy: [] as Array<{ countryCode: string, deliveryDaysMin: number | null, deliveryDaysMax: number | null }>,
+  policy: [] as ShippingPolicyRow[],
   payWays: [] as Array<{ settlement?: string }>,
   returnWindow: 14 as number | undefined,
   estimate: null as null | { countryCode: string, price: number, currency: string, free: boolean, freeShippingThreshold: number | null },
@@ -68,8 +69,8 @@ beforeEach(() => {
   useCartStore().cart = null
   data.freeShipping = { minThreshold: 40, countryCode: 'GR' }
   data.policy = [
-    { countryCode: 'GR', deliveryDaysMin: 1, deliveryDaysMax: 3 },
-    { countryCode: 'CY', deliveryDaysMin: 5, deliveryDaysMax: 9 },
+    makeShippingPolicyRow({ countryCode: 'GR', deliveryDaysMin: 1, deliveryDaysMax: 3 }),
+    makeShippingPolicyRow({ countryCode: 'CY', deliveryDaysMin: 5, deliveryDaysMax: 9 }),
   ]
   data.payWays = [{ settlement: 'online' }, { settlement: 'courier_cash' }]
   data.returnWindow = 14
@@ -172,14 +173,37 @@ describe('useProductAssurances', () => {
   })
 
   it('says one number when the shortest and longest delivery are the same', async () => {
-    data.policy = [{ countryCode: 'GR', deliveryDaysMin: 2, deliveryDaysMax: 2 }]
+    data.policy = [makeShippingPolicyRow({ countryCode: 'GR', deliveryDaysMin: 2, deliveryDaysMax: 2 })]
+
+    expect(text(await load())[0]).toBe('Παράδοση σε 2 εργάσιμες ημέρες από την αποστολή')
+  })
+
+  // A store that delivers home only to some regions (Django's region zones):
+  // the days hold there alone, so the row says where. A country-wide rate
+  // beside them is what the promise rests on, and it names no region.
+  it('names the regions a delivery promise holds in when the country is served only there', async () => {
+    const { $i18n } = useNuxtApp()
+    const attica = makeRegion()
+    const crete = makeRegion({ alpha: 'GR-M', sortOrder: 2, translations: { el: { name: 'Κρήτη' }, en: { name: 'Crete' } } })
+    data.policy = [
+      makeShippingPolicyRow({ deliveryDaysMin: 1, deliveryDaysMax: 2, regionCodes: [attica.alpha], regions: [attica] }),
+      makeShippingPolicyRow({ deliveryDaysMin: 2, deliveryDaysMax: 3, regionCodes: [crete.alpha], regions: [crete] }),
+    ]
+
+    expect(text(await load())[0]).toBe($i18n.t('product_assurances.delivery_range_in', {
+      min: 1,
+      max: 3,
+      regions: new Intl.ListFormat($i18n.locale.value, { type: 'conjunction' }).format(['Αττική', 'Κρήτη']),
+    }))
+
+    data.policy = [...data.policy, makeShippingPolicyRow({ kind: 'pickup_point', deliveryDaysMin: 2, deliveryDaysMax: 2 })]
 
     expect(text(await load())[0]).toBe('Παράδοση σε 2 εργάσιμες ημέρες από την αποστολή')
   })
 
   // Most stores enter no delivery days: the row then states the price alone.
   it('states what shipping costs as the row itself when no delivery days are entered', async () => {
-    data.policy = [{ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null }]
+    data.policy = [makeShippingPolicyRow({ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null })]
 
     const assurances = await load()
 
@@ -191,7 +215,7 @@ describe('useProductAssurances', () => {
   })
 
   it('hides the delivery row, and does not claim the free-shipping line, with neither delivery days nor a price', async () => {
-    data.policy = [{ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null }]
+    data.policy = [makeShippingPolicyRow({ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null })]
     data.estimate = null
 
     const assurances = await load()
@@ -201,7 +225,7 @@ describe('useProductAssurances', () => {
   })
 
   it('hides the delivery row without delivery days once the cart has a route to free shipping', async () => {
-    data.policy = [{ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null }]
+    data.policy = [makeShippingPolicyRow({ countryCode: 'GR', deliveryDaysMin: null, deliveryDaysMax: null })]
     useCartStore().cart = makeCart({ freeShippingProgress: makeFreeShippingProgress() })
 
     const assurances = await load()

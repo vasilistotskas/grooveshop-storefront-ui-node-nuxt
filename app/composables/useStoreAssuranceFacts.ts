@@ -2,8 +2,14 @@ import type { RouteLocationRaw } from 'vue-router'
 
 /** What the store has said about buying from it, each fact `null` when it has not said it. */
 export interface StoreAssuranceFacts {
-  /** Business days from dispatch to the door in the country the store ships to first, fastest to slowest. */
-  deliveryDays: { min: number, max: number } | null
+  /**
+   * Business days from dispatch to the door in the country the store ships
+   * to first, fastest to slowest, over the rates that cover the whole
+   * country. A country the store reaches only in some regions is judged on
+   * those regions' rates, and `regions` names them; empty, the days hold
+   * country-wide.
+   */
+  deliveryDays: { min: number, max: number, regions: string[] } | null
   /** The `HH:MM` up to which an order leaves the same business day. */
   dispatchCutoff: string | null
   /** The lowest subtotal any carrier ships free from; `null` when none ever does. */
@@ -12,8 +18,11 @@ export interface StoreAssuranceFacts {
    * What each carrier charges below that: its cheapest rate for the country
    * over all its kinds (home, locker, pickup), cheapest carrier first. A
    * carrier whose cheapest rate is free is left out: it ships free already.
+   * A carrier with a country-wide rate is priced on those (`regions` empty);
+   * one that reaches only some regions is priced on its cheapest regional
+   * rate, and `regions` names the regions that rate applies to.
    */
-  carrierPrices: Array<{ carrier: string, price: number }>
+  carrierPrices: Array<{ carrier: string, price: number, regions: string[] }>
   /** How the shopper can pay, as one phrase ("Card or cash on delivery"). */
   payment: string | null
   /** The same ways to pay one by one, each capitalised ("Card", "Cash on delivery"). */
@@ -82,11 +91,31 @@ export async function useStoreAssuranceFacts() {
     return (policy.data.value ?? []).filter(entry => entry.countryCode === country)
   })
 
+  /**
+   * The rates a promise about the whole country may rest on: the ones
+   * without regions, or, for a country the store reaches only in some
+   * regions, those regions' (whose names the promise then carries).
+   */
+  const promisedRates = (rows: ShippingPolicyRow[]) => {
+    const wholeCountry = rows.filter(entry => entry.regionCodes.length === 0)
+    return wholeCountry.length ? wholeCountry : rows
+  }
+
+  /** The regions a row applies to, by name in the page's language; empty for a country-wide row. */
+  const regionNames = (entry: ShippingPolicyRow) => entry.regionCodes.map(code =>
+    extractTranslated(entry.regions.find(region => region.alpha === code), 'name', $i18n.locale.value) ?? code,
+  )
+
   const deliveryDays = computed(() => {
-    const days = countryRates.value
+    const rates = promisedRates(countryRates.value)
+    const days = rates
       .flatMap(entry => [entry.deliveryDaysMin, entry.deliveryDaysMax])
       .filter(value => value !== null)
-    return days.length ? { min: Math.min(...days), max: Math.max(...days) } : null
+    if (!days.length) return null
+    const regions = [...new Set(rates
+      .filter(entry => entry.deliveryDaysMin !== null || entry.deliveryDaysMax !== null)
+      .flatMap(regionNames))]
+    return { min: Math.min(...days), max: Math.max(...days), regions }
   })
 
   const freeShippingFrom = computed(() => {
@@ -95,14 +124,17 @@ export async function useStoreAssuranceFacts() {
   })
 
   const carrierPrices = computed(() => {
-    const cheapest = new Map<string, { carrier: string, price: number }>()
+    const byCarrier = new Map<string, ShippingPolicyRow[]>()
     for (const entry of countryRates.value) {
-      const known = cheapest.get(entry.providerCode)
-      if (!known || entry.price < known.price) {
-        cheapest.set(entry.providerCode, { carrier: entry.providerName, price: entry.price })
-      }
+      byCarrier.set(entry.providerCode, [...(byCarrier.get(entry.providerCode) ?? []), entry])
     }
-    return [...cheapest.values()].filter(({ price }) => price > 0).sort((a, b) => a.price - b.price)
+    return [...byCarrier.values()]
+      .map((rates) => {
+        const cheapest = promisedRates(rates).reduce((low, entry) => entry.price < low.price ? entry : low)
+        return { carrier: cheapest.providerName, price: cheapest.price, regions: regionNames(cheapest) }
+      })
+      .filter(({ price }) => price > 0)
+      .sort((a, b) => a.price - b.price)
   })
 
   /** The ways to pay the store takes, in the order a phrase lists them, in the page's words. */
