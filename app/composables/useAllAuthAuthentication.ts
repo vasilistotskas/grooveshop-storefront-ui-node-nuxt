@@ -324,6 +324,45 @@ export default function () {
     })
   }
 
+  // A request or a resend 200 is a bare acknowledgement mid-flow: it carries no
+  // auth state, so it stays out of `onAllAuthResponse` (which would read a 200
+  // without a user as a logout). Only a 401/410 matters, and that is
+  // `onAllAuthResponseError`.
+  async function requestReauthenticationCode(body: AllAuthRequestRequestReauthenticationCode) {
+    return $api(`${API_BASE_URL}/reauthenticate/code/request`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body,
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response)
+      },
+    })
+  }
+
+  async function confirmReauthenticationCode(body: AllAuthRequestConfirmLoginCode) {
+    return $api(`${API_BASE_URL}/reauthenticate/code/confirm`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body,
+      async onResponse({ response }) {
+        await onAllAuthResponse(response)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response)
+      },
+    })
+  }
+
+  async function resendReauthenticationCode() {
+    return $api(`${API_BASE_URL}/reauthenticate/code/resend`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response)
+      },
+    })
+  }
+
   async function requestLoginCode(body: AllAuthRequestRequestLoginCode) {
     return $api(`${API_BASE_URL}/code/request`, {
       method: 'POST',
@@ -517,6 +556,9 @@ export default function () {
     providerSignup,
     twoFaAuthenticate,
     twoFaReauthenticate,
+    requestReauthenticationCode,
+    confirmReauthenticationCode,
+    resendReauthenticationCode,
     requestLoginCode,
     confirmLoginCode,
     resendLoginCode,

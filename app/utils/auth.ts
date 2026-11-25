@@ -206,9 +206,11 @@ export const pathForFlow = (flow: AllAuthFlow, authenticatorType?: string) => {
   // provider_redirect is an external OAuth redirect, not a Nuxt page.
   // Return null so navigateToPendingFlow skips navigation.
   if (flow.id === Flows.PROVIDER_REDIRECT) return null
+  // A flow with a step of its own once it is under way (`<id>:pending`)
+  // resumes there; the same flow listed without `is_pending` is its first step.
   const flowKey = flow.types && flow.types.length
     ? `${flow.id}:${authenticatorType ?? pickPreferredAuthenticatorType(flow.types)}`
-    : flow.id
+    : flow.is_pending ? `${flow.id}:pending` : flow.id
   const path = Flow2path[flowKey] ?? Flow2path[flow.id]
   if (!path) {
     throw new Error(`Unknown path for flow: ${flow.id}`)
@@ -381,6 +383,32 @@ export function returnTarget(route: { path: string, fullPath: string, meta: { si
   if (route.meta.signInReturn !== 'path-and-query') return route.path
   const { pathname, search } = parsePath(route.fullPath)
   return `${pathname}${search}`
+}
+
+/**
+ * The ways to confirm it is the shopper, in the order the shopper is sent
+ * to the first one the account has: the password, a second factor, then a
+ * code mailed to a verified address. One already under way (a code sent)
+ * comes first.
+ */
+const REAUTHENTICATION_FLOW_ORDER = [
+  Flows.REAUTHENTICATE,
+  Flows.MFA_REAUTHENTICATE,
+  Flows.REAUTHENTICATE_BY_CODE,
+] as const
+
+/** The page for a 401 that asks for re-authentication, or null when the answer lists no way. */
+export const reauthenticationFlowPath = (
+  response: AllAuthResponse | AllAuthResponseError,
+) => {
+  const flows = flowsOf(response)
+  const pending = flows.find(flow => flow.is_pending)
+  if (pending) return pathForFlow(pending)
+  for (const id of REAUTHENTICATION_FLOW_ORDER) {
+    const flow = flows.find(candidate => candidate.id === id)
+    if (flow) return pathForFlow(flow)
+  }
+  return null
 }
 
 export const navigateToPendingFlow = async (

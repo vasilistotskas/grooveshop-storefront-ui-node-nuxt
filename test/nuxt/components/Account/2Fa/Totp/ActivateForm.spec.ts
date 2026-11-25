@@ -157,4 +157,14 @@ describe.each(trees(ActivateForm, WebsideActivateForm))('$tree Account/2Fa/Totp/
 
     expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(SETTLED))
   })
+
+  it('sends a shopper who already has the app back to the Security page, with nothing to enrol', async () => {
+    // allauth's status of the authenticator, a 200: no secret, no QR code.
+    totpAuthenticatorStatus.mockResolvedValue({ status: 200, data: { type: 'totp', created_at: 1_700_000_000, last_used_at: null } })
+
+    const wrapper = await mountForm()
+
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(SETTLED))
+    expect(wrapper.text()).not.toContain(SECRET)
+  })
 })

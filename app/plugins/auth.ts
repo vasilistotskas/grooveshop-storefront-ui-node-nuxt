@@ -177,7 +177,7 @@ export default defineNuxtPlugin({
     async function handleReauthenticationRequired() {
       try {
         const next = returnTarget(useRouter().currentRoute.value)
-        const flowPath = getReauthenticationFlowPath(authState.value)
+        const flowPath = reauthenticationFlowPath(authState.value)
         if (flowPath) {
           log.info('auth', 'Navigating to reauthentication flow')
           return await navigateToUrl({ path: flowPath, query: next ? { next } : undefined })
@@ -203,21 +203,6 @@ export default defineNuxtPlugin({
       catch (error) {
         log.error({ action: 'auth:navigate', error })
       }
-    }
-
-    function getReauthenticationFlowPath(auth: AllAuthResponse | AllAuthResponseError) {
-      const flows = flowsOf(auth)
-      if (flows.length) {
-        const pendingFlow = flows.find(flow => flow.is_pending)
-        if (pendingFlow) {
-          return pathForFlow(pendingFlow)
-        }
-        const reauthenticateFlowExists = flows.some(flow => flow.id === 'reauthenticate')
-        if (reauthenticateFlowExists) {
-          return Flow2path['reauthenticate']
-        }
-      }
-      return null
     }
   },
 })

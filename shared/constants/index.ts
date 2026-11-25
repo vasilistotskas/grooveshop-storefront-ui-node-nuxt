@@ -58,6 +58,7 @@ export const Flows = {
   PROVIDER_SIGNUP: 'provider_signup',
   MFA_AUTHENTICATE: 'mfa_authenticate',
   REAUTHENTICATE: 'reauthenticate',
+  REAUTHENTICATE_BY_CODE: 'reauthenticate_by_code',
   MFA_REAUTHENTICATE: 'mfa_reauthenticate',
   MFA_WEBAUTHN_SIGNUP: 'mfa_signup_webauthn',
 } as const
@@ -84,6 +85,9 @@ export const Flow2path = {
   [Flows.VERIFY_EMAIL]: 'account-verify-email',
   [Flows.PROVIDER_SIGNUP]: 'account-provider-signup',
   [Flows.REAUTHENTICATE]: 'account-reauthenticate',
+  [Flows.REAUTHENTICATE_BY_CODE]: 'account-reauthenticate-code',
+  // The code is on its way: the step that takes it (a pending flow only).
+  [`${Flows.REAUTHENTICATE_BY_CODE}:pending`]: 'account-reauthenticate-code-confirm',
   [Flows.MFA_WEBAUTHN_SIGNUP]: 'account-signup-passkey-create',
   [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.TOTP}`]: 'account-2fa-authenticate-totp',
   [`${Flows.MFA_AUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: 'account-2fa-authenticate-recovery-codes',

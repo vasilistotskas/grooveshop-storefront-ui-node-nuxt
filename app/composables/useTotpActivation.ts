@@ -45,14 +45,18 @@ export async function useTotpActivation(options: {
     },
   )
 
-  const meta = computed(() => data.value && 'meta' in data.value ? data.value.meta : undefined)
+  // allauth answers 200 for a shopper who already has the app (the status of
+  // it, nothing to enrol with), Django's own view 404 with the secret and the
+  // QR code for one who has none.
+  const setup = computed(() => data.value?.status === 404 ? data.value : undefined)
+  const meta = computed(() => setup.value?.meta)
   const totpSecret = computed(() => meta.value?.secret ?? '')
   const totpSvg = computed(() =>
     meta.value ? DOMPurify.sanitize(meta.value.totp_svg ?? '', { USE_PROFILES: { svg: true } }) : '',
   )
 
   watchEffect(async () => {
-    if (error.value) {
+    if (error.value || data.value?.status === 200) {
       await navigateTo(localePath('account-security'))
     }
   })

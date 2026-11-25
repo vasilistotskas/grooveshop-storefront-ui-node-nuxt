@@ -1,11 +1,12 @@
 import * as z from 'zod'
 
 /**
- * `GET account/authenticators/totp/svg`: the answer of Django's own TOTP
- * setup view (`src/core/views.py`), not an allauth endpoint, so allauth's
- * document does not describe it and nothing is generated for it. Like
+ * `GET account/authenticators/totp/svg`, for a shopper with no authenticator:
+ * the answer of Django's own TOTP setup view (`src/core/views.py`). Like
  * allauth's TOTP status it is a 404 that carries what to enrol with, plus
- * the QR code as an SVG.
+ * the QR code as an SVG. Allauth's document describes the other answer, the
+ * 200 for a shopper who has one (`zGetAllauthAppV1AccountAuthenticatorsTotpSvgResponse`),
+ * and only that: the 404's body is not in it, so it is written here.
  */
 export const ZodTotpSvgSetup = z.object({
   meta: z.object({

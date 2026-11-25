@@ -33,7 +33,8 @@ const PAGE_KEYS: PageKey[] = [
   'account-notifications', 'account-orders-id', 'account-orders',
   'account-password-change', 'account-providers', 'account-reviews',
   'account-sessions', 'account-settings', 'account-settings-privacy',
-  'account-subscriptions', 'reauthenticate', '2fa-reauthenticate-totp',
+  'account-subscriptions', 'reauthenticate', 'reauthenticate-code',
+  'reauthenticate-code-confirm', '2fa-reauthenticate-totp',
   '2fa-reauthenticate-webauthn', '2fa-reauthenticate-recovery-codes',
 ]
 

@@ -103,11 +103,7 @@ export function setupPageHeader() {
 
   const colorMode = useColorMode()
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
-  // The locale's full BCP-47 `language` (e.g. `el-GR`) so screen readers
-  // and search engines get region-specific pronunciation hints, and its
-  // writing direction, both from `LOCALE_PROPERTIES` (`i18n/locales.ts`).
-  const lang = computed(() => $i18n.localeProperties.value.language)
-  const dir = computed(() => $i18n.localeProperties.value.dir)
+  useHtmlLanguage()
 
   useSeoMeta({
     title: () => title.value,
@@ -156,10 +152,6 @@ export function setupPageHeader() {
     templateParams: {
       siteName: siteConfig.name,
       separator: publicConfig.titleSeparator,
-    },
-    htmlAttrs: {
-      lang,
-      dir,
     },
     link: [
       ...(i18nHead.value.link || []),

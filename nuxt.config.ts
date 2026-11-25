@@ -1347,6 +1347,7 @@ export default defineNuxtConfig({
       '/account/sessions',
       '/account/settings',
       '/account/reauthenticate',
+      '/account/reauthenticate/**',
       // The page builder's staff shell: `robots: false` on the page too.
       '/_builder',
       '/_builder/preview/**',

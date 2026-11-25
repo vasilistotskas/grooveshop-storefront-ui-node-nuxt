@@ -126,13 +126,18 @@ export type AllAuthAuthenticatedMeta = AllAuthBaseAuthenticationMeta & {
 }
 
 export type AllAuthFlow = {
-  id: 'login' | 'login_by_code' | 'mfa_authenticate' | 'mfa_login_webauthn' | 'mfa_reauthenticate' | 'mfa_signup_webauthn' | 'mfa_trust' | 'password_reset_by_code' | 'provider_redirect' | 'provider_signup' | 'provider_token' | 'reauthenticate' | 'signup' | 'verify_email' | 'verify_phone'
+  id: 'login' | 'login_by_code' | 'mfa_authenticate' | 'mfa_login_webauthn' | 'mfa_reauthenticate' | 'mfa_signup_webauthn' | 'mfa_trust' | 'password_reset_by_code' | 'provider_redirect' | 'provider_signup' | 'provider_token' | 'reauthenticate' | 'reauthenticate_by_code' | 'signup' | 'verify_email' | 'verify_phone'
   provider?: AllAuthProvider
   is_pending?: true
   /**
      * Matches `settings.MFA_SUPPORTED_TYPES`.
      */
   types?: Array<AllAuthAuthenticatorType>
+  /**
+     * Verified destinations that can receive a reauthentication code.
+     *
+     */
+  recipients?: Array<AllAuthReauthenticationCodeRecipient>
   /**
      * The ids of the providers the flow offers.
      */
@@ -171,10 +176,12 @@ export type AllAuthAuthenticationMethod = {
   method: 'code'
   at: AllAuthTimestamp
   email: AllAuthEmail
+  reauthenticated?: true
 } | {
   method: 'code'
   at: AllAuthTimestamp
   phone: AllAuthPhone
+  reauthenticated?: true
 } | {
   method: 'password'
   at: AllAuthTimestamp
@@ -282,6 +289,18 @@ export type AllAuthRequestLoginCode = {
   phone: AllAuthPhone
 } | {
   email: AllAuthEmail
+}
+
+export type AllAuthRequestReauthenticationCode = {
+  phone: AllAuthPhone
+} | {
+  email: AllAuthEmail
+}
+
+export type AllAuthReauthenticationCodeRecipient = {
+  email: AllAuthEmail
+} | {
+  phone: AllAuthPhone
 }
 
 export type AllAuthReauthenticate = {
@@ -706,12 +725,6 @@ export type AllAuthParameterEmailVerificationKey = string
 export type AllAuthParameterPasswordResetKey = string
 
 /**
- * Session token. Only needed when `client` is equal to `app`.
- *
- */
-export type AllAuthParameterSessionToken = string
-
-/**
  * When present (regardless of its value), enables passwordless sign-in via a WebAuthn credential (Passkey),
  * which requires PIN, biometric, or equivalent user verification. Omit the parameter to disable.
  *
@@ -771,6 +784,8 @@ export type AllAuthRequestRefreshToken = {
 export type AllAuthRequestRequestPassword = AllAuthRequestPassword
 
 export type AllAuthRequestRequestLoginCode = AllAuthRequestLoginCode
+
+export type AllAuthRequestRequestReauthenticationCode = AllAuthRequestReauthenticationCode
 
 export type AllAuthRequestSetupTotp = {
   code: AllAuthAuthenticatorCode
@@ -1009,13 +1024,6 @@ export type GetAllauthAppV1AuthEmailVerifyResponse = GetAllauthAppV1AuthEmailVer
 
 export type PostAllauthAppV1AuthEmailVerifyData = {
   body?: AllAuthRequestVerifyEmail
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/email/verify'
@@ -1060,13 +1068,6 @@ export type PostAllauthAppV1AuthEmailVerifyResponse = PostAllauthAppV1AuthEmailV
 
 export type PostAllauthAppV1AuthEmailVerifyResendData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/email/verify/resend'
@@ -1109,13 +1110,6 @@ export type PostAllauthAppV1AuthEmailVerifyResendResponse = PostAllauthAppV1Auth
 
 export type PostAllauthAppV1AuthPhoneVerifyData = {
   body?: AllAuthRequestVerifyPhone
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/phone/verify'
@@ -1160,13 +1154,6 @@ export type PostAllauthAppV1AuthPhoneVerifyResponse = PostAllauthAppV1AuthPhoneV
 
 export type PostAllauthAppV1AuthPhoneVerifyResendData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/phone/verify/resend'
@@ -1212,13 +1199,6 @@ export type PostAllauthAppV1AuthReauthenticateData = {
      * Reauthenticate.
      */
   body: AllAuthRequestReauthenticate
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/reauthenticate'
@@ -1229,6 +1209,11 @@ export type PostAllauthAppV1AuthReauthenticateErrors = {
      * An input error occurred.
      */
   400: AllAuthErrorResponse
+  /**
+     * A forbidden response.
+     *
+     */
+  403: AllAuthForbiddenResponse
   /**
      * Too many requests.
      */
@@ -1250,6 +1235,159 @@ export type PostAllauthAppV1AuthReauthenticateResponses = {
 }
 
 export type PostAllauthAppV1AuthReauthenticateResponse = PostAllauthAppV1AuthReauthenticateResponses[keyof PostAllauthAppV1AuthReauthenticateResponses]
+
+export type PostAllauthAppV1AuthReauthenticateCodeRequestData = {
+  /**
+     * Request a reauthentication code.
+     */
+  body: AllAuthRequestRequestReauthenticationCode
+  path?: never
+  query?: never
+  url: '/_allauth/app/v1/auth/reauthenticate/code/request'
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeRequestErrors = {
+  /**
+     * An input error occurred.
+     */
+  400: AllAuthErrorResponse
+  /**
+     * Not authenticated.
+     */
+  401: AllAuthAuthenticationResponse
+  /**
+     * A forbidden response.
+     *
+     */
+  403: AllAuthForbiddenResponse
+  /**
+     * Too many requests.
+     *
+     */
+  429: {
+    status: 429
+    meta?: AllAuthBaseAuthenticationMeta
+  }
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeRequestError = PostAllauthAppV1AuthReauthenticateCodeRequestErrors[keyof PostAllauthAppV1AuthReauthenticateCodeRequestErrors]
+
+export type PostAllauthAppV1AuthReauthenticateCodeRequestResponses = {
+  /**
+     * A success response.
+     *
+     */
+  200: {
+    status: AllAuthStatusOk
+    meta?: AllAuthBaseAuthenticationMeta
+  }
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeRequestResponse = PostAllauthAppV1AuthReauthenticateCodeRequestResponses[keyof PostAllauthAppV1AuthReauthenticateCodeRequestResponses]
+
+export type PostAllauthAppV1AuthReauthenticateCodeConfirmData = {
+  body: AllAuthRequestConfirmLoginCode
+  path?: never
+  query?: never
+  url: '/_allauth/app/v1/auth/reauthenticate/code/confirm'
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeConfirmErrors = {
+  /**
+     * An input error occurred.
+     */
+  400: AllAuthErrorResponse
+  /**
+     * Not authenticated.
+     */
+  401: AllAuthAuthenticationResponse
+  /**
+     * A forbidden response.
+     *
+     */
+  403: AllAuthForbiddenResponse
+  /**
+     * Conflict. The reauthentication by code flow is not pending.
+     *
+     */
+  409: AllAuthConflictResponse
+  /**
+     * Too many requests.
+     */
+  429: AllAuthRateLimitResponse
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeConfirmError = PostAllauthAppV1AuthReauthenticateCodeConfirmErrors[keyof PostAllauthAppV1AuthReauthenticateCodeConfirmErrors]
+
+export type PostAllauthAppV1AuthReauthenticateCodeConfirmResponses = {
+  /**
+     * Authenticated by code.
+     *
+     */
+  200: AllAuthAuthenticatedResponse
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeConfirmResponse = PostAllauthAppV1AuthReauthenticateCodeConfirmResponses[keyof PostAllauthAppV1AuthReauthenticateCodeConfirmResponses]
+
+export type PostAllauthAppV1AuthReauthenticateCodeResendData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/_allauth/app/v1/auth/reauthenticate/code/resend'
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeResendErrors = {
+  /**
+     * Not authenticated.
+     */
+  401: AllAuthAuthenticationResponse
+  /**
+     * A forbidden response.
+     *
+     */
+  403: AllAuthForbiddenResponse
+  /**
+     * Conflict. The reauthentication by code flow is not pending or can
+     * no longer be resent.
+     *
+     */
+  409: AllAuthConflictResponse
+  /**
+     * Too many requests.
+     *
+     */
+  429: {
+    status: 429
+    meta?: AllAuthBaseAuthenticationMeta
+  }
+  /**
+     * Temporarily unavailable.
+     */
+  503: AllAuthUnavailableResponse
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeResendError = PostAllauthAppV1AuthReauthenticateCodeResendErrors[keyof PostAllauthAppV1AuthReauthenticateCodeResendErrors]
+
+export type PostAllauthAppV1AuthReauthenticateCodeResendResponses = {
+  /**
+     * A success response.
+     *
+     */
+  200: {
+    status: AllAuthStatusOk
+    meta?: AllAuthBaseAuthenticationMeta
+  }
+}
+
+export type PostAllauthAppV1AuthReauthenticateCodeResendResponse = PostAllauthAppV1AuthReauthenticateCodeResendResponses[keyof PostAllauthAppV1AuthReauthenticateCodeResendResponses]
 
 export type PostAllauthAppV1AuthPasswordRequestData = {
   /**
@@ -1392,13 +1530,6 @@ export type PostAllauthAppV1AuthPasswordResetResponse = PostAllauthAppV1AuthPass
 
 export type PostAllauthAppV1AuthProviderTokenData = {
   body: AllAuthRequestProviderToken
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/provider/token'
@@ -1534,13 +1665,6 @@ export type PostAllauthAppV1AuthProviderSignupResponse = PostAllauthAppV1AuthPro
 
 export type PostAllauthAppV1Auth2FaAuthenticateData = {
   body: AllAuthRequestMfaAuthenticate
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/2fa/authenticate'
@@ -1579,13 +1703,6 @@ export type PostAllauthAppV1Auth2FaAuthenticateResponse = PostAllauthAppV1Auth2F
 
 export type PostAllauthAppV1Auth2FaReauthenticateData = {
   body: AllAuthRequestMfaAuthenticate
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/2fa/reauthenticate'
@@ -1596,6 +1713,11 @@ export type PostAllauthAppV1Auth2FaReauthenticateErrors = {
      * An input error occurred.
      */
   400: AllAuthErrorResponse
+  /**
+     * A forbidden response.
+     *
+     */
+  403: AllAuthForbiddenResponse
   /**
      * Too many requests.
      */
@@ -1620,13 +1742,6 @@ export type PostAllauthAppV1Auth2FaReauthenticateResponse = PostAllauthAppV1Auth
 
 export type GetAllauthAppV1AuthWebauthnAuthenticateData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/authenticate'
@@ -1663,13 +1778,6 @@ export type PostAllauthAppV1AuthWebauthnAuthenticateData = {
      * Authenticate using WebAuthn.
      */
   body: AllAuthRequestAuthenticateWebAuthn
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/authenticate'
@@ -1703,19 +1811,17 @@ export type PostAllauthAppV1AuthWebauthnAuthenticateResponse = PostAllauthAppV1A
 
 export type GetAllauthAppV1AuthWebauthnReauthenticateData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/reauthenticate'
 }
 
 export type GetAllauthAppV1AuthWebauthnReauthenticateErrors = {
+  /**
+     * A forbidden response.
+     *
+     */
+  403: AllAuthForbiddenResponse
   /**
      * Too many requests.
      */
@@ -1746,13 +1852,6 @@ export type PostAllauthAppV1AuthWebauthnReauthenticateData = {
      * Reauthenticate using WebAuthn.
      */
   body: AllAuthRequestReauthenticateWebAuthn
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/reauthenticate'
@@ -1763,6 +1862,11 @@ export type PostAllauthAppV1AuthWebauthnReauthenticateErrors = {
      * An input error occurred.
      */
   400: AllAuthErrorResponse
+  /**
+     * A forbidden response.
+     *
+     */
+  403: AllAuthForbiddenResponse
   /**
      * Too many requests.
      */
@@ -1786,13 +1890,6 @@ export type PostAllauthAppV1AuthWebauthnReauthenticateResponse = PostAllauthAppV
 
 export type GetAllauthAppV1AuthWebauthnLoginData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/login'
@@ -1829,13 +1926,6 @@ export type PostAllauthAppV1AuthWebauthnLoginData = {
      * Login using WebAuthn.
      */
   body: AllAuthRequestLoginWebAuthn
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/login'
@@ -1874,13 +1964,6 @@ export type PostAllauthAppV1AuthWebauthnLoginResponse = PostAllauthAppV1AuthWeba
 
 export type GetAllauthAppV1AuthWebauthnSignupData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/signup'
@@ -1922,13 +2005,6 @@ export type PostAllauthAppV1AuthWebauthnSignupData = {
      * Signup using a passkey
      */
   body: AllAuthRequestPasskeySignup
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/signup'
@@ -1969,13 +2045,6 @@ export type PostAllauthAppV1AuthWebauthnSignupError = PostAllauthAppV1AuthWebaut
 
 export type PutAllauthAppV1AuthWebauthnSignupData = {
   body?: AllAuthRequestAddWebAuthnAuthenticator
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/webauthn/signup'
@@ -2095,13 +2164,6 @@ export type PostAllauthAppV1AuthCodeConfirmResponse = PostAllauthAppV1AuthCodeCo
 
 export type PostAllauthAppV1AuthCodeResendData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/code/resend'
@@ -2144,13 +2206,6 @@ export type PostAllauthAppV1AuthCodeResendResponse = PostAllauthAppV1AuthCodeRes
 
 export type DeleteAllauthAppV1AccountProvidersData = {
   body?: AllAuthRequestProviderAccount
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/providers'
@@ -2189,13 +2244,6 @@ export type DeleteAllauthAppV1AccountProvidersResponse = DeleteAllauthAppV1Accou
 
 export type GetAllauthAppV1AccountProvidersData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/providers'
@@ -2230,13 +2278,6 @@ export type GetAllauthAppV1AccountProvidersResponse = GetAllauthAppV1AccountProv
 
 export type DeleteAllauthAppV1AccountEmailData = {
   body?: AllAuthRequestEmail
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/email'
@@ -2275,13 +2316,6 @@ export type DeleteAllauthAppV1AccountEmailResponse = DeleteAllauthAppV1AccountEm
 
 export type GetAllauthAppV1AccountEmailData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/email'
@@ -2320,13 +2354,6 @@ export type GetAllauthAppV1AccountEmailResponse = GetAllauthAppV1AccountEmailRes
 
 export type PatchAllauthAppV1AccountEmailData = {
   body?: AllAuthRequestMarkPrimaryEmail
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/email'
@@ -2365,13 +2392,6 @@ export type PatchAllauthAppV1AccountEmailResponse = PatchAllauthAppV1AccountEmai
 
 export type PostAllauthAppV1AccountEmailData = {
   body?: AllAuthRequestEmail
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/email'
@@ -2420,13 +2440,6 @@ export type PostAllauthAppV1AccountEmailResponse = PostAllauthAppV1AccountEmailR
 
 export type PutAllauthAppV1AccountEmailData = {
   body?: AllAuthRequestEmail
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/email'
@@ -2469,13 +2482,6 @@ export type PutAllauthAppV1AccountEmailResponse = PutAllauthAppV1AccountEmailRes
 
 export type GetAllauthAppV1AccountPhoneData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/phone'
@@ -2510,13 +2516,6 @@ export type GetAllauthAppV1AccountPhoneResponse = GetAllauthAppV1AccountPhoneRes
 
 export type PostAllauthAppV1AccountPhoneData = {
   body?: AllAuthRequestPhone
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/phone'
@@ -2560,13 +2559,6 @@ export type PostAllauthAppV1AccountPhoneResponse = PostAllauthAppV1AccountPhoneR
 
 export type GetAllauthAppV1AccountAuthenticatorsData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators'
@@ -2610,13 +2602,6 @@ export type GetAllauthAppV1AccountAuthenticatorsResponse = GetAllauthAppV1Accoun
 
 export type DeleteAllauthAppV1AccountAuthenticatorsTotpData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/totp'
@@ -2655,13 +2640,6 @@ export type DeleteAllauthAppV1AccountAuthenticatorsTotpResponse = DeleteAllauthA
 
 export type GetAllauthAppV1AccountAuthenticatorsTotpData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/totp'
@@ -2711,13 +2689,6 @@ export type GetAllauthAppV1AccountAuthenticatorsTotpResponse = GetAllauthAppV1Ac
 
 export type PostAllauthAppV1AccountAuthenticatorsTotpData = {
   body?: AllAuthRequestSetupTotp
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/totp'
@@ -2771,13 +2742,6 @@ export type PostAllauthAppV1AccountAuthenticatorsTotpResponse = PostAllauthAppV1
 
 export type GetAllauthAppV1AccountAuthenticatorsRecoveryCodesData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/recovery-codes'
@@ -2825,13 +2789,6 @@ export type GetAllauthAppV1AccountAuthenticatorsRecoveryCodesResponse = GetAllau
 
 export type PostAllauthAppV1AccountAuthenticatorsRecoveryCodesData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/recovery-codes'
@@ -2875,13 +2832,6 @@ export type PostAllauthAppV1AccountAuthenticatorsRecoveryCodesResponse = PostAll
 
 export type DeleteAllauthAppV1AccountAuthenticatorsWebauthnData = {
   body?: AllAuthRequestDeleteWebAuthn
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/webauthn'
@@ -2920,13 +2870,6 @@ export type DeleteAllauthAppV1AccountAuthenticatorsWebauthnResponse = DeleteAlla
 
 export type GetAllauthAppV1AccountAuthenticatorsWebauthnData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: {
     /**
@@ -2977,13 +2920,6 @@ export type GetAllauthAppV1AccountAuthenticatorsWebauthnResponse = GetAllauthApp
 
 export type PostAllauthAppV1AccountAuthenticatorsWebauthnData = {
   body?: AllAuthRequestAddWebAuthnAuthenticator
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/webauthn'
@@ -3033,13 +2969,6 @@ export type PostAllauthAppV1AccountAuthenticatorsWebauthnResponse = PostAllauthA
 
 export type PutAllauthAppV1AccountAuthenticatorsWebauthnData = {
   body?: AllAuthRequestUpdateWebAuthn
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/webauthn'
@@ -3078,13 +3007,6 @@ export type PutAllauthAppV1AccountAuthenticatorsWebauthnResponse = PutAllauthApp
 
 export type DeleteAllauthAppV1AuthSessionData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/session'
@@ -3110,13 +3032,6 @@ export type DeleteAllauthAppV1AuthSessionError = DeleteAllauthAppV1AuthSessionEr
 
 export type GetAllauthAppV1AuthSessionData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/session'
@@ -3195,13 +3110,6 @@ export type PostAllauthAppV1TokensRefreshResponse = PostAllauthAppV1TokensRefres
 
 export type PostAllauthAppV1AccountPasswordChangeData = {
   body?: AllAuthRequestChangePassword
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/password/change'
@@ -3230,13 +3138,6 @@ export type PostAllauthAppV1AccountPasswordChangeError = PostAllauthAppV1Account
 
 export type DeleteAllauthAppV1AuthSessionsData = {
   body: AllAuthRequestEndSessions
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/sessions'
@@ -3275,13 +3176,6 @@ export type DeleteAllauthAppV1AuthSessionsResponse = DeleteAllauthAppV1AuthSessi
 
 export type GetAllauthAppV1AuthSessionsData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/auth/sessions'
@@ -3316,13 +3210,6 @@ export type GetAllauthAppV1AuthSessionsResponse = GetAllauthAppV1AuthSessionsRes
 
 export type GetAllauthAppV1AccountAuthenticatorsTotpSvgData = {
   body?: never
-  headers?: {
-    /**
-         * Session token. Only needed when `client` is equal to `app`.
-         *
-         */
-    'X-Session-Token'?: string
-  }
   path?: never
   query?: never
   url: '/_allauth/app/v1/account/authenticators/totp/svg'

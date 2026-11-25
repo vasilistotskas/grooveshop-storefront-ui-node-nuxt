@@ -98,4 +98,39 @@ describe.each(trees(ReauthenticateFlow, WebsideReauthenticateFlow))('$tree Accou
     expect(wrapper.text()).not.toContain('Εναλλακτικές μέθοδοι')
     expect(wrapper.findAll('a[href]')).toHaveLength(0)
   })
+
+  describe('the code mailed to the shopper', () => {
+    const CODE_ONLY = {
+      status: 401,
+      data: { flows: [{ id: 'reauthenticate_by_code', recipients: [{ email: 'maria@example.com' }] }] },
+      meta: { is_authenticated: true },
+    }
+    it('is offered on the other pages, at its first step', async () => {
+      useState('auth-state').value = CODE_ONLY
+      const localePath = useLocalePath()
+
+      const wrapper = await mountSuspended(C, { route: '/account/reauthenticate?next=/account/settings' })
+      const hrefs = wrapper.findAll('a[href]').map(link => link.attributes('href'))
+      const sendCode = localePath({ name: 'account-reauthenticate-code', query: { next: '/account/settings' } })
+
+      // The password page is on screen and the code is the only other way.
+      expect(hrefs).toEqual([sendCode])
+    })
+
+    it.runIf(tree === 'default').each(['/account/reauthenticate/code', '/account/reauthenticate/code/confirm'])('leaves out the way the shopper is on at %s, whichever of its two steps', async (route) => {
+      useState('auth-state').value = CODE_ONLY
+
+      const wrapper = await mountSuspended(C, { route })
+
+      expect(wrapper.findAll('a[href]')).toHaveLength(0)
+    })
+
+    it.runIf(tree === 'webside').each(['/account/reauthenticate/code', '/account/reauthenticate/code/confirm'])('marks the way the shopper is on at %s, whichever of its two steps', async (route) => {
+      useState('auth-state').value = CODE_ONLY
+
+      const wrapper = await mountSuspended(C, { route })
+
+      expect(wrapper.text()).toContain(COPY.current_method)
+    })
+  })
 })

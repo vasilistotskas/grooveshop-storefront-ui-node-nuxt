@@ -13,6 +13,7 @@ import {
   pathForFlow,
   pathForPendingFlow,
   pendingFlowRouteNameFromError,
+  reauthenticationFlowPath,
   pickPreferredAuthenticatorType,
   sortAuthenticatorTypes,
 } from '~/utils/auth'
@@ -412,9 +413,40 @@ describe('Utils - Auth', () => {
       expect(() => pathForFlow({ id: unknownId, is_pending: true })).toThrow('Unknown path for flow: unheard_of')
     })
 
+    it('lists the code by email at its first step, and at its next once a code is on its way', () => {
+      expect(pathForFlow({ id: 'reauthenticate_by_code' })).toBe('account-reauthenticate-code')
+      expect(pathForFlow({ id: 'reauthenticate_by_code', is_pending: true })).toBe('account-reauthenticate-code-confirm')
+    })
+
     it('routes the pending flow of a response, and nothing without one', () => {
       expect(pathForPendingFlow(withFlows([{ id: 'verify_email', is_pending: true }]))).toBe('account-verify-email')
       expect(pathForPendingFlow(withFlows([{ id: 'verify_email' }]))).toBeNull()
+    })
+  })
+
+  describe('reauthenticationFlowPath', () => {
+    const reauthenticationRequired = (flows: AllAuthFlow[]) => ({
+      status: 401,
+      data: { flows },
+      meta: { is_authenticated: true },
+    }) as unknown as AllAuthResponseError
+
+    it.each([
+      ['the password when the account has one', [{ id: 'reauthenticate' }, { id: 'reauthenticate_by_code', recipients: [{ email: 'a@b.gr' }] }, { id: 'mfa_reauthenticate', types: ['totp'] }], 'account-reauthenticate'],
+      ['a second factor before the code', [{ id: 'reauthenticate_by_code', recipients: [{ email: 'a@b.gr' }] }, { id: 'mfa_reauthenticate', types: ['totp', 'webauthn'] }], 'account-2fa-reauthenticate-webauthn'],
+      ['the code when it is the only way', [{ id: 'reauthenticate_by_code', recipients: [{ email: 'a@b.gr' }] }], 'account-reauthenticate-code'],
+    ] as const)('sends the shopper to %s', (_name, flows, expected) => {
+      expect(reauthenticationFlowPath(reauthenticationRequired([...flows] as AllAuthFlow[]))).toBe(expected)
+    })
+
+    it('resumes a code that is already on its way, before any other way', () => {
+      const flows: AllAuthFlow[] = [{ id: 'reauthenticate' }, { id: 'reauthenticate_by_code', is_pending: true }]
+
+      expect(reauthenticationFlowPath(reauthenticationRequired(flows))).toBe('account-reauthenticate-code-confirm')
+    })
+
+    it('finds no page when the answer lists no way', () => {
+      expect(reauthenticationFlowPath(reauthenticationRequired([]))).toBeNull()
     })
   })
 })

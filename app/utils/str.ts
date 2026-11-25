@@ -20,6 +20,18 @@ export function contentShorten(
   return content.substring(from, to) + suffix
 }
 
+/**
+ * An address with most of its name hidden, for saying where a mail went
+ * ("m***@example.com"): enough for its owner to know which one, little for
+ * whoever else is reading the screen. An address with no name or no domain
+ * is returned as it came.
+ */
+export function maskEmail(email: string): string {
+  const at = email.lastIndexOf('@')
+  if (at < 1) return email
+  return `${email.charAt(0)}***${email.slice(at)}`
+}
+
 export function cleanHtml(html: string): string {
   return html.replace(/<\/?[^>]+(>|$)/g, '')
 }
