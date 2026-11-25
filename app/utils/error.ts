@@ -139,5 +139,12 @@ export const handleAllAuthClientError = (error: unknown): void => {
     else {
       log.error({ action: 'allauth:unknown', error })
     }
+    return
   }
+
+  // No answer of allauth's at all (the network, a 5xx): the shopper is
+  // told so in the words `describeApiError` uses for it.
+  const described = describeApiError(error)
+  useToast().add({ title: described.title, description: described.description, color: 'error' })
+  log.error({ action: 'allauth:failed', error })
 }
