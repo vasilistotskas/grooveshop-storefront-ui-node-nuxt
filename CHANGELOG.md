@@ -1,3 +1,10 @@
+## [3.360.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.360.0...v3.360.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* **recommendation:** each showing of a strip reports under the id Django minted for it ([#527](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/527)) ([cf6a4c4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cf6a4c4ecd2635040cc10453fd02410e02a2f313))
+
 # [3.360.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.359.2...v3.360.0) (2026-11-25)
 
 
