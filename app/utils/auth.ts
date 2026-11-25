@@ -202,7 +202,10 @@ export const sortAuthenticatorTypes = <T extends string>(types: readonly T[] | u
   return (types ?? []).toSorted((a, b) => rank(a) - rank(b))
 }
 
-export const pathForFlow = (flow: AllAuthFlow, authenticatorType?: string) => {
+/** A flow as a page needs it: allauth's own, or one Django repeats with a plain string id. */
+type OfferedFlow = Pick<AllAuthFlow, 'is_pending'> & { id: string, types?: readonly string[] }
+
+export const pathForFlow = (flow: OfferedFlow, authenticatorType?: string) => {
   // provider_redirect is an external OAuth redirect, not a Nuxt page.
   // Return null so navigateToPendingFlow skips navigation.
   if (flow.id === Flows.PROVIDER_REDIRECT) return null
@@ -397,11 +400,14 @@ const REAUTHENTICATION_FLOW_ORDER = [
   Flows.REAUTHENTICATE_BY_CODE,
 ] as const
 
-/** The page for a 401 that asks for re-authentication, or null when the answer lists no way. */
-export const reauthenticationFlowPath = (
-  response: AllAuthResponse | AllAuthResponseError,
-) => {
-  const flows = flowsOf(response)
+/**
+ * The page for the first way to confirm it is the shopper among `flows`,
+ * or null when it lists none the storefront knows. `flows` is allauth's
+ * list on a 401, or the same list as Django's own 403
+ * `reauthentication_required` repeats it (`ReauthenticationRequired`),
+ * whose ids are plain strings.
+ */
+export const reauthenticationPath = (flows: readonly OfferedFlow[]) => {
   const pending = flows.find(flow => flow.is_pending)
   if (pending) return pathForFlow(pending)
   for (const id of REAUTHENTICATION_FLOW_ORDER) {

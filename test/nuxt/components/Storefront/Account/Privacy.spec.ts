@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import Privacy from '~/components/Storefront/Account/Privacy.vue'
 import WebsidePrivacy from '~/components/variants/webside/Storefront/Account/Privacy.vue'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant } from '~~/test/helpers/tenant'
 import type { InlineCopy } from '~~/test/helpers/inlineCopy'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
@@ -17,6 +18,9 @@ import { trees } from '~~/test/helpers/trees'
  * is the default's alone). Copy is read from each tree's own `<i18n>`
  * block, so the specs pin what the shopper reads, not the Greek string.
  */
+// Only the address matters where a test opens the page's route.
+vi.mock('~/pages/account/settings/privacy.vue', () => ({ default: { render: () => null } }))
+
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
@@ -113,8 +117,8 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
     messages = COPY[tree]
   })
 
-  const mountPage = async () => {
-    const wrapper = await mountSuspended(C, { route: false })
+  const mountPage = async (route: string | false = false) => {
+    const wrapper = await mountSuspended(C, { route })
     await flushPromises()
     return wrapper
   }
@@ -343,6 +347,24 @@ describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy'
       ])
       expect(session.clear).toHaveBeenCalledOnce()
       expect(push).toHaveBeenCalledOnce()
+    })
+
+    it('sends a shopper Django asks to confirm it is them to that page, and back here after', async () => {
+      setTenant()
+      const router = useRouter()
+      const refusal = { detail: 'Confirm it is you.', code: 'reauthentication_required', flows: [{ id: 'mfa_reauthenticate', types: ['totp'] }, { id: 'reauthenticate' }] }
+      api.routes({ [EXPORTS]: () => ({ results: [] }), [SUMMARY]: () => makeSummary(), [DELETE]: failWith(403, refusal) })
+      const wrapper = await mountPage('/account/settings/privacy')
+      const push = vi.spyOn(router, 'push').mockResolvedValue(undefined)
+      await openModal(wrapper)
+      await typeConfirmation('DELETE')
+
+      confirmButton().click()
+      await flushPromises()
+
+      expect(push).toHaveBeenCalledExactlyOnceWith({ path: useLocalePath()('account-reauthenticate'), query: { next: '/account/settings/privacy' } })
+      expect(session.clear).not.toHaveBeenCalled()
+      expect(toastAdd).not.toHaveBeenCalled()
     })
 
     it('stays signed in when the deletion fails', async () => {

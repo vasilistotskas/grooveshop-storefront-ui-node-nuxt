@@ -54368,7 +54368,7 @@
         "/api/v1/user/account/{id}/delete_account": {
             "post": {
                 "operationId": "deleteUserAccountGdpr",
-                "description": "Ανωνυμοποιεί τις παραγγελίες του χρήστη (διατηρούνται για φορολογικούς/λογιστικούς λόγους) και διαγράφει οριστικά κάθε άλλη συνδεδεμένη εγγραφή. Μη αναστρέψιμο. Ο καλών πρέπει να έχει επανα-ταυτοποιηθεί μέσω allauth εντός του χρονικού παραθύρου που ορίζεται από το ``ACCOUNT_REAUTHENTICATION_TIMEOUT``.",
+                "description": "Ανωνυμοποιεί τις παραγγελίες του χρήστη (διατηρούνται για φορολογικούς/λογιστικούς λόγους) και διαγράφει οριστικά κάθε άλλη συνδεδεμένη εγγραφή. Μη αναστρέψιμο. Ο καλών πρέπει να έχει επανα-ταυτοποιηθεί μέσω allauth εντός του ``ACCOUNT_REAUTHENTICATION_TIMEOUT``, στη συνεδρία allauth που ορίζει με το ``X-Session-Token``.",
                 "summary": "Διαγραφή λογαριασμού (δικαίωμα διαγραφής GDPR)",
                 "parameters": [
                     {
@@ -54448,11 +54448,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "$ref": "#/components/schemas/ReauthenticationRequired"
                                 }
                             }
                         },
-                        "description": ""
+                        "description": "Δεν είναι ο λογαριασμός του καλούντος, ή ο καλών δεν επιβεβαίωσε πρόσφατα ότι είναι ο ίδιος (``reauthentication_required``, με τους τρόπους που μπορεί)"
                     },
                     "404": {
                         "content": {
@@ -79826,6 +79826,49 @@
                 "required": [
                     "count",
                     "rate"
+                ]
+            },
+            "ReauthenticationFlow": {
+                "type": "object",
+                "description": "One way the customer can confirm it is them: allauth's\nreauthentication flow, as its own 401 lists it.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Η ροή του allauth: ``reauthenticate`` (ο κωδικός πρόσβασης), ``mfa_reauthenticate`` (δεύτερος παράγοντας), ``reauthenticate_by_code`` (κωδικός που του στέλνεται με email)."
+                    },
+                    "types": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Οι δεύτεροι παράγοντες που έχει ο πελάτης."
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "ReauthenticationRequired": {
+                "type": "object",
+                "description": "A refusal that waits for the customer to confirm it is them.",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος."
+                    },
+                    "flows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ReauthenticationFlow"
+                        },
+                        "description": "Με το ``reauthentication_required``: οι τρόποι με τους οποίους αυτός ο πελάτης μπορεί να επιβεβαιώσει ότι είναι ο ίδιος, στη συνεδρία allauth που ορίζει το αίτημα (``X-Session-Token``)."
+                    }
+                },
+                "required": [
+                    "detail"
                 ]
             },
             "RecommendationEventItemRequest": {

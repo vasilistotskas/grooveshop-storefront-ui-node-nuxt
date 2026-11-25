@@ -177,7 +177,7 @@ export default defineNuxtPlugin({
     async function handleReauthenticationRequired() {
       try {
         const next = returnTarget(useRouter().currentRoute.value)
-        const flowPath = reauthenticationFlowPath(authState.value)
+        const flowPath = reauthenticationPath(flowsOf(authState.value))
         if (flowPath) {
           log.info('auth', 'Navigating to reauthentication flow')
           return await navigateToUrl({ path: flowPath, query: next ? { next } : undefined })

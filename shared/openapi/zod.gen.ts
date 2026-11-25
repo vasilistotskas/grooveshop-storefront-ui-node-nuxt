@@ -3456,6 +3456,24 @@ export const zRatingDistribution = z.object({
 })
 
 /**
+ * One way the customer can confirm it is them: allauth's
+ * reauthentication flow, as its own 401 lists it.
+ */
+export const zReauthenticationFlow = z.object({
+  id: z.string(),
+  types: z.array(z.string()).optional(),
+})
+
+/**
+ * A refusal that waits for the customer to confirm it is them.
+ */
+export const zReauthenticationRequired = z.object({
+  detail: z.string(),
+  code: z.string().optional(),
+  flows: z.array(zReauthenticationFlow).optional(),
+})
+
+/**
  * * `impression` - Προβολή
  * * `click` - Κλικ
  */

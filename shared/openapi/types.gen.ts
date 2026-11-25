@@ -9251,6 +9251,36 @@ export type RatingDistribution = {
   count: number
 }
 
+/**
+ * One way the customer can confirm it is them: allauth's
+ * reauthentication flow, as its own 401 lists it.
+ */
+export type ReauthenticationFlow = {
+  /**
+     * Η ροή του allauth: ``reauthenticate`` (ο κωδικός πρόσβασης), ``mfa_reauthenticate`` (δεύτερος παράγοντας), ``reauthenticate_by_code`` (κωδικός που του στέλνεται με email).
+     */
+  id: string
+  /**
+     * Οι δεύτεροι παράγοντες που έχει ο πελάτης.
+     */
+  types?: Array<string>
+}
+
+/**
+ * A refusal that waits for the customer to confirm it is them.
+ */
+export type ReauthenticationRequired = {
+  detail: string
+  /**
+     * Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
+     */
+  code?: string
+  /**
+     * Με το ``reauthentication_required``: οι τρόποι με τους οποίους αυτός ο πελάτης μπορεί να επιβεβαιώσει ότι είναι ο ίδιος, στη συνεδρία allauth που ορίζει το αίτημα (``X-Session-Token``).
+     */
+  flows?: Array<ReauthenticationFlow>
+}
+
 export type RecommendationEventItemRequest = {
   productId: number
   strategy: StrategyEnum
@@ -29549,7 +29579,10 @@ export type DeleteUserAccountGdprData = {
 export type DeleteUserAccountGdprErrors = {
   400: ApiValidationError | ApiError
   401: ErrorResponse
-  403: ErrorResponse
+  /**
+     * Δεν είναι ο λογαριασμός του καλούντος, ή ο καλών δεν επιβεβαίωσε πρόσφατα ότι είναι ο ίδιος (``reauthentication_required``, με τους τρόπους που μπορεί)
+     */
+  403: ReauthenticationRequired
   404: ErrorResponse
   500: ErrorResponse
 }
