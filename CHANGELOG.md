@@ -1,3 +1,10 @@
+## [3.359.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.359.0...v3.359.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* **api:** regenerate from Django v3.270.4, the pay-first routes are gone ([#524](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/524)) ([89f9803](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/89f9803d7b08d99a9891f78497fa640496da3f77))
+
 # [3.359.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.358.1...v3.359.0) (2026-11-24)
 
 
