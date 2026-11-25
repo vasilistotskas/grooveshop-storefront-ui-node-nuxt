@@ -48,7 +48,9 @@ const { PageStub } = await vi.hoisted(async () => {
 })
 vi.mock('~/pages/index.vue', () => ({ default: PageStub }))
 vi.mock('~/pages/account/login/index.vue', () => ({ default: PageStub }))
-vi.mock('~/pages/account/reauthenticate.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/reauthenticate/index.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/reauthenticate/code/index.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/2fa/reauthenticate/totp.vue', () => ({ default: PageStub }))
 vi.mock('~/pages/account/settings/index.vue', () => ({ default: PageStub }))
 
 type AuthChange = (detail: unknown, explicit?: boolean) => Promise<void>
@@ -270,6 +272,20 @@ describe('auth plugin', () => {
         path: '/account/reauthenticate',
         query: { next: '/account/settings' },
       })
+    })
+
+    it.each([
+      ['an account with no password and no second factor', [{ id: 'reauthenticate_by_code', recipients: [{ email: 'maria@example.com' }] }], '/account/reauthenticate/code'],
+      ['an account with a second factor and no password', [{ id: 'reauthenticate_by_code', recipients: [{ email: 'maria@example.com' }] }, { id: 'mfa_reauthenticate', types: ['totp'] }], '/account/2fa/reauthenticate/totp'],
+    ])('sends %s to the way it has', async (_account, flows, path) => {
+      const change = await install()
+      await change(SIGNED_IN)
+      await visit('/account/settings')
+      navigateToMock.mockClear()
+
+      await change({ ...REAUTH_REQUIRED, data: { flows } })
+
+      expect(navigatedTo()).toMatchObject({ path, query: { next: '/account/settings' } })
     })
 
     it.each([

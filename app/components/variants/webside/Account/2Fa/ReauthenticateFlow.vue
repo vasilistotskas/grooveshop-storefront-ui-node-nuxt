@@ -12,10 +12,11 @@ defineSlots<{
 const { t } = useStoreI18n('components/variants/webside/Account/2Fa/ReauthenticateFlow')
 const localePath = useLocalePath()
 
-const { next, routeName, methods: choices } = useMfaReauthenticationMethods()
+const { next, methods: choices } = useMfaReauthenticationMethods()
 
 const flowIcons: Record<string, string> = {
   [Flows.REAUTHENTICATE]: 'i-heroicons-lock-closed',
+  [Flows.REAUTHENTICATE_BY_CODE]: 'i-heroicons-envelope',
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: 'i-heroicons-device-phone-mobile',
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: 'i-heroicons-key',
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: 'i-heroicons-finger-print',
@@ -23,6 +24,7 @@ const flowIcons: Record<string, string> = {
 
 const flowLabels: Record<string, string> = {
   [Flows.REAUTHENTICATE]: t('reauthenticate.title'),
+  [Flows.REAUTHENTICATE_BY_CODE]: t('reauthenticate_by_code.title'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: t('mfa_reauthenticate.totp'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: t('mfa_reauthenticate.recovery_codes'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: t('mfa_reauthenticate.webauthn'),
@@ -30,6 +32,7 @@ const flowLabels: Record<string, string> = {
 
 const flowDescriptions: Record<string, string> = {
   [Flows.REAUTHENTICATE]: t('reauthenticate.description'),
+  [Flows.REAUTHENTICATE_BY_CODE]: t('reauthenticate_by_code.description'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: t('mfa_reauthenticate.totp_description'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: t('mfa_reauthenticate.recovery_codes_description'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: t('mfa_reauthenticate.webauthn_description'),
@@ -55,14 +58,14 @@ const methods = computed(() => choices.value.map(method => ({
         <ULink
           v-for="method in methods"
           :key="method.id"
-          :disabled="method.path === routeName"
+          :disabled="method.current"
           :to="localePath({
             name: method.path,
             query: { next },
           })"
           :class="[
             'flex items-center gap-3 rounded-lg border p-4 transition-colors',
-            method.path === routeName ? 'border-primary bg-primary/5' : `
+            method.current ? 'border-primary bg-primary/5' : `
               border-default
               hover:bg-elevated
             `,
@@ -71,7 +74,7 @@ const methods = computed(() => choices.value.map(method => ({
           <div
             :class="[
               'flex size-10 shrink-0 items-center justify-center rounded-full',
-              method.path === routeName ? 'bg-primary/20' : 'bg-primary/10',
+              method.current ? 'bg-primary/20' : 'bg-primary/10',
             ]"
           >
             <UIcon
@@ -87,7 +90,7 @@ const methods = computed(() => choices.value.map(method => ({
                 {{ method.label }}
               </p>
               <UBadge
-                v-if="method.path === routeName"
+                v-if="method.current"
                 :label="t('current_method')"
                 color="info"
                 variant="subtle"
@@ -123,6 +126,9 @@ el:
   reauthenticate:
     title: Κωδικός πρόσβασης
     description: Επιβεβαιώστε την ταυτότητά σας με τον κωδικό σας
+  reauthenticate_by_code:
+    title: Κωδικός με email
+    description: Στείλτε έναν κωδικό μίας χρήσης στο email σας
 en:
   alternative_options: Other methods
   current_method: Current
@@ -136,4 +142,7 @@ en:
   reauthenticate:
     title: Password
     description: Confirm it is you with your password
+  reauthenticate_by_code:
+    title: Code by email
+    description: Have a one-time code sent to your email
 </i18n>

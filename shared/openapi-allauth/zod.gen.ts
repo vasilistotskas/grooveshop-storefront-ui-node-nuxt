@@ -114,6 +114,24 @@ export const zAllAuthRequestLoginCode = z.union([
   }),
 ])
 
+export const zAllAuthRequestReauthenticationCode = z.union([
+  z.object({
+    phone: zAllAuthPhone,
+  }),
+  z.object({
+    email: zAllAuthEmail,
+  }),
+])
+
+export const zAllAuthReauthenticationCodeRecipient = z.union([
+  z.object({
+    email: zAllAuthEmail,
+  }),
+  z.object({
+    phone: zAllAuthPhone,
+  }),
+])
+
 /**
  * The access token.
  *
@@ -322,11 +340,13 @@ export const zAllAuthAuthenticationMethod = z.union([
     method: z.enum(['code']),
     at: zAllAuthTimestamp,
     email: zAllAuthEmail,
+    reauthenticated: z.literal(true).optional(),
   }),
   z.object({
     method: z.enum(['code']),
     at: zAllAuthTimestamp,
     phone: zAllAuthPhone,
+    reauthenticated: z.literal(true).optional(),
   }),
   z.object({
     method: z.enum(['password']),
@@ -426,6 +446,7 @@ export const zAllAuthFlow = z.object({
     'provider_signup',
     'provider_token',
     'reauthenticate',
+    'reauthenticate_by_code',
     'signup',
     'verify_email',
     'verify_phone',
@@ -433,6 +454,7 @@ export const zAllAuthFlow = z.object({
   provider: zAllAuthProvider.optional(),
   is_pending: z.literal(true).optional(),
   types: z.array(zAllAuthAuthenticatorType).optional(),
+  recipients: z.array(zAllAuthReauthenticationCodeRecipient).optional(),
   providers: z.array(z.string()).optional(),
 })
 
@@ -563,12 +585,6 @@ export const zAllAuthParameterEmailVerificationKey = z.string()
 export const zAllAuthParameterPasswordResetKey = z.string()
 
 /**
- * Session token. Only needed when `client` is equal to `app`.
- *
- */
-export const zAllAuthParameterSessionToken = z.string()
-
-/**
  * When present (regardless of its value), enables passwordless sign-in via a WebAuthn credential (Passkey),
  * which requires PIN, biometric, or equivalent user verification. Omit the parameter to disable.
  *
@@ -628,6 +644,8 @@ export const zAllAuthRequestRefreshToken = z.object({
 export const zAllAuthRequestRequestPassword = zAllAuthRequestPassword
 
 export const zAllAuthRequestRequestLoginCode = zAllAuthRequestLoginCode
+
+export const zAllAuthRequestRequestReauthenticationCode = zAllAuthRequestReauthenticationCode
 
 export const zAllAuthRequestSetupTotp = z.object({
   code: zAllAuthAuthenticatorCode,
@@ -712,18 +730,10 @@ export const zGetAllauthAppV1AuthEmailVerifyResponse = zAllAuthEmailVerification
 
 export const zPostAllauthAppV1AuthEmailVerifyBody = zAllAuthRequestVerifyEmail
 
-export const zPostAllauthAppV1AuthEmailVerifyHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * The user is authenticated.
  */
 export const zPostAllauthAppV1AuthEmailVerifyResponse = zAllAuthAuthenticatedResponse
-
-export const zPostAllauthAppV1AuthEmailVerifyResendHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * A success response.
@@ -736,18 +746,10 @@ export const zPostAllauthAppV1AuthEmailVerifyResendResponse = z.object({
 
 export const zPostAllauthAppV1AuthPhoneVerifyBody = zAllAuthRequestVerifyPhone
 
-export const zPostAllauthAppV1AuthPhoneVerifyHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * The user is authenticated.
  */
 export const zPostAllauthAppV1AuthPhoneVerifyResponse = zAllAuthAuthenticatedResponse
-
-export const zPostAllauthAppV1AuthPhoneVerifyResendHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * A success response.
@@ -763,15 +765,42 @@ export const zPostAllauthAppV1AuthPhoneVerifyResendResponse = z.object({
  */
 export const zPostAllauthAppV1AuthReauthenticateBody = zAllAuthRequestReauthenticate
 
-export const zPostAllauthAppV1AuthReauthenticateHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * Authenticated by password.
  *
  */
 export const zPostAllauthAppV1AuthReauthenticateResponse = zAllAuthAuthenticatedResponse
+
+/**
+ * Request a reauthentication code.
+ */
+export const zPostAllauthAppV1AuthReauthenticateCodeRequestBody = zAllAuthRequestRequestReauthenticationCode
+
+/**
+ * A success response.
+ *
+ */
+export const zPostAllauthAppV1AuthReauthenticateCodeRequestResponse = z.object({
+  status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
+})
+
+export const zPostAllauthAppV1AuthReauthenticateCodeConfirmBody = zAllAuthRequestConfirmLoginCode
+
+/**
+ * Authenticated by code.
+ *
+ */
+export const zPostAllauthAppV1AuthReauthenticateCodeConfirmResponse = zAllAuthAuthenticatedResponse
+
+/**
+ * A success response.
+ *
+ */
+export const zPostAllauthAppV1AuthReauthenticateCodeResendResponse = z.object({
+  status: zAllAuthStatusOk,
+  meta: zAllAuthBaseAuthenticationMeta.optional(),
+})
 
 /**
  * Request password.
@@ -812,10 +841,6 @@ export const zPostAllauthAppV1AuthPasswordResetResponse = zAllAuthAuthenticatedR
 
 export const zPostAllauthAppV1AuthProviderTokenBody = zAllAuthRequestProviderToken
 
-export const zPostAllauthAppV1AuthProviderTokenHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * The user is authenticated.
  */
@@ -847,10 +872,6 @@ export const zPostAllauthAppV1AuthProviderSignupResponse = zAllAuthAuthenticated
 
 export const zPostAllauthAppV1Auth2FaAuthenticateBody = zAllAuthRequestMfaAuthenticate
 
-export const zPostAllauthAppV1Auth2FaAuthenticateHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * Authenticated by password and 2FA.
  *
@@ -859,19 +880,11 @@ export const zPostAllauthAppV1Auth2FaAuthenticateResponse = zAllAuthAuthenticate
 
 export const zPostAllauthAppV1Auth2FaReauthenticateBody = zAllAuthRequestMfaAuthenticate
 
-export const zPostAllauthAppV1Auth2FaReauthenticateHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * Authenticated by password and 2FA.
  *
  */
 export const zPostAllauthAppV1Auth2FaReauthenticateResponse = zAllAuthAuthenticatedResponse
-
-export const zGetAllauthAppV1AuthWebauthnAuthenticateHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * WebAuthn credential request options.
@@ -887,18 +900,10 @@ export const zGetAllauthAppV1AuthWebauthnAuthenticateResponse = z.object({
  */
 export const zPostAllauthAppV1AuthWebauthnAuthenticateBody = zAllAuthRequestAuthenticateWebAuthn
 
-export const zPostAllauthAppV1AuthWebauthnAuthenticateHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * The user is authenticated.
  */
 export const zPostAllauthAppV1AuthWebauthnAuthenticateResponse = zAllAuthAuthenticatedResponse
-
-export const zGetAllauthAppV1AuthWebauthnReauthenticateHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * WebAuthn credential request options.
@@ -914,18 +919,10 @@ export const zGetAllauthAppV1AuthWebauthnReauthenticateResponse = z.object({
  */
 export const zPostAllauthAppV1AuthWebauthnReauthenticateBody = zAllAuthRequestReauthenticateWebAuthn
 
-export const zPostAllauthAppV1AuthWebauthnReauthenticateHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * The user is authenticated.
  */
 export const zPostAllauthAppV1AuthWebauthnReauthenticateResponse = zAllAuthAuthenticatedResponse
-
-export const zGetAllauthAppV1AuthWebauthnLoginHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * WebAuthn credential request options.
@@ -941,18 +938,10 @@ export const zGetAllauthAppV1AuthWebauthnLoginResponse = z.object({
  */
 export const zPostAllauthAppV1AuthWebauthnLoginBody = zAllAuthRequestLoginWebAuthn
 
-export const zPostAllauthAppV1AuthWebauthnLoginHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * The user is authenticated.
  */
 export const zPostAllauthAppV1AuthWebauthnLoginResponse = zAllAuthAuthenticatedResponse
-
-export const zGetAllauthAppV1AuthWebauthnSignupHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * WebAuthn credential creation options.
@@ -968,15 +957,7 @@ export const zGetAllauthAppV1AuthWebauthnSignupResponse = z.object({
  */
 export const zPostAllauthAppV1AuthWebauthnSignupBody = zAllAuthRequestPasskeySignup
 
-export const zPostAllauthAppV1AuthWebauthnSignupHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 export const zPutAllauthAppV1AuthWebauthnSignupBody = zAllAuthRequestAddWebAuthnAuthenticator
-
-export const zPutAllauthAppV1AuthWebauthnSignupHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * The user is authenticated.
@@ -996,10 +977,6 @@ export const zPostAllauthAppV1AuthCodeConfirmBody = zAllAuthRequestConfirmLoginC
  */
 export const zPostAllauthAppV1AuthCodeConfirmResponse = zAllAuthAuthenticatedResponse
 
-export const zPostAllauthAppV1AuthCodeResendHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * A success response.
  *
@@ -1011,10 +988,6 @@ export const zPostAllauthAppV1AuthCodeResendResponse = z.object({
 
 export const zDeleteAllauthAppV1AccountProvidersBody = zAllAuthRequestProviderAccount
 
-export const zDeleteAllauthAppV1AccountProvidersHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * List of third-party provider accounts.
  *
@@ -1023,10 +996,6 @@ export const zDeleteAllauthAppV1AccountProvidersResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthProviderAccount),
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zGetAllauthAppV1AccountProvidersHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 /**
@@ -1041,10 +1010,6 @@ export const zGetAllauthAppV1AccountProvidersResponse = z.object({
 
 export const zDeleteAllauthAppV1AccountEmailBody = zAllAuthRequestEmail
 
-export const zDeleteAllauthAppV1AccountEmailHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * List of email addresses.
  *
@@ -1053,10 +1018,6 @@ export const zDeleteAllauthAppV1AccountEmailResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthEmailAddress),
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zGetAllauthAppV1AccountEmailHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 /**
@@ -1071,10 +1032,6 @@ export const zGetAllauthAppV1AccountEmailResponse = z.object({
 
 export const zPatchAllauthAppV1AccountEmailBody = zAllAuthRequestMarkPrimaryEmail
 
-export const zPatchAllauthAppV1AccountEmailHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * List of email addresses.
  *
@@ -1086,10 +1043,6 @@ export const zPatchAllauthAppV1AccountEmailResponse = z.object({
 })
 
 export const zPostAllauthAppV1AccountEmailBody = zAllAuthRequestEmail
-
-export const zPostAllauthAppV1AccountEmailHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * List of email addresses.
@@ -1103,10 +1056,6 @@ export const zPostAllauthAppV1AccountEmailResponse = z.object({
 
 export const zPutAllauthAppV1AccountEmailBody = zAllAuthRequestEmail
 
-export const zPutAllauthAppV1AccountEmailHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * A success response.
  *
@@ -1114,10 +1063,6 @@ export const zPutAllauthAppV1AccountEmailHeaders = z.object({
 export const zPutAllauthAppV1AccountEmailResponse = z.object({
   status: zAllAuthStatusOk,
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zGetAllauthAppV1AccountPhoneHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 /**
@@ -1128,18 +1073,10 @@ export const zGetAllauthAppV1AccountPhoneResponse = zAllAuthPhoneNumbersResponse
 
 export const zPostAllauthAppV1AccountPhoneBody = zAllAuthRequestPhone
 
-export const zPostAllauthAppV1AccountPhoneHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * Phone number change process initiated.
  */
 export const zPostAllauthAppV1AccountPhoneResponse = zAllAuthPhoneNumberChangeResponse
-
-export const zGetAllauthAppV1AccountAuthenticatorsHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * List of authenticators.
@@ -1151,10 +1088,6 @@ export const zGetAllauthAppV1AccountAuthenticatorsResponse = z.object({
   meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
-export const zDeleteAllauthAppV1AccountAuthenticatorsTotpHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * A success response.
  *
@@ -1162,10 +1095,6 @@ export const zDeleteAllauthAppV1AccountAuthenticatorsTotpHeaders = z.object({
 export const zDeleteAllauthAppV1AccountAuthenticatorsTotpResponse = z.object({
   status: zAllAuthStatusOk,
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zGetAllauthAppV1AccountAuthenticatorsTotpHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 /**
@@ -1182,10 +1111,6 @@ export const zGetAllauthAppV1AccountAuthenticatorsTotpResponse = z.object({
 
 export const zPostAllauthAppV1AccountAuthenticatorsTotpBody = zAllAuthRequestSetupTotp
 
-export const zPostAllauthAppV1AccountAuthenticatorsTotpHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * Information on the TOTP authenticator.
  *
@@ -1198,10 +1123,6 @@ export const zPostAllauthAppV1AccountAuthenticatorsTotpResponse = z.object({
   data: zAllAuthTotpAuthenticator,
 })
 
-export const zGetAllauthAppV1AccountAuthenticatorsRecoveryCodesHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * Information on the recovery codes.
  *
@@ -1210,10 +1131,6 @@ export const zGetAllauthAppV1AccountAuthenticatorsRecoveryCodesResponse = z.obje
   status: zAllAuthStatusOk,
   data: zAllAuthSensitiveRecoveryCodesAuthenticator,
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zPostAllauthAppV1AccountAuthenticatorsRecoveryCodesHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 /**
@@ -1228,10 +1145,6 @@ export const zPostAllauthAppV1AccountAuthenticatorsRecoveryCodesResponse = z.obj
 
 export const zDeleteAllauthAppV1AccountAuthenticatorsWebauthnBody = zAllAuthRequestDeleteWebAuthn
 
-export const zDeleteAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * A success response.
  *
@@ -1239,10 +1152,6 @@ export const zDeleteAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object(
 export const zDeleteAllauthAppV1AccountAuthenticatorsWebauthnResponse = z.object({
   status: zAllAuthStatusOk,
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zGetAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 export const zGetAllauthAppV1AccountAuthenticatorsWebauthnQuery = z.object({
@@ -1260,10 +1169,6 @@ export const zGetAllauthAppV1AccountAuthenticatorsWebauthnResponse = z.object({
 
 export const zPostAllauthAppV1AccountAuthenticatorsWebauthnBody = zAllAuthRequestAddWebAuthnAuthenticator
 
-export const zPostAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * A WebAuthn authenticator.
  */
@@ -1277,10 +1182,6 @@ export const zPostAllauthAppV1AccountAuthenticatorsWebauthnResponse = z.object({
 
 export const zPutAllauthAppV1AccountAuthenticatorsWebauthnBody = zAllAuthRequestUpdateWebAuthn
 
-export const zPutAllauthAppV1AccountAuthenticatorsWebauthnHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * A WebAuthn authenticator.
  */
@@ -1288,14 +1189,6 @@ export const zPutAllauthAppV1AccountAuthenticatorsWebauthnResponse = z.object({
   status: zAllAuthStatusOk,
   data: zAllAuthWebAuthnAuthenticator,
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zDeleteAllauthAppV1AuthSessionHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
-export const zGetAllauthAppV1AuthSessionHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 /**
@@ -1319,15 +1212,7 @@ export const zPostAllauthAppV1TokensRefreshResponse = z.object({
 
 export const zPostAllauthAppV1AccountPasswordChangeBody = zAllAuthRequestChangePassword
 
-export const zPostAllauthAppV1AccountPasswordChangeHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 export const zDeleteAllauthAppV1AuthSessionsBody = zAllAuthRequestEndSessions
-
-export const zDeleteAllauthAppV1AuthSessionsHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
 
 /**
  * List of sessions.
@@ -1339,10 +1224,6 @@ export const zDeleteAllauthAppV1AuthSessionsResponse = z.object({
   meta: zAllAuthBaseAuthenticationMeta.optional(),
 })
 
-export const zGetAllauthAppV1AuthSessionsHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
-})
-
 /**
  * List of sessions.
  *
@@ -1351,10 +1232,6 @@ export const zGetAllauthAppV1AuthSessionsResponse = z.object({
   status: zAllAuthStatusOk,
   data: z.array(zAllAuthSession),
   meta: zAllAuthBaseAuthenticationMeta.optional(),
-})
-
-export const zGetAllauthAppV1AccountAuthenticatorsTotpSvgHeaders = z.object({
-  'X-Session-Token': z.string().optional(),
 })
 
 /**

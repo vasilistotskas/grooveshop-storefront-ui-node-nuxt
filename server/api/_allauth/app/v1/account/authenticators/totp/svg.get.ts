@@ -8,7 +8,8 @@ export default defineEventHandler(async (event) => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodTotpSvgSetup)
+    // A shopper who has the authenticator: allauth's status, a 200.
+    return await parseDataAs(response, zGetAllauthAppV1AccountAuthenticatorsTotpSvgResponse)
   }
   catch (error) {
     if (isAllAuthError(error)) {

@@ -18,13 +18,15 @@ export function pathLocation(path: string): RouteLocationAsPathGeneric {
 // against it.
 
 // The pages that confirm a signed-in shopper before a security change:
-// the password one and the three second-factor ones. allauth answers every
+// the password one, the two of the emailed code and the three second-factor ones. allauth answers every
 // one of their requests with 401 unless the shopper is signed in
 // (`AuthenticatedAPIView`), so they sit behind sign-in — a guest who lands
 // on one goes to the sign-in page instead of a form that cannot work. They
 // are drawn like the sign-in pages: one question, nothing else on screen.
 export const ReauthenticateRoutes = [
   'account-reauthenticate',
+  'account-reauthenticate-code',
+  'account-reauthenticate-code-confirm',
   'account-2fa-reauthenticate-totp',
   'account-2fa-reauthenticate-webauthn',
   'account-2fa-reauthenticate-recovery-codes',
@@ -122,7 +124,7 @@ const AUTH_PAGE_PATHS: readonly RegExp[] = [
   /^\/account\/verify-email(?:\/[^/]+)?\/?$/,
   /^\/account\/password\/reset(?:\/key\/[^/]+)?\/?$/,
   /^\/account\/2fa\/(?:authenticate|reauthenticate)\/(?:totp|webauthn|recovery-codes)\/?$/,
-  /^\/account\/reauthenticate\/?$/,
+  /^\/account\/reauthenticate(?:\/code(?:\/confirm)?)?\/?$/,
 ]
 
 /** Whether `path` (any language, no query) is a sign-in, sign-up or re-authentication page. */

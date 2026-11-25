@@ -21,7 +21,7 @@ const props = defineProps<{
   /** Asks the API for the code again. */
   send: () => Promise<unknown>
   /** The step that issues a first code, for when nothing can be resent. */
-  startOver: 'account-login-code' | 'account-signup'
+  startOver: 'account-login-code' | 'account-signup' | 'account-reauthenticate-code'
 }>()
 
 const emit = defineEmits<{ sent: [] }>()
@@ -55,6 +55,14 @@ function restart() {
   if (cooldown.value > 0) start()
 }
 
+// A re-authentication page is no sign-in page: its way back carries the
+// destination the shopper came with in `next`, as its other links do.
+function startOverLink() {
+  if (props.startOver !== 'account-reauthenticate-code') return authLink(props.startOver)
+  const next = returnPath(useRoute().query.next)
+  return { name: props.startOver, query: next ? { next } : undefined }
+}
+
 async function onResend() {
   if (locked.value) return
   sending.value = true
@@ -71,7 +79,7 @@ async function onResend() {
   catch (error) {
     if (isConflictClientError(error)) {
       toast.add({ title: t('start_over'), color: 'warning' })
-      await navigateTo(localePath(authLink(props.startOver)))
+      await navigateTo(localePath(startOverLink()))
       return
     }
     if (isRateLimitedClientError(error)) {

@@ -11,6 +11,9 @@ import { setTenant } from '~~/test/helpers/tenant'
  * action and loses only the timer. A 429 asks the shopper to wait, a 409
  * sends them back to the step that issues a code.
  */
+// A real navigation loads the page it lands on; only its address matters here.
+vi.mock('~/pages/contact.vue', () => ({ default: { render: () => null } }))
+
 const { navigateToMock, toastAdd } = vi.hoisted(() => ({
   navigateToMock: vi.fn(),
   toastAdd: vi.fn(),
@@ -228,5 +231,24 @@ describe('Auth/ResendCode', () => {
     await flushPromises()
 
     expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()({ name: 'account-signup', query: { next: '/' } }))
+  })
+
+  it('sends a re-authentication back to its first step with the destination it came with, not the page itself', async () => {
+    send.mockRejectedValue(asProxiedError({ status: 409 as const }))
+    // The navigation to the page waits on real timers, so there is no wait to run out.
+    vi.useRealTimers()
+    setTenant({ codeResendCooldownSeconds: 0 })
+    const wrapper = await mountSuspended(AuthResendCode, {
+      props: { send, startOver: 'account-reauthenticate-code' },
+      // A page that is not a sign-in page, which carries a destination: the
+      // link is built from it, not from the page itself. (A re-authentication
+      // page would be sent to sign in, as this shopper is not.)
+      route: '/contact?next=/account/settings',
+    })
+
+    await button(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()({ name: 'account-reauthenticate-code', query: { next: '/account/settings' } }))
   })
 })

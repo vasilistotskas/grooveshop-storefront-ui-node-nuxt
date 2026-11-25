@@ -57,6 +57,15 @@ export function isConflictClientError(error: unknown): boolean {
     && isConflictResponseError(error.data)
 }
 
+/**
+ * allauth read what was sent and refused it (a wrong or expired code): its
+ * 400, or the 401 that asks for the same step again.
+ */
+export function isRefusedStepClientError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'data' in error
+    && (isBadResponseError(error.data) || isNotAuthenticatedResponseError(error.data))
+}
+
 export const handleAllAuthClientError = (error: unknown): void => {
   const { t, te } = useNuxtApp().$i18n
 
@@ -130,5 +139,12 @@ export const handleAllAuthClientError = (error: unknown): void => {
     else {
       log.error({ action: 'allauth:unknown', error })
     }
+    return
   }
+
+  // No answer of allauth's at all (the network, a 5xx): the shopper is
+  // told so in the words `describeApiError` uses for it.
+  const described = describeApiError(error)
+  useToast().add({ title: described.title, description: described.description, color: 'error' })
+  log.error({ action: 'allauth:failed', error })
 }

@@ -61,6 +61,8 @@ import AccountFavouriteProducts from '~/components/variants/webside/Storefront/A
 import AccountAddresses from '~/components/variants/webside/Storefront/Account/Addresses.vue'
 import AccountSettings from '~/components/variants/webside/Storefront/Account/Settings.vue'
 import AccountReauthenticate from '~/components/variants/webside/Storefront/Auth/Reauthenticate.vue'
+import AccountReauthenticateByCode from '~/components/variants/webside/Storefront/Auth/ReauthenticateByCode.vue'
+import AccountReauthenticateByCodeConfirm from '~/components/variants/webside/Storefront/Auth/ReauthenticateByCodeConfirm.vue'
 import NewsletterConfirm from '~/components/variants/webside/Storefront/NewsletterConfirm.vue'
 import ProductAlertConfirm from '~/components/variants/webside/Storefront/ProductAlertConfirm.vue'
 import EmailUnsubscribe from '~/components/variants/webside/Storefront/EmailUnsubscribe.vue'
@@ -658,6 +660,14 @@ describe('webside design render', () => {
 
     it('re-authenticate', async () => {
       await expectSnapshot(AccountReauthenticate, { route: '/account/reauthenticate' })
+    })
+
+    it('re-authenticate with a code: asking for it', async () => {
+      await expectSnapshot(AccountReauthenticateByCode, { route: '/account/reauthenticate/code' })
+    })
+
+    it('re-authenticate with a code: taking it', async () => {
+      await expectSnapshot(AccountReauthenticateByCodeConfirm, { route: '/account/reauthenticate/code/confirm' })
     })
   })
 

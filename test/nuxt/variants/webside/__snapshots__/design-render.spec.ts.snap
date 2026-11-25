@@ -2265,6 +2265,92 @@ exports[`webside design render > signed in > re-authenticate 1`] = `
 </div>"
 `;
 
+exports[`webside design render > signed in > re-authenticate with a code: asking for it 1`] = `
+"<div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
+  <div data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default w-full max-w-lg">
+    <div data-slot="header" class="p-4 sm:px-6">
+      <div class="space-y-2 text-center">
+        <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10"><span class="iconify i-heroicons:envelope size-6 text-info" aria-hidden="true"></span></div>
+        <h2 class="text-2xl font-bold tracking-tight">Επαναπιστοποίηση με κωδικό</h2>
+        <p class="text-sm text-muted">Για λόγους ασφαλείας, θα στείλουμε έναν κωδικό 6 ψηφίων στο m***@webside.test</p>
+      </div>
+    </div>
+    <div data-slot="body" class="p-4 sm:p-6 space-y-6">
+      <div class="space-y-6">
+        <form class="space-y-4"><button type="submit" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 w-full justify-center text-inverted bg-inverted hover:bg-inverted/90 active:bg-inverted/90 disabled:bg-inverted aria-disabled:bg-inverted outline-inverted/25 focus-visible:outline-3">
+            <!--v-if-->Αποστολή κωδικού<span class="iconify i-heroicons:arrow-right shrink-0 size-5 ms-auto" aria-hidden="true" data-slot="trailingIcon"></span>
+          </button></form>
+        <!--v-if-->
+      </div>
+    </div>
+    <div data-slot="footer" class="p-4 sm:px-6">
+      <div data-orientation="vertical" data-slot="root" class="relative overflow-hidden w-full rounded-lg p-4 flex gap-2.5 items-start bg-info/10 text-info"><span class="iconify i-heroicons:information-circle shrink-0 size-5" aria-hidden="true" data-slot="icon"></span>
+        <div data-slot="wrapper" class="min-w-0 flex-1 flex flex-col">
+          <div data-slot="title" class="text-sm font-medium">Γιατί χρειάζεται αυτό;</div>
+          <div data-slot="description" class="text-sm opacity-90 mt-1">Για την προστασία του λογαριασμού σας, απαιτείται επαναπιστοποίηση για ευαίσθητες ενέργειες</div>
+          <!--v-if-->
+        </div>
+        <!--v-if-->
+      </div>
+    </div>
+  </div>
+</div>"
+`;
+
+exports[`webside design render > signed in > re-authenticate with a code: taking it 1`] = `
+"<div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
+  <div data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default w-full max-w-lg">
+    <div data-slot="header" class="p-4 sm:px-6">
+      <div class="space-y-2 text-center">
+        <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10"><span class="iconify i-heroicons:envelope-open size-6 text-info" aria-hidden="true"></span></div>
+        <h2 class="text-2xl font-bold tracking-tight">Δείτε το email σας</h2>
+        <p class="text-sm text-muted">Εισάγετε τον κωδικό που στείλαμε στο m***@webside.test. Λήγει σε 5 λεπτά</p>
+      </div>
+    </div>
+    <div data-slot="body" class="p-4 sm:p-6 space-y-6">
+      <div class="space-y-6">
+        <form class="space-y-6">
+          <!--v-if-->
+          <div class="flex flex-col items-center space-y-4">
+            <div data-orientation="vertical" data-slot="root" class="text-sm w-full text-center">
+              <div data-slot="wrapper" class="">
+                <!--v-if-->
+                <!--v-if-->
+              </div>
+              <div class="">
+                <div class="flex justify-center">
+                  <div aria-invalid="false" data-slot="root" class="relative inline-flex items-center gap-1.5" aria-label="Κωδικός 6 ψηφίων" dir="ltr"><input autocapitalize="none" autocomplete="one-time-code" type="text" inputmode="text" placeholder="" aria-label="κωδικός PIN, χαρακτήρας 1 από 6" data-slot="base" class="rounded-md border-0 placeholder:text-dimmed text-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors size-10 text-base text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary">
+                    <!--v-if--><input autocapitalize="none" autocomplete="one-time-code" type="text" inputmode="text" placeholder="" aria-label="κωδικός PIN, χαρακτήρας 2 από 6" data-slot="base" class="rounded-md border-0 placeholder:text-dimmed text-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors size-10 text-base text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary">
+                    <!--v-if--><input autocapitalize="none" autocomplete="one-time-code" type="text" inputmode="text" placeholder="" aria-label="κωδικός PIN, χαρακτήρας 3 από 6" data-slot="base" class="rounded-md border-0 placeholder:text-dimmed text-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors size-10 text-base text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary">
+                    <!--v-if--><input autocapitalize="none" autocomplete="one-time-code" type="text" inputmode="text" placeholder="" aria-label="κωδικός PIN, χαρακτήρας 4 από 6" data-slot="base" class="rounded-md border-0 placeholder:text-dimmed text-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors size-10 text-base text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary">
+                    <!--v-if--><input autocapitalize="none" autocomplete="one-time-code" type="text" inputmode="text" placeholder="" aria-label="κωδικός PIN, χαρακτήρας 5 από 6" data-slot="base" class="rounded-md border-0 placeholder:text-dimmed text-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors size-10 text-base text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary">
+                    <!--v-if--><input autocapitalize="none" autocomplete="one-time-code" type="text" inputmode="text" placeholder="" aria-label="κωδικός PIN, χαρακτήρας 6 από 6" data-slot="base" class="rounded-md border-0 placeholder:text-dimmed text-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors size-10 text-base text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary">
+                    <!--v-if-->
+                    <!-- We render single input if it's required --><input aria-hidden="true" tabindex="-1" style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; word-wrap: normal; top: -1px; left: -1px;" name="code" id="ID" value="">
+                  </div>
+                </div>
+                <!--v-if-->
+              </div>
+            </div>
+            <p class="text-xs text-muted">Ο κωδικός είναι 6 ψηφία και βρίσκεται στο email μας</p>
+          </div><button type="submit" disabled="" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 w-full justify-center text-inverted bg-inverted hover:bg-inverted/90 active:bg-inverted/90 disabled:bg-inverted aria-disabled:bg-inverted outline-inverted/25 focus-visible:outline-3">
+            <!--v-if-->Επιβεβαίωση<span class="iconify i-heroicons:arrow-right shrink-0 size-5 ms-auto" aria-hidden="true" data-slot="trailingIcon"></span>
+          </button>
+          <div class="text-center text-sm text-muted">
+            <p class="flex flex-wrap items-center justify-center gap-x-1">Δεν τον έλαβες; <button type="button" data-slot="base" aria-disabled="false" aria-busy="false" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press py-1.5 text-xs gap-1.5 hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 px-0 font-semibold text-accent">
+                <!--v-if--><span data-slot="label" class="truncate">Στείλε τον ξανά</span>
+                <!--v-if-->
+              </button></p><span role="status" class="sr-only"></span>
+          </div>
+        </form>
+        <!--v-if-->
+      </div>
+    </div>
+    <!--v-if-->
+  </div>
+</div>"
+`;
+
 exports[`webside design render > signup form 1`] = `
 "<section class="relative grid">
   <!--v-if-->

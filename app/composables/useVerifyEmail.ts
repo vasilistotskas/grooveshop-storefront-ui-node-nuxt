@@ -52,7 +52,9 @@ export function useVerifyEmail(options: {
       }
     }
     catch (error) {
-      hasError.value = true
+      // The page's alert is about the code: a refused request (throttled, no
+      // answer) is the toast's alone.
+      hasError.value = isRefusedStepClientError(error)
       handleAllAuthClientError(error)
     }
   }

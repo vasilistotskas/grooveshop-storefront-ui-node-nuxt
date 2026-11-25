@@ -178,7 +178,10 @@ Not logged in
     │                              │
     │                              ├─ 401 with is_authenticated ──► REAUTHENTICATION_REQUIRED
     │                              │                                      │
-    │                              │                              ──► /account/reauthenticate
+    │                              │                              ──► the first way the 401 lists:
+    │                              │                                  /account/reauthenticate (password),
+    │                              │                                  a second factor, or
+    │                              │                                  /account/reauthenticate/code (mailed code)
     │                              │
     │                              └─ 410 session expired ──► LOGGED_OUT ──► /
     │

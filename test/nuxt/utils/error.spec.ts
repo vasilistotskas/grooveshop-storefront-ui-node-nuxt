@@ -30,6 +30,15 @@ describe('handleAllAuthClientError', () => {
     expect(toasts()).toEqual([{ title: useNuxtApp().$i18n.t('error.rate_limited'), color: 'warning' }])
   })
 
+  it('tells the shopper when allauth gave no answer at all', () => {
+    const failure = Object.assign(new Error('fetch failed'), { statusCode: 502 })
+
+    handleAllAuthClientError(failure)
+
+    const described = describeApiError(failure)
+    expect(toasts()).toEqual([{ title: described.title, description: described.description, color: 'error' }])
+  })
+
   it('translates each field error it has copy for, and falls back to allauth\'s message, then to the generic one', () => {
     const { t } = useNuxtApp().$i18n
 
@@ -72,12 +81,6 @@ describe('handleAllAuthClientError', () => {
     // The auth:change pipeline and the calling form own these; a toast
     // here would be a second message for one event.
     handleAllAuthClientError(thrown(body))
-
-    expect(toastAdd).not.toHaveBeenCalled()
-  })
-
-  it('ignores an error that is not allauth\'s', () => {
-    handleAllAuthClientError(new Error('network down'))
 
     expect(toastAdd).not.toHaveBeenCalled()
   })

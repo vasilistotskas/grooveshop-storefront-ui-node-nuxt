@@ -6,6 +6,8 @@ export interface MfaMethod {
   /** The authenticator type, when the flow has them. */
   type?: AuthenticatorTypeValues
   path: FlowPathValue
+  /** Whether the page on screen is one of this way's steps. */
+  current?: boolean
 }
 
 /** A way to answer the second-factor challenge: always one authenticator type. */
@@ -44,8 +46,9 @@ export function useMfaAuthenticateMethods() {
 /**
  * Every way the shopper can re-authenticate, from the flows allauth lists
  * in the last auth response (`auth-state`): the password, and one entry
- * per authenticator type of the `mfa_reauthenticate` flow, sorted.
- * `others` leaves out the page the shopper is on (`routeName`).
+ * per authenticator type of the `mfa_reauthenticate` flow, sorted, and the
+ * code mailed to the shopper's address. A way is `current` on any of its
+ * steps (the emailed code has two pages), and `others` leaves it out.
  */
 export function useMfaReauthenticationMethods() {
   const { $routeBaseName } = useNuxtApp()
@@ -64,19 +67,24 @@ export function useMfaReauthenticationMethods() {
     return flowsOf(state)
   })
 
+  // The page of each step the way has: the entry path, and the step a flow
+  // under way resumes at (`Flow2path`'s `<id>:pending`).
+  const isCurrent = (id: string, path: string) =>
+    path === routeName.value || Flow2path[`${id}:pending` as keyof typeof Flow2path] === routeName.value
+
   const methods = computed<MfaMethod[]>(() => flows.value.flatMap((flow): MfaMethod[] => {
     if (flow.id !== Flows.MFA_REAUTHENTICATE) {
-      return [{ key: flow.id, id: flow.id, path: pathForFlow(flow)! }]
+      // The way's first step, also while a code is already on its way.
+      const path = pathForFlow({ id: flow.id })!
+      return [{ key: flow.id, id: flow.id, path, current: isCurrent(flow.id, path) }]
     }
-    return sortAuthenticatorTypes(flow.types).map(type => ({
-      key: `${flow.id}:${type}`,
-      id: flow.id,
-      type,
-      path: pathForFlow(flow, type)!,
-    }))
+    return sortAuthenticatorTypes(flow.types).map((type) => {
+      const path = pathForFlow(flow, type)!
+      return { key: `${flow.id}:${type}`, id: flow.id, type, path, current: isCurrent(flow.id, path) }
+    })
   }))
 
-  const others = computed(() => methods.value.filter(method => method.path !== routeName.value))
+  const others = computed(() => methods.value.filter(method => !method.current))
 
   return { next, routeName, methods, others }
 }

@@ -19,6 +19,9 @@ const props = defineProps({
 const tenantStore = useTenantStore()
 const body = computed(() => resolvePage('error', tenantStore.schemaName))
 
+// `app.vue` does not render here, so the page's `<html lang dir>` is set here.
+useHtmlLanguage()
+
 // Transient SSR failures (backend readiness gaps during HPA churn —
 // prod audit 2026-07-02) reach the visitor as a 5xx error page even
 // though the backend recovers within seconds. Retry ONCE via

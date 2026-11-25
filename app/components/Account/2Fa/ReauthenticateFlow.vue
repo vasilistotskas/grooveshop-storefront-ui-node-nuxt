@@ -16,6 +16,7 @@ const { next, others } = useMfaReauthenticationMethods()
 
 const flowIcons: Record<string, string> = {
   [Flows.REAUTHENTICATE]: 'i-lucide-lock-keyhole',
+  [Flows.REAUTHENTICATE_BY_CODE]: 'i-lucide-mail',
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: 'i-lucide-smartphone',
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: 'i-lucide-life-buoy',
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: 'i-lucide-key-round',
@@ -23,6 +24,7 @@ const flowIcons: Record<string, string> = {
 
 const flowLabels: Record<string, string> = {
   [Flows.REAUTHENTICATE]: t('reauthenticate.title'),
+  [Flows.REAUTHENTICATE_BY_CODE]: t('reauthenticate_by_code.title'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.TOTP}`]: t('mfa_reauthenticate.totp'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.RECOVERY_CODES}`]: t('mfa_reauthenticate.recovery_codes'),
   [`${Flows.MFA_REAUTHENTICATE}:${AuthenticatorType.WEBAUTHN}`]: t('mfa_reauthenticate.webauthn'),
@@ -71,6 +73,8 @@ el:
     webauthn: Χρησιμοποίησε passkey ή κλειδί ασφαλείας
   reauthenticate:
     title: Χρησιμοποίησε τον κωδικό σου
+  reauthenticate_by_code:
+    title: Στείλε μου κωδικό με email
 en:
   alternative_options: other ways
   mfa_reauthenticate:
@@ -79,4 +83,6 @@ en:
     webauthn: Use a passkey instead
   reauthenticate:
     title: Use your password
+  reauthenticate_by_code:
+    title: Email me a code
 </i18n>

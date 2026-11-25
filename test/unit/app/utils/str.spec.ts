@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { capitalize, contentShorten, cleanHtml } from '~/utils/str'
+import { capitalize, contentShorten, cleanHtml, maskEmail } from '~/utils/str'
 
 describe('String Utilities', () => {
   describe('capitalize', () => {
@@ -58,6 +58,22 @@ describe('String Utilities', () => {
       ['', ''],
     ])('strips the markup of %j', (html, expected) => {
       expect(cleanHtml(html)).toBe(expected)
+    })
+  })
+
+  describe('maskEmail', () => {
+    it.each([
+      ['maria@example.com', 'm***@example.com'],
+      ['m@example.com', 'm***@example.com'],
+      ['first.last+tag@mail.example.gr', 'f***@mail.example.gr'],
+      // The domain is what the reader needs; the last @ is the separator.
+      ['"odd@name"@example.com', '"***@example.com'],
+    ])('hides the name of %s', (email, expected) => {
+      expect(maskEmail(email)).toBe(expected)
+    })
+
+    it.each(['', 'no-at-sign', '@example.com'])('returns %j as it came', (email) => {
+      expect(maskEmail(email)).toBe(email)
     })
   })
 })

@@ -60,6 +60,8 @@ describe.each(trees(TwoFactorTotpDeactivate, WebsideTwoFactorTotpDeactivate))('$
     await flushPromises()
 
     expect(deactivateTotp).toHaveBeenCalledTimes(1)
+    // The activation page reads the same key.
+    expect(useNuxtData('totpAuthenticatorStatus').data.value).toBeUndefined()
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success', icon: toastIcon, description: 'Η εφαρμογή ελέγχου ταυτότητας απενεργοποιήθηκε επιτυχώς' }))
     expect(wrapper.emitted('deactivateTotp')).toHaveLength(1)
     expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(settled))

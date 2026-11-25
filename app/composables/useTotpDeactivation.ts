@@ -41,6 +41,8 @@ export async function useTotpDeactivation(options: {
     try {
       loading.value = true
       await deactivateTotp()
+      // The activation page reads the same key: the status it holds is gone.
+      clearNuxtData('totpAuthenticatorStatus')
       toast.add(options.messages.deactivated())
       options.onDeactivated()
       await navigateTo(localePath('account-security'))

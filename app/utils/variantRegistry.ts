@@ -101,6 +101,8 @@ export type PageKey
     | 'account-settings-privacy'
     | 'account-subscriptions'
     | 'reauthenticate'
+    | 'reauthenticate-code'
+    | 'reauthenticate-code-confirm'
     | '2fa-reauthenticate-totp'
     | '2fa-reauthenticate-webauthn'
     | '2fa-reauthenticate-recovery-codes'
@@ -197,6 +199,8 @@ const pageDefaults: Record<PageKey, Component> = {
   'account-settings-privacy': lazy(() => import('~/components/Storefront/Account/Privacy.vue')),
   'account-subscriptions': lazy(() => import('~/components/Storefront/Account/Subscriptions.vue')),
   'reauthenticate': lazy(() => import('~/components/Storefront/Auth/Reauthenticate.vue')),
+  'reauthenticate-code': lazy(() => import('~/components/Storefront/Auth/ReauthenticateByCode.vue')),
+  'reauthenticate-code-confirm': lazy(() => import('~/components/Storefront/Auth/ReauthenticateByCodeConfirm.vue')),
   '2fa-reauthenticate-totp': lazy(() => import('~/components/Storefront/Auth/TwoFactorReauthenticateTotp.vue')),
   '2fa-reauthenticate-webauthn': lazy(() => import('~/components/Storefront/Auth/TwoFactorReauthenticateWebauthn.vue')),
   '2fa-reauthenticate-recovery-codes': lazy(() => import('~/components/Storefront/Auth/TwoFactorReauthenticateRecoveryCodes.vue')),
@@ -312,6 +316,8 @@ const variants: Record<string, Component> = {
   'page:account-settings-privacy@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Privacy.vue')),
   'page:account-subscriptions@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Subscriptions.vue')),
   'page:reauthenticate@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/Reauthenticate.vue')),
+  'page:reauthenticate-code@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/ReauthenticateByCode.vue')),
+  'page:reauthenticate-code-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/ReauthenticateByCodeConfirm.vue')),
   'page:2fa-reauthenticate-totp@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateTotp.vue')),
   'page:2fa-reauthenticate-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateWebauthn.vue')),
   'page:2fa-reauthenticate-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateRecoveryCodes.vue')),

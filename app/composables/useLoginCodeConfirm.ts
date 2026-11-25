@@ -44,7 +44,9 @@ export function useLoginCodeConfirm(options: { welcome: () => ToastInput, onConf
     }
     catch (error) {
       if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
-      hasError.value = true
+      // The page's alert is about the code: a refused request (throttled, no
+      // answer) is the toast's alone.
+      hasError.value = isRefusedStepClientError(error)
       handleAllAuthClientError(error)
     }
   }
