@@ -14,6 +14,23 @@ export type SupportedLocale = typeof SUPPORTED_LOCALES[number]
 export const DEFAULT_LOCALE: SupportedLocale = 'el'
 
 /**
+ * What each locale is besides its texts: its own name (what the language
+ * switchers show), its BCP 47 language (`<html lang>`, hreflang), its
+ * writing direction and its flag. `i18n.locales` in `nuxt.config.ts` is
+ * built from this, and `toUiLocales` (`app/utils/uiLocales.ts`) reads it,
+ * so a name is written once.
+ */
+export const LOCALE_PROPERTIES: Record<SupportedLocale, {
+  name: string
+  language: string
+  dir: 'ltr' | 'rtl'
+  flag: string
+}> = {
+  el: { name: 'Ελληνικά', language: 'el-GR', dir: 'ltr', flag: '🇬🇷' },
+  en: { name: 'English', language: 'en-US', dir: 'ltr', flag: '🇬🇧' },
+}
+
+/**
  * Where the global locale files live, relative to the project root:
  * `i18n.restructureDir` (`nuxt.config.ts`) plus @nuxtjs/i18n's default
  * `langDir`.

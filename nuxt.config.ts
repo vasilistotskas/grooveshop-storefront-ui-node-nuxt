@@ -1,7 +1,7 @@
 import type { NuxtModule } from 'nuxt/schema'
 import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
-import { DEFAULT_LOCALE, LOCALE_FILES } from './i18n/locales.ts'
+import { DEFAULT_LOCALE, LOCALE_FILES, LOCALE_PROPERTIES, SUPPORTED_LOCALES } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { CLIENT_CHUNK_BUDGET_BYTES, ROUTE_BOOT_CHUNK_NAME, SHARED_CHUNK_MAX_MODULE_BYTES, SHARED_CHUNK_MIN_ENTRIES, SHARED_CHUNK_NAME, isRouteBootModule, isStyleModuleId } from './shared/constants/clientChunks.ts'
 import { BUILDER_ICONS, builderIconBundleName } from './shared/builder/icons.ts'
@@ -993,22 +993,11 @@ export default defineNuxtConfig({
     // with the switcher in the header, and every `/<locale>/**` URL
     // remains directly linkable, bookmarkable and crawlable.
     detectBrowserLanguage: false,
-    locales: [
-      {
-        code: 'el',
-        name: 'Ελληνικά',
-        files: [...LOCALE_FILES.el],
-        language: 'el-GR',
-        flag: '🇬🇷',
-      },
-      {
-        code: 'en',
-        name: 'English',
-        files: [...LOCALE_FILES.en],
-        language: 'en-US',
-        flag: '🇬🇧',
-      },
-    ],
+    locales: SUPPORTED_LOCALES.map(code => ({
+      code,
+      ...LOCALE_PROPERTIES[code],
+      files: [...LOCALE_FILES[code]],
+    })),
     compilation: {
       strictMessage: false,
     },
