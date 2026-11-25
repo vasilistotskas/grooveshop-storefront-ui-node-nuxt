@@ -143,7 +143,14 @@ describe('productSchemaOrg', () => {
   })
 
   it('names the product\'s own brand, else the store', () => {
-    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: 'Anker' }) }).brand.name).toBe('Anker')
-    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: null }) }).brand.name).toBe('Store')
+    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: 'Anker' }) }).brand?.name).toBe('Anker')
+    expect(productSchemaOrg({ ...base, product: makeProduct({ brandName: null }) }).brand?.name).toBe('Store')
+  })
+
+  it('leaves out the brand and the seller that nothing names', () => {
+    const schema = productSchemaOrg({ ...base, storeName: undefined, product: makeProduct({ brandName: null }) })
+
+    expect(schema.brand).toBeUndefined()
+    expect(schema.offers.seller).toBeUndefined()
   })
 })
