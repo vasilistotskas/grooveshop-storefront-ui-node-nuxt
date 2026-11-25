@@ -93,7 +93,6 @@ export async function useTotpActivation(options: {
 
       loading.value = true
       await activateTotp({ code: codeString })
-      clearNuxtData('totpAuthenticatorStatus')
       toast.add(options.messages.activated())
       await navigateTo(localePath('account-security'))
       return true

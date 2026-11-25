@@ -66,7 +66,7 @@ export function useEmailCodeReauthentication() {
       }
       // The page's alert is about the code: a refused request (throttled, no
       // answer) is the toast's alone.
-      hasError.value = isBadResponseClientError(error)
+      hasError.value = isRefusedStepClientError(error)
       handleAllAuthClientError(error)
       return false
     }

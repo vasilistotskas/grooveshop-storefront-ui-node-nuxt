@@ -57,10 +57,13 @@ export function isConflictClientError(error: unknown): boolean {
     && isConflictResponseError(error.data)
 }
 
-/** allauth's 400: it read what was sent and refused it (a wrong or expired code). */
-export function isBadResponseClientError(error: unknown): boolean {
+/**
+ * allauth read what was sent and refused it (a wrong or expired code): its
+ * 400, or the 401 that asks for the same step again.
+ */
+export function isRefusedStepClientError(error: unknown): boolean {
   return typeof error === 'object' && error !== null && 'data' in error
-    && isBadResponseError(error.data)
+    && (isBadResponseError(error.data) || isNotAuthenticatedResponseError(error.data))
 }
 
 export const handleAllAuthClientError = (error: unknown): void => {
