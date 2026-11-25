@@ -103,7 +103,8 @@ interface RssFeedSource {
   locale: SupportedLocale
   siteUrl: string
   siteName: string
-  siteDescription: string
+  /** The site config's, which nuxt-site-config types as optional: without one, the `rss` package gives the channel its title as description. */
+  siteDescription: string | undefined
   baseUrl: string
   apiBaseUrl: string
   mediaStreamPath: string
@@ -189,7 +190,8 @@ export async function respondWithRssFeed(
 ): Promise<string> {
   const locale = requestLocale(event)
   const unservedLanguage = pathLocale !== undefined && pathLocale !== locale
-  if (unservedLanguage || !eventStoreFeature(event, 'blog')) {
+  const tenant = event.context.tenant
+  if (unservedLanguage || !tenant || !storeFeatureOn(tenant, 'blog')) {
     setHeaders(event, { 'Cache-Control': PRIVATE_CACHE_CONTROL })
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   }
@@ -203,7 +205,6 @@ export async function respondWithRssFeed(
     // The store's host: it keys the cached fetchers and names the store
     // to Django (X-Forwarded-Host).
     const host = requestTenantHost(event)
-    const tenant = event.context.tenant
     const tenantDomain = tenant?.primaryDomain || host
     const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
 
@@ -219,7 +220,7 @@ export async function respondWithRssFeed(
       epoch: tenantConfigEpoch(host),
       locale,
       siteUrl: siteConfig.url,
-      siteName: siteConfig.name,
+      siteName: storeSiteName(tenant),
       siteDescription: siteConfig.description,
       baseUrl,
       apiBaseUrl: config.apiBaseUrl,

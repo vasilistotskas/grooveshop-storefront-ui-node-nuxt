@@ -204,7 +204,7 @@ useSchemaOrg([
     description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
     url: canonicalUrl.value,
     imageUrls: catalogueImageUrls.value,
-    storeName: siteConfig.name,
+    storeName: tenantStore.siteName,
     currency: tenantStore.defaultCurrency,
     // The category's trail by name, the form Google reads.
     category: categoryPath.value.map(node => node.label).join(' > '),

@@ -1,5 +1,4 @@
 import { COOKIE_ID_SEPARATOR } from '#cookie-control/types'
-import { el as uiLocaleEl } from '@nuxt/ui/locale'
 
 export function setupPageHeader() {
   const route = useRoute()
@@ -104,15 +103,11 @@ export function setupPageHeader() {
 
   const colorMode = useColorMode()
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
-  // Prefer the locale's full BCP-47 `language` (e.g. `el-GR`) so screen
-  // readers + search engines get region-specific pronunciation hints.
-  // Fall back to @nuxt/ui's 2-letter code when no `language` is configured
-  // (e.g. legacy locales added without the `language` field).
-  const lang = computed(() => {
-    const props = $i18n.localeProperties.value as { language?: string, code: string }
-    return props.language || uiLocaleEl.code
-  })
-  const dir = computed(() => uiLocaleEl.dir)
+  // The locale's full BCP-47 `language` (e.g. `el-GR`) so screen readers
+  // and search engines get region-specific pronunciation hints, and its
+  // writing direction, both from `LOCALE_PROPERTIES` (`i18n/locales.ts`).
+  const lang = computed(() => $i18n.localeProperties.value.language)
+  const dir = computed(() => $i18n.localeProperties.value.dir)
 
   useSeoMeta({
     title: () => title.value,
