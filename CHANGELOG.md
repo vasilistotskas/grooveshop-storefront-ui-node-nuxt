@@ -1,3 +1,10 @@
+# [3.360.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.359.2...v3.360.0) (2026-11-25)
+
+
+### Features
+
+* **checkout:** offer only the regions a store delivers to, price the region's zone, and name the regions a regional rate applies to ([#522](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/522)) ([42c3e41](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/42c3e41b73368593489f2ccf2873fbdbab8fb9b6)), closes [#222](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/222) [#222](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/222)
+
 ## [3.359.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.359.1...v3.359.2) (2026-11-25)
 
 
