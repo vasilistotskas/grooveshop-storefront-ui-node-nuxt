@@ -19689,122 +19689,6 @@
                 }
             }
         },
-        "/api/v1/cart/create-payment-intent": {
-            "post": {
-                "operationId": "createCartPaymentIntent",
-                "description": "Δημιουργία Stripe payment intent βάσει του συνόλου του καλαθιού πριν τη δημιουργία παραγγελίας. Απαιτείται για μεθόδους online πληρωμής (Stripe) στη ροή πληρωμής πριν την παραγγελία. Επιστρέφει client_secret για επιβεβαίωση πληρωμής στο frontend και payment_intent_id προς συμπερίληψη στο αίτημα δημιουργίας παραγγελίας.",
-                "summary": "Δημιουργία payment intent από καλάθι",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "X-Cart-Id",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
-                    }
-                ],
-                "tags": [
-                    "Cart"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CartCreatePaymentIntentRequestRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CartCreatePaymentIntentRequestRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CartCreatePaymentIntentRequestRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "security": [
-                    {
-                        "cookieAuth": []
-                    },
-                    {}
-                ],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/ApiValidationError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/ApiError"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/CartPaymentIntentResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/api/v1/cart/item": {
             "get": {
                 "operationId": "listCartItem",
@@ -21785,7 +21669,7 @@
         "/api/v1/cart/quote": {
             "post": {
                 "operationId": "quoteCart",
-                "description": "Τι χρεώνει το ταμείο για το καλάθι με τις επιλογές που έχουν γίνει ως τώρα, υπολογισμένο από τη συνάρτηση που χρησιμοποιούν η δημιουργία παραγγελίας και το payment intent: τα προϊόντα, οι προσφορές, η παράδοση, η επιβάρυνση της μεθόδου πληρωμής, η έκπτωση πόντων και οι δωροκάρτες, και το οφειλόμενο ποσό. Μια γραμμή που εξαρτάται από επιλογή που δεν έκανε το αίτημα είναι null. Παραθέτει επίσης κάθε διαθέσιμο τρόπο παράδοσης και κάθε μέθοδο πληρωμής στην τιμή που θα χρεωνόταν αυτό το καλάθι. Στείλτε πίσω το ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: τότε δημιουργείται μόνο σε αυτό το σύνολο. Μια κοστολόγηση που ζητείται με ``X-Cart-Token`` είναι η τιμή του κατόχου του καλαθιού.",
+                "description": "Τι χρεώνει το ταμείο για το καλάθι με τις επιλογές που έχουν γίνει ως τώρα, υπολογισμένο από τη συνάρτηση που χρησιμοποιεί η δημιουργία παραγγελίας: τα προϊόντα, οι προσφορές, η παράδοση, η επιβάρυνση της μεθόδου πληρωμής, η έκπτωση πόντων και οι δωροκάρτες, και το οφειλόμενο ποσό. Μια γραμμή που εξαρτάται από επιλογή που δεν έκανε το αίτημα είναι null. Παραθέτει επίσης κάθε διαθέσιμο τρόπο παράδοσης και κάθε μέθοδο πληρωμής στην τιμή που θα χρεωνόταν αυτό το καλάθι. Στείλτε πίσω το ``expectedTotal`` κατά τη δημιουργία της παραγγελίας: τότε δημιουργείται μόνο σε αυτό το σύνολο. Μια κοστολόγηση που ζητείται με ``X-Cart-Token`` είναι η τιμή του κατόχου του καλαθιού.",
                 "summary": "Κοστολόγηση του συνόλου του καλαθιού στο ταμείο",
                 "parameters": [
                     {
@@ -31803,149 +31687,6 @@
                 }
             }
         },
-        "/api/v1/order/{id}/create_payment_intent": {
-            "post": {
-                "operationId": "createOrderPaymentIntent",
-                "description": "Δημιουργία payment intent για πληρωμές Stripe σε υπάρχουσα παραγγελία",
-                "summary": "Δημιουργία payment intent για παραγγελία",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    },
-                    {
-                        "in": "query",
-                        "name": "uuid",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
-                    }
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/ApiValidationError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/ApiError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/PaymentProviderError"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/CreatePaymentIntentResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "409": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/api/v1/order/{id}/invoice": {
             "get": {
                 "operationId": "retrieveOrderInvoice",
@@ -32384,149 +32125,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ReorderResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/api/v1/order/{id}/retry-payment": {
-            "post": {
-                "operationId": "retryOrderPayment",
-                "description": "Δημιουργία νέου Stripe PaymentIntent για παραγγελία της οποίας η προηγούμενη πληρωμή απέτυχε ή δεν ολοκληρώθηκε ποτέ, ώστε ο πελάτης να μπορεί να δοκιμάσει ξανά χωρίς να ξεκινήσει νέα παραγγελία.",
-                "summary": "Επανάληψη πληρωμής για αποτυχημένη ή εκκρεμή παραγγελία",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "required": true
-                    },
-                    {
-                        "in": "query",
-                        "name": "uuid",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
-                    }
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreatePaymentIntentRequestRequest"
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "cookieAuth": []
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/ApiValidationError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/ApiError"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/PaymentProviderError"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/CreatePaymentIntentResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "409": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -64732,7 +64330,7 @@
                                 },
                                 "gift": {
                                     "type": "boolean",
-                                    "description": "This code earns the gift listed in promotionGiftItems"
+                                    "description": "This code earns a gift the order ships with"
                                 },
                                 "rejection": {
                                     "type": "string",
@@ -64749,7 +64347,7 @@
                                         "discount_code_gift_unavailable",
                                         null
                                     ],
-                                    "description": "Why the engine refuses the attached code now; null while it applies"
+                                    "description": "Why the promotions refuse the attached code now; null while it applies"
                                 }
                             },
                             "required": [
@@ -64989,83 +64587,6 @@
                     "promotion",
                     "reason"
                 ]
-            },
-            "CartCreatePaymentIntentRequestRequest": {
-                "type": "object",
-                "description": "Request body for ``POST /api/v1/cart/create-payment-intent``.\n\n``shipping_kind`` is required so the view's shipping calculation\nfollows the same code path the order-create verification runs.\n``shipping_provider_code`` is required for ``pickup_point`` (the\ncarrier identity drives the locker quote + per-carrier threshold)\nbut **omitted for ``home_delivery``** — home delivery is\nprovider-agnostic in checkout per the frontend's\n``shared/shipping/index.ts::carrierForMethod`` contract, and the\nbackend resolves the active home-delivery provider at order\ncreation. Sending whatever the frontend has guarantees both calc\npaths agree.",
-                "properties": {
-                    "payWayId": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "ID της επιλεγμένης μεθόδου πληρωμής (πρέπει να είναι online Stripe)."
-                    },
-                    "shippingKind": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/CartCreatePaymentIntentRequestShippingKindEnum"
-                            }
-                        ],
-                        "description": "Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους έλεγχοι διαθεσιμότητας (οι θυρίδες ACS χρειάζονται συγχρονισμένους σταθμούς) και ο έλεγχος PICKUP_POINT του BoxNow.\n\n* `home_delivery` - home_delivery\n* `pickup_point` - pickup_point"
-                    },
-                    "shippingProviderCode": {
-                        "type": "string",
-                        "description": "Κωδικός μεταφορέα που αντιστοιχεί σε καταχωρημένο προσαρμογέα αποστολής (π.χ. 'acs', 'boxnow'). Απαιτείται για ``pickup_point``· παραλείψτε/αφήστε κενό για ``home_delivery`` (το backend χρησιμοποιεί τη γενική πάγια χρέωση, αντίστοιχη με αυτή που θα υπολογίσει η επαλήθευση δημιουργίας παραγγελίας για το ίδιο αίτημα).",
-                        "maxLength": 32
-                    },
-                    "countryId": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "Κωδικός χώρας ISO 3166-1 alpha-2 — υποχρεωτικός, επειδή η τιμή αποστολής (``ShippingRate``) ορίζεται ανά χώρα και χωρίς προορισμό δεν τιμολογείται καμία επιλογή. Πρέπει να συμφωνεί με τη χώρα του αιτήματος δημιουργίας παραγγελίας.",
-                        "maxLength": 2
-                    },
-                    "regionId": {
-                        "type": "string",
-                        "description": "Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.",
-                        "maxLength": 16
-                    },
-                    "email": {
-                        "description": "Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.",
-                        "oneOf": [
-                            {
-                                "type": "string",
-                                "format": "email"
-                            },
-                            {
-                                "type": "string",
-                                "maxLength": 0
-                            }
-                        ]
-                    },
-                    "giftCardCodes": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 32
-                        },
-                        "description": "Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.",
-                        "maxItems": 3
-                    },
-                    "loyaltyPointsToRedeem": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "nullable": true,
-                        "description": "Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα."
-                    }
-                },
-                "required": [
-                    "countryId",
-                    "payWayId",
-                    "shippingKind"
-                ]
-            },
-            "CartCreatePaymentIntentRequestShippingKindEnum": {
-                "enum": [
-                    "home_delivery",
-                    "pickup_point"
-                ],
-                "type": "string",
-                "description": "* `home_delivery` - home_delivery\n* `pickup_point` - pickup_point"
             },
             "CartItem": {
                 "type": "object",
@@ -65431,44 +64952,18 @@
                     }
                 }
             },
-            "CartPaymentIntentResponse": {
-                "type": "object",
-                "description": "Response body returned by the create-payment-intent cart action.",
-                "properties": {
-                    "clientSecret": {
-                        "type": "string",
-                        "description": "Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend"
-                    },
-                    "paymentIntentId": {
-                        "type": "string",
-                        "description": "ID του Stripe PaymentIntent προς αποθήκευση στην παραγγελία"
-                    },
-                    "amount": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 10000000000,
-                        "minimum": -10000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "description": "Συνολικό ποσό χρέωσης (καλάθι + αποστολή + έξοδα πληρωμής)"
-                    },
-                    "currency": {
-                        "type": "string",
-                        "description": "Κωδικός νομίσματος ISO 4217 (π.χ. EUR)",
-                        "maxLength": 3
-                    }
-                },
-                "required": [
-                    "amount",
-                    "clientSecret",
-                    "currency",
-                    "paymentIntentId"
-                ]
-            },
             "CartQuote": {
                 "type": "object",
                 "description": "The body of ``POST /cart/quote``: the quote, and what each\ndelivery and pay way on offer would cost this cart.",
                 "properties": {
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteLine"
+                        },
+                        "readOnly": true,
+                        "description": "Οι γραμμές του καλαθιού που τιμολόγησε η προσφορά τιμής, από την ίδια ανάγνωση με το itemsSubtotal και το cartDigest: ό,τι καλύπτει το digest από την καθεμία (προϊόν, ποσότητα, τιμή μονάδας, χρήματα προωθήσεων), με το όνομα και την εικόνα του προϊόντος."
+                    },
                     "itemsSubtotal": {
                         "type": "number",
                         "format": "double",
@@ -65493,6 +64988,55 @@
                             "$ref": "#/components/schemas/QuoteAppliedPromotion"
                         },
                         "description": "Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal."
+                    },
+                    "appliedCoupons": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "amount": {
+                                    "type": "number",
+                                    "description": "Money this code takes off; 0 when its benefit is not money, or it is refused"
+                                },
+                                "freeShipping": {
+                                    "type": "boolean",
+                                    "description": "This code waives shipping"
+                                },
+                                "gift": {
+                                    "type": "boolean",
+                                    "description": "This code earns a gift the order ships with"
+                                },
+                                "rejection": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "enum": [
+                                        "discount_code_invalid",
+                                        "discount_code_expired",
+                                        "discount_code_not_started",
+                                        "discount_code_minimum_not_met",
+                                        "discount_code_usage_limit_reached",
+                                        "discount_code_combination_disallowed",
+                                        "discount_code_user_ineligible",
+                                        "discount_code_not_applicable",
+                                        "discount_code_gift_unavailable",
+                                        null
+                                    ],
+                                    "description": "Why the promotions refuse the attached code now; null while it applies"
+                                }
+                            },
+                            "required": [
+                                "code",
+                                "amount",
+                                "freeShipping",
+                                "gift",
+                                "rejection"
+                            ]
+                        },
+                        "readOnly": true,
+                        "description": "Η κρίση για κάθε κωδικό κουπονιού που είναι συνδεδεμένος με το καλάθι, όπως την αποφάσισαν οι προωθήσεις αυτής της προσφοράς τιμής."
                     },
                     "blockingCoupon": {
                         "allOf": [
@@ -65605,6 +65149,7 @@
                 },
                 "required": [
                     "amountDue",
+                    "appliedCoupons",
                     "appliedPromotions",
                     "blockingCoupon",
                     "cartDigest",
@@ -65615,6 +65160,7 @@
                     "giftCardAmount",
                     "grandTotal",
                     "itemsSubtotal",
+                    "lines",
                     "loyaltyDiscount",
                     "payWays",
                     "paymentMethodFee",
@@ -65624,7 +65170,7 @@
             },
             "CartQuoteRequestRequest": {
                 "type": "object",
-                "description": "Request body for ``POST /api/v1/cart/quote``.\n\nThe choices of the payment-intent body, each optional: a quote may\nbe asked before the shopper has chosen a delivery or a pay way, and\nthe rows that depend on a missing choice come back null. A delivery\nis priced once both ``shipping_kind`` and ``country_id`` are given.\nSend what the order-create body will carry, the email and the pickup\npoint included, so the quote is the total that order is created at\nand its ``cartDigest`` the cart that order is made of.",
+                "description": "Request body for ``POST /api/v1/cart/quote``.\n\nThe checkout's choices, each optional: a quote may be asked before\nthe shopper has chosen a delivery or a pay way, and the rows that\ndepend on a missing choice come back null. A delivery is priced once\nboth ``shipping_kind`` and ``country_id`` are given. Send what the\norder-create body will carry, the email and the pickup point\nincluded, so the quote is the total that order is created at and its\n``cartDigest`` the cart that order is made of.",
                 "properties": {
                     "boxnowLockerId": {
                         "type": "string",
@@ -65671,7 +65217,7 @@
                         "maxLength": 16
                     },
                     "email": {
-                        "description": "Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.",
+                        "description": "Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η δημιουργία της παραγγελίας, ώστε η κοστολόγηση να είναι το σύνολο στο οποίο δημιουργείται η παραγγελία.",
                         "oneOf": [
                             {
                                 "type": "string",
@@ -65690,14 +65236,14 @@
                             "minLength": 1,
                             "maxLength": 32
                         },
-                        "description": "Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.",
+                        "description": "Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής· το οφειλόμενο ποσό είναι ό,τι απομένει αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.",
                         "maxItems": 3
                     },
                     "loyaltyPointsToRedeem": {
                         "type": "integer",
                         "minimum": 0,
                         "nullable": true,
-                        "description": "Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα."
+                        "description": "Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας· από το οφειλόμενο ποσό αφαιρείται η έκπτωση που προκύπτει. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα."
                     }
                 }
             },
@@ -65705,6 +65251,14 @@
                 "type": "object",
                 "description": "What checkout charges for a cart, row by row.\n\nA row that depends on a choice the request did not make is null,\nnever guessed: ``shipping`` without a delivery, ``paymentMethodFee``\nwithout a pay way, and ``giftCardAmount``, ``grandTotal``,\n``amountDue`` and ``expectedTotal`` without both.",
                 "properties": {
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteLine"
+                        },
+                        "readOnly": true,
+                        "description": "Οι γραμμές του καλαθιού που τιμολόγησε η προσφορά τιμής, από την ίδια ανάγνωση με το itemsSubtotal και το cartDigest: ό,τι καλύπτει το digest από την καθεμία (προϊόν, ποσότητα, τιμή μονάδας, χρήματα προωθήσεων), με το όνομα και την εικόνα του προϊόντος."
+                    },
                     "itemsSubtotal": {
                         "type": "number",
                         "format": "double",
@@ -65729,6 +65283,55 @@
                             "$ref": "#/components/schemas/QuoteAppliedPromotion"
                         },
                         "description": "Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal."
+                    },
+                    "appliedCoupons": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "amount": {
+                                    "type": "number",
+                                    "description": "Money this code takes off; 0 when its benefit is not money, or it is refused"
+                                },
+                                "freeShipping": {
+                                    "type": "boolean",
+                                    "description": "This code waives shipping"
+                                },
+                                "gift": {
+                                    "type": "boolean",
+                                    "description": "This code earns a gift the order ships with"
+                                },
+                                "rejection": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "enum": [
+                                        "discount_code_invalid",
+                                        "discount_code_expired",
+                                        "discount_code_not_started",
+                                        "discount_code_minimum_not_met",
+                                        "discount_code_usage_limit_reached",
+                                        "discount_code_combination_disallowed",
+                                        "discount_code_user_ineligible",
+                                        "discount_code_not_applicable",
+                                        "discount_code_gift_unavailable",
+                                        null
+                                    ],
+                                    "description": "Why the promotions refuse the attached code now; null while it applies"
+                                }
+                            },
+                            "required": [
+                                "code",
+                                "amount",
+                                "freeShipping",
+                                "gift",
+                                "rejection"
+                            ]
+                        },
+                        "readOnly": true,
+                        "description": "Η κρίση για κάθε κωδικό κουπονιού που είναι συνδεδεμένος με το καλάθι, όπως την αποφάσισαν οι προωθήσεις αυτής της προσφοράς τιμής."
                     },
                     "blockingCoupon": {
                         "allOf": [
@@ -65824,6 +65427,7 @@
                 },
                 "required": [
                     "amountDue",
+                    "appliedCoupons",
                     "appliedPromotions",
                     "blockingCoupon",
                     "cartDigest",
@@ -65834,6 +65438,7 @@
                     "giftCardAmount",
                     "grandTotal",
                     "itemsSubtotal",
+                    "lines",
                     "loyaltyDiscount",
                     "paymentMethodFee",
                     "shipping"
@@ -66803,92 +66408,6 @@
                     "expiresAt",
                     "provider",
                     "sessionId",
-                    "status"
-                ]
-            },
-            "CreatePaymentIntentRequestRequest": {
-                "type": "object",
-                "description": "Request body for ``create_payment_intent`` and ``retry_payment``.\n\nThe three named fields are declared because both views read them off\n``validated_data`` — undeclared, DRF dropped them and the branches\nthat copy them into ``payment_data`` could never fire.",
-                "properties": {
-                    "paymentData": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 500
-                        },
-                        "description": "Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών"
-                    },
-                    "paymentMethodId": {
-                        "type": "string",
-                        "description": "ID μεθόδου πληρωμής του παρόχου προς χρέωση",
-                        "maxLength": 255
-                    },
-                    "customerId": {
-                        "type": "string",
-                        "description": "ID πελάτη του παρόχου στον οποίο θα συνδεθεί η πληρωμή",
-                        "maxLength": 255
-                    },
-                    "returnUrl": {
-                        "description": "Πού πρέπει ο πάροχος να επιστρέψει τον πελάτη",
-                        "oneOf": [
-                            {
-                                "type": "string",
-                                "format": "uri",
-                                "maxLength": 500
-                            },
-                            {
-                                "type": "string",
-                                "maxLength": 0
-                            }
-                        ]
-                    }
-                }
-            },
-            "CreatePaymentIntentResponse": {
-                "type": "object",
-                "properties": {
-                    "paymentId": {
-                        "type": "string",
-                        "description": "ID payment intent από τον πάροχο πληρωμών"
-                    },
-                    "status": {
-                        "type": "string",
-                        "description": "Κατάσταση πληρωμής"
-                    },
-                    "amount": {
-                        "type": "string",
-                        "description": "Ποσό πληρωμής"
-                    },
-                    "currency": {
-                        "type": "string",
-                        "description": "Νόμισμα πληρωμής"
-                    },
-                    "provider": {
-                        "type": "string",
-                        "description": "Όνομα παρόχου πληρωμών"
-                    },
-                    "clientSecret": {
-                        "type": "string",
-                        "description": "Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend"
-                    },
-                    "requiresAction": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Αν η πληρωμή απαιτεί επιπλέον ενέργεια (3D Secure κ.λπ.)"
-                    },
-                    "nextAction": {
-                        "type": "object",
-                        "additionalProperties": {},
-                        "nullable": true,
-                        "description": "Επόμενη ενέργεια που απαιτείται για την ολοκλήρωση της πληρωμής"
-                    }
-                },
-                "required": [
-                    "amount",
-                    "currency",
-                    "paymentId",
-                    "provider",
                     "status"
                 ]
             },
@@ -69401,7 +68920,7 @@
                                 "$ref": "#/components/schemas/OrderCreateErrorType"
                             }
                         ],
-                        "description": "Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.\n\n* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής\n* `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής"
+                        "description": "Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.\n\n* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο"
                     },
                     "productId": {
                         "type": "integer",
@@ -69444,18 +68963,14 @@
                     "invalid_order_data",
                     "invalid_coupon",
                     "invalid_gift_card",
-                    "legal_document_unavailable",
-                    "payment_not_found",
-                    "payment_verification",
-                    "payment_amount_mismatch",
-                    "payment_currency_mismatch"
+                    "legal_document_unavailable"
                 ],
                 "type": "string",
-                "description": "* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής\n* `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής"
+                "description": "* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο"
             },
             "OrderCreateFromCartRequest": {
                 "type": "object",
-                "description": "Serializer for creating orders from cart (dual-flow payment architecture).\n\nThe flow follows the pay way's ``settlement``:\n1. ``online``: the shopper pays at checkout. A client-confirmed\n   provider (Stripe) takes ``payment_intent_id`` for the balance\n   left after deductions (gift cards, promotions, loyalty points);\n   without one the order is created order-first, which succeeds only\n   when the deductions cover the whole total, so no provider charge\n   is made. A hosted-checkout provider (Viva) creates the order\n   first and redirects.\n2. Any other settlement (courier cash, carrier terminal, offline\n   transfer): money is collected later, no ``payment_intent_id``.\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
+                "description": "Serializer for creating orders from cart.\n\nEvery pay way creates the order before any payment, whatever its\n``settlement``:\n1. ``online``: the shopper pays the balance left after deductions\n   (gift cards, promotions, loyalty points) afterwards, on the\n   provider's hosted page (Viva Wallet, Stripe). Deductions that\n   cover the whole total settle the order at once, with no provider\n   charge.\n2. Any other settlement (courier cash, carrier terminal, offline\n   transfer): money is collected later.\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
                 "properties": {
                     "boxnowLockerId": {
                         "type": "string",
@@ -69475,11 +68990,6 @@
                     "payWayId": {
                         "type": "integer",
                         "description": "ID μεθόδου πληρωμής"
-                    },
-                    "paymentIntentId": {
-                        "type": "string",
-                        "nullable": true,
-                        "description": "ID payment intent από τον πάροχο πληρωμών (υποχρεωτικό για online πληρωμές)"
                     },
                     "firstName": {
                         "type": "string",
@@ -69630,7 +69140,7 @@
                             "minLength": 1,
                             "maxLength": 32
                         },
-                        "description": "Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.",
+                        "description": "Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, η παραγγελία εξοφλείται αμέσως και δεν γίνεται καμία χρέωση από τον πάροχο.",
                         "maxItems": 3
                     },
                     "shippingProviderCode": {
@@ -74748,7 +74258,7 @@
                     },
                     "code": {
                         "type": "string",
-                        "description": "Σταθερός κωδικός σφάλματος: ``payment_intent_failed``, ``checkout_session_failed`` ή ``delegated_charge_failed``."
+                        "description": "Σταθερός κωδικός σφάλματος: ``checkout_session_failed`` ή ``delegated_charge_failed``."
                     },
                     "error": {
                         "type": "object",
@@ -79992,6 +79502,68 @@
                 "required": [
                     "code",
                     "reason"
+                ]
+            },
+            "QuoteLine": {
+                "type": "object",
+                "description": "One cart line as the quote priced it (``QuoteLine``).",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Το στοιχείο του καλαθιού που είναι η γραμμή."
+                    },
+                    "productId": {
+                        "type": "integer"
+                    },
+                    "productName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Το όνομα του προϊόντος στη γλώσσα του αιτήματος."
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "description": "Η διαδρομή αποθήκευσης της κύριας εικόνας του προϊόντος· κενή χωρίς εικόνα."
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "unitPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "Η τιμή ανά μονάδα που πληρώνει ο αγοραστής, πριν από τις προωθήσεις."
+                    },
+                    "totalPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "quantity μονάδες στην unitPrice, πριν από τις προωθήσεις."
+                    },
+                    "promotionDiscount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "Το μέρος του discountTotal που φέρει αυτή η γραμμή· τα ποσά των γραμμών αθροίζουν σε αυτό."
+                    }
+                },
+                "required": [
+                    "id",
+                    "mainImagePath",
+                    "productId",
+                    "productName",
+                    "promotionDiscount",
+                    "quantity",
+                    "totalPrice",
+                    "unitPrice"
                 ]
             },
             "QuotePayWayOption": {
