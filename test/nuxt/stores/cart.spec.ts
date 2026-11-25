@@ -495,7 +495,7 @@ describe('Cart Store', () => {
     })
 
     it('carries the suggestion-strip impression the product was reached from', async () => {
-      useRecommendationAttribution().remember(1, IMPRESSION)
+      useRecommendationAttribution().remember(1, Promise.resolve(IMPRESSION))
       api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 1, quantity: 1 })
@@ -505,7 +505,7 @@ describe('Cart Store', () => {
     })
 
     it('carries the impression once — a second add of the product goes plain', async () => {
-      useRecommendationAttribution().remember(1, IMPRESSION)
+      useRecommendationAttribution().remember(1, Promise.resolve(IMPRESSION))
       api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 1, quantity: 1 })
@@ -518,7 +518,7 @@ describe('Cart Store', () => {
     })
 
     it('does not carry an impression remembered for another product', async () => {
-      useRecommendationAttribution().remember(2, IMPRESSION)
+      useRecommendationAttribution().remember(2, Promise.resolve(IMPRESSION))
       api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 1, quantity: 1 })
@@ -543,7 +543,7 @@ describe('Cart Store', () => {
 
     it('carries the impression of the line\'s product on a quantity bump', async () => {
       store.cart = twoLineCart()
-      useRecommendationAttribution().remember(1, IMPRESSION)
+      useRecommendationAttribution().remember(1, Promise.resolve(IMPRESSION))
       api.routes({ '/api/cart/items/*': twoLineCart({ quantity1: 3 }) })
 
       await store.updateCartItem(1, { quantity: 3 })
@@ -743,7 +743,7 @@ describe('Cart Store', () => {
     it('counts a line the cart did not hold yet from zero, with no impression', async () => {
       // The local cart is stale: line 5 exists only on the server.
       store.cart = twoLineCart()
-      useRecommendationAttribution().remember(5, IMPRESSION)
+      useRecommendationAttribution().remember(5, Promise.resolve(IMPRESSION))
       api.routes({
         '/api/cart/items/*': makeCart({ items: [{ id: 5, quantity: 3, product: { id: 5, price: 10, vatPercent: 0 } }] }),
       })

@@ -76,7 +76,7 @@ describe('useRecommendationTracking', () => {
         keepalive: true,
       }),
     })
-    expect(useRecommendationAttribution().take(8)).toBe(SHOWING)
+    expect(await useRecommendationAttribution().take(8)).toBe(SHOWING)
   })
 
   it('reports no click for a showing whose impression was not recorded', async () => {
@@ -87,7 +87,26 @@ describe('useRecommendationTracking', () => {
     await trackClick(item(7, 'curated'), 0)
 
     expect(api.callsTo(ENDPOINT)).toHaveLength(1)
-    expect(useRecommendationAttribution().take(7)).toBeUndefined()
+    expect(await useRecommendationAttribution().take(7)).toBeUndefined()
+  })
+
+  it('gives the add-to-cart of a click made before the impression answered the showing it came from', async () => {
+    let answer: (body: unknown) => void = () => {}
+    api.routes({ [ENDPOINT]: () => new Promise((resolve) => {
+      answer = resolve
+    }) })
+    const { trackImpression, trackClick } = useRecommendationTracking('pdp', 42)
+    trackImpression([item(7, 'curated')])
+
+    const clicked = trackClick(item(7, 'curated'), 0)
+    const taken = useRecommendationAttribution().take(7)
+    answer(recordedAs(SHOWING)())
+
+    expect(await taken).toBe(SHOWING)
+    answer(recordedAs(SHOWING)())
+    await clicked
+    // Consumed: nothing is left for a later add.
+    expect(await useRecommendationAttribution().take(7)).toBeUndefined()
   })
 
   it('gives each strip on the page a showing of its own', async () => {
@@ -129,7 +148,7 @@ describe('useRecommendationTracking', () => {
       },
     }), { route: false })
 
-    it('reports once the answer arrives after mount, and only once', async () => {
+    it('reports once the answer arrives after mount, and again only for another showing', async () => {
       const data = ref<ReturnType<typeof response> | null>(null)
       await mountStrip(data)
       expect(api.callsTo(ENDPOINT)).toEqual([])
@@ -140,11 +159,15 @@ describe('useRecommendationTracking', () => {
 
       data.value = response([item(7, 'curated')])
       await nextTick()
-      data.value = response([item(8, 'popular')])
+      data.value = response([item(7, 'curated')])
       await nextTick()
 
       const calls = api.callsTo(ENDPOINT)
       expect(calls).toHaveLength(1)
+
+      data.value = response([item(8, 'popular')])
+      await nextTick()
+      expect(api.callsTo(ENDPOINT)).toHaveLength(2)
       expect(calls[0]!.options.body).toMatchObject({ kind: 'impression', seedId: 42 })
       // The showing's id is Django's to mint: an impression carries none.
       expect(calls[0]!.options.body).not.toHaveProperty('impressionId')

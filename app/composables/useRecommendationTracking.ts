@@ -50,8 +50,9 @@ export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number)
   }
 
   /**
-   * Report the strip's impression once, the first time it is mounted
-   * with something in it. A server-rendered strip has its answer in the
+   * Report an impression for what the strip shows: once it is mounted with
+   * something in it, and again when what it shows changes (the cart's strip
+   * answers for another basket), which is another showing. A server-rendered strip has its answer in the
    * payload when it mounts — under `hydrate-on-visible`, when it
    * scrolls into view. A strip created by a client-side navigation
    * mounts at once (lazy hydration only delays hydrating server markup)
@@ -59,11 +60,12 @@ export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number)
    * one of those. Call from the strip's setup.
    */
   const trackImpressionWhenShown = (response: Ref<ApiV1RecommendationsRetrieveResponse | null>) => {
-    let reported = false
+    let reported = ''
     onMounted(() => {
       watch(response, (value) => {
-        if (reported || !value || value.items.length === 0) return
-        reported = true
+        const shown = value?.items.map(item => item.product.id).join() ?? ''
+        if (!value || !shown || shown === reported) return
+        reported = shown
         trackImpression(value.items)
       }, { immediate: true })
     })
@@ -75,11 +77,12 @@ export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number)
    * has no id to name, and its click is not reported.
    */
   const trackClick = async (item: RecommendationItem, position: number) => {
+    // The add-to-cart that follows this click carries the impression
+    // to the backend — the exact, identity-free attach path. Before the
+    // wait: that add-to-cart may be this very click's.
+    remember(item.product.id, showing)
     const impressionId = await showing
     if (!impressionId) return
-    // The add-to-cart that follows this click carries the impression
-    // to the backend — the exact, identity-free attach path.
-    remember(item.product.id, impressionId)
     await post('click', [{
       productId: item.product.id,
       strategy: item.reason.strategy,
