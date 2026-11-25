@@ -443,8 +443,8 @@ importers:
         specifier: 25.0.9
         version: 25.0.9(supports-color@10.2.2)(typescript@6.0.3)
       site-config-stack:
-        specifier: 5.1.0
-        version: 5.1.0(vue@3.5.46(typescript@6.0.3))
+        specifier: 5.0.4
+        version: 5.0.4(vue@3.5.46(typescript@6.0.3))
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -7968,12 +7968,6 @@ packages:
 
   site-config-stack@5.0.4:
     resolution: {integrity: sha512-ruU89qgPoMlBEUogPzU5CO1p6kazyjq4k8N4fb+yfXp31QKwvJsEetw9FuRvIAXCpuPLhfQX9w8H+I06X5XHOQ==}
-    engines: {node: ^22.22.3 || ^24.15.0 || >=26.0.0}
-    peerDependencies:
-      vue: ^3.5.43
-
-  site-config-stack@5.1.0:
-    resolution: {integrity: sha512-y9866QH9EtrDMh3mywPLzNKMHT40WnzRzSdf+36s0PRPJOL3kTz6ZgLmSaBrp3L4URCuKS83jm6AXJ1OwBHs5A==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0.0}
     peerDependencies:
       vue: ^3.5.43
@@ -16034,7 +16028,7 @@ snapshots:
       nuxtseo-shared: 6.0.5(@nuxt/schema@4.7.0)(confbox@0.3.2)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.5)(mlly@1.8.2)(nuxt-site-config@5.0.4(@nuxt/schema@4.7.0)(confbox@0.3.2)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.5)(mlly@1.8.2)(nuxt@4.7.0(2a11f27f37055474cec11b9d12d0b732))(oxc-parser@0.155.0)(rolldown@1.2.19)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.19)(rollup@4.68.8)(vite@8.3.8))(vue@3.5.46(typescript@6.0.3))(zod@4.6.7))(nuxt@4.7.0(2a11f27f37055474cec11b9d12d0b732))(oxc-parser@0.155.0)(rolldown@1.2.19)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.19)(rollup@4.68.8)(vite@8.3.8))(vue@3.5.46(typescript@6.0.3))(zod@4.6.7)
       ohash: 2.0.12
       pathe: 2.0.3
-      site-config-stack: 5.1.0(vue@3.5.46(typescript@6.0.3))
+      site-config-stack: 5.0.4(vue@3.5.46(typescript@6.0.3))
       sitemapd: 0.2.3
       ufo: 1.6.4
       yaml: 2.9.1
@@ -16096,7 +16090,7 @@ snapshots:
       ofetch: 1.5.1
       pathe: 2.0.3
       radix3: 1.1.2
-      site-config-stack: 5.1.0(vue@3.5.46(typescript@6.0.3))
+      site-config-stack: 5.0.4(vue@3.5.46(typescript@6.0.3))
       ufo: 1.6.4
       ultrahtml: 1.7.0
       unstorage: 1.17.6(db0@0.3.4(better-sqlite3@13.0.3))(ioredis@5.11.1(supports-color@10.2.2))
@@ -17476,11 +17470,6 @@ snapshots:
   sisteransi@1.0.5: {}
 
   site-config-stack@5.0.4(vue@3.5.46(typescript@6.0.3)):
-    dependencies:
-      ufo: 1.6.4
-      vue: 3.5.46(typescript@6.0.3)
-
-  site-config-stack@5.1.0(vue@3.5.46(typescript@6.0.3)):
     dependencies:
       ufo: 1.6.4
       vue: 3.5.46(typescript@6.0.3)

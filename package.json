@@ -121,7 +121,7 @@
     "happy-dom": "21.0.4",
     "hookable": "5.5.3",
     "semantic-release": "25.0.9",
-    "site-config-stack": "5.1.0",
+    "site-config-stack": "5.0.4",
     "typescript": "6.0.3",
     "undici": "8.13.1",
     "unimport": "7.0.3",
