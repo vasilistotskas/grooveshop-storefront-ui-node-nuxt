@@ -86,6 +86,16 @@ describe.each(trees(ReauthenticateByCodeConfirm, WebsideReauthenticateByCodeConf
     expect(digits).toBe('')
   })
 
+  it('does not call the code wrong when the request itself failed', async () => {
+    confirmReauthenticationCode.mockRejectedValue(Object.assign(new Error('Too Many Requests'), { statusCode: 429 }))
+    const wrapper = await mountPage()
+
+    await typeCode(wrapper, '123456')
+
+    expect(wrapper.text()).not.toContain(COPY.error.title)
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'warning' }))
+  })
+
   it('sends the shopper back to ask for a code when none is waiting, keeping next', async () => {
     confirmReauthenticationCode.mockRejectedValue(conflict())
     const wrapper = await mountPage()

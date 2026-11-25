@@ -57,6 +57,12 @@ export function isConflictClientError(error: unknown): boolean {
     && isConflictResponseError(error.data)
 }
 
+/** allauth's 400: it read what was sent and refused it (a wrong or expired code). */
+export function isBadResponseClientError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'data' in error
+    && isBadResponseError(error.data)
+}
+
 export const handleAllAuthClientError = (error: unknown): void => {
   const { t, te } = useNuxtApp().$i18n
 

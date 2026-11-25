@@ -64,7 +64,9 @@ export function useEmailCodeReauthentication() {
         await router.push(stepRoute('account-reauthenticate-code'))
         return false
       }
-      hasError.value = true
+      // The page's alert is about the code: a refused request (throttled, no
+      // answer) is the toast's alone.
+      hasError.value = isBadResponseClientError(error)
       handleAllAuthClientError(error)
       return false
     }
