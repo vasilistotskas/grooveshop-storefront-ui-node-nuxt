@@ -5,6 +5,10 @@ export const useTenantStore = defineStore('tenant', () => {
 
   const schemaName = computed(() => config.value?.schemaName ?? '')
   const storeName = computed(() => config.value?.storeName ?? '')
+  // The name the store's site goes by (`storeSiteName`), as its site
+  // config carries it: a page renders only for a resolved store
+  // (server/middleware/0.tenant.ts answers 404 "Store not found").
+  const siteName = computed(() => config.value ? storeSiteName(config.value) : '')
   const primaryDomain = computed(() => config.value?.primaryDomain ?? '')
   const apiDomain = computed(() => config.value?.apiDomain ?? '')
   const assetsDomain = computed(() => config.value?.assetsDomain ?? '')
@@ -126,6 +130,7 @@ export const useTenantStore = defineStore('tenant', () => {
     bingSiteVerification,
     schemaName,
     storeName,
+    siteName,
     primaryDomain,
     apiDomain,
     assetsDomain,

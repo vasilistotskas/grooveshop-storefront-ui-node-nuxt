@@ -22,8 +22,7 @@ interface ProductSchemaInput {
   /** The canonical product URL. */
   url: string
   imageUrls: string[]
-  /** The site config's name: nuxt-site-config types it as optional. */
-  storeName: string | undefined
+  storeName: string
   currency: string
   /** The category trail by name ("Φόρτιση > Power banks"), when known. */
   category?: string
@@ -69,17 +68,12 @@ function weightOf(weight: SchemaProduct['weight']) {
  * A variant's group, as Google's multi-page pattern has it: every variant
  * page repeats the group, and the variants on other pages are their URLs.
  */
-/** The Brand node, left out when neither the product nor the store has a name for it. */
-function brandNode(brand: string | undefined) {
-  return brand ? { '@type': 'Brand' as const, 'name': brand } : undefined
-}
-
-function productGroup(group: ProductGroupSchema, brand: string | undefined) {
+function productGroup(group: ProductGroupSchema, brand: string) {
   return {
     '@type': 'ProductGroup' as const,
     'name': group.name,
     'productGroupID': String(group.id),
-    'brand': brandNode(brand),
+    'brand': { '@type': 'Brand' as const, 'name': brand },
     'variesBy': group.variesBy.length > 0 ? group.variesBy : undefined,
     'hasVariant': group.variantPaths.map(url => ({ url })),
   }
@@ -122,7 +116,10 @@ export function productSchemaOrg(input: ProductSchemaInput) {
     image: input.imageUrls.length > 0 ? input.imageUrls : undefined,
     url: input.url,
     category: input.category || undefined,
-    brand: brandNode(brand),
+    brand: {
+      '@type': 'Brand' as const,
+      'name': brand,
+    },
     ...Object.fromEntries(properties.map(attribute => [attribute.schemaProperty, attribute.value])),
     isVariantOf: input.variantGroup ? productGroup(input.variantGroup, brand) : undefined,
     weight: weightOf(product.weight),
@@ -155,10 +152,10 @@ export function productSchemaOrg(input: ProductSchemaInput) {
       'availability': availability(product.stock ?? 0),
       'itemCondition': 'https://schema.org/NewCondition',
       'url': input.url,
-      // No seller node without a name to give it.
-      'seller': input.storeName
-        ? { '@type': 'Organization' as const, 'name': input.storeName }
-        : undefined,
+      'seller': {
+        '@type': 'Organization' as const,
+        'name': input.storeName,
+      },
     },
     aggregateRating: reviews && product.reviewCount > 0
       ? {
