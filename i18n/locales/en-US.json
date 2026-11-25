@@ -314,7 +314,9 @@
   "product_assurances": {
     "label": "Delivery, payment and returns",
     "delivery_range": "Delivery in {min}–{max} business days after dispatch",
+    "delivery_range_in": "Delivery in {min}–{max} business days after dispatch, to {regions}",
     "delivery_days": "Delivery in {count} business day after dispatch | Delivery in {count} business days after dispatch",
+    "delivery_days_in": "Delivery in {count} business day after dispatch, to {regions} | Delivery in {count} business days after dispatch, to {regions}",
     "shipping_from": "Shipping from {price}",
     "shipping_from_free_over": "Shipping from {price} · free over {amount}",
     "ships_free": "Free shipping",
@@ -325,10 +327,13 @@
   },
   "store_assurances": {
     "delivery_range": "Delivered in {min}–{max} business days",
+    "delivery_range_in": "Delivered in {min}–{max} business days to {regions}",
     "delivery_days": "Delivered in {count} business day | Delivered in {count} business days",
+    "delivery_days_in": "Delivered in {count} business day to {regions} | Delivered in {count} business days to {regions}",
     "dispatch_cutoff": "Orders placed by {time} leave the same business day",
     "free_shipping_from": "Free shipping from {amount}",
     "carrier_price": "{carrier} {price}",
+    "carrier_price_in": "{carrier} {price} to {regions}",
     "returns": "{count}-day returns | {count}-day returns"
   },
   "tracking": {
@@ -502,9 +507,12 @@
   },
   "errors": {
     "codes": {
+      "country_not_served": "We do not deliver to this country.",
       "must_have_purchased": "You can only review products you have bought.",
       "order_not_payable": "This order can no longer be paid: it has already been paid or was closed.",
-      "payment_window_expired": "The time to pay for this order has run out. To buy these items, place a new order."
+      "payment_window_expired": "The time to pay for this order has run out. To buy these items, place a new order.",
+      "region_not_served": "We do not deliver to this region. Choose another region, or a pickup point where we offer one.",
+      "shipping_region_unavailable": "This delivery method does not reach your region. Choose another one."
     }
   },
   "maps": {

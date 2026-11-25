@@ -1,28 +1,13 @@
 import { describe, expect, it } from 'vitest'
+import { makeShippingPolicyRow } from '~~/test/fixtures/shippingPolicy'
 import { merchantReturnPolicySchema, returnFees, returnWindowDays, shippingServicesSchema } from '~/utils/organizationPolicies'
-
-function entry(overrides: Partial<ShippingPolicyEntry> = {}): ShippingPolicyEntry {
-  return {
-    countryCode: 'GR',
-    kind: 'home_delivery',
-    providerCode: 'acs',
-    providerName: 'ACS Courier',
-    price: 2.99,
-    currency: 'EUR',
-    freeShippingThreshold: null,
-    deliveryDaysMin: null,
-    deliveryDaysMax: null,
-    maxWeightGrams: null,
-    ...overrides,
-  }
-}
 
 describe('shippingServicesSchema', () => {
   it('is one service per carrier and kind, a locker as a collection point', () => {
     const services = shippingServicesSchema([
-      entry({ kind: 'home_delivery' }),
-      entry({ kind: 'pickup_point' }),
-      entry({ kind: 'pickup_point', providerCode: 'boxnow', providerName: 'BOX NOW', price: 1.99 }),
+      makeShippingPolicyRow({ kind: 'home_delivery' }),
+      makeShippingPolicyRow({ kind: 'pickup_point' }),
+      makeShippingPolicyRow({ kind: 'pickup_point', providerCode: 'boxnow', providerName: 'BOX NOW', price: 1.99 }),
     ])
 
     expect(services.map(s => [s.name, s.fulfillmentType])).toEqual([
@@ -34,8 +19,8 @@ describe('shippingServicesSchema', () => {
 
   it('prices each country, and a free-shipping threshold as a second, zero-rate condition', () => {
     const [service] = shippingServicesSchema([
-      entry({ countryCode: 'GR', freeShippingThreshold: 40 }),
-      entry({ countryCode: 'CY', price: 9.5 }),
+      makeShippingPolicyRow({ countryCode: 'GR', freeShippingThreshold: 40 }),
+      makeShippingPolicyRow({ countryCode: 'CY', price: 9.5 }),
     ])
 
     expect(service!.shippingConditions.map(c => [
@@ -51,15 +36,31 @@ describe('shippingServicesSchema', () => {
 
   it('states a transit time only from the delivery days the store recorded', () => {
     const [service] = shippingServicesSchema([
-      entry({ countryCode: 'GR', deliveryDaysMin: 1, deliveryDaysMax: 3 }),
-      entry({ countryCode: 'CY', deliveryDaysMin: null, deliveryDaysMax: 5 }),
-      entry({ countryCode: 'BG' }),
+      makeShippingPolicyRow({ countryCode: 'GR', deliveryDaysMin: 1, deliveryDaysMax: 3 }),
+      makeShippingPolicyRow({ countryCode: 'CY', deliveryDaysMin: null, deliveryDaysMax: 5 }),
+      makeShippingPolicyRow({ countryCode: 'BG' }),
     ])
 
     expect(service!.shippingConditions.map(c => c.transitTime?.duration)).toEqual([
       { '@type': 'QuantitativeValue', 'minValue': 1, 'maxValue': 3, 'unitCode': 'DAY' },
       { '@type': 'QuantitativeValue', 'minValue': 5, 'maxValue': 5, 'unitCode': 'DAY' },
       undefined,
+    ])
+  })
+
+  // A destination without `addressRegion` is the whole country, and Google
+  // reads regions only as ISO 3166-2 codes in three countries: a regional
+  // rate stated that way would promise its price everywhere.
+  it('states only the rows that cover a whole country', () => {
+    const services = shippingServicesSchema([
+      makeShippingPolicyRow({ kind: 'pickup_point', price: 1.99 }),
+      makeShippingPolicyRow({ price: 3.5, regionCodes: ['GR-I'] }),
+      makeShippingPolicyRow({ countryCode: 'CY', price: 9.5 }),
+    ])
+
+    expect(services.map(s => [s.fulfillmentType, s.shippingConditions.map(c => [c.shippingDestination.addressCountry, c.shippingRate.value])])).toEqual([
+      ['https://schema.org/FulfillmentTypeCollectionPoint', [['GR', 1.99]]],
+      ['https://schema.org/FulfillmentTypeDelivery', [['CY', 9.5]]],
     ])
   })
 

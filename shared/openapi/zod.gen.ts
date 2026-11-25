@@ -4628,7 +4628,11 @@ export const zShippingKind = z.enum(['home_delivery', 'pickup_point'])
  * both ``shipping_kind`` and ``country_id`` are given. Send what the
  * order-create body will carry, the email and the pickup point
  * included, so the quote is the total that order is created at and its
- * ``cartDigest`` the cart that order is made of.
+ * ``cartDigest`` the cart that order is made of. Send that
+ * ``cartDigest`` back as ``expectedCartDigest`` on ``POST /api/v1/order``:
+ * only then is the order refused when the cart changed since the quote
+ * (409 ``cart_changed``, nothing created), a change at the same total
+ * included.
  */
 export const zCartQuoteRequestRequest = z.object({
   boxnowLockerId: z.string().max(64).optional(),
@@ -4674,9 +4678,12 @@ export const zFreeShippingInfo = z.object({
  *
  * Every pay way creates the order before any payment, whatever its
  * ``settlement``:
- * 1. ``online``: the shopper pays the balance left after deductions
- * (gift cards, promotions, loyalty points) afterwards, on the
- * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * 1. ``online``: the balance left after deductions (gift cards,
+ * promotions, loyalty points) is paid afterwards. In storefront
+ * checkout the shopper pays it on the provider's hosted page (Viva
+ * Wallet, Stripe); an agent order with delegated Stripe payments is
+ * charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``
+ * (``confirmAgentPaymentForOrder``). Either way, deductions that
  * cover the whole total settle the order at once, with no provider
  * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
@@ -4865,6 +4872,7 @@ export const zShippingOption = z.object({
  */
 export const zShippingPolicyEntry = z.object({
   countryCode: z.string().max(2),
+  regionCodes: z.array(z.string()),
   kind: zShippingKind,
   providerCode: z.string(),
   providerName: z.string(),
@@ -6321,6 +6329,7 @@ export const zUserAddress = z.object({
   user: z.int().readonly(),
   country: z.string(),
   region: z.string().nullable(),
+  shippable: z.boolean().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -6363,6 +6372,7 @@ export const zUserAddressDetail = z.object({
   user: z.int().readonly(),
   country: z.string(),
   region: z.string().nullable(),
+  shippable: z.boolean().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -7671,9 +7681,12 @@ export const zNotificationUserDetailWritable = z.object({
  *
  * Every pay way creates the order before any payment, whatever its
  * ``settlement``:
- * 1. ``online``: the shopper pays the balance left after deductions
- * (gift cards, promotions, loyalty points) afterwards, on the
- * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * 1. ``online``: the balance left after deductions (gift cards,
+ * promotions, loyalty points) is paid afterwards. In storefront
+ * checkout the shopper pays it on the provider's hosted page (Viva
+ * Wallet, Stripe); an agent order with delegated Stripe payments is
+ * charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``
+ * (``confirmAgentPaymentForOrder``). Either way, deductions that
  * cover the whole total settle the order at once, with no provider
  * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
@@ -12922,6 +12935,13 @@ export const zListCountryQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  homeDelivery: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   isEu: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -13144,6 +13164,13 @@ export const zListAllCountriesQuery = z.object({
     z.boolean(),
   ]).optional(),
   hasPhoneCode: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  homeDelivery: z.union([
     z.literal('true'),
     z.literal('false'),
     z.literal('1'),
@@ -16687,6 +16714,13 @@ export const zListRegionQuery = z.object({
     'pageNumber',
   ]).optional().default('pageNumber'),
   search: z.string().optional(),
+  shippable: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -16771,6 +16805,13 @@ export const zListRegionsByCountryPath = z.object({
 
 export const zListRegionsByCountryQuery = z.object({
   languageCode: z.enum(['el', 'en']).optional().default('el'),
+  shippable: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
 })
 
 export const zListRegionsByCountryResponse = z.array(zRegion)
@@ -17035,6 +17076,7 @@ export const zListShippingOptionsQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  regionId: z.string().optional(),
   weightGrams: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),

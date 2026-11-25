@@ -13253,6 +13253,18 @@ paths:
               - type: boolean
           description: Φίλτρο χωρών με/χωρίς κωδικό κλήσης
         - in: query
+          name: homeDelivery
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: 'true: μόνο οι χώρες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του), οι χώρες όπου μπορεί να βρίσκεται μια αποθηκευμένη διεύθυνση· false: μόνο οι υπόλοιπες. Το shippable μετρά και τα σημεία παραλαβής. Στον host της πλατφόρμας το true δεν επιστρέφει καμία.'
+        - in: query
           name: isEu
           schema:
             oneOf:
@@ -14051,6 +14063,18 @@ paths:
                   - '0'
               - type: boolean
           description: Φίλτρο χωρών με/χωρίς κωδικό κλήσης
+        - in: query
+          name: homeDelivery
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: 'true: μόνο οι χώρες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του), οι χώρες όπου μπορεί να βρίσκεται μια αποθηκευμένη διεύθυνση· false: μόνο οι υπόλοιπες. Το shippable μετρά και τα σημεία παραλαβής. Στον host της πλατφόρμας το true δεν επιστρέφει καμία.'
         - in: query
           name: isEu
           schema:
@@ -27686,6 +27710,18 @@ paths:
           schema:
             type: string
         - in: query
+          name: shippable
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: 'true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.'
+        - in: query
           name: sortOrder
           schema:
             oneOf:
@@ -28122,6 +28158,18 @@ paths:
               - en
             default: el
           description: Κωδικός γλώσσας για μεταφράσεις (el, en)
+        - in: query
+          name: shippable
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: 'true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.'
       tags:
         - Geography
       security:
@@ -29229,7 +29277,7 @@ paths:
           name: countryCode
           schema:
             type: string
-          description: ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.
+          description: ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` belongs to a zone of one country.
           required: true
         - in: query
           name: currency
@@ -29244,6 +29292,11 @@ paths:
                 pattern: ^-?\d+(\.\d+)?$
               - type: number
           description: Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit.
+        - in: query
+          name: regionId
+          schema:
+            type: string
+          description: The delivery region's code, once chosen. A home delivery is priced by the shipping zone of the region; without one, by the zone covering the whole country.
         - in: query
           name: weightGrams
           schema:
@@ -38384,7 +38437,7 @@ components:
             countryCode:
               type: string
               nullable: true
-              description: 'The country the carriers'' thresholds were judged for: the store''s first shipping country, the one checkout preselects'
+              description: 'The country the carriers'' thresholds were judged for: the store''s first shipping country, the one checkout preselects, at the rates of its shipping zone covering the whole country, or of each region zone of a country served only in some regions (a cart knows no region; a region zone''s own threshold applies once checkout prices the address)'
           required:
             - free
             - source
@@ -39103,7 +39156,11 @@ components:
         both ``shipping_kind`` and ``country_id`` are given. Send what the
         order-create body will carry, the email and the pickup point
         included, so the quote is the total that order is created at and its
-        ``cartDigest`` the cart that order is made of.
+        ``cartDigest`` the cart that order is made of. Send that
+        ``cartDigest`` back as ``expectedCartDigest`` on ``POST /api/v1/order``:
+        only then is the order refused when the cart changed since the quote
+        (409 ``cart_changed``, nothing created), a change at the same total
+        included.
       properties:
         boxnowLockerId:
           type: string
@@ -40521,7 +40578,7 @@ components:
         countryCode:
           type: string
           nullable: true
-          description: Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
+          description: 'Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Τα όρια είναι της ζώνης αποστολής που καλύπτει ολόκληρη τη χώρα: το όριο μιας ζώνης περιοχών ισχύει μόλις η ολοκλήρωση αγοράς τιμολογήσει διεύθυνση σε αυτήν. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.'
           maxLength: 2
       required:
         - countryCode
@@ -42217,9 +42274,12 @@ components:
 
         Every pay way creates the order before any payment, whatever its
         ``settlement``:
-        1. ``online``: the shopper pays the balance left after deductions
-           (gift cards, promotions, loyalty points) afterwards, on the
-           provider's hosted page (Viva Wallet, Stripe). Deductions that
+        1. ``online``: the balance left after deductions (gift cards,
+           promotions, loyalty points) is paid afterwards. In storefront
+           checkout the shopper pays it on the provider's hosted page (Viva
+           Wallet, Stripe); an agent order with delegated Stripe payments is
+           charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``
+           (``confirmAgentPaymentForOrder``). Either way, deductions that
            cover the whole total settle the order at once, with no provider
            charge.
         2. Any other settlement (courier cash, carrier terminal, offline
@@ -51465,6 +51525,11 @@ components:
           type: string
           description: Χώρα προορισμού (ISO 3166-1 alpha-2).
           maxLength: 2
+        regionCodes:
+          type: array
+          items:
+            type: string
+          description: Οι περιοχές της χώρας στις οποίες ισχύει αυτή η γραμμή· κενό όταν ισχύει για ολόκληρη τη χώρα. Ένα κατάστημα που παραδίδει μόνο σε ορισμένες περιοχές μιας χώρας τις αναφέρει εδώ.
         kind:
           $ref: '#/components/schemas/ShippingKind'
         providerCode:
@@ -51478,7 +51543,7 @@ components:
           minimum: -1000000000
           exclusiveMaximum: true
           exclusiveMinimum: true
-          description: Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, χώρα, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι.
+          description: Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, ζώνη, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι.
         currency:
           type: string
           description: Νόμισμα των ``price`` και ``free_shipping_threshold``.
@@ -51515,6 +51580,7 @@ components:
         - price
         - providerCode
         - providerName
+        - regionCodes
     ShippingProvider:
       type: object
       properties:
@@ -53485,6 +53551,10 @@ components:
           type: string
           title: Κωδικός περιφέρειας
           nullable: true
+        shippable:
+          type: boolean
+          readOnly: true
+          description: Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
         createdAt:
           type: string
           format: date-time
@@ -53508,6 +53578,7 @@ components:
         - lastName
         - phone
         - region
+        - shippable
         - street
         - streetNumber
         - title
@@ -53583,6 +53654,10 @@ components:
           type: string
           title: Κωδικός περιφέρειας
           nullable: true
+        shippable:
+          type: boolean
+          readOnly: true
+          description: Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
         createdAt:
           type: string
           format: date-time
@@ -53606,6 +53681,7 @@ components:
         - lastName
         - phone
         - region
+        - shippable
         - street
         - streetNumber
         - title

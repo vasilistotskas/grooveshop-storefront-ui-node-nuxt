@@ -9,6 +9,9 @@
  * The component is fully controlled — state lives in ``useCheckoutForm``
  * so the parent Step 1 component can toggle its downstream form
  * sections based on the same selection.
+ *
+ * An address the store no longer delivers to at home (its shipping
+ * zones, ``shippable: false``) is listed, says so, and cannot be picked.
  */
 const props = defineProps<{
   addresses: UserAddressDetail[]
@@ -31,6 +34,8 @@ type Item = {
   label: string
   description: string
   isMain?: boolean
+  notServed?: boolean
+  disabled?: boolean
 }
 
 const items = computed<Item[]>(() => {
@@ -49,6 +54,8 @@ const items = computed<Item[]>(() => {
       .filter(Boolean)
       .join(' · '),
     isMain: address.isMain ?? false,
+    notServed: !address.shippable,
+    disabled: !address.shippable,
   }))
   saved.push({
     value: NEW_ADDRESS_VALUE,
@@ -97,6 +104,12 @@ const modelValue = computed<number | typeof NEW_ADDRESS_VALUE>({
         >
           · {{ t('main') }}
         </span>
+        <span
+          v-if="(item as Item).notServed"
+          class="text-xs font-medium text-muted"
+        >
+          · {{ t('not_served') }}
+        </span>
       </span>
     </template>
   </URadioGroup>
@@ -105,6 +118,7 @@ const modelValue = computed<number | typeof NEW_ADDRESS_VALUE>({
 <i18n lang="yaml">
 el:
   main: "Κύρια"
+  not_served: "Δεν παραδίδουμε πια εδώ"
   new_address:
     label: "Νέα διεύθυνση"
     description: "Συμπλήρωσε τα στοιχεία παράδοσης χειροκίνητα για αυτή την παραγγελία."

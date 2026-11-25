@@ -2450,7 +2450,7 @@ export type Cart = {
          */
     threshold: number | null
     /**
-         * The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects
+         * The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects, at the rates of its shipping zone covering the whole country, or of each region zone of a country served only in some regions (a cart knows no region; a region zone's own threshold applies once checkout prices the address)
          */
     countryCode: string | null
   } | null
@@ -2808,7 +2808,11 @@ export type CartQuote = {
  * both ``shipping_kind`` and ``country_id`` are given. Send what the
  * order-create body will carry, the email and the pickup point
  * included, so the quote is the total that order is created at and its
- * ``cartDigest`` the cart that order is made of.
+ * ``cartDigest`` the cart that order is made of. Send that
+ * ``cartDigest`` back as ``expectedCartDigest`` on ``POST /api/v1/order``:
+ * only then is the order refused when the cart changed since the quote
+ * (409 ``cart_changed``, nothing created), a change at the same total
+ * included.
  */
 export type CartQuoteRequestRequest = {
   /**
@@ -3737,7 +3741,7 @@ export type FreeShippingInfo = {
   maxThreshold: number | null
   currency: string
   /**
-     * Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
+     * Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Τα όρια είναι της ζώνης αποστολής που καλύπτει ολόκληρη τη χώρα: το όριο μιας ζώνης περιοχών ισχύει μόλις η ολοκλήρωση αγοράς τιμολογήσει διεύθυνση σε αυτήν. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
      */
   countryCode: string | null
 }
@@ -4843,9 +4847,12 @@ export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'rese
  *
  * Every pay way creates the order before any payment, whatever its
  * ``settlement``:
- * 1. ``online``: the shopper pays the balance left after deductions
- * (gift cards, promotions, loyalty points) afterwards, on the
- * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * 1. ``online``: the balance left after deductions (gift cards,
+ * promotions, loyalty points) is paid afterwards. In storefront
+ * checkout the shopper pays it on the provider's hosted page (Viva
+ * Wallet, Stripe); an agent order with delegated Stripe payments is
+ * charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``
+ * (``confirmAgentPaymentForOrder``). Either way, deductions that
  * cover the whole total settle the order at once, with no provider
  * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
@@ -9871,11 +9878,15 @@ export type ShippingPolicyEntry = {
      * Χώρα προορισμού (ISO 3166-1 alpha-2).
      */
   countryCode: string
+  /**
+     * Οι περιοχές της χώρας στις οποίες ισχύει αυτή η γραμμή· κενό όταν ισχύει για ολόκληρη τη χώρα. Ένα κατάστημα που παραδίδει μόνο σε ορισμένες περιοχές μιας χώρας τις αναφέρει εδώ.
+     */
+  regionCodes: Array<string>
   kind: ShippingKind
   providerCode: string
   providerName: string
   /**
-     * Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, χώρα, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι.
+     * Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, ζώνη, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι.
      */
   price: number
   /**
@@ -10888,6 +10899,10 @@ export type UserAddress = {
      */
   region: string | null
   /**
+     * Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
+     */
+  readonly shippable: boolean
+  /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
@@ -10958,6 +10973,10 @@ export type UserAddressDetail = {
      * Κωδικός περιφέρειας
      */
   region: string | null
+  /**
+     * Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
+     */
+  readonly shippable: boolean
   /**
      * Δημιουργήθηκε στις
      */
@@ -12533,9 +12552,12 @@ export type OrderCreateErrorDetailWritable = {
  *
  * Every pay way creates the order before any payment, whatever its
  * ``settlement``:
- * 1. ``online``: the shopper pays the balance left after deductions
- * (gift cards, promotions, loyalty points) afterwards, on the
- * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * 1. ``online``: the balance left after deductions (gift cards,
+ * promotions, loyalty points) is paid afterwards. In storefront
+ * checkout the shopper pays it on the provider's hosted page (Viva
+ * Wallet, Stripe); an agent order with delegated Stripe payments is
+ * charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``
+ * (``confirmAgentPaymentForOrder``). Either way, deductions that
  * cover the whole total settle the order at once, with no provider
  * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
@@ -20856,6 +20878,10 @@ export type ListCountryData = {
          */
     hasPhoneCode?: 'true' | 'false' | '1' | '0' | boolean
     /**
+         * true: μόνο οι χώρες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του), οι χώρες όπου μπορεί να βρίσκεται μια αποθηκευμένη διεύθυνση· false: μόνο οι υπόλοιπες. Το shippable μετρά και τα σημεία παραλαβής. Στον host της πλατφόρμας το true δεν επιστρέφει καμία.
+         */
+    homeDelivery?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Φίλτρο χωρών μελών ΕΕ
          */
     isEu?: 'true' | 'false' | '1' | '0' | boolean
@@ -21228,6 +21254,10 @@ export type ListAllCountriesData = {
          * Φίλτρο χωρών με/χωρίς κωδικό κλήσης
          */
     hasPhoneCode?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * true: μόνο οι χώρες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του), οι χώρες όπου μπορεί να βρίσκεται μια αποθηκευμένη διεύθυνση· false: μόνο οι υπόλοιπες. Το shippable μετρά και τα σημεία παραλαβής. Στον host της πλατφόρμας το true δεν επιστρέφει καμία.
+         */
+    homeDelivery?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Φίλτρο χωρών μελών ΕΕ
          */
@@ -27450,6 +27480,10 @@ export type ListRegionData = {
          */
     search?: string
     /**
+         * true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Φίλτρο ανά ακριβή σειρά
          */
     sortOrder?: string | number
@@ -27673,6 +27707,10 @@ export type ListRegionsByCountryData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en)
          */
     languageCode?: 'el' | 'en'
+    /**
+         * true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
   }
   url: '/api/v1/region/{alpha}/get_regions_by_country_alpha_2'
 }
@@ -28438,7 +28476,7 @@ export type ListShippingOptionsData = {
   path?: never
   query: {
     /**
-         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.
+         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` belongs to a zone of one country.
          */
     countryCode: string
     /**
@@ -28449,6 +28487,10 @@ export type ListShippingOptionsData = {
          * Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit.
          */
     orderValueAmount?: string | number
+    /**
+         * The delivery region's code, once chosen. A home delivery is priced by the shipping zone of the region; without one, by the zone covering the whole country.
+         */
+    regionId?: string
     /**
          * Total cart weight in grams. Threaded into the ACS live quote so the displayed price matches the weight-banded tariff bracket the voucher mint will charge. Optional; defaults to ACS's 500g minimum.
          */

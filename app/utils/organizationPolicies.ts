@@ -32,10 +32,18 @@ function transitTime(entry: ShippingPolicyEntry) {
  * it delivers to. Above a free-shipping threshold a second condition
  * prices the parcel at 0: Google takes the lowest-cost condition that
  * matches an order, so the paid one needs no upper bound.
+ *
+ * Only the rows that cover a whole country are stated. A destination with
+ * no `addressRegion` is the whole country, so a regional row stated that way
+ * would promise its price everywhere, and a region can be stated only as a
+ * 2- or 3-character ISO 3166-2 code, which Google Search reads in the US,
+ * Australia and Japan alone (developers.google.com/search/docs/appearance/
+ * structured-data/shipping-policy); a store's region codes are its own.
  */
 export function shippingServicesSchema(entries: readonly ShippingPolicyEntry[]) {
   const services = new Map<string, ShippingPolicyEntry[]>()
   for (const entry of entries) {
+    if (entry.regionCodes.length > 0) continue
     const key = `${entry.providerCode}:${entry.kind}`
     services.set(key, [...(services.get(key) ?? []), entry])
   }

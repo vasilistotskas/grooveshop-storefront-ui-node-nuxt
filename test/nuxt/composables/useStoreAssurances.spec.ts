@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { computed, defineComponent, h, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { makePublicValues } from '~~/test/fixtures/publicValues'
+import { makeRegion, makeShippingPolicyRow } from '~~/test/fixtures/shippingPolicy'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
@@ -13,7 +14,7 @@ import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/help
  */
 const data = vi.hoisted(() => ({
   freeShipping: { minThreshold: 39.9 as number | null, countryCode: 'GR' as string | null },
-  policy: [] as Array<{ countryCode: string, providerCode: string, providerName: string, price: number, deliveryDaysMin: number | null, deliveryDaysMax: number | null }>,
+  policy: [] as ShippingPolicyRow[],
   payWays: [] as Array<{ settlement?: string }>,
   returnWindow: 14 as number | undefined,
   dispatchCutoff: '15:00',
@@ -54,8 +55,22 @@ async function load() {
   return result
 }
 
-const rate = (providerCode: string, providerName: string, price: number, days: [number | null, number | null] = [1, 3], countryCode = 'GR') =>
-  ({ countryCode, providerCode, providerName, price, deliveryDaysMin: days[0], deliveryDaysMax: days[1] })
+const rate = (providerCode: string, providerName: string, price: number, days: [number | null, number | null] = [1, 3], countryCode = 'GR', regions: Region[] = []) =>
+  makeShippingPolicyRow({
+    countryCode,
+    providerCode,
+    providerName,
+    price,
+    deliveryDaysMin: days[0],
+    deliveryDaysMax: days[1],
+    regionCodes: regions.map(region => region.alpha),
+    regions,
+  })
+
+const attica = makeRegion()
+const crete = makeRegion({ alpha: 'GR-M', sortOrder: 2, translations: { el: { name: 'Κρήτη' }, en: { name: 'Crete' } } })
+/** Region names as the page's language joins them. */
+const joined = (...names: string[]) => new Intl.ListFormat(useNuxtApp().$i18n.locale.value, { type: 'conjunction' }).format(names)
 
 const row = (assurances: Assurances, kind: string) => assurances.rows.value.find(found => found.kind === kind)
 
@@ -122,6 +137,43 @@ describe('useStoreAssurances', () => {
       $i18n.t('store_assurances.carrier_price', { carrier: 'BOX NOW', price: $i18n.n(1.99, 'currency') }),
       $i18n.t('store_assurances.carrier_price', { carrier: 'ACS Courier', price: $i18n.n(2.99, 'currency') }),
     ].join(' · '))
+  })
+
+  // A store that delivers home only to some regions (Django's region zones):
+  // a price that holds there alone says where, one that covers the country
+  // stays as it was.
+  it('names the regions a carrier\'s only rates apply to, and prices a carrier with a country-wide rate on it', async () => {
+    const { $i18n } = useNuxtApp()
+    data.policy = [
+      rate('acs', 'ACS Courier', 3.5, [1, 2], 'GR', [attica, crete]),
+      rate('acs', 'ACS Courier', 5, [2, 4], 'GR', [makeRegion({ alpha: 'GR-A', sortOrder: 3 })]),
+      rate('boxnow', 'BOX NOW', 2.5),
+      rate('boxnow', 'BOX NOW', 1.99, [1, 1], 'GR', [attica]),
+    ]
+
+    expect(row(await load(), 'freeShipping')!.note).toBe([
+      $i18n.t('store_assurances.carrier_price', { carrier: 'BOX NOW', price: $i18n.n(2.5, 'currency') }),
+      $i18n.t('store_assurances.carrier_price_in', { carrier: 'ACS Courier', price: $i18n.n(3.5, 'currency'), regions: joined('Αττική', 'Κρήτη') }),
+    ].join(' · '))
+  })
+
+  it('promises delivery days on the country-wide rates, and a regional promise names its regions', async () => {
+    const { $i18n } = useNuxtApp()
+    data.policy = [rate('boxnow', 'BOX NOW', 2.5, [2, 4]), rate('acs', 'ACS Courier', 3.5, [1, 1], 'GR', [attica])]
+
+    expect(row(await load(), 'delivery')!.title).toBe($i18n.t('store_assurances.delivery_range', { min: 2, max: 4 }))
+
+    data.policy = [rate('acs', 'ACS Courier', 3.5, [1, 2], 'GR', [attica]), rate('acs', 'ACS Courier', 6, [2, 3], 'GR', [crete])]
+
+    expect(row(await load(), 'delivery')!.title)
+      .toBe($i18n.t('store_assurances.delivery_range_in', { min: 1, max: 3, regions: joined('Αττική', 'Κρήτη') }))
+  })
+
+  it('names a region by its code when its record is missing', async () => {
+    const { $i18n } = useNuxtApp()
+    data.policy = [makeShippingPolicyRow({ price: 3.5, deliveryDaysMin: 2, deliveryDaysMax: 2, regionCodes: ['GR-X'], regions: [] })]
+
+    expect(row(await load(), 'delivery')!.title).toBe($i18n.t('store_assurances.delivery_days_in', { count: 2, regions: 'GR-X' }, 2))
   })
 
   // A carrier with a free kind (pickup) ships free already: it is no price

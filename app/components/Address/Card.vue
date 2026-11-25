@@ -83,6 +83,15 @@ async function makeDefault() {
         class="bg-inverted text-inverted ring-0"
       />
     </div>
+    <!-- Kept from before the store stopped delivering there (its
+         shipping zones): checkout lists it but cannot use it. -->
+    <UAlert
+      v-if="!address.shippable"
+      :title="t('not_served')"
+      icon="i-lucide-map-pin-off"
+      color="neutral"
+      variant="subtle"
+    />
     <address class="flex flex-1 flex-col gap-0.5 text-sm text-toned not-italic">
       <span
         v-for="(line, index) in lines"
@@ -136,6 +145,7 @@ el:
   default_error: Η προεπιλεγμένη διεύθυνση δεν άλλαξε
   deleted: Η διεύθυνση διαγράφηκε
   delete_error: Η διεύθυνση δεν διαγράφηκε
+  not_served: Δεν παραδίδουμε πια σε αυτή τη διεύθυνση
 en:
   default: Default
   edit: Edit
@@ -146,4 +156,5 @@ en:
   default_error: Your default address did not change
   deleted: Address deleted
   delete_error: The address could not be deleted
+  not_served: We no longer deliver to this address
 </i18n>

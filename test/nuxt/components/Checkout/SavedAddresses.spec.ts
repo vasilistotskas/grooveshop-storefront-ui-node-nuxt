@@ -3,8 +3,11 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import CheckoutSavedAddresses from '~/components/Checkout/SavedAddresses.vue'
 import WebsideCheckoutSavedAddresses from '~/components/variants/webside/Checkout/SavedAddresses.vue'
+import savedAddressesSource from '~/components/Checkout/SavedAddresses.vue?raw'
+import websideSavedAddressesSource from '~/components/variants/webside/Checkout/SavedAddresses.vue?raw'
 import type { UserAddressDetail } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { componentTexts } from '~~/test/helpers/componentTexts'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -34,6 +37,7 @@ function makeAddress(overrides: Partial<UserAddressDetail> = {}): UserAddressDet
     user: 1,
     country: 'GR',
     region: 'GR-I',
+    shippable: true,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(5, id),
@@ -47,6 +51,12 @@ const ADDRESSES = [
 ]
 
 const NEW_LABEL = 'Νέα διεύθυνση'
+
+/** Each design's own texts. */
+const TEXTS = {
+  default: componentTexts(savedAddressesSource, 'SavedAddresses.vue'),
+  webside: componentTexts(websideSavedAddressesSource, 'SavedAddresses.vue'),
+}
 
 describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tree Checkout/SavedAddresses', ({ tree, C }) => {
   const mount = (props: { selectedId: number | null, mode: 'saved' | 'new', needingUpdate?: number[] }) =>
@@ -64,6 +74,28 @@ describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tr
     return radios(wrapper)[index]!
   }
   const newAddressButton = (wrapper: VueWrapper) => wrapper.findAll('button').find(button => button.text() === NEW_LABEL)!
+
+  // django-api #222: an address the store no longer delivers to (its
+  // shipping zones) is listed, says so, and cannot be picked.
+  it('lists an address the store no longer delivers to, marked and not pickable', async () => {
+    const wrapper = await mountSuspended(C, {
+      route: false,
+      props: {
+        addresses: [ADDRESSES[0]!, makeAddress({ id: 3, title: 'Κρήτη', shippable: false })],
+        ...(tree === 'default' ? { needingUpdate: [] } : {}),
+        selectedId: 1,
+        mode: 'saved',
+      },
+    })
+
+    const crete = radioFor(wrapper, 'Κρήτη')
+    expect(crete.attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain(TEXTS[tree].t('not_served'))
+
+    await crete.trigger('click')
+
+    expect(wrapper.emitted('select')).toBeUndefined()
+  })
 
   // django-api #769: a saved address's line 2 is part of its summary.
   it('summarises an address with its line 2 after the street', async () => {

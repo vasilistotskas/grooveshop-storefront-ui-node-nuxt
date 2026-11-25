@@ -30,6 +30,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import { makeCountry } from '~~/test/fixtures/country'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { makePayWay } from '~~/test/fixtures/payWay'
+import { makeRegion } from '~~/test/fixtures/shippingPolicy'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBoxNowPickedLocker } from '~~/test/fixtures/boxnow'
 
@@ -103,6 +104,9 @@ const REGIONLESS = makeCountry({
   sortOrder: 3,
 })
 
+const ATTIKI = makeRegion({ alpha: 'ATTIKI' })
+const NICOSIA = makeRegion({ alpha: 'NICOSIA', country: 'CY', sortOrder: 2, translations: { el: { name: 'Λευκωσία' }, en: { name: 'Nicosia' } } })
+
 /** A valid ΑΦΜ: the weighted sum of its first 8 digits mod 11 mod 10 is the 9th. */
 const VALID_AFM = '123456783'
 
@@ -145,6 +149,7 @@ function savedAddress(overrides: Record<string, unknown> = {}) {
     zipcode: '10563',
     country: 'GR',
     region: 'ATTIKI',
+    shippable: true,
     ...overrides,
   }
 }
@@ -162,8 +167,8 @@ function defaultRoutes() {
     '/api/user/addresses': paginated([]),
     '/api/regions': (_url: string, options: any) => {
       const country = options?.query?.country
-      if (country === 'GR') return paginated([{ alpha: 'ATTIKI', name: 'Αττική' }])
-      if (country === 'CY') return paginated([{ alpha: 'NICOSIA', name: 'Λευκωσία' }])
+      if (country === 'GR') return paginated([ATTIKI])
+      if (country === 'CY') return paginated([NICOSIA])
       return paginated([])
     },
     '/api/shipping/options': (_url: string, options: any) =>
@@ -217,6 +222,13 @@ describe('useCheckoutForm', () => {
     expect(countries?.options.query).toMatchObject({ shippable: true })
   })
 
+  it('lists only the regions the store delivers to at home', async () => {
+    await setup()
+
+    const [regions] = api.callsTo('/api/regions')
+    expect(regions?.options.query).toMatchObject({ country: 'GR', shippable: true })
+  })
+
   it('also fetches EVERY dial code, unpaginated, for the phone field', async () => {
     await setup()
 
@@ -265,6 +277,18 @@ describe('useCheckoutForm', () => {
         currency: 'USD',
         weightGrams: cart!.totalWeightGrams,
       })
+    })
+
+    it('asks for the chosen region\'s zone, and again when the region changes', async () => {
+      const { formState } = await setup()
+      const before = api.callsTo('/api/shipping/options').length
+
+      formState.region = 'ATTIKI'
+      await flushPromises()
+
+      const calls = api.callsTo('/api/shipping/options')
+      expect(calls.length).toBe(before + 1)
+      expect(calls.at(-1)?.options.query).toMatchObject({ countryCode: 'GR', regionId: 'ATTIKI' })
     })
 
     it('prices home delivery from the first carrier that can carry the cart', async () => {
@@ -865,12 +889,32 @@ describe('useCheckoutForm', () => {
       const older = pending[0]!
       expect(older.country).toBe('CY')
       expect(newest.country).toBe('GR')
-      newest.resolve(paginated([{ alpha: 'GR-14', name: 'Αττική' }]))
+      newest.resolve(paginated([makeRegion({ alpha: 'GR-14' })]))
       await flushPromises()
-      older.resolve(paginated([{ alpha: 'CY-01', name: 'Λευκωσία' }]))
+      older.resolve(paginated([makeRegion({ alpha: 'CY-01', country: 'CY', sortOrder: 2, translations: { el: { name: 'Λευκωσία' } } })]))
       await flushPromises()
 
       expect(regionOptions.value.map(o => o.value)).toEqual(['GR-14'])
+    })
+
+    // Django refuses a region of another country (`region_country_mismatch`):
+    // while the new country's regions load, the old region is not sent.
+    it('prices the new country without the old country\'s region while its regions load', async () => {
+      const { formState } = await setup()
+      formState.region = 'ATTIKI'
+      await flushPromises()
+      api.routes({
+        ...defaultRoutes(),
+        '/api/regions': () => new Promise(() => {}),
+      })
+
+      formState.country = 'CY'
+      await nextTick()
+      await flushPromises()
+
+      const priced = api.callsTo('/api/shipping/options').map(call => call.options.query)
+      expect(priced.at(-1)).toMatchObject({ countryCode: 'CY' })
+      expect(priced.filter(query => query.countryCode === 'CY' && query.regionId !== undefined)).toEqual([])
     })
 
     it('keeps a prefilled region when the new country\'s regions request fails', async () => {
@@ -936,6 +980,44 @@ describe('useCheckoutForm', () => {
       await selectSavedAddress(2)
 
       expect(formState.addressLine2).toBe('')
+    })
+
+    it('does not pick an address the store no longer delivers to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress({ shippable: false }), second]),
+      })
+
+      const { selectedSavedAddressId, addressEntryMode } = await setup()
+
+      // The main one is no longer served: the next one is picked.
+      expect(selectedSavedAddressId.value).toBe(2)
+      expect(addressEntryMode.value).toBe('saved')
+    })
+
+    it('starts a new address when no saved one is delivered to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress({ shippable: false })]),
+      })
+
+      const { selectedSavedAddressId, addressEntryMode } = await setup()
+
+      expect(selectedSavedAddressId.value).toBeNull()
+      expect(addressEntryMode.value).toBe('new')
+    })
+
+    it('ignores a pick of an address the store no longer delivers to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress(), { ...second, shippable: false }]),
+      })
+      const { formState, selectedSavedAddressId, selectSavedAddress } = await setup()
+
+      await selectSavedAddress(2)
+
+      expect(formState.street).toBe('Ermou')
+      expect(selectedSavedAddressId.value).toBe(1)
     })
 
     it('picking another saved address applies it and stays in saved mode', async () => {

@@ -3,8 +3,9 @@
  * run over both trees: the form's logic is `useAddressForm`'s.
  *
  * Covers the address-book rules that changed for BoxNow Cyprus:
- *   - Countries are fetched with ``shippable: true`` — a country the
- *     store doesn't ship to can't be picked here either.
+ *   - Countries are fetched with ``homeDelivery: true`` — a country no
+ *     home delivery of the store reaches (a lockers-only one included)
+ *     can't be picked for an address (django-api #222).
  *   - The region field's required/disabled state follows the selected
  *     country's ``hasRegions``.
  *   - The phone field is the flag picker: it follows the form's own
@@ -115,17 +116,17 @@ describe.each(trees(NewAddressPage, WebsideNewAddressPage))('$tree account/addre
     expect(regionRequests).toEqual(['GR'])
   })
 
-  it('fetches countries with shippable: true', async () => {
+  it('fetches the countries a home delivery reaches', async () => {
     let capturedQuery: Record<string, unknown> | undefined
     registerEndpoint('/api/countries', (event) => {
       // The phone picker reads the unpaginated list from the same route.
-      if (getQuery(event).shippable) capturedQuery = getQuery(event)
+      if (getQuery(event).homeDelivery) capturedQuery = getQuery(event)
       return countriesResponse
     })
 
     await mountSuspended(C)
 
-    expect(capturedQuery).toMatchObject({ shippable: 'true' })
+    expect(capturedQuery).toMatchObject({ homeDelivery: 'true' })
   })
 
   describe('phone flag picker', () => {

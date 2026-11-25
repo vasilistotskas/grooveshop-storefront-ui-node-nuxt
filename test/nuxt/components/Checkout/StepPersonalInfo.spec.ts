@@ -71,6 +71,7 @@ function makeAddress(id: number): UserAddressDetail {
     user: 1,
     country: 'GR',
     region: 'GR-I',
+    shippable: true,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(7, id),

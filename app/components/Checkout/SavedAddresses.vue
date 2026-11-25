@@ -11,6 +11,9 @@
  * An address that fails checkout's rules (no region, no phone, a
  * postcode its country rejects) says it needs updating. Picking it keeps
  * its card picked while the step opens its fields to complete.
+ *
+ * An address the store no longer delivers to at home (its shipping
+ * zones, ``shippable: false``) is listed, says so, and cannot be picked.
  */
 const props = defineProps<{
   addresses: UserAddressDetail[]
@@ -36,6 +39,8 @@ type Item = {
   label: string
   isMain: boolean
   needsUpdate: boolean
+  notServed: boolean
+  disabled: boolean
   recipient: string
   street: string
   city: string
@@ -45,7 +50,9 @@ const items = computed<Item[]>(() => props.addresses.map(address => ({
   value: address.id,
   label: address.title,
   isMain: address.isMain ?? false,
-  needsUpdate: props.needingUpdate.includes(address.id),
+  needsUpdate: address.shippable && props.needingUpdate.includes(address.id),
+  notServed: !address.shippable,
+  disabled: !address.shippable,
   recipient: `${address.firstName} ${address.lastName}`.trim(),
   // The street line, then what it leaves out (apartment, floor, building).
   street: [[address.street, address.streetNumber].filter(Boolean).join(' '), address.addressLine2].filter(Boolean).join(', '),
@@ -91,6 +98,14 @@ const typingNew = computed(() => props.mode === 'new' && props.selectedId === nu
             · {{ t('main') }}
           </span>
           <UBadge
+            v-if="(item as Item).notServed"
+            color="neutral"
+            variant="subtle"
+            size="sm"
+            icon="i-lucide-map-pin-off"
+            :label="t('not_served')"
+          />
+          <UBadge
             v-if="(item as Item).needsUpdate"
             color="warning"
             variant="subtle"
@@ -128,10 +143,12 @@ el:
   legend: Αποθηκευμένες διευθύνσεις
   main: "Κύρια"
   needs_update: Χρειάζεται ενημέρωση
+  not_served: Δεν παραδίδουμε πια εδώ
   new_address: Νέα διεύθυνση
 en:
   legend: Saved addresses
   main: "Main"
   needs_update: Needs updating
+  not_served: We no longer deliver here
   new_address: New address
 </i18n>
