@@ -1,3 +1,10 @@
+# [3.361.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.360.1...v3.361.0) (2026-11-25)
+
+
+### Features
+
+* **auth:** confirm it is you with a code emailed to the shopper ([#526](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/526)) ([236d983](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/236d983e18e283895f997ade4c376926a8763469))
+
 ## [3.360.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.360.0...v3.360.1) (2026-11-25)
 
 
