@@ -74,7 +74,12 @@ const endsWithBand = computed(() => runs.value.at(-1)?.bands === true)
         v-if="run.bands"
         :sections="run.sections"
       />
-      <WebsidePageWrapper v-else>
+      <!-- A frame whose every section draws nothing (`recently_viewed` on a
+           first visit) takes no room: its margins were a blank band. -->
+      <WebsidePageWrapper
+        v-else
+        class="has-[>section:only-child>div:only-child:empty]:hidden"
+      >
         <slot
           v-if="index === 0"
           name="title"
