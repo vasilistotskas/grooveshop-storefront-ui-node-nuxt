@@ -1,30 +1,24 @@
 import type { Locale } from '@nuxt/ui'
-import { el, en } from '@nuxt/ui/locale'
+import { LOCALE_PROPERTIES, SUPPORTED_LOCALES, type SupportedLocale } from '~~/i18n/locales'
 
 /**
- * Nuxt UI's own locale bundles, for the locales listed in
- * `SUPPORTED_LOCALES` (`i18n/locales.ts`).
+ * The locales listed in `SUPPORTED_LOCALES` (`i18n/locales.ts`) among
+ * `codes`, as Nuxt UI `Locale` objects, the shape `ULocaleSelect` takes.
  *
- * These are `@nuxt/ui` `Locale` objects (`{ name, code, dir, messages }`)
- * — a different shape from the `@nuxtjs/i18n` locale objects returned by
- * `useI18n().locales` (`{ code, name, files, language, flag }`): each
- * carries the language's own name, which the language switchers show.
- * `UApp` needs none of this: it follows the i18n locale itself and
- * bundles only the Nuxt UI locales `i18n.locales` lists.
- *
- * Imported by NAME, never as a namespace: `import * as locales` pulled
- * all 63 of @nuxt/ui's locale files into the entry chunk of every page
- * (129KB of the entry's 324KB minified, 2026-08-29 entry-chunk
- * sourcemap audit).
- *
- * **Activating a new platform locale means adding its import here — and
- * nowhere else** — for the switchers.
+ * These are a different shape from the `@nuxtjs/i18n` locale objects
+ * returned by `useI18n().locales` (`{ code, name, files, language, flag }`).
+ * Each carries the language's own name (`LOCALE_PROPERTIES`), which the
+ * language switchers show, and no messages: nothing here reads them.
+ * `UApp` needs none of this: it follows the i18n locale itself and loads
+ * the Nuxt UI messages of the locale shown, lazily. Importing Nuxt UI's
+ * locale bundles here kept that load from splitting
+ * (INEFFECTIVE_DYNAMIC_IMPORT in the build).
  */
-const UI_LOCALES = { el, en } as const
-
-/** Narrow an arbitrary locale code to one Nuxt UI actually ships. */
 export function toUiLocales(codes: readonly string[]): Locale<unknown>[] {
   return codes
-    .map(code => (UI_LOCALES as Record<string, Locale<unknown>>)[code])
-    .filter((entry): entry is Locale<unknown> => entry !== undefined)
+    .filter((code): code is SupportedLocale => (SUPPORTED_LOCALES as readonly string[]).includes(code))
+    .map((code) => {
+      const { name, dir } = LOCALE_PROPERTIES[code]
+      return { code, name, dir, messages: {} }
+    })
 }

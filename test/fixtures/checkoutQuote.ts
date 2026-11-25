@@ -16,9 +16,11 @@ export const CART_DIGEST = 'digest-of-the-default-cart'
 
 export function makeCartQuote(overrides: Partial<CartQuote> = {}): CartQuote {
   return {
+    lines: [],
     itemsSubtotal: 60,
     discountTotal: 0,
     appliedPromotions: [],
+    appliedCoupons: [],
     blockingCoupon: null,
     freeThresholdValue: 60,
     shipping: { price: 3, waivedBy: null },

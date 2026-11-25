@@ -19,7 +19,7 @@ a **Nuxt SSR proxy** + **nuxt-auth-utils** encrypted session cookies. Auth token
 Browser ──(encrypted cookie)──► Nuxt SSR ──(X-Session-Token / Bearer)──► Django
                                     │
                           nuxt-auth-utils session
-                          (AES-256-GCM, server-only)
+                          (sealed by h3, server-only)
 ```
 
 **Two token types** (both created per allauth session):

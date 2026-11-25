@@ -2472,11 +2472,11 @@ export type Cart = {
          */
     freeShipping: boolean
     /**
-         * This code earns the gift listed in promotionGiftItems
+         * This code earns a gift the order ships with
          */
     gift: boolean
     /**
-         * Why the engine refuses the attached code now; null while it applies
+         * Why the promotions refuse the attached code now; null while it applies
          */
     rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
   }>
@@ -2599,64 +2599,6 @@ export type CartCoupon = {
   readonly applied: boolean
 }
 
-/**
- * Request body for ``POST /api/v1/cart/create-payment-intent``.
- *
- * ``shipping_kind`` is required so the view's shipping calculation
- * follows the same code path the order-create verification runs.
- * ``shipping_provider_code`` is required for ``pickup_point`` (the
- * carrier identity drives the locker quote + per-carrier threshold)
- * but **omitted for ``home_delivery``** — home delivery is
- * provider-agnostic in checkout per the frontend's
- * ``shared/shipping/index.ts::carrierForMethod`` contract, and the
- * backend resolves the active home-delivery provider at order
- * creation. Sending whatever the frontend has guarantees both calc
- * paths agree.
- */
-export type CartCreatePaymentIntentRequestRequest = {
-  /**
-     * ID της επιλεγμένης μεθόδου πληρωμής (πρέπει να είναι online Stripe).
-     */
-  payWayId: number
-  /**
-     * Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους έλεγχοι διαθεσιμότητας (οι θυρίδες ACS χρειάζονται συγχρονισμένους σταθμούς) και ο έλεγχος PICKUP_POINT του BoxNow.
-     *
-     * * `home_delivery` - home_delivery
-     * * `pickup_point` - pickup_point
-     */
-  shippingKind: CartCreatePaymentIntentRequestShippingKindEnum
-  /**
-     * Κωδικός μεταφορέα που αντιστοιχεί σε καταχωρημένο προσαρμογέα αποστολής (π.χ. 'acs', 'boxnow'). Απαιτείται για ``pickup_point``· παραλείψτε/αφήστε κενό για ``home_delivery`` (το backend χρησιμοποιεί τη γενική πάγια χρέωση, αντίστοιχη με αυτή που θα υπολογίσει η επαλήθευση δημιουργίας παραγγελίας για το ίδιο αίτημα).
-     */
-  shippingProviderCode?: string
-  /**
-     * Κωδικός χώρας ISO 3166-1 alpha-2 — υποχρεωτικός, επειδή η τιμή αποστολής (``ShippingRate``) ορίζεται ανά χώρα και χωρίς προορισμό δεν τιμολογείται καμία επιλογή. Πρέπει να συμφωνεί με τη χώρα του αιτήματος δημιουργίας παραγγελίας.
-     */
-  countryId: string
-  /**
-     * Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
-     */
-  regionId?: string
-  /**
-     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.
-     */
-  email?: string | string
-  /**
-     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
-     */
-  giftCardCodes?: Array<string>
-  /**
-     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
-     */
-  loyaltyPointsToRedeem?: number | null
-}
-
-/**
- * * `home_delivery` - home_delivery
- * * `pickup_point` - pickup_point
- */
-export type CartCreatePaymentIntentRequestShippingKindEnum = 'home_delivery' | 'pickup_point'
-
 export type CartItem = {
   readonly id: number
   readonly cartId: string
@@ -2767,32 +2709,14 @@ export type CartItemUpdateRequest = {
 }
 
 /**
- * Response body returned by the create-payment-intent cart action.
- */
-export type CartPaymentIntentResponse = {
-  /**
-     * Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend
-     */
-  clientSecret: string
-  /**
-     * ID του Stripe PaymentIntent προς αποθήκευση στην παραγγελία
-     */
-  paymentIntentId: string
-  /**
-     * Συνολικό ποσό χρέωσης (καλάθι + αποστολή + έξοδα πληρωμής)
-     */
-  amount: number
-  /**
-     * Κωδικός νομίσματος ISO 4217 (π.χ. EUR)
-     */
-  currency: string
-}
-
-/**
  * The body of ``POST /cart/quote``: the quote, and what each
  * delivery and pay way on offer would cost this cart.
  */
 export type CartQuote = {
+  /**
+     * Οι γραμμές του καλαθιού που τιμολόγησε η προσφορά τιμής, από την ίδια ανάγνωση με το itemsSubtotal και το cartDigest: ό,τι καλύπτει το digest από την καθεμία (προϊόν, ποσότητα, τιμή μονάδας, χρήματα προωθήσεων), με το όνομα και την εικόνα του προϊόντος.
+     */
+  readonly lines: Array<QuoteLine>
   /**
      * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
@@ -2805,6 +2729,28 @@ export type CartQuote = {
      * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotion>
+  /**
+     * Η κρίση για κάθε κωδικό κουπονιού που είναι συνδεδεμένος με το καλάθι, όπως την αποφάσισαν οι προωθήσεις αυτής της προσφοράς τιμής.
+     */
+  readonly appliedCoupons: Array<{
+    code: string
+    /**
+         * Money this code takes off; 0 when its benefit is not money, or it is refused
+         */
+    amount: number
+    /**
+         * This code waives shipping
+         */
+    freeShipping: boolean
+    /**
+         * This code earns a gift the order ships with
+         */
+    gift: boolean
+    /**
+         * Why the promotions refuse the attached code now; null while it applies
+         */
+    rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
+  }>
   /**
      * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
@@ -2856,13 +2802,13 @@ export type CartQuote = {
 /**
  * Request body for ``POST /api/v1/cart/quote``.
  *
- * The choices of the payment-intent body, each optional: a quote may
- * be asked before the shopper has chosen a delivery or a pay way, and
- * the rows that depend on a missing choice come back null. A delivery
- * is priced once both ``shipping_kind`` and ``country_id`` are given.
- * Send what the order-create body will carry, the email and the pickup
- * point included, so the quote is the total that order is created at
- * and its ``cartDigest`` the cart that order is made of.
+ * The checkout's choices, each optional: a quote may be asked before
+ * the shopper has chosen a delivery or a pay way, and the rows that
+ * depend on a missing choice come back null. A delivery is priced once
+ * both ``shipping_kind`` and ``country_id`` are given. Send what the
+ * order-create body will carry, the email and the pickup point
+ * included, so the quote is the total that order is created at and its
+ * ``cartDigest`` the cart that order is made of.
  */
 export type CartQuoteRequestRequest = {
   /**
@@ -2901,15 +2847,15 @@ export type CartQuoteRequestRequest = {
      */
   regionId?: string
   /**
-     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.
+     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η δημιουργία της παραγγελίας, ώστε η κοστολόγηση να είναι το σύνολο στο οποίο δημιουργείται η παραγγελία.
      */
   email?: string | string
   /**
-     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
+     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής· το οφειλόμενο ποσό είναι ό,τι απομένει αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
      */
   giftCardCodes?: Array<string>
   /**
-     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
+     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας· από το οφειλόμενο ποσό αφαιρείται η έκπτωση που προκύπτει. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
      */
   loyaltyPointsToRedeem?: number | null
 }
@@ -2924,6 +2870,10 @@ export type CartQuoteRequestRequest = {
  */
 export type CheckoutQuote = {
   /**
+     * Οι γραμμές του καλαθιού που τιμολόγησε η προσφορά τιμής, από την ίδια ανάγνωση με το itemsSubtotal και το cartDigest: ό,τι καλύπτει το digest από την καθεμία (προϊόν, ποσότητα, τιμή μονάδας, χρήματα προωθήσεων), με το όνομα και την εικόνα του προϊόντος.
+     */
+  readonly lines: Array<QuoteLine>
+  /**
      * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
   itemsSubtotal: number
@@ -2935,6 +2885,28 @@ export type CheckoutQuote = {
      * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotion>
+  /**
+     * Η κρίση για κάθε κωδικό κουπονιού που είναι συνδεδεμένος με το καλάθι, όπως την αποφάσισαν οι προωθήσεις αυτής της προσφοράς τιμής.
+     */
+  readonly appliedCoupons: Array<{
+    code: string
+    /**
+         * Money this code takes off; 0 when its benefit is not money, or it is refused
+         */
+    amount: number
+    /**
+         * This code waives shipping
+         */
+    freeShipping: boolean
+    /**
+         * This code earns a gift the order ships with
+         */
+    gift: boolean
+    /**
+         * Why the promotions refuse the attached code now; null while it applies
+         */
+    rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
+  }>
   /**
      * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
@@ -3482,71 +3454,6 @@ export type CreateCheckoutSessionResponse = {
      * When this payment link stops being payable: the expiry the provider applied, which the order keeps as paymentHoldExpiresAt.
      */
   expiresAt: string
-}
-
-/**
- * Request body for ``create_payment_intent`` and ``retry_payment``.
- *
- * The three named fields are declared because both views read them off
- * ``validated_data`` — undeclared, DRF dropped them and the branches
- * that copy them into ``payment_data`` could never fire.
- */
-export type CreatePaymentIntentRequestRequest = {
-  /**
-     * Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών
-     */
-  paymentData?: {
-    [key: string]: string
-  }
-  /**
-     * ID μεθόδου πληρωμής του παρόχου προς χρέωση
-     */
-  paymentMethodId?: string
-  /**
-     * ID πελάτη του παρόχου στον οποίο θα συνδεθεί η πληρωμή
-     */
-  customerId?: string
-  /**
-     * Πού πρέπει ο πάροχος να επιστρέψει τον πελάτη
-     */
-  returnUrl?: string | string
-}
-
-export type CreatePaymentIntentResponse = {
-  /**
-     * ID payment intent από τον πάροχο πληρωμών
-     */
-  paymentId: string
-  /**
-     * Κατάσταση πληρωμής
-     */
-  status: string
-  /**
-     * Ποσό πληρωμής
-     */
-  amount: string
-  /**
-     * Νόμισμα πληρωμής
-     */
-  currency: string
-  /**
-     * Όνομα παρόχου πληρωμών
-     */
-  provider: string
-  /**
-     * Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend
-     */
-  clientSecret?: string
-  /**
-     * Αν η πληρωμή απαιτεί επιπλέον ενέργεια (3D Secure κ.λπ.)
-     */
-  requiresAction?: boolean
-  /**
-     * Επόμενη ενέργεια που απαιτείται για την ολοκλήρωση της πληρωμής
-     */
-  nextAction?: {
-    [key: string]: unknown
-  } | null
 }
 
 /**
@@ -4892,10 +4799,6 @@ export type OrderCreateErrorDetail = {
      * * `invalid_coupon` - Μη έγκυρο κουπόνι
      * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
      * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
-     * * `payment_not_found` - Δεν βρέθηκε πληρωμή
-     * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
-     * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
-     * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
      */
   type: OrderCreateErrorType
   /**
@@ -4932,26 +4835,21 @@ export type OrderCreateErrorDetail = {
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
  * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
  * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
- * * `payment_not_found` - Δεν βρέθηκε πληρωμή
- * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
- * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
- * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
  */
-export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'legal_document_unavailable' | 'payment_not_found' | 'payment_verification' | 'payment_amount_mismatch' | 'payment_currency_mismatch'
+export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'legal_document_unavailable'
 
 /**
- * Serializer for creating orders from cart (dual-flow payment architecture).
+ * Serializer for creating orders from cart.
  *
- * The flow follows the pay way's ``settlement``:
- * 1. ``online``: the shopper pays at checkout. A client-confirmed
- * provider (Stripe) takes ``payment_intent_id`` for the balance
- * left after deductions (gift cards, promotions, loyalty points);
- * without one the order is created order-first, which succeeds only
- * when the deductions cover the whole total, so no provider charge
- * is made. A hosted-checkout provider (Viva) creates the order
- * first and redirects.
+ * Every pay way creates the order before any payment, whatever its
+ * ``settlement``:
+ * 1. ``online``: the shopper pays the balance left after deductions
+ * (gift cards, promotions, loyalty points) afterwards, on the
+ * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * cover the whole total settle the order at once, with no provider
+ * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
- * transfer): money is collected later, no ``payment_intent_id``.
+ * transfer): money is collected later.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
@@ -4973,10 +4871,6 @@ export type OrderCreateFromCartRequest = {
      * ID μεθόδου πληρωμής
      */
   payWayId: number
-  /**
-     * ID payment intent από τον πάροχο πληρωμών (υποχρεωτικό για online πληρωμές)
-     */
-  paymentIntentId?: string | null
   /**
      * Όνομα πελάτη
      */
@@ -5085,7 +4979,7 @@ export type OrderCreateFromCartRequest = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.
+     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, η παραγγελία εξοφλείται αμέσως και δεν γίνεται καμία χρέωση από τον πάροχο.
      */
   giftCardCodes?: Array<string>
   /**
@@ -7177,7 +7071,7 @@ export type PaymentProviderEnum = 'stripe' | 'viva_wallet'
 export type PaymentProviderError = {
   detail: string
   /**
-     * Σταθερός κωδικός σφάλματος: ``payment_intent_failed``, ``checkout_session_failed`` ή ``delegated_charge_failed``.
+     * Σταθερός κωδικός σφάλματος: ``checkout_session_failed`` ή ``delegated_charge_failed``.
      */
   code: string
   /**
@@ -9231,6 +9125,38 @@ export type QuoteBlockingCoupon = {
      * Γιατί απορρίπτεται ο κωδικός, στο λεξιλόγιο απόρριψης κουπονιών (``discount_code_expired``, ...).
      */
   reason: string
+}
+
+/**
+ * One cart line as the quote priced it (``QuoteLine``).
+ */
+export type QuoteLine = {
+  /**
+     * Το στοιχείο του καλαθιού που είναι η γραμμή.
+     */
+  id: number
+  productId: number
+  /**
+     * Το όνομα του προϊόντος στη γλώσσα του αιτήματος.
+     */
+  readonly productName: string
+  /**
+     * Η διαδρομή αποθήκευσης της κύριας εικόνας του προϊόντος· κενή χωρίς εικόνα.
+     */
+  mainImagePath: string
+  quantity: number
+  /**
+     * Η τιμή ανά μονάδα που πληρώνει ο αγοραστής, πριν από τις προωθήσεις.
+     */
+  unitPrice: number
+  /**
+     * quantity μονάδες στην unitPrice, πριν από τις προωθήσεις.
+     */
+  totalPrice: number
+  /**
+     * Το μέρος του discountTotal που φέρει αυτή η γραμμή· τα ποσά των γραμμών αθροίζουν σε αυτό.
+     */
+  promotionDiscount: number
 }
 
 /**
@@ -12582,10 +12508,6 @@ export type OrderCreateErrorDetailWritable = {
      * * `invalid_coupon` - Μη έγκυρο κουπόνι
      * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
      * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
-     * * `payment_not_found` - Δεν βρέθηκε πληρωμή
-     * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
-     * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
-     * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
      */
   type: OrderCreateErrorType
   /**
@@ -12615,18 +12537,17 @@ export type OrderCreateErrorDetailWritable = {
 }
 
 /**
- * Serializer for creating orders from cart (dual-flow payment architecture).
+ * Serializer for creating orders from cart.
  *
- * The flow follows the pay way's ``settlement``:
- * 1. ``online``: the shopper pays at checkout. A client-confirmed
- * provider (Stripe) takes ``payment_intent_id`` for the balance
- * left after deductions (gift cards, promotions, loyalty points);
- * without one the order is created order-first, which succeeds only
- * when the deductions cover the whole total, so no provider charge
- * is made. A hosted-checkout provider (Viva) creates the order
- * first and redirects.
+ * Every pay way creates the order before any payment, whatever its
+ * ``settlement``:
+ * 1. ``online``: the shopper pays the balance left after deductions
+ * (gift cards, promotions, loyalty points) afterwards, on the
+ * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * cover the whole total settle the order at once, with no provider
+ * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
- * transfer): money is collected later, no ``payment_intent_id``.
+ * transfer): money is collected later.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
@@ -12648,10 +12569,6 @@ export type OrderCreateFromCartRequestWritable = {
      * ID μεθόδου πληρωμής
      */
   payWayId: number
-  /**
-     * ID payment intent από τον πάροχο πληρωμών (υποχρεωτικό για online πληρωμές)
-     */
-  paymentIntentId?: string | null
   /**
      * Όνομα πελάτη
      */
@@ -12760,7 +12677,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.
+     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, η παραγγελία εξοφλείται αμέσως και δεν γίνεται καμία χρέωση από τον πάροχο.
      */
   giftCardCodes?: Array<string>
   /**
@@ -14057,6 +13974,34 @@ export type QuoteAppliedPromotionWritable = {
      */
   code: string | null
   amount: number
+}
+
+/**
+ * One cart line as the quote priced it (``QuoteLine``).
+ */
+export type QuoteLineWritable = {
+  /**
+     * Το στοιχείο του καλαθιού που είναι η γραμμή.
+     */
+  id: number
+  productId: number
+  /**
+     * Η διαδρομή αποθήκευσης της κύριας εικόνας του προϊόντος· κενή χωρίς εικόνα.
+     */
+  mainImagePath: string
+  quantity: number
+  /**
+     * Η τιμή ανά μονάδα που πληρώνει ο αγοραστής, πριν από τις προωθήσεις.
+     */
+  unitPrice: number
+  /**
+     * quantity μονάδες στην unitPrice, πριν από τις προωθήσεις.
+     */
+  totalPrice: number
+  /**
+     * Το μέρος του discountTotal που φέρει αυτή η γραμμή· τα ποσά των γραμμών αθροίζουν σε αυτό.
+     */
+  promotionDiscount: number
 }
 
 export type RecommendationItemWritable = {
@@ -19967,35 +19912,6 @@ export type ListCartCouponsResponses = {
 
 export type ListCartCouponsResponse = ListCartCouponsResponses[keyof ListCartCouponsResponses]
 
-export type CreateCartPaymentIntentData = {
-  body: CartCreatePaymentIntentRequestRequest
-  headers?: {
-    /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
-         */
-    'X-Cart-Id'?: string
-  }
-  path?: never
-  query?: never
-  url: '/api/v1/cart/create-payment-intent'
-}
-
-export type CreateCartPaymentIntentErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CreateCartPaymentIntentError = CreateCartPaymentIntentErrors[keyof CreateCartPaymentIntentErrors]
-
-export type CreateCartPaymentIntentResponses = {
-  200: CartPaymentIntentResponse
-}
-
-export type CreateCartPaymentIntentResponse = CreateCartPaymentIntentResponses[keyof CreateCartPaymentIntentResponses]
-
 export type ListCartItemData = {
   body?: never
   headers?: {
@@ -23252,37 +23168,6 @@ export type CreateOrderCheckoutSessionResponses = {
 
 export type CreateOrderCheckoutSessionResponse = CreateOrderCheckoutSessionResponses[keyof CreateOrderCheckoutSessionResponses]
 
-export type CreateOrderPaymentIntentData = {
-  body?: CreatePaymentIntentRequestRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
-         */
-    uuid?: string
-  }
-  url: '/api/v1/order/{id}/create_payment_intent'
-}
-
-export type CreateOrderPaymentIntentErrors = {
-  400: ApiValidationError | ApiError | PaymentProviderError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  409: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CreateOrderPaymentIntentError = CreateOrderPaymentIntentErrors[keyof CreateOrderPaymentIntentErrors]
-
-export type CreateOrderPaymentIntentResponses = {
-  200: CreatePaymentIntentResponse
-}
-
-export type CreateOrderPaymentIntentResponse = CreateOrderPaymentIntentResponses[keyof CreateOrderPaymentIntentResponses]
-
 export type RetrieveOrderInvoiceData = {
   body?: never
   path: {
@@ -23401,37 +23286,6 @@ export type ReorderOrderResponses = {
 }
 
 export type ReorderOrderResponse = ReorderOrderResponses[keyof ReorderOrderResponses]
-
-export type RetryOrderPaymentData = {
-  body?: CreatePaymentIntentRequestRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
-         */
-    uuid?: string
-  }
-  url: '/api/v1/order/{id}/retry-payment'
-}
-
-export type RetryOrderPaymentErrors = {
-  400: ApiValidationError | ApiError | PaymentProviderError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  409: ErrorResponse
-  500: ErrorResponse
-}
-
-export type RetryOrderPaymentError = RetryOrderPaymentErrors[keyof RetryOrderPaymentErrors]
-
-export type RetryOrderPaymentResponses = {
-  200: CreatePaymentIntentResponse
-}
-
-export type RetryOrderPaymentResponse = RetryOrderPaymentResponses[keyof RetryOrderPaymentResponses]
 
 export type CancelShipmentForOrderData = {
   body?: never

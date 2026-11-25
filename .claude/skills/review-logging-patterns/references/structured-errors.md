@@ -1,431 +1,122 @@
-# Structured Errors Guide
+# Error Handling Guide
 
-Structured errors provide context that helps developers understand **what** happened, **why** it happened, and **how to fix it**.
+A failure in this storefront tells three readers what happened: the shopper
+(Django's reason, in their language), the log (one line at the right level)
+and whoever joins the two (the request id). The helpers below do all three;
+code under review should go through them rather than build its own.
 
-## The Problem with Generic Errors
+## Server Routes
 
-```typescript
-// ❌ Useless errors
-throw new Error('Something went wrong')
-throw new Error('Failed')
-throw new Error('Invalid input')
-
-// ❌ Missing context
-throw new Error('Payment failed')  // Why? How do I fix it?
-```
-
-When these errors reach your logs or monitoring, you have no idea:
-
-- What actually failed
-- Why it failed
-- How to fix it
-- Where to find more information
-
-## Structured Error Anatomy
+### The `catch` of Every Route
 
 ```typescript
-import { createError } from 'evlog'
-
-throw createError({
-  message: 'Payment failed',              // What happened
-  status: 402,                            // HTTP status code
-  why: 'Card declined by issuer',         // Why it happened
-  fix: 'Try a different payment method',  // How to fix it
-  link: 'https://docs.example.com/...',   // More information
-  cause: originalError,                   // Original error
-})
-```
-
-### Console Output (Development)
-
-```
-Error: Payment failed
-Why: Card declined by issuer
-Fix: Try a different payment method
-More info: https://docs.example.com/payments/declined
-
-Caused by: StripeCardError: card_declined
-```
-
-### JSON Output (Production)
-
-```json
-{
-  "name": "EvlogError",
-  "message": "Payment failed",
-  "why": "Card declined by issuer",
-  "fix": "Try a different payment method",
-  "link": "https://docs.example.com/payments/declined",
-  "cause": {
-    "name": "StripeCardError",
-    "message": "card_declined"
-  },
-  "stack": "..."
+catch (error) {
+  return handleError(event, error)
 }
 ```
+
+`handleError` (`server/utils/error.ts`) answers in one shape:
+
+- A Django 4xx that carries a body is **returned** with Django's status, so the
+  client's `error.data` is exactly Django's body (`code`, per-field errors, the
+  sentence).
+- Anything else goes through `rejectError`, which logs it once and throws:
+  - a request the client closed: `warn`, answered 499;
+  - a request that failed its schema: `warn` (`action: 'validation:request'`);
+  - a response that failed its schema (Django and `shared/openapi` drifted):
+    `error` (`action: 'validation:response'`);
+  - a Django error without a body to forward: `warn` for 4xx, `error` for 5xx
+    (`action: 'upstream:fetch'`); a 5xx body is never forwarded, since it can
+    leak a dependency's diagnostics.
+
+It is typed `never`, so the compiler cannot catch a missing `return`;
+`test/unit/source-rules/handle-error-is-returned.spec.ts` does. Two helpers
+wrap it, for the routes that need them:
+
+- `handleAllAuthError`, on allauth routes: syncs the session from the error
+  first;
+- `forwardUpstreamDocumentedError(event, error, schema)`, on a route that
+  documents a 5xx answer of its own: returns that body when `schema` validates
+  it, and calls `handleError` otherwise.
+
+A route that turns one upstream 4xx into its own body (the 409 of
+`server/api/cart/reserve-stock.post.ts`) logs it with `log.warn` and falls
+back to `return handleError(event, error)` for every other failure.
+
+### Errors the Storefront Raises
+
+h3's `createError` from `nuxt/server`, thrown, with a status and a short status
+text:
+
+```typescript
+import { createError } from 'nuxt/server'
+
+throw createError({ status: 503, statusText: 'Service Unavailable' })
+throw createError({ status: 404, statusText: 'Store not found' })
+```
+
+Pass `data` only when the client reads it (`server/utils/parser.ts` attaches the
+Zod issues). A plain `throw new Error(...)` is right for a programmer error or a
+startup check, which is no HTTP answer (`server/plugins/startup-validation.ts`).
+
+evlog's own structured error (`createEvlogError` with `why`, `fix`, `link`) and
+`parseError` are auto-imported by `evlog/nuxt`, but they are not this contract:
+the shopper's reason is Django's body, read by `useApiError`. Do not introduce
+them.
+
+### What Reaches the Wide Event
+
+evlog records an error thrown out of a handler on the request's wide event and
+logs the request at `error`. `server/plugins/evlog-client-error-level.ts` turns
+a 4xx into `warn` (a response that failed its own schema stays `error`), and
+`sampling.keep: [{ status: 400 }]` keeps every one of them. A route therefore
+adds no `log.error` of its own before `handleError`: the failure would be
+logged twice.
+
+## Client Code
+
+### Showing a Failure
+
+Every error toast in a `catch` goes through `useApiError().notify` (or
+`useApiFormErrors().reportFailure`); a hand-written error toast throws away the
+reason Django gave (`test/unit/source-rules/errors-go-through-the-helper.spec.ts`).
+`notify` shows the action's headline, Django's reason, and behind a details
+button the stable code and the request id.
+
+### Logging a Failure
+
+From `app/components/Product/Review.vue`:
+
+```typescript
+try {
+  const created = await $api('/api/products/reviews', { method: 'POST', body: reviewBody(event) })
+  // ...
+}
+catch (error) {
+  log.error({ action: 'review:create', error, requestId: requestIdOf(error) })
+  notify('review:create', error, { title: t('add.error') })
+}
+```
+
+- The `action` names the operation; the `error` is nested in the event. The
+  ingest (`server/plugins/evlog-client-context.ts`) reduces a nested response
+  body to an allowlist (`server/utils/clientEventRedaction.ts`): every value but a
+  field name, an identifier-shaped `code` / `reason` / `type` / `param` and an HTTP
+  status is replaced. The error's own `message` is kept, and so is an identifier-shaped
+  value, so never put customer text in a `message`, `code` or `reason` you raise.
+- `requestId: requestIdOf(error)` (`shared/utils/error.ts`) joins the browser
+  line to the server and Django lines of the same request.
+- A connection failure (a chunk the browser could not download, a `fetch` with
+  no response) is printed at `warn` by the ingest; the call site does not
+  classify it.
+
+The global error hooks (`app/plugins/error-reporting.client.ts`) already report
+uncaught errors; a component does not log what it rethrows.
 
 ## Field Guidelines
 
-### `message` - What Happened
-
-User-facing description of what went wrong.
-
-```typescript
-// ✅ Good - clear, actionable
-message: 'Failed to sync repository'
-message: 'Unable to process payment'
-message: 'User not found'
-
-// ❌ Bad - vague, unhelpful
-message: 'Error'
-message: 'Something went wrong'
-message: 'Failed'
-```
-
-### `why` - Why It Happened
-
-Technical explanation for debugging.
-
-```typescript
-// ✅ Good - specific, technical
-why: 'GitHub API rate limit exceeded (403)'
-why: 'Card declined by issuer: insufficient_funds'
-why: 'No user with ID "user_123" exists in database'
-
-// ❌ Bad - just restating the message
-why: 'It failed'
-why: 'Error occurred'
-```
-
-### `fix` - How to Fix It
-
-Actionable steps to resolve the issue.
-
-```typescript
-// ✅ Good - specific actions
-fix: 'Wait 1 hour or use a different API token'
-fix: 'Use a different payment method or contact your bank'
-fix: 'Check the user ID and try again'
-
-// ❌ Bad - not actionable
-fix: 'Fix the error'
-fix: 'Try again'
-```
-
-### `link` - More Information
-
-Documentation URL for detailed troubleshooting.
-
-```typescript
-// ✅ Good - specific documentation
-link: 'https://docs.github.com/en/rest/rate-limit'
-link: 'https://docs.stripe.com/declines/codes'
-link: 'https://your-app.com/docs/errors/user-not-found'
-```
-
-### `cause` - Original Error
-
-The underlying error that triggered this one.
-
-```typescript
-try {
-  await stripe.charges.create(...)
-} catch (error) {
-  throw createError({
-    message: 'Payment failed',
-    why: `Stripe error: ${error.code}`,
-    fix: 'Contact support with error code',
-    cause: error,  // Preserves original stack trace
-  })
-}
-```
-
-## Common Error Patterns
-
-### API/External Service Errors
-
-```typescript
-// Rate limiting
-throw createError({
-  message: 'GitHub sync temporarily unavailable',
-  status: 429,
-  why: 'API rate limit exceeded (5000/hour)',
-  fix: 'Wait until rate limit resets or use authenticated requests',
-  link: 'https://docs.github.com/en/rest/rate-limit',
-  cause: error,
-})
-
-// Authentication
-throw createError({
-  message: 'Unable to connect to Stripe',
-  status: 503,
-  why: 'Invalid API key provided',
-  fix: 'Check STRIPE_SECRET_KEY environment variable',
-  link: 'https://docs.stripe.com/keys',
-  cause: error,
-})
-
-// Network
-throw createError({
-  message: 'Failed to fetch user data',
-  status: 504,
-  why: 'Connection timeout after 30s',
-  fix: 'Check network connectivity and try again',
-  cause: error,
-})
-```
-
-### Validation Errors
-
-```typescript
-// Missing required field
-throw createError({
-  message: 'Invalid checkout request',
-  status: 400,
-  why: 'Required field "email" is missing',
-  fix: 'Include a valid email address in the request body',
-  link: 'https://your-api.com/docs/checkout#request-body',
-})
-
-// Invalid format
-throw createError({
-  message: 'Invalid email format',
-  status: 422,
-  why: `"${email}" is not a valid email address`,
-  fix: 'Provide an email in the format user@example.com',
-})
-
-// Business rule violation
-throw createError({
-  message: 'Cannot cancel subscription',
-  status: 409,
-  why: 'Subscription has already been cancelled',
-  fix: 'No action needed - subscription is already inactive',
-})
-```
-
-### Database Errors
-
-```typescript
-// Not found
-throw createError({
-  message: 'User not found',
-  status: 404,
-  why: `No user with ID "${userId}" exists`,
-  fix: 'Verify the user ID is correct',
-})
-
-// Constraint violation
-throw createError({
-  message: 'Cannot create duplicate account',
-  status: 409,
-  why: `User with email "${email}" already exists`,
-  fix: 'Use a different email or log in to existing account',
-  link: 'https://your-app.com/login',
-})
-
-// Connection
-throw createError({
-  message: 'Database unavailable',
-  status: 503,
-  why: 'Connection pool exhausted',
-  fix: 'Reduce concurrent connections or increase pool size',
-  cause: error,
-})
-```
-
-### Permission Errors
-
-```typescript
-throw createError({
-  message: 'Access denied',
-  status: 403,
-  why: 'User lacks "admin" role required for this action',
-  fix: 'Contact an administrator to request access',
-  link: 'https://your-app.com/docs/permissions',
-})
-```
-
-## Transformation Examples
-
-### Before: Generic Error
-
-```typescript
-async function processPayment(cart, user) {
-  try {
-    return await stripe.charges.create({
-      amount: cart.total,
-      currency: 'usd',
-      source: user.paymentMethodId,
-    })
-  } catch (error) {
-    throw new Error('Payment failed')  // ❌ No context
-  }
-}
-```
-
-### After: Structured Error
-
-```typescript
-async function processPayment(cart, user) {
-  try {
-    return await stripe.charges.create({
-      amount: cart.total,
-      currency: 'usd',
-      source: user.paymentMethodId,
-    })
-  } catch (error) {
-    throw createError({
-      message: 'Payment failed',
-      why: getStripeErrorReason(error),
-      fix: getStripeErrorFix(error),
-      link: 'https://docs.stripe.com/declines/codes',
-      cause: error,
-    })
-  }
-}
-
-function getStripeErrorReason(error) {
-  const reasons = {
-    card_declined: 'Card was declined by the issuer',
-    insufficient_funds: 'Card has insufficient funds',
-    expired_card: 'Card has expired',
-    // ...
-  }
-  return reasons[error.code] ?? `Stripe error: ${error.code}`
-}
-
-function getStripeErrorFix(error) {
-  const fixes = {
-    card_declined: 'Try a different payment method or contact your bank',
-    insufficient_funds: 'Use a different card or add funds',
-    expired_card: 'Update your card details with a valid expiration date',
-    // ...
-  }
-  return fixes[error.code] ?? 'Contact support with error code'
-}
-```
-
-## Integration with Wide Events
-
-Structured errors integrate seamlessly with wide events:
-
-```typescript
-// server/api/checkout.post.ts
-// Nuxt: useLogger and createError are auto-imported
-// Nitro v3: import { useLogger } from 'evlog/nitro/v3'
-// Nitro v2: import { useLogger } from 'evlog/nitro'
-import { createError } from 'evlog'
-
-export default defineEventHandler(async (event) => {
-  const log = useLogger(event)
-
-  try {
-    // ... business logic ...
-  } catch (error) {
-    // EvlogError fields are automatically captured
-    log.error(error, { step: 'payment' })
-    throw createError({
-      message: 'Payment failed',
-      why: error.message,
-      fix: 'Try a different payment method',
-    })
-  }
-  // emit() called automatically
-})
-```
-
-The wide event will include:
-
-```json
-{
-  "error": {
-    "name": "EvlogError",
-    "message": "Payment failed",
-    "why": "Card declined by issuer",
-    "fix": "Try a different payment method",
-    "link": "https://docs.stripe.com/declines/codes"
-  },
-  "step": "payment"
-}
-```
-
-## Best Practices
-
-### Do
-
-- Always provide `message` and `why` at minimum
-- Include `fix` when there's an actionable solution
-- Add `link` to documentation for complex errors
-- Preserve `cause` when wrapping errors
-- Be specific about what failed and why
-
-### Don't
-
-- Use generic messages like "Error" or "Failed"
-- Leak sensitive data (passwords, tokens, PII)
-- Make `why` and `message` identical
-- Suggest fixes that aren't actually possible
-- Create errors without any context
-
-## Nitro Compatibility
-
-evlog errors work with any Nitro-powered framework. When thrown in an API route, the error is automatically converted to an HTTP response:
-
-```typescript
-// Backend - just throw
-throw createError({
-  message: 'Payment failed',
-  status: 402,
-  why: 'Card declined',
-  fix: 'Try another card',
-  link: 'https://docs.example.com/payments',
-})
-
-// HTTP Response:
-// Status: 402
-// Body: {
-//   statusCode: 402,
-//   message: "Payment failed",
-//   data: { why: "Card declined", fix: "Try another card", link: "..." }
-// }
-```
-
-### Frontend Integration
-
-Use `parseError()` to extract all fields at the top level:
-
-```typescript
-import { parseError } from 'evlog'
-
-try {
-  await $fetch('/api/checkout')
-} catch (err) {
-  const error = parseError(err)
-
-  // Direct access: error.message, error.why, error.fix, error.link
-  toast.add({
-    title: error.message,
-    description: error.why,
-    color: 'error',
-    actions: error.link
-      ? [{ label: 'Learn more', onClick: () => window.open(error.link) }]
-      : undefined,
-  })
-
-  if (error.fix) console.info(`💡 Fix: ${error.fix}`)
-}
-```
-
-**The difference**: A generic error shows "An error occurred". A structured error shows the message, explains why, suggests a fix, and links to documentation.
-
-## Error Message Templates
-
-Common patterns -- adapt fields to each specific case:
-
-| Pattern | Status | Fields |
-|---------|--------|--------|
-| Resource not found | 404 | `why`: what's missing, `fix`: verify identifier |
-| External service failure | 503 | `why`: service error, `fix`: actionable step, `link`: service docs, `cause`: original error |
-| Validation failure | 400 | `why`: what's invalid, `fix`: expected format |
-| Permission denied | 403 | `why`: what's required, `fix`: how to get access |
+- `action`: `<area>:<operation>`, stable, so a query can group by it
+  (`checkout:submit`, `review:create`).
+- A message names what failed, not "Error" or "Something went wrong".
+- Never put a password, token, email, address, raw User-Agent, OS version or a
+  customer's text in a log field.

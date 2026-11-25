@@ -27,8 +27,6 @@
   "stock_released_description": "The items are now available to other customers",
   "retrying": "Retrying",
   "creating_new_reservation": "Creating a new reservation...",
-  "payment_intent_created": "Payment prepared",
-  "payment_intent_created_description": "Your payment is ready to be processed",
   "payment_intent_error": "Payment error",
   "payment_intent_error_description": "The payment could not be created. Please try again.",
   "saved_address_invalid_title": "Check the address",

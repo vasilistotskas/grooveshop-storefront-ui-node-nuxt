@@ -1,14 +1,16 @@
 # Code Review Checklist
 
-Use this checklist when reviewing code for logging best practices and evlog adoption.
+Use this checklist when reviewing logging and error handling in this storefront.
+`SKILL.md` › **Setup in this repo** holds the patterns it checks against.
 
 ## Quick Scan
 
-Run through these checks first to identify improvement opportunities:
+Run through these checks first to identify improvement opportunities.
 
 ### 1. Console Statement Audit
 
-Search for these patterns:
+`no-console` is an ESLint error everywhere but `scripts/`, so `pnpm lint:ci`
+finds these. Search for them anyway in code under review:
 
 ```typescript
 // ❌ Patterns to find and transform
@@ -21,20 +23,16 @@ console.debug(...)
 
 **Questions to ask:**
 
-- Are there multiple console statements in one function?
-- Are they logging request/response data?
-- Could they be consolidated into a wide event?
+- Are there several log calls about one request?
+- Are they logging request or response data?
+- Could they be one wide event?
 
 ### 2. Error Pattern Audit
 
-Search for these patterns:
+Search server routes for these patterns:
 
 ```typescript
-// ❌ Generic errors
-throw new Error('...')
-throw Error('...')
-
-// ❌ Re-throwing without context
+// ❌ A route's catch that does not go through the helper
 catch (error) {
   throw error
 }
@@ -44,62 +42,73 @@ catch (error) {
   console.error(error)
   throw error
 }
+
+// ❌ The helper without `return`
+catch (error) {
+  handleError(event, error)
+}
 ```
 
 **Questions to ask:**
 
-- Does the error message explain what happened?
-- Is there a `why` explaining the root cause?
-- Is there a `fix` suggesting a solution?
-- Is the original error preserved as `cause`?
+- Does every route's `catch` end with `return handleError(event, error)` (or
+  one of the helpers that wrap it: `handleAllAuthError`,
+  `forwardUpstreamDocumentedError`)? An allauth route that can return a pending
+  flow (MFA, multi-step login) catches with `forwardAllAuthFlow` first: it syncs
+  the session and returns the envelope allauth clients read.
+- Is an error the storefront raises itself a thrown `createError({ status, statusText })`
+  from `nuxt/server`?
+- On the client, is the failure shown with `useApiError().notify` and caught in
+  `try` / `catch`, never in ofetch's `onResponse*` hooks?
 
 ### 3. Request Handler Audit
 
-For each API route/handler, check:
+For each API route, check:
 
 ```typescript
-// ❌ Missing request context
+// ❌ Nothing about the request on its wide event
 export default defineEventHandler(async (event) => {
-  // No logging at all, or scattered console.logs
+  // No context set, or scattered log calls
 })
 ```
 
 **Questions to ask:**
 
-- Is there a request-scoped logger?
-- Is context accumulated throughout the request?
-- Is there a single emit at the end?
+- Does the route set what identifies its operation on `event.context.log`
+  (the cart item, the order, the search query's shape)?
+- Is that context set before the handler returns or throws?
+- Does it repeat what middleware already sets (store, user id, client)?
 
 ## Detailed Review
 
-### Console.log Transformations
+### Log Call Transformations
 
 #### Single Debug Log
 
 ```typescript
 // ❌ Before
-console.log('Processing user:', userId)
+console.log('Processing cart:', cartId)
 
-// ✅ After - if part of a larger operation
-log.set({ user: { id: userId } })
+// ✅ After, in a route: part of the request's wide event
+event.context.log?.set({ cart: { id: cartId } })
 
-// ✅ After - if standalone debug
-log.debug('user', `Processing user ${userId}`)
+// ✅ After, outside a request (a plugin, startup)
+log.debug('cart', `Processing cart ${cartId}`)
 ```
+
+Production keeps no debug lines (`debug: 0` in `$production.evlog.sampling.rates`).
 
 #### Multiple Related Logs
 
 ```typescript
 // ❌ Before
 console.log('Starting checkout')
-console.log('User:', user.id)
 console.log('Cart items:', cart.items.length)
 console.log('Total:', cart.total)
 
-// ✅ After
+// ✅ After, in app code: one event in the object form
 log.info({
-  action: 'checkout',
-  user: { id: user.id },
+  action: 'checkout:start',
   cart: { items: cart.items.length, total: cart.total },
 })
 ```
@@ -107,202 +116,131 @@ log.info({
 #### Request Lifecycle Logs
 
 ```typescript
-// server/api/process.post.ts
-
 // ❌ Before
 export default defineEventHandler(async (event) => {
   console.log('Request started')
-  const user = await getUser(event)
-  console.log('User loaded')
-  const result = await processData(user)
-  console.log('Processing complete')
-  return result
+  const body = await readValidatedBody(event, zBody)
+  console.log('Body read')
+  const response = await useBackendFetch(event)(url, { method: 'POST', body })
+  console.log('Done')
+  return response
 })
 
-// ✅ After (Nuxt - auto-imported, no import needed)
-// For Nitro v3: import { useLogger } from 'evlog/nitro/v3'
-// For Nitro v2: import { useLogger } from 'evlog/nitro'
+// ✅ After
+import { defineEventHandler, readValidatedBody } from 'nuxt/server'
 
 export default defineEventHandler(async (event) => {
-  const log = useLogger(event)
+  const wideLog = event.context.log
 
-  const user = await getUser(event)
-  log.set({ user: { id: user.id } })
-
-  const result = await processData(user)
-  log.set({ result: { id: result.id } })
-
-  return result
-  // emit() called automatically
+  try {
+    const body = await readValidatedBody(event, zBody)
+    wideLog?.set({ cart: { item: { productId: body.product } } })
+    const response = await useBackendFetch(event)(url, { method: 'POST', body })
+    return await parseDataAs(response, zResponse)
+  }
+  catch (error) {
+    return handleError(event, error)
+  }
+  // evlog emits the wide event at request end
 })
 ```
 
 ### Error Transformations
 
-#### Generic Error
-
-```typescript
-// ❌ Before
-throw new Error('Failed to create user')
-
-// ✅ After
-throw createError({
-  message: 'Failed to create user',
-  why: 'Email address already registered',
-  fix: 'Use a different email or log in to existing account',
-  link: 'https://your-app.com/docs/registration',
-})
-```
-
-#### Wrapped Error Without Context
+#### Log-and-Throw in a Route
 
 ```typescript
 // ❌ Before
 try {
-  await externalApi.call()
-} catch (error) {
-  throw new Error('API call failed')
+  return await useBackendFetch(event)(url)
 }
-
-// ✅ After
-try {
-  await externalApi.call()
-} catch (error) {
-  throw createError({
-    message: 'External API call failed',
-    why: `API returned: ${error.message}`,
-    fix: 'Check API credentials and try again',
-    link: 'https://api-docs.example.com/errors',
-    cause: error,
-  })
-}
-```
-
-#### Log-and-Throw Anti-pattern
-
-```typescript
-// ❌ Before
-try {
-  await riskyOperation()
-} catch (error) {
-  console.error('Operation failed:', error)
+catch (error) {
+  console.error('Backend call failed:', error)
   throw error
 }
 
-// ✅ After
+// ✅ After: handleError logs it once, at the right level, and answers
 try {
-  await riskyOperation()
-} catch (error) {
-  log.error(error, { step: 'riskyOperation' })
-  throw createError({
-    message: 'Operation failed',
-    why: error.message,
-    fix: 'Check input and retry',
-    cause: error,
-  })
+  return await useBackendFetch(event)(url)
+}
+catch (error) {
+  return handleError(event, error)
 }
 ```
 
-### Request Handler Transformations
-
-#### No Logging
+#### Returned Instead of Thrown
 
 ```typescript
-// server/api/orders.post.ts
-
 // ❌ Before
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const result = await processOrder(body)
-  return result
-})
+return createError({ status: 404, statusText: 'Not Found' })
 
-// ✅ After (Nuxt - auto-imported, no import needed)
-// For Nitro v3: import { useLogger } from 'evlog/nitro/v3'
-// For Nitro v2: import { useLogger } from 'evlog/nitro'
-import { createError } from 'evlog'
-
-export default defineEventHandler(async (event) => {
-  const log = useLogger(event)
-
-  const body = await readBody(event)
-  log.set({ order: { items: body.items?.length } })
-
-  try {
-    const result = await processOrder(body)
-    log.set({ result: { orderId: result.id, status: result.status } })
-    return result
-  } catch (error) {
-    log.error(error, { step: 'processOrder' })
-    throw createError({
-      message: 'Order processing failed',
-      why: error.message,
-      fix: 'Check the order data and try again',
-    })
-  }
-  // emit() called automatically
-})
+// ✅ After
+throw createError({ status: 404, statusText: 'Not Found' })
 ```
+
+A plain `throw new Error(...)` stays right for a programmer error or a startup
+check that is no HTTP answer (`server/plugins/startup-validation.ts`).
 
 ## Review Checklist Summary
 
 ### Logging
 
-- [ ] No raw `console.log` statements in production code
-- [ ] Request handlers use `useLogger(event)` (Nuxt/Nitro) or `createRequestLogger()` (standalone)
-- [ ] Context is accumulated with `log.set()` throughout the request
-- [ ] `emit()` is automatic with `useLogger()`, manual with `createRequestLogger()`
-- [ ] Wide events include: user, business context, outcome
+- [ ] No `console.*` outside `scripts/`
+- [ ] Request context is set on `event.context.log` in `nuxt/server` handlers
+- [ ] Context is set before the request logger emits (route or middleware, never an `evlog:enrich` hook)
+- [ ] No drain, `evlog:drain` hook or `silent` added
+- [ ] `log.*` calls with context use the object form, never a third argument
 
 ### Errors
 
-- [ ] All errors use `createError()` instead of `new Error()` (import from `evlog`)
-- [ ] Every error has a clear `message` and appropriate `status` code
-- [ ] Complex errors include `why` explaining root cause
-- [ ] Fixable errors include `fix` with actionable steps
-- [ ] Documented errors include `link` to docs
-- [ ] Wrapped errors preserve `cause`
+- [ ] Every route's `catch` ends with `return handleError(event, error)`, `handleAllAuthError` or `forwardUpstreamDocumentedError`
+- [ ] Nothing follows `handleError`
+- [ ] Errors the storefront raises are `throw createError({ status, statusText })` from `nuxt/server`
+- [ ] No `createEvlogError` / `parseError` introduced: they are not the error contract here
 
 ### Frontend Error Handling
 
-- [ ] API errors are caught and displayed with full context (message, why, fix)
-- [ ] Toasts or error components use the structured data from `error.data` (Django's body, forwarded by `handleError`)
-- [ ] Links to documentation are actionable (buttons/links in toasts)
+- [ ] A failed `$api` call is handled in `try` / `catch` / `finally` (`test/unit/source-rules/api-errors-are-caught.spec.ts`)
+- [ ] Error toasts go through `useApiError().notify` or `useApiFormErrors().reportFailure` (`test/unit/source-rules/errors-go-through-the-helper.spec.ts`), so the shopper sees Django's reason from `error.data`
+- [ ] Logged failures are `log.error({ action, error })`; a site that wants the request id adds `requestId: requestIdOf(error)`
 
 ### Context
 
-- [ ] User context includes: id, plan/subscription, relevant business data
-- [ ] Request context includes: method, path, requestId
-- [ ] Business context is domain-specific and useful for debugging
-- [ ] No sensitive data in logs (passwords, tokens, full card numbers)
+- [ ] Business context is domain-specific and useful for debugging (cart, order, search, store)
+- [ ] Not set again: the store, user id and client facts (middleware), method, path, request id, status and duration (evlog)
+- [ ] No sensitive data: no passwords, tokens, raw User-Agent, OS version, email, address or anything a customer typed
 
 ## Anti-Pattern Summary
 
 | Anti-Pattern | Fix |
 |--------------|-----|
-| Multiple `console.log` in one function | Single wide event with `useLogger(event).set()` |
-| `throw new Error('...')` | `throw createError({ message, status, why, fix })` |
-| `console.error(e); throw e` | `log.error(e); throw createError(...)` |
-| No logging in request handlers | Add `useLogger(event)` (Nuxt/Nitro) or `createRequestLogger()` (standalone) |
+| Several log calls about one request | One wide event with `event.context.log?.set()` |
+| `console.error(e); throw e` in a route | `return handleError(event, error)` |
+| `return createError(...)` | `throw createError(...)` |
+| No context on a request handler | `event.context.log?.set({ ... })` |
 | Flat log data | Grouped objects: `{ user: {...}, cart: {...} }` |
-| Abbreviated field names | Descriptive names: `userId` not `uid` |
+| Abbreviated field names | Descriptive names: `productId` not `pid` |
 
 ## Suggested Review Comments
 
 Use these when leaving review feedback:
 
-### Console.log Found
+### Console Statement Found
 
-> Consider using evlog's wide event pattern here. Instead of multiple console.log statements, use `useLogger(event)` to accumulate context and emit a single comprehensive event.
+> `no-console` fails lint here. Put this route's context on its wide event with
+> `event.context.log?.set({ ... })`, or use `log.*` outside a request.
 
-### Generic Error
+### Error Bypasses the Helper
 
-> This error would benefit from evlog's structured error pattern. Consider using `import { createError } from 'evlog'` and `createError({ message, status, why, fix })` to provide more debugging context.
+> This `catch` should end with `return handleError(event, error)`: it logs the
+> failure at the right level and gives the client Django's body in one shape.
 
 ### Missing Request Context
 
-> This handler would benefit from request-scoped logging. Add `useLogger(event)` at the start to capture context throughout the request lifecycle.
+> This route's wide event says nothing about what it did. Set the identifying
+> fields with `event.context.log?.set({ ... })` before it returns.
 
 ### Good Logging (Positive Feedback)
 
-> Nice use of wide events here! The context is well-structured and will be very useful for debugging.
+> Nice use of the wide event: the context is grouped and explicit, and nothing
+> sensitive reaches the log.

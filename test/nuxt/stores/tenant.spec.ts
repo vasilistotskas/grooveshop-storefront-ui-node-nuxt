@@ -92,6 +92,20 @@ describe('useTenantStore', () => {
     },
   )
 
+  describe('siteName', () => {
+    it('is the store name, else the tenant name, as the site config names the store', () => {
+      const store = useTenantStore()
+      store.setConfig(config({ storeName: 'Acme Shop', name: 'acme' }))
+      expect(store.siteName).toBe('Acme Shop')
+
+      store.setConfig(config({ storeName: '', name: 'acme' }))
+      expect(store.siteName).toBe('acme')
+
+      store.setConfig(null)
+      expect(store.siteName).toBe('')
+    })
+  })
+
   describe('socials', () => {
     const NONE = {
       discord: '',
