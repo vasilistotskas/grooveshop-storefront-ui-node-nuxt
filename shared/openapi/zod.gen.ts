@@ -841,40 +841,6 @@ export const zCartAgentTokenResponse = z.object({
   expiresIn: z.int(),
 })
 
-/**
- * * `home_delivery` - home_delivery
- * * `pickup_point` - pickup_point
- */
-export const zCartCreatePaymentIntentRequestShippingKindEnum = z.enum(['home_delivery', 'pickup_point'])
-
-/**
- * Request body for ``POST /api/v1/cart/create-payment-intent``.
- *
- * ``shipping_kind`` is required so the view's shipping calculation
- * follows the same code path the order-create verification runs.
- * ``shipping_provider_code`` is required for ``pickup_point`` (the
- * carrier identity drives the locker quote + per-carrier threshold)
- * but **omitted for ``home_delivery``** — home delivery is
- * provider-agnostic in checkout per the frontend's
- * ``shared/shipping/index.ts::carrierForMethod`` contract, and the
- * backend resolves the active home-delivery provider at order
- * creation. Sending whatever the frontend has guarantees both calc
- * paths agree.
- */
-export const zCartCreatePaymentIntentRequestRequest = z.object({
-  payWayId: z.int().gte(1),
-  shippingKind: zCartCreatePaymentIntentRequestShippingKindEnum,
-  shippingProviderCode: z.string().max(32).optional(),
-  countryId: z.string().min(1).max(2),
-  regionId: z.string().max(16).optional(),
-  email: z.union([
-    z.email(),
-    z.string().max(0),
-  ]).optional(),
-  giftCardCodes: z.array(z.string().min(1).max(32)).max(3).optional(),
-  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
-})
-
 export const zCartItemCreateRequest = z.object({
   product: z.int(),
   quantity: z.int().gte(0).lte(2147483647).optional(),
@@ -884,16 +850,6 @@ export const zCartItemCreateRequest = z.object({
 export const zCartItemUpdateRequest = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
   recommendationImpressionId: z.uuid().nullish(),
-})
-
-/**
- * Response body returned by the create-payment-intent cart action.
- */
-export const zCartPaymentIntentResponse = z.object({
-  clientSecret: z.string(),
-  paymentIntentId: z.string(),
-  amount: z.number().gt(-10000000000).lt(10000000000),
-  currency: z.string().max(3),
 })
 
 export const zCheckpointWriteRequest = z.object({
@@ -1160,34 +1116,6 @@ export const zCreateCheckoutSessionResponse = z.object({
   currency: z.string(),
   provider: z.string(),
   expiresAt: z.iso.datetime({ offset: true }),
-})
-
-/**
- * Request body for ``create_payment_intent`` and ``retry_payment``.
- *
- * The three named fields are declared because both views read them off
- * ``validated_data`` — undeclared, DRF dropped them and the branches
- * that copy them into ``payment_data`` could never fire.
- */
-export const zCreatePaymentIntentRequestRequest = z.object({
-  paymentData: z.record(z.string(), z.string().min(1).max(500)).optional(),
-  paymentMethodId: z.string().max(255).optional(),
-  customerId: z.string().max(255).optional(),
-  returnUrl: z.union([
-    z.url().max(500),
-    z.string().max(0),
-  ]).optional(),
-})
-
-export const zCreatePaymentIntentResponse = z.object({
-  paymentId: z.string(),
-  status: z.string(),
-  amount: z.string(),
-  currency: z.string(),
-  provider: z.string(),
-  clientSecret: z.string().optional(),
-  requiresAction: z.boolean().optional().default(false),
-  nextAction: z.record(z.string(), z.unknown()).nullish(),
 })
 
 /**
@@ -1874,10 +1802,6 @@ export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE'])
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
  * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
  * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
- * * `payment_not_found` - Δεν βρέθηκε πληρωμή
- * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
- * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
- * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
  */
 export const zOrderCreateErrorType = z.enum([
   'insufficient_stock',
@@ -1887,10 +1811,6 @@ export const zOrderCreateErrorType = z.enum([
   'invalid_coupon',
   'invalid_gift_card',
   'legal_document_unavailable',
-  'payment_not_found',
-  'payment_verification',
-  'payment_amount_mismatch',
-  'payment_currency_mismatch',
 ])
 
 /**
@@ -3444,6 +3364,20 @@ export const zQuoteBlockingCoupon = z.object({
 })
 
 /**
+ * One cart line as the quote priced it (``QuoteLine``).
+ */
+export const zQuoteLine = z.object({
+  id: z.int(),
+  productId: z.int(),
+  productName: z.string().readonly(),
+  mainImagePath: z.string(),
+  quantity: z.int(),
+  unitPrice: z.number().gt(-1000000000).lt(1000000000),
+  totalPrice: z.number().gt(-1000000000).lt(1000000000),
+  promotionDiscount: z.number().gt(-1000000000).lt(1000000000),
+})
+
+/**
  * One pay way the shopper is offered, with the fee this cart would
  * be charged for choosing it.
  */
@@ -4688,13 +4622,13 @@ export const zShippingKind = z.enum(['home_delivery', 'pickup_point'])
 /**
  * Request body for ``POST /api/v1/cart/quote``.
  *
- * The choices of the payment-intent body, each optional: a quote may
- * be asked before the shopper has chosen a delivery or a pay way, and
- * the rows that depend on a missing choice come back null. A delivery
- * is priced once both ``shipping_kind`` and ``country_id`` are given.
- * Send what the order-create body will carry, the email and the pickup
- * point included, so the quote is the total that order is created at
- * and its ``cartDigest`` the cart that order is made of.
+ * The checkout's choices, each optional: a quote may be asked before
+ * the shopper has chosen a delivery or a pay way, and the rows that
+ * depend on a missing choice come back null. A delivery is priced once
+ * both ``shipping_kind`` and ``country_id`` are given. Send what the
+ * order-create body will carry, the email and the pickup point
+ * included, so the quote is the total that order is created at and its
+ * ``cartDigest`` the cart that order is made of.
  */
 export const zCartQuoteRequestRequest = z.object({
   boxnowLockerId: z.string().max(64).optional(),
@@ -4736,18 +4670,17 @@ export const zFreeShippingInfo = z.object({
 })
 
 /**
- * Serializer for creating orders from cart (dual-flow payment architecture).
+ * Serializer for creating orders from cart.
  *
- * The flow follows the pay way's ``settlement``:
- * 1. ``online``: the shopper pays at checkout. A client-confirmed
- * provider (Stripe) takes ``payment_intent_id`` for the balance
- * left after deductions (gift cards, promotions, loyalty points);
- * without one the order is created order-first, which succeeds only
- * when the deductions cover the whole total, so no provider charge
- * is made. A hosted-checkout provider (Viva) creates the order
- * first and redirects.
+ * Every pay way creates the order before any payment, whatever its
+ * ``settlement``:
+ * 1. ``online``: the shopper pays the balance left after deductions
+ * (gift cards, promotions, loyalty points) afterwards, on the
+ * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * cover the whole total settle the order at once, with no provider
+ * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
- * transfer): money is collected later, no ``payment_intent_id``.
+ * transfer): money is collected later.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
@@ -4757,7 +4690,6 @@ export const zOrderCreateFromCartRequest = z.object({
   acsStationExternalId: z.string().max(32).optional(),
   acsStationBranch: z.string().max(32).optional(),
   payWayId: z.int(),
-  paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150),
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
@@ -7058,9 +6990,27 @@ export const zQuoteShipping = z.object({
  * ``amountDue`` and ``expectedTotal`` without both.
  */
 export const zCheckoutQuote = z.object({
+  lines: z.array(zQuoteLine).readonly(),
   itemsSubtotal: z.number().gt(-1000000000).lt(1000000000),
   discountTotal: z.number().gt(-1000000000).lt(1000000000),
   appliedPromotions: z.array(zQuoteAppliedPromotion),
+  appliedCoupons: z.array(z.object({
+    code: z.string(),
+    amount: z.number(),
+    freeShipping: z.boolean(),
+    gift: z.boolean(),
+    rejection: z.enum([
+      'discount_code_invalid',
+      'discount_code_expired',
+      'discount_code_not_started',
+      'discount_code_minimum_not_met',
+      'discount_code_usage_limit_reached',
+      'discount_code_combination_disallowed',
+      'discount_code_user_ineligible',
+      'discount_code_not_applicable',
+      'discount_code_gift_unavailable',
+    ]).nullable(),
+  })).readonly(),
   blockingCoupon: zQuoteBlockingCoupon.nullable(),
   freeThresholdValue: z.number().gt(-1000000000).lt(1000000000),
   shipping: zQuoteShipping.nullable(),
@@ -7130,9 +7080,27 @@ export const zQuoteShippingOption = z.object({
  * delivery and pay way on offer would cost this cart.
  */
 export const zCartQuote = z.object({
+  lines: z.array(zQuoteLine).readonly(),
   itemsSubtotal: z.number().gt(-1000000000).lt(1000000000),
   discountTotal: z.number().gt(-1000000000).lt(1000000000),
   appliedPromotions: z.array(zQuoteAppliedPromotion),
+  appliedCoupons: z.array(z.object({
+    code: z.string(),
+    amount: z.number(),
+    freeShipping: z.boolean(),
+    gift: z.boolean(),
+    rejection: z.enum([
+      'discount_code_invalid',
+      'discount_code_expired',
+      'discount_code_not_started',
+      'discount_code_minimum_not_met',
+      'discount_code_usage_limit_reached',
+      'discount_code_combination_disallowed',
+      'discount_code_user_ineligible',
+      'discount_code_not_applicable',
+      'discount_code_gift_unavailable',
+    ]).nullable(),
+  })).readonly(),
   blockingCoupon: zQuoteBlockingCoupon.nullable(),
   freeThresholdValue: z.number().gt(-1000000000).lt(1000000000),
   shipping: zQuoteShipping.nullable(),
@@ -7699,18 +7667,17 @@ export const zNotificationUserDetailWritable = z.object({
 })
 
 /**
- * Serializer for creating orders from cart (dual-flow payment architecture).
+ * Serializer for creating orders from cart.
  *
- * The flow follows the pay way's ``settlement``:
- * 1. ``online``: the shopper pays at checkout. A client-confirmed
- * provider (Stripe) takes ``payment_intent_id`` for the balance
- * left after deductions (gift cards, promotions, loyalty points);
- * without one the order is created order-first, which succeeds only
- * when the deductions cover the whole total, so no provider charge
- * is made. A hosted-checkout provider (Viva) creates the order
- * first and redirects.
+ * Every pay way creates the order before any payment, whatever its
+ * ``settlement``:
+ * 1. ``online``: the shopper pays the balance left after deductions
+ * (gift cards, promotions, loyalty points) afterwards, on the
+ * provider's hosted page (Viva Wallet, Stripe). Deductions that
+ * cover the whole total settle the order at once, with no provider
+ * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
- * transfer): money is collected later, no ``payment_intent_id``.
+ * transfer): money is collected later.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
@@ -7720,7 +7687,6 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   acsStationExternalId: z.string().max(32).optional(),
   acsStationBranch: z.string().max(32).optional(),
   payWayId: z.int(),
-  paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150),
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
@@ -8827,6 +8793,19 @@ export const zOrderCreateErrorWritable = z.object({
   error: zOrderCreateErrorDetailWritable.optional(),
   cart: z.array(z.string()).optional(),
   fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
+})
+
+/**
+ * One cart line as the quote priced it (``QuoteLine``).
+ */
+export const zQuoteLineWritable = z.object({
+  id: z.int(),
+  productId: z.int(),
+  mainImagePath: z.string(),
+  quantity: z.int(),
+  unitPrice: z.number().gt(-1000000000).lt(1000000000),
+  totalPrice: z.number().gt(-1000000000).lt(1000000000),
+  promotionDiscount: z.number().gt(-1000000000).lt(1000000000),
 })
 
 export const zRecommendationItemWritable = z.record(z.string(), z.unknown())
@@ -12415,14 +12394,6 @@ export const zListCartCouponsHeaders = z.object({
 
 export const zListCartCouponsResponse = z.array(zCartCoupon)
 
-export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestRequest
-
-export const zCreateCartPaymentIntentHeaders = z.object({
-  'X-Cart-Id': z.uuid().optional(),
-})
-
-export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
-
 export const zListCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
   'X-Cart-Token': z.string().optional(),
@@ -14238,21 +14209,6 @@ export const zCreateOrderCheckoutSessionQuery = z.object({
 
 export const zCreateOrderCheckoutSessionResponse = zCreateCheckoutSessionResponse
 
-export const zCreateOrderPaymentIntentBody = zCreatePaymentIntentRequestRequest
-
-export const zCreateOrderPaymentIntentPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zCreateOrderPaymentIntentQuery = z.object({
-  uuid: z.uuid().optional(),
-})
-
-export const zCreateOrderPaymentIntentResponse = zCreatePaymentIntentResponse
-
 export const zRetrieveOrderInvoicePath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14300,21 +14256,6 @@ export const zReorderOrderPath = z.object({
 })
 
 export const zReorderOrderResponse = zReorderResponse
-
-export const zRetryOrderPaymentBody = zCreatePaymentIntentRequestRequest
-
-export const zRetryOrderPaymentPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zRetryOrderPaymentQuery = z.object({
-  uuid: z.uuid().optional(),
-})
-
-export const zRetryOrderPaymentResponse = zCreatePaymentIntentResponse
 
 export const zCancelShipmentForOrderPath = z.object({
   id: z.union([

@@ -331,7 +331,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   }
 
   /**
-   * Everything a PaymentIntent's amount is computed from: the request
+   * Everything the quoted amount is computed from: the request
    * body (pay way, shipping, destination, email, gift cards, loyalty)
    * and the cart it prices — its lines, total, coupons and promotion.
    */

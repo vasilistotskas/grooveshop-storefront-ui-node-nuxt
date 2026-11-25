@@ -27,8 +27,6 @@
   "stock_released_description": "Τα προϊόντα είναι πλέον διαθέσιμα για άλλους πελάτες",
   "retrying": "Επανάληψη",
   "creating_new_reservation": "Δημιουργία νέας κράτησης...",
-  "payment_intent_created": "Πληρωμή προετοιμάστηκε",
-  "payment_intent_created_description": "Η πληρωμή σας είναι έτοιμη για επεξεργασία",
   "payment_intent_error": "Σφάλμα πληρωμής",
   "payment_intent_error_description": "Δεν ήταν δυνατή η δημιουργία της πληρωμής. Παρακαλώ δοκιμάστε ξανά.",
   "saved_address_invalid_title": "Έλεγξε τη διεύθυνση",
