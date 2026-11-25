@@ -215,12 +215,13 @@ function decodeXml(value) {
 
 /**
  * The URL a client-side navigation fetches for `pathname`: Nuxt joins the
- * page path and `_payload.json` and adds the build id as `_b`
- * (nuxt `app/composables/payload.ts`). The query is part of the cache key,
- * so it must be exactly this.
+ * page path and `_payload.json` (nuxt `app/composables/payload.ts`). A
+ * route whose rule caches it gets no build id (`_b`) since Nuxt 4.7, only
+ * the page's own query, and the pages warmed here have none. The query is
+ * part of the cache key, so it must be exactly this.
  */
-export function payloadPath(pathname, buildId) {
-  return `${pathname.replace(/\/+$/, '')}/_payload.json?_b=${encodeURIComponent(buildId)}`
+export function payloadPath(pathname) {
+  return `${pathname.replace(/\/+$/, '')}/_payload.json`
 }
 
 /**
@@ -962,7 +963,7 @@ async function main() {
             break
           }
           if (!hasExtractedPayload(page.pathname)) continue
-          const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent, origin)
+          const payload = await get(payloadPath(page.pathname), page.host, 'application/json', userAgent, origin)
           if (payload.status === 200) counts.payloads++
           else {
             counts.failed++

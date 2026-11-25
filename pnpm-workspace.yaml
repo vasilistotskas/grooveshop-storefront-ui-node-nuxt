@@ -4,20 +4,6 @@ overrides:
   # '>=patched'` so a future native bump is still allowed once
   # all consumers catch up.
 
-  # CVE-2026-42570 — prototype pollution in devalue <5.8.1.
-  # Transitively via @nuxtjs/i18n, nuxt-og-image, @nuxt/hints,
-  # Nitro server.
-  'devalue@<5.8.1': '>=5.8.1'
-
-  # CVE-2026-14257 (≤5.0.7) and CVE-2026-69152 (≤5.0.8) — ReDoS in
-  # brace-expansion; 5.0.9 patches both (per-major fixes 1.1.18/2.1.4/
-  # 3.0.6 exist for 69152, but this override already collapses every
-  # major onto 5.x). 5.x ships dual CJS+ESM with the same ``expand()``
-  # API, so forcing the minimatch/glob chain up is safe. Capped <6 so
-  # a future major needs a deliberate bump (undici lesson: unbounded
-  # overrides break transitive consumers).
-  'brace-expansion@<5.0.9': '>=5.0.9 <6'
-
   # GHSA-f88m-g3jw-g9cj — sharp, patched in 0.35.0. The old
   # "don't override sharp" note is obsolete: @nuxt/image v2
   # dropped the legacy ipx sharp 0.32.6, and the tree already
@@ -52,10 +38,6 @@ overrides:
   # CVE-2025-13465 (prototype pollution). lodash quietly resumed
   # publishing in 2025 — 4.18.0 is the patch floor.
   lodash: '>=4.18.0'
-
-  # GHSA-hffm-xvc3-vprc (RCE) + GHSA-jcxm-m3jx-f287
-  # (option-parse command injection).
-  simple-git: '>=3.36.0'
 
   # GHSA-5wm8-gmm8-39j9 (attribute-quote bypass) +
   # GHSA-45c6-75p6-83cc (comment regex bypass).
@@ -109,26 +91,9 @@ overrides:
   # and the pre-existing 8.x copies are untouched.
   'undici@>=7.0.0 <7.28.0': '>=7.28.0 <8'
 
-  # CVE-2026-9277 — shell-quote, patched in 1.8.4.
-  'shell-quote@<1.8.4': '>=1.8.4'
-
   # CVE-2026-59873 (CRITICAL) + CVE-2026-59874 — tar 7.x, both
   # patched by 7.5.19.
   'tar@>=7.0.0 <7.5.19': '>=7.5.19'
-
-  # CVE-2026-13149 — brace-expansion ReDoS, patched in 1.1.16 /
-  # 2.1.2 / 5.0.7 per line. Tree ships the 2.x and 5.x lines.
-  'brace-expansion@>=2.0.0 <2.1.2': '>=2.1.2 <3'
-  'brace-expansion@>=5.0.0 <5.0.7': '>=5.0.7'
-
-  # GHSA-2p49-hgcm-8545 — svgo, patched in 4.0.2 on the 4.x line.
-  #
-  # Floor raised to 4.1.0 for CVE-2026-84370: `removeScripts` let
-  # executable links through via a namespace and control-character
-  # bypass, so the plugin that exists to strip scripts from SVG did
-  # not. Fixed releases exist per line (2.8.4 / 3.3.5 / 4.1.0); the
-  # tree is on 4.x, so the 4.x floor covers it.
-  'svgo@>=4.0.0 <4.1.0': '>=4.1.0 <5'
 
   # GHSA-j95f-988m-3j2f — @tiptap/core, quadratic ReDoS in block and
   # inline Markdown attribute parsing, patched in 3.30.5. Reaches the
@@ -170,7 +135,7 @@ allowBuilds:
   unrs-resolver: true
   vue-demi: true
 minimumReleaseAgeExclude:
-  - '@types/node@25.9.1'
+  - '@types/node@25.9.1 || 26.6.7'
   - '@vue/language-core@3.3.2'
   - isomorphic-dompurify@3.14.0 || 4.2.0
   - vue-tsc@3.3.2
@@ -194,12 +159,12 @@ minimumReleaseAgeExclude:
   - vite@8.1.3 || 8.3.4
   - '@nuxtjs/i18n@10.4.1'
   - semantic-release@25.0.6
-  - '@iconify-json/lucide@1.2.119 || 1.2.123 || 1.2.126 || 1.2.141 || 1.2.142 || 1.2.143'
+  - '@iconify-json/lucide@1.2.119 || 1.2.123 || 1.2.126 || 1.2.141 || 1.2.142 || 1.2.143 || 1.2.159'
   - '@semantic-release/git@11.0.1'
   - '@nuxtjs/seo@5.3.12 || 5.3.14 || 5.3.15 || 6.0.1'
   - '@testing-library/jest-dom@7.0.1'
   - nuxtseo-shared@5.3.12 || 5.3.14 || 5.3.15 || 6.0.1
-  - '@nuxt/scripts@1.3.4 || 1.3.9 || 1.3.10'
+  - '@nuxt/scripts@1.3.4 || 1.3.9 || 1.3.10 || 1.3.14'
   - magic-string@1.2.0 || 1.4.5
   - happy-dom@20.14.5 || 20.14.6 || 21.0.1
   - yaml@2.9.1
@@ -217,7 +182,7 @@ minimumReleaseAgeExclude:
   - nuxt-site-config-kit@5.0.1
   - nuxt-site-config@5.0.1
   - nuxt-skew-protection@2.0.1
-  - site-config-stack@5.0.1
+  - site-config-stack@5.0.1 || 5.1.0
   - sitemapd@0.2.3
   - '@nuxt/kit@4.6.3'
   - '@nuxt/nitro-server@4.6.3'
@@ -236,15 +201,12 @@ minimumReleaseAgeExclude:
 #
 # @nuxt/ui pins reka-ui exactly; pnpm refuses to install if the pinned
 # version moves without the patch moving with it.
-#
-# nuxt-schema-org: the store's identity keeps its logo whatever its
-# Organization subtype, instead of a second "#organization" node
-# (unjs/unhead#1034, merged upstream, unreleased); see the patch header.
 patchedDependencies:
-  nuxt-schema-org@7.0.0: patches/nuxt-schema-org@7.0.0.patch
   reka-ui@2.11.0: patches/reka-ui@2.11.0.patch
 permissions:
   '@nuxtjs/seo':
+    skills: false
+  '@tanstack/charts':
     skills: false
 # Node's options for every script pnpm runs (`pnpm typecheck`, `pnpm build`,
 # ...), the same on a developer's machine, in CI and in the image build.

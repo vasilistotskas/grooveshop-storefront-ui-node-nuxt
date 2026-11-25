@@ -83,9 +83,9 @@ describe('sitemapLocations', () => {
 
 describe('payloadPath', () => {
   it('matches the URL the client fetches (nuxt app/composables/payload.ts)', () => {
-    expect(payloadPath('/', 'b1')).toBe('/_payload.json?_b=b1')
-    expect(payloadPath('/blog/post/4/slug', 'b1')).toBe('/blog/post/4/slug/_payload.json?_b=b1')
-    expect(payloadPath('/blog/', 'b1')).toBe('/blog/_payload.json?_b=b1')
+    expect(payloadPath('/')).toBe('/_payload.json')
+    expect(payloadPath('/blog/post/4/slug')).toBe('/blog/post/4/slug/_payload.json')
+    expect(payloadPath('/blog/')).toBe('/blog/_payload.json')
   })
 })
 

@@ -22,7 +22,8 @@ interface ProductSchemaInput {
   /** The canonical product URL. */
   url: string
   imageUrls: string[]
-  storeName: string
+  /** The site config's name: nuxt-site-config types it as optional. */
+  storeName: string | undefined
   currency: string
   /** The category trail by name ("Φόρτιση > Power banks"), when known. */
   category?: string
@@ -68,7 +69,7 @@ function weightOf(weight: SchemaProduct['weight']) {
  * A variant's group, as Google's multi-page pattern has it: every variant
  * page repeats the group, and the variants on other pages are their URLs.
  */
-function productGroup(group: ProductGroupSchema, brand: string) {
+function productGroup(group: ProductGroupSchema, brand: string | undefined) {
   return {
     '@type': 'ProductGroup' as const,
     'name': group.name,

@@ -37,7 +37,7 @@ const clientJsFileNames = `_nuxt/[hash]-${CLIENT_BUILD_TAG}.js`
 
 const modules: (string | NuxtModule)[] = [
   'evlog/nuxt',
-  '@comark/nuxt',
+  '@comark/vue',
   '@nuxt/image',
   '@nuxt/ui',
   '@nuxt/eslint',

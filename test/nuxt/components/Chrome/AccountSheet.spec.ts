@@ -63,7 +63,9 @@ beforeEach(() => {
   state.keys = ['overview', 'orders', 'notifications', 'favourites', 'rewards', 'business', 'security']
   state.summary = { ordersCount: 14, loyalty: { pointsBalance: 2340, tier: SILVER }, giftCardBalance: null, businessStatus: 'APPROVED' }
   state.summaryCalls = 0
-  state.route = reactive({ fullPath: '/' })
+  // A whole route, as the router resolves it: Nuxt renders a static
+  // `<NuxtLink>` itself and reads the current route's `matched` records.
+  state.route = reactive({ ...useRouter().resolve('/') })
   clearNuxtData('account-quick-menu-summary')
   registerEndpoint('/api/user/account/summary', () => {
     state.summaryCalls += 1

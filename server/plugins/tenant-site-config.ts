@@ -52,7 +52,7 @@ export default defineNitroPlugin((nitroApp) => {
       _context: 'tenant',
       _priority: TENANT_SITE_CONFIG_PRIORITY,
       url: `https://${tenant.primaryDomain}`,
-      name: tenant.storeName || tenant.name,
+      name: storeSiteName(tenant),
       ...(description ? { description } : {}),
     })
 

@@ -63,7 +63,9 @@ describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
     state.phoneLinks = PAGES
     state.phone = '698 162 7561'
     state.logo = '/media/seal.png'
-    state.route = reactive({ path: '/', fullPath: '/' })
+    // A whole route, as the router resolves it: Nuxt renders a static
+    // `<NuxtLink>` itself and reads the current route's `matched` records.
+    state.route = reactive({ ...useRouter().resolve('/') })
     setTenant({ storeName: 'Εκ φύσεως Φυτειάς' })
   })
 
@@ -91,7 +93,7 @@ describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
   })
 
   it('marks only the section the visitor is in, as their location within it', async () => {
-    state.route = reactive({ path: '/products/category/3/jams', fullPath: '/products/category/3/jams' })
+    state.route = reactive({ ...useRouter().resolve('/products/category/3/jams') })
 
     const wrapper = await mountNavbar()
 
