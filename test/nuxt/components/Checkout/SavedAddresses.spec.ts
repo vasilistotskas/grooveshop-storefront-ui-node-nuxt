@@ -3,8 +3,11 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import CheckoutSavedAddresses from '~/components/Checkout/SavedAddresses.vue'
 import WebsideCheckoutSavedAddresses from '~/components/variants/webside/Checkout/SavedAddresses.vue'
+import savedAddressesSource from '~/components/Checkout/SavedAddresses.vue?raw'
+import websideSavedAddressesSource from '~/components/variants/webside/Checkout/SavedAddresses.vue?raw'
 import type { UserAddressDetail } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { componentTexts } from '~~/test/helpers/componentTexts'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -49,6 +52,12 @@ const ADDRESSES = [
 
 const NEW_LABEL = 'Νέα διεύθυνση'
 
+/** Each design's own texts. */
+const TEXTS = {
+  default: componentTexts(savedAddressesSource, 'SavedAddresses.vue'),
+  webside: componentTexts(websideSavedAddressesSource, 'SavedAddresses.vue'),
+}
+
 describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tree Checkout/SavedAddresses', ({ tree, C }) => {
   const mount = (props: { selectedId: number | null, mode: 'saved' | 'new', needingUpdate?: number[] }) =>
     mountSuspended(C, {
@@ -81,7 +90,7 @@ describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tr
 
     const crete = radioFor(wrapper, 'Κρήτη')
     expect(crete.attributes('disabled')).toBeDefined()
-    expect(wrapper.text()).toContain('Δεν παραδίδουμε πια εδώ')
+    expect(wrapper.text()).toContain(TEXTS[tree].t('not_served'))
 
     await crete.trigger('click')
 

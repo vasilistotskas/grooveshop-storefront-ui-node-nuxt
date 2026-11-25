@@ -1040,7 +1040,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail p
     const wrapper = await mountSuspended(C, { route: false })
     await flushPromises()
 
-    expect(wrapper.get('ul[aria-label]').text()).toContain('Παράδοση σε 1–2 εργάσιμες ημέρες από την αποστολή, για Αττική')
+    expect(wrapper.get('ul[aria-label]').text()).toContain(useNuxtApp().$i18n.t('product_assurances.delivery_range_in', { min: 1, max: 2, regions: 'Αττική' }))
     wrapper.unmount()
   })
 

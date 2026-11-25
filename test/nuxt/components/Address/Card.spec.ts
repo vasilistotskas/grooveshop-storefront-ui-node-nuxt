@@ -3,8 +3,11 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import AddressCard from '~/components/Address/Card.vue'
 import WebsideAddressCard from '~/components/variants/webside/Address/Card.vue'
+import cardSource from '~/components/Address/Card.vue?raw'
+import websideCardSource from '~/components/variants/webside/Address/Card.vue?raw'
 import { makeUserAddress } from '~~/test/fixtures/user'
 import { failWith } from '~~/test/helpers/api'
+import { componentTexts } from '~~/test/helpers/componentTexts'
 import { trees } from '~~/test/helpers/trees'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -22,8 +25,8 @@ mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
  * does not refuse it, so `useAddressRemoval` does).
  */
 const OWN = {
-  default: { deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή της διεύθυνσης «Σπίτι»', changedEvent: 'changed' },
-  webside: { deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή', changedEvent: 'address-delete' },
+  default: { texts: componentTexts(cardSource, 'Card.vue'), deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή της διεύθυνσης «Σπίτι»', changedEvent: 'changed' },
+  webside: { texts: componentTexts(websideCardSource, 'Card.vue'), deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή', changedEvent: 'address-delete' },
 }
 
 describe.each(trees(AddressCard, WebsideAddressCard))('$tree Address/Card', ({ tree, C }) => {
@@ -38,8 +41,10 @@ describe.each(trees(AddressCard, WebsideAddressCard))('$tree Address/Card', ({ t
     const served = await mountCard()
     const unserved = await mountCard(makeUserAddress({ shippable: false }))
 
-    expect(served.text()).not.toContain('Δεν παραδίδουμε πια')
-    expect(unserved.text()).toContain('Δεν παραδίδουμε πια σε αυτή τη διεύθυνση')
+    const notServed = own.texts.t('not_served')
+
+    expect(served.text()).not.toContain(notServed)
+    expect(unserved.text()).toContain(notServed)
   })
 
   it('deletes it, says so, then reports the change', async () => {
