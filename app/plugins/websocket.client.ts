@@ -4,7 +4,7 @@ import type { Composer } from 'vue-i18n'
 
 /**
  * The socket's heartbeat, a contract with Django's `NotificationConsumer`
- * (`notification/consumers.py`), which answers HEARTBEAT_PING with
+ * (`src/notification/consumers.py`), which answers HEARTBEAT_PING with
  * HEARTBEAT_PONG. An answer keeps the socket open. No answer within
  * HEARTBEAT_PONG_TIMEOUT_MS closes it and a new one opens, which is how a
  * connection a proxy dropped without a word is found.

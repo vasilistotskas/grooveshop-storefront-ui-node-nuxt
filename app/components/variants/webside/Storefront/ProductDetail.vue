@@ -65,7 +65,7 @@ const {
   variantGroupSchema,
 } = await useProductDetail(productId, t)
 await categoriesReady
-const assurances = await useProductAssurances()
+const assurances = await useProductAssurances(productId)
 const dispatchCutoff = useDispatchCutoff(() => productStock.value > 0)
 
 const formatProductPrice = (price?: number) => {
@@ -175,9 +175,9 @@ useSeoMeta({
 
   ogTitle: () => productTitle.value,
   ogDescription: () => productDescription.value,
-  ogImage: () => ogImage.value,
-  ogImageWidth: OG_IMAGE_SIZE.width,
-  ogImageHeight: OG_IMAGE_SIZE.height,
+  ogImage: () => ogImage.value?.url,
+  ogImageWidth: () => ogImage.value?.width,
+  ogImageHeight: () => ogImage.value?.height,
   ogImageAlt: () => productTitle.value,
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
@@ -217,7 +217,7 @@ useSchemaOrg([
     description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
     url: canonicalUrl.value,
     imageUrls: catalogueImageUrls.value,
-    storeName: siteConfig.name,
+    storeName: tenantStore.siteName,
     currency: tenantStore.defaultCurrency,
     // The category's trail by name, the form Google reads.
     category: categoryPath.value.map(node => node.label).join(' > '),

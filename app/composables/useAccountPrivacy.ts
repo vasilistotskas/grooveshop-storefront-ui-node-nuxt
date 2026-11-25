@@ -2,7 +2,7 @@
  * What Django asks the shopper to type before it schedules the deletion of
  * the account: the literal `DELETE`
  * (`DeleteAccountRequestSerializer.validate_confirmation`,
- * `user/serializers/account.py`; any other text is answered with the
+ * `src/user/serializers/account.py`; any other text is answered with the
  * `delete_confirmation_mismatch` code).
  */
 export const DELETE_ACCOUNT_CONFIRMATION = 'DELETE'

@@ -4,12 +4,6 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
-const tenantStore = useTenantStore()
-// BoxNow is tenant-only — no platform env fallback. Tenants that
-// haven't configured a partner id simply don't get the locker-pickup
-// option (StepShipping/BoxNowLockerPicker already disable/hide it when
-// partnerId is empty).
-const boxnowPartnerId = computed(() => tenantStore.boxNowPartnerId)
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
@@ -69,7 +63,7 @@ const {
 
 const {
   currentStep,
-  addressStepErrors,
+  stepErrors,
   quote,
   quotedFor,
   quotePending,
@@ -82,13 +76,11 @@ const {
   submitError,
   isStripePayment,
   isVivaWalletPayment,
-  isOnlinePayment,
-  useHostedCheckout,
+  awaitsOnlinePayment,
   onSubmit,
   nextStep,
   prevStep,
   backToForm,
-  onPaymentSuccess,
   onPaymentError,
   onLoyaltyRedeemed,
   onLoyaltyCleared,
@@ -134,9 +126,9 @@ const shippingSummary = computed(() => {
     return {
       method,
       logoPath,
-      lockerName: locker?.boxnowLockerName ?? null,
-      lockerId: formState.boxnowLockerId || locker?.boxnowLockerId || null,
-      lockerAddress: locker?.boxnowLockerAddressLine1 ?? null,
+      lockerName: locker?.name ?? null,
+      lockerId: formState.boxnowLockerId || null,
+      lockerAddress: locker?.addressLine1 ?? null,
     }
   }
   if (method === 'acs_smartpoint') {
@@ -202,7 +194,7 @@ const sidebarCtaDisabled = computed(() =>
 )
 // Hide the sidebar CTA while the online-payment view owns the main
 // column — that view ships its own Pay / Back controls.
-const showSidebarCta = computed(() => !(createdOrder.value && isOnlinePayment.value))
+const showSidebarCta = computed(() => !awaitsOnlinePayment.value)
 
 const onSidebarCta = async () => {
   if (currentStep.value === 2) {
@@ -302,8 +294,8 @@ useSeoMeta({
           :model-value="currentStep"
           :linear="false"
           :items="[
-            { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
-            { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
+            { title: t('steps.details'), icon: 'i-heroicons-user-circle' },
+            { title: t('steps.delivery'), icon: 'i-heroicons-truck' },
             { title: t('steps.payment'), icon: 'i-heroicons-credit-card' },
           ]"
           class="mb-6"
@@ -313,50 +305,51 @@ useSeoMeta({
         <NuxtErrorBoundary @error="onBoundaryError">
           <!-- Online Payment View (Stripe or Viva Wallet) -->
           <WebsideCheckoutOnlinePaymentView
-            v-if="createdOrder && isOnlinePayment"
+            v-if="awaitsOnlinePayment && createdOrder"
             :created-order="createdOrder"
             :selected-pay-way="selectedPayWay!"
             :is-stripe-payment="isStripePayment"
             :is-viva-wallet-payment="isVivaWalletPayment"
-            :use-hosted-checkout="useHostedCheckout"
-            @payment-success="onPaymentSuccess"
             @payment-error="onPaymentError"
             @back-to-form="backToForm"
           />
 
-          <!-- Step 0: Personal Info & Address -->
+          <!-- Step 0: Personal Info -->
           <WebsideCheckoutStepPersonalInfo
             v-else-if="currentStep === 0"
             ref="stepRef"
             v-model:form-state="formState"
             :schema="step1Schema"
             :country-options="countryOptions"
-            :postcode-example="postcodeExample"
-            :selected-country="selectedCountry"
-            :server-errors="addressStepErrors"
-            :region-options="regionOptions"
+            :server-errors="stepErrors[CHECKOUT_STEP.details]"
             :saved-addresses="savedAddresses"
             :selected-saved-address-id="selectedSavedAddressId"
             :mode="addressEntryMode"
-            :b2b-invoicing-enabled="b2bInvoicingEnabled"
-            :acs-enabled="acsEnabled"
             @next="nextStep"
             @select-saved-address="selectSavedAddress"
             @use-new-address="useNewAddress"
             @edit-address="editSelectedAddress"
           />
 
-          <!-- Step 1: Shipping Method -->
+          <!-- Step 1: Delivery: the method, the point or the address -->
           <WebsideCheckoutStepShipping
             v-else-if="currentStep === 1"
             ref="stepRef"
             v-model:form-state="formState"
             :schema="step2Schema"
-            :partner-id="boxnowPartnerId"
             :api-options="shippingOptions"
             :quoted-options="quote?.shippingOptions ?? null"
+            :quote-pending="quotePending"
             :options-error="shippingOptionsError"
             :over-weight="shippingOverWeight"
+            :region-options="regionOptions"
+            :postcode-example="postcodeExample"
+            :selected-country="selectedCountry"
+            :acs-enabled="acsEnabled"
+            :b2b-invoicing-enabled="b2bInvoicingEnabled"
+            :mode="addressEntryMode"
+            :selected-saved-address-id="selectedSavedAddressId"
+            :server-errors="stepErrors[CHECKOUT_STEP.delivery]"
             @next="nextStep"
             @back="prevStep"
             @retry-options="retryShippingOptions"

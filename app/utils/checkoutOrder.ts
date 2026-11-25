@@ -1,7 +1,11 @@
 import type { FormError } from '@nuxt/ui'
 
+/** The checkout's steps, by their index in the page's stepper. */
+export const CHECKOUT_STEP = { details: 0, delivery: 1, payment: 2 } as const
+export type CheckoutStep = typeof CHECKOUT_STEP[keyof typeof CHECKOUT_STEP]
+
 /**
- * The address step's fields a picked saved address stands for: its card
+ * The details step's fields a picked saved address stands for: its card
  * replaces their inputs (``StepPersonalInfo``'s ``saved`` mode), so an
  * error on one of them has nowhere to show until the fields are opened.
  */
@@ -11,37 +15,88 @@ export const SAVED_ADDRESS_FIELDS: readonly string[] = [
   'lastName',
   'phone',
   'country',
-  'region',
-  'street',
-  'streetNumber',
-  'city',
-  'zipcode',
 ]
 
-// Django's order-create field names (camelCased by the API) that live
-// on the address step, mapped to that step's ``UFormField`` names.
-const ADDRESS_STEP_FIELDS: Record<string, string> = {
-  firstName: 'firstName',
-  lastName: 'lastName',
-  email: 'email',
-  phone: 'phone',
-  countryId: 'country',
-  regionId: 'region',
-  city: 'city',
-  zipcode: 'zipcode',
-  street: 'street',
-  streetNumber: 'streetNumber',
-  customerNotes: 'customerNotes',
-  documentType: 'documentType',
-  billingVatId: 'billingVatId',
-  billingCompanyName: 'billingCompanyName',
-  billingTaxOffice: 'billingTaxOffice',
-  billingActivity: 'billingActivity',
-  billingStreet: 'billingStreet',
-  billingStreetNumber: 'billingStreetNumber',
-  billingCity: 'billingCity',
-  billingZipcode: 'billingZipcode',
+/**
+ * The address a home delivery is sent to, asked on the delivery step:
+ * a pickup order is delivered to the point and sends none of it.
+ */
+export const DELIVERY_ADDRESS_FIELDS: readonly string[] = [
+  'street',
+  'streetNumber',
+  'addressLine2',
+  'city',
+  'zipcode',
+  'region',
+]
+
+// Django's order-create field names (camelCased by the API), mapped to
+// the step that renders each and its ``UFormField`` name there. A
+// refused pickup point (``pickup_point_unknown``, ``_too_small``,
+// ``_size_unknown``, ``_required``, ``_in_another_country``) is an error on the carrier's own field, the
+// one its picker sits in.
+const ORDER_FIELD_STEPS: Record<string, { step: CheckoutStep, name: string }> = {
+  firstName: { step: CHECKOUT_STEP.details, name: 'firstName' },
+  lastName: { step: CHECKOUT_STEP.details, name: 'lastName' },
+  email: { step: CHECKOUT_STEP.details, name: 'email' },
+  phone: { step: CHECKOUT_STEP.details, name: 'phone' },
+  countryId: { step: CHECKOUT_STEP.details, name: 'country' },
+  customerNotes: { step: CHECKOUT_STEP.details, name: 'customerNotes' },
+  regionId: { step: CHECKOUT_STEP.delivery, name: 'region' },
+  city: { step: CHECKOUT_STEP.delivery, name: 'city' },
+  zipcode: { step: CHECKOUT_STEP.delivery, name: 'zipcode' },
+  street: { step: CHECKOUT_STEP.delivery, name: 'street' },
+  streetNumber: { step: CHECKOUT_STEP.delivery, name: 'streetNumber' },
+  addressLine2: { step: CHECKOUT_STEP.delivery, name: 'addressLine2' },
+  boxnowLockerId: { step: CHECKOUT_STEP.delivery, name: 'boxnowLockerId' },
+  acsStationExternalId: { step: CHECKOUT_STEP.delivery, name: 'acsStationExternalId' },
+  acsStationBranch: { step: CHECKOUT_STEP.delivery, name: 'acsStationExternalId' },
+  documentType: { step: CHECKOUT_STEP.delivery, name: 'documentType' },
+  billingVatId: { step: CHECKOUT_STEP.delivery, name: 'billingVatId' },
+  billingCompanyName: { step: CHECKOUT_STEP.delivery, name: 'billingCompanyName' },
+  billingTaxOffice: { step: CHECKOUT_STEP.delivery, name: 'billingTaxOffice' },
+  billingActivity: { step: CHECKOUT_STEP.delivery, name: 'billingActivity' },
+  billingStreet: { step: CHECKOUT_STEP.delivery, name: 'billingStreet' },
+  billingStreetNumber: { step: CHECKOUT_STEP.delivery, name: 'billingStreetNumber' },
+  billingCity: { step: CHECKOUT_STEP.delivery, name: 'billingCity' },
+  billingZipcode: { step: CHECKOUT_STEP.delivery, name: 'billingZipcode' },
 }
+
+/**
+ * Django's refusals of the pickup point a pickup order names (#767), on
+ * the carrier's own field: told in the storefront's words, each saying
+ * to choose another point. A point Django could not check at all is the
+ * 503 ``PICKUP_POINT_CHECK_UNAVAILABLE`` instead, which says to try again.
+ */
+export const PICKUP_POINT_REFUSALS: readonly string[] = [
+  'pickup_point_unknown',
+  'pickup_point_too_small',
+  'pickup_point_size_unknown',
+  'pickup_point_required',
+  'pickup_point_in_another_country',
+]
+
+/**
+ * Each carrier's pickup-point fields on the checkout form, by shipping
+ * method: the id the order sends and the picked row the picker shows.
+ */
+export const PICKUP_FORM_KEYS: Readonly<Record<string, readonly string[]>> = {
+  acs_smartpoint: ['acsStationExternalId', 'acsStationBranch', 'acsStation'],
+  box_now_locker: ['boxnowLockerId', 'boxnowLocker'],
+}
+
+/**
+ * Empties a shipping method's pickup-point fields (ids to `''`, the picked
+ * row to `null`), so no point the order cannot go to stays chosen.
+ */
+export function clearPickupPoint(formState: Record<string, unknown>, method: string): void {
+  for (const key of PICKUP_FORM_KEYS[method] ?? []) {
+    formState[key] = key.endsWith('Id') || key.endsWith('Branch') ? '' : null
+  }
+}
+
+/** Django's field errors by the step whose form shows each under its input. */
+export type StepFieldErrors = Partial<Record<CheckoutStep, FormError[]>>
 
 /**
  * The `code` of the 409 Django answers while a request with the same
@@ -80,14 +135,31 @@ export interface OrderErrorInfo {
    * reservation ids and re-submits, which re-reserves.
    */
   shouldRetry: boolean
-  /** Django field errors the address step owns, one per input. */
-  addressStepErrors: FormError[]
+  /** Django's field errors, by the step that shows each under its input. */
+  stepErrors: StepFieldErrors
   /**
    * Django refused the order for what it is now (`total_changed`,
    * `cart_changed`) and sent the quote it would be placed at: the caller
    * shows the cart and that quote, and the shopper's next submit accepts it.
    */
   quoteChanged: boolean
+  /**
+   * Django refused the order's pickup point (`PICKUP_POINT_REFUSALS`): the
+   * caller drops it, and the shopper chooses another.
+   */
+  pickupPointRefused: boolean
+  /**
+   * Django refused the loyalty points the order redeems
+   * (`loyaltyPointsToRedeem`): the caller drops the local redemption, so the
+   * next attempt prices without it.
+   */
+  loyaltyRefused?: boolean
+}
+
+/** The loyalty program's reason, when Django refused the redeemed points. */
+function loyaltyRefusalOf(errorData: any): string | undefined {
+  const reasons = errorData?.fieldErrors?.loyaltyPointsToRedeem
+  return Array.isArray(reasons) && typeof reasons[0] === 'string' ? reasons[0] : undefined
 }
 
 /**
@@ -168,11 +240,18 @@ export function describeCartChange(amountDue: number | null, t: Translate, n: Fo
 export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber): OrderErrorInfo {
   let errorTitle = t('form.submit.error.general')
   let errorDescription: string | undefined
-  let addressStepErrors: FormError[] = []
+  const stepErrors: StepFieldErrors = {}
 
   const errorType = errorData?.error?.type as OrderCreateErrorType | undefined
   const cartMessages = Array.isArray(errorData?.cart) ? errorData.cart.join('. ') : ''
-  const fieldErrors = apiFieldErrorsOf(errorData)
+  // A refused pickup point is said in the storefront's words, under the
+  // picker and in the alert alike.
+  const isPickupRefusal = (error: DescribedFieldError) => Boolean(error.code && PICKUP_POINT_REFUSALS.includes(error.code))
+  const fieldErrors = apiFieldErrorsOf(errorData).map(error => isPickupRefusal(error)
+    ? { ...error, message: t(`form.submit.error.${error.code}`) }
+    : error)
+  const pickupPointRefused = fieldErrors.some(isPickupRefusal)
+  const loyaltyReason = loyaltyRefusalOf(errorData)
 
   // The first submit with this key is still being placed. Its answer
   // is not known yet, so nothing is wrong with the order: the key is
@@ -182,8 +261,21 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       title: t('form.submit.error.order_in_progress'),
       description: t('form.submit.error.order_in_progress_description'),
       shouldRetry: false,
-      addressStepErrors,
+      stepErrors,
       quoteChanged: false,
+      pickupPointRefused: false,
+    }
+  }
+  // The carrier's catalogue could not be asked: the point may be right,
+  // so the shopper is asked to try again, never to choose another.
+  if (errorData?.code === PICKUP_POINT_CHECK_UNAVAILABLE) {
+    return {
+      title: t('form.submit.error.pickup_point_check_unavailable'),
+      description: t('form.submit.error.pickup_point_check_unavailable_description'),
+      shouldRetry: false,
+      stepErrors,
+      quoteChanged: false,
+      pickupPointRefused: false,
     }
   }
   if (errorData?.code === TOTAL_CHANGED || errorData?.code === CART_CHANGED) {
@@ -194,8 +286,9 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
         ? describeCartChange(amountDue, t, n)
         : describeTotalChange(amountDue, t, n)),
       shouldRetry: false,
-      addressStepErrors,
+      stepErrors,
       quoteChanged: true,
+      pickupPointRefused: false,
     }
   }
   if (errorType === 'reservation_unavailable') {
@@ -203,8 +296,23 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
       title: t('form.submit.error.reservation_expired'),
       description: t('form.submit.error.reservation_expired_description'),
       shouldRetry: true,
-      addressStepErrors,
+      stepErrors,
       quoteChanged: false,
+      pickupPointRefused: false,
+    }
+  }
+  // The points the shopper redeems cannot be redeemed (spent in another tab,
+  // a tier that changed): Django refuses the order with the program's own
+  // reason under `loyaltyPointsToRedeem`, and the caller drops the redemption.
+  else if (errorType === 'invalid_order_data' && loyaltyReason) {
+    return {
+      title: t('form.submit.error.loyalty_redemption_invalid'),
+      description: loyaltyReason,
+      shouldRetry: false,
+      stepErrors,
+      quoteChanged: false,
+      pickupPointRefused: false,
+      loyaltyRefused: true,
     }
   }
   else if (errorType === 'invalid_order_data') {
@@ -218,16 +326,6 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
   else if (errorType === 'cart_invalid') {
     errorTitle = t('form.submit.error.inventory')
     errorDescription = cartMessages || errorData?.detail
-  }
-  else if (errorType === 'payment_not_found' || errorType === 'payment_verification') {
-    errorTitle = t('form.submit.error.payment_verification')
-    errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
-  }
-  // The paid intent no longer matches the order Django priced: the
-  // cart or its prices changed after the intent was created.
-  else if (errorType === 'payment_amount_mismatch' || errorType === 'payment_currency_mismatch') {
-    errorTitle = t('form.submit.error.payment_mismatch')
-    errorDescription = errorData?.detail || t('form.submit.error.payment_mismatch_description')
   }
   else if (errorType === 'invalid_coupon') {
     errorTitle = t('form.submit.error.invalid_coupon')
@@ -248,14 +346,20 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
   // failure toast. Field-level Zod validation should catch these first —
   // this is the safety net for rules only Django knows about.
   else if (fieldErrors.length) {
-    errorTitle = t('form.submit.error.invalid_order_data')
-    errorDescription = formatFieldErrors(fieldErrors, t)
-    // A field the address step owns: the caller goes back there and
-    // shows each message under its own input, not only in the toast.
-    addressStepErrors = fieldErrors.flatMap(({ name, message }) => {
-      const field = ADDRESS_STEP_FIELDS[name]
-      return field ? [{ name: field, message }] : []
-    })
+    errorTitle = t(pickupPointRefused ? 'form.submit.error.pickup_point_refused' : 'form.submit.error.invalid_order_data')
+    // A refused pickup point leads, in its own words; every other field
+    // Django refused follows, so the alert never hides one.
+    const otherErrors = fieldErrors.filter(error => !isPickupRefusal(error))
+    errorDescription = [
+      ...fieldErrors.filter(isPickupRefusal).map(error => error.message),
+      ...(otherErrors.length ? [formatFieldErrors(otherErrors, t)] : []),
+    ].join('\n')
+    // A field a step shows: the caller goes back to the first such step
+    // and shows each message under its own input, not only in the alert.
+    for (const { name, message } of fieldErrors) {
+      const field = ORDER_FIELD_STEPS[name]
+      if (field) (stepErrors[field.step] ??= []).push({ name: field.name, message })
+    }
   }
   // Fallback to detail
   else if (errorData?.detail) {
@@ -263,7 +367,7 @@ export function classifyOrderError(errorData: any, t: Translate, n: FormatNumber
     errorDescription = errorData.detail
   }
 
-  return { title: errorTitle, description: errorDescription, shouldRetry: false, addressStepErrors, quoteChanged: false }
+  return { title: errorTitle, description: errorDescription, shouldRetry: false, stepErrors, quoteChanged: false, pickupPointRefused }
 }
 
 /** The checkout state an order body is built from, besides the form. */
@@ -299,19 +403,28 @@ export function buildOrderCreateBody(
     ? 'home_delivery'
     : 'pickup_point'
   const carrierPayload = carrier?.buildOrderPayload?.(formState) ?? {}
+  const sharedBilling = billingSharesDelivery(formState)
 
   return {
     payWayId: formState.payWayId,
     countryId: formState.countryId!,
-    regionId: formState.regionId,
     firstName: formState.firstName,
     lastName: formState.lastName,
     email: formState.email,
-    street: formState.street,
-    streetNumber: formState.streetNumber,
-    city: formState.city,
-    // Canonical form, the same one Django stores.
-    zipcode: normalizePostcode(formState.zipcode),
+    // The address a home delivery goes to. A pickup order sends none:
+    // Django delivers it to the point's address and keeps none of the
+    // shopper's, the region included (``_deliver_to_pickup_point``).
+    ...(shippingKind === 'home_delivery'
+      ? {
+          regionId: formState.regionId,
+          street: formState.street,
+          streetNumber: formState.streetNumber,
+          addressLine2: formState.addressLine2?.trim() || undefined,
+          city: formState.city,
+          // Canonical form, the same one Django stores.
+          zipcode: normalizePostcode(formState.zipcode),
+        }
+      : {}),
     // ``FormPhoneInput`` already holds E.164, built from the phone
     // country the shopper picked (a Greek mobile shipping to a Cypriot
     // locker keeps +30). Normalising here passes it through; it only
@@ -326,24 +439,25 @@ export function buildOrderCreateBody(
     billingCountry: formState.billingCountry || undefined,
     // Company requisites travel ONLY on INVOICE orders — a retail
     // receipt must not carry stray billing columns. "Same as
-    // delivery" resolves client-side so the payload always carries
-    // the actual invoice address; Django applies the same copy
-    // server-side for direct API callers that send blanks.
+    // delivery" (a home delivery's only: a pickup point is no company's
+    // address) resolves client-side so the payload always carries the
+    // actual invoice address; Django applies the same copy server-side
+    // for direct API callers that send blanks.
     ...(formState.documentType === zOrderCreateDocumentType.enum.INVOICE
       ? {
           billingCompanyName: formState.billingCompanyName || undefined,
           billingTaxOffice: formState.billingTaxOffice || undefined,
           billingActivity: formState.billingActivity || undefined,
-          billingStreet: (formState.billingSameAsShipping
+          billingStreet: (sharedBilling
             ? formState.street
             : formState.billingStreet) || undefined,
-          billingStreetNumber: (formState.billingSameAsShipping
+          billingStreetNumber: (sharedBilling
             ? formState.streetNumber
             : formState.billingStreetNumber) || undefined,
-          billingCity: (formState.billingSameAsShipping
+          billingCity: (sharedBilling
             ? formState.city
             : formState.billingCity) || undefined,
-          billingZipcode: (formState.billingSameAsShipping
+          billingZipcode: (sharedBilling
             ? formState.zipcode
             : formState.billingZipcode) || undefined,
         }
@@ -414,6 +528,16 @@ export function quoteRequestOf(order: OrderChoices, chosen: QuotedChoices): Cart
       : {}),
     ...(chosen.payWay ? { payWayId: order.payWayId } : {}),
   }
+}
+
+/**
+ * Whether the invoice goes to the delivery address: the shopper left
+ * "same as delivery" ticked AND the order is delivered to an address. A
+ * pickup point is no company's address, so its invoice names its own
+ * (Django refuses one without).
+ */
+export function billingSharesDelivery(form: { shippingMethod?: string, billingSameAsShipping?: boolean }): boolean {
+  return form.shippingMethod === 'home_delivery' && form.billingSameAsShipping !== false
 }
 
 /** Whether two expected totals are the same amount in the same currency. */

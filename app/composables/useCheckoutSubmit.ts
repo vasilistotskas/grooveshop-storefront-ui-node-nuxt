@@ -1,5 +1,3 @@
-import type { FormError } from '@nuxt/ui'
-
 export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions, shippingOverWeight }: {
   // The reactive form-state object from ``useCheckoutForm`` —
   // its inferred shape isn't exported, so we accept a permissive
@@ -28,13 +26,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const { cart } = storeToRefs(cartStore)
   const tenantStore = useTenantStore()
 
-  const { reserveStock, releaseReservations, createPaymentIntentFromCart } = useCheckout()
+  const { reserveStock, releaseReservations } = useCheckout()
   const orderAttribution = useOrderAttribution()
 
   // State management
   const currentStep = ref(0)
-  const checkoutMode = ref<'embedded' | 'hosted'>('hosted')
-  const useHostedCheckout = computed(() => checkoutMode.value === 'hosted')
   const createdOrder = ref<OrderDetail | null>(null)
   // An order placed to be paid on the provider's page is remembered in this
   // browser: Django keeps the cart until it is paid, and a shopper who comes
@@ -52,10 +48,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // submit resets the retry counter but an automatic retry keeps it.
   const isRetryReentry = ref(false)
   const MAX_RETRIES = 3
-  const paymentIntentId = ref<string | null>(null)
-  // What the current intent was priced from (`intentPricing`): it is
-  // reused only while that is unchanged.
-  const intentPricedFrom = ref<string | null>(null)
   const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
   // The idempotency key of the current checkout attempt, with the
   // fingerprint of the inputs it was minted for (`orderFingerprint`).
@@ -67,9 +59,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // (it caches a 4xx under the key too, so a repeat would replay the
   // rejection).
   const orderAttempt = ref<{ key: string, fingerprint: string } | null>(null)
-  // Django field errors for the address step, handed to its ``UForm``
+  // Django's field errors by step, each handed to that step's ``UForm``
   // (``setErrors``) when a rejected order sends the shopper back there.
-  const addressStepErrors = ref<FormError[]>([])
+  const stepErrors = ref<StepFieldErrors>({})
   // The quote the submit in progress places its order at: the total and
   // the cart the shopper was shown (`onSubmit`, step 2b).
   let accepted: AcceptedQuote | null = null
@@ -173,6 +165,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     return selectedPayWay.value?.settlement === zSettlementEnum.enum.online
   })
 
+  // The provider's payment step is for an order placed to be paid there.
+  // An order the deductions (gift cards, a promotion, points) cover whole
+  // comes back paid: Django refuses it a payment session
+  // (`order_not_payable`), and the flow goes on to the success page.
+  const awaitsOnlinePayment = computed(() => {
+    const order = createdOrder.value
+    return order !== null && isOnlinePayment.value && !isOrderPaid(order)
+  })
+
   // Functions
   const handleOrderError = (response: RefusedResponse) => {
     const errorData = response._data
@@ -204,11 +205,18 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // the cart's lines at their prices now and the quote the shopper's
     // next submit accepts.
     if (errorInfo.quoteChanged) void reloadCartAndQuote()
-    // A field the address step owns: go back there and show each
-    // message under its own input, not only in the toast.
-    if (errorInfo.addressStepErrors.length) {
-      addressStepErrors.value = errorInfo.addressStepErrors
-      currentStep.value = 0
+    // A refused pickup point cannot take the order: it is dropped, and the
+    // message under the picker asks for another.
+    if (errorInfo.pickupPointRefused) clearPickupPoint(formState, formState.shippingMethod)
+    // Points that cannot be redeemed (spent in another tab, a tier that
+    // changed): drop the local redemption so the next attempt prices without it.
+    if (errorInfo.loyaltyRefused) loyaltyDiscount.value = null
+    // Fields a step shows: go back to the first of those steps and show
+    // each message under its own input, not only in the alert.
+    const firstErrorStep = Math.min(...Object.keys(errorInfo.stepErrors).map(Number))
+    if (Number.isFinite(firstErrorStep)) {
+      stepErrors.value = errorInfo.stepErrors
+      currentStep.value = firstErrorStep
     }
     // What the shopper quotes to support: the refusal's stable code and
     // the request's id (`describeApiError` reads both).
@@ -245,7 +253,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
    * if the bonus bookkeeping didn't.
    */
   const maybeSaveDeliveryAddress = () => {
-    if (!formState.saveAddress) return
+    // The address book holds addresses delivered to: a pickup order
+    // has none of the shopper's.
+    if (!formState.saveAddress || formState.shippingMethod !== 'home_delivery') return
     const title = (formState.addressTitle ?? '').trim()
     if (!title) return
 
@@ -256,6 +266,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       phone: normalizePhone(formState.phone, selectedCountry.value),
       street: formState.street,
       streetNumber: formState.streetNumber,
+      addressLine2: formState.addressLine2?.trim() || undefined,
       city: formState.city,
       zipcode: normalizePostcode(formState.zipcode),
       country: formState.country,
@@ -320,7 +331,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   }
 
   /**
-   * Everything a PaymentIntent's amount is computed from: the request
+   * Everything the quoted amount is computed from: the request
    * body (pay way, shipping, destination, email, gift cards, loyalty)
    * and the cart it prices — its lines, total, coupons and promotion.
    */
@@ -329,14 +340,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     total: cart.value?.totalPrice ?? null,
     coupons: cart.value?.appliedCouponCodes ?? [],
     promotion: cart.value?.promotionDiscount ?? null,
-  })
-
-  const intentPricing = (body: Parameters<typeof createPaymentIntentFromCart>[0]) => JSON.stringify({
-    body,
-    // Django prices the intent at the quote's amount due: a total that
-    // moved (a price edit the cart does not carry) needs a fresh intent.
-    expectedTotal: accepted?.expectedTotal ?? null,
-    ...cartPricedFrom(),
   })
 
   /**
@@ -429,6 +432,24 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     cartVersion: () => JSON.stringify(cartPricedFrom()),
   })
 
+  // Django's quote refuses the pickup point the form names (a locker
+  // without a compartment of the cart's size, one whose sizes are not
+  // known, one gone or in another country): it is dropped, as an order's
+  // refusal drops it, so the next quote prices the delivery without it,
+  // and the delivery step says why under the picker.
+  watch(checkoutQuote.refusalCode, (code) => {
+    if (!code || !PICKUP_POINT_REFUSALS.includes(code)) return
+    const method = formState.shippingMethod
+    const field = PICKUP_FORM_KEYS[method]?.[0]
+    if (!field) return
+    clearPickupPoint(formState, method)
+    stepErrors.value = {
+      ...stepErrors.value,
+      [CHECKOUT_STEP.delivery]: [{ name: field, message: t(`form.submit.error.${code}`) }],
+    }
+    if (currentStep.value > CHECKOUT_STEP.delivery) currentStep.value = CHECKOUT_STEP.delivery
+  })
+
   /**
    * Posts the order and answers it, or `null` when Django refused it: the
    * refusal is then classified for the shopper (`handleOrderError`), ends
@@ -462,121 +483,25 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     }
   }
 
+  /**
+   * An online pay way (Stripe, Viva Wallet): the order is placed first, then
+   * paid on the provider's page (`CheckoutOnlinePaymentView`). An order the
+   * deductions (gift cards, a promotion, points) cover whole comes back
+   * paid, so there is nothing to pay and it finishes like the offline flow.
+   */
   const handleOnlinePaymentFlow = async () => {
-    if (!formState.payWayId) {
-      failCheckout({ title: t('form.submit.error.general') })
-      return
-    }
-    const orderValues = buildOrderValues()
-    if (!orderValues) return
-    // ``shippingProviderCode`` is optional on the PI request:
-    // ``home_delivery`` is provider-agnostic in checkout (the backend
-    // resolves the active home-delivery provider at order creation), so
-    // for that path we send no code and the backend's generic-fallback
-    // shipping calc agrees with what the order-create verification will
-    // compute. Identity + gift cards keep the intent amount in lockstep
-    // with that verification: promotion eligibility can depend on the
-    // email, and gift cards settle part of the total before the charge.
-    const intentBody = {
-      payWayId: orderValues.payWayId,
-      shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
-      shippingProviderCode: orderValues.shippingProviderCode || undefined,
-      // Required: a ShippingRate is per-country, so the PI amount can't
-      // be computed without a destination.
-      countryId: orderValues.countryId,
-      regionId: orderValues.regionId || undefined,
-      email: orderValues.email || undefined,
-      giftCardCodes: orderValues.giftCardCodes,
-      loyaltyPointsToRedeem: orderValues.loyaltyPointsToRedeem,
-    }
-    const pricing = intentPricing(intentBody)
-    // An intent is priced once. If anything it was priced from changed
-    // since — a deduction, the cart, the address, the shipping or the
-    // pay way — order-create would reject it on the amount, so price a
-    // fresh one. Those inputs also change the attempt's fingerprint, so
-    // the new intent and order go out under a fresh idempotency key. A
-    // cart refresh that changes none of it keeps both, as does a plain
-    // retry.
-    if (paymentIntentId.value && pricing !== intentPricedFrom.value) {
-      paymentIntentId.value = null
-    }
-    const fingerprint = orderFingerprint(orderValues)
+    const orderBody = buildOrderValues()
+    if (!orderBody) return
+
     try {
-      // Create a payment intent from the cart unless a current one exists.
-      // Its amount MUST be computed against the per-carrier free-shipping
-      // threshold the order-create step verifies against, so the body
-      // carries the carrier + kind + address codes ``buildOrderValues``
-      // derives from the form state.
-      let giftCardsCoverTotal = false
-      if (!paymentIntentId.value) {
-        try {
-          const paymentIntent = await createPaymentIntentFromCart(intentBody, orderIdempotencyKey(fingerprint))
-          paymentIntentId.value = paymentIntent.paymentIntentId
-          intentPricedFrom.value = pricing
-        }
-        catch (piError: any) {
-          const piReason = piError?.data?.reason
-          // Deductions (gift cards / promotions / loyalty) cover
-          // everything — there is nothing left for Stripe to charge,
-          // so submit the order WITHOUT an intent and let the backend
-          // settle it order-first from the applied deductions.
-          if (
-            piReason === 'gift_card_covers_total'
-            || piReason === 'nothing_to_charge'
-          ) {
-            giftCardsCoverTotal = true
-          }
-          else if (piReason === 'loyalty_requires_authentication') {
-            // The shopper signs in and submits the same inputs again; a
-            // key that replayed this refusal would never let them through.
-            settleAttemptOnFailure(piError)
-            failCheckout({
-              title: t('form.submit.error.loyalty_requires_authentication'),
-            })
-            return
-          }
-          else if (piReason === 'loyalty_redemption_invalid') {
-            // Stale widget state (points spent in another tab, tier
-            // changed…) — drop the local redemption so the next
-            // attempt prices without it.
-            loyaltyDiscount.value = null
-            failCheckout({
-              title: t('form.submit.error.loyalty_redemption_invalid'),
-              description: describeApiError(piError).description,
-            })
-            return
-          }
-          else {
-            throw piError
-          }
-        }
-      }
-
-      // Create order with payment_intent_id (absent when gift cards
-      // cover the full total — the backend routes order-first then).
-      const submitValues = {
-        ...orderValues,
-        ...(paymentIntentId.value
-          ? { paymentIntentId: paymentIntentId.value }
-          : {}),
-      }
-
-      // A refused order drops its intent, so the next retry prices a
-      // fresh one.
-      const order = await postOrder(submitValues, fingerprint, () => {
-        paymentIntentId.value = null
-      })
+      const order = await postOrder(orderBody, orderFingerprint(orderBody))
       if (!order) return
 
       createdOrder.value = order
       maybeSaveDeliveryAddress()
-      // The order exists: the next checkout starts a new attempt.
       orderAttempt.value = null
 
-      if (giftCardsCoverTotal) {
-        // The order is already settled from the gift-card balance — no
-        // Stripe confirmation step follows, so finish like the offline
-        // flow: clear the cart and land on success.
+      if (isOrderPaid(order)) {
         retryCount.value = 0
         // No "order created" toast here — see the offline flow below.
         await cleanCartState()
@@ -595,34 +520,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       })
     }
     catch (error: unknown) {
-      log.error({ action: 'checkout:orderCreation', error })
-      // The intent request, or an order request that got no answer: a 4xx
-      // on the intent is cached under the key like the order's.
-      settleAttemptOnFailure(error)
-      failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
-    }
-  }
-
-  const handleVivaWalletPaymentFlow = async () => {
-    const orderBody = buildOrderValues()
-    if (!orderBody) return
-
-    try {
-      const order = await postOrder(orderBody, orderFingerprint(orderBody))
-      if (!order) return
-
-      createdOrder.value = order
-      maybeSaveDeliveryAddress()
-      orderAttempt.value = null
-
-      toast.add({
-        title: t('order_created_payment_required'),
-        description: t('complete_payment_to_finish'),
-        color: 'info',
-      })
-    }
-    catch (error: unknown) {
-      log.error({ action: 'checkout:vivaWalletOrderCreation', error })
+      log.error({ action: 'checkout:onlineOrderCreation', error })
       failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
       // Release any stock reservations held for this checkout attempt
       if (reservationIds.value.length > 0) {
@@ -856,11 +754,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       if (!isOnlinePayment.value) {
         await handleOfflinePaymentFlow()
       }
-      else if (isStripePayment.value) {
+      else if (isStripePayment.value || isVivaWalletPayment.value) {
         await handleOnlinePaymentFlow()
-      }
-      else if (isVivaWalletPayment.value) {
-        await handleVivaWalletPaymentFlow()
       }
       else {
         log.error({
@@ -898,24 +793,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     }
   }
 
-  const onPaymentSuccess = async () => {
-    if (!createdOrder.value?.uuid) {
-      log.error({ action: 'checkout:paymentSuccess', error: 'No order UUID' })
-      return
-    }
-    toast.add({
-      title: t('payment_successful'),
-      description: t('order_completed_successfully'),
-      color: 'success',
-    })
-    // Clear the cart only after payment is confirmed so a failed Stripe
-    // confirmation doesn't wipe the cart before we know it succeeded.
-    await cleanCartState()
-    await fetch()
-    writeCheckoutArrival({ orderUuid: createdOrder.value.uuid })
-    await navigateTo(localePath({ name: 'checkout-success' }))
-  }
-
   const onPaymentError = async (error: string) => {
     failCheckout({
       title: t('payment_failed'),
@@ -937,18 +814,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const backToForm = async () => {
     createdOrder.value = null
     selectedPayWay.value = null
-    // Fully reset the payment intent + idempotency key so a resubmit
-    // mints a FRESH intent rather than reusing the one bound to the
-    // created order. Reusing it skipped the
-    // ``if (!paymentIntentId.value)`` guard in handleOnlinePaymentFlow
-    // and produced an orphaned PENDING order + unrecoverable errors.
+    // Drop the idempotency key so a resubmit places a fresh order
+    // instead of replaying the abandoned one.
     // Release any held reservations and resync the cart. Django clears
     // the cart on PAYMENT for online-payment orders (see
     // Order.awaits_online_payment), so in this flow the cart is still
     // alive server-side — the refresh reconciles whatever state the
     // abandoned attempt left behind. The abandoned PENDING order is
     // reaped by auto_cancel_stuck_pending_orders.
-    paymentIntentId.value = null
     orderAttempt.value = null
     if (reservationIds.value.length > 0) {
       try {
@@ -988,9 +861,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   const nextStep = async () => {
     if (currentStep.value < 2) {
-      // Leaving the address step means it validated: any server errors
-      // it was showing are answered.
-      if (currentStep.value === 0) addressStepErrors.value = []
+      // Leaving a step means it validated: any server errors it was
+      // showing are answered.
+      const { [currentStep.value as CheckoutStep]: _answered, ...unanswered } = stepErrors.value
+      stepErrors.value = unanswered
       currentStep.value++
       // Meta Pixel: AddPaymentInfo, GA4: add_payment_info and the Google
       // Ads add-payment-info conversion all fire
@@ -1110,7 +984,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   return {
     currentStep,
-    addressStepErrors,
+    stepErrors,
     quote: checkoutQuote.quote,
     // The choices the quote on the page priced: the summary names its fee
     // and its points after them, never after a newer selection.
@@ -1123,8 +997,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     quotePending: computed(() => checkoutQuote.pending.value || cartReload.value !== null),
     quoteRefusal: checkoutQuote.refusal,
     submitError,
-    checkoutMode,
-    useHostedCheckout,
     createdOrder,
     isSubmitting,
     loyaltyDiscount,
@@ -1133,11 +1005,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     isStripePayment,
     isVivaWalletPayment,
     isOnlinePayment,
+    awaitsOnlinePayment,
     onSubmit,
     nextStep,
     prevStep,
     backToForm,
-    onPaymentSuccess,
     onPaymentError,
     onLoyaltyRedeemed,
     onLoyaltyCleared,

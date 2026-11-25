@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import ReviewSummary from '~/components/Checkout/ReviewSummary.vue'
+import { makeBoxNowPickedLocker } from '~~/test/fixtures/boxnow'
 
 /**
  * What steps 1 and 2 chose, read back before paying: the contact, where
@@ -44,10 +45,17 @@ describe('Checkout/ReviewSummary', () => {
     ])
   })
 
+  // django-api #769: what the street line leaves out, read back with it.
+  it('reads back the address line 2 between the street and the postcode', async () => {
+    const wrapper = await mountReview({ addressLine2: '3ος όροφος' })
+
+    expect(blocks(wrapper)[1]).toEqual(['Παράδοση', method('home_delivery'), 'Τσιμισκή 45, 3ος όροφος, 54622 Θεσσαλονίκη'])
+  })
+
   it('names the BOX NOW locker picked, not the home address', async () => {
     const wrapper = await mountReview({
       shippingMethod: 'box_now_locker',
-      boxnowLocker: { boxnowLockerId: '4', boxnowLockerName: 'BOX NOW Καμάρα', boxnowLockerAddressLine1: 'Εγνατία 10' },
+      boxnowLocker: makeBoxNowPickedLocker({ name: 'BOX NOW Καμάρα', addressLine1: 'Εγνατία 10' }),
     })
 
     expect(blocks(wrapper)[1]).toEqual(['Παράδοση', method('boxnow'), 'BOX NOW Καμάρα · Εγνατία 10'])

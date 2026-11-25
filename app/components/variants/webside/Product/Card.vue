@@ -309,12 +309,17 @@ const onFavouriteDelete = () => emit('favourite-delete')
           </span>
         </div>
 
+        <!-- Sold out: the restock alert in the add-to-cart button's place,
+             at its size and with its narrow-card rules. -->
         <LazyWebsideProductNotifyMe
           v-if="soldOut && productAlertsEnabled"
           :product-id="productId"
           kind="restock"
+          compact
           class="
-            min-w-0
+            ml-auto min-h-11 shrink-0 px-3.5 text-sm font-semibold
+            @max-3xs/card:size-11 @max-3xs/card:p-0
+            @max-3xs/card:*:data-[slot=label]:sr-only
             @max-[8.625rem]/card:w-full
           "
         />

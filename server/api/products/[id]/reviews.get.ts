@@ -21,7 +21,7 @@ export default defineCachedRoute(async (event) => {
 }, {
   name: 'ProductReviewsViewSet',
   // An hour: Django's `products` surface purges this handler on a review or
-  // product write (`core/cache/surfaces.py`), so the TTL only bounds a missed purge.
+  // product write (`src/product/cache_surfaces.py`), so the TTL only bounds a missed purge.
   maxAge: 60 * 60,
   staleMaxAge: 60 * 60 * 24,
   swr: true,

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import handler from '~~/server/api/promotions/product/[productId].get'
+import handler from '~~/server/api/promotions/product/[product_id].get'
 import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse } from '~~/test/helpers/nitro'
 
-const route = '/api/promotions/product/:productId'
+const route = '/api/promotions/product/:product_id'
 
-describe('GET /api/promotions/product/[productId]', () => {
+describe('GET /api/promotions/product/[product_id]', () => {
   it('asks Django for one product\'s offers in the page language, on the request\'s store', async () => {
     backend.reply([])
 
@@ -39,7 +39,7 @@ describe('GET /api/promotions/product/[productId]', () => {
     const { getKey } = cacheOptionsOf(handler)
     const keyFor = (productId: string, languageCode: string) => getKey!(createTestEvent({
       url: `/api/promotions/product/${productId}?languageCode=${languageCode}`,
-      context: { params: { productId } },
+      context: { params: { product_id: productId } },
     }))
 
     const base = await keyFor('2', 'el')

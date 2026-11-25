@@ -46,7 +46,7 @@ const addressDetails = computed(() => {
   if (address.value.street || address.value.streetNumber) {
     details.push({
       icon: 'i-heroicons-map-pin',
-      text: `${address.value.street} ${address.value.streetNumber}`,
+      text: [`${address.value.street} ${address.value.streetNumber}`, address.value.addressLine2].filter(Boolean).join(', '),
     })
   }
 
@@ -115,6 +115,17 @@ const addressDetails = computed(() => {
     </div>
 
     <USeparator class="mb-4" />
+
+    <!-- Kept from before the store stopped delivering there (its
+         shipping zones): checkout lists it but cannot use it. -->
+    <UAlert
+      v-if="!address.shippable"
+      :title="t('not_served')"
+      icon="i-lucide-map-pin-off"
+      color="neutral"
+      variant="subtle"
+      class="mb-4"
+    />
 
     <div class="mb-4 space-y-3">
       <div
@@ -237,6 +248,7 @@ el:
   main_address: Κύρια διεύθυνση
   edit: Επεξεργασία
   delete: Διαγραφή
+  not_served: Δεν παραδίδουμε πια σε αυτή τη διεύθυνση
 en:
   success: Address deleted
   error: The address could not be deleted
@@ -244,4 +256,5 @@ en:
   main_address: Main address
   edit: Edit
   delete: Delete
+  not_served: We no longer deliver to this address
 </i18n>

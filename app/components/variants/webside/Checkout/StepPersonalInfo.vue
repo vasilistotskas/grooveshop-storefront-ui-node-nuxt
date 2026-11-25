@@ -6,7 +6,6 @@ const formState = defineModel<Record<string, any>>('formState', { required: true
 const props = defineProps<{
   schema: any
   countryOptions: Array<{ label: string, value: string }>
-  regionOptions: Array<{ label: string, value: string }>
   savedAddresses?: UserAddressDetail[]
   selectedSavedAddressId?: number | null
   /**
@@ -15,28 +14,6 @@ const props = defineProps<{
    * typing a fresh address so the full form stays visible.
    */
   mode?: 'saved' | 'new'
-  /**
-   * The store's ``b2bInvoicing`` feature. When false, the Τιμολόγιο
-   * (INVOICE) toggle is hidden and orders ship as RECEIPT only.
-   */
-  b2bInvoicingEnabled: boolean
-  /**
-   * Whether this tenant actually has an ACS contract — i.e. whether
-   * ``/api/v1/shipping/options`` returned an ``acs`` row. Without it
-   * the address-validation proxy can only answer 503.
-   */
-  acsEnabled: boolean
-  /**
-   * The selected country's ``postalCodeExample`` (e.g. ``151 24``),
-   * shown as the postcode placeholder.
-   */
-  postcodeExample?: string
-  /**
-   * The full ``Country`` row matching ``formState.country`` — drives
-   * the phone dial-code badge and whether the region field applies
-   * (``hasRegions``).
-   */
-  selectedCountry?: Country | null
   /**
    * Django's field errors from a rejected order, shown under their
    * inputs through ``UForm``'s ``setErrors``.
@@ -53,14 +30,8 @@ const emit = defineEmits<{
 
 const { t } = useStoreI18n('components/variants/webside/Checkout/StepPersonalInfo')
 
-const { loggedIn } = useUserSession()
-
 const hasSavedAddresses = computed(() => (props.savedAddresses?.length ?? 0) > 0)
 const isSavedMode = computed(() => props.mode === 'saved')
-// "Save to my address book" only makes sense for authenticated users
-// who are typing a fresh address — guests can't own addresses and
-// shoppers in ``saved`` mode already have this one stored.
-const canOfferSave = computed(() => loggedIn.value && !isSavedMode.value)
 
 function onSelectSaved(id: number) {
   emit('select-saved-address', id)
@@ -101,7 +72,7 @@ watch(() => props.serverErrors, applyServerErrors)
   <UCard class="overflow-hidden">
     <template #header>
       <h2 class="text-xl font-semibold">
-        {{ t('steps.info_and_address') }}
+        {{ t('steps.details') }}
       </h2>
     </template>
 
@@ -116,7 +87,7 @@ watch(() => props.serverErrors, applyServerErrors)
             dark:text-primary-100
           "
         >
-          {{ t('delivery_address') }}
+          {{ t('recipient') }}
         </h3>
         <WebsideCheckoutSavedAddresses
           :addresses="savedAddresses ?? []"
@@ -127,12 +98,13 @@ watch(() => props.serverErrors, applyServerErrors)
         />
       </div>
 
-      <!-- Personal Information + full address form — hidden when the
-           shopper selected a saved address (the card above already
-           holds their name, phone, street, city, zipcode, country, and
-           region, so re-rendering the inputs would be pure duplication).
-           Displayed when: no saved addresses exist, OR the shopper
-           explicitly chose "Νέα διεύθυνση". -->
+      <!-- Personal Information + the country — hidden when the shopper
+           selected a saved address (the card above already holds their
+           name, phone and country, so re-rendering the inputs would be
+           pure duplication). Displayed when: no saved addresses exist,
+           OR the shopper explicitly chose "Νέα διεύθυνση". The address
+           itself is the delivery step's: a pickup order is delivered to
+           the point and takes none. -->
       <template v-if="!isSavedMode">
         <USeparator v-if="hasSavedAddresses" />
 
@@ -202,21 +174,10 @@ watch(() => props.serverErrors, applyServerErrors)
               size="xl"
             />
           </div>
-        </div>
 
-        <USeparator />
-
-        <!-- Address fields (country first — it sets the postcode format, the regions and the delivery options — then street → number → zipcode → city → region) -->
-        <div class="space-y-4">
-          <h3
-            v-if="!hasSavedAddresses" class="
-              text-lg font-medium text-primary-900
-              dark:text-primary-100
-            "
-          >
-            {{ t('delivery_address') }}
-          </h3>
-
+          <!-- The country the order goes to: it sets the delivery
+               options (and, for a home delivery, the postcode format
+               and the regions). -->
           <UFormField :label="t('form.country')" name="country" required>
             <USelect
               v-model="formState.country"
@@ -226,91 +187,6 @@ watch(() => props.serverErrors, applyServerErrors)
               class="w-full"
             />
           </UFormField>
-
-          <div
-            class="
-              grid grid-cols-1 gap-4
-              md:grid-cols-3
-            "
-          >
-            <UFormField
-              :label="t('form.street')" name="street" required class="
-                md:col-span-2
-              "
-            >
-              <UInput
-                v-model="formState.street"
-                size="xl"
-                autocomplete="address-line1"
-                :placeholder="t('form.street_placeholder')"
-                class="w-full"
-                icon="i-heroicons-map-pin"
-              />
-            </UFormField>
-
-            <UFormField :label="t('form.street_number')" name="streetNumber" required>
-              <UInput
-                v-model="formState.streetNumber"
-                size="xl"
-                :placeholder="t('form.street_number_placeholder')"
-                class="w-full"
-              />
-            </UFormField>
-          </div>
-
-          <div
-            class="
-              grid grid-cols-1 gap-4
-              md:grid-cols-2
-            "
-          >
-            <UFormField :label="t('form.zipcode')" name="zipcode" required>
-              <UInput
-                v-model="formState.zipcode"
-                size="xl"
-                autocomplete="postal-code"
-                inputmode="numeric"
-                :placeholder="postcodeExample ? t('form.zipcode_placeholder', { example: postcodeExample }) : undefined"
-                class="w-full"
-              />
-            </UFormField>
-
-            <UFormField :label="t('form.city')" name="city" required>
-              <UInput
-                v-model="formState.city"
-                size="xl"
-                autocomplete="address-level2"
-                leading-icon="i-heroicons-building-office-2"
-                class="w-full"
-              />
-            </UFormField>
-          </div>
-
-          <UFormField
-            v-if="selectedCountry?.hasRegions !== false"
-            :label="t('form.region')"
-            name="region"
-            required
-          >
-            <USelect
-              v-model="formState.region"
-              :items="regionOptions"
-              autocomplete="address-level1"
-              size="xl"
-              class="w-full"
-              :disabled="!regionOptions.length"
-            />
-          </UFormField>
-
-          <!-- ACS address-validation chip (Phase 4b polish).
-               Greece-only because ACS only services GR, and only for
-               a store with an ACS contract (the proxy answers 503
-               otherwise); failures are silent so a misconfigured
-               provider never blocks the form. -->
-          <WebsideCheckoutAcsAddressSuggestion
-            v-model:formState="formState"
-            :enabled="formState.country === 'GR' && acsEnabled"
-          />
         </div>
       </template>
 
@@ -331,194 +207,6 @@ watch(() => props.serverErrors, applyServerErrors)
             class="w-full"
           />
         </UFormField>
-
-        <!-- B2B toggle. Default is RECEIPT (retail Α.Λ.Π., no VAT
-             needed). Flipping to INVOICE exposes the ΑΦΜ field and
-             routes the myDATA submission through invoiceType 1.1
-             with the buyer as <counterpart>. Cross-field validation
-             on step1Schema enforces that INVOICE requires a valid
-             9-digit ΑΦΜ before the step can advance.
-
-             Gated by the ``b2bInvoicing`` feature so the owner can
-             hide the entire Τιμολόγιο flow from admin without a deploy.
-             The Django serializer also rejects ``INVOICE`` when it is
-             off, so a direct API call can't bypass the UI. -->
-        <template v-if="b2bInvoicingEnabled">
-          <USeparator />
-          <UCheckbox
-            :model-value="formState.documentType === 'INVOICE'"
-            :label="t('form.invoice.toggle_label')"
-            :description="t('form.invoice.toggle_description')"
-            color="primary"
-            @update:model-value="(v) => setDocumentType(formState, v ? 'INVOICE' : 'RECEIPT')"
-          />
-          <template v-if="formState.documentType === 'INVOICE'">
-            <UFormField
-              :label="t('form.invoice.company_label')"
-              name="billingCompanyName"
-              required
-            >
-              <UInput
-                v-model="formState.billingCompanyName"
-                size="xl"
-                leading-icon="i-heroicons-building-office-2"
-                maxlength="255"
-                class="w-full"
-              />
-            </UFormField>
-            <div
-              class="
-                grid grid-cols-1 gap-4
-                md:grid-cols-2
-              "
-            >
-              <UFormField
-                :label="t('form.invoice.vat_label')"
-                :help="t('form.invoice.vat_help')"
-                name="billingVatId"
-                required
-              >
-                <UInput
-                  v-model="formState.billingVatId"
-                  size="xl"
-                  placeholder="123456789"
-                  leading-icon="i-heroicons-identification"
-                  maxlength="12"
-                  class="w-full"
-                />
-              </UFormField>
-              <UFormField
-                :label="t('form.invoice.tax_office_label')"
-                name="billingTaxOffice"
-                required
-              >
-                <UInput
-                  v-model="formState.billingTaxOffice"
-                  size="xl"
-                  leading-icon="i-heroicons-building-library"
-                  maxlength="100"
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
-            <UFormField
-              :label="t('form.invoice.activity_label')"
-              :help="t('form.invoice.activity_help')"
-              name="billingActivity"
-              required
-            >
-              <UInput
-                v-model="formState.billingActivity"
-                size="xl"
-                leading-icon="i-heroicons-briefcase"
-                maxlength="255"
-                class="w-full"
-              />
-            </UFormField>
-            <UCheckbox
-              v-model="formState.billingSameAsShipping"
-              :label="t('form.invoice.billing_same_label')"
-              :description="t('form.invoice.billing_same_description')"
-              color="primary"
-            />
-            <template v-if="!formState.billingSameAsShipping">
-              <div
-                class="
-                  grid grid-cols-1 gap-4
-                  md:grid-cols-2
-                "
-              >
-                <UFormField
-                  :label="t('form.invoice.billing_street_label')"
-                  name="billingStreet"
-                  required
-                >
-                  <UInput
-                    v-model="formState.billingStreet"
-                    size="xl"
-                    maxlength="255"
-                    class="w-full"
-                    icon="i-heroicons-map-pin"
-                  />
-                </UFormField>
-                <UFormField
-                  :label="t('form.invoice.billing_street_number_label')"
-                  name="billingStreetNumber"
-                  required
-                >
-                  <UInput
-                    v-model="formState.billingStreetNumber"
-                    size="xl"
-                    maxlength="50"
-                    class="w-full"
-                  />
-                </UFormField>
-              </div>
-              <div
-                class="
-                  grid grid-cols-1 gap-4
-                  md:grid-cols-2
-                "
-              >
-                <UFormField
-                  :label="t('form.invoice.billing_city_label')"
-                  name="billingCity"
-                  required
-                >
-                  <UInput
-                    v-model="formState.billingCity"
-                    size="xl"
-                    maxlength="100"
-                    class="w-full"
-                    icon="i-heroicons-building-office-2"
-                  />
-                </UFormField>
-                <UFormField
-                  :label="t('form.invoice.billing_zipcode_label')"
-                  name="billingZipcode"
-                  required
-                >
-                  <UInput
-                    v-model="formState.billingZipcode"
-                    size="xl"
-                    maxlength="20"
-                    class="w-full"
-                  />
-                </UFormField>
-              </div>
-            </template>
-          </template>
-        </template>
-
-        <!-- Save-to-address-book affordance. The checkout form already
-             collects every required UserAddress field except ``title``;
-             the title input appears only once the user opts in so we
-             don't clutter the form with a field most shoppers won't need. -->
-        <template v-if="canOfferSave">
-          <USeparator />
-          <UCheckbox
-            v-model="formState.saveAddress"
-            :label="t('save_address.label')"
-            :description="t('save_address.description')"
-            color="primary"
-          />
-          <UFormField
-            v-if="formState.saveAddress"
-            :label="t('save_address.title_label')"
-            :help="t('save_address.title_help')"
-            name="addressTitle"
-            required
-          >
-            <UInput
-              v-model="formState.addressTitle"
-              size="xl"
-              :placeholder="t('save_address.title_placeholder')"
-              leading-icon="i-heroicons-bookmark"
-              class="w-full"
-              maxlength="255"
-            />
-          </UFormField>
-        </template>
       </div>
     </UForm>
   </UCard>
@@ -526,18 +214,6 @@ watch(() => props.serverErrors, applyServerErrors)
 
 <i18n lang="yaml">
 el:
-  steps:
-    info_and_address: Στοιχεία & Διεύθυνση
   personal_information: Προσωπικά Στοιχεία
-  delivery_address: Διεύθυνση Παράδοσης
-  saved_addresses:
-    label: "Επίλεξε αποθηκευμένη διεύθυνση"
-    placeholder: "Επίλεξε διεύθυνση"
-    help: "Διάλεξε μία από τις διευθύνσεις σου για να συμπληρωθούν αυτόματα τα πεδία."
-  save_address:
-    label: "Αποθήκευση της διεύθυνσης στον λογαριασμό μου"
-    description: "Θα είναι διαθέσιμη σε επόμενες παραγγελίες για γρήγορη επιλογή."
-    title_label: "Ονομασία διεύθυνσης"
-    title_placeholder: "π.χ. Σπίτι, Δουλειά"
-    title_help: "Δώσε ένα σύντομο όνομα για να τη βρίσκεις εύκολα."
+  recipient: Στοιχεία Παραλήπτη
 </i18n>

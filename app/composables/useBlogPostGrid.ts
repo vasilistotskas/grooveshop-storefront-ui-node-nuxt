@@ -91,7 +91,7 @@ export function useBlogPostGrid(options: {
       else {
         // A page replaces the last one — an empty answer included, or a
         // search that finds nothing would keep showing the previous posts.
-        allPosts.value = [...newResults].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        allPosts.value = newResults.toSorted((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       }
     },
     { immediate: true },

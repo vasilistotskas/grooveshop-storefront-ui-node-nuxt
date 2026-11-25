@@ -4,12 +4,6 @@ const localePath = useLocalePath()
 const { t, n } = useI18n()
 const route = useRoute()
 const toast = useToast()
-const tenantStore = useTenantStore()
-// BoxNow is tenant-only — no platform env fallback. Tenants that
-// haven't configured a partner id simply don't get the locker-pickup
-// option (StepShipping/BoxNowLockerPicker already disable/hide it when
-// partnerId is empty).
-const boxnowPartnerId = computed(() => tenantStore.boxNowPartnerId)
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
@@ -70,7 +64,7 @@ const {
 
 const {
   currentStep,
-  addressStepErrors,
+  stepErrors,
   quote,
   quotedFor,
   quotePending,
@@ -85,12 +79,11 @@ const {
   isStripePayment,
   isVivaWalletPayment,
   isOnlinePayment,
-  useHostedCheckout,
+  awaitsOnlinePayment,
   onSubmit,
   nextStep,
   prevStep,
   backToForm,
-  onPaymentSuccess,
   onPaymentError,
   onLoyaltyRedeemed,
   onLoyaltyCleared,
@@ -136,7 +129,7 @@ const ctaLabel = computed(() => {
 
 // The online-payment view owns the main column once the order exists:
 // it has its own Pay / Back controls.
-const showNavigation = computed(() => !(createdOrder.value && isOnlinePayment.value))
+const showNavigation = computed(() => !awaitsOnlinePayment.value)
 
 const onCta = async () => {
   await stepRef.value?.submit()
@@ -242,13 +235,11 @@ useSeoMeta({
           <NuxtErrorBoundary @error="onBoundaryError">
             <!-- Stripe or Viva Wallet, once the order exists. -->
             <CheckoutOnlinePaymentView
-              v-if="createdOrder && isOnlinePayment"
+              v-if="awaitsOnlinePayment && createdOrder"
               :created-order="createdOrder"
               :selected-pay-way="selectedPayWay!"
               :is-stripe-payment="isStripePayment"
               :is-viva-wallet-payment="isVivaWalletPayment"
-              :use-hosted-checkout="useHostedCheckout"
-              @payment-success="onPaymentSuccess"
               @payment-error="onPaymentError"
               @back-to-form="backToForm"
             />
@@ -259,16 +250,11 @@ useSeoMeta({
               v-model:form-state="formState"
               :schema="step1Schema"
               :country-options="countryOptions"
-              :postcode-example="postcodeExample"
-              :selected-country="selectedCountry"
-              :server-errors="addressStepErrors"
-              :region-options="regionOptions"
+              :server-errors="stepErrors[CHECKOUT_STEP.details]"
               :saved-addresses="savedAddresses"
               :selected-saved-address-id="selectedSavedAddressId"
               :address-ids-needing-update="addressIdsNeedingUpdate"
               :mode="addressEntryMode"
-              :b2b-invoicing-enabled="b2bInvoicingEnabled"
-              :acs-enabled="acsEnabled"
               @next="nextStep"
               @select-saved-address="selectSavedAddress"
               @use-new-address="useNewAddress"
@@ -280,11 +266,19 @@ useSeoMeta({
               ref="stepRef"
               v-model:form-state="formState"
               :schema="step2Schema"
-              :partner-id="boxnowPartnerId"
               :api-options="shippingOptions"
               :quoted-options="quote?.shippingOptions ?? null"
+              :quote-pending="quotePending"
               :options-error="shippingOptionsError"
               :over-weight="shippingOverWeight"
+              :region-options="regionOptions"
+              :postcode-example="postcodeExample"
+              :selected-country="selectedCountry"
+              :acs-enabled="acsEnabled"
+              :b2b-invoicing-enabled="b2bInvoicingEnabled"
+              :mode="addressEntryMode"
+              :selected-saved-address-id="selectedSavedAddressId"
+              :server-errors="stepErrors[CHECKOUT_STEP.delivery]"
               @next="nextStep"
               @back="prevStep"
               @retry-options="retryShippingOptions"
@@ -297,7 +291,6 @@ useSeoMeta({
               :schema="step3Schema"
               :pay-way-options="quotedPayWayOptions"
               :is-submitting="isSubmitting"
-              :use-hosted-checkout="useHostedCheckout"
               @submit="onSubmit"
             />
 

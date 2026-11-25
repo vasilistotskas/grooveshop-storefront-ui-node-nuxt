@@ -281,7 +281,7 @@ describe.each(trees(ContactForm, WebsideContactForm))('$tree ContactForm', ({ tr
       }))
     })
 
-    // Django's body for a refused upload (`core/api/exception_handler.py`):
+    // Django's body for a refused upload (`src/core/api/exception_handler.py`):
     // the field keys, plus `code` and `fields`. Its wording reaches the shopper.
     it('says why the server refused a file, in its own words', async () => {
       attachmentStub.enabled = true

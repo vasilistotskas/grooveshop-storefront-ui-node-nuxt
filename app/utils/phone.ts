@@ -14,7 +14,7 @@
  * ``phoneMetadata`` (``nationalNumberPattern`` / ``possibleLengths`` /
  * ``nationalPrefixForParsing`` / ``exampleMobile``), derived
  * server-side from the exact ``phonenumbers`` library Django
- * validates with (``country/phone.py``) — so these checks stay loose
+ * validates with (``src/country/phone.py``) — so these checks stay loose
  * enough that a real customer is never falsely rejected client-side;
  * Django is the authoritative, final check either way. A `+`-prefixed
  * foreign number is always accepted at face value: a Greek mobile may

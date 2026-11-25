@@ -14,7 +14,7 @@
  */
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   schema: any
   payWayOptions: Array<{
     label: string
@@ -33,11 +33,7 @@ const props = withDefaults(defineProps<{
     freeThresholdHint?: string
   }>
   isSubmitting: boolean
-  /** Whether Stripe takes the shopper to its own page (else the card form is inline). */
-  useHostedCheckout?: boolean
-}>(), {
-  useHostedCheckout: false,
-})
+}>()
 
 const emit = defineEmits<{
   submit: []
@@ -102,7 +98,7 @@ const selectedPayWay = computed(() =>
 const finishLine = computed(() => {
   const code = selectedPayWay.value?.providerCode
   if (code === zPaymentProviderEnum.enum.viva_wallet) return t('finish.viva')
-  if (code === zPaymentProviderEnum.enum.stripe) return props.useHostedCheckout ? t('finish.stripe_hosted') : t('finish.stripe_inline')
+  if (code === zPaymentProviderEnum.enum.stripe) return t('finish.stripe_hosted')
   return ''
 })
 
@@ -364,7 +360,6 @@ el:
   finish:
     viva: Θα ολοκληρώσεις την πληρωμή στην ασφαλή σελίδα της Viva Wallet και θα επιστρέψεις εδώ.
     stripe_hosted: Θα ολοκληρώσεις την πληρωμή στην ασφαλή σελίδα της Stripe και θα επιστρέψεις εδώ.
-    stripe_inline: Πληρώνεις χωρίς να φύγεις από τη σελίδα.
 en:
   review: Review
   form:
@@ -373,5 +368,4 @@ en:
   finish:
     viva: You'll finish paying on Viva Wallet's secure page, then come straight back here.
     stripe_hosted: You'll finish paying on Stripe's secure page, then come straight back here.
-    stripe_inline: Pay without leaving the page.
 </i18n>

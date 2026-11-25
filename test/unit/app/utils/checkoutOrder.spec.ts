@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { acceptedQuoteChange, acceptedQuoteOf, buildOrderCreateBody, classifyOrderError, describeCartChange, describeTotalChange, describeTotalToConfirm, failedStatusOf, placeOrderAt, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
+import { acceptedQuoteChange, acceptedQuoteOf, billingSharesDelivery, buildOrderCreateBody, CHECKOUT_STEP, classifyOrderError, clearPickupPoint, describeCartChange, describeTotalChange, describeTotalToConfirm, failedStatusOf, placeOrderAt, quoteRequestOf, refusedResponseOf, rejectionSettlesAttempt, sameExpectedTotal, setDocumentType } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
+import { PICKUP_POINT_CHECK_UNAVAILABLE } from '~~/shared/constants/orderRefusals'
 import { CART_DIGEST, makeCheckoutQuote, unpricedQuote } from '~~/test/fixtures/checkoutQuote'
 import { makeCountry } from '~~/test/fixtures/country'
 
@@ -15,8 +16,9 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.reservation_expired',
       description: 'form.submit.error.reservation_expired_description',
       shouldRetry: true,
-      addressStepErrors: [],
+      stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -27,9 +29,37 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.order_in_progress',
       description: 'form.submit.error.order_in_progress_description',
       shouldRetry: false,
-      addressStepErrors: [],
+      stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
+  })
+
+  // Points that cannot be redeemed come back as an invalid order with the
+  // program's own reason under `loyaltyPointsToRedeem`: the redemption is
+  // dropped (`loyaltyRefused`) and the reason is shown.
+  it('names a refused loyalty redemption by its field, with the program\'s reason', () => {
+    const info = classifyOrderError({
+      error: { type: 'invalid_order_data' },
+      detail: 'Invalid order data',
+      fieldErrors: { loyaltyPointsToRedeem: ['Not enough points.'] },
+    }, t, n)
+
+    expect(info).toEqual({
+      title: 'form.submit.error.loyalty_redemption_invalid',
+      description: 'Not enough points.',
+      shouldRetry: false,
+      stepErrors: {},
+      quoteChanged: false,
+      pickupPointRefused: false,
+      loyaltyRefused: true,
+    })
+  })
+
+  it('does not drop the redemption for another invalid order', () => {
+    const info = classifyOrderError({ error: { type: 'invalid_order_data' }, fieldErrors: { street: ['x'] } }, t, n)
+
+    expect(info.loyaltyRefused).toBeUndefined()
   })
 
   /**
@@ -38,10 +68,6 @@ describe('classifyOrderError', () => {
    */
   it.each([
     ['invalid_order_data', 'invalid_order_data', 'invalid_order_data_description'],
-    ['payment_not_found', 'payment_verification', 'payment_verification_description'],
-    ['payment_verification', 'payment_verification', 'payment_verification_description'],
-    ['payment_amount_mismatch', 'payment_mismatch', 'payment_mismatch_description'],
-    ['payment_currency_mismatch', 'payment_mismatch', 'payment_mismatch_description'],
     ['invalid_coupon', 'invalid_coupon', 'invalid_coupon_description'],
     ['invalid_gift_card', 'invalid_gift_card', 'invalid_gift_card_description'],
     ['insufficient_stock', 'insufficient_stock', 'insufficient_stock_description'],
@@ -53,8 +79,9 @@ describe('classifyOrderError', () => {
       title: `form.submit.error.${title}`,
       description: 'Από το Django.',
       shouldRetry: false,
-      addressStepErrors: [],
+      stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
     expect(withoutDetail.description).toBe(`form.submit.error.${fallback}`)
   })
@@ -87,7 +114,7 @@ describe('classifyOrderError', () => {
   // Django's body for a serializer error (`core/api/exception_handler.py`):
   // the field keys DRF gave, plus `code` and `fields`. Its own refusal of a
   // street number that is a postcode lands under that input.
-  it('reads Django\'s field errors from `fields` and hands the address-step ones back per input', () => {
+  it('reads Django\'s field errors from `fields` and hands the delivery-step ones back per input', () => {
     const message = 'This looks like a postcode. Enter the street number here and the postcode in the postcode field.'
     const info = classifyOrderError({
       streetNumber: [message],
@@ -99,8 +126,9 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.invalid_order_data',
       description: `streetNumber: ${message}`,
       shouldRetry: false,
-      addressStepErrors: [{ name: 'streetNumber', message }],
+      stepErrors: { [CHECKOUT_STEP.delivery]: [{ name: 'streetNumber', message }] },
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -112,26 +140,84 @@ describe('classifyOrderError', () => {
       fields: { street: [{ message, code: 'street_number_missing' }] },
     }, t, n)
 
-    expect(info.addressStepErrors).toEqual([{ name: 'street', message }])
+    expect(info.stepErrors).toEqual({ [CHECKOUT_STEP.delivery]: [{ name: 'street', message }] })
   })
 
-  it('lists DRF field errors and hands the address-step ones back per input', () => {
+  it('lists DRF field errors and hands each back to the step that shows it', () => {
     const info = classifyOrderError({
       zipcode: ['Enter a valid postcode.'],
       countryId: ['Select a valid country.'],
-      boxnowLockerId: ['Locker ID required.'],
+      billingFoo: ['Unknown.'],
     }, t, n)
 
     expect(info.title).toBe('form.submit.error.invalid_order_data')
     expect(info.description).toBe([
       'zipcode: Enter a valid postcode.',
       'countryId: Select a valid country.',
-      'boxnowLockerId: Locker ID required.',
+      'billingFoo: Unknown.',
     ].join('\n'))
-    expect(info.addressStepErrors).toEqual([
-      { name: 'zipcode', message: 'Enter a valid postcode.' },
-      { name: 'country', message: 'Select a valid country.' },
+    expect(info.stepErrors).toEqual({
+      [CHECKOUT_STEP.details]: [{ name: 'country', message: 'Select a valid country.' }],
+      [CHECKOUT_STEP.delivery]: [{ name: 'zipcode', message: 'Enter a valid postcode.' }],
+    })
+  })
+
+  // Django refuses the point a pickup order names (#767) on the carrier's
+  // own field: the delivery step's picker shows it.
+  it.each([
+    ['pickup_point_unknown', 'boxnowLockerId', 'boxnowLockerId'],
+    ['pickup_point_too_small', 'boxnowLockerId', 'boxnowLockerId'],
+    ['pickup_point_size_unknown', 'boxnowLockerId', 'boxnowLockerId'],
+    ['pickup_point_in_another_country', 'acsStationExternalId', 'acsStationExternalId'],
+    ['pickup_point_required', 'acsStationBranch', 'acsStationExternalId'],
+  ])('tells a %s refusal on %s in the storefront\'s words, under the picker and in the alert', (code, field, name) => {
+    const message = 'This pickup point is not available.'
+    const info = classifyOrderError({ [field]: [message], code, fields: { [field]: [{ message, code }] } }, t, n)
+
+    expect(info).toMatchObject({
+      title: 'form.submit.error.pickup_point_refused',
+      description: `form.submit.error.${code}`,
+      stepErrors: { [CHECKOUT_STEP.delivery]: [{ name, message: `form.submit.error.${code}` }] },
+      pickupPointRefused: true,
+    })
+  })
+
+  it('lists every other field Django refused after the pickup point, never only the point', () => {
+    const refusal = 'This pickup point is not available.'
+    const info = classifyOrderError({
+      boxnowLockerId: [refusal],
+      billingVatId: ['Enter a valid VAT number.'],
+      fields: {
+        boxnowLockerId: [{ message: refusal, code: 'pickup_point_unknown' }],
+        billingVatId: [{ message: 'Enter a valid VAT number.', code: 'invalid' }],
+      },
+    }, t, n)
+
+    expect(info.title).toBe('form.submit.error.pickup_point_refused')
+    expect(info.description).toBe([
+      'form.submit.error.pickup_point_unknown',
+      'billingVatId: Enter a valid VAT number.',
+    ].join('\n'))
+    expect(info.stepErrors[CHECKOUT_STEP.delivery]).toEqual([
+      { name: 'boxnowLockerId', message: 'form.submit.error.pickup_point_unknown' },
+      { name: 'billingVatId', message: 'Enter a valid VAT number.' },
     ])
+  })
+
+  // The 503 when the carrier's catalogue could not be asked: the point is
+  // not judged, so the shopper tries again with it.
+  it('tells the shopper to try again when the pickup point could not be checked', () => {
+    expect(classifyOrderError({
+      detail: 'The pickup point cannot be checked right now. Try again in a moment.',
+      code: PICKUP_POINT_CHECK_UNAVAILABLE,
+    }, t, n)).toEqual({
+      title: 'form.submit.error.pickup_point_check_unavailable',
+      description: 'form.submit.error.pickup_point_check_unavailable_description',
+      shouldRetry: false,
+      stepErrors: {},
+      quoteChanged: false,
+      pickupPointRefused: false,
+    })
   })
 
   it('falls back to the detail under the generic title', () => {
@@ -139,8 +225,9 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.general',
       description: 'Something broke.',
       shouldRetry: false,
-      addressStepErrors: [],
+      stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 
@@ -158,8 +245,9 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.total_changed',
       description: 'form.submit.error.total_changed_description {"total":"currency:71.40"}',
       shouldRetry: false,
-      addressStepErrors: [],
+      stepErrors: {},
       quoteChanged: true,
+      pickupPointRefused: false,
     })
   })
 
@@ -176,8 +264,9 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.cart_changed',
       description: 'form.submit.error.cart_changed_description {"total":"currency:63.00"}',
       shouldRetry: false,
-      addressStepErrors: [],
+      stepErrors: {},
       quoteChanged: true,
+      pickupPointRefused: false,
     })
   })
 
@@ -201,8 +290,9 @@ describe('classifyOrderError', () => {
       title: 'form.submit.error.general',
       description: undefined,
       shouldRetry: false,
-      addressStepErrors: [],
+      stepErrors: {},
       quoteChanged: false,
+      pickupPointRefused: false,
     })
   })
 })
@@ -261,6 +351,14 @@ describe('buildOrderCreateBody', () => {
       shippingProviderCode: undefined,
       shippingKind: 'home_delivery',
     })
+  })
+
+  // django-api #769: a home delivery's line 2, trimmed; a blank one is absent.
+  it.each([
+    ['  3ος όροφος ', '3ος όροφος'],
+    ['   ', undefined],
+  ])('sends the address line 2 %j as %j', (addressLine2, sent) => {
+    expect(buildOrderCreateBody(form({ addressLine2 }), ctx()).addressLine2).toBe(sent)
   })
 
   it('sends the terms consent as the shopper left it, for Django to record', () => {
@@ -331,6 +429,33 @@ describe('buildOrderCreateBody', () => {
     expect(body).toMatchObject({ shippingKind: 'pickup_point', ...expected })
   })
 
+  // Django delivers a pickup order to the point and keeps none of the
+  // shopper's address (#767): the form's leftovers are not sent.
+  it('sends no address and no region for a pickup order, whatever the form still holds', () => {
+    const body = buildOrderCreateBody(form({ shippingMethod: 'box_now_locker', boxnowLockerId: 'L-42', addressLine2: '3ος όροφος' }), ctx())
+
+    for (const field of ['street', 'streetNumber', 'addressLine2', 'city', 'zipcode', 'regionId']) {
+      expect(body).not.toHaveProperty(field)
+    }
+    expect(body).toMatchObject({ firstName: 'Maria', email: 'maria@example.com', phone: '+306912345678', countryId: 1 })
+  })
+
+  it('sends a pickup invoice\'s own address even with "same as delivery" left ticked', () => {
+    const body = buildOrderCreateBody(form({
+      ...INVOICE,
+      billingSameAsShipping: true,
+      shippingMethod: 'box_now_locker',
+      boxnowLockerId: 'L-42',
+    }), ctx())
+
+    expect(body).toMatchObject({
+      billingStreet: 'Stadiou',
+      billingStreetNumber: '5',
+      billingCity: 'Piraeus',
+      billingZipcode: '185 31',
+    })
+  })
+
   it('redeems the loyalty points and every gift card the shopper applied', () => {
     const body = buildOrderCreateBody(form(), ctx({
       loyaltyDiscount: { points: 500 },
@@ -386,9 +511,9 @@ describe('buildOrderCreateBody', () => {
     }))
 
     it('prices every input of the order once the payment step is reached', () => {
+      // No region: a pickup delivery has none (Django's `ShippingChoice.of`).
       expect(quoteRequestOf(order({ shippingMethod: 'box_now_locker', boxnowLockerId: 'L-42' }), { delivery: true, payWay: true })).toEqual({
         countryId: 'GR',
-        regionId: 'ATT',
         giftCardCodes: ['GC-1'],
         loyaltyPointsToRedeem: 500,
         shippingKind: 'pickup_point',
@@ -431,6 +556,19 @@ describe('buildOrderCreateBody', () => {
       expect(request.regionId).toBeUndefined()
       expect(request.email).toBeUndefined()
     })
+  })
+})
+
+describe('billingSharesDelivery', () => {
+  it.each([
+    [{ shippingMethod: 'home_delivery', billingSameAsShipping: true }, true],
+    [{ shippingMethod: 'home_delivery' }, true],
+    [{ shippingMethod: 'home_delivery', billingSameAsShipping: false }, false],
+    // A pickup point is no company's address.
+    [{ shippingMethod: 'box_now_locker', billingSameAsShipping: true }, false],
+    [{ shippingMethod: 'acs_smartpoint', billingSameAsShipping: true }, false],
+  ])('%j shares the delivery address: %s', (form, shared) => {
+    expect(billingSharesDelivery(form)).toBe(shared)
   })
 })
 
@@ -597,5 +735,45 @@ describe('setDocumentType', () => {
     setDocumentType(form, 'INVOICE')
 
     expect(form).toEqual(invoice())
+  })
+})
+
+describe('clearPickupPoint', () => {
+  it('empties the method\'s own pickup-point fields and leaves every other field', () => {
+    const formState: Record<string, unknown> = {
+      boxnowLockerId: '4352',
+      boxnowLocker: { id: '4352' },
+      acsStationExternalId: 'GR123',
+      acsStationBranch: 'B1',
+      acsStation: { id: 'GR123' },
+      zipcode: '15341',
+    }
+
+    clearPickupPoint(formState, 'box_now_locker')
+
+    expect(formState).toEqual({
+      boxnowLockerId: '',
+      boxnowLocker: null,
+      acsStationExternalId: 'GR123',
+      acsStationBranch: 'B1',
+      acsStation: { id: 'GR123' },
+      zipcode: '15341',
+    })
+  })
+
+  it('empties ACS\'s id, branch and station together', () => {
+    const formState: Record<string, unknown> = { acsStationExternalId: 'GR123', acsStationBranch: 'B1', acsStation: { id: 'GR123' } }
+
+    clearPickupPoint(formState, 'acs_smartpoint')
+
+    expect(formState).toEqual({ acsStationExternalId: '', acsStationBranch: '', acsStation: null })
+  })
+
+  it('changes nothing for a method without pickup points', () => {
+    const formState: Record<string, unknown> = { boxnowLockerId: '4352', zipcode: '15341' }
+
+    clearPickupPoint(formState, 'home_delivery')
+
+    expect(formState).toEqual({ boxnowLockerId: '4352', zipcode: '15341' })
   })
 })

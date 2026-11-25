@@ -19,7 +19,7 @@ const settings = useLoyaltySettings()
 
 const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
-const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
+const ladder = computed(() => (tiers.value ?? []).toSorted((a, b) => a.requiredLevel - b.requiredLevel))
 
 const currentRank = computed(() => {
   const currentId = summary.value?.tier?.id

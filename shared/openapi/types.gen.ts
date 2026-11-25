@@ -896,6 +896,14 @@ export type BlogCategory = {
      */
   readonly hasChildren: boolean
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  readonly icon: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -944,6 +952,14 @@ export type BlogCategoryDetail = {
      */
   readonly hasChildren: boolean
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  readonly icon: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -1014,6 +1030,12 @@ export type BlogCategoryWriteRequest = {
      * Εικόνα
      */
   image?: Blob | File | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  icon?: string
 }
 
 /**
@@ -1247,6 +1269,8 @@ export type BlogPost = {
      */
   readonly updatedAt: string
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly readingTime: number
   readonly contentPreview: string
 }
@@ -1316,6 +1340,8 @@ export type BlogPostDetail = {
      */
   readonly updatedAt: string
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly readingTime: number
   readonly contentPreview: string
   readonly likes: Array<number>
@@ -1634,6 +1660,14 @@ export type BoxNowLocker = {
      */
   readonly note: string
   /**
+     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: σε κατάστημα στο live δίκτυο της BOX NOW το locker τότε δεν δέχεται καμία παραγγελία· ένα κατάστημα στο δίκτυο stage της BOX NOW δεν έχει μεγέθη και δεν ελέγχει κανένα.
+     */
+  readonly compartmentSizes: Array<number>
+  /**
+     * True όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· false όταν δεν είναι γνωστή.
+     */
+  readonly limitedAvailability: boolean
+  /**
      * Ενεργό
      */
   readonly isActive: boolean
@@ -1714,6 +1748,14 @@ export type BoxNowLockerDetail = {
      * Σημείωση
      */
   readonly note: string
+  /**
+     * Τα μεγέθη θυρίδων που έχει το locker (1 μικρό, 2 μεσαίο, 3 μεγάλο). Κενό όταν δεν είναι γνωστά: σε κατάστημα στο live δίκτυο της BOX NOW το locker τότε δεν δέχεται καμία παραγγελία· ένα κατάστημα στο δίκτυο stage της BOX NOW δεν έχει μεγέθη και δεν ελέγχει κανένα.
+     */
+  readonly compartmentSizes: Array<number>
+  /**
+     * True όταν η BOX NOW εκτιμά την πιθανότητα ελεύθερης θυρίδας κάτω από το BOXNOW_LIMITED_AVAILABILITY_BELOW· false όταν δεν είναι γνωστή.
+     */
+  readonly limitedAvailability: boolean
   /**
      * Ενεργό
      */
@@ -2346,7 +2388,7 @@ export type Cart = {
      * Uses annotated value if available (from optimized queryset),
      * otherwise calculates from items.
      */
-  totalItems: number | 0
+  readonly totalItems: number
   /**
      * Return the number of unique items in the cart.
      *
@@ -2408,7 +2450,7 @@ export type Cart = {
          */
     threshold: number | null
     /**
-         * The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects
+         * The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects, at the rates of its shipping zone covering the whole country, or of each region zone of a country served only in some regions (a cart knows no region; a region zone's own threshold applies once checkout prices the address)
          */
     countryCode: string | null
   } | null
@@ -2430,11 +2472,11 @@ export type Cart = {
          */
     freeShipping: boolean
     /**
-         * This code earns the gift listed in promotionGiftItems
+         * This code earns a gift the order ships with
          */
     gift: boolean
     /**
-         * Why the engine refuses the attached code now; null while it applies
+         * Why the promotions refuse the attached code now; null while it applies
          */
     rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
   }>
@@ -2557,64 +2599,6 @@ export type CartCoupon = {
   readonly applied: boolean
 }
 
-/**
- * Request body for ``POST /api/v1/cart/create-payment-intent``.
- *
- * ``shipping_kind`` is required so the view's shipping calculation
- * follows the same code path the order-create verification runs.
- * ``shipping_provider_code`` is required for ``pickup_point`` (the
- * carrier identity drives the locker quote + per-carrier threshold)
- * but **omitted for ``home_delivery``** — home delivery is
- * provider-agnostic in checkout per the frontend's
- * ``shared/shipping/index.ts::carrierForMethod`` contract, and the
- * backend resolves the active home-delivery provider at order
- * creation. Sending whatever the frontend has guarantees both calc
- * paths agree.
- */
-export type CartCreatePaymentIntentRequestRequest = {
-  /**
-     * ID της επιλεγμένης μεθόδου πληρωμής (πρέπει να είναι online Stripe).
-     */
-  payWayId: number
-  /**
-     * Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους έλεγχοι διαθεσιμότητας (οι θυρίδες ACS χρειάζονται συγχρονισμένους σταθμούς) και ο έλεγχος PICKUP_POINT του BoxNow.
-     *
-     * * `home_delivery` - home_delivery
-     * * `pickup_point` - pickup_point
-     */
-  shippingKind: CartCreatePaymentIntentRequestShippingKindEnum
-  /**
-     * Κωδικός μεταφορέα που αντιστοιχεί σε καταχωρημένο προσαρμογέα αποστολής (π.χ. 'acs', 'boxnow'). Απαιτείται για ``pickup_point``· παραλείψτε/αφήστε κενό για ``home_delivery`` (το backend χρησιμοποιεί τη γενική πάγια χρέωση, αντίστοιχη με αυτή που θα υπολογίσει η επαλήθευση δημιουργίας παραγγελίας για το ίδιο αίτημα).
-     */
-  shippingProviderCode?: string
-  /**
-     * Κωδικός χώρας ISO 3166-1 alpha-2 — υποχρεωτικός, επειδή η τιμή αποστολής (``ShippingRate``) ορίζεται ανά χώρα και χωρίς προορισμό δεν τιμολογείται καμία επιλογή. Πρέπει να συμφωνεί με τη χώρα του αιτήματος δημιουργίας παραγγελίας.
-     */
-  countryId: string
-  /**
-     * Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
-     */
-  regionId?: string
-  /**
-     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.
-     */
-  email?: string | string
-  /**
-     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
-     */
-  giftCardCodes?: Array<string>
-  /**
-     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
-     */
-  loyaltyPointsToRedeem?: number | null
-}
-
-/**
- * * `home_delivery` - home_delivery
- * * `pickup_point` - pickup_point
- */
-export type CartCreatePaymentIntentRequestShippingKindEnum = 'home_delivery' | 'pickup_point'
-
 export type CartItem = {
   readonly id: number
   readonly cartId: string
@@ -2725,32 +2709,14 @@ export type CartItemUpdateRequest = {
 }
 
 /**
- * Response body returned by the create-payment-intent cart action.
- */
-export type CartPaymentIntentResponse = {
-  /**
-     * Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend
-     */
-  clientSecret: string
-  /**
-     * ID του Stripe PaymentIntent προς αποθήκευση στην παραγγελία
-     */
-  paymentIntentId: string
-  /**
-     * Συνολικό ποσό χρέωσης (καλάθι + αποστολή + έξοδα πληρωμής)
-     */
-  amount: number
-  /**
-     * Κωδικός νομίσματος ISO 4217 (π.χ. EUR)
-     */
-  currency: string
-}
-
-/**
  * The body of ``POST /cart/quote``: the quote, and what each
  * delivery and pay way on offer would cost this cart.
  */
 export type CartQuote = {
+  /**
+     * Οι γραμμές του καλαθιού που τιμολόγησε η προσφορά τιμής, από την ίδια ανάγνωση με το itemsSubtotal και το cartDigest: ό,τι καλύπτει το digest από την καθεμία (προϊόν, ποσότητα, τιμή μονάδας, χρήματα προωθήσεων), με το όνομα και την εικόνα του προϊόντος.
+     */
+  readonly lines: Array<QuoteLine>
   /**
      * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
@@ -2763,6 +2729,28 @@ export type CartQuote = {
      * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotion>
+  /**
+     * Η κρίση για κάθε κωδικό κουπονιού που είναι συνδεδεμένος με το καλάθι, όπως την αποφάσισαν οι προωθήσεις αυτής της προσφοράς τιμής.
+     */
+  readonly appliedCoupons: Array<{
+    code: string
+    /**
+         * Money this code takes off; 0 when its benefit is not money, or it is refused
+         */
+    amount: number
+    /**
+         * This code waives shipping
+         */
+    freeShipping: boolean
+    /**
+         * This code earns a gift the order ships with
+         */
+    gift: boolean
+    /**
+         * Why the promotions refuse the attached code now; null while it applies
+         */
+    rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
+  }>
   /**
      * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
@@ -2798,7 +2786,7 @@ export type CartQuote = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
   /**
@@ -2814,13 +2802,17 @@ export type CartQuote = {
 /**
  * Request body for ``POST /api/v1/cart/quote``.
  *
- * The choices of the payment-intent body, each optional: a quote may
- * be asked before the shopper has chosen a delivery or a pay way, and
- * the rows that depend on a missing choice come back null. A delivery
- * is priced once both ``shipping_kind`` and ``country_id`` are given.
- * Send what the order-create body will carry, the email and the pickup
- * point included, so the quote is the total that order is created at
- * and its ``cartDigest`` the cart that order is made of.
+ * The checkout's choices, each optional: a quote may be asked before
+ * the shopper has chosen a delivery or a pay way, and the rows that
+ * depend on a missing choice come back null. A delivery is priced once
+ * both ``shipping_kind`` and ``country_id`` are given. Send what the
+ * order-create body will carry, the email and the pickup point
+ * included, so the quote is the total that order is created at and its
+ * ``cartDigest`` the cart that order is made of. Send that
+ * ``cartDigest`` back as ``expectedCartDigest`` on ``POST /api/v1/order``:
+ * only then is the order refused when the cart changed since the quote
+ * (409 ``cart_changed``, nothing created), a change at the same total
+ * included.
  */
 export type CartQuoteRequestRequest = {
   /**
@@ -2859,15 +2851,15 @@ export type CartQuoteRequestRequest = {
      */
   regionId?: string
   /**
-     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.
+     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η δημιουργία της παραγγελίας, ώστε η κοστολόγηση να είναι το σύνολο στο οποίο δημιουργείται η παραγγελία.
      */
   email?: string | string
   /**
-     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
+     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής· το οφειλόμενο ποσό είναι ό,τι απομένει αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
      */
   giftCardCodes?: Array<string>
   /**
-     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
+     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας· από το οφειλόμενο ποσό αφαιρείται η έκπτωση που προκύπτει. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
      */
   loyaltyPointsToRedeem?: number | null
 }
@@ -2882,6 +2874,10 @@ export type CartQuoteRequestRequest = {
  */
 export type CheckoutQuote = {
   /**
+     * Οι γραμμές του καλαθιού που τιμολόγησε η προσφορά τιμής, από την ίδια ανάγνωση με το itemsSubtotal και το cartDigest: ό,τι καλύπτει το digest από την καθεμία (προϊόν, ποσότητα, τιμή μονάδας, χρήματα προωθήσεων), με το όνομα και την εικόνα του προϊόντος.
+     */
+  readonly lines: Array<QuoteLine>
+  /**
      * Οι γραμμές του καλαθιού στις τιμές που πληρώνει ο αγοραστής.
      */
   itemsSubtotal: number
@@ -2893,6 +2889,28 @@ export type CheckoutQuote = {
      * Μία εγγραφή ανά προσφορά που αφαίρεσε χρήματα· τα ποσά αθροίζουν στο discountTotal.
      */
   appliedPromotions: Array<QuoteAppliedPromotion>
+  /**
+     * Η κρίση για κάθε κωδικό κουπονιού που είναι συνδεδεμένος με το καλάθι, όπως την αποφάσισαν οι προωθήσεις αυτής της προσφοράς τιμής.
+     */
+  readonly appliedCoupons: Array<{
+    code: string
+    /**
+         * Money this code takes off; 0 when its benefit is not money, or it is refused
+         */
+    amount: number
+    /**
+         * This code waives shipping
+         */
+    freeShipping: boolean
+    /**
+         * This code earns a gift the order ships with
+         */
+    gift: boolean
+    /**
+         * Why the promotions refuse the attached code now; null while it applies
+         */
+    rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
+  }>
   /**
      * Συνδεδεμένο κουπόνι για το οποίο η δημιουργία παραγγελίας απορρίπτει αυτό το καλάθι (``invalid_coupon``). Η έκπτωσή του δεν περιλαμβάνεται σε αυτή την κοστολόγηση· αφαιρέστε τον κωδικό πριν από την παραγγελία. Null όταν δεν υπάρχει.
      */
@@ -2928,7 +2946,7 @@ export type CheckoutQuote = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
 }
@@ -3443,71 +3461,6 @@ export type CreateCheckoutSessionResponse = {
 }
 
 /**
- * Request body for ``create_payment_intent`` and ``retry_payment``.
- *
- * The three named fields are declared because both views read them off
- * ``validated_data`` — undeclared, DRF dropped them and the branches
- * that copy them into ``payment_data`` could never fire.
- */
-export type CreatePaymentIntentRequestRequest = {
-  /**
-     * Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών
-     */
-  paymentData?: {
-    [key: string]: string
-  }
-  /**
-     * ID μεθόδου πληρωμής του παρόχου προς χρέωση
-     */
-  paymentMethodId?: string
-  /**
-     * ID πελάτη του παρόχου στον οποίο θα συνδεθεί η πληρωμή
-     */
-  customerId?: string
-  /**
-     * Πού πρέπει ο πάροχος να επιστρέψει τον πελάτη
-     */
-  returnUrl?: string | string
-}
-
-export type CreatePaymentIntentResponse = {
-  /**
-     * ID payment intent από τον πάροχο πληρωμών
-     */
-  paymentId: string
-  /**
-     * Κατάσταση πληρωμής
-     */
-  status: string
-  /**
-     * Ποσό πληρωμής
-     */
-  amount: string
-  /**
-     * Νόμισμα πληρωμής
-     */
-  currency: string
-  /**
-     * Όνομα παρόχου πληρωμών
-     */
-  provider: string
-  /**
-     * Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend
-     */
-  clientSecret?: string
-  /**
-     * Αν η πληρωμή απαιτεί επιπλέον ενέργεια (3D Secure κ.λπ.)
-     */
-  requiresAction?: boolean
-  /**
-     * Επόμενη ενέργεια που απαιτείται για την ολοκλήρωση της πληρωμής
-     */
-  nextAction?: {
-    [key: string]: unknown
-  } | null
-}
-
-/**
  * * `EUR` - EUR
  * * `USD` - USD
  */
@@ -3788,7 +3741,7 @@ export type FreeShippingInfo = {
   maxThreshold: number | null
   currency: string
   /**
-     * Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
+     * Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Τα όρια είναι της ζώνης αποστολής που καλύπτει ολόκληρη τη χώρα: το όριο μιας ζώνης περιοχών ισχύει μόλις η ολοκλήρωση αγοράς τιμολογήσει διεύθυνση σε αυτήν. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
      */
   countryCode: string | null
 }
@@ -3865,10 +3818,7 @@ export type GiftCard = {
      * Προεπιλογή: GIFT_CARD_VALIDITY_DAYS μετά την έκδοση (ελληνική νομοθεσία: 5 έτη)· κενό σημαίνει ότι δεν λήγει ποτέ
      */
   readonly expiresAt: string | null
-  /**
-     * Email παραλήπτη
-     */
-  readonly recipientEmail: string
+  readonly recipientEmail: string | null
   /**
      * Όνομα παραλήπτη
      */
@@ -4532,6 +4482,10 @@ export type Order = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -4648,6 +4602,11 @@ export type Order = {
      * Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
      */
   readonly giftCardAmount: number
+  /**
+     * The delivery address on one line: the street and its number, the
+     * address line 2 when there is one, then the postcode and the city
+     * ("Ερμού 12, 3ος όροφος, 10563 Αθήνα").
+     */
   readonly fullAddress: string
   /**
      * ID πληρωμής
@@ -4844,10 +4803,6 @@ export type OrderCreateErrorDetail = {
      * * `invalid_coupon` - Μη έγκυρο κουπόνι
      * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
      * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
-     * * `payment_not_found` - Δεν βρέθηκε πληρωμή
-     * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
-     * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
-     * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
      */
   type: OrderCreateErrorType
   /**
@@ -4884,26 +4839,24 @@ export type OrderCreateErrorDetail = {
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
  * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
  * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
- * * `payment_not_found` - Δεν βρέθηκε πληρωμή
- * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
- * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
- * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
  */
-export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'legal_document_unavailable' | 'payment_not_found' | 'payment_verification' | 'payment_amount_mismatch' | 'payment_currency_mismatch'
+export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'legal_document_unavailable'
 
 /**
- * Serializer for creating orders from cart (dual-flow payment architecture).
+ * Serializer for creating orders from cart.
  *
- * The flow follows the pay way's ``settlement``:
- * 1. ``online``: the shopper pays at checkout. A client-confirmed
- * provider (Stripe) takes ``payment_intent_id`` for the balance
- * left after deductions (gift cards, promotions, loyalty points);
- * without one the order is created order-first, which succeeds only
- * when the deductions cover the whole total, so no provider charge
- * is made. A hosted-checkout provider (Viva) creates the order
- * first and redirects.
+ * Every pay way creates the order before any payment, whatever its
+ * ``settlement``:
+ * 1. ``online``: the balance left after deductions (gift cards,
+ * promotions, loyalty points) is paid afterwards. In storefront
+ * checkout the shopper pays it on the provider's hosted page (Viva
+ * Wallet, Stripe); an agent order with delegated Stripe payments is
+ * charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``
+ * (``confirmAgentPaymentForOrder``). Either way, deductions that
+ * cover the whole total settle the order at once, with no provider
+ * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
- * transfer): money is collected later, no ``payment_intent_id``.
+ * transfer): money is collected later.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
@@ -4926,10 +4879,6 @@ export type OrderCreateFromCartRequest = {
      */
   payWayId: number
   /**
-     * ID payment intent από τον πάροχο πληρωμών (υποχρεωτικό για online πληρωμές)
-     */
-  paymentIntentId?: string | null
-  /**
      * Όνομα πελάτη
      */
   firstName: string
@@ -4942,21 +4891,25 @@ export type OrderCreateFromCartRequest = {
      */
   email: string
   /**
-     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.
+     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό τη διεύθυνση του σημείου.
      */
-  street: string
+  street?: string
   /**
      * Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.
      */
   streetNumber?: string
   /**
-     * Όνομα πόλης
+     * Ό,τι δεν περιέχει η γραμμή της οδού: διαμέρισμα, όροφος, κτίριο. Προαιρετικό ελεύθερο κείμενο, που τυπώνεται κάτω από την οδό και δίνεται στον courier.
      */
-  city: string
+  addressLine2?: string
   /**
-     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
+     * Όνομα πόλης. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό την πόλη του σημείου.
      */
-  zipcode: string
+  city?: string
+  /**
+     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά). Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτόν τον ταχυδρομικό κώδικα του σημείου.
+     */
+  zipcode?: string
   /**
      * Κωδικός χώρας alpha-2 (π.χ. 'GR', 'US')
      */
@@ -5033,7 +4986,7 @@ export type OrderCreateFromCartRequest = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.
+     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, η παραγγελία εξοφλείται αμέσως και δεν γίνεται καμία χρέωση από τον πάροχο.
      */
   giftCardCodes?: Array<string>
   /**
@@ -5096,6 +5049,10 @@ export type OrderDetail = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -5212,6 +5169,11 @@ export type OrderDetail = {
      * Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
      */
   readonly giftCardAmount: number
+  /**
+     * The delivery address on one line: the street and its number, the
+     * address line 2 when there is one, then the postcode and the city
+     * ("Ερμού 12, 3ος όροφος, 10563 Αθήνα").
+     */
   readonly fullAddress: string
   /**
      * ID πληρωμής
@@ -5584,6 +5546,10 @@ export type OrderWriteRequest = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Όνομα
      */
@@ -6213,6 +6179,12 @@ export type PatchedBlogCategoryWriteRequest = {
      * Εικόνα
      */
   image?: Blob | File | null
+  /**
+     * Εικονίδιο
+     *
+     * Το εικονίδιο της κατηγορίας, ένα από τα εικονίδια του δημιουργού σελίδων.
+     */
+  icon?: string
 }
 
 /**
@@ -6412,6 +6384,10 @@ export type PatchedOrderWriteRequest = {
      * Αριθμός
      */
   streetNumber?: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Όνομα
      */
@@ -6794,6 +6770,10 @@ export type PatchedUserAddressWriteRequest = {
      */
   streetNumber?: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Πόλη
      */
   city?: string
@@ -7098,7 +7078,7 @@ export type PaymentProviderEnum = 'stripe' | 'viva_wallet'
 export type PaymentProviderError = {
   detail: string
   /**
-     * Σταθερός κωδικός σφάλματος: ``payment_intent_failed``, ``checkout_session_failed`` ή ``delegated_charge_failed``.
+     * Σταθερός κωδικός σφάλματος: ``checkout_session_failed`` ή ``delegated_charge_failed``.
      */
   code: string
   /**
@@ -7373,6 +7353,8 @@ export type Product = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -7534,6 +7516,8 @@ export type ProductCard = {
   readonly announcedDiscountPercent: number | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Return the average review rating for this product.
      */
@@ -7882,6 +7866,8 @@ export type ProductDetail = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -7995,6 +7981,8 @@ export type ProductDetailResponse = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8163,6 +8151,8 @@ export type ProductFeed = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8226,6 +8216,8 @@ export type ProductImage = {
     }
   }
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -8267,15 +8259,12 @@ export type ProductImageDetail = {
     }
   }
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
-  readonly imageDimensions: {
-    width?: number
-    height?: number
-    aspectRatio?: number
-  }
   readonly imageFormat: string
   readonly usageContext: {
     isMain?: boolean
@@ -8355,6 +8344,8 @@ export type ProductMeiliSearchResult = {
   master: number
   slug: string
   mainImagePath: string
+  mainImageWidth: number | null
+  mainImageHeight: number | null
   matchesPosition: unknown
   rankingScore: number | null
   formatted: unknown
@@ -8615,6 +8606,8 @@ export type ProductRetrieve = {
   readonly reductionStartedAt: string | null
   readonly potentialPoints: number
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
   readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
@@ -8752,6 +8745,42 @@ export type ProductReviewWriteRequest = {
       comment?: string
     }
   }
+}
+
+/**
+ * Response payload of the product shipping endpoint.
+ */
+export type ProductShipping = {
+  /**
+     * Null όταν το κατάστημα δεν αποστέλλει πουθενά ή όταν καμία αποστολή που προσφέρει δεν μπορεί να πάρει αυτό το προϊόν.
+     */
+  estimate: ProductShippingEstimate | null
+}
+
+/**
+ * The cheapest delivery of one product bought on its own.
+ */
+export type ProductShippingEstimate = {
+  /**
+     * Η χώρα για την οποία υπολογίστηκε η τιμή: η πρώτη χώρα αποστολής του καταστήματος, αυτή που προεπιλέγει η ολοκλήρωση αγοράς.
+     */
+  countryCode: string
+  /**
+     * Η φθηνότερη αποστολή που θα χρέωνε η ολοκλήρωση αγοράς σε ένα καλάθι μόνο με αυτό το προϊόν, μετά το όριο δωρεάν αποστολής και τις προωθήσεις δωρεάν αποστολής.
+     */
+  price: number
+  /**
+     * Νόμισμα των ``price`` και ``free_shipping_threshold``.
+     */
+  currency: string
+  /**
+     * Το προϊόν αποστέλλεται δωρεάν και μόνο του: το ``price`` είναι 0.
+     */
+  free: boolean
+  /**
+     * Το χαμηλότερο υποσύνολο προϊόντων, μετά τις εκπτώσεις, από το οποίο μια μεταφορική που μπορεί να πάρει αυτό το προϊόν το αποστέλλει δωρεάν. Null όταν καμία δεν το κάνει ποτέ.
+     */
+  freeShippingThreshold: number | null
 }
 
 /**
@@ -9106,6 +9135,38 @@ export type QuoteBlockingCoupon = {
 }
 
 /**
+ * One cart line as the quote priced it (``QuoteLine``).
+ */
+export type QuoteLine = {
+  /**
+     * Το στοιχείο του καλαθιού που είναι η γραμμή.
+     */
+  id: number
+  productId: number
+  /**
+     * Το όνομα του προϊόντος στη γλώσσα του αιτήματος.
+     */
+  readonly productName: string
+  /**
+     * Η διαδρομή αποθήκευσης της κύριας εικόνας του προϊόντος· κενή χωρίς εικόνα.
+     */
+  mainImagePath: string
+  quantity: number
+  /**
+     * Η τιμή ανά μονάδα που πληρώνει ο αγοραστής, πριν από τις προωθήσεις.
+     */
+  unitPrice: number
+  /**
+     * quantity μονάδες στην unitPrice, πριν από τις προωθήσεις.
+     */
+  totalPrice: number
+  /**
+     * Το μέρος του discountTotal που φέρει αυτή η γραμμή· τα ποσά των γραμμών αθροίζουν σε αυτό.
+     */
+  promotionDiscount: number
+}
+
+/**
  * One pay way the shopper is offered, with the fee this cart would
  * be charged for choosing it.
  */
@@ -9165,6 +9226,10 @@ export type QuoteShippingOption = {
      * Αληθές όταν το καλάθι δεν χωρά στα δέματα αυτού του μεταφορέα· η επιλογή του απορρίπτεται.
      */
   exceedsParcelSize: boolean
+  /**
+     * Το μέγεθος θυρίδας locker στο οποίο χωράει το καλάθι (1 μικρό, 2 μεσαίο, 3 μεγάλο) σε μια επιλογή παραλαβής BOX NOW· null αλλού και όταν το καλάθι δεν χωράει σε κανένα. Στείλτε το ως ``compartmentSize`` για να δείτε τα lockers που δέχονται αυτό το καλάθι.
+     */
+  compartmentSize: number | null
 }
 
 /**
@@ -9816,11 +9881,15 @@ export type ShippingPolicyEntry = {
      * Χώρα προορισμού (ISO 3166-1 alpha-2).
      */
   countryCode: string
+  /**
+     * Οι περιοχές της χώρας στις οποίες ισχύει αυτή η γραμμή· κενό όταν ισχύει για ολόκληρη τη χώρα. Ένα κατάστημα που παραδίδει μόνο σε ορισμένες περιοχές μιας χώρας τις αναφέρει εδώ.
+     */
+  regionCodes: Array<string>
   kind: ShippingKind
   providerCode: string
   providerName: string
   /**
-     * Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, χώρα, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι.
+     * Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, ζώνη, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι.
      */
   price: number
   /**
@@ -10157,7 +10226,7 @@ export type StoreFeatureStates = {
 
 /**
  * Each optional feature's effective state for the store: its plan
- * flag AND its store settings (``tenant/features.py``), so a client reads
+ * flag AND its store settings (``src/tenant/features.py``), so a client reads
  * one answer instead of combining the two tiers and copying defaults.
  */
 export type StoreFeatures = {
@@ -10220,7 +10289,7 @@ export type StoreOfficeOverride = {
 }
 
 /**
- * Each store preference's state (``tenant/features.py``): a switch the
+ * Each store preference's state (``src/tenant/features.py``): a switch the
  * API does not refuse on, served here so a client learns it from the
  * tenant payload instead of a settings read that can fail.
  */
@@ -10539,17 +10608,7 @@ export type TaggedItem = {
      * ID αντικειμένου
      */
   objectId: number
-  /**
-     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-     */
-  readonly contentObject: {
-    id?: number
-    name?: string
-    description?: string
-    price?: string
-    active?: boolean
-    [key: string]: unknown
-  }
+  contentObject: Product
   /**
      * Δημιουργήθηκε στις
      */
@@ -10576,17 +10635,7 @@ export type TaggedItemDetail = {
      * ID αντικειμένου
      */
   objectId: number
-  /**
-     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
-     */
-  readonly contentObject: {
-    id?: number
-    name?: string
-    description?: string
-    price?: string
-    active?: boolean
-    [key: string]: unknown
-  }
+  contentObject: Product
   /**
      * Δημιουργήθηκε στις
      */
@@ -10685,7 +10734,6 @@ export type TenantConfig = {
   readonly socialsLinkedin: string
   readonly socialsTwitter: string
   readonly socialsYoutube: string
-  readonly boxNowPartnerId: string
 }
 
 /**
@@ -10816,6 +10864,10 @@ export type UserAddress = {
      */
   streetNumber: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Πόλη
      */
   city: string
@@ -10849,6 +10901,10 @@ export type UserAddress = {
      * Κωδικός περιφέρειας
      */
   region: string | null
+  /**
+     * Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
+     */
+  readonly shippable: boolean
   /**
      * Δημιουργήθηκε στις
      */
@@ -10883,6 +10939,10 @@ export type UserAddressDetail = {
      */
   streetNumber: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Πόλη
      */
   city: string
@@ -10917,6 +10977,10 @@ export type UserAddressDetail = {
      */
   region: string | null
   /**
+     * Αν το κατάστημα παραδίδει σήμερα σε αυτή τη διεύθυνση στο σπίτι (οι ζώνες αποστολής του). Μια διεύθυνση που αποθηκεύτηκε πριν το κατάστημα σταματήσει να παραδίδει στην περιφέρειά της διατηρείται και έχει τιμή false.
+     */
+  readonly shippable: boolean
+  /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
@@ -10948,6 +11012,10 @@ export type UserAddressWriteRequest = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Πόλη
      */
@@ -11134,6 +11202,8 @@ export type UserPublic = {
      * Διαδρομή avatar ή κενή συμβολοσειρά
      */
   readonly mainImagePath: string
+  readonly mainImageWidth: number | null
+  readonly mainImageHeight: number | null
 }
 
 export type UserSubscription = {
@@ -11535,10 +11605,10 @@ export type ApiError = {
 }
 
 /**
- * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
+ * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; when a field is itself named ``code``, that field's messages instead) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
  */
 export type ApiValidationError = {
-  code?: string
+  code?: string | Array<string>
   fields: {
     [key: string]: ApiFieldErrors
   }
@@ -11944,7 +12014,7 @@ export type CartQuoteWritable = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
 }
@@ -12005,7 +12075,7 @@ export type CheckoutQuoteWritable = {
      */
   expectedTotal: ExpectedTotal | null
   /**
-     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες, η αποστολή με το σημείο παραλαβής της και ο τρόπος πληρωμής. Null μέχρι να επιλεγούν αποστολή και τρόπος πληρωμής. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
+     * Ένα αδιαφανές αποτύπωμα του τι θα περιέχει η παραγγελία: οι γραμμές, οι προωθητικές ενέργειες και η αποστολή με το σημείο παραλαβής της, όχι ο τρόπος πληρωμής. Null μέχρι να επιλεγεί αποστολή. Στείλτε το πίσω ως ``expectedCartDigest`` κατά τη δημιουργία της παραγγελίας: η παραγγελία δημιουργείται μόνο αν το καλάθι της είναι ακόμη αυτό.
      */
   cartDigest: string | null
 }
@@ -12356,6 +12426,10 @@ export type OrderWritable = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -12448,10 +12522,6 @@ export type OrderCreateErrorDetailWritable = {
      * * `invalid_coupon` - Μη έγκυρο κουπόνι
      * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
      * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
-     * * `payment_not_found` - Δεν βρέθηκε πληρωμή
-     * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
-     * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
-     * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
      */
   type: OrderCreateErrorType
   /**
@@ -12481,18 +12551,20 @@ export type OrderCreateErrorDetailWritable = {
 }
 
 /**
- * Serializer for creating orders from cart (dual-flow payment architecture).
+ * Serializer for creating orders from cart.
  *
- * The flow follows the pay way's ``settlement``:
- * 1. ``online``: the shopper pays at checkout. A client-confirmed
- * provider (Stripe) takes ``payment_intent_id`` for the balance
- * left after deductions (gift cards, promotions, loyalty points);
- * without one the order is created order-first, which succeeds only
- * when the deductions cover the whole total, so no provider charge
- * is made. A hosted-checkout provider (Viva) creates the order
- * first and redirects.
+ * Every pay way creates the order before any payment, whatever its
+ * ``settlement``:
+ * 1. ``online``: the balance left after deductions (gift cards,
+ * promotions, loyalty points) is paid afterwards. In storefront
+ * checkout the shopper pays it on the provider's hosted page (Viva
+ * Wallet, Stripe); an agent order with delegated Stripe payments is
+ * charged it through ``POST /api/v1/order/{id}/confirm_agent_payment``
+ * (``confirmAgentPaymentForOrder``). Either way, deductions that
+ * cover the whole total settle the order at once, with no provider
+ * charge.
  * 2. Any other settlement (courier cash, carrier terminal, offline
- * transfer): money is collected later, no ``payment_intent_id``.
+ * transfer): money is collected later.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
@@ -12515,10 +12587,6 @@ export type OrderCreateFromCartRequestWritable = {
      */
   payWayId: number
   /**
-     * ID payment intent από τον πάροχο πληρωμών (υποχρεωτικό για online πληρωμές)
-     */
-  paymentIntentId?: string | null
-  /**
      * Όνομα πελάτη
      */
   firstName: string
@@ -12531,21 +12599,25 @@ export type OrderCreateFromCartRequestWritable = {
      */
   email: string
   /**
-     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber.
+     * Όνομα οδού, ή ολόκληρη η γραμμή της οδού με τον αριθμό μετά το όνομα (Ερμού 12) όταν δεν αποστέλλεται streetNumber. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό τη διεύθυνση του σημείου.
      */
-  street: string
+  street?: string
   /**
      * Αριθμός οδού. Προαιρετικός: χωρίς αυτόν, το street πρέπει να τελειώνει με τον αριθμό, που διαχωρίζεται από αυτό· μια οδός χωρίς αριθμό απορρίπτεται με κωδικό street_number_missing στο street.
      */
   streetNumber?: string
   /**
-     * Όνομα πόλης
+     * Ό,τι δεν περιέχει η γραμμή της οδού: διαμέρισμα, όροφος, κτίριο. Προαιρετικό ελεύθερο κείμενο, που τυπώνεται κάτω από την οδό και δίνεται στον courier.
      */
-  city: string
+  addressLine2?: string
   /**
-     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
+     * Όνομα πόλης. Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτό την πόλη του σημείου.
      */
-  zipcode: string
+  city?: string
+  /**
+     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά). Απαιτείται για παράδοση στο σπίτι· μια παραγγελία σε σημείο παραλαβής παίρνει αντί γι' αυτόν τον ταχυδρομικό κώδικα του σημείου.
+     */
+  zipcode?: string
   /**
      * Κωδικός χώρας alpha-2 (π.χ. 'GR', 'US')
      */
@@ -12622,7 +12694,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.
+     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, η παραγγελία εξοφλείται αμέσως και δεν γίνεται καμία χρέωση από τον πάροχο.
      */
   giftCardCodes?: Array<string>
   /**
@@ -12652,11 +12724,11 @@ export type OrderCreateFromCartRequestWritable = {
      */
   expectedTotal: ExpectedTotalRequest
   /**
-     * Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής, τρόπος πληρωμής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
+     * Το ``cartDigest`` του ``POST /cart/quote`` που είδε ο αγοραστής. Όταν αποστέλλεται, η παραγγελία δημιουργείται μόνο αν περιέχει ακριβώς ό,τι κοστολόγησε εκείνη η κοστολόγηση (γραμμές, προωθητικές ενέργειες, αποστολή, σημείο παραλαβής)· διαφορετικά η απάντηση είναι 409 ``cart_changed`` με τη νέα κοστολόγηση και δεν δημιουργείται τίποτα.
      */
   expectedCartDigest?: string
   /**
-     * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
+     * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Ένα ``client_ip_address`` που σταλεί εδώ αγνοείται: ο server το ορίζει από την επαληθευμένη διεύθυνση του edge. Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
      */
   meta?: {
     [key: string]: unknown
@@ -12701,6 +12773,10 @@ export type OrderDetailWritable = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   payWay: number | null
   /**
      * Κατάσταση
@@ -13917,6 +13993,34 @@ export type QuoteAppliedPromotionWritable = {
   amount: number
 }
 
+/**
+ * One cart line as the quote priced it (``QuoteLine``).
+ */
+export type QuoteLineWritable = {
+  /**
+     * Το στοιχείο του καλαθιού που είναι η γραμμή.
+     */
+  id: number
+  productId: number
+  /**
+     * Η διαδρομή αποθήκευσης της κύριας εικόνας του προϊόντος· κενή χωρίς εικόνα.
+     */
+  mainImagePath: string
+  quantity: number
+  /**
+     * Η τιμή ανά μονάδα που πληρώνει ο αγοραστής, πριν από τις προωθήσεις.
+     */
+  unitPrice: number
+  /**
+     * quantity μονάδες στην unitPrice, πριν από τις προωθήσεις.
+     */
+  totalPrice: number
+  /**
+     * Το μέρος του discountTotal που φέρει αυτή η γραμμή· τα ποσά των γραμμών αθροίζουν σε αυτό.
+     */
+  promotionDiscount: number
+}
+
 export type RecommendationItemWritable = {
   [key: string]: unknown
 }
@@ -14213,6 +14317,10 @@ export type UserAddressWritable = {
      */
   streetNumber: string
   /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
+  /**
      * Πόλη
      */
   city: string
@@ -14268,6 +14376,10 @@ export type UserAddressDetailWritable = {
      * Αριθμός
      */
   streetNumber: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
+  addressLine2?: string
   /**
      * Πόλη
      */
@@ -14772,7 +14884,7 @@ export type GetB2bProfileErrors = {
   400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
-  404: B2bErrorResponse
+  404: ApiError | B2bErrorResponse
   500: ErrorResponse
 }
 
@@ -14792,7 +14904,7 @@ export type SubmitB2bProfileData = {
 }
 
 export type SubmitB2bProfileErrors = {
-  400: B2bErrorResponse
+  400: ApiValidationError | ApiError | B2bErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19218,7 +19330,7 @@ export type ApiV1BuilderPreviewMediaRetrieveResponse = ApiV1BuilderPreviewMediaR
 export type ApiV1BuilderPreviewRetrieveData = {
   body?: never
   path: {
-    pageKey: string
+    page_key: string
     token: string
   }
   query?: {
@@ -19328,7 +19440,7 @@ export type BuilderPublishedIndexResponse = BuilderPublishedIndexResponses[keyof
 export type ApiV1BuilderPublishedRetrieveData = {
   body?: never
   path: {
-    pageKey: string
+    page_key: string
   }
   query?: {
     /**
@@ -19765,7 +19877,7 @@ export type ApplyCartCouponData = {
 }
 
 export type ApplyCartCouponErrors = {
-  400: CouponErrorResponse
+  400: ApiValidationError | ApiError | CouponErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19812,35 +19924,6 @@ export type ListCartCouponsResponses = {
 }
 
 export type ListCartCouponsResponse = ListCartCouponsResponses[keyof ListCartCouponsResponses]
-
-export type CreateCartPaymentIntentData = {
-  body: CartCreatePaymentIntentRequestRequest
-  headers?: {
-    /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
-         */
-    'X-Cart-Id'?: string
-  }
-  path?: never
-  query?: never
-  url: '/api/v1/cart/create-payment-intent'
-}
-
-export type CreateCartPaymentIntentErrors = {
-  400: ApiValidationError | ApiError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CreateCartPaymentIntentError = CreateCartPaymentIntentErrors[keyof CreateCartPaymentIntentErrors]
-
-export type CreateCartPaymentIntentResponses = {
-  200: CartPaymentIntentResponse
-}
-
-export type CreateCartPaymentIntentResponse = CreateCartPaymentIntentResponses[keyof CreateCartPaymentIntentResponses]
 
 export type ListCartItemData = {
   body?: never
@@ -20794,6 +20877,10 @@ export type ListCountryData = {
          */
     hasPhoneCode?: 'true' | 'false' | '1' | '0' | boolean
     /**
+         * true: μόνο οι χώρες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του), οι χώρες όπου μπορεί να βρίσκεται μια αποθηκευμένη διεύθυνση· false: μόνο οι υπόλοιπες. Το shippable μετρά και τα σημεία παραλαβής. Στον host της πλατφόρμας το true δεν επιστρέφει καμία.
+         */
+    homeDelivery?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Φίλτρο χωρών μελών ΕΕ
          */
     isEu?: 'true' | 'false' | '1' | '0' | boolean
@@ -20966,7 +21053,7 @@ export type DestroyCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: never
   url: '/api/v1/country/{alpha_2}'
@@ -20997,7 +21084,7 @@ export type RetrieveCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: {
     /**
@@ -21031,7 +21118,7 @@ export type PartialUpdateCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: {
     /**
@@ -21066,7 +21153,7 @@ export type UpdateCountryData = {
          *
          * A unique value identifying this Χώρα.
          */
-    alpha2: string
+    alpha_2: string
   }
   query?: {
     /**
@@ -21092,6 +21179,204 @@ export type UpdateCountryResponses = {
 }
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses]
+
+export type ListAllCountriesData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Φίλτρο ανά ακριβή διψήφιο κωδικό χώρας
+         */
+    alpha2?: string
+    /**
+         * Φίλτρο ανά διψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+         */
+    alpha2_Icontains?: string
+    alpha2_Iexact?: string
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    alpha2_In?: string | Array<string>
+    /**
+         * Φίλτρο ανά ακριβή τριψήφιο κωδικό χώρας
+         */
+    alpha3?: string
+    /**
+         * Φίλτρο ανά τριψήφιο κωδικό χώρας (μερική αντιστοίχιση)
+         */
+    alpha3_Icontains?: string
+    alpha3_Iexact?: string
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    alpha3_In?: string | Array<string>
+    /**
+         * Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)
+         *
+         * * `AF` - Africa
+         * * `AS` - Asia
+         * * `EU` - Europe
+         * * `NA` - North America
+         * * `OC` - Oceania
+         * * `SA` - South America
+         * * `AN` - Antarctica
+         */
+    continent?: 'AF' | 'AN' | 'AS' | 'EU' | 'NA' | 'OC' | 'SA'
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο χωρών με πλήρη δεδομένα (ISO, κλήση, σημαία, όνομα)
+         */
+    hasAllData?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς εικόνα σημαίας
+         */
+    hasFlagImage?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς κωδικό ISO
+         */
+    hasIsoCc?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς μετάφραση ονόματος
+         */
+    hasName?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών με/χωρίς κωδικό κλήσης
+         */
+    hasPhoneCode?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * true: μόνο οι χώρες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του), οι χώρες όπου μπορεί να βρίσκεται μια αποθηκευμένη διεύθυνση· false: μόνο οι υπόλοιπες. Το shippable μετρά και τα σημεία παραλαβής. Στον host της πλατφόρμας το true δεν επιστρέφει καμία.
+         */
+    homeDelivery?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο χωρών μελών ΕΕ
+         */
+    isEu?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβή ISO κωδικό χώρας
+         */
+    isoCc?: string | number
+    isoCc_Gte?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    isoCc_In?: string | Array<number>
+    isoCc_Lte?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό ISO μικρότερο ή ίσο με
+         */
+    isoCcMax?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό ISO μεγαλύτερο ή ίσο με
+         */
+    isoCcMin?: string | number
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en)
+         */
+    languageCode?: 'el' | 'en'
+    /**
+         * Φίλτρο ανά πολλαπλούς κωδικούς χωρών (διαχωρισμένους με κόμμα, alpha-2 ή alpha-3)
+         */
+    multipleCodes?: string
+    /**
+         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
+         */
+    name?: string
+    /**
+         * Φίλτρο ανά ακριβές όνομα χώρας
+         */
+    name_Exact?: string
+    /**
+         * Φίλτρο χωρών με όνομα που ξεκινά με
+         */
+    name_Startswith?: string
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name
+         */
+    ordering?: string
+    /**
+         * Φίλτρο ανά ακριβή κωδικό κλήσης
+         */
+    phoneCode?: string | number
+    phoneCode_Gte?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    phoneCode_In?: string | Array<number>
+    phoneCode_Lte?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό κλήσης μικρότερο ή ίσο με
+         */
+    phoneCodeMax?: string | number
+    /**
+         * Φίλτρο χωρών με κωδικό κλήσης μεγαλύτερο ή ίσο με
+         */
+    phoneCodeMin?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+    /**
+         * Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
+    sortOrder?: string | number
+    sortOrder_Gte?: string | number
+    sortOrder_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+  }
+  url: '/api/v1/country/all'
+}
+
+export type ListAllCountriesErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListAllCountriesError = ListAllCountriesErrors[keyof ListAllCountriesErrors]
+
+export type ListAllCountriesResponses = {
+  200: Array<Country>
+}
+
+export type ListAllCountriesResponse = ListAllCountriesResponses[keyof ListAllCountriesResponses]
 
 export type ConfirmUnsubscribeFromEmailData = {
   body?: never
@@ -21173,7 +21458,7 @@ export type CheckGiftCardData = {
 }
 
 export type CheckGiftCardErrors = {
-  400: GiftCardErrorResponse
+  400: ApiValidationError | ApiError | GiftCardErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21240,6 +21525,34 @@ export type ListMyGiftCardsResponses = {
 
 export type ListMyGiftCardsResponse = ListMyGiftCardsResponses[keyof ListMyGiftCardsResponses]
 
+export type ListAllMyGiftCardsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en)
+         */
+    languageCode?: 'el' | 'en'
+  }
+  url: '/api/v1/giftcard/mine/all'
+}
+
+export type ListAllMyGiftCardsErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListAllMyGiftCardsError = ListAllMyGiftCardsErrors[keyof ListAllMyGiftCardsErrors]
+
+export type ListAllMyGiftCardsResponses = {
+  200: Array<GiftCard>
+}
+
+export type ListAllMyGiftCardsResponse = ListAllMyGiftCardsResponses[keyof ListAllMyGiftCardsResponses]
+
 export type PurchaseGiftCardData = {
   body: GiftCardPurchaseRequestRequest
   path?: never
@@ -21248,7 +21561,7 @@ export type PurchaseGiftCardData = {
 }
 
 export type PurchaseGiftCardErrors = {
-  400: GiftCardErrorResponse
+  400: ApiValidationError | ApiError | GiftCardErrorResponse
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22292,12 +22605,13 @@ export type CreateOrderData = {
 }
 
 export type CreateOrderErrors = {
-  400: OrderCreateError
+  400: ApiValidationError | ApiError | OrderCreateError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
   409: OrderCreateError
   500: ErrorResponse
+  503: ErrorResponse
 }
 
 export type CreateOrderError = CreateOrderErrors[keyof CreateOrderErrors]
@@ -22789,7 +23103,7 @@ export type CancelOrderData = {
 }
 
 export type CancelOrderErrors = {
-  400: OrderCancelError
+  400: ApiValidationError | ApiError | OrderCancelError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22854,7 +23168,9 @@ export type CreateOrderCheckoutSessionErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  409: ErrorResponse
   500: ErrorResponse
+  503: ErrorResponse
 }
 
 export type CreateOrderCheckoutSessionError = CreateOrderCheckoutSessionErrors[keyof CreateOrderCheckoutSessionErrors]
@@ -22864,37 +23180,6 @@ export type CreateOrderCheckoutSessionResponses = {
 }
 
 export type CreateOrderCheckoutSessionResponse = CreateOrderCheckoutSessionResponses[keyof CreateOrderCheckoutSessionResponses]
-
-export type CreateOrderPaymentIntentData = {
-  body?: CreatePaymentIntentRequestRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
-         */
-    uuid?: string
-  }
-  url: '/api/v1/order/{id}/create_payment_intent'
-}
-
-export type CreateOrderPaymentIntentErrors = {
-  400: ApiValidationError | ApiError | PaymentProviderError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  409: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CreateOrderPaymentIntentError = CreateOrderPaymentIntentErrors[keyof CreateOrderPaymentIntentErrors]
-
-export type CreateOrderPaymentIntentResponses = {
-  200: CreatePaymentIntentResponse
-}
-
-export type CreateOrderPaymentIntentResponse = CreateOrderPaymentIntentResponses[keyof CreateOrderPaymentIntentResponses]
 
 export type RetrieveOrderInvoiceData = {
   body?: never
@@ -23014,37 +23299,6 @@ export type ReorderOrderResponses = {
 }
 
 export type ReorderOrderResponse = ReorderOrderResponses[keyof ReorderOrderResponses]
-
-export type RetryOrderPaymentData = {
-  body?: CreatePaymentIntentRequestRequest
-  path: {
-    id: string | number
-  }
-  query?: {
-    /**
-         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
-         */
-    uuid?: string
-  }
-  url: '/api/v1/order/{id}/retry-payment'
-}
-
-export type RetryOrderPaymentErrors = {
-  400: ApiValidationError | ApiError | PaymentProviderError
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  409: ErrorResponse
-  500: ErrorResponse
-}
-
-export type RetryOrderPaymentError = RetryOrderPaymentErrors[keyof RetryOrderPaymentErrors]
-
-export type RetryOrderPaymentResponses = {
-  200: CreatePaymentIntentResponse
-}
-
-export type RetryOrderPaymentResponse = RetryOrderPaymentResponses[keyof RetryOrderPaymentResponses]
 
 export type CancelShipmentForOrderData = {
   body?: never
@@ -27073,7 +27327,7 @@ export type ListPublicPromotionsResponse = ListPublicPromotionsResponses[keyof L
 export type ListProductPromotionsData = {
   body?: never
   path: {
-    productId: string | number
+    product_id: string | number
   }
   query?: {
     /**
@@ -27224,6 +27478,10 @@ export type ListRegionData = {
          * A search term.
          */
     search?: string
+    /**
+         * true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Φίλτρο ανά ακριβή σειρά
          */
@@ -27448,6 +27706,10 @@ export type ListRegionsByCountryData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en)
          */
     languageCode?: 'el' | 'en'
+    /**
+         * true: μόνο οι περιφέρειες όπου το τρέχον κατάστημα παραδίδει στο σπίτι (οι ζώνες αποστολής του)· false: μόνο οι υπόλοιπες. Στον host της πλατφόρμας, που δεν έχει κατάστημα, το true δεν επιστρέφει καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
   }
   url: '/api/v1/region/{alpha}/get_regions_by_country_alpha_2'
 }
@@ -27763,7 +28025,7 @@ export type ValidateAcsAddressResponse = ValidateAcsAddressResponses[keyof Valid
 export type GetAcsPickupListManifestData = {
   body?: never
   path: {
-    pickupListNo: string
+    pickup_list_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/pickup-lists/{pickup_list_no}/manifest.pdf'
@@ -27809,7 +28071,7 @@ export type IssueAcsPickupListResponse = IssueAcsPickupListResponses[keyof Issue
 export type CancelAcsShipmentData = {
   body?: never
   path: {
-    voucherNo: string
+    voucher_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/shipments/{voucher_no}/cancel'
@@ -27848,7 +28110,7 @@ export type CancelAcsShipmentResponses = {
 export type GetAcsLabelData = {
   body?: never
   path: {
-    voucherNo: string
+    voucher_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/shipments/{voucher_no}/label.pdf'
@@ -27874,7 +28136,7 @@ export type GetAcsLabelResponse = GetAcsLabelResponses[keyof GetAcsLabelResponse
 export type GetAcsTrackingData = {
   body?: never
   path: {
-    voucherNo: string
+    voucher_no: string
   }
   query?: never
   url: '/api/v1/shipping/acs/shipments/{voucher_no}/tracking'
@@ -27891,6 +28153,18 @@ export type ApiV1ShippingAcsStationsListData = {
   path?: never
   query?: {
     /**
+         * The station's branch, exactly; empty matches the station without one.
+         */
+    branch?: string
+    /**
+         * ISO 3166-1 alpha-2 country of the station.
+         */
+    countryCode?: string
+    /**
+         * The station's ACS code, exactly (an area code that several Smartpoints share: add branch for one).
+         */
+    externalId?: string
+    /**
          * Which field to use when ordering the results.
          */
     ordering?: string
@@ -27903,9 +28177,17 @@ export type ApiV1ShippingAcsStationsListData = {
          */
     pageSize?: string | number
     /**
+         * Postcode prefix (its first 5 characters).
+         */
+    postalCode?: string
+    /**
          * A search term.
          */
     search?: string
+    /**
+         * ACS shop kind. Default: the locker kinds of countryCode, or of every configured country.
+         */
+    shopKind?: string | number
   }
   url: '/api/v1/shipping/acs/stations'
 }
@@ -27969,9 +28251,21 @@ export type ListBoxNowLockerData = {
   path?: never
   query?: {
     /**
+         * Μόνο lockers που έχουν θυρίδα αυτού του μεγέθους (1 μικρό, 2 μεσαίο, 3 μεγάλο), με ακριβή αντιστοίχιση όπως κάνει ο δικός της επιλογέας της BOX NOW. Ένα locker με άγνωστα μεγέθη δεν ταιριάζει ποτέ. Αγνοείται σε κατάστημα που δεν είναι στο live δίκτυο της BOX NOW, όπου κανένα locker δεν έχει μέγεθος.
+         */
+    compartmentSize?: string | number
+    /**
+         * Χώρα του locker κατά ISO 3166-1 alpha-2.
+         */
+    countryCode?: string
+    /**
          * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
+    /**
+         * Ο κωδικός BOX NOW του locker, ακριβώς.
+         */
+    externalId?: string
     /**
          * Κωδικός γλώσσας για μεταφράσεις (el, en)
          */
@@ -28082,7 +28376,7 @@ export type NearestBoxNowLockerResponse = NearestBoxNowLockerResponses[keyof Nea
 export type CancelBoxNowShipmentData = {
   body?: never
   path: {
-    parcelId: string
+    parcel_id: string
   }
   query?: never
   url: '/api/v1/shipping/boxnow/parcels/{parcel_id}/cancel'
@@ -28121,7 +28415,7 @@ export type CancelBoxNowShipmentResponses = {
 export type GetBoxNowLabelData = {
   body?: never
   path: {
-    parcelId: string
+    parcel_id: string
   }
   query?: never
   url: '/api/v1/shipping/boxnow/parcels/{parcel_id}/label.pdf'
@@ -28181,7 +28475,7 @@ export type ListShippingOptionsData = {
   path?: never
   query: {
     /**
-         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.
+         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` belongs to a zone of one country.
          */
     countryCode: string
     /**
@@ -28192,6 +28486,10 @@ export type ListShippingOptionsData = {
          * Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit.
          */
     orderValueAmount?: string | number
+    /**
+         * The delivery region's code, once chosen. A home delivery is priced by the shipping zone of the region; without one, by the zone covering the whole country.
+         */
+    regionId?: string
     /**
          * Total cart weight in grams. Threaded into the ACS live quote so the displayed price matches the weight-banded tariff bracket the voucher mint will charge. Optional; defaults to ACS's 500g minimum.
          */
@@ -28225,6 +28523,27 @@ export type GetShippingPolicyResponses = {
 }
 
 export type GetShippingPolicyResponse = GetShippingPolicyResponses[keyof GetShippingPolicyResponses]
+
+export type GetProductShippingData = {
+  body?: never
+  path: {
+    product_id: string | number
+  }
+  query?: never
+  url: '/api/v1/shipping/product/{product_id}'
+}
+
+export type GetProductShippingErrors = {
+  404: ErrorResponse
+}
+
+export type GetProductShippingError = GetProductShippingErrors[keyof GetProductShippingErrors]
+
+export type GetProductShippingResponses = {
+  200: ProductShipping
+}
+
+export type GetProductShippingResponse = GetProductShippingResponses[keyof GetProductShippingResponses]
 
 export type ApiV1ShippingProvidersListData = {
   body?: never
@@ -29188,7 +29507,7 @@ export type ListUserAccountDataExportsResponse = ListUserAccountDataExportsRespo
 export type DownloadUserAccountDataExportData = {
   body?: never
   path: {
-    exportId: string | number
+    export_id: string | number
     id: string | number
   }
   query?: never

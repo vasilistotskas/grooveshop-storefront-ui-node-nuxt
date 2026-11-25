@@ -3,8 +3,9 @@
  * run over both trees: the form's logic is `useAddressForm`'s.
  *
  * Covers the address-book rules that changed for BoxNow Cyprus:
- *   - Countries are fetched with ``shippable: true`` — a country the
- *     store doesn't ship to can't be picked here either.
+ *   - Countries are fetched with ``homeDelivery: true`` — a country no
+ *     home delivery of the store reaches (a lockers-only one included)
+ *     can't be picked for an address (django-api #222).
  *   - The region field's required/disabled state follows the selected
  *     country's ``hasRegions``.
  *   - The phone field is the flag picker: it follows the form's own
@@ -115,17 +116,17 @@ describe.each(trees(NewAddressPage, WebsideNewAddressPage))('$tree account/addre
     expect(regionRequests).toEqual(['GR'])
   })
 
-  it('fetches countries with shippable: true', async () => {
+  it('fetches the countries a home delivery reaches', async () => {
     let capturedQuery: Record<string, unknown> | undefined
     registerEndpoint('/api/countries', (event) => {
       // The phone picker reads the unpaginated list from the same route.
-      if (getQuery(event).shippable) capturedQuery = getQuery(event)
+      if (getQuery(event).homeDelivery) capturedQuery = getQuery(event)
       return countriesResponse
     })
 
     await mountSuspended(C)
 
-    expect(capturedQuery).toMatchObject({ shippable: 'true' })
+    expect(capturedQuery).toMatchObject({ homeDelivery: 'true' })
   })
 
   describe('phone flag picker', () => {
@@ -307,6 +308,21 @@ describe.each(trees(NewAddressPage, WebsideNewAddressPage))('$tree account/addre
       expect(call?.[1]).toMatchObject({ method: 'POST', body: { title: 'Home', zipcode: '151 24' } })
       expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
       expect(navigateToMock).toHaveBeenCalledExactlyOnceWith(useLocalePath()('account-addresses'))
+    })
+
+    // django-api #769: the saved address keeps what its street line leaves out.
+    it('saves the address line 2 typed in its own optional field', async () => {
+      mockApi.mockReset().mockResolvedValue({})
+      const wrapper = await mountSuspended(C)
+      await flushPromises()
+      const line2 = wrapper.find('input[autocomplete="address-line2"]')
+      expect(line2.attributes('required')).toBeUndefined()
+
+      await line2.setValue('3ος όροφος, διαμ. 5')
+      await submitValid(wrapper)
+
+      const call = mockApi.mock.calls.find(([url]) => url === '/api/user/addresses')
+      expect(call?.[1]).toMatchObject({ method: 'POST', body: { addressLine2: '3ος όροφος, διαμ. 5' } })
     })
 
     it('puts the field errors Django names under their inputs and stays', async () => {

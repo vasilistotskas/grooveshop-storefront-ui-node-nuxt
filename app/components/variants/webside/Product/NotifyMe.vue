@@ -19,17 +19,31 @@ const props = withDefaults(defineProps<{
    * the alert would fire immediately). Ignored for restock.
    */
   currentPrice?: number | null
+  /**
+   * A product card's trigger: a short label and a bell, the size of the
+   * card's add-to-cart button, which the card places through its classes.
+   * Set or not, it opens the dialog, and a shopper's active alert is shown
+   * and turned off there. Without it (the product page), the trigger is
+   * the full sentence across the buy box and an active alert is shown in
+   * its place, with the way to turn it off.
+   */
+  compact?: boolean
 }>(), {
   kind: 'restock',
   currentPrice: null,
+  compact: false,
 })
+
+// The caller's classes place the trigger (or the alert shown in its place),
+// not the dialog.
+defineOptions({ inheritAttrs: false })
 
 const { t } = useStoreI18n('components/variants/webside/Product/NotifyMe')
 const { loggedIn, user } = useUserSession()
 
 const open = ref(false)
 
-const { schema, state, submitting, canceling, isPriceDrop, activeAlert: existingAlert, onSubmit, cancelAlert } = await useProductAlert({
+const { schema, state, submitting, canceling, isPriceDrop, activeAlert: existingAlert, onSubmit, cancelAlert } = useProductAlert({
   productId: () => props.productId,
   kind: () => props.kind,
   currentPrice: () => props.currentPrice,
@@ -45,6 +59,28 @@ const { schema, state, submitting, canceling, isPriceDrop, activeAlert: existing
   onCreated: () => { open.value = false },
 })
 
+// The active alert, in the drawing's words, with the way to turn it off:
+// in place of the trigger on the product page, inside the dialog on a card.
+const activeAlertProps = computed(() => existingAlert.value && {
+  title: t(`${props.kind}.active.title`),
+  description: isPriceDrop.value && existingAlert.value.targetPrice != null
+    ? t('price_drop.active.description_with_target', { amount: existingAlert.value.targetPrice })
+    : t(`${props.kind}.active.description`),
+  color: 'success' as const,
+  variant: 'subtle' as const,
+  icon: 'i-heroicons-bell-alert',
+  actions: [
+    {
+      label: t('active.cancel'),
+      color: 'neutral' as const,
+      variant: 'outline' as const,
+      loading: canceling.value,
+      disabled: canceling.value,
+      onClick: cancelAlert,
+    },
+  ],
+})
+
 // Pre-fill the email field from the authenticated session so the modal
 // acts as a confirmation ("we'll email you at <x>") rather than an input.
 watchEffect(() => {
@@ -55,31 +91,16 @@ watchEffect(() => {
 </script>
 
 <template>
-  <!-- Alert-active state (logged-in user already subscribed): skip the
-       modal entirely so the user isn't asked to re-subscribe and hit a
-       409. Offers an inline cancel path. -->
+  <!-- Alert-active state on the product page (logged-in user already
+       subscribed): skip the modal entirely so the user isn't asked to
+       re-subscribe and hit a 409. Offers an inline cancel path. -->
   <UAlert
-    v-if="existingAlert"
-    :title="t(`${kind}.active.title`)"
-    :description="isPriceDrop && existingAlert.targetPrice != null
-      ? t('price_drop.active.description_with_target', { amount: existingAlert.targetPrice })
-      : t(`${kind}.active.description`)"
-    color="success"
-    variant="subtle"
-    icon="i-heroicons-bell-alert"
-    :actions="[
-      {
-        label: t('active.cancel'),
-        color: 'neutral',
-        variant: 'outline',
-        loading: canceling,
-        disabled: canceling,
-        onClick: cancelAlert,
-      },
-    ]"
+    v-if="activeAlertProps && !compact"
+    v-bind="{ ...$attrs, ...activeAlertProps }"
   />
 
-  <!-- Default state: open the modal to create an alert. -->
+  <!-- Default state: open the modal to create an alert. A card's compact
+       trigger opens it in both states. -->
   <UModal
     v-else
     v-model:open="open"
@@ -87,21 +108,36 @@ watchEffect(() => {
     :description="t(`${kind}.modal_description`)"
   >
     <UButton
+      v-if="compact"
+      v-bind="$attrs"
+      :icon="existingAlert ? 'i-heroicons-bell-alert-solid' : 'i-heroicons-bell'"
+      :label="existingAlert ? t('compact.active') : t('compact.cta')"
+      :aria-label="existingAlert ? t(`${kind}.compact.active_name`) : t(`${kind}.compact.name`)"
+      color="secondary"
+      :variant="existingAlert ? 'soft' : 'outline'"
+      size="lg"
+      :ui="{ base: 'place-content-center place-items-center' }"
+    />
+    <UButton
+      v-else
+      v-bind="$attrs"
       block
       color="secondary"
       variant="outline"
       icon="i-heroicons-bell-alert"
       size="xl"
-      class="
-        max-sm:min-h-11
-        @max-3xs/card:px-2 @max-3xs/card:text-sm
-      "
+      class="max-sm:min-h-11"
     >
       {{ t(`${kind}.cta`) }}
     </UButton>
 
     <template #body>
+      <UAlert
+        v-if="activeAlertProps"
+        v-bind="activeAlertProps"
+      />
       <UForm
+        v-else
         :schema="schema"
         :state="state"
         class="space-y-4"
@@ -206,6 +242,11 @@ el:
     description: "Δοκίμασε ξανά σε λίγο ή επικοινώνησε μαζί μας."
   active:
     cancel: "Απενεργοποίηση ειδοποίησης"
+  # A product card's trigger: the visible label, and its accessible name
+  # per kind, which starts with the label (WCAG 2.5.3).
+  compact:
+    cta: "Ειδοποίηση"
+    active: "Ενεργή"
   cancel_success:
     title: "Η ειδοποίηση απενεργοποιήθηκε"
     description: "Δεν θα σου στείλουμε email για αυτή την ειδοποίηση."
@@ -214,6 +255,9 @@ el:
     description: "Δοκίμασε ξανά σε λίγο."
   restock:
     cta: "Ειδοποίησέ με όταν γίνει διαθέσιμο"
+    compact:
+      name: "Ειδοποίηση όταν γίνει διαθέσιμο"
+      active_name: "Ενεργή ειδοποίηση διαθεσιμότητας"
     modal_title: "Ειδοποίηση επαναφοράς αποθέματος"
     modal_description: "Θα σου στείλουμε email μόλις το προϊόν γίνει ξανά διαθέσιμο."
     success:
@@ -224,6 +268,9 @@ el:
       description: "Θα σε ειδοποιήσουμε μόλις το προϊόν γίνει ξανά διαθέσιμο."
   price_drop:
     cta: "Ειδοποίησέ με όταν πέσει η τιμή"
+    compact:
+      name: "Ειδοποίηση όταν πέσει η τιμή"
+      active_name: "Ενεργή ειδοποίηση τιμής"
     modal_title: "Ειδοποίηση πτώσης τιμής"
     modal_description: "Δώσε την τιμή που σε ενδιαφέρει. Θα σου στείλουμε email όταν το προϊόν φτάσει ή πέσει κάτω από αυτή."
     target_price_label: "Επιθυμητή τιμή"
@@ -257,6 +304,9 @@ en:
     description: "Try again shortly or get in touch with us."
   active:
     cancel: "Turn the alert off"
+  compact:
+    cta: "Notify me"
+    active: "Alert on"
   cancel_success:
     title: "The alert is off"
     description: "We will not email you about this alert."
@@ -265,6 +315,9 @@ en:
     description: "Try again shortly."
   restock:
     cta: "Notify me when it is back"
+    compact:
+      name: "Notify me when it is back"
+      active_name: "Alert on: back in stock"
     modal_title: "Back-in-stock alert"
     modal_description: "We will email you as soon as the product is available again."
     success:
@@ -275,6 +328,9 @@ en:
       description: "We will let you know as soon as the product is available again."
   price_drop:
     cta: "Notify me when the price drops"
+    compact:
+      name: "Notify me when the price drops"
+      active_name: "Alert on: price drop"
     modal_title: "Price-drop alert"
     modal_description: "Give us the price you are after. We will email you when the product reaches it or goes below."
     target_price_label: "Target price"

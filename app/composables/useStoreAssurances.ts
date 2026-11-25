@@ -12,7 +12,8 @@ export interface StoreAssuranceRow {
 /**
  * The store's shopping promises as the `store_assurances` band states them,
  * one row each: delivery (with the dispatch cutoff under it), free shipping
- * (with what each carrier charges below it), returns (linked to the return
+ * (with what each carrier charges below it; a delivery or a price the store
+ * offers only in some regions names them), returns (linked to the return
  * policy once it is published) and the ways to pay.
  *
  * The facts are the ones the product page's assurances read
@@ -26,18 +27,33 @@ export async function useStoreAssurances() {
 
   const facts = await useStoreAssuranceFacts()
 
+  /** Region names as one phrase in the page's language ("Attica and Crete"). */
+  const regionList = (regions: string[]) =>
+    new Intl.ListFormat($i18n.locale.value, { type: 'conjunction' }).format(regions)
+
+  /** How long delivery takes, and where, when it is promised to some regions only. */
+  const deliveryTitle = ({ min, max, regions }: NonNullable<StoreAssuranceFacts['deliveryDays']>) => {
+    if (regions.length) {
+      return min === max
+        ? $i18n.t('store_assurances.delivery_days_in', { count: min, regions: regionList(regions) }, min)
+        : $i18n.t('store_assurances.delivery_range_in', { min, max, regions: regionList(regions) })
+    }
+    return min === max
+      ? $i18n.t('store_assurances.delivery_days', { count: min }, min)
+      : $i18n.t('store_assurances.delivery_range', { min, max })
+  }
+
   const rows = computed<StoreAssuranceRow[]>(() => {
     const known = facts.value
     if (!known) return []
 
     const price = (amount: number) => $i18n.n(amount, 'currency')
+    const days = known.deliveryDays
     const found: Array<StoreAssuranceRow | null> = [
-      known.deliveryDays && {
+      days && {
         kind: 'delivery',
         icon: 'i-lucide-truck',
-        title: known.deliveryDays.min === known.deliveryDays.max
-          ? $i18n.t('store_assurances.delivery_days', { count: known.deliveryDays.min }, known.deliveryDays.min)
-          : $i18n.t('store_assurances.delivery_range', known.deliveryDays),
+        title: deliveryTitle(days),
         note: known.dispatchCutoff
           ? $i18n.t('store_assurances.dispatch_cutoff', { time: known.dispatchCutoff })
           : undefined,
@@ -49,7 +65,9 @@ export async function useStoreAssurances() {
             title: $i18n.t('store_assurances.free_shipping_from', { amount: price(known.freeShippingFrom) }),
             note: known.carrierPrices.length
               ? known.carrierPrices
-                  .map(({ carrier, price: amount }) => $i18n.t('store_assurances.carrier_price', { carrier, price: price(amount) }))
+                  .map(({ carrier, price: amount, regions }) => regions.length
+                    ? $i18n.t('store_assurances.carrier_price_in', { carrier, price: price(amount), regions: regionList(regions) })
+                    : $i18n.t('store_assurances.carrier_price', { carrier, price: price(amount) }))
                   .join(' · ')
               : undefined,
           }

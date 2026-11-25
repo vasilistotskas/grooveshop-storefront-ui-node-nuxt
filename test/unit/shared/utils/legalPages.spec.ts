@@ -4,7 +4,7 @@ import { LEGAL_ROUTE_BY_SLUG } from '~~/shared/utils/legalPages'
 /**
  * The sitemap source and the `/info/<slug>` redirect key on the slug →
  * canonical path lookup. The slugs are the ones Django seeds every
- * tenant with (`page_config/legal_documents.py`), so they are written
+ * tenant with (`src/page_config/legal_documents.py`), so they are written
  * out rather than derived: a renamed slug on either side has to show
  * up here.
  */

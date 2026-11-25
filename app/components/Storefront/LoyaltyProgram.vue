@@ -36,7 +36,7 @@ onMounted(() => {
 })
 const member = computed(() => mounted.value && loggedIn.value)
 
-const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
+const ladder = computed(() => (tiers.value ?? []).toSorted((a, b) => a.requiredLevel - b.requiredLevel))
 
 const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 

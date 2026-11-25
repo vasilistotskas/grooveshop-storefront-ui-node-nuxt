@@ -1,5 +1,5 @@
 /**
- * Delivery-address rules — mirror of Django's `core/validators/address.py`.
+ * Delivery-address rules — mirror of Django's `src/core/validators/address.py`.
  *
  * The postcode format is data, not code: each country row carries
  * `postalCodePattern` (Google's Address Data Service `zip` regex) and

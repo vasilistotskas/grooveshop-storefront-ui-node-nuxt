@@ -17,7 +17,7 @@ export function useBuilderCanvasPreview() {
 /**
  * The preview of the page of `pageKey`, when the canvas draws one: the
  * store's own page of that key first, then the template, as Django serves
- * a key that is both (`builder/published.py: _page_document_key`).
+ * a key that is both (`src/builder/published.py: _page_document_key`).
  */
 export function builderCanvasPage(preview: BuilderPreviewResponse | null, pageKey: string): BuilderPage | undefined {
   if (!preview) return undefined

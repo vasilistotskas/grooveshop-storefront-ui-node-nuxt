@@ -57,7 +57,6 @@ const GETTERS: GetterRow[] = [
   ['googleAdsAddPaymentInfoLabel', 'googleAdsAddPaymentInfoLabel', '', 'payment'],
   ['googleAdsPageViewLabel', 'googleAdsPageViewLabel', '', 'view'],
   ['totpIssuer', 'totpIssuer', '', 'Acme'],
-  ['boxNowPartnerId', 'boxNowPartnerId', '', '10391'],
   ['seoAuthor', 'seoAuthor', '', 'Store Owner'],
   ['googleSiteVerification', 'googleSiteVerification', '', 'gsv-token'],
   ['pinterestDomainVerify', 'pinterestDomainVerify', '', 'pin-token'],
@@ -92,6 +91,20 @@ describe('useTenantStore', () => {
       expect(store[getter]).toEqual(fallback)
     },
   )
+
+  describe('siteName', () => {
+    it('is the store name, else the tenant name, as the site config names the store', () => {
+      const store = useTenantStore()
+      store.setConfig(config({ storeName: 'Acme Shop', name: 'acme' }))
+      expect(store.siteName).toBe('Acme Shop')
+
+      store.setConfig(config({ storeName: '', name: 'acme' }))
+      expect(store.siteName).toBe('acme')
+
+      store.setConfig(null)
+      expect(store.siteName).toBe('')
+    })
+  })
 
   describe('socials', () => {
     const NONE = {

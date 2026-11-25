@@ -113,7 +113,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :src="post.mainImagePath"
           :height="imgHeight"
           :width="imgWidth"
-          sizes="md:360px lg:480px xl:480px xxl:520px 2xl:520px"
+          sizes="md:360px lg:480px xl:480px xxl:520px"
           fit="cover"
           :modifiers="{
             position: 'attention',

@@ -7,6 +7,9 @@ import { builderField } from '~~/shared/builder/fields'
 import { builderBlocks, builderCatalogueDocument, buildBlockCatalogue } from '~~/server/utils/builderCatalogue'
 import { fixtureBlocks, promoBanner, promoItem } from '~~/test/fixtures/builder/blocks'
 import { BUILDER_PAGE_HEADING_MAX_LENGTH } from '~~/shared/constants/builder'
+import { BUILDER_ICONS } from '~~/shared/builder/icons'
+import elLabels from '~/builder/labels/el.json'
+import enLabels from '~/builder/labels/en.json'
 
 const blockOf = (type: string) => buildBlockCatalogue([promoBanner, promoItem]).blocks.find(block => block.type === type)!
 
@@ -133,7 +136,7 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('is that of an empty catalogue when no block is defined', () => {
-      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], dataLimits: expect.any(Object), documentKinds: expect.any(Object), templates: expect.any(Array) })
+      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], dataLimits: expect.any(Object), documentKinds: expect.any(Object), templates: expect.any(Array), icons: expect.any(Array) })
     })
 
     it('states the caps data settings live under, the numbers the storefront reads with', () => {
@@ -208,6 +211,29 @@ describe('buildBlockCatalogue', () => {
     })
   })
 
+  // Django holds one icon outside a block too (a blog category's): it is
+  // validated against this list, the one the builder's icon settings offer.
+  describe('icons', () => {
+    it('lists every icon the builder offers, as the stores save them, named in every language', () => {
+      const { icons } = buildBlockCatalogue([])
+
+      expect(icons.map(icon => icon.name)).toEqual([...BUILDER_ICONS])
+      expect(icons.find(icon => icon.name === 'i-fa6-solid-robot')).toEqual({ name: 'i-fa6-solid-robot', labels: { el: elLabels.options.icon['i-fa6-solid-robot'], en: enLabels.options.icon['i-fa6-solid-robot'] } })
+    })
+
+    it('refuses an icon without a label, which Django would offer by its bare name', () => {
+      expect(() => buildBlockCatalogue([], undefined, undefined, ['i-lucide-unlabelled'])).toThrow(/"i-lucide-unlabelled" has no el label/)
+    })
+
+    it('takes no inherited property of a label file for a label', () => {
+      expect(() => buildBlockCatalogue([], undefined, undefined, ['toString'])).toThrow(/"toString" has no el label/)
+    })
+
+    it('is part of the hash', () => {
+      expect(buildBlockCatalogue([], undefined, undefined, ['i-lucide-zap']).hash).not.toBe(buildBlockCatalogue([]).hash)
+    })
+  })
+
   describe('a contradictory set', () => {
     it('is refused when a type is defined twice', () => {
       expect(() => buildBlockCatalogue([promoItem, promoItem])).toThrow(/"promo_item" is defined twice/)
@@ -233,8 +259,8 @@ describe('this build\'s catalogue', () => {
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    const { blocks, dataLimits, documentKinds, templates } = buildBlockCatalogue(fixtureBlocks)
+    const { blocks, dataLimits, documentKinds, templates, icons } = buildBlockCatalogue(fixtureBlocks)
 
-    expect(JSON.parse(json)).toEqual({ hash, blocks, dataLimits, documentKinds, templates })
+    expect(JSON.parse(json)).toEqual({ hash, blocks, dataLimits, documentKinds, templates, icons })
   })
 })

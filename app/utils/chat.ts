@@ -21,7 +21,7 @@ export function chatSegments(text: string, products: ShopChatProducts[] = []): C
     cursor = end
   }
 
-  for (const event of [...products].sort((a, b) => a.at - b.at)) {
+  for (const event of products.toSorted((a, b) => a.at - b.at)) {
     const paragraphEnd = text.indexOf('\n\n', Math.min(event.at, text.length))
     pushText(Math.max(cursor, paragraphEnd === -1 ? text.length : paragraphEnd))
     segments.push({ type: 'products', event })

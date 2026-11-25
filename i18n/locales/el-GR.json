@@ -314,8 +314,12 @@
   "product_assurances": {
     "label": "Παράδοση, πληρωμή και επιστροφές",
     "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες ημέρες από την αποστολή",
+    "delivery_range_in": "Παράδοση σε {min}–{max} εργάσιμες ημέρες από την αποστολή, για {regions}",
     "delivery_days": "Παράδοση σε {count} εργάσιμη ημέρα από την αποστολή | Παράδοση σε {count} εργάσιμες ημέρες από την αποστολή",
-    "free_shipping_over": "Δωρεάν μεταφορικά άνω των {amount}",
+    "delivery_days_in": "Παράδοση σε {count} εργάσιμη ημέρα από την αποστολή, για {regions} | Παράδοση σε {count} εργάσιμες ημέρες από την αποστολή, για {regions}",
+    "shipping_from": "Μεταφορικά από {price}",
+    "shipping_from_free_over": "Μεταφορικά από {price} · δωρεάν άνω των {amount}",
+    "ships_free": "Δωρεάν μεταφορικά",
     "payment_card": "κάρτα",
     "payment_cash_on_delivery": "αντικαταβολή",
     "payment_bank_transfer": "τραπεζική κατάθεση",
@@ -323,10 +327,13 @@
   },
   "store_assurances": {
     "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες",
+    "delivery_range_in": "Παράδοση σε {min}–{max} εργάσιμες για {regions}",
     "delivery_days": "Παράδοση σε {count} εργάσιμη | Παράδοση σε {count} εργάσιμες",
+    "delivery_days_in": "Παράδοση σε {count} εργάσιμη για {regions} | Παράδοση σε {count} εργάσιμες για {regions}",
     "dispatch_cutoff": "Παραγγελίες έως {time} φεύγουν την ίδια εργάσιμη",
     "free_shipping_from": "Δωρεάν μεταφορικά από {amount}",
     "carrier_price": "{carrier} {price}",
+    "carrier_price_in": "{carrier} {price} για {regions}",
     "returns": "Επιστροφή σε {count} ημέρα | Επιστροφή σε {count} ημέρες"
   },
   "tracking": {
@@ -500,9 +507,12 @@
   },
   "errors": {
     "codes": {
+      "country_not_served": "Δεν παραδίδουμε σε αυτή τη χώρα.",
       "must_have_purchased": "Μπορείς να γράψεις κριτική μόνο για προϊόντα που έχεις αγοράσει.",
       "order_not_payable": "Αυτή η παραγγελία δεν πληρώνεται πια: έχει ήδη πληρωθεί ή έκλεισε.",
-      "payment_window_expired": "Ο χρόνος πληρωμής αυτής της παραγγελίας έληξε. Για να αγοράσεις αυτά τα προϊόντα, κάνε νέα παραγγελία."
+      "payment_window_expired": "Ο χρόνος πληρωμής αυτής της παραγγελίας έληξε. Για να αγοράσεις αυτά τα προϊόντα, κάνε νέα παραγγελία.",
+      "region_not_served": "Δεν παραδίδουμε σε αυτή την περιφέρεια. Διάλεξε άλλη περιφέρεια ή σημείο παραλαβής, όπου υπάρχει.",
+      "shipping_region_unavailable": "Αυτός ο τρόπος αποστολής δεν φτάνει στην περιφέρειά σου. Διάλεξε άλλον."
     }
   },
   "maps": {
@@ -523,5 +533,16 @@
   "feeds": {
     "store": "{name}: άρθρα και προϊόντα",
     "blog": "{name}: άρθρα"
+  },
+  "socials": {
+    "discord": "Discord",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "pinterest": "Pinterest",
+    "reddit": "Reddit",
+    "tiktok": "TikTok",
+    "twitter": "X",
+    "youtube": "YouTube"
   }
 }

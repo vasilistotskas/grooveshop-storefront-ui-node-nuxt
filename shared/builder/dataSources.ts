@@ -8,8 +8,8 @@ import { recordId } from './recordId'
  * The descriptors a `query` data setting stores: what to list, never the
  * records themselves. One closed object per source, discriminated on `mode`
  * where a source has two ways to name its records. Every key maps to a
- * filter the Django list endpoint has (`product/filters/product.py`,
- * `blog/filters/post.py`); a filter the API cannot do is not here, and
+ * filter the Django list endpoint has (`src/product/filters/product.py`,
+ * `src/blog/filters/post.py`); a filter the API cannot do is not here, and
  * adding one is one entry below plus a shared vector.
  *
  * - `picked`: the merchant's own list. Its order is the merchant's order.

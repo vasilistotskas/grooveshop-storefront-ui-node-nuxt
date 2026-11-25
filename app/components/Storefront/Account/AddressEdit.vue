@@ -144,6 +144,16 @@ const {
           />
         </UFormField>
 
+        <UFormField :label="t('form.address_line_2')" name="addressLine2">
+          <UInput
+            v-model="state.addressLine2"
+            :placeholder="t('form.address_line_2_placeholder')"
+            autocomplete="address-line2"
+            maxlength="255"
+            size="xl"
+          />
+        </UFormField>
+
         <UFormField :label="t('form.zipcode')" name="zipcode" required>
           <UInput
             v-model="state.zipcode"
@@ -244,6 +254,8 @@ el:
     last_name: Επίθετο
     street: Δρόμος
     street_number: Αριθμός δρόμου
+    address_line_2: Διαμέρισμα, όροφος, κτίριο
+    address_line_2_placeholder: π.χ. 3ος όροφος, διαμ. 5
     city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας
     phone: Τηλέφωνο
@@ -283,6 +295,8 @@ en:
     last_name: Last name
     street: Street
     street_number: Street number
+    address_line_2: Apartment, floor, building
+    address_line_2_placeholder: e.g. 3rd floor, apt. 5
     city: City
     zipcode: Postcode
     phone: Phone

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * Selected-locker wrapper card for any
- * {@link ShippingCarrier} with ``usesGenericPicker: true``. Reads
+ * {@link ShippingCarrier} (every carrier with lockers). Reads
  * the previously-picked locker from ``formState`` (via the
  * adapter's ``readSelectedLocker``), opens the
  * {@link CheckoutGenericLockerPicker} when the shopper clicks
@@ -20,6 +20,10 @@ const props = defineProps<{
   initialPostalCode?: string
   initialCity?: string
   countryCode?: string
+  /** The cart's compartment size, for a carrier that sizes its lockers. */
+  compartmentSize?: number | null
+  /** The quote has not named the size yet: a sizing carrier's picker waits. */
+  awaitingSize?: boolean
 }>()
 
 const { t } = useI18n()
@@ -104,6 +108,8 @@ function onSelected(picked: Locker): void {
       :initial-postal-code="initialPostalCode"
       :initial-city="initialCity"
       :country-code="countryCode"
+      :compartment-size="compartmentSize"
+      :awaiting-size="awaitingSize"
       @selected="onSelected"
     />
   </div>

@@ -64,7 +64,6 @@ export function validTenantConfig(
     socialsTiktok: '',
     socialsTwitter: '',
     socialsYoutube: '',
-    boxNowPartnerId: '',
     // The store's features as Django resolves them; the plan-gated ones
     // follow the flags above (blog, loyalty, promotions, gift cards and
     // wholesale are off).

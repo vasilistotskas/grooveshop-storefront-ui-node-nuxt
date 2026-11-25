@@ -30,7 +30,9 @@ import { makeCart } from '~~/test/fixtures/cart'
 import { makeCountry } from '~~/test/fixtures/country'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { makePayWay } from '~~/test/fixtures/payWay'
+import { makeRegion } from '~~/test/fixtures/shippingPolicy'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { makeBoxNowPickedLocker } from '~~/test/fixtures/boxnow'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const { mockToastAdd } = vi.hoisted(() => ({ mockToastAdd: vi.fn() }))
@@ -102,6 +104,9 @@ const REGIONLESS = makeCountry({
   sortOrder: 3,
 })
 
+const ATTIKI = makeRegion({ alpha: 'ATTIKI' })
+const NICOSIA = makeRegion({ alpha: 'NICOSIA', country: 'CY', sortOrder: 2, translations: { el: { name: 'Λευκωσία' }, en: { name: 'Nicosia' } } })
+
 /** A valid ΑΦΜ: the weighted sum of its first 8 digits mod 11 mod 10 is the 9th. */
 const VALID_AFM = '123456783'
 
@@ -144,6 +149,7 @@ function savedAddress(overrides: Record<string, unknown> = {}) {
     zipcode: '10563',
     country: 'GR',
     region: 'ATTIKI',
+    shippable: true,
     ...overrides,
   }
 }
@@ -161,8 +167,8 @@ function defaultRoutes() {
     '/api/user/addresses': paginated([]),
     '/api/regions': (_url: string, options: any) => {
       const country = options?.query?.country
-      if (country === 'GR') return paginated([{ alpha: 'ATTIKI', name: 'Αττική' }])
-      if (country === 'CY') return paginated([{ alpha: 'NICOSIA', name: 'Λευκωσία' }])
+      if (country === 'GR') return paginated([ATTIKI])
+      if (country === 'CY') return paginated([NICOSIA])
       return paginated([])
     },
     '/api/shipping/options': (_url: string, options: any) =>
@@ -216,6 +222,13 @@ describe('useCheckoutForm', () => {
     expect(countries?.options.query).toMatchObject({ shippable: true })
   })
 
+  it('lists only the regions the store delivers to at home', async () => {
+    await setup()
+
+    const [regions] = api.callsTo('/api/regions')
+    expect(regions?.options.query).toMatchObject({ country: 'GR', shippable: true })
+  })
+
   it('also fetches EVERY dial code, unpaginated, for the phone field', async () => {
     await setup()
 
@@ -264,6 +277,18 @@ describe('useCheckoutForm', () => {
         currency: 'USD',
         weightGrams: cart!.totalWeightGrams,
       })
+    })
+
+    it('asks for the chosen region\'s zone, and again when the region changes', async () => {
+      const { formState } = await setup()
+      const before = api.callsTo('/api/shipping/options').length
+
+      formState.region = 'ATTIKI'
+      await flushPromises()
+
+      const calls = api.callsTo('/api/shipping/options')
+      expect(calls.length).toBe(before + 1)
+      expect(calls.at(-1)?.options.query).toMatchObject({ countryCode: 'GR', regionId: 'ATTIKI' })
     })
 
     it('prices home delivery from the first carrier that can carry the cart', async () => {
@@ -556,25 +581,69 @@ describe('useCheckoutForm', () => {
     })
   })
 
-  describe('step1Schema — region required only when the country hasRegions', () => {
+  describe('step2Schema — a home delivery\'s region, required only when the country hasRegions', () => {
     it('requires region for GR (has regions)', async () => {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ country: 'GR', region: '' }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ country: 'GR', region: '' }))
       expect(result.success).toBe(false)
       expect(result.error?.issues.some(i => i.path[0] === 'region')).toBe(true)
     })
 
     it('does not require region for a country with no regions', async () => {
       api.routes({ ...defaultRoutes(), '/api/countries': paginated([GR, REGIONLESS]) })
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ country: 'XX', region: '' }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ country: 'XX', region: '' }))
       expect(result.error?.issues.some(i => i.path[0] === 'region') ?? false).toBe(false)
     })
+  })
 
+  // #767: the address is the delivery step's, and a pickup order's has
+  // none (Django delivers it to the point).
+  describe('the address belongs to a home delivery', () => {
+    const ADDRESS_FIELDS = ['street', 'streetNumber', 'city', 'zipcode', 'region']
+    const blankAddress = { street: '', streetNumber: '', city: '', zipcode: '', region: '' }
+
+    it('step1Schema asks for no address', async () => {
+      const { step1Schema } = await setup()
+      const result = step1Schema.safeParse(baseAddress(blankAddress))
+      expect(result.success).toBe(true)
+    })
+
+    it('step2Schema requires every address field of a home delivery', async () => {
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress(blankAddress))
+      expect([...new Set(result.error?.issues.map(i => i.path[0]))].sort()).toEqual([...ADDRESS_FIELDS].sort())
+    })
+
+    it.each([
+      { shippingMethod: 'box_now_locker', boxnowLockerId: '4' },
+      { shippingMethod: 'acs_smartpoint', acsStationExternalId: 'AAT' },
+    ])('step2Schema asks a pickup order (%j) for no address', async (pickup) => {
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ ...blankAddress, ...pickup }))
+      expect(result.success).toBe(true)
+    })
+
+    it('a pickup invoice needs the company\'s address, "same as delivery" or not', async () => {
+      const { $i18n } = useNuxtApp()
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({
+        ...blankAddress,
+        ...invoice(),
+        billingSameAsShipping: true,
+        billingStreet: '',
+        shippingMethod: 'box_now_locker',
+        boxnowLockerId: '4',
+      }))
+      expect(result.error?.issues.map(i => [i.path[0], i.message])).toEqual([['billingStreet', $i18n.t('validation.required')]])
+    })
+  })
+
+  describe('step1Schema — the phone, against its country', () => {
     it('validates phone against the selected country\'s own metadata (CY, 8 digits)', async () => {
       const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '96123456' }))
-      expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((result.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
     })
 
     it('rejects a Greek-length phone number against CY\'s 8-digit metadata', async () => {
@@ -582,13 +651,13 @@ describe('useCheckoutForm', () => {
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '6912345678' }))
       // A bare 10-digit number gets CY's own dial code prepended (no '+'
       // typed), so it's checked as a CY national number and fails length.
-      expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(true)
+      expect((result.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(true)
     })
 
     it('accepts a foreign "+" phone regardless of the delivery country (GR shipping to CY)', async () => {
       const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '+306943413781' }))
-      expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((result.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
     })
 
     it('validates the phone against the PICKED phone country, not the delivery one', async () => {
@@ -598,7 +667,7 @@ describe('useCheckoutForm', () => {
       // Delivering to Cyprus with a Greek mobile: GR picked, so +30 is checked against GR.
       const address = { country: 'CY', region: 'NICOSIA', phoneCountry: 'GR' }
       const valid = step1Schema.safeParse(baseAddress({ ...address, phone: '+306912345678' }))
-      expect(valid.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((valid.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
 
       const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '+30123' }))
       const issue = invalid.error?.issues.find(i => i.path[0] === 'phone')
@@ -612,7 +681,7 @@ describe('useCheckoutForm', () => {
 
       const address = { country: 'CY', region: 'NICOSIA', phoneCountry: '' }
       const valid = step1Schema.safeParse(baseAddress({ ...address, phone: '+35796123456' }))
-      expect(valid.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+      expect((valid.error?.issues ?? []).some(i => i.path[0] === 'phone')).toBe(false)
 
       const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '+357123' }))
       const issue = invalid.error?.issues.find(i => i.path[0] === 'phone')
@@ -620,11 +689,11 @@ describe('useCheckoutForm', () => {
     })
   })
 
-  describe('step1Schema — save-address title and invoice requisites', () => {
+  describe('step2Schema — save-address title and invoice requisites', () => {
     /** The message of each issue on `field`, or [] when it passes. */
     async function issuesOn(field: string, overrides: Record<string, unknown>) {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress(overrides))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress(overrides))
       return result.error?.issues.filter(i => i.path[0] === field).map(i => i.message) ?? []
     }
 
@@ -672,14 +741,14 @@ describe('useCheckoutForm', () => {
     )
 
     it('a RECEIPT needs none of the invoice requisites', async () => {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ documentType: 'RECEIPT', billingSameAsShipping: false }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ documentType: 'RECEIPT', billingSameAsShipping: false }))
       expect(result.success).toBe(true)
     })
 
     it('a complete invoice with its own registered address passes', async () => {
-      const { step1Schema } = await setup()
-      const result = step1Schema.safeParse(baseAddress({ ...invoice(), billingSameAsShipping: false }))
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(baseAddress({ ...invoice(), billingSameAsShipping: false }))
       expect(result.success).toBe(true)
     })
   })
@@ -690,7 +759,7 @@ describe('useCheckoutForm', () => {
       [{ shippingMethod: 'box_now_locker', boxnowLockerId: '4' }, null, null],
       [{ shippingMethod: 'acs_smartpoint', acsStationExternalId: '' }, 'acsStationExternalId', 'shipping.acs.required_error'],
       [{ shippingMethod: 'acs_smartpoint', acsStationExternalId: 'AAT' }, null, null],
-      [{ shippingMethod: 'home_delivery' }, null, null],
+      [baseAddress({ shippingMethod: 'home_delivery' }), null, null],
     ])('%j', async (input, field, key) => {
       const { $i18n } = useNuxtApp()
       const { step2Schema } = await setup()
@@ -705,7 +774,7 @@ describe('useCheckoutForm', () => {
     it('clears boxnowLockerId/boxnowLocker and acsStation* fields', async () => {
       const { formState } = await setup()
       formState.boxnowLockerId = '4'
-      formState.boxnowLocker = { boxnowLockerId: '4', boxnowLockerPostalCode: '10563', boxnowLockerAddressLine1: 'Ermou 10' }
+      formState.boxnowLocker = makeBoxNowPickedLocker()
       formState.acsStationExternalId = 'AAT'
       formState.acsStationBranch = 'BR1'
       formState.acsStation = ACS_STATION
@@ -820,12 +889,32 @@ describe('useCheckoutForm', () => {
       const older = pending[0]!
       expect(older.country).toBe('CY')
       expect(newest.country).toBe('GR')
-      newest.resolve(paginated([{ alpha: 'GR-14', name: 'Αττική' }]))
+      newest.resolve(paginated([makeRegion({ alpha: 'GR-14' })]))
       await flushPromises()
-      older.resolve(paginated([{ alpha: 'CY-01', name: 'Λευκωσία' }]))
+      older.resolve(paginated([makeRegion({ alpha: 'CY-01', country: 'CY', sortOrder: 2, translations: { el: { name: 'Λευκωσία' } } })]))
       await flushPromises()
 
       expect(regionOptions.value.map(o => o.value)).toEqual(['GR-14'])
+    })
+
+    // Django refuses a region of another country (`region_country_mismatch`):
+    // while the new country's regions load, the old region is not sent.
+    it('prices the new country without the old country\'s region while its regions load', async () => {
+      const { formState } = await setup()
+      formState.region = 'ATTIKI'
+      await flushPromises()
+      api.routes({
+        ...defaultRoutes(),
+        '/api/regions': () => new Promise(() => {}),
+      })
+
+      formState.country = 'CY'
+      await nextTick()
+      await flushPromises()
+
+      const priced = api.callsTo('/api/shipping/options').map(call => call.options.query)
+      expect(priced.at(-1)).toMatchObject({ countryCode: 'CY' })
+      expect(priced.filter(query => query.countryCode === 'CY' && query.regionId !== undefined)).toEqual([])
     })
 
     it('keeps a prefilled region when the new country\'s regions request fails', async () => {
@@ -881,6 +970,56 @@ describe('useCheckoutForm', () => {
       })
     })
 
+    // django-api #769: a saved address's line 2 comes with it, and a pick
+    // without one clears the last address's.
+    it('applies a saved address\'s line 2, and clears it for one without', async () => {
+      api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([savedAddress({ addressLine2: '3ος όροφος' }), second]) })
+      const { formState, selectSavedAddress } = await setup()
+      expect(formState.addressLine2).toBe('3ος όροφος')
+
+      await selectSavedAddress(2)
+
+      expect(formState.addressLine2).toBe('')
+    })
+
+    it('does not pick an address the store no longer delivers to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress({ shippable: false }), second]),
+      })
+
+      const { selectedSavedAddressId, addressEntryMode } = await setup()
+
+      // The main one is no longer served: the next one is picked.
+      expect(selectedSavedAddressId.value).toBe(2)
+      expect(addressEntryMode.value).toBe('saved')
+    })
+
+    it('starts a new address when no saved one is delivered to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress({ shippable: false })]),
+      })
+
+      const { selectedSavedAddressId, addressEntryMode } = await setup()
+
+      expect(selectedSavedAddressId.value).toBeNull()
+      expect(addressEntryMode.value).toBe('new')
+    })
+
+    it('ignores a pick of an address the store no longer delivers to', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/user/addresses': paginated([savedAddress(), { ...second, shippable: false }]),
+      })
+      const { formState, selectedSavedAddressId, selectSavedAddress } = await setup()
+
+      await selectSavedAddress(2)
+
+      expect(formState.street).toBe('Ermou')
+      expect(selectedSavedAddressId.value).toBe(1)
+    })
+
     it('picking another saved address applies it and stays in saved mode', async () => {
       const { formState, addressEntryMode, selectSavedAddress } = await setup()
 
@@ -911,6 +1050,7 @@ describe('useCheckoutForm', () => {
         phone: '',
         street: '',
         streetNumber: '',
+        addressLine2: '',
         city: '',
         zipcode: '',
         region: '',
@@ -972,6 +1112,18 @@ describe('useCheckoutForm', () => {
         // Not the Cypriot recipient's phone and region, carried over.
         expect(formState).toMatchObject({ country: 'GR', phone: '', region: '' })
       })
+    })
+
+    // Only its address is wrong, and the address is the delivery step's
+    // (a pickup order needs none): marked, kept picked, fixed there.
+    it('marks an address only a home delivery refuses, and keeps it picked', async () => {
+      api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([savedAddress({ zipcode: '' }), second]) })
+
+      const { addressEntryMode, addressIdsNeedingUpdate } = await setup()
+
+      expect(addressIdsNeedingUpdate.value).toEqual([1])
+      expect(addressEntryMode.value).toBe('saved')
+      expect(mockToastAdd).not.toHaveBeenCalled()
     })
 
     it('marks no address when every one passes', async () => {
@@ -1091,6 +1243,7 @@ function baseAddress(overrides: Record<string, unknown> = {}) {
     street: 'Main St',
     streetNumber: '1',
     documentType: 'RECEIPT',
+    shippingMethod: 'home_delivery',
     ...overrides,
   }
 }

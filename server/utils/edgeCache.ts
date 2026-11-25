@@ -19,7 +19,7 @@
  * browser holding HTML whose ``/_nuxt`` chunks no longer exist.
  *
  * ``Cache-Tag`` is the purge handle, and its names are a contract with
- * Django (``core/cache/edge.py``): one tag for every storefront page (the
+ * Django (``src/core/cache/edge.py``): one tag for every storefront page (the
  * post-deploy purge) and one per tenant (a merchant's own edit).
  */
 // Nitro response-hook code (server/plugins/edge-cache.ts): it reads the

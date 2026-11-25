@@ -11,17 +11,13 @@ import { makeCountry } from '~~/test/fixtures/country'
 import { trees } from '~~/test/helpers/trees'
 
 /**
- * Step 1 of checkout: who the shopper is and where the order goes.
+ * Step 1 of checkout: who the shopper is and which country the order
+ * goes to. The address is the delivery step's (`DeliveryAddress`): a
+ * pickup order is delivered to the point and takes none of it (#767).
  *
- * Prod order #316 put a postcode in the street-number field. The input
- * no longer claims `autocomplete="address-line2"` (a second street line,
- * not a house number) or a numeric keypad (numbers such as "12Α"), the
- * postcode placeholder shows the selected country's format, and Django's
- * field errors from a rejected order land under their own inputs.
- *
- * The webside copy shares the logic: both gate the ACS address
- * chip on Greece and on `acsEnabled` (a tenant without an ACS contract
- * only ever gets 503s from the proxy).
+ * Django's field errors from a rejected order land under their own
+ * inputs, and a picked saved address that fails checkout's rules opens
+ * its fields.
  */
 
 // The phone field recognises a typed `+code` against every dial code.
@@ -75,6 +71,7 @@ function makeAddress(id: number): UserAddressDetail {
     user: 1,
     country: 'GR',
     region: 'GR-I',
+    shippable: true,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(7, id),
@@ -87,14 +84,7 @@ function makeFormState(overrides: Record<string, unknown> = {}) {
     lastName: '',
     email: '',
     phone: '',
-    street: '',
-    streetNumber: '',
-    zipcode: '',
-    city: '',
-    region: '',
     country: '',
-    documentType: 'RECEIPT',
-    billingSameAsShipping: true,
     ...overrides,
   })
 }
@@ -104,42 +94,15 @@ function makeProps(overrides: Record<string, unknown> = {}) {
     formState: makeFormState(),
     schema: null,
     countryOptions: [{ label: 'Ελλάδα', value: 'GR' }],
-    regionOptions: [],
     mode: 'new' as const,
-    postcodeExample: '151 24',
-    // Boolean props: absent means `false` to Vue, and both checkout
-    // pages always pass both (`useCheckoutForm`).
-    b2bInvoicingEnabled: true,
-    acsEnabled: true,
     ...overrides,
   }
 }
 
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
 
-/** A checkbox by its visible label (UCheckbox: `<label for>` → `role="checkbox"` button). */
-function checkbox(wrapper: VueWrapper, label: string) {
-  const labelEl = wrapper.findAll('label').find(l => l.text() === label)
-  if (!labelEl) throw new Error(`no checkbox "${label}"`)
-  return wrapper.find(`[role="checkbox"][id="${labelEl.attributes('for')}"]`)
-}
-
 function hasField(wrapper: VueWrapper, name: string): boolean {
   return wrapper.find(`[name="${name}"]`).exists()
-}
-
-/** The billing fields an INVOICE collects. */
-const BILLING = {
-  billingVatId: '123456789',
-  billingCountry: 'GR',
-  billingCompanyName: 'Groove Α.Ε.',
-  billingTaxOffice: 'Α Αθηνών',
-  billingActivity: 'Λιανικό εμπόριο',
-  billingSameAsShipping: false,
-  billingStreet: 'Σταδίου',
-  billingStreetNumber: '10',
-  billingCity: 'Αθήνα',
-  billingZipcode: '10564',
 }
 
 describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/StepPersonalInfo', ({ tree, C, own }) => {
@@ -150,75 +113,20 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
   const mount = (overrides: Record<string, unknown> = {}, stubs: Record<string, boolean> = {}) =>
     mountSuspended(C, { route: false, props: makeProps(overrides), global: { stubs } })
 
-  describe('address fields', () => {
-    it('the street-number input is neither an address line nor a keypad', async () => {
-      const wrapper = await mount()
+  // #767: nothing of the address is asked before the delivery is chosen.
+  it('asks for the country and no address', async () => {
+    const wrapper = await mount()
 
-      const streetNumber = wrapper.find(`input[placeholder="${t('form.street_number_placeholder')}"]`)
-      // UInput's own default, not an address token.
-      expect(streetNumber.attributes('autocomplete')).toBe('off')
-      expect(streetNumber.attributes('inputmode')).toBeUndefined()
-    })
-
-    it('shows the selected country\'s postcode example as the placeholder', async () => {
-      const wrapper = await mount()
-
-      const zipcode = wrapper.find('input[autocomplete="postal-code"]')
-      expect(zipcode.attributes('placeholder')).toBe(t('form.zipcode_placeholder', { example: '151 24' }))
-    })
-
-    it('lists the country field before street, and the region after the city', async () => {
-      const wrapper = await mount({ selectedCountry: GREECE })
-
-      const names = wrapper.findAll('[name]').map(el => el.attributes('name'))
-      const country = names.indexOf('country')
-      expect(country).toBeGreaterThan(-1)
-      expect(country).toBeLessThan(names.indexOf('street'))
-      expect(names.indexOf('city')).toBeLessThan(names.indexOf('region'))
-    })
-
-    it('passes autocomplete="country" / "address-level1" to the native selects', async () => {
-      const wrapper = await mount({
-        selectedCountry: GREECE,
-        regionOptions: [{ label: 'Αττική', value: 'ATTIKI' }],
-      })
-
-      expect(wrapper.find('select[autocomplete="country"]').exists()).toBe(true)
-      expect(wrapper.find('select[autocomplete="address-level1"]').exists()).toBe(true)
-    })
-  })
-
-  describe('region field follows Country.hasRegions', () => {
-    it('renders enabled for a country with regions (GR)', async () => {
-      const wrapper = await mount({
-        selectedCountry: GREECE,
-        regionOptions: [{ label: 'Αττική', value: 'ATTIKI' }],
-      })
-
-      const regionLabel = wrapper.findAll('label').find(l => l.text() === t('form.region'))
-      const regionSelect = wrapper.find(`[role="combobox"]#${regionLabel!.attributes('for')}`)
-      expect(regionSelect.exists()).toBe(true)
-      expect(regionSelect.attributes('disabled')).toBeUndefined()
-    })
-
-    it('is disabled while the regions have not loaded', async () => {
-      const wrapper = await mount({ selectedCountry: GREECE, regionOptions: [] })
-
-      const regionLabel = wrapper.findAll('label').find(l => l.text() === t('form.region'))
-      expect(wrapper.find(`[role="combobox"]#${regionLabel!.attributes('for')}`).attributes()).toHaveProperty('disabled')
-    })
-
-    it('is not rendered at all for a country without regions', async () => {
-      const wrapper = await mount({ selectedCountry: CYPRUS })
-
-      expect(hasField(wrapper, 'region')).toBe(false)
-    })
+    expect(wrapper.find('select[autocomplete="country"]').exists()).toBe(true)
+    for (const name of ['street', 'streetNumber', 'zipcode', 'city', 'region', 'addressTitle', 'billingVatId']) {
+      expect(hasField(wrapper, name), name).toBe(false)
+    }
   })
 
   describe('Django\'s field errors from a rejected order', () => {
     const errors = [
-      { name: 'zipcode', message: 'Εισήγαγε έγκυρο ταχυδρομικό κώδικα, π.χ. 151 24' },
-      { name: 'streetNumber', message: 'Αυτό μοιάζει με ταχυδρομικό κώδικα' },
+      { name: 'email', message: 'Εισήγαγε έγκυρη διεύθυνση email' },
+      { name: 'firstName', message: 'Το όνομα είναι υποχρεωτικό' },
     ]
 
     it('renders them under their inputs when the step mounts with them', async () => {
@@ -281,107 +189,14 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
     })
   })
 
-  describe('receipt or invoice cards (default tree)', () => {
-    /** The radio card whose label starts with `label`; the component's own copy, which the app-level `t` cannot see. */
-    const card = (wrapper: VueWrapper, label: string) => {
-      const group = wrapper.get('[role="radiogroup"]')
-      const index = group.findAll('[data-slot="label"]').findIndex(l => l.text() === label)
-      return group.findAll('[role="radio"]')[index]!
-    }
-    const cards = (wrapper: VueWrapper) => wrapper.findAll('[role="radio"]').map(radio => radio.attributes('aria-checked'))
-
-    it.runIf(tree === 'default')('offers a receipt, which is picked, and an invoice, with what each is for', async () => {
-      const wrapper = await mount()
-
-      expect(wrapper.text()).toContain('Για προσωπικές αγορές')
-      expect(wrapper.text()).toContain('Για επιχειρήσεις')
-      expect(card(wrapper, 'Απόδειξη').attributes('aria-checked')).toBe('true')
-      expect(card(wrapper, 'Τιμολόγιο').attributes('aria-checked')).toBe('false')
-      expect(cards(wrapper)).toHaveLength(2)
-    })
-
-    it.runIf(tree === 'default')('asks for the company details once the shopper picks the invoice', async () => {
-      const formState = makeFormState()
-      const wrapper = await mount({ formState })
-      expect(hasField(wrapper, 'billingVatId')).toBe(false)
-
-      await card(wrapper, 'Τιμολόγιο').trigger('click')
-
-      expect(formState.documentType).toBe('INVOICE')
-      for (const name of ['billingCompanyName', 'billingVatId', 'billingTaxOffice', 'billingActivity']) {
-        expect(hasField(wrapper, name)).toBe(true)
-      }
-    })
-
-    it.runIf(tree === 'default')('asks for a billing address only when it differs from the delivery one', async () => {
-      const formState = makeFormState({ documentType: 'INVOICE', billingSameAsShipping: true })
-      const wrapper = await mount({ formState })
-      expect(hasField(wrapper, 'billingStreet')).toBe(false)
-
-      await checkbox(wrapper, t('form.invoice.billing_same_label')).trigger('click')
-
-      expect(formState.billingSameAsShipping).toBe(false)
-      expect(hasField(wrapper, 'billingStreet')).toBe(true)
-    })
-
-    it.runIf(tree === 'default')('wipes every billing field when the shopper goes back to a receipt', async () => {
-      const formState = makeFormState({ documentType: 'INVOICE', ...BILLING })
-      const wrapper = await mount({ formState })
-
-      await card(wrapper, 'Απόδειξη').trigger('click')
-
-      expect(formState).toMatchObject({
-        documentType: 'RECEIPT',
-        billingVatId: '',
-        billingCountry: '',
-        billingCompanyName: '',
-        billingTaxOffice: '',
-        billingActivity: '',
-        billingSameAsShipping: true,
-        billingStreet: '',
-        billingStreetNumber: '',
-        billingCity: '',
-        billingZipcode: '',
-      })
-    })
-
-    it.runIf(tree === 'webside')('wipes every billing field when the shopper turns the invoice off', async () => {
-      const formState = makeFormState({ documentType: 'INVOICE', ...BILLING })
-      const wrapper = await mount({ formState })
-
-      await checkbox(wrapper, t('form.invoice.toggle_label')).trigger('click')
-
-      expect(formState).toMatchObject({
-        documentType: 'RECEIPT',
-        billingVatId: '',
-        billingCountry: '',
-        billingCompanyName: '',
-        billingTaxOffice: '',
-        billingActivity: '',
-        billingSameAsShipping: true,
-        billingStreet: '',
-        billingStreetNumber: '',
-        billingCity: '',
-        billingZipcode: '',
-      })
-    })
-
-    it.runIf(tree === 'default')('offers no receipt-or-invoice choice when the store turned B2B invoicing off', async () => {
-      const wrapper = await mount({ b2bInvoicingEnabled: false })
-
-      expect(wrapper.text()).not.toContain('Τιμολόγιο')
-      expect(cards(wrapper)).toHaveLength(0)
-    })
-  })
-
   describe('the cards (default tree)', () => {
-    it.runIf(tree === 'default')('puts contact, delivery address and receipt or invoice in their own titled sections, with the notes last', async () => {
+    it.runIf(tree === 'default')('puts contact and recipient in their own titled sections, with the notes last', async () => {
       const wrapper = await mount()
 
-      expect(wrapper.findAll('h2').map(heading => heading.text())).toEqual(['Στοιχεία επικοινωνίας', 'Διεύθυνση παράδοσης', 'Απόδειξη ή τιμολόγιο'])
+      expect(wrapper.findAll('h2').map(heading => heading.text())).toEqual(['Στοιχεία επικοινωνίας', 'Παραλήπτης'])
       const names = wrapper.findAll('[name]').map(el => el.attributes('name'))
       expect(names.indexOf('email')).toBeLessThan(names.indexOf('firstName'))
-      expect(names.indexOf('billingVatId')).toBe(-1)
+      expect(names.indexOf('firstName')).toBeLessThan(names.indexOf('country'))
       expect(names.at(-1)).toBe('customerNotes')
     })
 
@@ -396,79 +211,6 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
 
       expect(hasField(wrapper, 'email')).toBe(false)
       expect(wrapper.text()).not.toContain('Στοιχεία επικοινωνίας')
-    })
-
-    it.runIf(tree === 'default')('keeps the postcode, city and region on one row, and the postcode and city alone for a country without regions', async () => {
-      const withRegions = await mount({ selectedCountry: GREECE, regionOptions: [{ label: 'Αττική', value: 'ATTIKI' }] })
-      const zip = (w: VueWrapper) => w.find('input[autocomplete="postal-code"]').element.closest('[class*="md:grid-cols"]')!.className
-      expect(zip(withRegions)).toContain('md:grid-cols-3')
-
-      const without = await mount({ selectedCountry: CYPRUS })
-      expect(zip(without)).toContain('md:grid-cols-2')
-    })
-
-    it.runIf(tree === 'default')('puts the ACS suggestion between the street and the postcode', async () => {
-      const wrapper = await mount({ formState: makeFormState({ country: 'GR' }) }, { CheckoutAcsAddressSuggestion: true })
-      const order = wrapper.findAll('[name="street"], checkout-acs-address-suggestion-stub, [name="zipcode"]').map(el => el.attributes('name') ?? 'acs')
-
-      expect(order).toEqual(['street', 'acs', 'zipcode'])
-    })
-  })
-
-  describe.runIf(tree === 'webside')('invoice (Τιμολόγιο) instead of a receipt', () => {
-    const invoiceLabel = () => t('form.invoice.toggle_label')
-
-    it('asks for the company details once the shopper ticks the invoice box', async () => {
-      const formState = makeFormState()
-      const wrapper = await mount({ formState })
-      expect(hasField(wrapper, 'billingVatId')).toBe(false)
-
-      await checkbox(wrapper, invoiceLabel()).trigger('click')
-
-      expect(formState.documentType).toBe('INVOICE')
-      for (const name of ['billingCompanyName', 'billingVatId', 'billingTaxOffice', 'billingActivity']) {
-        expect(hasField(wrapper, name)).toBe(true)
-      }
-    })
-
-    it('asks for a billing address only when it differs from the delivery one', async () => {
-      const formState = makeFormState({ documentType: 'INVOICE', billingSameAsShipping: true })
-      const wrapper = await mount({ formState })
-      expect(hasField(wrapper, 'billingStreet')).toBe(false)
-
-      await checkbox(wrapper, t('form.invoice.billing_same_label')).trigger('click')
-
-      expect(formState.billingSameAsShipping).toBe(false)
-      expect(hasField(wrapper, 'billingStreet')).toBe(true)
-    })
-
-    it('wipes every billing field when the shopper goes back to a receipt', async () => {
-      // A VAT id left behind would still reach Django and myDATA would
-      // issue an invoice (type 1.1) to a company the shopper un-picked.
-      const formState = makeFormState({ documentType: 'INVOICE', ...BILLING })
-      const wrapper = await mount({ formState })
-
-      await checkbox(wrapper, invoiceLabel()).trigger('click')
-
-      expect(formState).toMatchObject({
-        documentType: 'RECEIPT',
-        billingVatId: '',
-        billingCountry: '',
-        billingCompanyName: '',
-        billingTaxOffice: '',
-        billingActivity: '',
-        billingSameAsShipping: true,
-        billingStreet: '',
-        billingStreetNumber: '',
-        billingCity: '',
-        billingZipcode: '',
-      })
-    })
-
-    it('offers no invoice at all when the store turned B2B invoicing off', async () => {
-      const wrapper = await mount({ b2bInvoicingEnabled: false })
-
-      expect(wrapper.text()).not.toContain(invoiceLabel())
     })
   })
 
@@ -499,11 +241,11 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
       expect(wrapper.emitted('use-new-address')).toHaveLength(1)
     })
 
-    it('hides the personal and address inputs while a saved address is picked', async () => {
+    it('hides the recipient inputs while a saved address is picked', async () => {
       const wrapper = await mount({ ...saved, mode: 'saved' })
 
       expect(hasField(wrapper, 'firstName')).toBe(false)
-      expect(hasField(wrapper, 'street')).toBe(false)
+      expect(hasField(wrapper, 'country')).toBe(false)
       // Order notes are about the order, not the address.
       expect(hasField(wrapper, 'customerNotes')).toBe(true)
     })
@@ -518,17 +260,18 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
 
   // The demo accounts' saved addresses had no region and no phone
   // (2026-10-16). The saved mode renders neither field, so «Continue»
-  // failed on two errors with nowhere to show and did nothing on screen.
+  // failed on errors with nowhere to show and did nothing on screen. The
+  // region is the delivery step's now; the phone and the name are here.
   describe('a saved address that fails checkout\'s rules', () => {
     // Stands in for `step1Schema`: the step only needs a schema that
     // rejects the two fields.
-    const REGION_MISSING = 'Διάλεξε νομό'
+    const NAME_MISSING = 'Συμπλήρωσε το επώνυμο'
     const PHONE_MISSING = 'Συμπλήρωσε το τηλέφωνο'
     const schema = z.object({
-      region: z.string().min(1, { error: REGION_MISSING }),
+      lastName: z.string().min(1, { error: NAME_MISSING }),
       phone: z.string().min(1, { error: PHONE_MISSING }),
     })
-    const incomplete = { ...makeAddress(1), region: null, phone: '' }
+    const incomplete = { ...makeAddress(1), lastName: '', phone: '' }
 
     /**
      * The step inside the checkout page's half of the contract:
@@ -537,10 +280,8 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
      */
     async function mountOpening(overrides: { mode?: 'saved' | 'new', serverErrors?: unknown[] } = {}) {
       const props = makeProps({
-        formState: makeFormState({ firstName: 'Μαρία', street: 'Πατησίων', country: 'GR' }),
+        formState: makeFormState({ firstName: 'Μαρία', country: 'GR' }),
         schema,
-        selectedCountry: GREECE,
-        regionOptions: [{ label: 'Αττική', value: 'GR-I' }],
         savedAddresses: [incomplete],
         selectedSavedAddressId: 1,
         serverErrors: overrides.serverErrors,
@@ -574,10 +315,10 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
 
       await (step.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
 
-      await vi.waitFor(() => expect(scrolled).toEqual([controlOf(page, t('form.region'))]))
+      await vi.waitFor(() => expect(scrolled).toEqual([controlOf(page, t('form.last_name'))]))
       expect(step.emitted('edit-address')).toHaveLength(1)
       expect(step.emitted('next')).toBeUndefined()
-      expect(page.text()).toContain(REGION_MISSING)
+      expect(page.text()).toContain(NAME_MISSING)
       expect(page.text()).toContain(PHONE_MISSING)
     })
 
@@ -593,57 +334,9 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
     it.runIf(tree === 'default')('marks what is wrong as soon as the checkout opens a picked address', async () => {
       const { page, step } = await mountOpening({ mode: 'new' })
 
-      await vi.waitFor(() => expect(page.text()).toContain(REGION_MISSING))
+      await vi.waitFor(() => expect(page.text()).toContain(NAME_MISSING))
       expect(page.text()).toContain(PHONE_MISSING)
       expect(step.emitted('next')).toBeUndefined()
-    })
-  })
-
-  describe('saving the typed address to the address book', () => {
-    // The component's own <i18n> block, which the app-level `t` cannot see.
-    const saveLabel = () => 'Αποθήκευση της διεύθυνσης στον λογαριασμό μου'
-
-    it('is offered to a signed-in shopper typing a new address, with a name field once ticked', async () => {
-      session.loggedIn.value = true
-      const formState = makeFormState()
-      const wrapper = await mount({ formState })
-
-      await checkbox(wrapper, saveLabel()).trigger('click')
-
-      expect(formState.saveAddress).toBe(true)
-      expect(hasField(wrapper, 'addressTitle')).toBe(true)
-    })
-
-    it('is not offered to a guest, who has no address book', async () => {
-      const wrapper = await mount()
-
-      expect(wrapper.text()).not.toContain(saveLabel())
-    })
-
-    it('is not offered for an address that is already saved', async () => {
-      session.loggedIn.value = true
-      const wrapper = await mount({ savedAddresses: [makeAddress(1)], selectedSavedAddressId: 1, mode: 'saved' })
-
-      expect(wrapper.text()).not.toContain(saveLabel())
-    })
-  })
-
-  describe('the ACS address suggestion', () => {
-    const chipEnabled = async (overrides: Record<string, unknown>) => {
-      const wrapper = await mount(overrides, { [own('CheckoutAcsAddressSuggestion')]: true })
-      return wrapper.findComponent({ name: own('CheckoutAcsAddressSuggestion') }).props('enabled')
-    }
-
-    it('runs for a Greek address', async () => {
-      expect(await chipEnabled({ formState: makeFormState({ country: 'GR' }) })).toBe(true)
-    })
-
-    it('stays off outside Greece, which ACS does not serve', async () => {
-      expect(await chipEnabled({ formState: makeFormState({ country: 'CY' }) })).toBe(false)
-    })
-
-    it('stays off for a store without an ACS contract, whose proxy only answers 503', async () => {
-      expect(await chipEnabled({ formState: makeFormState({ country: 'GR' }), acsEnabled: false })).toBe(false)
     })
   })
 

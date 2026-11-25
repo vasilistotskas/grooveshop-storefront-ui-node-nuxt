@@ -2,10 +2,11 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { DOMWrapper, VueWrapper } from '@vue/test-utils'
 import { nextTick, reactive } from 'vue'
+import * as z from 'zod'
 import StepShipping from '~/components/Checkout/StepShipping.vue'
 import WebsideStepShipping from '~/components/variants/webside/Checkout/StepShipping.vue'
 import type { QuoteShippingOption, ShippingOption } from '~~/shared/openapi/types.gen'
-import { makeBoxNowSelectedLocker } from '~~/test/fixtures/boxnow'
+import { makeBoxNowPickedLocker } from '~~/test/fixtures/boxnow'
 import { makeCart } from '~~/test/fixtures/cart'
 import {
   acsHomeDeliveryOption,
@@ -15,6 +16,7 @@ import {
 } from '~~/test/fixtures/shippingOptions'
 import { setTenant } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { makeQuoteShippingOption } from '~~/test/fixtures/checkoutQuote'
 
 /**
  * The shipping step of checkout: one radio card per delivery method the
@@ -44,9 +46,11 @@ function makeProps(overrides: Record<string, unknown> = {}) {
   return {
     formState: makeFormState(),
     schema: null,
-    partnerId: '10391',
     apiOptions: GREEK_ROWS(),
     quotedOptions: null,
+    regionOptions: [],
+    acsEnabled: false,
+    b2bInvoicingEnabled: false,
     ...overrides,
   }
 }
@@ -69,8 +73,8 @@ function radioValues(wrapper: VueWrapper): string[] {
 }
 
 /** The step's exposed `submit()`, which the sidebar CTA calls. */
-function submitStep(wrapper: VueWrapper): void {
-  ;(wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed.submit()
+async function submitStep(wrapper: VueWrapper): Promise<void> {
+  await (wrapper.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
 }
 
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
@@ -176,30 +180,58 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     it('mounts no locker picker for home delivery', async () => {
       const wrapper = await mount()
 
-      expect(wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') }).exists()).toBe(false)
       expect(wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') }).exists()).toBe(false)
     })
 
-    it('mounts the BoxNow picker when the shopper clicks the BoxNow card', async () => {
-      const formState = makeFormState()
-      const wrapper = await mount({ formState })
+    // #204: BOX NOW's lockers are Django's catalogue, picked in the same
+    // picker as ACS's; its own map widget is gone.
+    it('hands a BOX NOW choice to the generic picker, on the delivery country\'s lockers', async () => {
+      const formState = makeFormState({ country: 'CY' })
+      const wrapper = await mount({ formState, apiOptions: [boxNowLockerOption({ countryCode: 'CY' })] })
 
       await radio(wrapper, 'box_now_locker').trigger('click')
 
       expect(formState.shippingMethod).toBe('box_now_locker')
-      const picker = wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') })
-      expect(picker.exists()).toBe(true)
-      expect(picker.props('partnerId')).toBe('10391')
+      const picker = wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') })
+      expect(picker.props('carrier').code).toBe('boxnow')
+      expect(picker.props('countryCode')).toBe('CY')
     })
 
-    it('opens the BoxNow widget on the delivery country\'s map (CY)', async () => {
-      const wrapper = await mount({
-        formState: makeFormState({ shippingMethod: 'box_now_locker', country: 'CY' }),
-        apiOptions: [boxNowLockerOption({ countryCode: 'CY', price: 4.5 })],
+    // #204: BOX NOW's lockers are listed for the compartment size the
+    // quote says the cart packs into; until it has said, none.
+    it('hands the BOX NOW picker the compartment size the quote names for its pickup', async () => {
+      const boxNow = boxNowLockerOption()
+      const quotedRow = (compartmentSize: number | null): QuoteShippingOption => makeQuoteShippingOption({
+        providerCode: boxNow.providerCode,
+        providerName: boxNow.providerName,
+        kind: boxNow.kind,
+        price: 3.5,
+        compartmentSize,
       })
+      const wrapper = await mount({
+        formState: makeFormState({ shippingMethod: 'box_now_locker' }),
+        apiOptions: [boxNow],
+        quotedOptions: [quotedRow(2)],
+      })
+      const picker = () => wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') })
 
-      const widget = wrapper.findComponent({ name: 'CheckoutBoxNowLockerPicker' })
-      expect(widget.props('countryCode')).toBe('CY')
+      const size = () => ({ size: picker().props('compartmentSize'), waits: picker().props('awaitingSize') })
+      expect(size()).toEqual({ size: 2, waits: false })
+
+      // No answer yet: the picker waits for one.
+      await wrapper.setProps({ quotedOptions: null })
+      expect(size()).toEqual({ size: null, waits: true })
+
+      // A new quote on its way: the last one may name the old cart's size.
+      await wrapper.setProps({ quotedOptions: [quotedRow(2)], quotePending: true })
+      expect(size()).toEqual({ size: null, waits: true })
+      await wrapper.setProps({ quotedOptions: [quotedRow(3)], quotePending: false })
+      expect(size()).toEqual({ size: 3, waits: false })
+
+      // A store on BOX NOW's stage network: the row names no size, and
+      // the picker lists every locker instead of waiting.
+      await wrapper.setProps({ quotedOptions: [quotedRow(null)] })
+      expect(size()).toEqual({ size: null, waits: false })
     })
 
     it('hands an ACS Smartpoint choice to the generic picker, with the address typed so far', async () => {
@@ -218,7 +250,6 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
         countryCode: 'GR',
       })
       expect(picker.props('carrier').code).toBe('acs')
-      expect(wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') }).exists()).toBe(false)
     })
   })
 
@@ -230,7 +261,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     const withBothLockers = (shippingMethod: string) => makeFormState({
       shippingMethod,
       boxnowLockerId: '4',
-      boxnowLocker: makeBoxNowSelectedLocker(),
+      boxnowLocker: makeBoxNowPickedLocker(),
       acsStationExternalId: 'ACS-1',
       acsStationBranch: '12',
       acsStation: { id: 'ACS-1' },
@@ -268,7 +299,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     it('advances with home delivery', async () => {
       const wrapper = await mount()
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toHaveLength(1)
     })
@@ -282,12 +313,12 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
           shippingMethod: 'box_now_locker',
           country,
           boxnowLockerId: '4',
-          boxnowLocker: makeBoxNowSelectedLocker({ boxnowLockerCountryCode: country }),
+          boxnowLocker: makeBoxNowPickedLocker({ countryCode: country }),
         }),
         apiOptions,
       })
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toHaveLength(1)
     })
@@ -296,10 +327,10 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       // A disabled Continue with no hint lost a real customer (order 53,
       // 2026-05-12) to a competitor; the picker now opens on the click.
       const wrapper = await mount({ formState: makeFormState({ shippingMethod: 'box_now_locker' }) })
-      const picker = wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') })
+      const picker = wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') })
       expect(picker.props('open')).toBe(false)
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
       await nextTick()
 
       expect(wrapper.emitted('next')).toBeUndefined()
@@ -312,9 +343,84 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
         apiOptions: [acsHomeDeliveryOption()],
       })
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toBeUndefined()
+    })
+  })
+
+  // #767: a pickup order is delivered to the point, so the address is
+  // a home delivery's alone, asked here rather than on the details step.
+  describe('the address', () => {
+    it('asks a home delivery for its address', async () => {
+      const wrapper = await mount()
+
+      for (const name of ['street', 'streetNumber', 'zipcode', 'city']) {
+        expect(wrapper.find(`input[name="${name}"]`).exists(), name).toBe(true)
+      }
+    })
+
+    it.each(['box_now_locker', 'acs_smartpoint'])('asks a %s order for no address', async (shippingMethod) => {
+      const wrapper = await mount({
+        formState: makeFormState({ shippingMethod }),
+        apiOptions: [...GREEK_ROWS(), acsSmartpointOption()],
+      })
+
+      for (const name of ['street', 'streetNumber', 'zipcode', 'city']) {
+        expect(wrapper.find(`input[name="${name}"]`).exists(), name).toBe(false)
+      }
+    })
+
+    // The step's form holds the address: «Continue» checks it.
+    it('does not advance a home delivery its schema refuses', async () => {
+      const wrapper = await mount({
+        schema: z.object({ street: z.string().min(1, { error: 'Required street' }) }),
+        formState: makeFormState({ street: '' }),
+      })
+
+      await submitStep(wrapper)
+      await nextTick()
+
+      expect(wrapper.emitted('next')).toBeUndefined()
+      expect(wrapper.text()).toContain('Required street')
+    })
+
+    it('shows Django\'s field errors under their inputs', async () => {
+      const wrapper = await mount({ serverErrors: [{ name: 'zipcode', message: 'Enter a valid postcode.' }] })
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Enter a valid postcode.')
+    })
+  })
+
+  describe('the invoice', () => {
+    const invoiceForm = (shippingMethod: string) => makeFormState({
+      shippingMethod,
+      documentType: 'INVOICE',
+      billingSameAsShipping: true,
+      boxnowLockerId: '4',
+      boxnowLocker: makeBoxNowPickedLocker(),
+    })
+
+    it('offers "same as delivery" to a home delivery', async () => {
+      const wrapper = await mount({ b2bInvoicingEnabled: true, formState: invoiceForm('home_delivery') })
+
+      expect(wrapper.text()).toContain(t('form.invoice.billing_same_label'))
+      expect(wrapper.find('input[name="billingStreet"]').exists()).toBe(false)
+    })
+
+    // A pickup point is no company's address: Django refuses one.
+    it('asks a pickup invoice for the company\'s address', async () => {
+      const wrapper = await mount({ b2bInvoicingEnabled: true, formState: invoiceForm('box_now_locker') })
+
+      expect(wrapper.text()).not.toContain(t('form.invoice.billing_same_label'))
+      expect(wrapper.find('input[name="billingStreet"]').exists()).toBe(true)
+    })
+
+    it('is not offered by a store that issues none', async () => {
+      const wrapper = await mount({ formState: invoiceForm('home_delivery') })
+
+      expect(wrapper.find('input[name="billingCompanyName"]').exists()).toBe(false)
     })
   })
 
@@ -344,7 +450,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     const price = (wrapper: VueWrapper, value: string) => card(wrapper, value).text().replace(/\u00A0/g, ' ')
 
     /** The quote's row for a carrier's delivery, at `price`. */
-    const quoted = (option: ShippingOption, rowPrice: number, waivedBy: QuoteShippingOption['waivedBy'] = null): QuoteShippingOption => ({
+    const quoted = (option: ShippingOption, rowPrice: number, waivedBy: QuoteShippingOption['waivedBy'] = null): QuoteShippingOption => makeQuoteShippingOption({
       providerCode: option.providerCode,
       providerName: option.providerName,
       kind: option.kind,
@@ -523,7 +629,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
           ],
         })
 
-        submitStep(wrapper)
+        await submitStep(wrapper)
 
         expect(wrapper.emitted('next')).toBeUndefined()
       })
@@ -550,7 +656,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
       it('does not advance', async () => {
         const wrapper = await mount({ apiOptions: allCapped(), overWeight })
 
-        submitStep(wrapper)
+        await submitStep(wrapper)
 
         expect(wrapper.emitted('next')).toBeUndefined()
       })
@@ -596,7 +702,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
         formState: makeFormState({ shippingMethod: 'box_now_locker', boxnowLockerId: '4' }),
       })
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toBeUndefined()
     })
@@ -616,48 +722,20 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
 
       expect(radio(wrapper, 'home_delivery').attributes()).toHaveProperty('data-disabled')
       expect(card(wrapper, 'home_delivery').text()).toContain(t('shipping.method.exceeds_parcel_size'))
-      submitStep(wrapper)
+      await submitStep(wrapper)
       expect(wrapper.emitted('next')).toBeUndefined()
     })
   })
 
-  describe('BoxNow where it cannot run', () => {
-    it('disables BoxNow for a delivery country it has no map for, and says why', async () => {
-      const wrapper = await mount({
-        formState: makeFormState({ country: 'BG' }),
-        apiOptions: [boxNowLockerOption({ countryCode: 'BG' }), acsHomeDeliveryOption()],
-      })
-
-      expect(radio(wrapper, 'box_now_locker').attributes()).toHaveProperty('data-disabled')
-      expect(card(wrapper, 'box_now_locker').text()).toContain(t('shipping.method.boxnow.country_unsupported'))
+  // Django decides where BOX NOW is offered; the storefront has no
+  // setting or country list of its own that could hide it.
+  it('offers BOX NOW wherever Django serves it', async () => {
+    const wrapper = await mount({
+      formState: makeFormState({ country: 'BG' }),
+      apiOptions: [boxNowLockerOption({ countryCode: 'BG' }), acsHomeDeliveryOption()],
     })
 
-    it('keeps BoxNow enabled in Cyprus, a country it serves', async () => {
-      const wrapper = await mount({
-        formState: makeFormState({ country: 'CY' }),
-        apiOptions: [boxNowLockerOption({ countryCode: 'CY' })],
-      })
-
-      expect(radio(wrapper, 'box_now_locker').attributes()).not.toHaveProperty('data-disabled')
-      expect(wrapper.text()).not.toContain(t('shipping.method.boxnow.country_unsupported'))
-    })
-
-    it('disables BoxNow and explains it when the store has no BoxNow partner id', async () => {
-      // The widget cannot load without one — the picker would throw
-      // "partnerId is required" into the checkout's generic error toast.
-      const wrapper = await mount({ partnerId: '' })
-
-      expect(radio(wrapper, 'box_now_locker').attributes()).toHaveProperty('data-disabled')
-      expect(wrapper.text()).toContain(t('shipping.method.boxnow.unconfigured_title'))
-      // Not the country reason: the country is fine, the setup is not.
-      expect(wrapper.text()).not.toContain(t('shipping.method.boxnow.country_unsupported'))
-    })
-
-    it('says nothing about a missing partner id when the store does not serve BoxNow', async () => {
-      const wrapper = await mount({ partnerId: '', apiOptions: [acsHomeDeliveryOption()] })
-
-      expect(wrapper.text()).not.toContain(t('shipping.method.boxnow.unconfigured_title'))
-    })
+    expect(radio(wrapper, 'box_now_locker').attributes()).not.toHaveProperty('data-disabled')
   })
 
   describe('when the live options failed to load', () => {
@@ -701,7 +779,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     it('does not advance from the sidebar CTA', async () => {
       const wrapper = await failed()
 
-      submitStep(wrapper)
+      await submitStep(wrapper)
 
       expect(wrapper.emitted('next')).toBeUndefined()
     })

@@ -53,7 +53,7 @@ describe('GET /rss.xml', () => {
     expect(xml).not.toContain('/products/2/')
   })
 
-  // Django's store purge after an edit names these tags (core/cache/edge.py),
+  // Django's store purge after an edit names these tags (src/core/cache/edge.py),
   // so the edge never keeps a feed the purge cannot reach.
   it('is kept at the edge under the store\'s purge tags, and revalidated by browsers', async () => {
     djangoServesTheCatalogue()
@@ -109,6 +109,16 @@ describe('GET /rss.xml', () => {
     expect(xml).toContain('type="image/webp"')
     expect(xml).not.toContain('type="image/png"')
     expect(xml).not.toContain('assets.platform.test')
+  })
+
+  it('states no size for an item\'s image, which the media service may serve smaller than asked', async () => {
+    djangoServesTheCatalogue()
+
+    const xml: string = (await feed()).body
+
+    const media = xml.match(/<media:content [^>]*>/g) ?? []
+    expect(media.length).toBeGreaterThan(0)
+    expect(media.filter(tag => / (width|height)=/.test(tag))).toEqual([])
   })
 
   // A product with no category is a card Django serves as `category: null`.

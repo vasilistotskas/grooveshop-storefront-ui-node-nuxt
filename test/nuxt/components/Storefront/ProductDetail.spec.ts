@@ -7,6 +7,7 @@ import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
 import PriorPrice from '~/components/Product/PriorPrice.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
+import { makeRegion, makeShippingPolicyRow } from '~~/test/fixtures/shippingPolicy'
 import { makePublicValues } from '~~/test/fixtures/publicValues'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
@@ -985,27 +986,27 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail b
 })
 
 // The purchase assurances under the buy button (`useProductAssurances`), in
-// both designs. They state the free-shipping threshold, so the notice that
-// states the same one stands aside; with the box off, the notice stays. The
+// both designs. They state what shipping this product costs, so the notice
+// that states the store's threshold stands aside; with the box off, the
+// notice stays. The
 // default page draws the notice on the client only (it is per visitor), so
 // that half is asserted on webside's, which draws it in the render.
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail purchase assurances', ({ tree, C, own }) => {
   const NOTICE = own('ShippingFreeShippingNotice')
 
-  function serve() {
+  function serve(policy = [makeShippingPolicyRow({ providerName: 'ACS', price: 3, freeShippingThreshold: 40, deliveryDaysMin: 1, deliveryDaysMax: 3 })]) {
     clearNuxtData()
     clearProductData()
-    clearNuxtData(['shipping-policy', 'shipping:free-shipping-info', 'footer-pay-ways', 'store-settings'])
+    clearNuxtData(['shipping-policy', 'shipping:free-shipping-info', 'shipping:product:123', 'footer-pay-ways', 'store-settings'])
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
       '/api/products/123': makeProduct({ id: 123 }),
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
-      '/api/shipping/policy': [
-        { countryCode: 'GR', kind: 'home', providerCode: 'acs', providerName: 'ACS', price: 3, currency: 'EUR', freeShippingThreshold: 40, deliveryDaysMin: 1, deliveryDaysMax: 3, maxWeightGrams: null },
-      ],
+      '/api/shipping/policy': policy,
       '/api/shipping/free-shipping-info': { providers: [], minThreshold: 40, maxThreshold: 40, currency: 'EUR', countryCode: 'GR' },
+      '/api/shipping/product/123': { estimate: { countryCode: 'GR', price: 1.99, currency: 'EUR', free: false, freeShippingThreshold: 39.9 } },
       '/api/pay-way': { ...empty, results: [{ settlement: 'online' }, { settlement: 'courier_cash' }] },
       '/api/settings/public': { settings: {}, values: makePublicValues({ returnWindowDays: 14 }) },
       '/api/*': empty,
@@ -1024,12 +1025,26 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail p
 
     const box = wrapper.get('ul[aria-label]')
     expect(box.text()).toContain('Παράδοση σε 1–3 εργάσιμες ημέρες')
+    expect(box.text()).toContain('Μεταφορικά από 1,99\u00A0€ · δωρεάν άνω των 39,90\u00A0€')
     expect(box.text()).toContain('Κάρτα ή αντικαταβολή')
     expect(box.text()).toContain('Επιστροφή εντός 14 ημερών')
     wrapper.unmount()
   })
 
-  it.runIf(tree === 'webside')('stands in for the free-shipping notice, which would state the same threshold', async () => {
+  // A store that delivers home only to some regions of the country: the
+  // promise says where it holds, in the region's name.
+  it('names the regions a delivery promise holds in', async () => {
+    const attica = makeRegion()
+    serve([makeShippingPolicyRow({ deliveryDaysMin: 1, deliveryDaysMax: 2, regionCodes: [attica.alpha], regions: [attica] })])
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.get('ul[aria-label]').text()).toContain(useNuxtApp().$i18n.t('product_assurances.delivery_range_in', { min: 1, max: 2, regions: 'Αττική' }))
+    wrapper.unmount()
+  })
+
+  it.runIf(tree === 'webside')('stands in for the free-shipping notice, which would state the store\'s threshold beside it', async () => {
     serve()
 
     const wrapper = await mountSuspended(C, { route: false })

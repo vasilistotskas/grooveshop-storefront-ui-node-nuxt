@@ -1,6 +1,6 @@
 /**
  * ACS Courier carrier adapter — mirror of the Python
- * ``shipping_acs/carrier.py::AcsCarrier``.
+ * ``src/shipping_acs/carrier.py::AcsCarrier``.
  *
  * Registered by ``shared/shipping/registry.ts`` via static import
  * (Nitro's rollup bundler can't run Vite's ``import.meta.glob``).
@@ -13,7 +13,7 @@
  * keys on the checkout form. Renaming any of those is a breaking
  * change against persisted drafts and the order-create payload.
  */
-import type { GeocodedPlace, Locker, ShippingCarrier } from '../interfaces'
+import type { GeocodedPlace, Locker, LockerQuery, ShippingCarrier } from '../interfaces'
 
 function _toNumber(value: string | null | undefined): number | null {
   if (value === null || value === undefined || value === '') return null
@@ -24,7 +24,7 @@ function _toNumber(value: string | null | undefined): number | null {
 /**
  * An ACS locker's identity. Django keys a station on the PAIR
  * (``UniqueConstraint(external_id, branch_code)``,
- * ``shipping_acs/models/station.py``): every Smartpoint in an area
+ * ``src/shipping_acs/models/station.py``): every Smartpoint in an area
  * shares its ``external_id`` (``ATH``). JSON keeps the pair unambiguous
  * whatever characters either half holds.
  */
@@ -60,10 +60,11 @@ function _normalize(row: AcsStation): Locker | null {
 const acsCarrier: ShippingCarrier = {
   code: 'acs',
   label: 'ACS Courier',
-  usesGenericPicker: true,
   formFieldName: 'acsStationExternalId',
+  // A Smartpoint takes any parcel the rate lets through.
+  sizesLockers: false,
 
-  async fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]> {
+  async fetchAll({ country }: LockerQuery, signal?: AbortSignal): Promise<Locker[]> {
     const rows = await $fetch<AcsStation[]>(
       `/api/shipping/lockers/${this.code}`,
       {

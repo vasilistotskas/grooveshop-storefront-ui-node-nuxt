@@ -3,8 +3,11 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import AddressCard from '~/components/Address/Card.vue'
 import WebsideAddressCard from '~/components/variants/webside/Address/Card.vue'
+import cardSource from '~/components/Address/Card.vue?raw'
+import websideCardSource from '~/components/variants/webside/Address/Card.vue?raw'
 import { makeUserAddress } from '~~/test/fixtures/user'
 import { failWith } from '~~/test/helpers/api'
+import { componentTexts } from '~~/test/helpers/componentTexts'
 import { trees } from '~~/test/helpers/trees'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -22,8 +25,8 @@ mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
  * does not refuse it, so `useAddressRemoval` does).
  */
 const OWN = {
-  default: { deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή της διεύθυνσης «Σπίτι»', changedEvent: 'changed' },
-  webside: { deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή', changedEvent: 'address-delete' },
+  default: { texts: componentTexts(cardSource, 'Card.vue'), deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή της διεύθυνσης «Σπίτι»', changedEvent: 'changed' },
+  webside: { texts: componentTexts(websideCardSource, 'Card.vue'), deleted: 'Η διεύθυνση διαγράφηκε', deleteName: 'Διαγραφή', changedEvent: 'address-delete' },
 }
 
 describe.each(trees(AddressCard, WebsideAddressCard))('$tree Address/Card', ({ tree, C }) => {
@@ -32,6 +35,17 @@ describe.each(trees(AddressCard, WebsideAddressCard))('$tree Address/Card', ({ t
     mountSuspended(C, { props: { address }, route: false })
   const button = (wrapper: Awaited<ReturnType<typeof mountCard>>, name: string) =>
     wrapper.findAll('button, a').find(control => control.text() === name || control.attributes('aria-label') === name)
+
+  // django-api #222: kept from before the store stopped delivering there.
+  it('says the store no longer delivers to an address it does not serve', async () => {
+    const served = await mountCard()
+    const unserved = await mountCard(makeUserAddress({ shippable: false }))
+
+    const notServed = own.texts.t('not_served')
+
+    expect(served.text()).not.toContain(notServed)
+    expect(unserved.text()).toContain(notServed)
+  })
 
   it('deletes it, says so, then reports the change', async () => {
     api.routes({ '/api/user/addresses/5': {} })
@@ -68,6 +82,13 @@ describe.each(trees(AddressCard, WebsideAddressCard))('$tree Address/Card', ({ t
       color: 'error',
     })
     expect(wrapper.emitted(own.changedEvent)).toBeUndefined()
+  })
+
+  // django-api #769: the saved address's line 2, right after its street.
+  it('shows the address line 2 after the street', async () => {
+    const wrapper = await mountCard(makeUserAddress({ addressLine2: '3ος όροφος, διαμ. 5' }))
+
+    expect(wrapper.text()).toMatch(/Ερμού 12[\s\S]*3ος όροφος, διαμ\. 5[\s\S]*10563/)
   })
 
   describe.runIf(tree === 'default')('the default card', () => {

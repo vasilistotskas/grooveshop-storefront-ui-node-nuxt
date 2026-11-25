@@ -32,10 +32,9 @@ export interface ProductAlertToast {
  * `messages` are the drawing's own toasts and failure headlines;
  * `onCreated` runs once Django has answered (the drawing closes its
  * dialog). A 409 means the alert exists already: it is read so the
- * drawing shows it.
- * Call it where `await` is allowed: the lookup is read before it returns.
+ * drawing shows it. The active alert is `useProductActiveAlert`'s.
  */
-export async function useProductAlert(options: {
+export function useProductAlert(options: {
   productId: () => number
   kind: () => ProductAlertKindEnum
   currentPrice: () => number | null | undefined
@@ -86,26 +85,7 @@ export async function useProductAlert(options: {
     targetPrice: undefined,
   })
 
-  const { data: activeAlerts, refresh: refreshAlerts } = await useAsyncData<ProductAlert[]>(
-    `product-alerts:${options.productId()}`,
-    async () => {
-      if (!loggedIn.value) return []
-      try {
-        const response = await $api('/api/products/alerts', {
-          method: 'GET',
-          query: { product: options.productId(), isActive: true, pageSize: 2 },
-        })
-        return response?.results ?? []
-      }
-      catch (error) {
-        log.warn({ tag: 'product:notify-me', message: 'lookup failed', error })
-        return []
-      }
-    },
-    { watch: [loggedIn], default: () => [] },
-  )
-
-  const activeAlert = computed(() => activeAlerts.value.find(alert => alert.kind === options.kind()))
+  const { activeAlert, reread } = useProductActiveAlert({ productId: options.productId, kind: options.kind })
 
   async function onSubmit() {
     if (submitting.value) return
@@ -123,7 +103,7 @@ export async function useProductAlert(options: {
       if ('id' in response) {
         toast.add({ ...options.messages().created, color: 'success' })
         options.onCreated()
-        await refreshAlerts()
+        await reread()
       }
       else {
         toast.add({ ...options.messages().pending, color: 'info' })
@@ -136,7 +116,7 @@ export async function useProductAlert(options: {
       // Django says the alert exists — read it so the drawing shows it.
       if (status === 409) {
         toast.add({ ...options.messages().conflict, color: 'warning' })
-        await refreshAlerts()
+        await reread()
       }
       else {
         notify('notify-me:create', error, options.messages().createError)
@@ -154,7 +134,7 @@ export async function useProductAlert(options: {
     try {
       await $api(`/api/products/alerts/${alert.id}`, { method: 'DELETE' })
       toast.add({ ...options.messages().cancelled, color: 'success' })
-      await refreshAlerts()
+      await reread()
     }
     catch (error) {
       log.warn({ tag: 'product:notify-me', message: 'cancel failed', kind: options.kind(), error })
@@ -166,4 +146,96 @@ export async function useProductAlert(options: {
   }
 
   return { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit, cancelAlert }
+}
+
+/**
+ * The signed-in shopper's active alert of `kind` on a product: what the
+ * "notify me" trigger shows (set or not) and what the dialog replaces its
+ * form with.
+ *
+ * Every reader on the page derives it from ONE list, the shopper's active
+ * alerts of every kind and product, read once per page (keyed by the
+ * route's path): a listing with a dozen sold-out cards sends one request,
+ * not one per card, a reader that mounts later (a dialog opened, a card
+ * hydrated on scroll) takes the list already read (`payloadCachedData`),
+ * and a change made in a dialog shows on every trigger. Every kind in one
+ * list, so the product page's price-drop alert costs no second request.
+ * Guests are not looked up: they cannot be identified before they give an
+ * email.
+ *
+ * Read in the browser, after mount (`server: false`, `lazy`): product pages
+ * and listings are served from a cache that knows no shopper
+ * (`shared/constants/prerender.ts`), so a server read would only ever store a
+ * guest's empty list in the payload. And no reader draws an alert before it
+ * has mounted: a card hydrated lazily, after another reader filled the list,
+ * would otherwise draw the shopper's alert over the guest HTML it was sent.
+ * A sign-in, a sign-out or another shopper reads again, and a read that
+ * was on its way for the shopper before is read again for the new one.
+ *
+ * `reread` follows a change the shopper made (an alert created, found to
+ * exist, or turned off): it cancels a read already on its way, which started
+ * before the change and would answer with the list as it was.
+ */
+export function useProductActiveAlert(options: {
+  productId: () => number
+  kind: () => ProductAlertKindEnum
+}) {
+  const { loggedIn, user } = useUserSession()
+  const route = useRoute()
+  const mounted = useMounted()
+  // The shopper the list is read for, from the session itself: the read
+  // outlives the reader whose call registered it.
+  const shopperNow = () => (loggedIn.value ? user.value?.id ?? null : null)
+  const shopper = computed(shopperNow)
+
+  async function readFor(reading: number | null): Promise<ProductAlert[]> {
+    if (reading === null) return []
+    try {
+      const alerts: ProductAlert[] = []
+      let page = 1
+      let more = false
+      do {
+        const response = await $api('/api/products/alerts', {
+          method: 'GET',
+          query: { isActive: true, page, pageSize: DATA_MAX_PAGE_SIZE },
+        })
+        alerts.push(...response.results)
+        more = Boolean(response.links?.next)
+        page += 1
+      } while (more)
+      return alerts
+    }
+    catch (error) {
+      log.warn({ tag: 'product:notify-me', message: 'lookup failed', error })
+      return []
+    }
+  }
+
+  // A change of shopper while a read is on its way joins that read (one
+  // request for every reader); the read then sees the shopper changed and
+  // reads again for the one signed in now, so no shopper is shown the
+  // alerts of the one before.
+  const { data: activeAlerts, refresh } = useAsyncData<ProductAlert[]>(
+    `product-alerts:active:${route.path}`,
+    async () => {
+      let reading = shopperNow()
+      let alerts = await readFor(reading)
+      while (shopperNow() !== reading) {
+        reading = shopperNow()
+        alerts = await readFor(reading)
+      }
+      return alerts
+    },
+    { watch: [shopper], default: () => [], server: false, lazy: true, dedupe: 'defer', getCachedData: payloadCachedData },
+  )
+
+  const activeAlert = computed(() => (mounted.value
+    ? activeAlerts.value.find(alert => alert.product === options.productId() && alert.kind === options.kind())
+    : undefined))
+
+  async function reread() {
+    await refresh({ dedupe: 'cancel' })
+  }
+
+  return { activeAlert, reread }
 }

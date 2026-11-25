@@ -33,7 +33,7 @@ export const PAYMENT_LINK_CLOSED_CODES: readonly string[] = ['order_not_payable'
  * The page of an order that opens for its reader: the account's order page
  * for the order's owner, signed in (`readerId` is the signed-in shopper's
  * id), the order confirmation (opened by the uuid) for anyone else. The same
- * split as Django's `order_page_path` (`order/storefront_links.py`), which
+ * split as Django's `order_page_path` (`src/order/storefront_links.py`), which
  * the order emails link to.
  */
 export function orderPageLocation(order: Pick<OrderDetail, 'id' | 'uuid' | 'user'>, readerId: number | undefined) {
@@ -154,4 +154,13 @@ export function forgetAwaitingPaymentOrder(uuid: string): void {
   if (keptOrder()?.uuid === uuid) {
     dropKeptOrder()
   }
+}
+
+/**
+ * Whether the order is already paid when it is placed: the deductions (gift
+ * cards, a promotion, points) covered the whole total, so Django settled it
+ * at creation and there is nothing to pay on the provider's page.
+ */
+export function isOrderPaid(order: Pick<OrderDetail, 'paymentStatus'>): boolean {
+  return order.paymentStatus === zPaymentStatusEnum.enum.COMPLETED
 }

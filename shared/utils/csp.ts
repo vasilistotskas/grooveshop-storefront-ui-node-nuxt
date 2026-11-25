@@ -12,7 +12,6 @@
  */
 
 import { EMBED_FRAME_ORIGINS } from './embeds'
-import { BOXNOW_FRAME_ORIGINS } from './boxnow-widget'
 
 /**
  * SHA-256 of the one inline event handler @nuxt/image's ``NuxtImg`` and
@@ -312,7 +311,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
   const gsiConnectSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
   const gsiFrameSrc = googleGsiEnabled ? ' https://accounts.google.com/gsi/' : ''
 
-  // Stripe.js. ``StripePayment.vue`` calls ``confirmCardPayment``, which
+  // Stripe.js. The gift-card purchase's card form calls ``confirmCardPayment``, which
   // performs 3-D Secure in an iframe served from ``hooks.stripe.com`` —
   // absent from frame-src, so every SCA challenge was blocked. Under EU
   // SCA that is most card payments, not an edge case. ``*.js.stripe.com``
@@ -338,14 +337,6 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // each browser's script-src fallback under 'strict-dynamic'.
     `worker-src 'self'`,
     `connect-src 'self'${dev ? DEVTOOLS_CONNECT_SRC : ''} ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc}${mapsOrigin} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${clarityOrigins}${tenantExtra}`,
-    // BoxNow widget iframe origins — one per verified live market
-    // (GR, CY) plus the CDN's known redirect hops. CSP validates every
-    // hop of a frame's redirect chain against frame-src, so the
-    // redirect origins must be listed even though
-    // ``buildBoxNowIframeUrl`` never targets them directly. Single
-    // source of truth: ``shared/utils/boxnow-widget.ts`` — its own
-    // ``BOXNOW_ALLOWED_ORIGINS`` (postMessage trust) derives from the
-    // same ``BOXNOW_FRAME_ORIGINS`` list, so the two can't drift.
     // ``data:`` is added in dev so Nuxt's nitro error overlay (which
     // base64-encodes a stack-trace iframe) can render — production
     // never ships that overlay so the scheme stays out of prod CSP.
@@ -355,7 +346,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // one layer but not the other fails silently — blank box plus a
     // console line, or stripped from the DOM before CSP is consulted.
     // Both halves were broken at once; see ``shared/utils/embeds.ts``.
-    `frame-src 'self'${dev ? ' data:' : ''}${stripeFrameSrc} https://challenges.cloudflare.com${gsiFrameSrc} ${BOXNOW_FRAME_ORIGINS.join(' ')}${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
+    `frame-src 'self'${dev ? ' data:' : ''}${stripeFrameSrc} https://challenges.cloudflare.com${gsiFrameSrc}${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'${metaFormAction}`,

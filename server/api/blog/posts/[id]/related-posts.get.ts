@@ -18,7 +18,7 @@ export default defineCachedRoute(async (event) => {
 }, {
   name: 'BlogPostRelatedPosts',
   // Django's `blog` surface purges this handler on a post, category, author or tag
-  // write (`core/cache/surfaces.py`), so the TTL only bounds a missed purge.
+  // write (`src/blog/cache_surfaces.py`), so the TTL only bounds a missed purge.
   maxAge: 60 * 60 * 6,
   staleMaxAge: 60 * 60 * 24,
   swr: true,

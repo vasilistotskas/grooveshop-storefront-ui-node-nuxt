@@ -6,7 +6,7 @@ import { cacheOptionsOf } from '~~/test/helpers/nitro'
 
 /**
  * The caches a page's links are resolved from are a contract with Django's
- * purge (`core/cache/surfaces.py` names them), and a store's purge finds them
+ * purge (the owning apps' `cache_surfaces.py` name them), and a store's purge finds them
  * by the store being its own segment of the key.
  */
 describe.each([

@@ -5,6 +5,7 @@ import CategoriesList from '~/components/Blog/Categories/List.vue'
 import WebsideCategoriesList from '~/components/variants/webside/Blog/Categories/List.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The blog's category grid: a card per category — its picture, its
@@ -141,5 +142,31 @@ describe.each(trees(CategoriesList, WebsideCategoriesList))('$tree Blog/Categori
     // A list holds list items only (axe `list`).
     const items = Array.from(wrapper.find('ol').element.children)
     expect(items.map(item => item.tagName)).toEqual(['LI', 'LI', 'LI'])
+  })
+})
+
+/**
+ * A category's visual: its icon (`BlogCategory.icon`) when it has one,
+ * its picture otherwise, in each design's own colours.
+ */
+describe.each(trees(CategoriesList, WebsideCategoriesList))('$tree Blog/Categories/List visual', ({ C }) => {
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('draws a category\'s icon instead of its picture, and the picture of one without', async () => {
+    given([
+      makeBlogCategory({ id: 1, slug: 'ai', icon: 'i-fa6-solid-robot', mainImagePath: 'media/test/uploads/blog/robot-solid.svg', translations: { el: { name: 'AI', description: '' } } }),
+      makeBlogCategory({ id: 2, slug: 'web', mainImagePath: 'media/test/uploads/blog/web.png', translations: { el: { name: 'Web', description: '' } } }),
+    ])
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    const [withIcon, withPicture] = wrapper.findAll('ol > li')
+    expect(withIcon!.find('img').exists()).toBe(false)
+    expect(withIcon!.get('.iconify').classes()).toContain('i-fa6-solid:robot')
+    expect(withPicture!.find('.iconify').exists()).toBe(false)
+    expect(withPicture!.get('img').attributes('src')).toContain('web.png')
   })
 })

@@ -42,7 +42,7 @@ export default defineCachedRoute(async (event) => {
     const locale = (event.context.locale as string | undefined) || DEFAULT_LOCALE
     const filtered = Object.entries(query)
       .filter(([, v]) => v !== undefined && v !== null && v !== '')
-      .map(([k, v]) => `${k}=${Array.isArray(v) ? v.slice().sort().join(',') : v}`)
+      .map(([k, v]) => `${k}=${Array.isArray(v) ? v.toSorted().join(',') : v}`)
       .sort()
       .join('&')
     return tenantCacheKey(

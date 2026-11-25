@@ -19,8 +19,6 @@
   "order_summary": "Order Summary",
   "order_number": "Order number",
   "total_amount": "Total amount",
-  "payment_successful": "Payment completed successfully",
-  "order_completed_successfully": "Your order was completed successfully",
   "payment_failed": "Payment failed",
   "redirecting": "Redirecting to the payment page",
   "stock_reserved": "Stock reserved",
@@ -29,8 +27,6 @@
   "stock_released_description": "The items are now available to other customers",
   "retrying": "Retrying",
   "creating_new_reservation": "Creating a new reservation...",
-  "payment_intent_created": "Payment prepared",
-  "payment_intent_created_description": "Your payment is ready to be processed",
   "payment_intent_error": "Payment error",
   "payment_intent_error_description": "The payment could not be created. Please try again.",
   "saved_address_invalid_title": "Check the address",
@@ -43,7 +39,8 @@
   "payment_error_description": "An error occurred while processing your payment. Please try again or contact us.",
   "retry": "Try Again",
   "steps": {
-    "info_and_address": "Details & Address",
+    "details": "Details",
+    "delivery": "Delivery",
     "payment": "Payment"
   },
   "shipping": {
@@ -52,20 +49,17 @@
       "subtitle": "Choose how you would like to receive your order",
       "home_delivery": {
         "label": "Delivery to your address",
-        "description": "Courier delivery to the address you provided"
+        "description": "Courier delivery to the address you enter"
       },
       "boxnow": {
         "label": "BOX NOW Lockers",
         "tagline": "Fast delivery, 24/7",
-        "description": "Collect your order from any BOX NOW locker, at any time",
-        "unconfigured_title": "BOX NOW is temporarily unavailable",
-        "unconfigured_description": "The integration with the BOX NOW network is not complete yet. Please choose delivery to your address.",
-        "country_unsupported": "BOX NOW does not serve the selected delivery country yet."
+        "description": "Collect your order from any BOX NOW locker, at any time"
       },
       "acs_smartpoint": {
         "label": "ACS Smartpoint Lockers",
         "tagline": "Collect in your own time",
-        "description": "Collect your order from any ACS Smartpoint locker, based on the delivery postcode."
+        "description": "Collect your order from the ACS Smartpoint locker you choose, with no address to enter."
       },
       "exceeds_max_weight": "Your cart exceeds this method's weight limit ({maxWeight}).",
       "exceeds_parcel_size": "Your cart is too large for locker delivery.",
@@ -76,35 +70,10 @@
       "options_error_description": "Check your connection and try again."
     },
     "boxnow": {
-      "select_locker": "Choose a Locker",
-      "change_locker": "Change Locker",
-      "modal_title": "Choose a BOX NOW Locker",
-      "iframe_loading": "Loading map...",
-      "required_error": "Please choose a locker to continue",
-      "selected_locker": {
-        "title": "Selected Locker",
-        "id_label": "Locker ID"
-      }
+      "required_error": "Please choose a locker to continue"
     },
     "acs": {
-      "select_locker": "Choose an ACS Smartpoint",
-      "change_locker": "Change Smartpoint",
-      "modal_title": "Choose an ACS Smartpoint",
-      "select": "Select",
-      "postal_code": "Postcode",
-      "postal_code_placeholder": "e.g. 11525",
-      "city": "City / Area",
-      "city_placeholder": "e.g. Athens",
       "required_error": "Please choose a Smartpoint to continue",
-      "search_error": "Smartpoints could not be searched. Please try again.",
-      "empty_title": "No Smartpoints found",
-      "empty_description": "Try a different postcode or area.",
-      "idle_title": "Search for a Smartpoint",
-      "idle_description": "Enter a postcode to see available ACS Smartpoint lockers.",
-      "selected_locker": {
-        "title": "Selected Smartpoint",
-        "id_label": "Smartpoint ID"
-      },
       "address_suggestion": {
         "title": "Did you mean this address?",
         "apply": "Apply",
@@ -138,13 +107,15 @@
       "empty_description": "Try an area, or an address with its city or postcode, e.g. “Kalama 25 Athens”.",
       "search_prompt_title": "Find a collection point",
       "search_prompt_description": "Search by area, street or postcode, or tap “My location” for the nearest points.",
-      "unsupported": "This carrier does not support collection point search.",
       "tab_list": "List",
       "tab_map": "Map",
       "show_list": "Show the list",
       "cluster_aria_label": "{count} collection points in this area",
       "map_unavailable": "The map is currently unavailable. Use the list to find a collection point.",
-      "no_results_in_area": "No collection points found in this area"
+      "no_results_in_area": "No collection points found in this area",
+      "none_fit_title": "No locker fits this order",
+      "none_fit_description": "None of these lockers has a compartment for your order’s size. Choose another delivery method.",
+      "limited_availability": "Few free compartments"
     }
   },
   "form": {
@@ -161,6 +132,8 @@
     "street_number": "Street Number",
     "street_placeholder": "e.g. Egnatias",
     "street_number_placeholder": "e.g. 12",
+    "address_line_2": "Apartment, floor, building",
+    "address_line_2_placeholder": "e.g. 3rd floor, apt. 5",
     "zipcode_placeholder": "e.g. {example}",
     "customer_notes": "Notes",
     "customer_notes_help": "Optional delivery instructions printed on the courier voucher (e.g. \"ring twice\", \"leave with the concierge\").",
@@ -205,21 +178,24 @@
         "max_retries": "Too many attempts",
         "stock_reservation": "Stock reservation error",
         "stock_reservation_description": "The stock could not be reserved. Please try again.",
-        "payment_verification": "Payment verification error",
-        "payment_verification_description": "Payment verification failed. Please contact support.",
-        "payment_mismatch": "Your order total changed",
-        "payment_mismatch_description": "The payment does not match your current order. Please review your order and try again.",
         "invalid_coupon": "Invalid coupon",
         "invalid_coupon_description": "This coupon cannot be applied to this order.",
         "invalid_gift_card": "Invalid gift card",
         "invalid_gift_card_description": "This gift card cannot be used for this order.",
-        "loyalty_requires_authentication": "Sign in to redeem points",
         "loyalty_redemption_invalid": "Point redemption is not available",
         "cart_unread": "We could not load your cart",
         "cart_unread_description": "We could not load what your cart holds now, so nothing was ordered. We are trying again: check the summary once it updates, then place the order.",
         "cart_changed": "Your cart has changed",
         "cart_changed_description": "Your cart changed while you were checking out, and its total is now {total}. Check the items and the summary, then place the order again to complete it as shown.",
         "cart_changed_review": "Your cart changed while you were checking out. Check the items and the summary, then place the order again.",
+        "pickup_point_refused": "Choose another pickup point",
+        "pickup_point_unknown": "The pickup point you chose is no longer available. Choose another one.",
+        "pickup_point_too_small": "This locker has no compartment for your order’s size. Choose another one.",
+        "pickup_point_size_unknown": "We cannot tell yet whether this locker has a compartment for your order’s size. Choose another one.",
+        "pickup_point_required": "Choose a pickup point to continue.",
+        "pickup_point_in_another_country": "That pickup point is in another country than your order's. Choose one in the delivery country.",
+        "pickup_point_check_unavailable": "We could not check the pickup point",
+        "pickup_point_check_unavailable_description": "The courier's list of pickup points could not be reached just now, so nothing was ordered. Your point is still selected: place the order again in a moment.",
         "total_changed": "Your order total has changed",
         "total_changed_description": "The new total is {total}. Check your order summary and place the order again to complete it at this amount.",
         "total_changed_review": "Check your order summary and place the order again.",

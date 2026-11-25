@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /**
  * Carrier-agnostic locker picker for any {@link ShippingCarrier} that
- * sets ``usesGenericPicker: true``: one search box and a "my location"
+ * exposes its catalogue (``fetchAll``): one search box and a "my location"
  * button above a map and a list of the carrier's catalogue. The logic is
  * `useLockerPicker`, shared with every design's copy.
  *
@@ -16,6 +16,10 @@ const props = defineProps<{
   initialPostalCode?: string
   initialCity?: string
   countryCode?: string
+  /** The cart's compartment size, for a carrier that sizes its lockers. */
+  compartmentSize?: number | null
+  /** The quote has not named the size yet: a sizing carrier's picker waits. */
+  awaitingSize?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -33,6 +37,7 @@ const {
   placing,
   lockers,
   loading,
+  dismissible,
   errorMessage,
   retry,
   results,
@@ -60,7 +65,7 @@ function onClose(): void {
 <template>
   <UModal
     v-model:open="open"
-    :dismissible="!loading"
+    :dismissible="dismissible"
     :ui="{
       // ``dvh``, not ``h-screen``/100vh: on mobile 100vh is the
       // viewport with the browser chrome HIDDEN, so a modal sized to
@@ -210,6 +215,30 @@ function onClose(): void {
                 </li>
               </ul>
 
+              <!-- A list of the cart's size that has no locker at all -->
+              <div
+                v-else-if="lockers.length === 0 && !errorMessage"
+                class="
+                  flex h-full flex-col items-center justify-center gap-2 p-4
+                  text-center
+                "
+              >
+                <UIcon
+                  name="i-lucide-package-x"
+                  class="size-10 text-neutral-400"
+                />
+                <p class="text-base font-medium">
+                  {{ t('shipping.locker_picker.none_fit_title') }}
+                </p>
+                <p
+                  class="
+                    text-sm text-neutral-700
+                    dark:text-neutral-200
+                  "
+                >
+                  {{ t('shipping.locker_picker.none_fit_description') }}
+                </p>
+              </div>
               <!-- No match for what the shopper typed -->
               <div
                 v-else-if="searching && results.length === 0"
@@ -319,6 +348,16 @@ function onClose(): void {
                         >
                           <UIcon name="i-lucide-clock" class="-mt-0.5 size-3" />
                           {{ station.workingHours }}
+                        </span>
+                        <span
+                          v-if="station.limitedAvailability"
+                          class="mt-1 text-xs font-medium text-warning"
+                        >
+                          <UIcon
+                            name="i-lucide-triangle-alert"
+                            class="-mt-0.5 size-3"
+                          />
+                          {{ t('shipping.locker_picker.limited_availability') }}
                         </span>
                       </div>
                       <span

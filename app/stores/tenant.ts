@@ -5,6 +5,10 @@ export const useTenantStore = defineStore('tenant', () => {
 
   const schemaName = computed(() => config.value?.schemaName ?? '')
   const storeName = computed(() => config.value?.storeName ?? '')
+  // The name the store's site goes by (`storeSiteName`), as its site
+  // config carries it: a page renders only for a resolved store
+  // (server/middleware/0.tenant.ts answers 404 "Store not found").
+  const siteName = computed(() => config.value ? storeSiteName(config.value) : '')
   const primaryDomain = computed(() => config.value?.primaryDomain ?? '')
   const apiDomain = computed(() => config.value?.apiDomain ?? '')
   const assetsDomain = computed(() => config.value?.assetsDomain ?? '')
@@ -84,12 +88,8 @@ export const useTenantStore = defineStore('tenant', () => {
   // MFA — empty string means Django uses its own default issuer
   const totpIssuer = computed(() => config.value?.totpIssuer ?? '')
 
-  // BoxNow delivery — tenant-only, no platform fallback. Empty string
-  // means the tenant hasn't configured BoxNow (checkout hides the
-  // locker-pickup option).
-  const boxNowPartnerId = computed(() => config.value?.boxNowPartnerId ?? '')
-
-  // Social links — each empty string means "use platform fallback"
+  // Social links — tenant-only; an empty string means the store links
+  // no account on that network, and every design leaves it out.
   const socials = computed(() => ({
     discord: config.value?.socialsDiscord ?? '',
     facebook: config.value?.socialsFacebook ?? '',
@@ -130,6 +130,7 @@ export const useTenantStore = defineStore('tenant', () => {
     bingSiteVerification,
     schemaName,
     storeName,
+    siteName,
     primaryDomain,
     apiDomain,
     assetsDomain,
@@ -159,7 +160,6 @@ export const useTenantStore = defineStore('tenant', () => {
     googleAdsAddPaymentInfoLabel,
     googleAdsPageViewLabel,
     totpIssuer,
-    boxNowPartnerId,
     socials,
     setConfig,
   }

@@ -668,7 +668,7 @@ export function describePageRenders(): void {
     // One store, one Organization: the identity (an OnlineStore) carries
     // its own logo. The schema module used to move the logo onto a second,
     // compact "#organization" node for any identity typed other than the
-    // bare "Organization" (patches/nuxt-schema-org@7.0.0.patch).
+    // bare "Organization" (unjs/unhead#1034, shipped in nuxt-schema-org 7.1).
     it('describes the store as one Organization node that carries its logo', async () => {
       // The platform store always has a logo; without one nothing above runs.
       const { statusCode, body } = await request('/', PLATFORM_STORE_HOST)

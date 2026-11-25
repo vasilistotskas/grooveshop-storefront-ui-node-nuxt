@@ -7,7 +7,7 @@ import type { FormSubmitEvent } from '#ui/types'
  * (`Storefront/Account/AddressEdit`), in every tree.
  *
  * It owns the form's schema, state, the lists its selects offer (the
- * store's shippable countries, the chosen country's regions, floors,
+ * countries the store delivers to at home, the chosen country's regions, floors,
  * location types), the save (POST for a new address, PUT for an edit;
  * Django's field errors land under their inputs, the rest in a toast), and
  * "set as main". Saved or set, the shopper goes back to the addresses.
@@ -82,6 +82,7 @@ export async function useAddressForm(options: {
     lastName: address?.lastName,
     street: address?.street,
     streetNumber: address?.streetNumber,
+    addressLine2: address?.addressLine2,
     city: address?.city,
     zipcode: address?.zipcode,
     // Stored as E.164 (e.g. "+306912345678"); the phone field parses it back
@@ -95,15 +96,16 @@ export async function useAddressForm(options: {
     locationType: address?.locationType,
   })
 
-  // Countries — shippable only: a country this store doesn't ship to would
-  // 400 at submit either way.
+  // Countries a home delivery of this store reaches: a saved address is a
+  // home destination, and Django refuses any other (``country_not_served``).
+  // ``shippable`` would also list a lockers-only country.
   const countriesRequest = useApi('/api/countries', {
-    key: 'countries-shippable',
+    key: 'countries-home-delivery',
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
       languageCode: locale,
-      shippable: true,
+      homeDelivery: true,
     },
   })
   const { data: countries } = countriesRequest
@@ -117,6 +119,9 @@ export async function useAddressForm(options: {
       query: computed(() => ({
         country: state.country,
         languageCode: locale.value,
+        // A saved address is one a home delivery reaches: only the
+        // regions the store's shipping zones serve.
+        shippable: true,
       })),
     },
   )
@@ -137,7 +142,7 @@ export async function useAddressForm(options: {
     )
   })
 
-  // The store's shippable countries, listed first in the phone picker.
+  // The countries the store delivers to at home, listed first in the phone picker.
   const shippableCountryCodes = computed(() => countryOptions.value.map(option => option.value))
 
   const regionOptions = computed(() => {

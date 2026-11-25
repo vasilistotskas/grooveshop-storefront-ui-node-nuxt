@@ -111,6 +111,7 @@ export function makeUserAddress(overrides: Partial<UserAddress> = {}): UserAddre
     user: 7,
     country: 'GR',
     region: 'GR-I',
+    shippable: true,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(11, id),

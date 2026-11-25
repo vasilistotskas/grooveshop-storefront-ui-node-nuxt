@@ -118,12 +118,32 @@ describe('Product/Card', () => {
     expect(wrapper.text()).not.toContain('Μόνο')
   })
 
+  /** The restock buttons by their accessible name, and the add-to-cart buttons (stubbed). */
+  const restockButtons = (wrapper: Awaited<ReturnType<typeof mountCard>>) => wrapper.findAll('button[aria-label="Ειδοποίηση όταν ξαναέρθει"]')
+  const addToCartButtons = (wrapper: Awaited<ReturnType<typeof mountCard>>) => wrapper.findAll('button-product-add-to-cart-stub')
+
   it('offers a restock alert on a sold-out product only when the store sends them', async () => {
-    expect((await mountCard(makeProduct({ stock: 0 }))).text()).not.toContain('Ειδοποίησέ με')
+    const withoutAlerts = await mountCard(makeProduct({ stock: 0 }))
+    expect(restockButtons(withoutAlerts)).toHaveLength(0)
+    // No alerts to offer: the unavailable add-to-cart button stays.
+    expect(addToCartButtons(withoutAlerts)).toHaveLength(2)
 
     setTenantFeatures({ productAlerts: true })
-    expect((await mountCard(makeProduct({ stock: 0 }))).text()).toContain('Ειδοποίησέ με όταν ξαναέρθει')
-    expect((await mountCard(makeProduct({ stock: 9 }))).text()).not.toContain('Ειδοποίησέ με')
+    expect(restockButtons(await mountCard(makeProduct({ stock: 9 })))).toHaveLength(0)
+  })
+
+  // The add-to-cart button's two places: the pill on the photograph from
+  // `sm` up, the 44px icon beside the price on a phone.
+  it('puts the restock alert in the add-to-cart button\'s places on a sold-out product', async () => {
+    setTenantFeatures({ productAlerts: true })
+    const wrapper = await mountCard(makeProduct({ stock: 0 }))
+
+    expect(addToCartButtons(wrapper)).toHaveLength(0)
+    const [pill, icon] = restockButtons(wrapper)
+    expect(pill!.text()).toBe('Ειδοποίηση')
+    expect(pill!.classes()).toEqual(expect.arrayContaining(['absolute', 'hidden', 'sm:inline-flex']))
+    expect(icon!.text()).toBe('')
+    expect(icon!.classes()).toEqual(expect.arrayContaining(['min-h-11', 'min-w-11', 'sm:hidden']))
   })
 
   it('opens the restock alert in place from a sold-out card', async () => {
@@ -131,7 +151,7 @@ describe('Product/Card', () => {
     const wrapper = await mountCard(makeProduct({ id: 4, stock: 0 }))
     expect(wrapper.find('[data-testid="notify"]').exists()).toBe(false)
 
-    await wrapper.findAll('button').find(b => b.text() === 'Ειδοποίησέ με όταν ξαναέρθει')!.trigger('click')
+    await restockButtons(wrapper)[0]!.trigger('click')
     await vi.waitFor(() => expect(wrapper.find('[data-testid="notify"]').exists()).toBe(true))
 
     // A listing payload carries no price-alert flag: restock only.

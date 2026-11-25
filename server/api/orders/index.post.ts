@@ -1,4 +1,13 @@
 import { defineEventHandler, getCookie, getRequestHeader, getRequestIP, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+import * as z from 'zod'
+
+// Django's 503 when a pickup point could not be checked against its
+// carrier's catalogue: the point is not judged and the same order may be
+// placed again shortly, so its body reaches the checkout, which says to
+// try again. Any other 5xx body still never reaches the browser.
+const zPickupPointCheckUnavailable = zErrorResponse.extend({
+  code: z.literal(PICKUP_POINT_CHECK_UNAVAILABLE),
+})
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -76,6 +85,6 @@ export default defineEventHandler(async (event) => {
     return parsedData
   }
   catch (error) {
-    return handleError(event, error)
+    return forwardUpstreamDocumentedError(event, error, zPickupPointCheckUnavailable)
   }
 })

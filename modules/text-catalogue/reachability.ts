@@ -51,7 +51,7 @@ const COMPONENT_REGISTRY = 'utils/componentRegistry.ts'
 
 /**
  * Components that are not in `app/components/`: Nuxt's and Vue's built-ins,
- * Nuxt UI (`U…`), `@nuxtjs/i18n` (`I18nT`) and `@comark/nuxt` (`Markdown`).
+ * Nuxt UI (`U…`), `@nuxtjs/i18n` (`I18nT`) and `@comark/vue` (`Markdown`).
  * They hold no store text, so the walk stops there; a name that is
  * neither one of these nor under `app/components/` is an error.
  */

@@ -139,7 +139,7 @@ const CHARGING: CategoryMenuEntry = {
   productCount: 5,
   children: [],
 }
-const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', imagePath: '', postCount: 26 }
+const MOBILE: BlogCategoryMenuEntry = { id: 7, label: 'Κινητό', to: '/blog/category/7/mobile', icon: 'i-fa6-solid-mobile', imagePath: '', postCount: 26 }
 
 /**
  * The bar's entries as sections: each section's panel button (no `to`,
@@ -459,6 +459,20 @@ describe('webside Page/Navbar dropdowns', () => {
       [`${entry}${count}`, href],
       [all, allHref],
     ])
+  })
+
+  // A topic's tile draws its icon (`BlogCategory.icon`), not a picture.
+  it('draws a blog topic\'s icon on its tile', async () => {
+    const wrapper = await mountSuspended(Navbar, { route: false })
+    const trigger = wrapper.findAll('[data-slot="link"]').find(link => link.text() === `Μενού: ${t('blog')}`)!
+
+    await trigger.trigger('pointermove', { pointerType: 'mouse' })
+
+    const panel = () => wrapper.find('[data-slot="content"]')
+    await vi.waitFor(() => expect(panel().exists()).toBe(true))
+    const tile = panel().get('a[href="/blog/category/7/mobile"]')
+    expect(tile.find('img').exists()).toBe(false)
+    expect(tile.get('.iconify').classes()).toContain('i-fa6-solid:mobile')
   })
 })
 

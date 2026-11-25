@@ -81,7 +81,7 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
   step = ref(state.step)
   return {
     currentStep: step,
-    addressStepErrors: ref({}),
+    stepErrors: ref({}),
     quote: ref(state.quote),
     quotePending: ref(state.quotePending),
     quoteRefusal: ref(state.quoteRefusal),
@@ -95,12 +95,11 @@ mockNuxtImport('useCheckoutSubmit', () => () => {
     isStripePayment: ref(false),
     isVivaWalletPayment: ref(state.online),
     isOnlinePayment: ref(state.online),
-    useHostedCheckout: ref(false),
+    awaitsOnlinePayment: ref(state.online && state.orderCreated),
     onSubmit: vi.fn(),
     nextStep: vi.fn(),
     prevStep,
     backToForm: vi.fn(),
-    onPaymentSuccess: vi.fn(),
     onPaymentError: vi.fn(),
     onLoyaltyRedeemed: vi.fn(),
     onLoyaltyCleared: vi.fn(),

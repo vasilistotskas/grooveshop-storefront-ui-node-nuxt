@@ -29,7 +29,7 @@ export function useProductSuggestions(props: {
     && (props.seedIds === undefined || props.seedIds.length > 0))
   // Sorted, as the route keys its cache entry by the sorted seeds.
   const seeds = computed(() => props.seedIds
-    ? [...props.seedIds].sort((a, b) => a - b).join(',')
+    ? props.seedIds.toSorted((a, b) => a - b).join(',')
     : undefined)
   // Plain template literals, as the product page does: Nitro's typed
   // routes resolve the response type from them, which a URL function

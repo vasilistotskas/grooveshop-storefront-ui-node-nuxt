@@ -73,4 +73,4 @@ Client-side composables can read `useTenantStore()` or `useTenant()` (`useState(
 
 ## Per-tenant runtime config
 
-Both `stripePublishableKey` and `allowedCspSources` are part of `TenantConfig`. `StripePayment.vue` reads `useTenantStore().stripePublishableKey` — tenant-only, no platform-key fallback; `server/middleware/3.csp.ts` extends `script-src`, `img-src`, `connect-src`, `frame-src` with the validated origins from `event.context.tenant?.allowedCspSources`.
+Both `stripePublishableKey` and `allowedCspSources` are part of `TenantConfig`. `useGiftCardPurchase` reads `useTenantStore().stripePublishableKey` — tenant-only, no platform-key fallback; `server/middleware/3.csp.ts` extends `script-src`, `img-src`, `connect-src`, `frame-src` with the validated origins from `event.context.tenant?.allowedCspSources`.

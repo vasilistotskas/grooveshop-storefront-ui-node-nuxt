@@ -22,7 +22,7 @@ const tierDescription = computed(() =>
 // The tiers in the order a shopper climbs them — the backend returns them
 // ordered by required_level, but we guard with a sort in case that changes.
 const orderedTiers = computed(() =>
-  [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
+  (tiers.value ?? []).toSorted((a, b) => a.requiredLevel - b.requiredLevel))
 
 // The current tier's rank on that ladder, -1 without one (or before the
 // tiers arrive).

@@ -130,7 +130,8 @@ const carouselUI = {
               :height="280"
               fit="contain"
               :background="'ffffff'"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
+              sizes="xs:50vw md:33vw lg:20vw xxl:256px"
+              densities="x1 x2"
               loading="lazy"
               class="
                 size-full object-contain transition-transform duration-200
