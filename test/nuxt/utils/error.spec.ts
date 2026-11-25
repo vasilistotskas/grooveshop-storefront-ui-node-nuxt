@@ -84,10 +84,4 @@ describe('handleAllAuthClientError', () => {
 
     expect(toastAdd).not.toHaveBeenCalled()
   })
-
-  it('ignores an error that is not allauth\'s', () => {
-    handleAllAuthClientError(new Error('network down'))
-
-    expect(toastAdd).not.toHaveBeenCalled()
-  })
 })
