@@ -45,7 +45,6 @@ const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 /** What the engine answers for the cart surface. */
 const suggestions = (products: Array<ReturnType<typeof makeProduct>>) => ({
   surface: 'cart',
-  impressionId: '0f6d3d3e-6d2b-4c4e-9c2a-2a1f4b6c8d90',
   items: products.map(product => ({ product, reason: { strategy: 'co_purchase', relationType: null, score: 1 } })),
 })
 

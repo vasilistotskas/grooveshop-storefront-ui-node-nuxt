@@ -15,6 +15,11 @@
 
 const STORAGE_KEY = 'recommendation-attribution'
 const TTL_MS = 60 * 60 * 1000
+/** How long an add-to-cart waits for the id of a showing still being reported. */
+const PENDING_WAIT_MS = 1000
+
+/** Products followed from a strip whose impression is not answered yet. */
+const pending = new Map<number, Promise<string | undefined>>()
 
 type Entry = { impressionId: string, at: number }
 type Entries = Record<string, Entry>
@@ -56,21 +61,42 @@ function write(entries: Entries): void {
 }
 
 export function useRecommendationAttribution() {
-  /** The shopper followed a strip tile for ``productId``. */
-  const remember = (productId: number, impressionId: string): void => {
-    if (!import.meta.client) return
+  const store = (productId: number, impressionId: string): void => {
     const entries = read()
     entries[String(productId)] = { impressionId, at: Date.now() }
     write(entries)
   }
 
+  /**
+   * The shopper followed a strip tile for ``productId``. ``showing`` is the
+   * id its impression is recorded under, still on its way when the tile is
+   * followed within the impression's round trip: kept at once, so the
+   * add-to-cart of the same click finds it.
+   */
+  const remember = (productId: number, showing: Promise<string | undefined>): void => {
+    if (!import.meta.client) return
+    pending.set(productId, showing)
+    showing.then((impressionId) => {
+      // Taken meanwhile, or followed again from another strip.
+      if (pending.get(productId) !== showing) return
+      pending.delete(productId)
+      if (impressionId) store(productId, impressionId)
+    })
+  }
+
   /** The impression to carry on an add-to-cart of ``productId``, consumed. */
-  const take = (productId: number): string | undefined => {
+  const take = async (productId: number): Promise<string | undefined> => {
     if (!import.meta.client) return undefined
     const { [String(productId)]: entry, ...rest } = read()
     // Always write back: ``read`` already dropped expired entries.
     write(rest)
-    return entry?.impressionId
+    const showing = pending.get(productId)
+    if (!showing) return entry?.impressionId
+    pending.delete(productId)
+    return Promise.race([
+      showing,
+      new Promise<undefined>(resolve => setTimeout(resolve, PENDING_WAIT_MS)),
+    ])
   }
 
   return { remember, take }

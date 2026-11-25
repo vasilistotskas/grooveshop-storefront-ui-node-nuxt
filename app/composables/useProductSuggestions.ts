@@ -67,15 +67,16 @@ export function useProductSuggestions(props: {
 
   // Feedback loop. The impression is reported once the strip is mounted
   // with items — for a server-rendered strip under ``hydrate-on-visible``,
-  // when it scrolls into view: "shown", not "served". A click is any interaction with
-  // a card — the link, the photograph or "add to cart" — captured on the
+  // when it scrolls into view: "shown", not "served" — and its answer
+  // names the showing's id, which this strip's clicks carry (the body,
+  // cached and shared, names none). A click is any interaction with a
+  // card — the link, the photograph or "add to cart" — captured on the
   // card.
   const { trackImpressionWhenShown, trackClick } = useRecommendationTracking(props.surface, props.seedId)
   trackImpressionWhenShown(data)
   const onCardClick = (position: number) => {
-    const impressionId = data.value?.impressionId
     const item = data.value?.items[position]
-    if (impressionId && item) trackClick(impressionId, item, position)
+    if (item) trackClick(item, position)
   }
 
   return { data, onCardClick }

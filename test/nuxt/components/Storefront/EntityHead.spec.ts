@@ -394,6 +394,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('head of an English pr
       '/api/products/123': { ...product(translations), ...image },
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
+      '/api/products/123/recommendations': { surface: 'pdp', items: [] } satisfies ApiV1RecommendationsRetrieveResponse,
       '/api/products/123/*': empty,
       '/api/shipping/policy': [],
       '/api/*': empty,

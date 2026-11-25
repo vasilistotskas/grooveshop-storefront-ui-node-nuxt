@@ -3463,6 +3463,7 @@ export const zRecommendationEventRequestKindEnum = z.enum(['impression', 'click'
 
 export const zRecommendationEventResponse = z.object({
   detail: z.string(),
+  impressionId: z.uuid(),
 })
 
 /**
@@ -5551,7 +5552,7 @@ export const zSurfaceEnum = z.enum([
 ])
 
 export const zRecommendationEventRequestRequest = z.object({
-  impressionId: z.uuid(),
+  impressionId: z.uuid().optional(),
   surface: zSurfaceEnum,
   kind: zRecommendationEventRequestKindEnum,
   seedId: z.int().gte(1).optional(),
@@ -5561,7 +5562,6 @@ export const zRecommendationEventRequestRequest = z.object({
 export const zRecommendationResponse = z.object({
   surface: zSurfaceEnum,
   items: z.array(zRecommendationItem).readonly(),
-  impressionId: z.uuid(),
 })
 
 /**
@@ -8825,7 +8825,6 @@ export const zRecommendationItemWritable = z.record(z.string(), z.unknown())
 
 export const zRecommendationResponseWritable = z.object({
   surface: zSurfaceEnum,
-  impressionId: z.uuid(),
 })
 
 /**

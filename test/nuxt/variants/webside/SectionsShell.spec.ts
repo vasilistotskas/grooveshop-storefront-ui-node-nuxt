@@ -73,6 +73,28 @@ describe('webside SectionsShell', () => {
     expect(crumb.closest('.max-w-\\(--ui-container\\)')).not.toBeNull()
   })
 
+  it('hides a frame whose sections draw nothing, and no other', async () => {
+    const drawsNothing = { PageSectionRenderer: defineComponent({
+      props: { section: { type: Object as PropType<BuilderSection>, required: true } },
+      setup: props => () => props.section.id === 'nothing' ? null : h('div', { 'data-section': props.section.id }),
+    }) }
+    const wrapper = await mountSuspended(WebsideSectionsShell, {
+      props: { sections: [framed('drawn', 'rich_text'), bold('band', 'hero_showcase'), framed('nothing', 'recently_viewed')] },
+      route: false,
+      global: { stubs: drawsNothing },
+    })
+
+    const frames = wrapper.findAll('section').map(section => section.element.parentElement!)
+    expect(frames).toHaveLength(2)
+    const hidden = frames.map((frame) => {
+      const [rule] = [...frame.classList].filter(name => name.endsWith(':hidden'))
+      const selector = rule?.match(/^has-\[>(.+)\]:hidden$/)?.[1]
+      expect(selector).toBeDefined()
+      return [...frame.querySelectorAll(selector!)].length > 0
+    })
+    expect(hidden).toEqual([false, true])
+  })
+
   it('keeps the column of each of its grids shrinkable', async () => {
     const wrapper = await mountShell([bold('a', 'hero_showcase'), framed('b', 'rich_text')])
 

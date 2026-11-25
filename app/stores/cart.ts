@@ -248,7 +248,7 @@ export const useCartStore = defineStore('cart', () => {
       // page, card, suggestion tile): carry the strip impression the
       // shopper reached this product from, if there is one, so the
       // backend can attach the eventual order line to it exactly.
-      const recommendationImpressionId = attribution.take(body.product)
+      const recommendationImpressionId = await attribution.take(body.product)
       // The tab's first-touch source (the same capture the order sends):
       // Django records it on the cart the first time one is set.
       const orderSource = orderAttribution.read()
@@ -309,7 +309,7 @@ export const useCartStore = defineStore('cart', () => {
     // strip carries the impression the same way an add does.
     const lineProductId = getCartItemById(id)?.product?.id
     const recommendationImpressionId = typeof lineProductId === 'number'
-      ? attribution.take(lineProductId)
+      ? await attribution.take(lineProductId)
       : undefined
     try {
       cart.value = await $api(`/api/cart/items/${id}`, {
