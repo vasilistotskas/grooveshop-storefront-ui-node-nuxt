@@ -1,3 +1,10 @@
+## [3.359.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.359.1...v3.359.2) (2026-11-25)
+
+
+### Bug Fixes
+
+* **deps:** Nuxt 4.7.0 with its three security fixes, and current dependencies ([#525](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/525)) ([b82503c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b82503c1080528e965ba694ef90a73230a88edd2)), closes [unjs/unhead#1034](https://github.com/unjs/unhead/issues/1034)
+
 ## [3.359.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.359.0...v3.359.1) (2026-11-25)
 
 
