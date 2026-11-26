@@ -1,3 +1,10 @@
+## [3.361.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.361.1...v3.361.2) (2026-11-26)
+
+
+### Bug Fixes
+
+* **account:** a refusal to delete for want of a confirmation goes through the auth flow ([#529](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/529)) ([d86fd37](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d86fd37ef93d5abf564f9e3e0e6ee83cbaa42f8e))
+
 ## [3.361.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.361.0...v3.361.1) (2026-11-26)
 
 
