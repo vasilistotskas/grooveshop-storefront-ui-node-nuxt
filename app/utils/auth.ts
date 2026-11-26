@@ -409,12 +409,25 @@ const REAUTHENTICATION_FLOW_ORDER = [
  */
 export const reauthenticationPath = (flows: readonly OfferedFlow[]) => {
   const pending = flows.find(flow => flow.is_pending)
-  if (pending) return pathForFlow(pending)
-  for (const id of REAUTHENTICATION_FLOW_ORDER) {
-    const flow = flows.find(candidate => candidate.id === id)
-    if (flow) return pathForFlow(flow)
+  const offered = REAUTHENTICATION_FLOW_ORDER
+    .map(id => flows.find(candidate => candidate.id === id))
+    .filter(flow => flow !== undefined)
+  for (const flow of pending ? [pending, ...offered] : offered) {
+    const path = pageOfFlow(flow)
+    if (path) return path
   }
   return null
+}
+
+/** `pathForFlow`, or null for a flow (or a second factor) a later allauth release added and no page draws yet. */
+function pageOfFlow(flow: OfferedFlow) {
+  try {
+    return pathForFlow(flow)
+  }
+  catch {
+    log.warn({ tag: 'auth', message: 'Reauthentication flow has no known route', flow: flow.id })
+    return null
+  }
 }
 
 export const navigateToPendingFlow = async (

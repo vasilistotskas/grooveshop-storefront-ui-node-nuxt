@@ -447,6 +447,12 @@ describe('Utils - Auth', () => {
     it('finds no page when the answer lists no way, or none it knows', () => {
       expect(reauthenticationPath([])).toBeNull()
       expect(reauthenticationPath([{ id: 'a_way_from_a_later_release' }])).toBeNull()
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] }])).toBeNull()
+    })
+
+    it('passes over a way it has no page for, to the next', () => {
+      expect(reauthenticationPath([{ id: 'a_way_from_a_later_release', is_pending: true }, { id: 'reauthenticate' }])).toBe('account-reauthenticate')
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] }, { id: 'reauthenticate_by_code' }])).toBe('account-reauthenticate-code')
     })
   })
 })
