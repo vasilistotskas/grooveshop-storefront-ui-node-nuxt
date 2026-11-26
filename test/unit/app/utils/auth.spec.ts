@@ -14,6 +14,7 @@ import {
   pathForPendingFlow,
   pendingFlowRouteNameFromError,
   reauthenticationPath,
+  reauthenticationRequiredFrom,
   pickPreferredAuthenticatorType,
   sortAuthenticatorTypes,
 } from '~/utils/auth'
@@ -439,20 +440,53 @@ describe('Utils - Auth', () => {
       expect(reauthenticationPath(flows)).toBe('account-reauthenticate-code-confirm')
     })
 
-    it('reads the plain ids Django repeats on its own refusal', () => {
-      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['totp'] }, { id: 'reauthenticate' }])).toBe('account-reauthenticate')
-      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['totp'] }])).toBe('account-2fa-reauthenticate-totp')
-    })
-
     it('finds no page when the answer lists no way, or none it knows', () => {
       expect(reauthenticationPath([])).toBeNull()
-      expect(reauthenticationPath([{ id: 'a_way_from_a_later_release' }])).toBeNull()
-      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] }])).toBeNull()
+      expect(reauthenticationPath([{ id: 'a_way_from_a_later_release' } as never])).toBeNull()
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] } as never])).toBeNull()
     })
 
     it('passes over a way it has no page for, to the next', () => {
-      expect(reauthenticationPath([{ id: 'a_way_from_a_later_release', is_pending: true }, { id: 'reauthenticate' }])).toBe('account-reauthenticate')
-      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] }, { id: 'reauthenticate_by_code' }])).toBe('account-reauthenticate-code')
+      expect(reauthenticationPath([{ id: 'a_way_from_a_later_release', is_pending: true } as never, { id: 'reauthenticate' }])).toBe('account-reauthenticate')
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] } as never, { id: 'reauthenticate_by_code' }])).toBe('account-reauthenticate-code')
+    })
+  })
+
+  describe('reauthenticationRequiredFrom', () => {
+    const refused = (body: unknown) => Object.assign(new Error('Forbidden'), { statusCode: 403, data: body })
+
+    it('reads Django\'s refusal as allauth\'s answer that asks for a confirmation', () => {
+      const answer = reauthenticationRequiredFrom(refused({
+        detail: 'Confirm it is you.',
+        code: 'reauthentication_required',
+        flows: [{ id: 'mfa_reauthenticate', types: ['totp'] }, { id: 'reauthenticate' }],
+      }))
+
+      expect(answer).toEqual({
+        status: 401,
+        data: { flows: [{ id: 'mfa_reauthenticate', types: ['totp'] }, { id: 'reauthenticate' }] },
+        meta: { is_authenticated: true },
+      })
+      expect(authInfo(answer).requiresReauthentication).toBe(true)
+    })
+
+    it('keeps only the ways allauth\'s document names', () => {
+      const answer = reauthenticationRequiredFrom(refused({
+        detail: 'Confirm it is you.',
+        code: 'reauthentication_required',
+        flows: [{ id: 'a_way_from_a_later_release' }, { id: 'reauthenticate' }],
+      }))
+
+      expect(answer?.data.flows).toEqual([{ id: 'reauthenticate' }])
+    })
+
+    it.each([
+      ['another refusal', { detail: 'Not yours.', code: 'permission_denied' }],
+      ['a refusal that lists no way', { detail: 'Confirm it is you.', code: 'reauthentication_required', flows: [] }],
+      ['a refusal that lists only ways it has no page for', { detail: 'Confirm it is you.', code: 'reauthentication_required', flows: [{ id: 'a_way_from_a_later_release' }] }],
+      ['no body', undefined],
+    ])('is null for %s', (_name, body) => {
+      expect(reauthenticationRequiredFrom(refused(body))).toBeNull()
     })
   })
 })
