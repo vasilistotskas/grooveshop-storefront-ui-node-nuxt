@@ -1,3 +1,10 @@
+## [3.361.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.361.0...v3.361.1) (2026-11-26)
+
+
+### Bug Fixes
+
+* **account:** confirm it is the shopper before deleting the account ([#528](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/528)) ([4867671](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4867671b7b266256584daddb67391601d9e24502))
+
 # [3.361.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.360.1...v3.361.0) (2026-11-25)
 
 
