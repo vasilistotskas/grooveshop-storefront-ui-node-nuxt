@@ -422,7 +422,15 @@ export const navigateToPendingFlow = async (
 ) => {
   const nuxtApp = useNuxtApp()
   const localePath = useLocalePath()
-  const path = pathForPendingFlow(response)
+  let path: ReturnType<typeof pathForPendingFlow>
+  try {
+    path = pathForPendingFlow(response)
+  }
+  catch {
+    // A pending flow from a later allauth release has no page yet.
+    log.warn({ tag: 'auth', message: 'Pending flow has no known route', flow: getPendingFlow(response)?.id })
+    return
+  }
   log.info({ tag: 'auth', message: 'Navigating to pending flow', path })
   if (path) {
     const safeNext = returnPath(useRouter().currentRoute.value.query.next)

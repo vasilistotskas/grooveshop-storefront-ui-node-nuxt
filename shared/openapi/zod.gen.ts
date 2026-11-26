@@ -17623,6 +17623,10 @@ export const zDownloadUserAccountDataExportResponse = z.string()
 
 export const zDeleteUserAccountGdprBody = zDeleteAccountRequestRequest
 
+export const zDeleteUserAccountGdprHeaders = z.object({
+  'X-Session-Token': z.string().optional(),
+})
+
 export const zDeleteUserAccountGdprPath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),

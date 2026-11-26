@@ -29569,6 +29569,12 @@ export type DownloadUserAccountDataExportResponse = DownloadUserAccountDataExpor
 
 export type DeleteUserAccountGdprData = {
   body: DeleteAccountRequestRequest
+  headers?: {
+    /**
+         * Η συνεδρία εφαρμογής allauth με την οποία συνδέθηκε ο πελάτης, όπου επιβεβαίωσε ότι είναι ο ίδιος.
+         */
+    'X-Session-Token'?: string
+  }
   path: {
     id: string | number
   }
