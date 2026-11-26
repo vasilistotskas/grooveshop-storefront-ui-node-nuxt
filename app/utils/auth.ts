@@ -202,10 +202,7 @@ export const sortAuthenticatorTypes = <T extends string>(types: readonly T[] | u
   return (types ?? []).toSorted((a, b) => rank(a) - rank(b))
 }
 
-/** A flow as a page needs it: allauth's own, or one Django repeats with a plain string id. */
-type OfferedFlow = Pick<AllAuthFlow, 'is_pending'> & { id: string, types?: readonly string[] }
-
-export const pathForFlow = (flow: OfferedFlow, authenticatorType?: string) => {
+export const pathForFlow = (flow: AllAuthFlow, authenticatorType?: string) => {
   // provider_redirect is an external OAuth redirect, not a Nuxt page.
   // Return null so navigateToPendingFlow skips navigation.
   if (flow.id === Flows.PROVIDER_REDIRECT) return null
@@ -401,13 +398,10 @@ const REAUTHENTICATION_FLOW_ORDER = [
 ] as const
 
 /**
- * The page for the first way to confirm it is the shopper among `flows`,
- * or null when it lists none the storefront knows. `flows` is allauth's
- * list on a 401, or the same list as Django's own 403
- * `reauthentication_required` repeats it (`ReauthenticationRequired`),
- * whose ids are plain strings.
+ * The page for the first way to confirm it is the shopper among the flows
+ * of allauth's 401, or null when it lists none the storefront has a page for.
  */
-export const reauthenticationPath = (flows: readonly OfferedFlow[]) => {
+export const reauthenticationPath = (flows: readonly AllAuthFlow[]) => {
   const pending = flows.find(flow => flow.is_pending)
   const offered = REAUTHENTICATION_FLOW_ORDER
     .map(id => flows.find(candidate => candidate.id === id))
@@ -420,7 +414,7 @@ export const reauthenticationPath = (flows: readonly OfferedFlow[]) => {
 }
 
 /** `pathForFlow`, or null for a flow (or a second factor) a later allauth release added and no page draws yet. */
-function pageOfFlow(flow: OfferedFlow) {
+function pageOfFlow(flow: AllAuthFlow) {
   try {
     return pathForFlow(flow)
   }
@@ -428,6 +422,27 @@ function pageOfFlow(flow: OfferedFlow) {
     log.warn({ tag: 'auth', message: 'Reauthentication flow has no known route', flow: flow.id })
     return null
   }
+}
+
+/**
+ * Django's own refusal for want of a recent confirmation (403
+ * `reauthentication_required` with allauth's `flows`,
+ * `ReauthenticationRequired`; the account deletion's) as the answer
+ * allauth gives to the same need, so it goes through `auth:change` like
+ * allauth's own 401: the auth plugin sends the shopper to confirm it is
+ * them, the confirmation pages accept the visit, and a confirmation brings
+ * the shopper back. Null for any other error, or one that lists no way the
+ * storefront has a page for.
+ */
+export function reauthenticationRequiredFrom(error: unknown): AllAuthAuthenticationResponse | null {
+  const refusal = zReauthenticationRequired.safeParse(apiErrorBodyOf(error))
+  if (!refusal.success || refusal.data.code !== 'reauthentication_required') return null
+  const flows = (refusal.data.flows ?? []).flatMap((flow) => {
+    const known = zAllAuthFlow.safeParse(flow)
+    return known.success ? [known.data] : []
+  })
+  if (!reauthenticationPath(flows)) return null
+  return { status: 401, data: { flows }, meta: { is_authenticated: true } }
 }
 
 export const navigateToPendingFlow = async (
