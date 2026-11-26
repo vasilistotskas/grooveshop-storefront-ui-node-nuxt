@@ -3,7 +3,7 @@ import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/se
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   await requireUserSession(event)
-  const accessToken = await requireAllAuthAccessToken(event)
+  await requireAllAuthAccessToken(event)
   try {
     const body = await readValidatedBody(
       event,
@@ -18,9 +18,9 @@ export default defineEventHandler(async (event) => {
       {
         method: 'POST',
         body,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        // The allauth session token beside the Knox token: Django reads
+        // the shopper's recent reauthentication in that session.
+        headers: await getAllAuthHeaders(event),
       },
     )
     const data = await parseDataAs(response, zDeleteUserAccountGdprResponse)

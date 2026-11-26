@@ -105,6 +105,12 @@ describe('navigateToPendingFlow', () => {
     expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-verify-email'))
   })
 
+  it('stays put on a pending flow it has no page for', async () => {
+    await expect(navigateToPendingFlow(makePendingFlowResponse('a_flow_from_a_later_release' as never))).resolves.toBeUndefined()
+
+    expect(navigateToMock).not.toHaveBeenCalled()
+  })
+
   it('stays put without a pending flow', async () => {
     await navigateToPendingFlow({ status: 401, meta: { is_authenticated: false }, data: { flows: [] } } as never)
 

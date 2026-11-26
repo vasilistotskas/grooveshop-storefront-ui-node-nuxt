@@ -15,7 +15,7 @@ const signedIn = { user: { id: 5 }, secure: { accessToken: 'knox-1', sessionToke
 const request = (body: unknown = { confirmation: 'DELETE' }) => callRoute(handler, { route, url, method: 'POST', body })
 
 describe('POST /api/user/account/[id]/delete-account', () => {
-  it('queues the deletion with the shopper\'s token and signs them out', async () => {
+  it('queues the deletion with the shopper\'s tokens and signs them out', async () => {
     testSession.set(signedIn)
     backend.reply({ detail: 'Deletion scheduled.' })
 
@@ -26,7 +26,21 @@ describe('POST /api/user/account/[id]/delete-account', () => {
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/user/account/5/delete_account')
     expect(backend.lastRequest.body).toEqual({ confirmation: 'DELETE' })
     expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer knox-1')
+    // Django reads the shopper's recent reauthentication in this session.
+    expect(backend.lastRequest.headers.get('x-session-token')).toBe('sess-1')
     expect(testSession.data).toEqual({})
+  })
+
+  it('hands the shopper Django\'s request to confirm it is them, signed in', async () => {
+    testSession.set(signedIn)
+    const refusal = { detail: 'Confirm it is you.', code: 'reauthentication_required', flows: [{ id: 'reauthenticate' }] }
+    backend.reply(jsonResponse(refusal, 403))
+
+    const response = await request()
+
+    expect(response.status).toBe(403)
+    expect(response.body).toEqual(refusal)
+    expect(testSession.data).toEqual(signedIn)
   })
 
   it('keeps the session when Django refuses', async () => {

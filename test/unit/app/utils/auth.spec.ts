@@ -13,7 +13,7 @@ import {
   pathForFlow,
   pathForPendingFlow,
   pendingFlowRouteNameFromError,
-  reauthenticationFlowPath,
+  reauthenticationPath,
   pickPreferredAuthenticatorType,
   sortAuthenticatorTypes,
 } from '~/utils/auth'
@@ -424,29 +424,35 @@ describe('Utils - Auth', () => {
     })
   })
 
-  describe('reauthenticationFlowPath', () => {
-    const reauthenticationRequired = (flows: AllAuthFlow[]) => ({
-      status: 401,
-      data: { flows },
-      meta: { is_authenticated: true },
-    }) as unknown as AllAuthResponseError
-
+  describe('reauthenticationPath', () => {
     it.each([
       ['the password when the account has one', [{ id: 'reauthenticate' }, { id: 'reauthenticate_by_code', recipients: [{ email: 'a@b.gr' }] }, { id: 'mfa_reauthenticate', types: ['totp'] }], 'account-reauthenticate'],
       ['a second factor before the code', [{ id: 'reauthenticate_by_code', recipients: [{ email: 'a@b.gr' }] }, { id: 'mfa_reauthenticate', types: ['totp', 'webauthn'] }], 'account-2fa-reauthenticate-webauthn'],
       ['the code when it is the only way', [{ id: 'reauthenticate_by_code', recipients: [{ email: 'a@b.gr' }] }], 'account-reauthenticate-code'],
     ] as const)('sends the shopper to %s', (_name, flows, expected) => {
-      expect(reauthenticationFlowPath(reauthenticationRequired([...flows] as AllAuthFlow[]))).toBe(expected)
+      expect(reauthenticationPath([...flows] as AllAuthFlow[])).toBe(expected)
     })
 
     it('resumes a code that is already on its way, before any other way', () => {
       const flows: AllAuthFlow[] = [{ id: 'reauthenticate' }, { id: 'reauthenticate_by_code', is_pending: true }]
 
-      expect(reauthenticationFlowPath(reauthenticationRequired(flows))).toBe('account-reauthenticate-code-confirm')
+      expect(reauthenticationPath(flows)).toBe('account-reauthenticate-code-confirm')
     })
 
-    it('finds no page when the answer lists no way', () => {
-      expect(reauthenticationFlowPath(reauthenticationRequired([]))).toBeNull()
+    it('reads the plain ids Django repeats on its own refusal', () => {
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['totp'] }, { id: 'reauthenticate' }])).toBe('account-reauthenticate')
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['totp'] }])).toBe('account-2fa-reauthenticate-totp')
+    })
+
+    it('finds no page when the answer lists no way, or none it knows', () => {
+      expect(reauthenticationPath([])).toBeNull()
+      expect(reauthenticationPath([{ id: 'a_way_from_a_later_release' }])).toBeNull()
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] }])).toBeNull()
+    })
+
+    it('passes over a way it has no page for, to the next', () => {
+      expect(reauthenticationPath([{ id: 'a_way_from_a_later_release', is_pending: true }, { id: 'reauthenticate' }])).toBe('account-reauthenticate')
+      expect(reauthenticationPath([{ id: 'mfa_reauthenticate', types: ['a_later_factor'] }, { id: 'reauthenticate_by_code' }])).toBe('account-reauthenticate-code')
     })
   })
 })

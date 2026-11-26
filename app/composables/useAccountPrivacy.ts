@@ -7,6 +7,16 @@
  */
 export const DELETE_ACCOUNT_CONFIRMATION = 'DELETE'
 
+/**
+ * The page where the shopper confirms it is them, when Django refused the
+ * deletion for want of a recent confirmation; null for any other failure.
+ */
+function reauthenticationPathFor(error: unknown) {
+  const refusal = zReauthenticationRequired.safeParse(apiErrorBodyOf(error))
+  if (!refusal.success || refusal.data.code !== 'reauthentication_required') return null
+  return reauthenticationPath(refusal.data.flows ?? [])
+}
+
 /** How often a data export still being made is looked at again. */
 const EXPORT_POLL_MS = 3000
 
@@ -20,7 +30,11 @@ const EXPORT_POLL_MS = 3000
  *   the session so a refusal is told on this page;
  * - deleting the account: a dialog (`isDeleteModalOpen`) the shopper
  *   confirms by typing `DELETE` (`canConfirmDelete`); the session is
- *   cleared and the shopper goes to the home page.
+ *   cleared and the shopper goes to the home page. Django asks a shopper
+ *   who has not confirmed it is them lately to do so first (403
+ *   `reauthentication_required` with the ways this account has,
+ *   `ReauthenticationRequired`): the shopper is sent to that page and
+ *   back here.
  *
  * `toasts` dresses the two success toasts; failures go through
  * `useApiError` under `titles`.
@@ -164,6 +178,13 @@ export function useAccountPrivacy(options: {
       await router.push(localePath('index'))
     }
     catch (error) {
+      const confirmFirst = reauthenticationPathFor(error)
+      if (confirmFirst) {
+        isDeleteModalOpen.value = false
+        const next = returnTarget(router.currentRoute.value)
+        await router.push({ path: localePath(confirmFirst), query: next ? { next } : undefined })
+        return
+      }
       log.error({ action: 'privacy:deleteAccount', error })
       notify('privacy:delete-account', error, { title: options.titles.deleteFailed() })
     }
