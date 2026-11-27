@@ -1,0 +1,148 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that communicates with a Django REST API backend. Uses `@nuxt/ui` v4 for the component library, Pinia for state management, and `@nuxtjs/i18n` for internationalization (`el` default, plus `en`). The Vue Options API is disabled — all components use `<script setup lang="ts">`.
+
+## Definition of done: every design
+
+> A storefront change is done only when it is verified in every design: today the default design and webside's (`app/components/variants/webside/**`). The platform reaches every design: features, fixes, logic and admin tools. A design's look is protected only from accidental change (no `pnpm lint --fix` on it; its design-render snapshots catch drift). A deliberate change to it is normal work.
+
+See `.claude/rules/ui-and-pages.md`, "The `webside` design".
+
+## Detailed guidance lives in `.claude/rules/`
+
+This file holds what is true in every session. Area-specific detail sits in
+path-scoped rules that load automatically the moment Claude touches a matching
+file, so a styling task never pays for the tenant contract and vice versa. Read
+one directly when you need it before touching those files.
+
+| Rule | Loads when you touch | Covers |
+|---|---|---|
+| `.claude/rules/server-routes.md` | `server/**`, `shared/**`, `openapi/**`, `scripts/**`, `openapi-ts.config.ts` | The 4-step Django proxy contract, generated OpenAPI code |
+| `.claude/rules/server-runtime.md` | `server/**`, the client logging files | Server middleware, plugins, evlog |
+| `.claude/rules/multi-tenant.md` | `server/**`, `app/stores/**`, `app/composables/**`, `nuxt.config.ts`, `app/plugins/tenant.ts` | Tenant resolution, `event.context.tenant`, `tenantCacheKey`, hydration order |
+| `.claude/rules/auth.md` | the allauth / session / OAuth files | The two-token allauth + Knox model |
+| `.claude/rules/ui-and-pages.md` | `app/components/**`, `app/layouts/**`, `app/pages/**`, `app/middleware/**`, plus the providers, assets, `app.config.ts` and the route and API-error utils it documents | Component categories, styling, images, routing, SEO and performance |
+| `.claude/rules/testing.md` | `test/**`, `*.spec.ts`, `vitest.config.mts` | Vitest projects and the Nuxt test-environment traps |
+| `.claude/rules/nuxt-modules.md` | `nuxt.config.ts`, `modules/**`, `app/blocks/**`, `shared/builder/**` | The active module list and the custom local modules |
+| `.claude/rules/ci-and-release.md` | `.github/**`, `docker/**` | CI workflows, the Docker image, semantic-release |
+
+**What triggers a rule.** A rule with `paths` loads when Claude uses the Read,
+Write or Edit tool on a matching file, and when it views a matching file through
+a Bash command that counts as a read, such as `cat` or `head` of a single file
+(Claude Code docs, memory > path-specific rules). If you need a rule before
+touching its files, or you work through other shell commands, read the rule file
+directly.
+
+## Commands
+
+- **Dev server:** `pnpm dev`
+- **Build:** `pnpm build`
+- **Lint (with auto-fix):** `pnpm lint`
+- **Lint (CI, cached, in parallel):** `pnpm lint:ci`
+- **Type check:** `pnpm typecheck` (= `nuxt typecheck`). This is the gate — it catches template errors `vue-tsc --noEmit` misses, notably Nuxt UI v4 typing `UButton`'s `onClick` as `(e: MouseEvent) => void | Promise<void>`, which rejects an inline `@click="open = true"` (the expression returns boolean). Use a block-bodied arrow: `@click="() => { open = true }"`.
+- **Run all tests:** `pnpm test`
+- **Run CI tests (unit + nuxt with coverage):** `pnpm test:ci`
+- **Run a single test file:** `pnpm vitest run test/unit/app/utils/str.spec.ts`
+- **Run a single test project:** `pnpm vitest run --project=unit` or `--project=nuxt`
+- **Generate OpenAPI types:** `pnpm openapi-ts` (requires `openapi/schema.json` — fetch with `pnpm generate:schema`), then **`pnpm sync:schema`, which is required, not optional** — it regenerates the derived `.yml` files and CI fails on any diff. `pnpm sync:allauth-schema` copies allauth's document from the Django checkout before `pnpm openapi-ts` (`.claude/rules/server-routes.md`). See `.claude/rules/server-routes.md`.
+- **The API contract check** (`.github/workflows/api-contract.yml`, required on `main`): a PR whose `openapi/schema.yml` or `openapi/allauth-schema.yml` requires something the Django that production or staging runs does not serve fails, naming the live release. Regenerating from a Django schema that is ahead of production is therefore a trap: ship Django first, or regenerate from a schema without the new requirement (a field made optional, an enum value kept), then require it in a later PR once Django serves it. The rule, the script and how to split a change are in `grooveshop-django-api/api-contract/README.md`.
+- **Prepare Nuxt types:** `pnpm prepare`
+- **Build + start production:** `pnpm build && pnpm start`
+- **Docker build:** `docker build -f docker/Dockerfile .`
+- **Analyze bundle:** `pnpm exec nuxt analyze`. Its `renderedLength` is the
+  module's size **before minification** ([rollup-plugin-visualizer uses
+  rollup's rendered module code](https://github.com/btd/rollup-plugin-visualizer);
+  only `sourcemap: true` gives post-minify sizes), and the treemap covers the
+  whole build graph rather than what one page downloads. Both make it a guide
+  to *what* is in the bundle, never to *how many bytes* a route costs —
+  2026-09-21 it named three modules as the product page's biggest, and none of
+  the three was on that page at all. Confirm against the deployed files before
+  acting on a number: count the page's scripts and their bytes from the
+  browser, or grep the served chunk for a marker unique to the module.
+- **Package manager:** pnpm — the exact version is pinned in the `packageManager` field of `package.json`; read it there rather than trusting a number written here
+
+## Architecture
+
+### Directory Layout (Nuxt 4 `app/` convention)
+
+- `app/` — Client-side: components, pages, composables, stores, plugins, middleware, layouts, utils, providers, assets
+- `server/` — Nitro server: API proxy routes, middleware, plugins, utils
+- `shared/` — Auto-imported in both app and server: types, constants, schemas (Zod), utils, OpenAPI generated code
+- `modules/` — Custom Nuxt modules (`cookies.ts` for cookie consent, `purge-comments.ts` removes HTML comments in prod, `font-stacks.ts` compiles the tenant-selectable font stacks)
+- `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
+- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES = ['el', 'en']` and `DEFAULT_LOCALE = 'el'`), i18n config, and a translation file set per locale (`el-GR.json` / `en-US.json`, plus domain-specific: auth, breadcrumb, checkout, cookies, validation). Routes for **both** locales are generated at build time for every tenant; whether one is *reachable* is per-tenant (`Tenant.available_locales`), enforced by `app/middleware/locale-available.global.ts`, which 404s a prefix the tenant does not list
+- `openapi/` — Schema files for type generation: `schema.json`, `schema.yml` (fetched from Django) and `allauth-schema.yml` (copied from Django: allauth's headless API)
+- `scripts/` — `fetch-schema.mjs` (download the OpenAPI schema from Django), `sync-schema-yml.mjs` (regenerate the derived `.yml`), `check-lockstep-deps.mjs`, `capture-ssr.mjs` + `diff-ssr.mjs` (capture a tenant's SSR HTML before/after a change and diff it with build hashes, nonces, generated ids and Cloudflare rewrites normalised — the proof that a change left a design's render untouched; two same-build captures diff to nothing; check the captures are real pages first, a capture of "Store not found" diffs to nothing too), `warm-cache.mjs` (the post-deploy cache warm-up; shipped in the image and run by the infrastructure's `storefront-warm` Deployment, which the sync rolls with the storefront and does not wait for: it waits for the storefront and backend rollouts itself, then renders on every ready pod at once, each pod's share at `WARM_CONCURRENCY`, never through the Service (one keep-alive connection per worker pinned a whole run to one pod); first every file of the build under `public/_nuxt` once per store through its PUBLIC host, to fill Cloudflare (per host; one request fills the Tiered Cache upper tier, not every data centre), then every store's sitemap, plus each page's twin in the store's other locales, × device class, page and, where Nuxt extracts one, `_payload.json` (`hasExtractedPayload`); once per build, recorded in a ConfigMap the infrastructure names; a try that leaves the build unrecorded is repeated up to `WARM_ATTEMPTS` times, `WARM_RETRY_SECONDS` apart, carrying on from the last: only the sitemaps not served yet and the pages not done yet, since asking again for a cached page revalidates it; the last one logs `error`)
+
+### State Management
+
+Pinia stores in `app/stores/`:
+- `auth` — Session, config, authenticators, 2FA state, social providers, has_usable_password detection
+- `cart` — Cart items, totals, stock validation (out-of-stock, limited stock detection, stock status messages)
+- `user` — User account data, addresses, favorites, reviews, orders
+- `user-notification` — The account notification list (the unseen count lives in `useUserNotification`)
+- `tenant` — the resolved `TenantConfig` (hydrated by the `tenant` plugin; see `.claude/rules/multi-tenant.md`)
+
+### Key Composables
+
+50+ composables in `app/composables/` following `use[Feature].ts` naming. Key ones for cross-cutting concerns:
+- `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent`/`setupMetaPixelConsent`/`setupTikTokPixelConsent`/`setupClarityConsent` (GDPR-gated, tenant-only ids — no platform/env fallback), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
+- `useMediaStreamImage.ts` — `useMediaStreamBaseUrl`/`useMediaStreamImage`/`useMediaStreamSrc`: tenant-aware Media Stream origin resolution (see Image Handling)
+- `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
+- `useCheckout.ts` — Stock reservation and release (payment-status polling, the purchase pixels and the cart cleanup after an order live in `useCheckoutSuccess.ts`; the delivery step's cards and its move-on rule in `useCheckoutShippingStep.ts`)
+- `useCheckoutQuote.ts` — the checkout's one pricing path: Django's quote (`POST /api/cart/quote`) of the order the form would place. The summary, «Pay …», the delivery cards (`shippingOptions`), the pay-way fees (`payWays`, `useQuotedPayWayOptions.ts`) and the points cap (`freeThresholdValue`) print it as it came, nothing is priced in the app, and the order sends its `expectedTotal` and `cartDigest` (as `expectedCartDigest`; the quote carries the pickup point so the two digests cover the same order), so Django creates it only at that total and of that cart (a 409 `total_changed` or `cart_changed`, told by `code`, refreshes the cart and the quote and says what changed; the next click accepts it). The order button waits for a total to accept: no order is placed at a total or a cart the page did not show
+- `useProductFilters.ts` — Product filtering with URL state
+- `useLoyalty.ts` — Loyalty program data (summary, transactions, tiers, product points); `useLoyaltySettings.ts` — the programme's figures (ratio, points factor, expiry, bonus, XP per level) parsed from the one `useStoreSettings` payload, `null` when unreadable (no request, no default); whether it is on is `useStoreFeature('loyalty')`
+- `useCookieControl.ts` — GDPR cookie consent management
+
+### App Utilities (`app/utils/`)
+
+Utility modules in `app/utils/`. Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling), `componentRegistry.ts` (page-builder sections, `<type>@<schema>` variants), `variantRegistry.ts` (`resolvePage`/`resolveChrome`/`resolveLayout`/`resolvePart` — every `app/pages/**.vue` is a thin shell that mounts a body from `app/components/Storefront/` or a tenant's `app/components/variants/<schema>/`; a part is a design's own control inside a shared component; see `.claude/rules/ui-and-pages.md`).
+
+### Nuxt Modules
+
+The `modules` array of `nuxt.config.ts` and the custom modules in `modules/` (`cookies`, `purge-comments`, `font-stacks`, `text-catalogue`, `builder-blocks`) are described in `.claude/rules/nuxt-modules.md`, which loads when you touch `nuxt.config.ts` or `modules/**`.
+
+### CI/CD
+
+GitHub Actions CI, the Docker publish workflow, semantic-release and the Dockerfile are described in `.claude/rules/ci-and-release.md`, which loads when you touch `.github/**` or `docker/**`. Commits follow conventional-commit format, and a push to `main` releases.
+
+## Conventions
+
+- **Component structure**: `<script setup lang="ts">` → Types → Props → Composables → Constants → Computed → Methods → Lifecycle, then `<template>`, then `<style scoped>` (prefer Tailwind classes). Supports generics: `<script lang="ts" generic="T extends string | number">`
+- **Naming**: Components PascalCase, files kebab-case, functions camelCase, constants UPPER_SNAKE_CASE, types/interfaces PascalCase, composables `use[Feature].ts`, custom events kebab-case
+- **Linting**: ESLint via `@nuxt/eslint` with stylistic rules + `eslint-plugin-better-tailwindcss` (with NuxtUI class ignores). Key relaxed rules: `no-explicit-any: off`, `ban-ts-comment: off`, `vue/no-v-html: off`, `vue/multi-word-component-names: off`, `vue/attribute-hyphenation: off`, `nuxt/prefer-import-meta: off`. Warns on: `vue/no-watch-after-await`, `vue/no-lifecycle-after-await`, and the `better-tailwindcss` recommended set over template `class` attributes, `:class` bindings, the `ui` prop and class-building calls (`tv`, `cn`, …). A class styled by plain CSS (a component's `<style>` rule) is unknown to the plugin: add it to the `no-unknown-classes` ignore list in `eslint.config.mjs`. The lint keeps `leading-*` apart from a text size on purpose (the config says why).
+- **TypeScript**: Strict mode with type checking enabled. Typed pages (`experimental.typedPages: true`). `RouteMapI18n` used for type-safe route names. Vite hoisted.
+- **Releases**: Semantic release on `main` branch with conventional commits (e.g., `feat:`, `fix:`, `chore:`)
+- **API route pattern**: Validate input with Zod → `useBackendFetch(event)` to Django → `parseDataAs` response → `return handleError(event, error)` in catch (`.claude/rules/server-routes.md`). `handleError` returns an upstream 4xx's body verbatim (so `error.data` is Django's body on the client, one shape for every route) and throws everything else, so it is always `return`ed (`test/unit/source-rules/handle-error-is-returned.spec.ts`) and nothing follows it. Use `throw createError(...)` not `return createError(...)`.
+- **Patched dependencies**: `pnpm-workspace.yaml` `patchedDependencies` pins the reka-ui patch under `patches/`, whose header names each fix and the upstream lines it changes. A reka-ui bump fails the install until the patch is redone or dropped. Its dialog part (dialogs do not write `pointer-events: none` on `<body>`: the dialog content's default and the overlay's scroll lock) is dropped when Nuxt UI moves to reka-ui v3, where unovue/reka-ui#3070 removed both writes. `test/nuxt/components/DialogBodyPointerEvents.spec.ts` checks it, and `test/unit/source-rules/modal-overlays-keep-their-overlay.spec.ts` keeps every overlay on the overlay that makes it safe.
+- **Zod version**: Zod 4 (import from `zod`, schemas prefixed with `z`)
+- **App fetchers**: the app calls its own `/api` ONLY through `$api` (for `$fetch`), `useApi` / `useLazyApi` (for `useFetch` / `useLazyFetch`) and `useRequestApi` (for `useRequestFetch`) — `app/utils/api.ts`, `app/plugins/api.ts`, `app/composables/useApi.ts`. They state the page's locale in `X-Language` (`pageLocaleHeader`), which is the language Django answers in and what the Nitro caches key on, and in the browser fetch with `cache: 'no-store'` (`bypassBrowserCache`: a browser may replay a stored 404/410 without asking, and on 2026-10-27 an iPhone replayed an expired session's 410 after every sign-in); both are `apiRequestHooks` in `app/utils/api.ts`; an ESLint `no-restricted-syntax` rule fails a raw `$fetch` / `useFetch` / `useLazyFetch` / `useRequestFetch` in `app/**`. Tests mock `$api` / `useApi` with `mockNuxtImport`. A component, page or composable handles a failed `$api` call in `try` / `catch` / `finally`, never in ofetch's `onResponse*` hooks: ofetch runs them and THEN rejects, and UButton / UForm hand that rejection to Vue's error handler. A composable may pass hooks only on a call it returns, whose caller catches (the allauth composables) (`test/unit/source-rules/api-errors-are-caught.spec.ts`). On the server `useApi`/`useLazyApi` fetch a key ONCE per render however many readers it has (`app/utils/serverRenderCachedData.ts`: Nuxt's default refetches for every reader that registers after the first fetch settled); a raw `useAsyncData` must spread `serverRenderCachedData()` and set `dedupe: 'defer'` itself. Readers of one key must pass identical options, so a key read from several places gets ONE composable (`useStoreSettings`, `useAllCategories`). A request a condition gates (a feature flag, a signed-in shopper, a query to search for) passes it as `enabled`, never `immediate: <condition>`: `immediate` skips only the first fetch, and a reactive query or body still refetches; `enabled` blocks every run (an ESLint `no-restricted-syntax` rule fails the `immediate` form everywhere in `app/**` except `app/components/variants/webside/**`, where it is checked by hand).
+- **Store actions**: Must use `$api`, not `useApi` (which is a setup-scope composable). `useLazyApi` should not be `await`ed in `<script setup>` — it defeats lazy loading.
+- **SSR safety**: Use VueUse `useEventListener` instead of manual `window.addEventListener`/`removeEventListener`. Guard bare `window`/`document` access with `import.meta.client` or `onMounted`.
+- **Lifecycle hooks**: Vue does not await async lifecycle hooks. Use fire-and-forget with `.catch()` for cleanup work in `onBeforeUnmount`.
+- **i18n**: All user-facing strings must use `t()` from `useI18n()` or component-scoped `<i18n lang="yaml">` blocks — no hardcoded Greek or English strings. A component with an `<i18n>` block takes `t` from `useStoreI18n('<its path under app/, no .vue>')`, never a bare `useI18n()`: it returns the same local composer with the store's edited texts (`GET /api/texts/overrides`, `app/plugins/text-overrides.ts`) merged over the block's, and the namespace is the id the text catalogue and the store's editor give those texts (`test/unit/source-rules/store-i18n.spec.ts` holds every call). The plugin keeps the `global` namespace's overrides over the global composer however @nuxtjs/i18n reloads a locale; a store without overrides adds nothing to the payload. Use `extractTranslated(obj, field, locale)` for API model translations: it reads the row in the page's language when the row is written in it, else in the store's default language (`TenantConfig.defaultLocale`), else in any it has, so an untranslated product is never blank; the Django `translations` map itself stays exact, because it names the languages a page exists in (`translatedLocales`). `resolveTranslated` when the caller needs the locale it got; `translationIn` for the exact read.
+
+## Environment
+
+Copy `.env.example` to `.env`. Key variables:
+- `NUXT_API_BASE_URL` — Django API URL (default `http://localhost:8000/api/v1`)
+- `NUXT_DJANGO_URL` — Django base URL
+- There is deliberately **no env var naming a store.** Which tenant is the platform's own storefront (the one that renders the brand assets bundled under `public/`) is the `TenantConfig.isPlatformStorefront` row flag from `/tenant/resolve`, read through `useTenantStore().isPlatform` / `useIsPlatformTenant()` (app) and `isPlatformTenantConfig(tenant)` (server). The author and site-verification meta are per-store fields on the same payload (`seoAuthor`, `googleSiteVerification`, `pinterestDomainVerify`).
+- `NUXT_PUBLIC_BASE_URL` — Platform-neutral storefront URL used only when no tenant is resolved (default `http://localhost:3000`). Every `NUXT_PUBLIC_*` value is serialized into every tenant's HTML, so none of them may carry a store's own hostname, title or logo — that is what put the first store's data in other tenants' DOM.
+- `NUXT_PUBLIC_DJANGO_HOST_NAME` — Platform Django hostname (production: the public-schema host `platform.grooveshop.space`); the WebSocket host when the tenant has no `apiDomain` (`app/plugins/websocket.client.ts`), and the CSP `connect-src` API host when no tenant is resolved (`server/middleware/3.csp.ts`). It is never an `X-Forwarded-Host`: every Django call names its store with `requestTenantHost(event)`, or the `tenantHost` a cached function passes to `backendFetchFor`. With a tenant resolved, every browser-facing use (WebSocket, social-login redirect, CSP, CMS image allowlist) takes `TenantConfig.apiDomain` instead; the social-login redirect and the CMS image allowlist fall back to `NUXT_PUBLIC_DJANGO_URL`, not this.
+- `NUXT_PUBLIC_MEDIA_STREAM_ORIGIN` / `NUXT_PUBLIC_MEDIA_STREAM_PATH` — Media processing service
+- `NUXT_PUBLIC_STATIC_ORIGIN` — Static file origin (Django)
+- `NUXT_PUBLIC_MAPS_TILE_JSON_URL` — TileJSON of the basemap on the platform maps host (`maps.grooveshop.space`, a regional Protomaps extract served by `pmtiles serve`; `grooveshop-infrastructure/docs/maps.md`). Every map reads it (checkout locker map, store-location section: `app/utils/basemap.ts`, `app/composables/useMapLibre.ts`), and the CSP puts its origin in `connect-src`. Public, keyless, CORS `*`, never per-tenant. Empty means no map renders and an error is logged. The glyphs are same-origin (`public/maps/fonts`).
+- `NUXT_CACHE_PURGE_TOKEN` — shared secret for the `/api/admin/cache/purge` route (`runtimeConfig.cachePurgeToken`); Django's Cache Management admin sends it to invalidate the Nitro SSR cache
+- `NUXT_CACHE_BASE` — `redis` or `memory`
+- `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` / `NUXT_REDIS_PASSWORD` / `NUXT_REDIS_DB` — Redis config
+- `NUXT_APP_SECRET` — Nuxt's root secret (`runtimeConfig.appSecret`, at least 32 characters): the shopper session (nuxt-auth-utils, cookie `nuxt-auth-session`) and the builder's staff session are sealed with keys `nuxt/server` derives from it
+- `NUXT_OAUTH_GOOGLE_*` / `NUXT_OAUTH_FACEBOOK_*` — the two providers the storefront signs in itself (`server/routes/auth/`), read from `process.env` at request time so no build bakes them into `.output`. GitHub and Discord sign-in is Django's alone: the browser is redirected through allauth, which holds their credentials (`src/tenant/allauth_adapter.py`), and the storefront has none
+- `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
+
+Google Analytics tracking id, Meta/TikTok Pixel ids, social media links and the Stripe publishable key are **tenant-only** (`TenantConfig.gaTrackingId`/`metaPixelId`/`tiktokPixelId`/`socials*`/`stripePublishableKey` via `useTenantStore()`) — no platform/env fallback. Each merchant provisions its own; there is deliberately no `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID`/`NUXT_PUBLIC_META_PIXEL_ID`/`NUXT_PUBLIC_TIKTOK_PIXEL_ID`/`NUXT_PUBLIC_SOCIALS_*`/`NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` env var. Stripe-unconfigured tenants never reach the payment UI (pay-way gating hides it); the gift-card purchase's card form (`useGiftCardPurchase`) is the one place the publishable key is read.
