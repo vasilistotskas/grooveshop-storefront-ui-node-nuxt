@@ -9,7 +9,7 @@ Nuxt UI is the storefront's component library: Vue components built on
 [Reka UI](https://reka-ui.com/), styled with Tailwind CSS through
 [Tailwind Variants](https://www.tailwind-variants.org/). This skill covers how
 this repo uses it. The repo rules win over anything here:
-`.claude/rules/ui-and-pages.md` (styling, images, pages, designs) and `CLAUDE.md`.
+`.claude/rules/ui-and-pages.md` (styling, images, pages, designs) and `AGENTS.md`.
 
 ## Where the truth is
 
@@ -179,7 +179,7 @@ Overlays are declarative here: a `v-model:open` ref per overlay.
 
 - `UModal`, `USlideover` and `UDrawer` keep their overlay: never `:overlay="false"`
   (`test/unit/source-rules/modal-overlays-keep-their-overlay.spec.ts`; the reka-ui
-  patch it protects is described in `CLAUDE.md`).
+  patch it protects is described in `AGENTS.md`).
 - An overlay most visitors never open loads on its first open:
   `const mounted = useMountOnFirstOpen(open)` and `<LazyUModal v-if="mounted" v-model:open="open">`
   (`app/components/Chrome/Assistant.vue`). One every visitor taps (the phone menu) is

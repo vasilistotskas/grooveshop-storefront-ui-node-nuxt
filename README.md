@@ -91,7 +91,7 @@ pnpm dev               # http://localhost:3000
 
 `pnpm install` runs `pnpm prepare` (a dependency lockstep check, then
 `nuxt prepare`). The environment variables are explained in `.env.example`
-and in [CLAUDE.md](CLAUDE.md#environment). Analytics ids, pixel ids, the
+and in [AGENTS.md](AGENTS.md#environment). Analytics ids, pixel ids, the
 Stripe key and social links are per-store data on the tenant, never
 environment variables.
 
@@ -133,7 +133,7 @@ docker/     Production Dockerfile and a compose file for the published image
 scripts/    Schema fetch and sync, SSR capture and diff, post-deploy cache warm-up
 ```
 
-[CLAUDE.md](CLAUDE.md) and `.claude/rules/` hold the detailed conventions:
+[AGENTS.md](AGENTS.md) and `.claude/rules/` hold the detailed conventions:
 the Django proxy contract, tenant resolution, auth, UI and designs, testing,
 modules, and CI.
 
@@ -160,7 +160,7 @@ To run the published image locally: `docker compose -f docker/compose.yaml up`
 - [Storefront developer docs](https://docs.grooveshop.space/dev/nuxt/) (behind basic auth)
 - [Platform architecture](https://docs.grooveshop.space/dev/platform/architecture) (behind basic auth)
 - [Store admin guide](https://docs.grooveshop.space/) (public, Greek and English)
-- [CLAUDE.md](CLAUDE.md) and `.claude/rules/` in this repository
+- [AGENTS.md](AGENTS.md) and `.claude/rules/` in this repository
 
 ## Related repositories
 
